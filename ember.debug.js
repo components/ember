@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.0.0-alpha.1-null+a7518b94
+ * @version   3.0.0-alpha.1-null+c55c345e
  */
 
 /*global process */
@@ -1502,8 +1502,8 @@ enifed('@glimmer/runtime', ['exports', '@glimmer/util', '@glimmer/reference', '@
             }
         };
 
-        CapturedPositionalArguments.prototype.valueOf = function valueOf(reference) {
-            return reference.value();
+        CapturedPositionalArguments.prototype.valueOf = function valueOf(reference$$1) {
+            return reference$$1.value();
         };
 
         return CapturedPositionalArguments;
@@ -1806,13 +1806,13 @@ enifed('@glimmer/runtime', ['exports', '@glimmer/util', '@glimmer/reference', '@
     APPEND_OPCODES.add(45 /* JumpIf */, function (vm, _ref13) {
         var target = _ref13.op1;
 
-        var reference = vm.stack.pop();
-        if ((0, _reference2.isConst)(reference)) {
-            if (reference.value()) {
+        var reference$$1 = vm.stack.pop();
+        if ((0, _reference2.isConst)(reference$$1)) {
+            if (reference$$1.value()) {
                 vm.goto(target);
             }
         } else {
-            var cache = new _reference2.ReferenceCache(reference);
+            var cache = new _reference2.ReferenceCache(reference$$1);
             if (cache.peek()) {
                 vm.goto(target);
             }
@@ -1822,13 +1822,13 @@ enifed('@glimmer/runtime', ['exports', '@glimmer/util', '@glimmer/reference', '@
     APPEND_OPCODES.add(46 /* JumpUnless */, function (vm, _ref14) {
         var target = _ref14.op1;
 
-        var reference = vm.stack.pop();
-        if ((0, _reference2.isConst)(reference)) {
-            if (!reference.value()) {
+        var reference$$1 = vm.stack.pop();
+        if ((0, _reference2.isConst)(reference$$1)) {
+            if (!reference$$1.value()) {
                 vm.goto(target);
             }
         } else {
-            var cache = new _reference2.ReferenceCache(reference);
+            var cache = new _reference2.ReferenceCache(reference$$1);
             if (!cache.peek()) {
                 vm.goto(target);
             }
@@ -2078,13 +2078,13 @@ enifed('@glimmer/runtime', ['exports', '@glimmer/util', '@glimmer/reference', '@
             this.isConst = true;
         }
 
-        ClassList.prototype.append = function append(reference) {
+        ClassList.prototype.append = function append(reference$$1) {
             var list = this.list,
                 isConst$$1 = this.isConst;
 
             if (list === null) list = this.list = [];
-            list.push(reference);
-            this.isConst = isConst$$1 && (0, _reference2.isConst)(reference);
+            list.push(reference$$1);
+            this.isConst = isConst$$1 && (0, _reference2.isConst)(reference$$1);
         };
 
         ClassList.prototype.toReference = function toReference() {
@@ -2149,19 +2149,19 @@ enifed('@glimmer/runtime', ['exports', '@glimmer/util', '@glimmer/reference', '@
             this.env.getAppendOperations().setAttribute(element, name, value, namespace);
         };
 
-        SimpleElementOperations.prototype.addDynamicAttribute = function addDynamicAttribute(element, name, reference, isTrusting) {
+        SimpleElementOperations.prototype.addDynamicAttribute = function addDynamicAttribute(element, name, reference$$1, isTrusting) {
             if (name === 'class') {
-                this.addClass(reference);
+                this.addClass(reference$$1);
             } else {
                 var attributeManager = this.env.attributeFor(element, name, isTrusting);
-                var attribute = new DynamicAttribute(element, attributeManager, name, reference);
+                var attribute = new DynamicAttribute(element, attributeManager, name, reference$$1);
                 this.addAttribute(attribute);
             }
         };
 
-        SimpleElementOperations.prototype.addDynamicAttributeNS = function addDynamicAttributeNS(element, namespace, name, reference, isTrusting) {
+        SimpleElementOperations.prototype.addDynamicAttributeNS = function addDynamicAttributeNS(element, namespace, name, reference$$1, isTrusting) {
             var attributeManager = this.env.attributeFor(element, name, isTrusting, namespace);
-            var nsAttribute = new DynamicAttribute(element, attributeManager, name, reference, namespace);
+            var nsAttribute = new DynamicAttribute(element, attributeManager, name, reference$$1, namespace);
             this.addAttribute(nsAttribute);
         };
 
@@ -2185,13 +2185,13 @@ enifed('@glimmer/runtime', ['exports', '@glimmer/util', '@glimmer/reference', '@
             this.classList = null;
         };
 
-        SimpleElementOperations.prototype.addClass = function addClass(reference) {
+        SimpleElementOperations.prototype.addClass = function addClass(reference$$1) {
             var classList = this.classList;
 
             if (!classList) {
                 classList = this.classList = new ClassList();
             }
-            classList.append(reference);
+            classList.append(reference$$1);
         };
 
         SimpleElementOperations.prototype.addAttribute = function addAttribute(attribute) {
@@ -2232,20 +2232,20 @@ enifed('@glimmer/runtime', ['exports', '@glimmer/util', '@glimmer/reference', '@
             }
         };
 
-        ComponentElementOperations.prototype.addDynamicAttribute = function addDynamicAttribute(element, name, reference, isTrusting) {
+        ComponentElementOperations.prototype.addDynamicAttribute = function addDynamicAttribute(element, name, reference$$1, isTrusting) {
             if (name === 'class') {
-                this.addClass(reference);
+                this.addClass(reference$$1);
             } else if (this.shouldAddAttribute(name)) {
                 var attributeManager = this.env.attributeFor(element, name, isTrusting);
-                var attribute = new DynamicAttribute(element, attributeManager, name, reference);
+                var attribute = new DynamicAttribute(element, attributeManager, name, reference$$1);
                 this.addAttribute(name, attribute);
             }
         };
 
-        ComponentElementOperations.prototype.addDynamicAttributeNS = function addDynamicAttributeNS(element, namespace, name, reference, isTrusting) {
+        ComponentElementOperations.prototype.addDynamicAttributeNS = function addDynamicAttributeNS(element, namespace, name, reference$$1, isTrusting) {
             if (this.shouldAddAttribute(name)) {
                 var attributeManager = this.env.attributeFor(element, name, isTrusting, namespace);
-                var nsAttribute = new DynamicAttribute(element, attributeManager, name, reference, namespace);
+                var nsAttribute = new DynamicAttribute(element, attributeManager, name, reference$$1, namespace);
                 this.addAttribute(name, nsAttribute);
             }
         };
@@ -2275,13 +2275,13 @@ enifed('@glimmer/runtime', ['exports', '@glimmer/util', '@glimmer/reference', '@
             return !this.attributeNames || this.attributeNames.indexOf(name) === -1;
         };
 
-        ComponentElementOperations.prototype.addClass = function addClass(reference) {
+        ComponentElementOperations.prototype.addClass = function addClass(reference$$1) {
             var classList = this.classList;
 
             if (!classList) {
                 classList = this.classList = new ClassList();
             }
-            classList.append(reference);
+            classList.append(reference$$1);
         };
 
         ComponentElementOperations.prototype.addAttribute = function addAttribute(name, attribute) {
@@ -2398,16 +2398,16 @@ enifed('@glimmer/runtime', ['exports', '@glimmer/util', '@glimmer/reference', '@
         return StaticAttribute;
     }();
     var DynamicAttribute = function () {
-        function DynamicAttribute(element, attributeManager, name, reference, namespace) {
+        function DynamicAttribute(element, attributeManager, name, reference$$1, namespace) {
             _classCallCheck$5(this, DynamicAttribute);
 
             this.element = element;
             this.attributeManager = attributeManager;
             this.name = name;
-            this.reference = reference;
+            this.reference = reference$$1;
             this.namespace = namespace;
             this.cache = null;
-            this.tag = reference.tag;
+            this.tag = reference$$1.tag;
         }
 
         DynamicAttribute.prototype.patch = function patch(env) {
@@ -2421,15 +2421,15 @@ enifed('@glimmer/runtime', ['exports', '@glimmer/util', '@glimmer/reference', '@
         };
 
         DynamicAttribute.prototype.flush = function flush(env) {
-            var reference = this.reference,
+            var reference$$1 = this.reference,
                 element = this.element;
 
-            if ((0, _reference2.isConst)(reference)) {
-                var value = reference.value();
+            if ((0, _reference2.isConst)(reference$$1)) {
+                var value = reference$$1.value();
                 this.attributeManager.setAttribute(env, element, value, this.namespace);
                 return null;
             } else {
-                var cache = this.cache = new _reference2.ReferenceCache(reference);
+                var cache = this.cache = new _reference2.ReferenceCache(reference$$1);
                 var _value2 = cache.peek();
                 this.attributeManager.setAttribute(env, element, _value2, this.namespace);
                 return new PatchElementOpcode(this);
@@ -2474,16 +2474,16 @@ enifed('@glimmer/runtime', ['exports', '@glimmer/util', '@glimmer/reference', '@
 
         var name = vm.constants.getString(_name);
         var namespace = vm.constants.getString(_namespace);
-        var reference = vm.stack.pop();
-        vm.elements().setDynamicAttributeNS(namespace, name, reference, !!trusting);
+        var reference$$1 = vm.stack.pop();
+        vm.elements().setDynamicAttributeNS(namespace, name, reference$$1, !!trusting);
     });
     APPEND_OPCODES.add(31 /* DynamicAttr */, function (vm, _ref8) {
         var _name = _ref8.op1,
             trusting = _ref8.op2;
 
         var name = vm.constants.getString(_name);
-        var reference = vm.stack.pop();
-        vm.elements().setDynamicAttribute(name, reference, !!trusting);
+        var reference$$1 = vm.stack.pop();
+        vm.elements().setDynamicAttribute(name, reference$$1, !!trusting);
     });
     var PatchElementOpcode = function (_UpdatingOpcode2) {
         _inherits$4(PatchElementOpcode, _UpdatingOpcode2);
@@ -2553,9 +2553,9 @@ enifed('@glimmer/runtime', ['exports', '@glimmer/util', '@glimmer/reference', '@
     });
     APPEND_OPCODES.add(57 /* PushDynamicComponentManager */, function (vm) {
         var stack = vm.stack;
-        var reference = stack.pop();
-        var cache = (0, _reference2.isConst)(reference) ? undefined : new _reference2.ReferenceCache(reference);
-        var definition = cache ? cache.peek() : reference.value();
+        var reference$$1 = stack.pop();
+        var cache = (0, _reference2.isConst)(reference$$1) ? undefined : new _reference2.ReferenceCache(reference$$1);
+        var definition = cache ? cache.peek() : reference$$1.value();
         stack.push({ definition: definition, manager: definition.manager, component: null });
         if (cache) {
             vm.updateWith(new Assert(cache));
@@ -2807,14 +2807,14 @@ enifed('@glimmer/runtime', ['exports', '@glimmer/util', '@glimmer/reference', '@
     function single(parent, node) {
         return new SingleNodeBounds(parent, node);
     }
-    function move(bounds, reference) {
+    function move(bounds, reference$$1) {
         var parent = bounds.parentElement();
         var first = bounds.firstNode();
         var last = bounds.lastNode();
         var node = first;
         while (node) {
             var next = node.nextSibling;
-            parent.insertBefore(node, reference);
+            parent.insertBefore(node, reference$$1);
             if (node === last) return next;
             node = next;
         }
@@ -3084,12 +3084,12 @@ enifed('@glimmer/runtime', ['exports', '@glimmer/util', '@glimmer/reference', '@
             this.expectOperations('setStaticAttributeNS').addStaticAttributeNS(this.expectConstructing('setStaticAttributeNS'), namespace, name, value);
         };
 
-        ElementStack.prototype.setDynamicAttribute = function setDynamicAttribute(name, reference, isTrusting) {
-            this.expectOperations('setDynamicAttribute').addDynamicAttribute(this.expectConstructing('setDynamicAttribute'), name, reference, isTrusting);
+        ElementStack.prototype.setDynamicAttribute = function setDynamicAttribute(name, reference$$1, isTrusting) {
+            this.expectOperations('setDynamicAttribute').addDynamicAttribute(this.expectConstructing('setDynamicAttribute'), name, reference$$1, isTrusting);
         };
 
-        ElementStack.prototype.setDynamicAttributeNS = function setDynamicAttributeNS(namespace, name, reference, isTrusting) {
-            this.expectOperations('setDynamicAttributeNS').addDynamicAttributeNS(this.expectConstructing('setDynamicAttributeNS'), namespace, name, reference, isTrusting);
+        ElementStack.prototype.setDynamicAttributeNS = function setDynamicAttributeNS(namespace, name, reference$$1, isTrusting) {
+            this.expectOperations('setDynamicAttributeNS').addDynamicAttributeNS(this.expectConstructing('setDynamicAttributeNS'), namespace, name, reference$$1, isTrusting);
         };
 
         ElementStack.prototype.closeElement = function closeElement() {
@@ -3555,11 +3555,11 @@ enifed('@glimmer/runtime', ['exports', '@glimmer/util', '@glimmer/reference', '@
         }
 
         AppendDynamicOpcode.prototype.evaluate = function evaluate(vm) {
-            var reference = vm.stack.pop();
-            var normalized = this.normalize(reference);
+            var reference$$1 = vm.stack.pop();
+            var normalized = this.normalize(reference$$1);
             var value = void 0;
             var cache = void 0;
-            if ((0, _reference2.isConst)(reference)) {
+            if ((0, _reference2.isConst)(reference$$1)) {
                 value = normalized.value();
             } else {
                 cache = new _reference2.ReferenceCache(normalized);
@@ -3570,7 +3570,7 @@ enifed('@glimmer/runtime', ['exports', '@glimmer/util', '@glimmer/reference', '@
             var bounds$$1 = new Fragment(upsert.bounds);
             stack.newBounds(bounds$$1);
             if (cache /* i.e. !isConst(reference) */) {
-                    vm.updateWith(this.updateWith(vm, reference, cache, bounds$$1, upsert));
+                    vm.updateWith(this.updateWith(vm, reference$$1, cache, bounds$$1, upsert));
                 }
         };
 
@@ -3653,8 +3653,8 @@ enifed('@glimmer/runtime', ['exports', '@glimmer/util', '@glimmer/reference', '@
             return _this3;
         }
 
-        OptimizedCautiousAppendOpcode.prototype.normalize = function normalize(reference) {
-            return (0, _reference2.map)(reference, normalizeValue);
+        OptimizedCautiousAppendOpcode.prototype.normalize = function normalize(reference$$1) {
+            return (0, _reference2.map)(reference$$1, normalizeValue);
         };
 
         OptimizedCautiousAppendOpcode.prototype.insert = function insert(dom, cursor, value) {
@@ -3699,8 +3699,8 @@ enifed('@glimmer/runtime', ['exports', '@glimmer/util', '@glimmer/reference', '@
             return _this5;
         }
 
-        OptimizedTrustingAppendOpcode.prototype.normalize = function normalize(reference) {
-            return (0, _reference2.map)(reference, normalizeTrustedValue);
+        OptimizedTrustingAppendOpcode.prototype.normalize = function normalize(reference$$1) {
+            return (0, _reference2.map)(reference$$1, normalizeTrustedValue);
         };
 
         OptimizedTrustingAppendOpcode.prototype.insert = function insert(dom, cursor, value) {
@@ -4818,8 +4818,8 @@ enifed('@glimmer/runtime', ['exports', '@glimmer/util', '@glimmer/reference', '@
             this.returnTo('END');
             expr(expression, this);
             this.dup();
-            this.test(function (reference) {
-                return IsComponentDefinitionReference.create(reference);
+            this.test(function (reference$$1) {
+                return IsComponentDefinitionReference.create(reference$$1);
             });
             this.enter(2);
             this.jumpUnless('ELSE');
@@ -5848,7 +5848,7 @@ enifed('@glimmer/runtime', ['exports', '@glimmer/util', '@glimmer/reference', '@
             return this.references[value - 1];
         };
 
-        Constants.prototype.reference = function reference(value) {
+        Constants.prototype.reference = function reference$$1(value) {
             var index = this.references.length;
             this.references.push(value);
             return index + 1;
@@ -6092,7 +6092,7 @@ enifed('@glimmer/runtime', ['exports', '@glimmer/util', '@glimmer/reference', '@
                 return _possibleConstructorReturn$12(this, _DOMChangesClass.apply(this, arguments));
             }
 
-            DOMChangesWithInnerHTMLFix.prototype.insertHTMLBefore = function insertHTMLBefore$$1(parent, nextSibling, html) {
+            DOMChangesWithInnerHTMLFix.prototype.insertHTMLBefore = function insertHTMLBefore(parent, nextSibling, html) {
                 if (html === null || html === '') {
                     return _DOMChangesClass.prototype.insertHTMLBefore.call(this, parent, nextSibling, html);
                 }
@@ -6122,7 +6122,7 @@ enifed('@glimmer/runtime', ['exports', '@glimmer/util', '@glimmer/reference', '@
                 return _possibleConstructorReturn$12(this, _DOMTreeConstructionC.apply(this, arguments));
             }
 
-            DOMTreeConstructionWithInnerHTMLFix.prototype.insertHTMLBefore = function insertHTMLBefore$$1(parent, referenceNode, html) {
+            DOMTreeConstructionWithInnerHTMLFix.prototype.insertHTMLBefore = function insertHTMLBefore(parent, referenceNode, html) {
                 if (html === null || html === '') {
                     return _DOMTreeConstructionC.prototype.insertHTMLBefore.call(this, parent, referenceNode, html);
                 }
@@ -6137,7 +6137,7 @@ enifed('@glimmer/runtime', ['exports', '@glimmer/util', '@glimmer/reference', '@
             return DOMTreeConstructionWithInnerHTMLFix;
         }(DOMTreeConstructionClass);
     }
-    function fixInnerHTML(parent, wrapper, div, html, reference) {
+    function fixInnerHTML(parent, wrapper, div, html, reference$$1) {
         var wrappedHtml = wrapper.before + html + wrapper.after;
         div.innerHTML = wrappedHtml;
         var parentNode = div;
@@ -6145,7 +6145,7 @@ enifed('@glimmer/runtime', ['exports', '@glimmer/util', '@glimmer/reference', '@
             parentNode = parentNode.childNodes[0];
         }
 
-        var _moveNodesBefore = moveNodesBefore(parentNode, parent, reference),
+        var _moveNodesBefore = moveNodesBefore(parentNode, parent, reference$$1),
             first = _moveNodesBefore[0],
             last = _moveNodesBefore[1];
 
@@ -6217,7 +6217,7 @@ enifed('@glimmer/runtime', ['exports', '@glimmer/util', '@glimmer/reference', '@
                 return _possibleConstructorReturn$13(this, _DOMChangesClass.apply(this, arguments));
             }
 
-            DOMChangesWithSVGInnerHTMLFix.prototype.insertHTMLBefore = function insertHTMLBefore$$1(parent, nextSibling, html) {
+            DOMChangesWithSVGInnerHTMLFix.prototype.insertHTMLBefore = function insertHTMLBefore(parent, nextSibling, html) {
                 if (html === null || html === '') {
                     return _DOMChangesClass.prototype.insertHTMLBefore.call(this, parent, nextSibling, html);
                 }
@@ -6245,26 +6245,26 @@ enifed('@glimmer/runtime', ['exports', '@glimmer/util', '@glimmer/reference', '@
                 return _possibleConstructorReturn$13(this, _TreeConstructionClas.apply(this, arguments));
             }
 
-            TreeConstructionWithSVGInnerHTMLFix.prototype.insertHTMLBefore = function insertHTMLBefore$$1(parent, reference, html) {
+            TreeConstructionWithSVGInnerHTMLFix.prototype.insertHTMLBefore = function insertHTMLBefore(parent, reference$$1, html) {
                 if (html === null || html === '') {
-                    return _TreeConstructionClas.prototype.insertHTMLBefore.call(this, parent, reference, html);
+                    return _TreeConstructionClas.prototype.insertHTMLBefore.call(this, parent, reference$$1, html);
                 }
                 if (parent.namespaceURI !== svgNamespace) {
-                    return _TreeConstructionClas.prototype.insertHTMLBefore.call(this, parent, reference, html);
+                    return _TreeConstructionClas.prototype.insertHTMLBefore.call(this, parent, reference$$1, html);
                 }
-                return fixSVG(parent, div, html, reference);
+                return fixSVG(parent, div, html, reference$$1);
             };
 
             return TreeConstructionWithSVGInnerHTMLFix;
         }(TreeConstructionClass);
     }
-    function fixSVG(parent, div, html, reference) {
+    function fixSVG(parent, div, html, reference$$1) {
         // IE, Edge: also do not correctly support using `innerHTML` on SVG
         // namespaced elements. So here a wrapper is used.
         var wrappedHtml = '<svg>' + html + '</svg>';
         div.innerHTML = wrappedHtml;
 
-        var _moveNodesBefore = moveNodesBefore(div.firstChild, parent, reference),
+        var _moveNodesBefore = moveNodesBefore(div.firstChild, parent, reference$$1),
             first = _moveNodesBefore[0],
             last = _moveNodesBefore[1];
 
@@ -6379,17 +6379,17 @@ enifed('@glimmer/runtime', ['exports', '@glimmer/util', '@glimmer/reference', '@
                 return _this2;
             }
 
-            TreeConstructionWithTextNodeMergingFix.prototype.insertHTMLBefore = function insertHTMLBefore(parent, reference, html) {
+            TreeConstructionWithTextNodeMergingFix.prototype.insertHTMLBefore = function insertHTMLBefore(parent, reference$$1, html) {
                 if (html === null) {
-                    return _TreeConstructionClas.prototype.insertHTMLBefore.call(this, parent, reference, html);
+                    return _TreeConstructionClas.prototype.insertHTMLBefore.call(this, parent, reference$$1, html);
                 }
                 var didSetUselessComment = false;
-                var nextPrevious = reference ? reference.previousSibling : parent.lastChild;
+                var nextPrevious = reference$$1 ? reference$$1.previousSibling : parent.lastChild;
                 if (nextPrevious && nextPrevious instanceof Text) {
                     didSetUselessComment = true;
-                    parent.insertBefore(this.uselessComment, reference);
+                    parent.insertBefore(this.uselessComment, reference$$1);
                 }
-                var bounds = _TreeConstructionClas.prototype.insertHTMLBefore.call(this, parent, reference, html);
+                var bounds = _TreeConstructionClas.prototype.insertHTMLBefore.call(this, parent, reference$$1, html);
                 if (didSetUselessComment) {
                     parent.removeChild(this.uselessComment);
                 }
@@ -6436,7 +6436,7 @@ enifed('@glimmer/runtime', ['exports', '@glimmer/util', '@glimmer/reference', '@
         }
     }
 
-    var SVG_NAMESPACE$$1 = 'http://www.w3.org/2000/svg';
+    var SVG_NAMESPACE = 'http://www.w3.org/2000/svg';
     // http://www.w3.org/TR/html/syntax.html#html-integration-point
     var SVG_INTEGRATION_POINTS = { foreignObject: 1, desc: 1, title: 1 };
     // http://www.w3.org/TR/html/syntax.html#adjust-svg-attributes
@@ -6483,7 +6483,7 @@ enifed('@glimmer/runtime', ['exports', '@glimmer/util', '@glimmer/reference', '@
             var isElementInSVGNamespace = void 0,
                 isHTMLIntegrationPoint = void 0;
             if (context) {
-                isElementInSVGNamespace = context.namespaceURI === SVG_NAMESPACE$$1 || tag === 'svg';
+                isElementInSVGNamespace = context.namespaceURI === SVG_NAMESPACE || tag === 'svg';
                 isHTMLIntegrationPoint = SVG_INTEGRATION_POINTS[context.tagName];
             } else {
                 isElementInSVGNamespace = tag === 'svg';
@@ -6496,14 +6496,14 @@ enifed('@glimmer/runtime', ['exports', '@glimmer/util', '@glimmer/reference', '@
                 if (BLACKLIST_TABLE[tag]) {
                     throw new Error('Cannot create a ' + tag + ' inside an SVG context');
                 }
-                return this.document.createElementNS(SVG_NAMESPACE$$1, tag);
+                return this.document.createElementNS(SVG_NAMESPACE, tag);
             } else {
                 return this.document.createElement(tag);
             }
         };
 
-        DOMOperations.prototype.insertBefore = function insertBefore(parent, node, reference) {
-            parent.insertBefore(node, reference);
+        DOMOperations.prototype.insertBefore = function insertBefore(parent, node, reference$$1) {
+            parent.insertBefore(node, reference$$1);
         };
 
         DOMOperations.prototype.insertHTMLBefore = function insertHTMLBefore(_parent, nextSibling, html) {
@@ -6550,7 +6550,7 @@ enifed('@glimmer/runtime', ['exports', '@glimmer/util', '@glimmer/reference', '@
         var appliedTreeContruction = TreeConstruction;
         appliedTreeContruction = treeConstruction$2(doc, appliedTreeContruction);
         appliedTreeContruction = treeConstruction(doc, appliedTreeContruction);
-        appliedTreeContruction = treeConstruction$1(doc, appliedTreeContruction, SVG_NAMESPACE$$1);
+        appliedTreeContruction = treeConstruction$1(doc, appliedTreeContruction, SVG_NAMESPACE);
         DOM.DOMTreeConstruction = appliedTreeContruction;
     })(DOM || (DOM = {}));
     var DOMChanges = function (_DOMOperations2) {
@@ -6582,15 +6582,15 @@ enifed('@glimmer/runtime', ['exports', '@glimmer/util', '@glimmer/reference', '@
             element.removeAttributeNS(namespace, name);
         };
 
-        DOMChanges.prototype.insertNodeBefore = function insertNodeBefore(parent, node, reference) {
+        DOMChanges.prototype.insertNodeBefore = function insertNodeBefore(parent, node, reference$$1) {
             if (isDocumentFragment(node)) {
                 var firstChild = node.firstChild,
                     lastChild = node.lastChild;
 
-                this.insertBefore(parent, node, reference);
+                this.insertBefore(parent, node, reference$$1);
                 return new ConcreteBounds(parent, firstChild, lastChild);
             } else {
-                this.insertBefore(parent, node, reference);
+                this.insertBefore(parent, node, reference$$1);
                 return new SingleNodeBounds(parent, node);
             }
         };
@@ -6601,12 +6601,12 @@ enifed('@glimmer/runtime', ['exports', '@glimmer/util', '@glimmer/reference', '@
             return textNode;
         };
 
-        DOMChanges.prototype.insertBefore = function insertBefore(element, node, reference) {
-            element.insertBefore(node, reference);
+        DOMChanges.prototype.insertBefore = function insertBefore(element, node, reference$$1) {
+            element.insertBefore(node, reference$$1);
         };
 
-        DOMChanges.prototype.insertAfter = function insertAfter(element, node, reference) {
-            this.insertBefore(element, node, reference.nextSibling);
+        DOMChanges.prototype.insertAfter = function insertAfter(element, node, reference$$1) {
+            this.insertBefore(element, node, reference$$1.nextSibling);
         };
 
         return DOMChanges;
@@ -6650,7 +6650,7 @@ enifed('@glimmer/runtime', ['exports', '@glimmer/util', '@glimmer/reference', '@
     var helper = DOMChanges;
     helper = domChanges$2(doc, helper);
     helper = domChanges(doc, helper);
-    helper = domChanges$1(doc, helper, SVG_NAMESPACE$$1);
+    helper = domChanges$1(doc, helper, SVG_NAMESPACE);
     var helper$1 = helper;
     var DOMTreeConstruction = DOM.DOMTreeConstruction;
 
@@ -6682,7 +6682,7 @@ enifed('@glimmer/runtime', ['exports', '@glimmer/util', '@glimmer/reference', '@
 
     function defaultManagers(element, attr, _isTrusting, _namespace) {
         var tagName = element.tagName;
-        var isSVG = element.namespaceURI === SVG_NAMESPACE$$1;
+        var isSVG = element.namespaceURI === SVG_NAMESPACE;
         if (isSVG) {
             return defaultAttributeManagers(tagName, attr);
         }
@@ -6716,7 +6716,7 @@ enifed('@glimmer/runtime', ['exports', '@glimmer/util', '@glimmer/reference', '@
         return new AttributeManager(attr);
     }
     function readDOMAttr(element, attr) {
-        var isSVG = element.namespaceURI === SVG_NAMESPACE$$1;
+        var isSVG = element.namespaceURI === SVG_NAMESPACE;
 
         var _normalizeProperty2 = normalizeProperty(element, attr),
             type = _normalizeProperty2.type,
@@ -7307,8 +7307,8 @@ enifed('@glimmer/runtime', ['exports', '@glimmer/util', '@glimmer/reference', '@
             this.updateOperations = updateOperations;
         }
 
-        Environment.prototype.toConditionalReference = function toConditionalReference(reference) {
-            return new ConditionalReference(reference);
+        Environment.prototype.toConditionalReference = function toConditionalReference(reference$$1) {
+            return new ConditionalReference(reference$$1);
         };
 
         Environment.prototype.getAppendOperations = function getAppendOperations() {
@@ -7615,10 +7615,10 @@ enifed('@glimmer/runtime', ['exports', '@glimmer/util', '@glimmer/reference', '@
                 updating = this.updating;
 
             var nextSibling = null;
-            var reference = null;
+            var reference$$1 = null;
             if (before) {
-                reference = map$$1[before];
-                nextSibling = reference['bounds'].firstNode();
+                reference$$1 = map$$1[before];
+                nextSibling = reference$$1['bounds'].firstNode();
             } else {
                 nextSibling = this.marker;
             }
@@ -7632,7 +7632,7 @@ enifed('@glimmer/runtime', ['exports', '@glimmer/util', '@glimmer/reference', '@
                 vm.updateWith(tryOpcode);
                 vm.updatingOpcodeStack.push(tryOpcode.children);
             });
-            updating.insertBefore(tryOpcode, reference);
+            updating.insertBefore(tryOpcode, reference$$1);
             this.didInsert = true;
         };
 
@@ -7643,14 +7643,14 @@ enifed('@glimmer/runtime', ['exports', '@glimmer/util', '@glimmer/reference', '@
                 updating = this.updating;
 
             var entry = map$$1[key];
-            var reference = map$$1[before] || null;
+            var reference$$1 = map$$1[before] || null;
             if (before) {
-                move(entry, reference.firstNode());
+                move(entry, reference$$1.firstNode());
             } else {
                 move(entry, this.marker);
             }
             updating.remove(entry);
-            updating.insertBefore(entry, reference);
+            updating.insertBefore(entry, reference$$1);
         };
 
         ListRevalidationDelegate.prototype.delete = function _delete(key) {
@@ -21883,12 +21883,12 @@ enifed('ember-glimmer/views/outlet', ['exports', 'ember-babel', '@glimmer/refere
 
     exports.default = OutletView;
 });
-enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-debug', 'ember-babel', 'ember/features', '@glimmer/reference', 'require', 'ember-console', 'backburner'], function (exports, emberEnvironment, emberUtils, emberDebug, emberBabel, ember_features, _glimmer_reference, require, Logger, Backburner) {
+enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-debug', 'ember-babel', 'ember/features', '@glimmer/reference', 'require', 'ember-console', 'backburner'], function (exports, emberEnvironment, emberUtils, emberDebug, emberBabel, features, reference, require, Logger, Backburner) {
   'use strict';
 
-  require = 'default' in require ? require['default'] : require;
-  Logger = 'default' in Logger ? Logger['default'] : Logger;
-  Backburner = 'default' in Backburner ? Backburner['default'] : Backburner;
+  require = require && require.hasOwnProperty('default') ? require['default'] : require;
+  Logger = Logger && Logger.hasOwnProperty('default') ? Logger['default'] : Logger;
+  Backburner = Backburner && Backburner.hasOwnProperty('default') ? Backburner['default'] : Backburner;
 
   /**
   @module ember
@@ -22379,12 +22379,12 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   }
 
   function makeTag() {
-    return new _glimmer_reference.DirtyableTag();
+    return new reference.DirtyableTag();
   }
 
   function tagForProperty(object, propertyKey, _meta) {
     if (typeof object !== 'object' || object === null) {
-      return _glimmer_reference.CONSTANT_TAG;
+      return reference.CONSTANT_TAG;
     }
 
     var meta$$1 = _meta === undefined ? meta(object) : _meta;
@@ -22406,7 +22406,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       var meta$$1 = _meta === undefined ? meta(object) : _meta;
       return meta$$1.writableTag(makeTag);
     } else {
-      return _glimmer_reference.CONSTANT_TAG;
+      return reference.CONSTANT_TAG;
     }
   }
 
@@ -22522,7 +22522,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
 
   // detect-backtracking-rerender by default is debug build only
   // detect-glimmer-allow-backtracking-rerender can be enabled in custom builds
-  if (ember_features.EMBER_GLIMMER_DETECT_BACKTRACKING_RERENDER) {
+  if (features.EMBER_GLIMMER_DETECT_BACKTRACKING_RERENDER) {
 
     // there are 2 states
 
@@ -22558,13 +22558,13 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
         return this.shouldReflush;
       };
 
-      TransactionRunner.prototype.didRender = function didRender(object, key, reference) {
+      TransactionRunner.prototype.didRender = function didRender(object, key, reference$$1) {
         if (!this.inTransaction) {
           return;
         }
         {
           this.setKey(object, key, {
-            lastRef: reference,
+            lastRef: reference$$1,
             lastRenderedIn: this.debugStack.peek()
           });
         }
@@ -22778,7 +22778,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       markObjectAsDirty(meta$$1, keyName);
     }
 
-    if (ember_features.EMBER_GLIMMER_DETECT_BACKTRACKING_RERENDER) {
+    if (features.EMBER_GLIMMER_DETECT_BACKTRACKING_RERENDER) {
       exports.assertNotRendered(obj, keyName, meta$$1);
     }
   }
@@ -23118,7 +23118,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     var value = void 0;
     if (desc instanceof Descriptor) {
       value = desc;
-      if (ember_features.MANDATORY_SETTER) {
+      if (features.MANDATORY_SETTER) {
         if (watching) {
           Object.defineProperty(obj, keyName, {
             configurable: true,
@@ -23141,7 +23141,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     } else if (desc === undefined || desc === null) {
       value = data;
 
-      if (ember_features.MANDATORY_SETTER) {
+      if (features.MANDATORY_SETTER) {
         if (watching) {
           meta$$1.writeValues(keyName, data);
 
@@ -23220,14 +23220,14 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
         obj.willWatchProperty(keyName);
       }
 
-      if (ember_features.MANDATORY_SETTER) {
+      if (features.MANDATORY_SETTER) {
         // NOTE: this is dropped for prod + minified builds
         handleMandatorySetter(meta$$1, obj, keyName);
       }
     }
   }
 
-  if (ember_features.MANDATORY_SETTER) {
+  if (features.MANDATORY_SETTER) {
     var _hasOwnProperty = function (obj, key) {
       return Object.prototype.hasOwnProperty.call(obj, key);
     };
@@ -23298,7 +23298,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
         obj.didUnwatchProperty(keyName);
       }
 
-      if (ember_features.MANDATORY_SETTER) {
+      if (features.MANDATORY_SETTER) {
         // It is true, the following code looks quite WAT. But have no fear, It
         // exists purely to improve development ergonomics and is removed from
         // ember.min.js and ember.prod.js builds.
@@ -24182,7 +24182,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     value: null
   };
 
-  if (ember_features.MANDATORY_SETTER) {
+  if (features.MANDATORY_SETTER) {
     Meta.prototype.readInheritedValue = function (key, subkey) {
       var internalKey = '_' + key;
 
@@ -24583,7 +24583,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       var meta$$1 = peekMeta(obj);
       propertyWillChange(obj, keyName, meta$$1);
 
-      if (ember_features.MANDATORY_SETTER) {
+      if (features.MANDATORY_SETTER) {
         setWithMandatorySetter(meta$$1, obj, keyName, value);
       } else {
         obj[keyName] = value;
@@ -24595,7 +24595,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     return value;
   }
 
-  if (ember_features.MANDATORY_SETTER) {
+  if (features.MANDATORY_SETTER) {
     var setWithMandatorySetter = function (meta$$1, obj, keyName, value) {
       if (meta$$1 !== undefined && meta$$1.peekWatching(keyName) > 0) {
         makeEnumerable(obj, keyName);
@@ -25660,7 +25660,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   }
 
   exports.flaggedInstrument = void 0;
-  if (ember_features.EMBER_IMPROVED_INSTRUMENTATION) {
+  if (features.EMBER_IMPROVED_INSTRUMENTATION) {
     exports.flaggedInstrument = instrument;
   } else {
     exports.flaggedInstrument = function (name, payload, callback) {
@@ -26782,7 +26782,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     return Libraries;
   }();
 
-  if (ember_features.EMBER_LIBRARIES_ISREGISTERED) {
+  if (features.EMBER_LIBRARIES_ISREGISTERED) {
     Libraries.prototype.isRegistered = function (name) {
       return !!this._getLibraryByName(name);
     };
@@ -44934,7 +44934,6 @@ enifed('ember-utils', ['exports'], function (exports) {
       // Reimplement Array.prototype.join according to spec (22.1.3.13)
       // Changing ToString(element) with this safe version of ToString.
       var len = obj.length;
-      var sep = ',';
       var r = '';
 
       for (var k = 0; k < len; k++) {
@@ -47371,7 +47370,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "3.0.0-alpha.1-null+a7518b94";
+  exports.default = "3.0.0-alpha.1-null+c55c345e";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";
@@ -47651,9 +47650,7 @@ enifed("handlebars", ["exports"], function (exports) {
             yytext = "",
             yylineno = 0,
             yyleng = 0,
-            recovering = 0,
-            TERROR = 2,
-            EOF = 1;
+            recovering = 0;
         this.lexer.setInput(input);
         this.lexer.yy = this.yy;
         this.yy.lexer = this.lexer;
@@ -47925,7 +47922,6 @@ enifed("handlebars", ["exports"], function (exports) {
           return yy_.yytext = yy_.yytext.substr(start, yy_.yyleng - end);
         }
 
-        var YYSTATE = YY_START;
         switch ($avoiding_name_collisions) {
           case 0:
             if (yy_.yytext.slice(-2) === "\\\\") {
@@ -48533,8 +48529,7 @@ enifed("handlebars", ["exports"], function (exports) {
 
     var original = data ? '@' : '',
         dig = [],
-        depth = 0,
-        depthString = '';
+        depth = 0;
 
     for (var i = 0, l = parts.length; i < l; i++) {
       var part = parts[i].part,
@@ -48549,7 +48544,6 @@ enifed("handlebars", ["exports"], function (exports) {
           throw new Exception('Invalid path: ' + original, { loc: loc });
         } else if (part === '..') {
           depth++;
-          depthString += '../';
         }
       } else {
         dig.push(part);
@@ -53790,16 +53784,11 @@ enifed('rsvp', ['exports', 'ember-babel', 'node-module'], function (exports, _em
     scheduleFlush$1 = useSetTimeout();
   }
 
-  var platform = void 0;
-
   /* global self */
   if (typeof self === 'object') {
-    platform = self;
 
     /* global global */
-  } else if (typeof global === 'object') {
-    platform = global;
-  } else {
+  } else if (typeof global === 'object') {} else {
     throw new Error('no global: `self` or `global` found');
   }
 

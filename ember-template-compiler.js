@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.0.0-alpha.1-null+a7518b94
+ * @version   3.0.0-alpha.1-null+c55c345e
  */
 
 /*global process */
@@ -7619,12 +7619,12 @@ enifed('ember-environment', ['exports'], function (exports) {
   exports.context = context;
   exports.environment = environment;
 });
-enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-debug', 'ember-babel', 'ember/features', '@glimmer/reference', 'require', 'ember-console', 'backburner'], function (exports, emberEnvironment, emberUtils, emberDebug, emberBabel, ember_features, _glimmer_reference, require, Logger, Backburner) {
+enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-debug', 'ember-babel', 'ember/features', '@glimmer/reference', 'require', 'ember-console', 'backburner'], function (exports, emberEnvironment, emberUtils, emberDebug, emberBabel, features, reference, require, Logger, Backburner) {
   'use strict';
 
-  require = 'default' in require ? require['default'] : require;
-  Logger = 'default' in Logger ? Logger['default'] : Logger;
-  Backburner = 'default' in Backburner ? Backburner['default'] : Backburner;
+  require = require && require.hasOwnProperty('default') ? require['default'] : require;
+  Logger = Logger && Logger.hasOwnProperty('default') ? Logger['default'] : Logger;
+  Backburner = Backburner && Backburner.hasOwnProperty('default') ? Backburner['default'] : Backburner;
 
   /**
   @module ember
@@ -8114,7 +8114,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   };
 
   function makeTag() {
-    return new _glimmer_reference.DirtyableTag();
+    return new reference.DirtyableTag();
   }
 
   function tagFor(object, _meta) {
@@ -8125,7 +8125,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
 
       return meta$$1.writableTag(makeTag);
     } else {
-      return _glimmer_reference.CONSTANT_TAG;
+      return reference.CONSTANT_TAG;
     }
   }
 
@@ -8241,7 +8241,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
 
   // detect-backtracking-rerender by default is debug build only
   // detect-glimmer-allow-backtracking-rerender can be enabled in custom builds
-  if (ember_features.EMBER_GLIMMER_DETECT_BACKTRACKING_RERENDER) {
+  if (features.EMBER_GLIMMER_DETECT_BACKTRACKING_RERENDER) {
 
     // there are 2 states
 
@@ -8276,13 +8276,13 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
         return this.shouldReflush;
       };
 
-      TransactionRunner.prototype.didRender = function (object, key, reference) {
+      TransactionRunner.prototype.didRender = function (object, key, reference$$1) {
         if (!this.inTransaction) {
           return;
         }
         {
           this.setKey(object, key, {
-            lastRef: reference,
+            lastRef: reference$$1,
             lastRenderedIn: this.debugStack.peek()
           });
         }
@@ -8495,7 +8495,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       markObjectAsDirty(meta$$1, keyName);
     }
 
-    if (ember_features.EMBER_GLIMMER_DETECT_BACKTRACKING_RERENDER) {
+    if (features.EMBER_GLIMMER_DETECT_BACKTRACKING_RERENDER) {
       exports.assertNotRendered(obj, keyName, meta$$1);
     }
   }
@@ -8845,7 +8845,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     var value = void 0;
     if (desc instanceof Descriptor) {
       value = desc;
-      if (ember_features.MANDATORY_SETTER) {
+      if (features.MANDATORY_SETTER) {
         if (watching) {
           Object.defineProperty(obj, keyName, {
             configurable: true,
@@ -8868,7 +8868,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     } else if (desc === undefined || desc === null) {
       value = data;
 
-      if (ember_features.MANDATORY_SETTER) {
+      if (features.MANDATORY_SETTER) {
         if (watching) {
           meta$$1.writeValues(keyName, data);
 
@@ -8949,14 +8949,14 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
         obj.willWatchProperty(keyName);
       }
 
-      if (ember_features.MANDATORY_SETTER) {
+      if (features.MANDATORY_SETTER) {
         // NOTE: this is dropped for prod + minified builds
         handleMandatorySetter(meta$$1, obj, keyName);
       }
     }
   }
 
-  if (ember_features.MANDATORY_SETTER) {
+  if (features.MANDATORY_SETTER) {
     _hasOwnProperty = function (obj, key) {
       return Object.prototype.hasOwnProperty.call(obj, key);
     };
@@ -9035,7 +9035,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
         obj.didUnwatchProperty(keyName);
       }
 
-      if (ember_features.MANDATORY_SETTER) {
+      if (features.MANDATORY_SETTER) {
         // It is true, the following code looks quite WAT. But have no fear, It
         // exists purely to improve development ergonomics and is removed from
         // ember.min.js and ember.prod.js builds.
@@ -9946,7 +9946,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     Meta.prototype[name] = protoMethods[name];
   }
 
-  if (ember_features.MANDATORY_SETTER) {
+  if (features.MANDATORY_SETTER) {
     Meta.prototype.readInheritedValue = function (key, subkey) {
 
       var pointer = this,
@@ -10334,7 +10334,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
 
       propertyWillChange(obj, keyName, meta$$1);
 
-      if (ember_features.MANDATORY_SETTER) {
+      if (features.MANDATORY_SETTER) {
         setWithMandatorySetter(meta$$1, obj, keyName, value);
       } else {
         obj[keyName] = value;
@@ -10346,7 +10346,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     return value;
   }
 
-  if (ember_features.MANDATORY_SETTER) {
+  if (features.MANDATORY_SETTER) {
     setWithMandatorySetter = function (meta$$1, obj, keyName, value) {
       if (meta$$1 !== undefined && meta$$1.peekWatching(keyName) > 0) {
         makeEnumerable(obj, keyName);
@@ -11362,7 +11362,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   }
 
   exports.flaggedInstrument = void 0;
-  if (ember_features.EMBER_IMPROVED_INSTRUMENTATION) {
+  if (features.EMBER_IMPROVED_INSTRUMENTATION) {
     exports.flaggedInstrument = instrument;
   } else {
     exports.flaggedInstrument = function (name, payload, callback) {
@@ -12440,7 +12440,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     return Libraries;
   }();
 
-  if (ember_features.EMBER_LIBRARIES_ISREGISTERED) {
+  if (features.EMBER_LIBRARIES_ISREGISTERED) {
     Libraries.prototype.isRegistered = function (name) {
       return !!this._getLibraryByName(name);
     };
@@ -14891,7 +14891,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   };
   exports.tagForProperty = function (object, propertyKey, _meta) {
     if (typeof object !== 'object' || object === null) {
-      return _glimmer_reference.CONSTANT_TAG;
+      return reference.CONSTANT_TAG;
     }
 
     var meta$$1 = _meta === undefined ? meta(object) : _meta;
@@ -17036,7 +17036,7 @@ enifed('ember/features', ['exports', 'ember-environment', 'ember-utils'], functi
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "3.0.0-alpha.1-null+a7518b94";
+  exports.default = "3.0.0-alpha.1-null+c55c345e";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";
@@ -17585,8 +17585,8 @@ enifed("handlebars", ["exports"], function (exports) {
           this.begin(condition);
         } };
       lexer.options = {};
-      lexer.performAction = function (yy, yy_, $avoiding_name_collisions, YY_START
-      /**/) {
+      lexer.performAction = function (yy, yy_,
+      /**/$avoiding_name_collisions) {
 
         function strip(start, end) {
           return yy_.yytext = yy_.yytext.substr(start, yy_.yyleng - end);

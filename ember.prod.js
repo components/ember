@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.0.0-alpha.1-null+a7518b94
+ * @version   3.0.0-alpha.1-null+c55c345e
  */
 
 /*global process */
@@ -1553,8 +1553,8 @@ enifed('@glimmer/runtime', ['exports', '@glimmer/util', '@glimmer/reference', '@
             }
         };
 
-        CapturedPositionalArguments.prototype.valueOf = function (reference) {
-            return reference.value();
+        CapturedPositionalArguments.prototype.valueOf = function (reference$$1) {
+            return reference$$1.value();
         };
 
         return CapturedPositionalArguments;
@@ -1874,13 +1874,13 @@ enifed('@glimmer/runtime', ['exports', '@glimmer/util', '@glimmer/reference', '@
         var target = _ref13.op1,
             cache;
 
-        var reference = vm.stack.pop();
-        if ((0, _reference2.isConst)(reference)) {
-            if (reference.value()) {
+        var reference$$1 = vm.stack.pop();
+        if ((0, _reference2.isConst)(reference$$1)) {
+            if (reference$$1.value()) {
                 vm.goto(target);
             }
         } else {
-            cache = new _reference2.ReferenceCache(reference);
+            cache = new _reference2.ReferenceCache(reference$$1);
 
             if (cache.peek()) {
                 vm.goto(target);
@@ -1892,13 +1892,13 @@ enifed('@glimmer/runtime', ['exports', '@glimmer/util', '@glimmer/reference', '@
         var target = _ref14.op1,
             cache;
 
-        var reference = vm.stack.pop();
-        if ((0, _reference2.isConst)(reference)) {
-            if (!reference.value()) {
+        var reference$$1 = vm.stack.pop();
+        if ((0, _reference2.isConst)(reference$$1)) {
+            if (!reference$$1.value()) {
                 vm.goto(target);
             }
         } else {
-            cache = new _reference2.ReferenceCache(reference);
+            cache = new _reference2.ReferenceCache(reference$$1);
 
             if (!cache.peek()) {
                 vm.goto(target);
@@ -2158,13 +2158,13 @@ enifed('@glimmer/runtime', ['exports', '@glimmer/util', '@glimmer/reference', '@
             this.isConst = true;
         }
 
-        ClassList.prototype.append = function (reference) {
+        ClassList.prototype.append = function (reference$$1) {
             var list = this.list,
                 isConst$$1 = this.isConst;
 
             if (list === null) list = this.list = [];
-            list.push(reference);
-            this.isConst = isConst$$1 && (0, _reference2.isConst)(reference);
+            list.push(reference$$1);
+            this.isConst = isConst$$1 && (0, _reference2.isConst)(reference$$1);
         };
 
         ClassList.prototype.toReference = function () {
@@ -2232,22 +2232,22 @@ enifed('@glimmer/runtime', ['exports', '@glimmer/util', '@glimmer/reference', '@
             this.env.getAppendOperations().setAttribute(element, name, value, namespace);
         };
 
-        SimpleElementOperations.prototype.addDynamicAttribute = function (element, name, reference, isTrusting) {
+        SimpleElementOperations.prototype.addDynamicAttribute = function (element, name, reference$$1, isTrusting) {
             var attributeManager, attribute;
 
             if (name === 'class') {
-                this.addClass(reference);
+                this.addClass(reference$$1);
             } else {
                 attributeManager = this.env.attributeFor(element, name, isTrusting);
-                attribute = new DynamicAttribute(element, attributeManager, name, reference);
+                attribute = new DynamicAttribute(element, attributeManager, name, reference$$1);
 
                 this.addAttribute(attribute);
             }
         };
 
-        SimpleElementOperations.prototype.addDynamicAttributeNS = function (element, namespace, name, reference, isTrusting) {
+        SimpleElementOperations.prototype.addDynamicAttributeNS = function (element, namespace, name, reference$$1, isTrusting) {
             var attributeManager = this.env.attributeFor(element, name, isTrusting, namespace);
-            var nsAttribute = new DynamicAttribute(element, attributeManager, name, reference, namespace);
+            var nsAttribute = new DynamicAttribute(element, attributeManager, name, reference$$1, namespace);
             this.addAttribute(nsAttribute);
         };
 
@@ -2276,13 +2276,13 @@ enifed('@glimmer/runtime', ['exports', '@glimmer/util', '@glimmer/reference', '@
             this.classList = null;
         };
 
-        SimpleElementOperations.prototype.addClass = function (reference) {
+        SimpleElementOperations.prototype.addClass = function (reference$$1) {
             var classList = this.classList;
 
             if (!classList) {
                 classList = this.classList = new ClassList();
             }
-            classList.append(reference);
+            classList.append(reference$$1);
         };
 
         SimpleElementOperations.prototype.addAttribute = function (attribute) {
@@ -2325,25 +2325,25 @@ enifed('@glimmer/runtime', ['exports', '@glimmer/util', '@glimmer/reference', '@
             }
         };
 
-        ComponentElementOperations.prototype.addDynamicAttribute = function (element, name, reference, isTrusting) {
+        ComponentElementOperations.prototype.addDynamicAttribute = function (element, name, reference$$1, isTrusting) {
             var attributeManager, attribute;
 
             if (name === 'class') {
-                this.addClass(reference);
+                this.addClass(reference$$1);
             } else if (this.shouldAddAttribute(name)) {
                 attributeManager = this.env.attributeFor(element, name, isTrusting);
-                attribute = new DynamicAttribute(element, attributeManager, name, reference);
+                attribute = new DynamicAttribute(element, attributeManager, name, reference$$1);
 
                 this.addAttribute(name, attribute);
             }
         };
 
-        ComponentElementOperations.prototype.addDynamicAttributeNS = function (element, namespace, name, reference, isTrusting) {
+        ComponentElementOperations.prototype.addDynamicAttributeNS = function (element, namespace, name, reference$$1, isTrusting) {
             var attributeManager, nsAttribute;
 
             if (this.shouldAddAttribute(name)) {
                 attributeManager = this.env.attributeFor(element, name, isTrusting, namespace);
-                nsAttribute = new DynamicAttribute(element, attributeManager, name, reference, namespace);
+                nsAttribute = new DynamicAttribute(element, attributeManager, name, reference$$1, namespace);
 
                 this.addAttribute(name, nsAttribute);
             }
@@ -2381,13 +2381,13 @@ enifed('@glimmer/runtime', ['exports', '@glimmer/util', '@glimmer/reference', '@
             return !this.attributeNames || this.attributeNames.indexOf(name) === -1;
         };
 
-        ComponentElementOperations.prototype.addClass = function (reference) {
+        ComponentElementOperations.prototype.addClass = function (reference$$1) {
             var classList = this.classList;
 
             if (!classList) {
                 classList = this.classList = new ClassList();
             }
-            classList.append(reference);
+            classList.append(reference$$1);
         };
 
         ComponentElementOperations.prototype.addAttribute = function (name, attribute) {
@@ -2506,16 +2506,16 @@ enifed('@glimmer/runtime', ['exports', '@glimmer/util', '@glimmer/reference', '@
         return StaticAttribute;
     }();
     var DynamicAttribute = function () {
-        function DynamicAttribute(element, attributeManager, name, reference, namespace) {
+        function DynamicAttribute(element, attributeManager, name, reference$$1, namespace) {
             _classCallCheck$5(this, DynamicAttribute);
 
             this.element = element;
             this.attributeManager = attributeManager;
             this.name = name;
-            this.reference = reference;
+            this.reference = reference$$1;
             this.namespace = namespace;
             this.cache = null;
-            this.tag = reference.tag;
+            this.tag = reference$$1.tag;
         }
 
         DynamicAttribute.prototype.patch = function (env) {
@@ -2529,19 +2529,19 @@ enifed('@glimmer/runtime', ['exports', '@glimmer/util', '@glimmer/reference', '@
         };
 
         DynamicAttribute.prototype.flush = function (env) {
-            var reference = this.reference,
+            var reference$$1 = this.reference,
                 element = this.element,
                 value,
                 cache,
                 _value2;
 
-            if ((0, _reference2.isConst)(reference)) {
-                value = reference.value();
+            if ((0, _reference2.isConst)(reference$$1)) {
+                value = reference$$1.value();
 
                 this.attributeManager.setAttribute(env, element, value, this.namespace);
                 return null;
             } else {
-                cache = this.cache = new _reference2.ReferenceCache(reference);
+                cache = this.cache = new _reference2.ReferenceCache(reference$$1);
                 _value2 = cache.peek();
 
                 this.attributeManager.setAttribute(env, element, _value2, this.namespace);
@@ -2587,16 +2587,16 @@ enifed('@glimmer/runtime', ['exports', '@glimmer/util', '@glimmer/reference', '@
 
         var name = vm.constants.getString(_name);
         var namespace = vm.constants.getString(_namespace);
-        var reference = vm.stack.pop();
-        vm.elements().setDynamicAttributeNS(namespace, name, reference, !!trusting);
+        var reference$$1 = vm.stack.pop();
+        vm.elements().setDynamicAttributeNS(namespace, name, reference$$1, !!trusting);
     });
     APPEND_OPCODES.add(31 /* DynamicAttr */, function (vm, _ref8) {
         var _name = _ref8.op1,
             trusting = _ref8.op2;
 
         var name = vm.constants.getString(_name);
-        var reference = vm.stack.pop();
-        vm.elements().setDynamicAttribute(name, reference, !!trusting);
+        var reference$$1 = vm.stack.pop();
+        vm.elements().setDynamicAttribute(name, reference$$1, !!trusting);
     });
     var PatchElementOpcode = function (_UpdatingOpcode2) {
         _inherits$4(PatchElementOpcode, _UpdatingOpcode2);
@@ -2671,9 +2671,9 @@ enifed('@glimmer/runtime', ['exports', '@glimmer/util', '@glimmer/reference', '@
     });
     APPEND_OPCODES.add(57 /* PushDynamicComponentManager */, function (vm) {
         var stack = vm.stack;
-        var reference = stack.pop();
-        var cache = (0, _reference2.isConst)(reference) ? undefined : new _reference2.ReferenceCache(reference);
-        var definition = cache ? cache.peek() : reference.value();
+        var reference$$1 = stack.pop();
+        var cache = (0, _reference2.isConst)(reference$$1) ? undefined : new _reference2.ReferenceCache(reference$$1);
+        var definition = cache ? cache.peek() : reference$$1.value();
         stack.push({ definition: definition, manager: definition.manager, component: null });
         if (cache) {
             vm.updateWith(new Assert(cache));
@@ -2936,7 +2936,7 @@ enifed('@glimmer/runtime', ['exports', '@glimmer/util', '@glimmer/reference', '@
     function single(parent, node) {
         return new SingleNodeBounds(parent, node);
     }
-    function move(bounds, reference) {
+    function move(bounds, reference$$1) {
         var parent = bounds.parentElement(),
             next;
         var first = bounds.firstNode();
@@ -2945,7 +2945,7 @@ enifed('@glimmer/runtime', ['exports', '@glimmer/util', '@glimmer/reference', '@
         while (node) {
             next = node.nextSibling;
 
-            parent.insertBefore(node, reference);
+            parent.insertBefore(node, reference$$1);
             if (node === last) return next;
             node = next;
         }
@@ -3222,12 +3222,12 @@ enifed('@glimmer/runtime', ['exports', '@glimmer/util', '@glimmer/reference', '@
             this.expectOperations('setStaticAttributeNS').addStaticAttributeNS(this.expectConstructing('setStaticAttributeNS'), namespace, name, value);
         };
 
-        ElementStack.prototype.setDynamicAttribute = function (name, reference, isTrusting) {
-            this.expectOperations('setDynamicAttribute').addDynamicAttribute(this.expectConstructing('setDynamicAttribute'), name, reference, isTrusting);
+        ElementStack.prototype.setDynamicAttribute = function (name, reference$$1, isTrusting) {
+            this.expectOperations('setDynamicAttribute').addDynamicAttribute(this.expectConstructing('setDynamicAttribute'), name, reference$$1, isTrusting);
         };
 
-        ElementStack.prototype.setDynamicAttributeNS = function (namespace, name, reference, isTrusting) {
-            this.expectOperations('setDynamicAttributeNS').addDynamicAttributeNS(this.expectConstructing('setDynamicAttributeNS'), namespace, name, reference, isTrusting);
+        ElementStack.prototype.setDynamicAttributeNS = function (namespace, name, reference$$1, isTrusting) {
+            this.expectOperations('setDynamicAttributeNS').addDynamicAttributeNS(this.expectConstructing('setDynamicAttributeNS'), namespace, name, reference$$1, isTrusting);
         };
 
         ElementStack.prototype.closeElement = function () {
@@ -3708,11 +3708,11 @@ enifed('@glimmer/runtime', ['exports', '@glimmer/util', '@glimmer/reference', '@
         }
 
         AppendDynamicOpcode.prototype.evaluate = function (vm) {
-            var reference = vm.stack.pop();
-            var normalized = this.normalize(reference);
+            var reference$$1 = vm.stack.pop();
+            var normalized = this.normalize(reference$$1);
             var value = void 0;
             var cache = void 0;
-            if ((0, _reference2.isConst)(reference)) {
+            if ((0, _reference2.isConst)(reference$$1)) {
                 value = normalized.value();
             } else {
                 cache = new _reference2.ReferenceCache(normalized);
@@ -3723,7 +3723,7 @@ enifed('@glimmer/runtime', ['exports', '@glimmer/util', '@glimmer/reference', '@
             var bounds$$1 = new Fragment(upsert.bounds);
             stack.newBounds(bounds$$1);
             if (cache /* i.e. !isConst(reference) */) {
-                    vm.updateWith(this.updateWith(vm, reference, cache, bounds$$1, upsert));
+                    vm.updateWith(this.updateWith(vm, reference$$1, cache, bounds$$1, upsert));
                 }
         };
 
@@ -3811,8 +3811,8 @@ enifed('@glimmer/runtime', ['exports', '@glimmer/util', '@glimmer/reference', '@
             return _this3;
         }
 
-        OptimizedCautiousAppendOpcode.prototype.normalize = function (reference) {
-            return (0, _reference2.map)(reference, normalizeValue);
+        OptimizedCautiousAppendOpcode.prototype.normalize = function (reference$$1) {
+            return (0, _reference2.map)(reference$$1, normalizeValue);
         };
 
         OptimizedCautiousAppendOpcode.prototype.insert = function (dom, cursor, value) {
@@ -3857,8 +3857,8 @@ enifed('@glimmer/runtime', ['exports', '@glimmer/util', '@glimmer/reference', '@
             return _this5;
         }
 
-        OptimizedTrustingAppendOpcode.prototype.normalize = function (reference) {
-            return (0, _reference2.map)(reference, normalizeTrustedValue);
+        OptimizedTrustingAppendOpcode.prototype.normalize = function (reference$$1) {
+            return (0, _reference2.map)(reference$$1, normalizeTrustedValue);
         };
 
         OptimizedTrustingAppendOpcode.prototype.insert = function (dom, cursor, value) {
@@ -4996,8 +4996,8 @@ enifed('@glimmer/runtime', ['exports', '@glimmer/util', '@glimmer/reference', '@
             this.returnTo('END');
             expr(expression, this);
             this.dup();
-            this.test(function (reference) {
-                return IsComponentDefinitionReference.create(reference);
+            this.test(function (reference$$1) {
+                return IsComponentDefinitionReference.create(reference$$1);
             });
             this.enter(2);
             this.jumpUnless('ELSE');
@@ -6357,7 +6357,7 @@ enifed('@glimmer/runtime', ['exports', '@glimmer/util', '@glimmer/reference', '@
             return DOMTreeConstructionWithInnerHTMLFix;
         }(DOMTreeConstructionClass);
     }
-    function fixInnerHTML(parent, wrapper, div, html, reference) {
+    function fixInnerHTML(parent, wrapper, div, html, reference$$1) {
         var wrappedHtml = wrapper.before + html + wrapper.after,
             i;
         div.innerHTML = wrappedHtml;
@@ -6366,7 +6366,7 @@ enifed('@glimmer/runtime', ['exports', '@glimmer/util', '@glimmer/reference', '@
             parentNode = parentNode.childNodes[0];
         }
 
-        var _moveNodesBefore = moveNodesBefore(parentNode, parent, reference),
+        var _moveNodesBefore = moveNodesBefore(parentNode, parent, reference$$1),
             first = _moveNodesBefore[0],
             last = _moveNodesBefore[1];
 
@@ -6442,26 +6442,26 @@ enifed('@glimmer/runtime', ['exports', '@glimmer/util', '@glimmer/reference', '@
                 return _possibleConstructorReturn$13(this, _TreeConstructionClas.apply(this, arguments));
             }
 
-            TreeConstructionWithSVGInnerHTMLFix.prototype.insertHTMLBefore = function (parent, reference, html) {
+            TreeConstructionWithSVGInnerHTMLFix.prototype.insertHTMLBefore = function (parent, reference$$1, html) {
                 if (html === null || html === '') {
-                    return _TreeConstructionClas.prototype.insertHTMLBefore.call(this, parent, reference, html);
+                    return _TreeConstructionClas.prototype.insertHTMLBefore.call(this, parent, reference$$1, html);
                 }
                 if (parent.namespaceURI !== svgNamespace) {
-                    return _TreeConstructionClas.prototype.insertHTMLBefore.call(this, parent, reference, html);
+                    return _TreeConstructionClas.prototype.insertHTMLBefore.call(this, parent, reference$$1, html);
                 }
-                return fixSVG(parent, div, html, reference);
+                return fixSVG(parent, div, html, reference$$1);
             };
 
             return TreeConstructionWithSVGInnerHTMLFix;
         }(TreeConstructionClass);
     }
-    function fixSVG(parent, div, html, reference) {
+    function fixSVG(parent, div, html, reference$$1) {
         div.innerHTML = '<svg>' + html + '</svg>';
         // IE, Edge: also do not correctly support using `innerHTML` on SVG
         // namespaced elements. So here a wrapper is used.
 
 
-        var _moveNodesBefore = moveNodesBefore(div.firstChild, parent, reference),
+        var _moveNodesBefore = moveNodesBefore(div.firstChild, parent, reference$$1),
             first = _moveNodesBefore[0],
             last = _moveNodesBefore[1];
 
@@ -6545,17 +6545,17 @@ enifed('@glimmer/runtime', ['exports', '@glimmer/util', '@glimmer/reference', '@
                 return _this2;
             }
 
-            TreeConstructionWithTextNodeMergingFix.prototype.insertHTMLBefore = function (parent, reference, html) {
+            TreeConstructionWithTextNodeMergingFix.prototype.insertHTMLBefore = function (parent, reference$$1, html) {
                 if (html === null) {
-                    return _TreeConstructionClas.prototype.insertHTMLBefore.call(this, parent, reference, html);
+                    return _TreeConstructionClas.prototype.insertHTMLBefore.call(this, parent, reference$$1, html);
                 }
                 var didSetUselessComment = false;
-                var nextPrevious = reference ? reference.previousSibling : parent.lastChild;
+                var nextPrevious = reference$$1 ? reference$$1.previousSibling : parent.lastChild;
                 if (nextPrevious && nextPrevious instanceof Text) {
                     didSetUselessComment = true;
-                    parent.insertBefore(this.uselessComment, reference);
+                    parent.insertBefore(this.uselessComment, reference$$1);
                 }
-                var bounds = _TreeConstructionClas.prototype.insertHTMLBefore.call(this, parent, reference, html);
+                var bounds = _TreeConstructionClas.prototype.insertHTMLBefore.call(this, parent, reference$$1, html);
                 if (didSetUselessComment) {
                     parent.removeChild(this.uselessComment);
                 }
@@ -6607,7 +6607,7 @@ enifed('@glimmer/runtime', ['exports', '@glimmer/util', '@glimmer/reference', '@
         }
     }
 
-    var SVG_NAMESPACE$$1 = 'http://www.w3.org/2000/svg';
+    var SVG_NAMESPACE = 'http://www.w3.org/2000/svg';
     // http://www.w3.org/TR/html/syntax.html#html-integration-point
     var SVG_INTEGRATION_POINTS = { foreignObject: 1, desc: 1, title: 1 };
     // http://www.w3.org/TR/html/syntax.html#adjust-svg-attributes
@@ -6652,7 +6652,7 @@ enifed('@glimmer/runtime', ['exports', '@glimmer/util', '@glimmer/reference', '@
             var isElementInSVGNamespace = void 0,
                 isHTMLIntegrationPoint = void 0;
             if (context) {
-                isElementInSVGNamespace = context.namespaceURI === SVG_NAMESPACE$$1 || tag === 'svg';
+                isElementInSVGNamespace = context.namespaceURI === SVG_NAMESPACE || tag === 'svg';
                 isHTMLIntegrationPoint = SVG_INTEGRATION_POINTS[context.tagName];
             } else {
                 isElementInSVGNamespace = tag === 'svg';
@@ -6665,14 +6665,14 @@ enifed('@glimmer/runtime', ['exports', '@glimmer/util', '@glimmer/reference', '@
                 if (BLACKLIST_TABLE[tag]) {
                     throw new Error('Cannot create a ' + tag + ' inside an SVG context');
                 }
-                return this.document.createElementNS(SVG_NAMESPACE$$1, tag);
+                return this.document.createElementNS(SVG_NAMESPACE, tag);
             } else {
                 return this.document.createElement(tag);
             }
         };
 
-        DOMOperations.prototype.insertBefore = function (parent, node, reference) {
-            parent.insertBefore(node, reference);
+        DOMOperations.prototype.insertBefore = function (parent, node, reference$$1) {
+            parent.insertBefore(node, reference$$1);
         };
 
         DOMOperations.prototype.insertHTMLBefore = function (_parent, nextSibling, html) {
@@ -6719,7 +6719,7 @@ enifed('@glimmer/runtime', ['exports', '@glimmer/util', '@glimmer/reference', '@
         var appliedTreeContruction = TreeConstruction;
         appliedTreeContruction = treeConstruction$2(doc, appliedTreeContruction);
         appliedTreeContruction = treeConstruction(doc, appliedTreeContruction);
-        appliedTreeContruction = treeConstruction$1(doc, appliedTreeContruction, SVG_NAMESPACE$$1);
+        appliedTreeContruction = treeConstruction$1(doc, appliedTreeContruction, SVG_NAMESPACE);
         DOM.DOMTreeConstruction = appliedTreeContruction;
     })(DOM || (DOM = {}));
     var DOMChanges = function (_DOMOperations2) {
@@ -6751,17 +6751,17 @@ enifed('@glimmer/runtime', ['exports', '@glimmer/util', '@glimmer/reference', '@
             element.removeAttributeNS(namespace, name);
         };
 
-        DOMChanges.prototype.insertNodeBefore = function (parent, node, reference) {
+        DOMChanges.prototype.insertNodeBefore = function (parent, node, reference$$1) {
             var firstChild, lastChild;
 
             if (isDocumentFragment(node)) {
                 firstChild = node.firstChild, lastChild = node.lastChild;
 
 
-                this.insertBefore(parent, node, reference);
+                this.insertBefore(parent, node, reference$$1);
                 return new ConcreteBounds(parent, firstChild, lastChild);
             } else {
-                this.insertBefore(parent, node, reference);
+                this.insertBefore(parent, node, reference$$1);
                 return new SingleNodeBounds(parent, node);
             }
         };
@@ -6772,12 +6772,12 @@ enifed('@glimmer/runtime', ['exports', '@glimmer/util', '@glimmer/reference', '@
             return textNode;
         };
 
-        DOMChanges.prototype.insertBefore = function (element, node, reference) {
-            element.insertBefore(node, reference);
+        DOMChanges.prototype.insertBefore = function (element, node, reference$$1) {
+            element.insertBefore(node, reference$$1);
         };
 
-        DOMChanges.prototype.insertAfter = function (element, node, reference) {
-            this.insertBefore(element, node, reference.nextSibling);
+        DOMChanges.prototype.insertAfter = function (element, node, reference$$1) {
+            this.insertBefore(element, node, reference$$1.nextSibling);
         };
 
         return DOMChanges;
@@ -6913,7 +6913,7 @@ enifed('@glimmer/runtime', ['exports', '@glimmer/util', '@glimmer/reference', '@
 
             return DOMChangesWithSVGInnerHTMLFix;
         }(DOMChangesClass);
-    }(doc, helper, SVG_NAMESPACE$$1);
+    }(doc, helper, SVG_NAMESPACE);
     var helper$1 = helper;
     var DOMTreeConstruction = DOM.DOMTreeConstruction;
 
@@ -6950,7 +6950,7 @@ enifed('@glimmer/runtime', ['exports', '@glimmer/util', '@glimmer/reference', '@
 
     function defaultManagers(element, attr) {
         var tagName = element.tagName;
-        var isSVG = element.namespaceURI === SVG_NAMESPACE$$1;
+        var isSVG = element.namespaceURI === SVG_NAMESPACE;
         if (isSVG) {
             return defaultAttributeManagers(tagName, attr);
         }
@@ -7585,8 +7585,8 @@ enifed('@glimmer/runtime', ['exports', '@glimmer/util', '@glimmer/reference', '@
             this.updateOperations = updateOperations;
         }
 
-        Environment.prototype.toConditionalReference = function (reference) {
-            return new ConditionalReference(reference);
+        Environment.prototype.toConditionalReference = function (reference$$1) {
+            return new ConditionalReference(reference$$1);
         };
 
         Environment.prototype.getAppendOperations = function () {
@@ -7903,10 +7903,10 @@ enifed('@glimmer/runtime', ['exports', '@glimmer/util', '@glimmer/reference', '@
                 updating = this.updating;
 
             var nextSibling = null;
-            var reference = null;
+            var reference$$1 = null;
             if (before) {
-                reference = map$$1[before];
-                nextSibling = reference['bounds'].firstNode();
+                reference$$1 = map$$1[before];
+                nextSibling = reference$$1['bounds'].firstNode();
             } else {
                 nextSibling = this.marker;
             }
@@ -7920,7 +7920,7 @@ enifed('@glimmer/runtime', ['exports', '@glimmer/util', '@glimmer/reference', '@
                 vm.updateWith(tryOpcode);
                 vm.updatingOpcodeStack.push(tryOpcode.children);
             });
-            updating.insertBefore(tryOpcode, reference);
+            updating.insertBefore(tryOpcode, reference$$1);
             this.didInsert = true;
         };
 
@@ -7931,14 +7931,14 @@ enifed('@glimmer/runtime', ['exports', '@glimmer/util', '@glimmer/reference', '@
                 updating = this.updating;
 
             var entry = map$$1[key];
-            var reference = map$$1[before] || null;
+            var reference$$1 = map$$1[before] || null;
             if (before) {
-                move(entry, reference.firstNode());
+                move(entry, reference$$1.firstNode());
             } else {
                 move(entry, this.marker);
             }
             updating.remove(entry);
-            updating.insertBefore(entry, reference);
+            updating.insertBefore(entry, reference$$1);
         };
 
         ListRevalidationDelegate.prototype.delete = function (key) {
@@ -8722,7 +8722,7 @@ enifed('@glimmer/runtime', ['exports', '@glimmer/util', '@glimmer/reference', '@
     exports.defaultAttributeManagers = defaultAttributeManagers;
     exports.defaultPropertyManagers = defaultPropertyManagers;
     exports.readDOMAttr = function (element, attr) {
-        var isSVG = element.namespaceURI === SVG_NAMESPACE$$1;
+        var isSVG = element.namespaceURI === SVG_NAMESPACE;
 
         var _normalizeProperty2 = normalizeProperty(element, attr),
             type = _normalizeProperty2.type,
@@ -21328,12 +21328,12 @@ enifed('ember-glimmer/views/outlet', ['exports', 'ember-babel', '@glimmer/refere
 
     exports.default = OutletView;
 });
-enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-debug', 'ember-babel', '@glimmer/reference', 'require', 'ember/features', 'ember-console', 'backburner'], function (exports, emberEnvironment, emberUtils, emberDebug, emberBabel, _glimmer_reference, require, ember_features, Logger, Backburner) {
+enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-debug', 'ember-babel', '@glimmer/reference', 'require', 'ember/features', 'ember-console', 'backburner'], function (exports, emberEnvironment, emberUtils, emberDebug, emberBabel, reference, require, features, Logger, Backburner) {
   'use strict';
 
-  require = 'default' in require ? require['default'] : require;
-  Logger = 'default' in Logger ? Logger['default'] : Logger;
-  Backburner = 'default' in Backburner ? Backburner['default'] : Backburner;
+  require = require && require.hasOwnProperty('default') ? require['default'] : require;
+  Logger = Logger && Logger.hasOwnProperty('default') ? Logger['default'] : Logger;
+  Backburner = Backburner && Backburner.hasOwnProperty('default') ? Backburner['default'] : Backburner;
 
   /**
   @module ember
@@ -21569,13 +21569,6 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     @public
   */
   function addListener(obj, eventName, target, method, once) {
-    false && !(!!obj && !!eventName) && emberDebug.assert('You must pass at least an object and event name to addListener', !!obj && !!eventName);
-    false && !(eventName !== 'didInitAttrs') && emberDebug.deprecate('didInitAttrs called in ' + (obj && obj.toString && obj.toString()) + '.', eventName !== 'didInitAttrs', {
-      id: 'ember-views.did-init-attrs',
-      until: '3.0.0',
-      url: 'https://emberjs.com/deprecations/v2.x#toc_ember-component-didinitattrs'
-    });
-
     if (!method && 'function' === typeof target) {
       method = target;
       target = null;
@@ -21608,8 +21601,6 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     @public
   */
   function removeListener(obj, eventName, target, method) {
-    false && !(!!obj && !!eventName) && emberDebug.assert('You must pass at least an object and event name to removeListener', !!obj && !!eventName);
-
     if (!method && 'function' === typeof target) {
       method = target;
       target = null;
@@ -21817,7 +21808,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   };
 
   function makeTag() {
-    return new _glimmer_reference.DirtyableTag();
+    return new reference.DirtyableTag();
   }
 
   function tagFor(object, _meta) {
@@ -21828,7 +21819,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
 
       return meta$$1.writableTag(makeTag);
     } else {
-      return _glimmer_reference.CONSTANT_TAG;
+      return reference.CONSTANT_TAG;
     }
   }
 
@@ -23053,8 +23044,6 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
 
 
     Meta.prototype.writeDeps = function (subkey, itemkey, value) {
-      false && !!this.isMetaDestroyed() && emberDebug.assert('Cannot modify dependent keys for `' + itemkey + '` on `' + emberUtils.toString(this.source) + '` after it has been destroyed.', !this.isMetaDestroyed());
-
       var outerMap = this._getOrCreateOwnMap('_deps');
       var innerMap = outerMap[subkey];
       if (innerMap === undefined) {
@@ -23163,8 +23152,6 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     };
 
     Meta.prototype.writableTag = function (create) {
-      false && !!this.isMetaDestroyed() && emberDebug.assert('Cannot create a new tag for `' + emberUtils.toString(this.source) + '` after it has been destroyed.', !this.isMetaDestroyed());
-
       var ret = this._tag;
       if (ret === undefined) {
         ret = this._tag = create(this.source);
@@ -23177,8 +23164,6 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     };
 
     Meta.prototype.writableChainWatchers = function (create) {
-      false && !!this.isMetaDestroyed() && emberDebug.assert('Cannot create a new chain watcher for `' + emberUtils.toString(this.source) + '` after it has been destroyed.', !this.isMetaDestroyed());
-
       var ret = this._chainWatchers;
       if (ret === undefined) {
         ret = this._chainWatchers = create(this.source);
@@ -23191,8 +23176,6 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     };
 
     Meta.prototype.writableChains = function (create) {
-      false && !!this.isMetaDestroyed() && emberDebug.assert('Cannot create a new chains for `' + emberUtils.toString(this.source) + '` after it has been destroyed.', !this.isMetaDestroyed());
-
       var ret = this._chains;
       if (ret === undefined) {
         if (this.parent === undefined) {
@@ -23210,8 +23193,6 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     };
 
     Meta.prototype.writeWatching = function (subkey, value) {
-      false && !!this.isMetaDestroyed() && emberDebug.assert('Cannot update watchers for `' + subkey + '` on `' + emberUtils.toString(this.source) + '` after it has been destroyed.', !this.isMetaDestroyed());
-
       var map = this._getOrCreateOwnMap('_watching');
       map[subkey] = value;
     };
@@ -23221,8 +23202,6 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     };
 
     Meta.prototype.writeMixins = function (subkey, value) {
-      false && !!this.isMetaDestroyed() && emberDebug.assert('Cannot add mixins for `' + subkey + '` on `' + emberUtils.toString(this.source) + '` call writeMixins after it has been destroyed.', !this.isMetaDestroyed());
-
       var map = this._getOrCreateOwnMap('_mixins');
       map[subkey] = value;
     };
@@ -23252,8 +23231,6 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     };
 
     Meta.prototype.writeBindings = function (subkey, value) {
-      false && !!this.isMetaDestroyed() && emberDebug.assert('Cannot add a binding for `' + subkey + '` on `' + emberUtils.toString(this.source) + '` after it has been destroyed.', !this.isMetaDestroyed());
-
       var map = this._getOrCreateOwnMap('_bindings');
       map[subkey] = value;
     };
@@ -23283,14 +23260,10 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     };
 
     Meta.prototype.clearBindings = function () {
-      false && !!this.isMetaDestroyed() && emberDebug.assert('Cannot clear bindings on `' + emberUtils.toString(this.source) + '` after it has been destroyed.', !this.isMetaDestroyed());
-
       this._bindings = undefined;
     };
 
     Meta.prototype.writeValues = function (subkey, value) {
-      false && !!this.isMetaDestroyed() && emberDebug.assert('Cannot set the value of `' + subkey + '` on `' + emberUtils.toString(this.source) + '` after it has been destroyed.', !this.isMetaDestroyed());
-
       var map = this._getOrCreateOwnMap('_values');
       map[subkey] = value;
     };
@@ -23549,12 +23522,6 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     @public
   */
   function get(obj, keyName) {
-    false && !(arguments.length === 2) && emberDebug.assert('Get must be called with two arguments; an object and a property key', arguments.length === 2);
-    false && !(obj !== undefined && obj !== null) && emberDebug.assert('Cannot call get with \'' + keyName + '\' on an undefined object.', obj !== undefined && obj !== null);
-    false && !(typeof keyName === 'string') && emberDebug.assert('The key provided to get must be a string, you passed ' + keyName, typeof keyName === 'string');
-    false && !(keyName.lastIndexOf('this.', 0) !== 0) && emberDebug.assert('\'this\' in paths is not supported', keyName.lastIndexOf('this.', 0) !== 0);
-    false && !(keyName !== '') && emberDebug.assert('Cannot call `Ember.get` with an empty string', keyName !== '');
-
     var value = obj[keyName];
     var isDescriptor = value !== null && typeof value === 'object' && value.isDescriptor;
 
@@ -23635,12 +23602,6 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     @public
   */
   function set(obj, keyName, value, tolerant) {
-    false && !(arguments.length === 3 || arguments.length === 4) && emberDebug.assert('Set must be called with three or four arguments; an object, a property key, a value and tolerant true/false', arguments.length === 3 || arguments.length === 4);
-    false && !(obj && typeof obj === 'object' || typeof obj === 'function') && emberDebug.assert('Cannot call set with \'' + keyName + '\' on an undefined object.', obj && typeof obj === 'object' || typeof obj === 'function');
-    false && !(typeof keyName === 'string') && emberDebug.assert('The key provided to set must be a string, you passed ' + keyName, typeof keyName === 'string');
-    false && !(keyName.lastIndexOf('this.', 0) !== 0) && emberDebug.assert('\'this\' in paths is not supported', keyName.lastIndexOf('this.', 0) !== 0);
-    false && !!obj.isDestroyed && emberDebug.assert('calling set on destroyed object: ' + emberUtils.toString(obj) + '.' + keyName + ' = ' + emberUtils.toString(value), !obj.isDestroyed);
-
     if (isPath(keyName)) {
       return setPath(obj, keyName, value, tolerant);
     }
@@ -23673,8 +23634,6 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   function setPath(root, path, value, tolerant) {
     var parts = path.split('.');
     var keyName = parts.pop();
-
-    false && !(keyName.trim().length > 0) && emberDebug.assert('Property set failed: You passed an empty path', keyName.trim().length > 0);
 
     var newPath = parts.join('.');
 
@@ -23743,12 +23702,6 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     expansion, and is passed the expansion.
   */
   function expandProperties(pattern, callback) {
-    false && !(typeof pattern === 'string') && emberDebug.assert('A computed property key must be a string, you passed ' + typeof pattern + ' ' + pattern, typeof pattern === 'string');
-    false && !(pattern.indexOf(' ') === -1) && emberDebug.assert('Brace expanded properties cannot contain spaces, e.g. "user.{firstName, lastName}" should be "user.{firstName,lastName}"', pattern.indexOf(' ') === -1);
-    // regex to look for double open, double close, or unclosed braces
-
-    false && !(pattern.match(/\{[^}{]*\{|\}[^}{]*\}|\{[^}]*$/g) === null) && emberDebug.assert('Brace expanded properties have to be balanced and cannot be nested, pattern: ' + pattern, pattern.match(/\{[^}{]*\{|\}[^}{]*\}|\{[^}]*$/g) === null);
-
     var start = pattern.indexOf('{');
     if (start < 0) {
       callback(pattern.replace(END_WITH_EACH_REGEX, '.[]'));
@@ -23857,12 +23810,6 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       unwatch(obj, depKey, meta);
     }
   }
-
-  /**
-  @module @ember/object
-  */
-
-  var DEEP_EACH_REGEX = /\.@each\.[^.]+\./;
 
   /**
     A computed property transforms an object literal with object's accessor function(s) into a property.
@@ -23979,18 +23926,9 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     if (hasGetterOnly) {
       this._getter = config;
     } else {
-      false && !(typeof config === 'object' && !Array.isArray(config)) && emberDebug.assert('computed expects a function or an object as last argument.', typeof config === 'object' && !Array.isArray(config));
-      false && !Object.keys(config).every(function (key) {
-        return key === 'get' || key === 'set';
-      }) && emberDebug.assert('Config object passed to computed can only contain `get` or `set` keys.', Object.keys(config).every(function (key) {
-        return key === 'get' || key === 'set';
-      }));
-
       this._getter = config.get;
       this._setter = config.set;
     }
-    false && !(!!this._getter || !!this._setter) && emberDebug.assert('Computed properties must receive a getter or a setter, you passed none.', !!this._getter || !!this._setter);
-
     this._suspended = undefined;
     this._meta = undefined;
     this._volatile = false;
@@ -24063,8 +24001,6 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   */
   ComputedPropertyPrototype.readOnly = function () {
     this._readOnly = true;
-    false && !!(this._readOnly && this._setter && this._setter !== this._getter) && emberDebug.assert('Computed properties that define a setter using the new syntax cannot be read-only', !(this._readOnly && this._setter && this._setter !== this._getter));
-
     return this;
   };
 
@@ -24105,8 +24041,6 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
         i;
 
     function addArg(property) {
-      false && emberDebug.warn('Dependent keys containing @each only work one level deep. ' + ('You used the key "' + property + '" which is invalid. ') + 'Please create an intermediary computed property.', DEEP_EACH_REGEX.test(property) === false, { id: 'ember-metal.computed-deep-each' });
-
       args.push(property);
     }
 
@@ -24443,8 +24377,6 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     }
 
     AliasedProperty.prototype.setup = function (obj, keyName) {
-      false && !(this.altKey !== keyName) && emberDebug.assert('Setting alias \'' + keyName + '\' on self', this.altKey !== keyName);
-
       var meta$$1 = meta(obj);
       if (meta$$1.peekWatching(keyName)) {
         addDependentKeys(this, obj, keyName, meta$$1);
@@ -24667,7 +24599,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   }
 
   exports.flaggedInstrument = void 0;
-  if (ember_features.EMBER_IMPROVED_INSTRUMENTATION) {
+  if (features.EMBER_IMPROVED_INSTRUMENTATION) {
     exports.flaggedInstrument = instrument;
   } else {
     exports.flaggedInstrument = function (name, payload, callback) {
@@ -25235,8 +25167,6 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     @public
   */
   run.schedule = function () /* queue, target, method */{
-    false && !(run.currentRunLoop || !emberDebug.isTesting()) && emberDebug.assert('You have turned on testing mode, which disabled the run-loop\'s autorun. ' + 'You will need to wrap any code with asynchronous side-effects in a run', run.currentRunLoop || !emberDebug.isTesting());
-
     return backburner$1.schedule.apply(backburner$1, arguments);
   };
 
@@ -25325,8 +25255,6 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   run.once = function () {
     var _len3, args, _key3;
 
-    false && !(run.currentRunLoop || !emberDebug.isTesting()) && emberDebug.assert('You have turned on testing mode, which disabled the run-loop\'s autorun. ' + 'You will need to wrap any code with asynchronous side-effects in a run', run.currentRunLoop || !emberDebug.isTesting());
-
     for (_len3 = arguments.length, args = Array(_len3), _key3 = 0; _key3 < _len3; _key3++) {
       args[_key3] = arguments[_key3];
     }
@@ -25404,8 +25332,6 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     @public
   */
   run.scheduleOnce = function () /*queue, target, method*/{
-    false && !(run.currentRunLoop || !emberDebug.isTesting()) && emberDebug.assert('You have turned on testing mode, which disabled the run-loop\'s autorun. ' + 'You will need to wrap any code with asynchronous side-effects in a run', run.currentRunLoop || !emberDebug.isTesting());
-
     return backburner$1.scheduleOnce.apply(backburner$1, arguments);
   };
 
@@ -25723,8 +25649,6 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
           index = this._coreLibIndex++;
         }
         this._registry.splice(index, 0, { name: name, version: version });
-      } else {
-        false && emberDebug.warn('Library "' + name + '" is already registered with Ember.', false, { id: 'ember-metal.libraries-register' });
       }
     };
 
@@ -25745,7 +25669,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     return Libraries;
   }();
 
-  if (ember_features.EMBER_LIBRARIES_ISREGISTERED) {
+  if (features.EMBER_LIBRARIES_ISREGISTERED) {
     Libraries.prototype.isRegistered = function (name) {
       return !!this._getLibraryByName(name);
     };
@@ -25923,8 +25847,6 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     */
 
     OrderedSet.prototype.forEach = function (fn /*, ...thisArg*/) {
-      false && !(typeof fn === 'function') && emberDebug.assert(Object.prototype.toString.call(fn) + ' is not a function', typeof fn === 'function');
-
       if (this.size === 0) {
         return;
       }
@@ -26113,8 +26035,6 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     */
 
     Map.prototype.forEach = function (callback /*, ...thisArg*/) {
-      false && !(typeof callback === 'function') && emberDebug.assert(Object.prototype.toString.call(callback) + ' is not a function', typeof callback === 'function');
-
       if (this.size === 0) {
         return;
       }
@@ -26517,8 +26437,6 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     */
 
     Binding.prototype.connect = function (obj) {
-      false && !!!obj && emberDebug.assert('Must pass a valid object to Ember.Binding.connect()', !!obj);
-
       var fromObj = void 0,
           fromPath = void 0,
           possibleGlobal = void 0,
@@ -26573,11 +26491,6 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     */
 
     Binding.prototype.disconnect = function () {
-      false && !!!this._toObj && emberDebug.assert('Must pass a valid object to Ember.Binding.disconnect()', !!this._toObj);
-
-      // Remove an observer on the object so we're no longer notified of
-      // changes that should update bindings.
-
       removeObserver(this._fromObj, this._fromPath, this, 'fromDidChange');
 
       // If the binding is two-way, remove the observer from the target as well.
@@ -26672,25 +26585,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     return Binding;
   }();
 
-  function fireDeprecations(obj, toPath, fromPath, deprecateGlobal, deprecateOneWay, deprecateAlias) {
-
-    var objectInfo = 'The `' + toPath + '` property of `' + obj + '` is an `Ember.Binding` connected to `' + fromPath + '`, but ';
-    false && !!deprecateGlobal && emberDebug.deprecate(objectInfo + ('`Ember.Binding` is deprecated. Since you' + ' are binding to a global consider using a service instead.'), !deprecateGlobal, {
-      id: 'ember-metal.binding',
-      until: '3.0.0',
-      url: 'https://emberjs.com/deprecations/v2.x#toc_ember-binding'
-    });
-    false && !!deprecateOneWay && emberDebug.deprecate(objectInfo + ('`Ember.Binding` is deprecated. Since you' + ' are using a `oneWay` binding consider using a `readOnly` computed' + ' property instead.'), !deprecateOneWay, {
-      id: 'ember-metal.binding',
-      until: '3.0.0',
-      url: 'https://emberjs.com/deprecations/v2.x#toc_ember-binding'
-    });
-    false && !!deprecateAlias && emberDebug.deprecate(objectInfo + ('`Ember.Binding` is deprecated. Consider' + ' using an `alias` computed property instead.'), !deprecateAlias, {
-      id: 'ember-metal.binding',
-      until: '3.0.0',
-      url: 'https://emberjs.com/deprecations/v2.x#toc_ember-binding'
-    });
-  }
+  function fireDeprecations() {}
 
   (function (to, from) {
     for (var key in from) {
@@ -26990,8 +26885,6 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     var baseValue = values[key] || obj[key],
         propValue;
 
-    false && !!isArray(value) && emberDebug.assert('You passed in `' + JSON.stringify(value) + '` as the value for `' + key + '` but `' + key + '` cannot be an Array', !isArray(value));
-
     if (!baseValue) {
       return value;
     }
@@ -27065,8 +26958,6 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
 
     for (i = 0; i < mixins.length; i++) {
       currentMixin = mixins[i];
-      false && !(typeof currentMixin === 'object' && currentMixin !== null && Object.prototype.toString.call(currentMixin) !== '[object Array]') && emberDebug.assert('Expected hash or Mixin instance, got ' + Object.prototype.toString.call(currentMixin), typeof currentMixin === 'object' && currentMixin !== null && Object.prototype.toString.call(currentMixin) !== '[object Array]');
-
       props = mixinProperties(meta$$1, currentMixin);
       if (props === CONTINUE) {
         continue;
@@ -27447,8 +27338,6 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
 
       for (idx = 0; idx < arguments.length; idx++) {
         currentMixin = arguments[idx];
-        false && !(typeof currentMixin === 'object' && currentMixin !== null && Object.prototype.toString.call(currentMixin) !== '[object Array]') && emberDebug.assert('Expected hash or Mixin instance, got ' + Object.prototype.toString.call(currentMixin), typeof currentMixin === 'object' && currentMixin !== null && Object.prototype.toString.call(currentMixin) !== '[object Array]');
-
         if (currentMixin instanceof Mixin) {
           mixins.push(currentMixin);
         } else {
@@ -27670,21 +27559,12 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
 
     if (typeof args[args.length - 1] !== 'function') {
       // revert to old, soft-deprecated argument ordering
-      false && !false && emberDebug.deprecate('Passing the dependentKeys after the callback function in observer is deprecated. Ensure the callback function is the last argument.', false, { id: 'ember-metal.observer-argument-order', until: '3.0.0' });
-
       func = args.shift();
       _paths = args;
     } else {
       func = args.pop();
       _paths = args;
     }
-
-    false && !(typeof func === 'function') && emberDebug.assert('observer called without a function', typeof func === 'function');
-    false && !(_paths.length > 0 && _paths.every(function (p) {
-      return typeof p === 'string' && p.length;
-    })) && emberDebug.assert('observer called without valid path', _paths.length > 0 && _paths.every(function (p) {
-      return typeof p === 'string' && p.length;
-    }));
 
     var paths = [];
     var addWatchedProperty = function (path) {
@@ -27774,9 +27654,6 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     var desc = this[keyName];
     var owner = emberUtils.getOwner(this) || this.container; // fallback to `container` for backwards compat
 
-    false && !(desc && desc.isDescriptor && desc.type) && emberDebug.assert('InjectedProperties should be defined with the inject computed property macros.', desc && desc.isDescriptor && desc.type);
-    false && !owner && emberDebug.assert('Attempting to lookup an injected property on an object without a container, ensure that the object was instantiated via a container.', owner);
-
     return owner.lookup(desc.type + ':' + (desc.name || keyName));
   }
 
@@ -27863,20 +27740,14 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
 
     return original;
   };
-  exports.deprecateProperty = function (object, deprecatedKey, newKey, options) {
-    function _deprecate() {
-      false && !false && emberDebug.deprecate('Usage of `' + deprecatedKey + '` is deprecated, use `' + newKey + '` instead.', false, options);
-    }
-
+  exports.deprecateProperty = function (object, deprecatedKey, newKey) {
     Object.defineProperty(object, deprecatedKey, {
       configurable: true,
       enumerable: false,
       set: function (value) {
-        _deprecate();
         set(this, newKey, value);
       },
       get: function () {
-        _deprecate();
         return get(this, newKey);
       }
     });
@@ -27987,16 +27858,9 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
         _len,
         args,
         _key;
-    var events = args;
 
-    false && !(typeof func === 'function') && emberDebug.assert('on expects function as last argument', typeof func === 'function');
-    false && !(events.length > 0 && events.every(function (p) {
-      return typeof p === 'string' && p.length;
-    })) && emberDebug.assert('on called without valid event names', events.length > 0 && events.every(function (p) {
-      return typeof p === 'string' && p.length;
-    }));
 
-    func.__ember_listens__ = events;
+    func.__ember_listens__ = args;
     return func;
   };
   exports.removeListener = removeListener;
@@ -28105,16 +27969,6 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     return new Alias(methodName);
   };
   exports._immediateObserver = function () {
-    var i, arg;
-
-    false && !false && emberDebug.deprecate('Usage of `Ember.immediateObserver` is deprecated, use `observer` instead.', false, { id: 'ember-metal.immediate-observer', until: '3.0.0' });
-
-    for (i = 0; i < arguments.length; i++) {
-      arg = arguments[i];
-
-      false && !(typeof arg !== 'string' || arg.indexOf('.') === -1) && emberDebug.assert('Immediate observers must observe internal properties only, not properties on other objects.', typeof arg !== 'string' || arg.indexOf('.') === -1);
-    }
-
     return observer.apply(this, arguments);
   };
   exports._beforeObserver = function () {
@@ -28134,8 +27988,6 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       func = args[0];
       _paths = args.slice(1);
     }
-
-    false && !(typeof func === 'function') && emberDebug.assert('_beforeObserver called without a function', typeof func === 'function');
 
     var paths = [];
     var addWatchedProperty = function (path) {
@@ -28160,8 +28012,6 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   };
   exports.observer = observer;
   exports.required = function () {
-    false && !false && emberDebug.deprecate('Ember.required is deprecated as its behavior is inconsistent and unreliable.', false, { id: 'ember-metal.required', until: '3.0.0' });
-
     return REQUIRED;
   };
   exports.REQUIRED = REQUIRED;
@@ -28183,7 +28033,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   };
   exports.tagForProperty = function (object, propertyKey, _meta) {
     if (typeof object !== 'object' || object === null) {
-      return _glimmer_reference.CONSTANT_TAG;
+      return reference.CONSTANT_TAG;
     }
 
     var meta$$1 = _meta === undefined ? meta(object) : _meta;
@@ -43628,7 +43478,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "3.0.0-alpha.1-null+a7518b94";
+  exports.default = "3.0.0-alpha.1-null+c55c345e";
 });
 /*global enifed */
 enifed('node-module', ['exports'], function(_exports) {
@@ -48823,12 +48673,9 @@ enifed('rsvp', ['exports', 'ember-babel', 'node-module'], function (exports, _em
 
   /* global self */
   if (typeof self === 'object') {
-    self;
 
     /* global global */
-  } else if (typeof global === 'object') {
-    global;
-  } else {
+  } else if (!(typeof global === 'object')) {
     throw new Error('no global: `self` or `global` found');
   }
 
