@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.18.0-beta.1
+ * @version   2.18.0-beta.1-null+f9d28d8b
  */
 
 /*global process */
@@ -18531,6 +18531,28 @@ enifed('ember-glimmer/tests/integration/components/link-to-test', ['ember-babel'
 
     return _class2;
   }(_testCase.ApplicationTest));
+
+  (0, _testCase.moduleFor)('Link-to component', function (_RenderingTest) {
+    (0, _emberBabel.inherits)(_class3, _RenderingTest);
+
+    function _class3() {
+      return (0, _emberBabel.possibleConstructorReturn)(this, _RenderingTest.apply(this, arguments));
+    }
+
+    _class3.prototype['@test should be able to be inserted in DOM when the router is not present - block'] = function () {
+      this.render('{{#link-to \'index\'}}Go to Index{{/link-to}}');
+
+      this.assertText('Go to Index');
+    };
+
+    _class3.prototype['@test should be able to be inserted in DOM when the router is not present - inline'] = function () {
+      this.render('{{link-to \'Go to Index\' \'index\'}}');
+
+      this.assertText('Go to Index');
+    };
+
+    return _class3;
+  }(_testCase.RenderingTest));
 });
 enifed('ember-glimmer/tests/integration/components/local-lookup-test', ['ember-babel', 'ember-glimmer/tests/utils/test-case', 'internal-test-helpers', 'ember-glimmer/tests/utils/helpers', 'ember-glimmer'], function (_emberBabel, _testCase, _internalTestHelpers, _helpers) {
   'use strict';
