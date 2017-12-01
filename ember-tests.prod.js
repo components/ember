@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.0.0-alpha.1-null+1723b73a
+ * @version   3.0.0-alpha.1-null+b4614b76
  */
 
 /*global process */
@@ -18534,28 +18534,8 @@ enifed('ember-glimmer/tests/integration/components/link-to-test', ['ember-babel'
       });
     };
 
-    _class.prototype['@test unwraps controllers'] = function () {
-      var _this8 = this;
-
-      this.router.map(function () {
-        this.route('profile', { path: '/profile/:id' });
-      });
-      this.addTemplate('application', '{{#link-to \'profile\' otherController}}Text{{/link-to}}');
-      this.add('controller:application', _emberRuntime.Controller.extend({
-        otherController: _emberRuntime.Controller.create({
-          model: 'foo'
-        })
-      }));
-
-      var deprecation = /Providing `{{link-to}}` with a param that is wrapped in a controller is deprecated./;
-
-      return this.visitWithDeprecation('/', deprecation).then(function () {
-        _this8.assertText('Text');
-      });
-    };
-
     _class.prototype['@test able to safely extend the built-in component and use the normal path'] = function () {
-      var _this9 = this;
+      var _this8 = this;
 
       this.addComponent('custom-link-to', { ComponentClass: _helpers.LinkComponent.extend() });
       this.addTemplate('application', '{{#custom-link-to \'index\'}}{{title}}{{/custom-link-to}}');
@@ -18564,12 +18544,12 @@ enifed('ember-glimmer/tests/integration/components/link-to-test', ['ember-babel'
       }));
 
       return this.visit('/').then(function () {
-        _this9.assertText('Hello');
+        _this8.assertText('Hello');
       });
     };
 
     _class.prototype['@test [GH#13432] able to safely extend the built-in component and invoke it inline'] = function () {
-      var _this10 = this;
+      var _this9 = this;
 
       this.addComponent('custom-link-to', { ComponentClass: _helpers.LinkComponent.extend() });
       this.addTemplate('application', '{{custom-link-to title \'index\'}}');
@@ -18578,7 +18558,7 @@ enifed('ember-glimmer/tests/integration/components/link-to-test', ['ember-babel'
       }));
 
       return this.visit('/').then(function () {
-        _this10.assertText('Hello');
+        _this9.assertText('Hello');
       });
     };
 
@@ -18590,23 +18570,23 @@ enifed('ember-glimmer/tests/integration/components/link-to-test', ['ember-babel'
 
     function _class2() {
 
-      var _this11 = (0, _emberBabel.possibleConstructorReturn)(this, _ApplicationTest2.apply(this, arguments));
+      var _this10 = (0, _emberBabel.possibleConstructorReturn)(this, _ApplicationTest2.apply(this, arguments));
 
-      _this11.add('controller:index', _emberRuntime.Controller.extend({
+      _this10.add('controller:index', _emberRuntime.Controller.extend({
         queryParams: ['foo'],
         foo: '123',
         bar: 'yes'
       }));
-      return _this11;
+      return _this10;
     }
 
     _class2.prototype['@test populates href with fully supplied query param values'] = function () {
-      var _this12 = this;
+      var _this11 = this;
 
       this.addTemplate('index', '{{#link-to \'index\' (query-params foo=\'456\' bar=\'NAW\')}}Index{{/link-to}}');
 
       return this.visit('/').then(function () {
-        _this12.assertComponentElement(_this12.firstChild.firstElementChild, {
+        _this11.assertComponentElement(_this11.firstChild.firstElementChild, {
           tagName: 'a',
           attrs: { href: '/?bar=NAW&foo=456' },
           content: 'Index'
@@ -18615,12 +18595,12 @@ enifed('ember-glimmer/tests/integration/components/link-to-test', ['ember-babel'
     };
 
     _class2.prototype['@test populates href with partially supplied query param values, but omits if value is default value'] = function () {
-      var _this13 = this;
+      var _this12 = this;
 
       this.addTemplate('index', '{{#link-to \'index\' (query-params foo=\'123\')}}Index{{/link-to}}');
 
       return this.visit('/').then(function () {
-        _this13.assertComponentElement(_this13.firstChild.firstElementChild, {
+        _this12.assertComponentElement(_this12.firstChild.firstElementChild, {
           tagName: 'a',
           attrs: { href: '/', class: (0, _testHelpers.classes)('ember-view active') },
           content: 'Index'

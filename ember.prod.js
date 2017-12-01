@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.0.0-alpha.1-null+1723b73a
+ * @version   3.0.0-alpha.1-null+b4614b76
  */
 
 /*global process */
@@ -16305,11 +16305,6 @@ enifed('ember-glimmer/components/link-to', ['exports', 'ember-debug', 'ember-met
       for (i = 0; i < modelCount; i++) {
         value = params[i + 1];
 
-        while (_emberRuntime.ControllerMixin.detect(value)) {
-          false && !false && (0, _emberDebug.deprecate)('Providing `{{link-to}}` with a param that is wrapped in a controller is deprecated. ' + (this.parentView ? 'Please update `' + this.parentView + '` to use `{{link-to "post" someController.model}}` instead.' : ''), false, { id: 'ember-routing-views.controller-wrapped-param', until: '3.0.0' });
-
-          value = value.get('model');
-        }
         models[i] = value;
       }
       return models;
@@ -43229,7 +43224,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "3.0.0-alpha.1-null+1723b73a";
+  exports.default = "3.0.0-alpha.1-null+b4614b76";
 });
 /*global enifed */
 enifed('node-module', ['exports'], function(_exports) {
