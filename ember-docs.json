@@ -3,7 +3,7 @@
         "name": "The Ember API",
         "description": "The Ember API: a framework for building ambitious web applications",
         "url": "https://emberjs.com/",
-        "version": "3.0.0-alpha.1.12fc1e5a"
+        "version": "3.0.0-alpha.1.8724cf18"
     },
     "files": {
         "node_modules/rsvp/lib/rsvp/promise/all.js": {
@@ -15882,7 +15882,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/inject.js",
-            "line": 19,
+            "line": 21,
             "description": "This method allows other Ember modules to register injection helpers for a\ngiven container type. Helpers are exported to the `inject` namespace as the\ncontainer type itself.",
             "access": "private",
             "tagname": "",
@@ -15907,7 +15907,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/inject.js",
-            "line": 37,
+            "line": 39,
             "description": "Validation function that runs per-type validation functions once for each\ninjected type encountered.",
             "access": "private",
             "tagname": "",
