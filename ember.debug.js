@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.18.0-beta.1-null+dd366426
+ * @version   2.18.0-beta.1-null+9add98cd
  */
 
 /*global process */
@@ -16371,7 +16371,7 @@ enifed('ember-glimmer/components/link-to', ['exports', 'ember-debug', 'ember-met
         currentWhen: (0, _emberRuntime.deprecatingAlias)('current-when', { id: 'ember-routing-view.deprecated-current-when', until: '3.0.0' }),
         /**
           Used to determine when this `LinkComponent` is active.
-             @property currentWhen
+             @property current-when
           @public
         */
         'current-when': null,
@@ -36671,7 +36671,9 @@ enifed('ember-runtime/inject', ['exports', 'ember-metal', 'ember-debug'], functi
     @public
   */
   function inject() {
-    (true && !(false) && (0, _emberDebug.assert)('Injected properties must be created through helpers, see \'' + Object.keys(inject).join('"', '"') + '\''));
+    (true && !(false) && (0, _emberDebug.assert)('Injected properties must be created through helpers, see \'' + Object.keys(inject).map(function (k) {
+      return '\'inject.' + k + '\'';
+    }).join(' or ') + '\''));
   }
 
   // Dictionary of injection validations by type, added to by `createInjectionHelper`
@@ -47689,7 +47691,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.18.0-beta.1-null+dd366426";
+  exports.default = "2.18.0-beta.1-null+9add98cd";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";
