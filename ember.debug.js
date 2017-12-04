@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.0.0-alpha.1-null+8724cf18
+ * @version   3.0.0-alpha.1-null+845e53e6
  */
 
 /*global process */
@@ -9154,7 +9154,7 @@ enifed('backburner', ['exports', 'ember-babel'], function (exports, _emberBabel)
             (0, _emberBabel.classCallCheck)(this, Queue);
 
             this._queueBeingFlushed = [];
-            this.targetQueues = Object.create(null);
+            this.targetQueues = new Map();
             this.index = 0;
             this._queue = [];
             this.name = name;
@@ -9171,20 +9171,6 @@ enifed('backburner', ['exports', 'ember-babel'], function (exports, _emberBabel)
             };
         };
 
-        Queue.prototype.pushUnique = function pushUnique(target, method, args, stack) {
-            var guid = this.guidForTarget(target);
-            if (guid) {
-                this.pushUniqueWithGuid(guid, target, method, args, stack);
-            } else {
-                this.pushUniqueWithoutGuid(target, method, args, stack);
-            }
-            return {
-                queue: this,
-                target: target,
-                method: method
-            };
-        };
-
         Queue.prototype.flush = function flush(sync) {
             var _options = this.options,
                 before = _options.before,
@@ -9194,7 +9180,7 @@ enifed('backburner', ['exports', 'ember-babel'], function (exports, _emberBabel)
             var method = void 0;
             var args = void 0;
             var errorRecordedForStack = void 0;
-            this.targetQueues = Object.create(null);
+            this.targetQueues.clear();
             if (this._queueBeingFlushed.length === 0) {
                 this._queueBeingFlushed = this._queue;
                 this._queue = [];
@@ -9257,18 +9243,17 @@ enifed('backburner', ['exports', 'ember-babel'], function (exports, _emberBabel)
                 method = _ref.method;
 
             var queue = this._queue;
-            var guid = this.guidForTarget(target);
-            var targetQueue = guid ? this.targetQueues[guid] : undefined;
-            if (targetQueue !== undefined) {
-                var t = void 0;
-                for (var i = 0, l = targetQueue.length; i < l; i += 2) {
-                    t = targetQueue[i];
-                    if (t === method) {
-                        targetQueue.splice(i, 1);
-                    }
+            var targetQueueMap = this.targetQueues.get(target);
+            var index = void 0;
+            if (targetQueueMap !== undefined) {
+                index = targetQueueMap.get(method);
+                if (index !== undefined) {
+                    targetQueueMap.delete(method);
                 }
             }
-            var index = findItem(target, method, queue);
+            if (index === undefined) {
+                index = findItem(target, method, queue);
+            }
             if (index > -1) {
                 queue.splice(index, 4);
                 return true;
@@ -9284,68 +9269,42 @@ enifed('backburner', ['exports', 'ember-babel'], function (exports, _emberBabel)
             return false;
         };
 
-        Queue.prototype.guidForTarget = function guidForTarget(target) {
-            if (!target) {
-                return;
+        Queue.prototype.pushUnique = function pushUnique(target, method, args, stack) {
+            var localQueueMap = this.targetQueues.get(target);
+            if (localQueueMap === undefined) {
+                localQueueMap = new Map();
+                this.targetQueues.set(target, localQueueMap);
             }
-            var peekGuid = this.globalOptions.peekGuid;
-            if (peekGuid) {
-                return peekGuid(target);
-            }
-            var KEY = this.globalOptions.GUID_KEY;
-            if (KEY) {
-                return target[KEY];
-            }
-        };
-
-        Queue.prototype.pushUniqueWithoutGuid = function pushUniqueWithoutGuid(target, method, args, stack) {
-            var queue = this._queue;
-            var index = findItem(target, method, queue);
-            if (index > -1) {
+            var index = localQueueMap.get(method);
+            if (index === undefined) {
+                var queueIndex = this._queue.push(target, method, args, stack) - 4;
+                localQueueMap.set(method, queueIndex);
+            } else {
+                var queue = this._queue;
                 queue[index + 2] = args; // replace args
                 queue[index + 3] = stack; // replace stack
-            } else {
-                queue.push(target, method, args, stack);
             }
-        };
-
-        Queue.prototype.targetQueue = function targetQueue(_targetQueue, target, method, args, stack) {
-            var queue = this._queue;
-            for (var i = 0, l = _targetQueue.length; i < l; i += 2) {
-                var currentMethod = _targetQueue[i];
-                if (currentMethod === method) {
-                    var currentIndex = _targetQueue[i + 1];
-                    queue[currentIndex + 2] = args; // replace args
-                    queue[currentIndex + 3] = stack; // replace stack
-                    return;
-                }
-            }
-            _targetQueue.push(method, queue.push(target, method, args, stack) - 4);
-        };
-
-        Queue.prototype.pushUniqueWithGuid = function pushUniqueWithGuid(guid, target, method, args, stack) {
-            var localQueue = this.targetQueues[guid];
-            if (localQueue !== undefined) {
-                this.targetQueue(localQueue, target, method, args, stack);
-            } else {
-                this.targetQueues[guid] = [method, this._queue.push(target, method, args, stack) - 4];
-            }
+            return {
+                queue: this,
+                target: target,
+                method: method
+            };
         };
 
         Queue.prototype.invoke = function invoke(target, method, args /*, onError, errorRecordedForStack */) {
-            if (args && args.length > 0) {
-                method.apply(target, args);
-            } else {
+            if (args === undefined) {
                 method.call(target);
+            } else {
+                method.apply(target, args);
             }
         };
 
         Queue.prototype.invokeWithOnError = function invokeWithOnError(target, method, args, onError, errorRecordedForStack) {
             try {
-                if (args && args.length > 0) {
-                    method.apply(target, args);
-                } else {
+                if (args === undefined) {
                     method.call(target);
+                } else {
+                    method.apply(target, args);
                 }
             } catch (error) {
                 onError(error, errorRecordedForStack);
@@ -9598,43 +9557,16 @@ enifed('backburner', ['exports', 'ember-babel'], function (exports, _emberBabel)
                 method = _parseArgs[1],
                 args = _parseArgs[2];
 
-            var onError = getOnError(this.options);
-            this.begin();
-            if (onError) {
-                try {
-                    return method.apply(target, args);
-                } catch (error) {
-                    onError(error);
-                } finally {
-                    this.end();
-                }
-            } else {
-                try {
-                    return method.apply(target, args);
-                } finally {
-                    this.end();
-                }
-            }
+            return this._run(target, method, args);
         };
 
         Backburner.prototype.join = function join() {
-            if (this.currentInstance === null) {
-                return this.run.apply(this, arguments);
-            }
-
             var _parseArgs2 = parseArgs.apply(undefined, arguments),
                 target = _parseArgs2[0],
                 method = _parseArgs2[1],
                 args = _parseArgs2[2];
 
-            var length = arguments.length;
-            if (length === 1) {
-                return method();
-            } else if (length === 2) {
-                return method.call(target);
-            } else {
-                return method.apply(target, args);
-            }
+            return this._join(target, method, args);
         };
 
         Backburner.prototype.defer = function defer() {
@@ -9766,12 +9698,15 @@ enifed('backburner', ['exports', 'ember-babel'], function (exports, _emberBabel)
                 wait = args.pop();
                 isImmediate = immediate === true;
             }
-            wait = parseInt(wait, 10);
+            if (isString(method)) {
+                method = target[method];
+            }
             var index = findItem(target, method, this._throttlers);
             if (index > -1) {
                 this._throttlers[index + 2] = args;
                 return this._throttlers[index + 3];
             } // throttled
+            wait = parseInt(wait, 10);
             var timer = this._platform.setTimeout(function () {
                 var i = findTimer(timer, _this2._throttlers);
 
@@ -9781,11 +9716,11 @@ enifed('backburner', ['exports', 'ember-babel'], function (exports, _emberBabel)
                     params = _throttlers$splice[2];
 
                 if (isImmediate === false) {
-                    _this2.run.apply(_this2, [context, func].concat(params));
+                    _this2._run(context, func, params);
                 }
             }, wait);
             if (isImmediate) {
-                this.join.apply(this, [target, method].concat(args));
+                this._join(target, method, args);
             }
             this._throttlers.push(target, method, args, timer);
             return timer;
@@ -9808,6 +9743,9 @@ enifed('backburner', ['exports', 'ember-babel'], function (exports, _emberBabel)
                 wait = args.pop();
                 isImmediate = immediate === true;
             }
+            if (isString(method)) {
+                method = target[method];
+            }
             wait = parseInt(wait, 10);
             // Remove debouncee
             var index = findItem(target, method, this._debouncees);
@@ -9825,11 +9763,11 @@ enifed('backburner', ['exports', 'ember-babel'], function (exports, _emberBabel)
                     params = _debouncees$splice[2];
 
                 if (isImmediate === false) {
-                    _this3.run.apply(_this3, [context, func].concat(params));
+                    _this3._run(context, func, params);
                 }
             }, wait);
             if (isImmediate && index === -1) {
-                this.join.apply(this, [target, method].concat(args));
+                this._join(target, method, args);
             }
             this._debouncees.push(target, method, args, timer);
             return timer;
@@ -9870,6 +9808,37 @@ enifed('backburner', ['exports', 'ember-babel'], function (exports, _emberBabel)
 
         Backburner.prototype.ensureInstance = function ensureInstance() {
             this._ensureInstance();
+        };
+
+        Backburner.prototype._join = function _join(target, method, args) {
+            if (this.currentInstance === null) {
+                return this._run(target, method, args);
+            }
+            if (target === undefined && args === undefined) {
+                return method();
+            } else {
+                return method.apply(target, args);
+            }
+        };
+
+        Backburner.prototype._run = function _run(target, method, args) {
+            var onError = getOnError(this.options);
+            this.begin();
+            if (onError) {
+                try {
+                    return method.apply(target, args);
+                } catch (error) {
+                    onError(error);
+                } finally {
+                    this.end();
+                }
+            } else {
+                try {
+                    return method.apply(target, args);
+                } finally {
+                    this.end();
+                }
+            }
         };
 
         Backburner.prototype._cancelAutorun = function _cancelAutorun() {
@@ -46903,7 +46872,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "3.0.0-alpha.1-null+8724cf18";
+  exports.default = "3.0.0-alpha.1-null+845e53e6";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";
