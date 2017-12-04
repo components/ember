@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.0.0-alpha.1-null+845e53e6
+ * @version   3.0.0-alpha.1-null+ca82befb
  */
 
 /*global process */
@@ -13737,6 +13737,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       }
 
       if (props) {
+        // remove willMergeMixin after 3.4 as it was used for _actions
         if (base.willMergeMixin) {
           base.willMergeMixin(props);
         }
@@ -16820,7 +16821,7 @@ enifed('ember/features', ['exports', 'ember-environment', 'ember-utils'], functi
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "3.0.0-alpha.1-null+845e53e6";
+  exports.default = "3.0.0-alpha.1-null+ca82befb";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";

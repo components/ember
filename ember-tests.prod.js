@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.0.0-alpha.1-null+845e53e6
+ * @version   3.0.0-alpha.1-null+ca82befb
  */
 
 /*global process */
@@ -15071,37 +15071,8 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
       }, 'Attempting to inject an unknown injection: \'service:missingService\'');
     };
 
-    _class.prototype['@test can access `actions` hash via `_actions` [DEPRECATED]'] = function () {
-      var _this72 = this;
-
-      var component = void 0;
-
-      function derp() {}
-
-      this.registerComponent('foo-bar', {
-        ComponentClass: _helpers.Component.extend({
-          init: function () {
-            this._super.apply(this, arguments);
-            component = this;
-          },
-
-          actions: {
-            derp: derp
-          }
-        })
-      });
-
-      this.render('{{foo-bar}}');
-
-      this.assert.strictEqual(component.actions.derp, derp);
-
-      expectDeprecation(function () {
-        _this72.assert.strictEqual(component._actions.derp, derp);
-      }, 'Usage of `_actions` is deprecated, use `actions` instead.');
-    };
-
     _class.prototype['@test throws if `this._super` is not called from `init`'] = function () {
-      var _this73 = this;
+      var _this72 = this;
 
       this.registerComponent('foo-bar', {
         ComponentClass: _helpers.Component.extend({
@@ -15110,16 +15081,16 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
       });
 
       expectAssertion(function () {
-        _this73.render('{{foo-bar}}');
+        _this72.render('{{foo-bar}}');
       }, /You must call `this._super\(...arguments\);` when overriding `init` on a framework object. Please update .* to call `this._super\(...arguments\);` from `init`./);
     };
 
     _class.prototype['@test should toggle visibility with isVisible'] = function (assert) {
-      var _this74 = this;
+      var _this73 = this;
 
       var assertStyle = function (expected) {
         var matcher = (0, _testHelpers.styles)(expected);
-        var actual = _this74.firstChild.getAttribute('style');
+        var actual = _this73.firstChild.getAttribute('style');
 
         assert.pushResult({
           result: matcher.match(actual),
@@ -15142,18 +15113,18 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
       this.assertStableRerender();
 
       this.runTask(function () {
-        (0, _emberMetal.set)(_this74.context, 'visible', true);
+        (0, _emberMetal.set)(_this73.context, 'visible', true);
       });
       assertStyle('');
 
       this.runTask(function () {
-        (0, _emberMetal.set)(_this74.context, 'visible', false);
+        (0, _emberMetal.set)(_this73.context, 'visible', false);
       });
       assertStyle('display: none;');
     };
 
     _class.prototype['@test isVisible does not overwrite component style'] = function () {
-      var _this75 = this;
+      var _this74 = this;
 
       this.registerComponent('foo-bar', {
         ComponentClass: _helpers.Component.extend({
@@ -15176,7 +15147,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
       this.assertStableRerender();
 
       this.runTask(function () {
-        (0, _emberMetal.set)(_this75.context, 'visible', true);
+        (0, _emberMetal.set)(_this74.context, 'visible', true);
       });
 
       this.assertComponentElement(this.firstChild, {
@@ -15185,7 +15156,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
       });
 
       this.runTask(function () {
-        (0, _emberMetal.set)(_this75.context, 'visible', false);
+        (0, _emberMetal.set)(_this74.context, 'visible', false);
       });
 
       this.assertComponentElement(this.firstChild, {
@@ -15195,11 +15166,11 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
     };
 
     _class.prototype['@test adds isVisible binding when style binding is missing and other bindings exist'] = function (assert) {
-      var _this76 = this;
+      var _this75 = this;
 
       var assertStyle = function (expected) {
         var matcher = (0, _testHelpers.styles)(expected);
-        var actual = _this76.firstChild.getAttribute('style');
+        var actual = _this75.firstChild.getAttribute('style');
 
         assert.pushResult({
           result: matcher.match(actual),
@@ -15227,14 +15198,14 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
       this.assertStableRerender();
 
       this.runTask(function () {
-        (0, _emberMetal.set)(_this76.context, 'visible', true);
+        (0, _emberMetal.set)(_this75.context, 'visible', true);
       });
 
       assertStyle('');
 
       this.runTask(function () {
-        (0, _emberMetal.set)(_this76.context, 'visible', false);
-        (0, _emberMetal.set)(_this76.context, 'foo', 'woo');
+        (0, _emberMetal.set)(_this75.context, 'visible', false);
+        (0, _emberMetal.set)(_this75.context, 'foo', 'woo');
       });
 
       assertStyle('display: none;');
@@ -15242,14 +15213,14 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
     };
 
     _class.prototype['@test it can use readDOMAttr to read input value'] = function () {
-      var _this77 = this;
+      var _this76 = this;
 
       var component = void 0;
       var assertElement = function (expectedValue) {
         // value is a property, not an attribute
-        _this77.assertHTML('<input class="ember-view" id="' + component.elementId + '">');
-        _this77.assert.equal(_this77.firstChild.value, expectedValue, 'value property is correct');
-        _this77.assert.equal((0, _emberMetal.get)(component, 'value'), expectedValue, 'component.get("value") is correct');
+        _this76.assertHTML('<input class="ember-view" id="' + component.elementId + '">');
+        _this76.assert.equal(_this76.firstChild.value, expectedValue, 'value property is correct');
+        _this76.assert.equal((0, _emberMetal.get)(component, 'value'), expectedValue, 'component.get("value") is correct');
       };
 
       this.registerComponent('one-way-input', {
@@ -15277,15 +15248,15 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
       this.assertStableRerender();
 
       this.runTask(function () {
-        _this77.firstChild.value = 'bar';
-        _this77.$('input').trigger('change');
+        _this76.firstChild.value = 'bar';
+        _this76.$('input').trigger('change');
       });
 
       assertElement('bar');
 
       this.runTask(function () {
-        _this77.firstChild.value = 'foo';
-        _this77.$('input').trigger('change');
+        _this76.firstChild.value = 'foo';
+        _this76.$('input').trigger('change');
       });
 
       assertElement('foo');
@@ -15297,8 +15268,8 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
       assertElement('bar');
 
       this.runTask(function () {
-        _this77.firstChild.value = 'foo';
-        _this77.$('input').trigger('change');
+        _this76.firstChild.value = 'foo';
+        _this76.$('input').trigger('change');
       });
 
       assertElement('foo');
@@ -15386,7 +15357,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
     };
 
     _class.prototype['@test using didInitAttrs as an event is deprecated'] = function (assert) {
-      var _this78 = this;
+      var _this77 = this;
 
       this.registerComponent('foo-bar', {
         ComponentClass: _helpers.Component.extend({
@@ -15397,12 +15368,12 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
       });
 
       expectDeprecation(function () {
-        _this78.render('{{foo-bar}}');
+        _this77.render('{{foo-bar}}');
       }, /didInitAttrs called/);
     };
 
     _class.prototype['@test did{Init,Receive}Attrs fires even if component is not rendered'] = function (assert) {
-      var _this79 = this;
+      var _this78 = this;
 
       expectDeprecation(/didInitAttrs called/);
 
@@ -15433,7 +15404,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
       assert.strictEqual(didReceiveAttrsCount, 0, 'precond: didReceiveAttrs is not fired');
 
       this.runTask(function () {
-        return _this79.component = _this79.owner.lookup('component:foo-bar');
+        return _this78.component = _this78.owner.lookup('component:foo-bar');
       });
 
       assert.strictEqual(didInitAttrsCount, 1, 'precond: didInitAttrs is fired');
@@ -15441,7 +15412,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
     };
 
     _class.prototype['@test did{Init,Receive}Attrs fires after .init() but before observers become active'] = function (assert) {
-      var _this80 = this;
+      var _this79 = this;
 
       expectDeprecation(/didInitAttrs called/);
 
@@ -15482,7 +15453,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
       assert.strictEqual(barCopyDidChangeCount, 0, 'expected NO observer firing for: barCopy');
 
       this.runTask(function () {
-        return (0, _emberMetal.set)(_this80.context, 'foo', 5);
+        return (0, _emberMetal.set)(_this79.context, 'foo', 5);
       });
 
       this.assertText('5-2-3-4');
@@ -15491,7 +15462,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
       assert.strictEqual(barCopyDidChangeCount, 0, 'expected NO observer firing for: barCopy');
 
       this.runTask(function () {
-        return (0, _emberMetal.set)(_this80.context, 'bar', 7);
+        return (0, _emberMetal.set)(_this79.context, 'bar', 7);
       });
 
       this.assertText('5-2-7-8');
@@ -15515,7 +15486,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
     };
 
     _class.prototype['@test overriding didUpdateAttrs does not trigger deprecation'] = function (assert) {
-      var _this81 = this;
+      var _this80 = this;
 
       this.registerComponent('foo-bar', {
         ComponentClass: _helpers.Component.extend({
@@ -15530,12 +15501,12 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
       this.render('{{foo-bar foo=foo bar=bar}}', { foo: 1, bar: 3 });
 
       this.runTask(function () {
-        return (0, _emberMetal.set)(_this81.context, 'foo', 5);
+        return (0, _emberMetal.set)(_this80.context, 'foo', 5);
       });
     };
 
     _class.prototype['@test returning `true` from an action does not bubble if `target` is not specified (GH#14275)'] = function (assert) {
-      var _this82 = this;
+      var _this81 = this;
 
       this.registerComponent('display-toggle', {
         ComponentClass: _helpers.Component.extend({
@@ -15559,12 +15530,12 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
       this.assertText('Show');
 
       this.runTask(function () {
-        return _this82.$('button').click();
+        return _this81.$('button').click();
       });
     };
 
     _class.prototype['@test returning `true` from an action bubbles to the `target` if specified'] = function (assert) {
-      var _this83 = this;
+      var _this82 = this;
 
       assert.expect(4);
 
@@ -15591,7 +15562,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
       this.assertText('Show');
 
       this.runTask(function () {
-        return _this83.$('button').click();
+        return _this82.$('button').click();
       });
     };
 
@@ -15645,7 +15616,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
     };
 
     _class.prototype['@test component yielding in an {{#each}} has correct block values after rerendering (GH#14284)'] = function () {
-      var _this84 = this;
+      var _this83 = this;
 
       this.registerComponent('list-items', {
         template: '{{#each items as |item|}}{{yield item}}{{/each}}'
@@ -15661,13 +15632,13 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
       this.assertStableRerender();
 
       this.runTask(function () {
-        return (0, _emberMetal.set)(_this84.context, 'editMode', true);
+        return (0, _emberMetal.set)(_this83.context, 'editMode', true);
       });
 
       this.assertText('|foo|Remove foo|bar|Remove bar|qux|Remove qux|baz|Remove baz');
 
       this.runTask(function () {
-        return (0, _emberMetal.set)(_this84.context, 'editMode', false);
+        return (0, _emberMetal.set)(_this83.context, 'editMode', false);
       });
 
       this.assertText('|foo||bar||qux||baz|');
@@ -46055,55 +46026,6 @@ enifed('ember-routing/tests/system/route_test', ['ember-utils', 'internal-test-h
     equal(undefined, route.send('nonexistent', 1, 2, 3));
   });
 
-  QUnit.test('can access `actions` hash via `_actions` [DEPRECATED]', function () {
-    expect(2);
-
-    var route = _route.default.extend({
-      actions: {
-        foo: function () {
-          ok(true, 'called foo action');
-        }
-      }
-    }).create();
-
-    expectDeprecation(function () {
-      route._actions.foo();
-    }, 'Usage of `_actions` is deprecated, use `actions` instead.');
-  });
-
-  QUnit.test('actions in both `_actions` and `actions` results in an assertion', function () {
-    expectAssertion(function () {
-      _route.default.extend({
-        _actions: {},
-        actions: {}
-      }).create();
-    }, 'Specifying `_actions` and `actions` in the same mixin is not supported.');
-  });
-
-  QUnit.test('actions added via `_actions` can be used [DEPRECATED]', function () {
-    expect(3);
-
-    var route = void 0;
-    expectDeprecation(function () {
-      route = _route.default.extend({
-        _actions: {
-          bar: function () {
-            ok(true, 'called bar action');
-          }
-        }
-      }, {
-        actions: {
-          foo: function () {
-            ok(true, 'called foo action');
-          }
-        }
-      }).create();
-    }, 'Specifying actions in `_actions` is deprecated, please use `actions` instead.');
-
-    route.send('foo');
-    route.send('bar');
-  });
-
   QUnit.module('Ember.Route serialize', {
     setup: setup,
     teardown: teardown
@@ -48629,22 +48551,6 @@ enifed('ember-runtime/tests/controllers/controller_test', ['ember-runtime/contro
   /* global EmberDev */
 
   QUnit.module('Controller event handling');
-
-  QUnit.test('can access `actions` hash via `_actions` [DEPRECATED]', function () {
-    expect(2);
-
-    var controller = _controller.default.extend({
-      actions: {
-        foo: function () {
-          ok(true, 'called foo action');
-        }
-      }
-    }).create();
-
-    expectDeprecation(function () {
-      controller._actions.foo();
-    }, 'Usage of `_actions` is deprecated, use `actions` instead.');
-  });
 
   QUnit.test('Action can be handled by a function on actions object', function () {
     expect(1);

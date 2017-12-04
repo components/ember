@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.0.0-alpha.1-null+845e53e6
+ * @version   3.0.0-alpha.1-null+ca82befb
  */
 
 /*global process */
@@ -26871,6 +26871,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       }
 
       if (props) {
+        // remove willMergeMixin after 3.4 as it was used for _actions
         if (base.willMergeMixin) {
           base.willMergeMixin(props);
         }
@@ -30870,8 +30871,6 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
     }
   });
 
-  (0, _emberRuntime.deprecateUnderscoreActions)(Route);
-
   Route.reopenClass({
     isRouteFactory: true
   });
@@ -34408,7 +34407,7 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-utils
     }));
   }
 });
-enifed('ember-runtime/controllers/controller', ['exports', 'ember-debug', 'ember-runtime/system/object', 'ember-runtime/mixins/controller', 'ember-runtime/inject', 'ember-runtime/mixins/action_handler'], function (exports, _emberDebug, _object, _controller, _inject, _action_handler) {
+enifed('ember-runtime/controllers/controller', ['exports', 'ember-debug', 'ember-runtime/system/object', 'ember-runtime/mixins/controller', 'ember-runtime/inject'], function (exports, _emberDebug, _object, _controller, _inject) {
   'use strict';
 
   /**
@@ -34423,8 +34422,6 @@ enifed('ember-runtime/controllers/controller', ['exports', 'ember-debug', 'ember
   */
 
   var Controller = _object.default.extend(_controller.default);
-
-  (0, _action_handler.deprecateUnderscoreActions)(Controller);
 
   /**
     Creates a property that lazily looks up another controller in the container.
@@ -34888,7 +34885,7 @@ enifed('ember-runtime/ext/string', ['ember-environment', 'ember-runtime/system/s
 enifed('ember-runtime/index', ['exports', 'ember-runtime/system/object', 'ember-runtime/system/string', 'ember-runtime/mixins/registry_proxy', 'ember-runtime/mixins/container_proxy', 'ember-runtime/copy', 'ember-runtime/inject', 'ember-runtime/compare', 'ember-runtime/is-equal', 'ember-runtime/mixins/array', 'ember-runtime/mixins/comparable', 'ember-runtime/system/namespace', 'ember-runtime/system/array_proxy', 'ember-runtime/system/object_proxy', 'ember-runtime/system/core_object', 'ember-runtime/system/native_array', 'ember-runtime/mixins/action_handler', 'ember-runtime/mixins/copyable', 'ember-runtime/mixins/enumerable', 'ember-runtime/mixins/-proxy', 'ember-runtime/system/lazy_load', 'ember-runtime/mixins/observable', 'ember-runtime/mixins/mutable_enumerable', 'ember-runtime/mixins/mutable_array', 'ember-runtime/mixins/target_action_support', 'ember-runtime/mixins/evented', 'ember-runtime/mixins/promise_proxy', 'ember-runtime/computed/computed_macros', 'ember-runtime/computed/reduce_computed_macros', 'ember-runtime/controllers/controller', 'ember-runtime/mixins/controller', 'ember-runtime/system/service', 'ember-runtime/ext/rsvp', 'ember-runtime/utils', 'ember-runtime/string_registry', 'ember-runtime/ext/string', 'ember-runtime/ext/function'], function (exports, _object, _string, _registry_proxy, _container_proxy, _copy, _inject, _compare, _isEqual, _array, _comparable, _namespace, _array_proxy, _object_proxy, _core_object, _native_array, _action_handler, _copyable, _enumerable, _proxy, _lazy_load, _observable, _mutable_enumerable, _mutable_array, _target_action_support, _evented, _promise_proxy, _computed_macros, _reduce_computed_macros, _controller, _controller2, _service, _rsvp, _utils, _string_registry) {
   'use strict';
 
-  exports.setStrings = exports.getStrings = exports.typeOf = exports.isArray = exports.onerrorDefault = exports.RSVP = exports.Service = exports.ControllerMixin = exports.Controller = exports.collect = exports.intersect = exports.union = exports.uniqBy = exports.uniq = exports.filterBy = exports.filter = exports.mapBy = exports.setDiff = exports.sort = exports.map = exports.max = exports.min = exports.sum = exports.or = exports.and = exports.deprecatingAlias = exports.readOnly = exports.oneWay = exports.lte = exports.lt = exports.gte = exports.gt = exports.equal = exports.match = exports.bool = exports.not = exports.none = exports.notEmpty = exports.empty = exports.PromiseProxyMixin = exports.Evented = exports.TargetActionSupport = exports.removeAt = exports.MutableArray = exports.MutableEnumerable = exports.Observable = exports._loaded = exports.runLoadHooks = exports.onLoad = exports._ProxyMixin = exports.Enumerable = exports.Copyable = exports.deprecateUnderscoreActions = exports.ActionHandler = exports.A = exports.NativeArray = exports.CoreObject = exports.ObjectProxy = exports.ArrayProxy = exports.setNamespaceSearchDisabled = exports.isNamespaceSearchDisabled = exports.Namespace = exports.Comparable = exports.removeArrayObserver = exports.addArrayObserver = exports.isEmberArray = exports.objectAt = exports.Array = exports.isEqual = exports.compare = exports.inject = exports.copy = exports.ContainerProxyMixin = exports.RegistryProxyMixin = exports.String = exports.FrameworkObject = exports.Object = undefined;
+  exports.setStrings = exports.getStrings = exports.typeOf = exports.isArray = exports.onerrorDefault = exports.RSVP = exports.Service = exports.ControllerMixin = exports.Controller = exports.collect = exports.intersect = exports.union = exports.uniqBy = exports.uniq = exports.filterBy = exports.filter = exports.mapBy = exports.setDiff = exports.sort = exports.map = exports.max = exports.min = exports.sum = exports.or = exports.and = exports.deprecatingAlias = exports.readOnly = exports.oneWay = exports.lte = exports.lt = exports.gte = exports.gt = exports.equal = exports.match = exports.bool = exports.not = exports.none = exports.notEmpty = exports.empty = exports.PromiseProxyMixin = exports.Evented = exports.TargetActionSupport = exports.removeAt = exports.MutableArray = exports.MutableEnumerable = exports.Observable = exports._loaded = exports.runLoadHooks = exports.onLoad = exports._ProxyMixin = exports.Enumerable = exports.Copyable = exports.ActionHandler = exports.A = exports.NativeArray = exports.CoreObject = exports.ObjectProxy = exports.ArrayProxy = exports.setNamespaceSearchDisabled = exports.isNamespaceSearchDisabled = exports.Namespace = exports.Comparable = exports.removeArrayObserver = exports.addArrayObserver = exports.isEmberArray = exports.objectAt = exports.Array = exports.isEqual = exports.compare = exports.inject = exports.copy = exports.ContainerProxyMixin = exports.RegistryProxyMixin = exports.String = exports.FrameworkObject = exports.Object = undefined;
   Object.defineProperty(exports, 'Object', {
     enumerable: true,
     get: function () {
@@ -35031,12 +35028,6 @@ enifed('ember-runtime/index', ['exports', 'ember-runtime/system/object', 'ember-
     enumerable: true,
     get: function () {
       return _action_handler.default;
-    }
-  });
-  Object.defineProperty(exports, 'deprecateUnderscoreActions', {
-    enumerable: true,
-    get: function () {
-      return _action_handler.deprecateUnderscoreActions;
     }
   });
   Object.defineProperty(exports, 'Copyable', {
@@ -35603,21 +35594,6 @@ enifed('ember-runtime/mixins/-proxy', ['exports', 'ember-babel', '@glimmer/refer
 enifed('ember-runtime/mixins/action_handler', ['exports', 'ember-metal', 'ember-debug'], function (exports, _emberMetal, _emberDebug) {
   'use strict';
 
-  exports.deprecateUnderscoreActions = function (factory) {
-    Object.defineProperty(factory.prototype, '_actions', {
-      configurable: true,
-      enumerable: false,
-      set: function () {
-        false && !false && (0, _emberDebug.assert)('You cannot set `_actions` on ' + this + ', please use `actions` instead.');
-      },
-      get: function () {
-        false && !false && (0, _emberDebug.deprecate)('Usage of `_actions` is deprecated, use `actions` instead.', false, { id: 'ember-runtime.action-handler-_actions', until: '3.0.0' });
-
-        return (0, _emberMetal.get)(this, 'actions');
-      }
-    });
-  };
-
   /**
     `Ember.ActionHandler` is available on some familiar classes including
     `Ember.Route`, `Ember.Component`, and `Ember.Controller`.
@@ -35658,16 +35634,6 @@ enifed('ember-runtime/mixins/action_handler', ['exports', 'ember-metal', 'ember-
         false && !(typeof target.send === 'function') && (0, _emberDebug.assert)('The `target` for ' + this + ' (' + target + ') does not have a `send` method', typeof target.send === 'function');
 
         target.send.apply(target, arguments);
-      }
-    },
-    willMergeMixin: function (props) {
-      false && !(!props.actions || !props._actions) && (0, _emberDebug.assert)('Specifying `_actions` and `actions` in the same mixin is not supported.', !props.actions || !props._actions);
-
-      if (props._actions) {
-        false && !false && (0, _emberDebug.deprecate)('Specifying actions in `_actions` is deprecated, please use `actions` instead.', false, { id: 'ember-runtime.action-handler-_actions', until: '3.0.0' });
-
-        props.actions = props._actions;
-        delete props._actions;
       }
     }
   });
@@ -42448,8 +42414,6 @@ enifed('ember-views/views/core_view', ['exports', 'ember-runtime', 'ember-views/
     }
   });
 
-  (0, _emberRuntime.deprecateUnderscoreActions)(CoreView);
-
   CoreView.reopenClass({
     isViewFactory: true
   });
@@ -43100,7 +43064,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "3.0.0-alpha.1-null+845e53e6";
+  exports.default = "3.0.0-alpha.1-null+ca82befb";
 });
 /*global enifed */
 enifed('node-module', ['exports'], function(_exports) {
