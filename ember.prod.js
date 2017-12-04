@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.18.0-beta.1-null+f9d28d8b
+ * @version   2.18.0-beta.1-null+dd366426
  */
 
 /*global process */
@@ -9595,17 +9595,20 @@ enifed('backburner', ['exports'], function (exports) {
             var queue = this._queue;
             var guid = this.guidForTarget(target);
             var targetQueue = guid ? this.targetQueues[guid] : undefined;
+            var index = void 0;
             if (targetQueue !== undefined) {
                 t = void 0;
 
                 for (i = 0, l = targetQueue.length; i < l; i += 2) {
                     t = targetQueue[i];
                     if (t === method) {
-                        targetQueue.splice(i, 1);
+                        index = targetQueue.splice(i, 2)[1];
                     }
                 }
             }
-            var index = findItem(target, method, queue);
+            if (index === undefined) {
+                index = findItem(target, method, queue);
+            }
             if (index > -1) {
                 queue.splice(index, 4);
                 return true;
@@ -9676,7 +9679,7 @@ enifed('backburner', ['exports'], function (exports) {
         };
 
         Queue.prototype.invoke = function (target, method, args /*, onError, errorRecordedForStack */) {
-            if (args && args.length > 0) {
+            if (args !== undefined) {
                 method.apply(target, args);
             } else {
                 method.call(target);
@@ -9685,7 +9688,7 @@ enifed('backburner', ['exports'], function (exports) {
 
         Queue.prototype.invokeWithOnError = function (target, method, args, onError, errorRecordedForStack) {
             try {
-                if (args && args.length > 0) {
+                if (args !== undefined) {
                     method.apply(target, args);
                 } else {
                     method.call(target);
@@ -9943,43 +9946,16 @@ enifed('backburner', ['exports'], function (exports) {
                 method = _parseArgs[1],
                 args = _parseArgs[2];
 
-            var onError = getOnError(this.options);
-            this.begin();
-            if (onError) {
-                try {
-                    return method.apply(target, args);
-                } catch (error) {
-                    onError(error);
-                } finally {
-                    this.end();
-                }
-            } else {
-                try {
-                    return method.apply(target, args);
-                } finally {
-                    this.end();
-                }
-            }
+            return this._run(target, method, args);
         };
 
         Backburner.prototype.join = function () {
-            if (this.currentInstance === null) {
-                return this.run.apply(this, arguments);
-            }
-
             var _parseArgs2 = parseArgs.apply(undefined, arguments),
                 target = _parseArgs2[0],
                 method = _parseArgs2[1],
                 args = _parseArgs2[2];
 
-            var length = arguments.length;
-            if (length === 1) {
-                return method();
-            } else if (length === 2) {
-                return method.call(target);
-            } else {
-                return method.apply(target, args);
-            }
+            return this._join(target, method, args);
         };
 
         Backburner.prototype.defer = function () {
@@ -10125,12 +10101,15 @@ enifed('backburner', ['exports'], function (exports) {
                 wait = args.pop();
                 isImmediate = immediate === true;
             }
-            wait = parseInt(wait, 10);
+            if (isString(method)) {
+                method = target[method];
+            }
             var index = findItem(target, method, this._throttlers);
             if (index > -1) {
                 this._throttlers[index + 2] = args;
                 return this._throttlers[index + 3];
             } // throttled
+            wait = parseInt(wait, 10);
             var timer = this._platform.setTimeout(function () {
                 var i = findTimer(timer, _this2._throttlers);
 
@@ -10140,11 +10119,11 @@ enifed('backburner', ['exports'], function (exports) {
                     params = _throttlers$splice[2];
 
                 if (isImmediate === false) {
-                    _this2.run.apply(_this2, [context, func].concat(params));
+                    _this2._run(context, func, params);
                 }
             }, wait);
             if (isImmediate) {
-                this.join.apply(this, [target, method].concat(args));
+                this._join(target, method, args);
             }
             this._throttlers.push(target, method, args, timer);
             return timer;
@@ -10171,6 +10150,9 @@ enifed('backburner', ['exports'], function (exports) {
                 wait = args.pop();
                 isImmediate = immediate === true;
             }
+            if (isString(method)) {
+                method = target[method];
+            }
             wait = parseInt(wait, 10);
             // Remove debouncee
             var index = findItem(target, method, this._debouncees);
@@ -10189,11 +10171,11 @@ enifed('backburner', ['exports'], function (exports) {
                     params = _debouncees$splice[2];
 
                 if (isImmediate === false) {
-                    _this3.run.apply(_this3, [context, func].concat(params));
+                    _this3._run(context, func, params);
                 }
             }, wait);
             if (isImmediate && index === -1) {
-                this.join.apply(this, [target, method].concat(args));
+                this._join(target, method, args);
             }
             this._debouncees.push(target, method, args, timer);
             return timer;
@@ -10236,6 +10218,37 @@ enifed('backburner', ['exports'], function (exports) {
 
         Backburner.prototype.ensureInstance = function () {
             this._ensureInstance();
+        };
+
+        Backburner.prototype._join = function (target, method, args) {
+            if (this.currentInstance === null) {
+                return this._run(target, method, args);
+            }
+            if (target === undefined && args === undefined) {
+                return method();
+            } else {
+                return method.apply(target, args);
+            }
+        };
+
+        Backburner.prototype._run = function (target, method, args) {
+            var onError = getOnError(this.options);
+            this.begin();
+            if (onError) {
+                try {
+                    return method.apply(target, args);
+                } catch (error) {
+                    onError(error);
+                } finally {
+                    this.end();
+                }
+            } else {
+                try {
+                    return method.apply(target, args);
+                } finally {
+                    this.end();
+                }
+            }
         };
 
         Backburner.prototype._cancelAutorun = function () {
@@ -43811,7 +43824,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.18.0-beta.1-null+f9d28d8b";
+  exports.default = "2.18.0-beta.1-null+dd366426";
 });
 /*global enifed */
 enifed('node-module', ['exports'], function(_exports) {
