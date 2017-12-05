@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.0.0-alpha.1-null+ca82befb
+ * @version   3.0.0-alpha.1-null+d5f57aad
  */
 
 /*global process */
@@ -21485,6 +21485,8 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     @public
   */
   function addListener(obj, eventName, target, method, once) {
+    if (emberEnvironment.ENV._ENABLE_DID_INIT_ATTRS_SUPPORT === true) {}
+
     if (!method && 'function' === typeof target) {
       method = target;
       target = null;
@@ -41577,7 +41579,9 @@ enifed('ember-views/mixins/view_support', ['exports', 'ember-utils', 'ember-meta
     concatenatedProperties: ['attributeBindings']
 
   }, _Mixin$create[_core_object.POST_INIT] = function () {
-    this.trigger('didInitAttrs');
+    if (_emberEnvironment.ENV._ENABLE_DID_INIT_ATTRS_SUPPORT === true) {
+      this.trigger('didInitAttrs');
+    }
     this.trigger('didReceiveAttrs');
   }, _Mixin$create.nearestOfType = function (klass) {
     var view = this.parentView;
@@ -41688,11 +41692,16 @@ enifed('ember-views/mixins/view_support', ['exports', 'ember-utils', 'ember-meta
       }
     }
 
-    false && !(typeof this.didInitAttrs !== 'function') && (0, _emberDebug.deprecate)('[DEPRECATED] didInitAttrs called in ' + this.toString() + '.', typeof this.didInitAttrs !== 'function', {
-      id: 'ember-views.did-init-attrs',
-      until: '3.0.0',
-      url: 'https://emberjs.com/deprecations/v2.x#toc_ember-component-didinitattrs'
-    });
+    if (_emberEnvironment.environment._ENABLE_DID_INIT_ATTRS_SUPPORT) {
+      false && !(typeof this.didInitAttrs !== 'function') && (0, _emberDebug.deprecate)('[DEPRECATED] didInitAttrs called in ' + this.toString() + '.', typeof this.didInitAttrs !== 'function', {
+        id: 'ember-views.did-init-attrs',
+        until: '3.0.0',
+        url: 'https://emberjs.com/deprecations/v2.x#toc_ember-component-didinitattrs'
+      });
+    } else {
+      false && !(typeof this.didInitAttrs !== 'function') && (0, _emberDebug.assert)('didInitAttrs called in ' + this.toString() + ' is no longer supported.', typeof this.didInitAttrs !== 'function');
+    }
+
     false && !!this.render && (0, _emberDebug.assert)('Using a custom `.render` function is no longer supported.', !this.render);
   }, _Mixin$create.__defineNonEnumerable = function (property) {
     this[property.name] = property.descriptor.value;
@@ -43064,7 +43073,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "3.0.0-alpha.1-null+ca82befb";
+  exports.default = "3.0.0-alpha.1-null+d5f57aad";
 });
 /*global enifed */
 enifed('node-module', ['exports'], function(_exports) {

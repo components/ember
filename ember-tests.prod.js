@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.0.0-alpha.1-null+ca82befb
+ * @version   3.0.0-alpha.1-null+d5f57aad
  */
 
 /*global process */
@@ -8835,7 +8835,7 @@ enifed('ember-glimmer/tests/integration/components/append-test', ['ember-babel',
     };
 
     AbstractAppendTest.prototype['@test lifecycle hooks during component append'] = function (assert) {
-      var _this4 = this;
+      var _this3 = this;
 
       var hooks = [];
 
@@ -8851,12 +8851,7 @@ enifed('ember-glimmer/tests/integration/components/append-test', ['ember-babel',
         var options = {
           ComponentClass: _options.ComponentClass.extend({
             init: function () {
-              var _this3 = this,
-                  _arguments = arguments;
-
-              expectDeprecation(function () {
-                _this3._super.apply(_this3, _arguments);
-              }, /didInitAttrs called/);
+              this._super.apply(this, arguments);
               if (name in componentsByName) {
                 throw new TypeError('Component named: ` ' + name + ' ` already registered');
               }
@@ -8865,9 +8860,6 @@ enifed('ember-glimmer/tests/integration/components/append-test', ['ember-babel',
               this.on('init', function () {
                 return pushHook('on(init)');
               });
-            },
-            didInitAttrs: function (options) {
-              pushHook('didInitAttrs', options);
             },
             didReceiveAttrs: function () {
               pushHook('didReceiveAttrs');
@@ -8935,13 +8927,13 @@ enifed('ember-glimmer/tests/integration/components/append-test', ['ember-babel',
 
       this.component = XParent.create({ foo: 'zomg' });
 
-      assert.deepEqual(hooks, [['x-parent', 'init'], ['x-parent', 'didInitAttrs'], ['x-parent', 'didReceiveAttrs'], ['x-parent', 'on(init)']], 'creation of x-parent');
+      assert.deepEqual(hooks, [['x-parent', 'init'], ['x-parent', 'didReceiveAttrs'], ['x-parent', 'on(init)']], 'creation of x-parent');
 
       hooks.length = 0;
 
       this.element = this.append(this.component);
 
-      assert.deepEqual(hooks, [['x-parent', 'willInsertElement'], ['x-child', 'init'], ['x-child', 'didInitAttrs'], ['x-child', 'didReceiveAttrs'], ['x-child', 'on(init)'], ['x-child', 'willRender'], ['x-child', 'willInsertElement'], ['x-child', 'didInsertElement'], ['x-child', 'didRender'], ['x-parent', 'didInsertElement'], ['x-parent', 'didRender']], 'appending of x-parent');
+      assert.deepEqual(hooks, [['x-parent', 'willInsertElement'], ['x-child', 'init'], ['x-child', 'didReceiveAttrs'], ['x-child', 'on(init)'], ['x-child', 'willRender'], ['x-child', 'willInsertElement'], ['x-child', 'didInsertElement'], ['x-child', 'didRender'], ['x-parent', 'didInsertElement'], ['x-parent', 'didRender']], 'appending of x-parent');
 
       hooks.length = 0;
 
@@ -8962,7 +8954,7 @@ enifed('ember-glimmer/tests/integration/components/append-test', ['ember-babel',
       hooks.length = 0;
 
       this.runTask(function () {
-        return (0, _emberMetal.set)(_this4.component, 'foo', 'wow');
+        return (0, _emberMetal.set)(_this3.component, 'foo', 'wow');
       });
 
       assert.deepEqual(hooks, [['x-parent', 'willUpdate'], ['x-parent', 'willRender'], ['x-child', 'didUpdateAttrs'], ['x-child', 'didReceiveAttrs'], ['x-child', 'willUpdate'], ['x-child', 'willRender'], ['x-child', 'didUpdate'], ['x-child', 'didRender'], ['x-parent', 'didUpdate'], ['x-parent', 'didRender']], 'set foo = wow');
@@ -8970,7 +8962,7 @@ enifed('ember-glimmer/tests/integration/components/append-test', ['ember-babel',
       hooks.length = 0;
 
       this.runTask(function () {
-        return (0, _emberMetal.set)(_this4.component, 'foo', 'zomg');
+        return (0, _emberMetal.set)(_this3.component, 'foo', 'zomg');
       });
 
       assert.deepEqual(hooks, [['x-parent', 'willUpdate'], ['x-parent', 'willRender'], ['x-child', 'didUpdateAttrs'], ['x-child', 'didReceiveAttrs'], ['x-child', 'willUpdate'], ['x-child', 'willRender'], ['x-child', 'didUpdate'], ['x-child', 'didRender'], ['x-parent', 'didUpdate'], ['x-parent', 'didRender']], 'set foo = zomg');
@@ -8978,14 +8970,14 @@ enifed('ember-glimmer/tests/integration/components/append-test', ['ember-babel',
       hooks.length = 0;
 
       this.runTask(function () {
-        return _this4.component.destroy();
+        return _this3.component.destroy();
       });
 
       assert.deepEqual(hooks, [['x-parent', 'willDestroyElement'], ['x-parent', 'willClearRender'], ['x-child', 'willDestroyElement'], ['x-child', 'willClearRender'], ['x-child', 'didDestroyElement'], ['x-parent', 'didDestroyElement'], ['x-parent', 'willDestroy'], ['x-child', 'willDestroy']], 'destroy');
     };
 
     AbstractAppendTest.prototype['@test appending, updating and destroying a single component'] = function (assert) {
-      var _this5 = this;
+      var _this4 = this;
 
       var willDestroyCalled = 0;
 
@@ -9025,7 +9017,7 @@ enifed('ember-glimmer/tests/integration/components/append-test', ['ember-babel',
       assert.equal(componentElement.parentElement, this.element, 'It should be attached to the target');
 
       this.runTask(function () {
-        return _this5.rerender();
+        return _this4.rerender();
       });
 
       this.assertComponentElement(componentElement, { content: '[parent: zomg][child: zomg][yielded: zomg]' });
@@ -9033,7 +9025,7 @@ enifed('ember-glimmer/tests/integration/components/append-test', ['ember-babel',
       assert.equal(componentElement.parentElement, this.element, 'It should be attached to the target');
 
       this.runTask(function () {
-        return (0, _emberMetal.set)(_this5.component, 'foo', 'wow');
+        return (0, _emberMetal.set)(_this4.component, 'foo', 'wow');
       });
 
       this.assertComponentElement(componentElement, { content: '[parent: wow][child: wow][yielded: wow]' });
@@ -9041,7 +9033,7 @@ enifed('ember-glimmer/tests/integration/components/append-test', ['ember-babel',
       assert.equal(componentElement.parentElement, this.element, 'It should be attached to the target');
 
       this.runTask(function () {
-        return (0, _emberMetal.set)(_this5.component, 'foo', 'zomg');
+        return (0, _emberMetal.set)(_this4.component, 'foo', 'zomg');
       });
 
       this.assertComponentElement(componentElement, { content: '[parent: zomg][child: zomg][yielded: zomg]' });
@@ -9049,7 +9041,7 @@ enifed('ember-glimmer/tests/integration/components/append-test', ['ember-babel',
       assert.equal(componentElement.parentElement, this.element, 'It should be attached to the target');
 
       this.runTask(function () {
-        return _this5.component.destroy();
+        return _this4.component.destroy();
       });
 
       assert.ok(!this.component.element, 'It should not have an element');
@@ -9059,7 +9051,7 @@ enifed('ember-glimmer/tests/integration/components/append-test', ['ember-babel',
     };
 
     AbstractAppendTest.prototype['@test releasing a root component after it has been destroy'] = function (assert) {
-      var _this6 = this;
+      var _this5 = this;
 
       var renderer = this.owner.lookup('renderer:-dom');
 
@@ -9073,14 +9065,14 @@ enifed('ember-glimmer/tests/integration/components/append-test', ['ember-babel',
       assert.equal(renderer._roots.length, 1, 'added a root component');
 
       this.runTask(function () {
-        return _this6.component.destroy();
+        return _this5.component.destroy();
       });
 
       assert.equal(renderer._roots.length, 0, 'released the root component');
     };
 
     AbstractAppendTest.prototype['@test appending, updating and destroying multiple components'] = function (assert) {
-      var _this7 = this;
+      var _this6 = this;
 
       var willDestroyCalled = 0;
 
@@ -9124,10 +9116,10 @@ enifed('ember-glimmer/tests/integration/components/append-test', ['ember-babel',
           wrapper2 = void 0;
 
       this.runTask(function () {
-        return wrapper1 = _this7.append(first);
+        return wrapper1 = _this6.append(first);
       });
       this.runTask(function () {
-        return wrapper2 = _this7.append(second);
+        return wrapper2 = _this6.append(second);
       });
 
       var componentElement1 = first.element;
@@ -9185,12 +9177,12 @@ enifed('ember-glimmer/tests/integration/components/append-test', ['ember-babel',
     };
 
     AbstractAppendTest.prototype['@test can appendTo while rendering'] = function () {
-      var _this8 = this;
+      var _this7 = this;
 
       var owner = this.owner;
 
       var append = function (component) {
-        return _this8.append(component);
+        return _this7.append(component);
       };
 
       var element1 = void 0,
@@ -9230,12 +9222,12 @@ enifed('ember-glimmer/tests/integration/components/append-test', ['ember-babel',
     };
 
     AbstractAppendTest.prototype['@test can appendTo and remove while rendering'] = function (assert) {
-      var _this9 = this;
+      var _this8 = this;
 
       var owner = this.owner;
 
       var append = function (component) {
-        return _this9.append(component);
+        return _this8.append(component);
       };
 
       var element1 = void 0,
@@ -9323,7 +9315,7 @@ enifed('ember-glimmer/tests/integration/components/append-test', ['ember-babel',
       this.assertStableRerender();
 
       this.runTask(function () {
-        return (0, _emberMetal.set)(_this9.context, 'showFooBar', false);
+        return (0, _emberMetal.set)(_this8.context, 'showFooBar', false);
       });
 
       assert.equal(instantiatedRoots, 2);
@@ -9378,7 +9370,7 @@ enifed('ember-glimmer/tests/integration/components/append-test', ['ember-babel',
     };
 
     _class2.prototype['@test raises an assertion when the target does not exist in the DOM'] = function (assert) {
-      var _this12 = this;
+      var _this11 = this;
 
       this.registerComponent('foo-bar', {
         ComponentClass: _helpers.Component.extend({
@@ -9395,7 +9387,7 @@ enifed('ember-glimmer/tests/integration/components/append-test', ['ember-babel',
 
       this.runTask(function () {
         expectAssertion(function () {
-          _this12.component.appendTo('#does-not-exist-in-dom');
+          _this11.component.appendTo('#does-not-exist-in-dom');
         }, /You tried to append to \(#does-not-exist-in-dom\) but that isn't in the DOM/);
       });
 
@@ -12424,7 +12416,7 @@ enifed('ember-glimmer/tests/integration/components/contextual-components-test', 
 
   (0, _testCase.moduleFor)('Components test: contextual components -- mutable params', ContextualComponentMutableParamsTest);
 });
-enifed('ember-glimmer/tests/integration/components/curly-components-test', ['ember-babel', 'ember-metal', 'ember-runtime', 'ember-glimmer/tests/utils/helpers', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/test-helpers'], function (_emberBabel, _emberMetal, _emberRuntime, _helpers, _abstractTestCase, _testCase, _testHelpers) {
+enifed('ember-glimmer/tests/integration/components/curly-components-test', ['ember-babel', 'ember-metal', 'ember-runtime', 'ember-environment', 'ember-glimmer/tests/utils/helpers', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/test-helpers'], function (_emberBabel, _emberMetal, _emberRuntime, _emberEnvironment, _helpers, _abstractTestCase, _testCase, _testHelpers) {
   'use strict';
 
   var _templateObject = (0, _emberBabel.taggedTemplateLiteralLoose)(['\n      {{foo-bar class="bar baz"}}\n      {{foo-bar classNames="bar baz"}}\n      {{foo-bar}}\n    '], ['\n      {{foo-bar class="bar baz"}}\n      {{foo-bar classNames="bar baz"}}\n      {{foo-bar}}\n    ']),
@@ -12475,8 +12467,17 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
     (0, _emberBabel.inherits)(_class, _RenderingTest);
 
     function _class() {
-      return (0, _emberBabel.possibleConstructorReturn)(this, _RenderingTest.apply(this, arguments));
+
+      var _this = (0, _emberBabel.possibleConstructorReturn)(this, _RenderingTest.call(this));
+
+      _this.originalDidInitAttrsSupport = _emberEnvironment.ENV._ENABLE_DID_INIT_ATTRS_SUPPORT;
+      return _this;
     }
+
+    _class.prototype.teardown = function () {
+      _emberEnvironment.ENV._ENABLE_DID_INIT_ATTRS_SUPPORT = this.originalDidInitAttrsSupport;
+      _RenderingTest.prototype.teardown.call(this);
+    };
 
     _class.prototype['@test it can render a basic component'] = function () {
       var _this2 = this;
@@ -15359,6 +15360,8 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
     _class.prototype['@test using didInitAttrs as an event is deprecated'] = function (assert) {
       var _this77 = this;
 
+      _emberEnvironment.ENV._ENABLE_DID_INIT_ATTRS_SUPPORT = true;
+
       this.registerComponent('foo-bar', {
         ComponentClass: _helpers.Component.extend({
           foo: (0, _emberMetal.on)('didInitAttrs', function () {
@@ -15372,12 +15375,25 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
       }, /didInitAttrs called/);
     };
 
-    _class.prototype['@test did{Init,Receive}Attrs fires even if component is not rendered'] = function (assert) {
+    _class.prototype['@test using didInitAttrs as an event throws an assert'] = function (assert) {
       var _this78 = this;
 
-      expectDeprecation(/didInitAttrs called/);
+      this.registerComponent('foo-bar', {
+        ComponentClass: _helpers.Component.extend({
+          foo: (0, _emberMetal.on)('didInitAttrs', function () {
+            assert.ok(true, 'should fire `didInitAttrs` event');
+          })
+        })
+      });
 
-      var didInitAttrsCount = 0;
+      expectAssertion(function () {
+        _this78.render('{{foo-bar}}');
+      }, /didInitAttrs called/);
+    };
+
+    _class.prototype['@test didReceiveAttrs fires even if component is not rendered'] = function (assert) {
+      var _this79 = this;
+
       var didReceiveAttrsCount = 0;
 
       this.registerComponent('foo-bar', {
@@ -15385,10 +15401,6 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
           init: function () {
             this._super.apply(this, arguments);
             this.didInit = true;
-          },
-          didInitAttrs: function () {
-            assert.ok(this.didInit, 'expected init to have run before didInitAttrs');
-            didInitAttrsCount++;
           },
           didReceiveAttrs: function () {
             assert.ok(this.didInit, 'expected init to have run before didReceiveAttrs');
@@ -15400,23 +15412,18 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
         })
       });
 
-      assert.strictEqual(didInitAttrsCount, 0, 'precond: didInitAttrs is not fired');
       assert.strictEqual(didReceiveAttrsCount, 0, 'precond: didReceiveAttrs is not fired');
 
       this.runTask(function () {
-        return _this78.component = _this78.owner.lookup('component:foo-bar');
+        return _this79.component = _this79.owner.lookup('component:foo-bar');
       });
 
-      assert.strictEqual(didInitAttrsCount, 1, 'precond: didInitAttrs is fired');
       assert.strictEqual(didReceiveAttrsCount, 1, 'precond: didReceiveAttrs is fired');
     };
 
-    _class.prototype['@test did{Init,Receive}Attrs fires after .init() but before observers become active'] = function (assert) {
-      var _this79 = this;
+    _class.prototype['@test didReceiveAttrs fires after .init() but before observers become active'] = function (assert) {
+      var _this80 = this;
 
-      expectDeprecation(/didInitAttrs called/);
-
-      var fooCopyDidChangeCount = 0;
       var barCopyDidChangeCount = 0;
 
       this.registerComponent('foo-bar', {
@@ -15425,49 +15432,31 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
             this._super.apply(this, arguments);
             this.didInit = true;
           },
-          didInitAttrs: function () {
-            assert.ok(this.didInit, 'expected init to have run before didInitAttrs');
-            this.set('fooCopy', this.attrs.foo.value + 1);
-          },
           didReceiveAttrs: function () {
             assert.ok(this.didInit, 'expected init to have run before didReceiveAttrs');
             this.set('barCopy', this.attrs.bar.value + 1);
           },
 
-          fooCopyDidChange: (0, _emberMetal.observer)('fooCopy', function () {
-            fooCopyDidChangeCount++;
-          }),
           barCopyDidChange: (0, _emberMetal.observer)('barCopy', function () {
             barCopyDidChangeCount++;
           })
         }),
 
-        template: '{{foo}}-{{fooCopy}}-{{bar}}-{{barCopy}}'
+        template: '{{bar}}-{{barCopy}}'
       });
 
-      this.render('{{foo-bar foo=foo bar=bar}}', { foo: 1, bar: 3 });
+      this.render('{{foo-bar bar=bar}}', { bar: 3 });
 
-      this.assertText('1-2-3-4');
+      this.assertText('3-4');
 
-      assert.strictEqual(fooCopyDidChangeCount, 0, 'expected NO observer firing for: fooCopy');
       assert.strictEqual(barCopyDidChangeCount, 0, 'expected NO observer firing for: barCopy');
 
       this.runTask(function () {
-        return (0, _emberMetal.set)(_this79.context, 'foo', 5);
+        return (0, _emberMetal.set)(_this80.context, 'bar', 7);
       });
 
-      this.assertText('5-2-3-4');
+      this.assertText('7-8');
 
-      assert.strictEqual(fooCopyDidChangeCount, 0, 'expected observer firing for: fooCopy');
-      assert.strictEqual(barCopyDidChangeCount, 0, 'expected NO observer firing for: barCopy');
-
-      this.runTask(function () {
-        return (0, _emberMetal.set)(_this79.context, 'bar', 7);
-      });
-
-      this.assertText('5-2-7-8');
-
-      assert.strictEqual(fooCopyDidChangeCount, 0, 'expected observer firing for: fooCopy');
       assert.strictEqual(barCopyDidChangeCount, 1, 'expected observer firing for: barCopy');
     };
 
@@ -15486,7 +15475,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
     };
 
     _class.prototype['@test overriding didUpdateAttrs does not trigger deprecation'] = function (assert) {
-      var _this80 = this;
+      var _this81 = this;
 
       this.registerComponent('foo-bar', {
         ComponentClass: _helpers.Component.extend({
@@ -15501,12 +15490,12 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
       this.render('{{foo-bar foo=foo bar=bar}}', { foo: 1, bar: 3 });
 
       this.runTask(function () {
-        return (0, _emberMetal.set)(_this80.context, 'foo', 5);
+        return (0, _emberMetal.set)(_this81.context, 'foo', 5);
       });
     };
 
     _class.prototype['@test returning `true` from an action does not bubble if `target` is not specified (GH#14275)'] = function (assert) {
-      var _this81 = this;
+      var _this82 = this;
 
       this.registerComponent('display-toggle', {
         ComponentClass: _helpers.Component.extend({
@@ -15530,12 +15519,12 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
       this.assertText('Show');
 
       this.runTask(function () {
-        return _this81.$('button').click();
+        return _this82.$('button').click();
       });
     };
 
     _class.prototype['@test returning `true` from an action bubbles to the `target` if specified'] = function (assert) {
-      var _this82 = this;
+      var _this83 = this;
 
       assert.expect(4);
 
@@ -15562,7 +15551,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
       this.assertText('Show');
 
       this.runTask(function () {
-        return _this82.$('button').click();
+        return _this83.$('button').click();
       });
     };
 
@@ -15616,7 +15605,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
     };
 
     _class.prototype['@test component yielding in an {{#each}} has correct block values after rerendering (GH#14284)'] = function () {
-      var _this83 = this;
+      var _this84 = this;
 
       this.registerComponent('list-items', {
         template: '{{#each items as |item|}}{{yield item}}{{/each}}'
@@ -15632,13 +15621,13 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
       this.assertStableRerender();
 
       this.runTask(function () {
-        return (0, _emberMetal.set)(_this83.context, 'editMode', true);
+        return (0, _emberMetal.set)(_this84.context, 'editMode', true);
       });
 
       this.assertText('|foo|Remove foo|bar|Remove bar|qux|Remove qux|baz|Remove baz');
 
       this.runTask(function () {
-        return (0, _emberMetal.set)(_this83.context, 'editMode', false);
+        return (0, _emberMetal.set)(_this84.context, 'editMode', false);
       });
 
       this.assertText('|foo||bar||qux||baz|');
@@ -17310,12 +17299,9 @@ enifed('ember-glimmer/tests/integration/components/life-cycle-test', ['ember-bab
 
       var ComponentClass = this.ComponentClass.extend({
         init: function () {
-          var _this3 = this,
-              _arguments = arguments;
+          var _this3 = this;
 
-          expectDeprecation(function () {
-            _this3._super.apply(_this3, _arguments);
-          }, /didInitAttrs called/);
+          this._super.apply(this, arguments);
 
           this.isInitialRender = true;
           this.componentName = name;
@@ -17332,12 +17318,6 @@ enifed('ember-glimmer/tests/integration/components/life-cycle-test', ['ember-bab
           _emberMetal.run.schedule('afterRender', function () {
             _this3.isInitialRender = false;
           });
-        },
-        didInitAttrs: function (options) {
-          pushHook('didInitAttrs', options);
-          assertParentView('didInitAttrs', this);
-          assertNoElement('didInitAttrs', this);
-          assertState('didInitAttrs', 'preRender', this);
         },
         didReceiveAttrs: function (options) {
           pushHook('didReceiveAttrs', options);
@@ -17476,7 +17456,7 @@ enifed('ember-glimmer/tests/integration/components/life-cycle-test', ['ember-bab
         interactive: [
         // Sync hooks
 
-        ['the-top', 'init'], ['the-top', 'didInitAttrs'], ['the-top', 'didReceiveAttrs'], ['the-top', 'on(init)'], ['the-top', 'willRender'], ['the-top', 'willInsertElement'], ['the-middle', 'init'], ['the-middle', 'didInitAttrs'], ['the-middle', 'didReceiveAttrs'], ['the-middle', 'on(init)'], ['the-middle', 'willRender'], ['the-middle', 'willInsertElement'], ['the-bottom', 'init'], ['the-bottom', 'didInitAttrs'], ['the-bottom', 'didReceiveAttrs'], ['the-bottom', 'on(init)'], ['the-bottom', 'willRender'], ['the-bottom', 'willInsertElement'],
+        ['the-top', 'init'], ['the-top', 'didReceiveAttrs'], ['the-top', 'on(init)'], ['the-top', 'willRender'], ['the-top', 'willInsertElement'], ['the-middle', 'init'], ['the-middle', 'didReceiveAttrs'], ['the-middle', 'on(init)'], ['the-middle', 'willRender'], ['the-middle', 'willInsertElement'], ['the-bottom', 'init'], ['the-bottom', 'didReceiveAttrs'], ['the-bottom', 'on(init)'], ['the-bottom', 'willRender'], ['the-bottom', 'willInsertElement'],
 
         // Async hooks
 
@@ -17484,7 +17464,7 @@ enifed('ember-glimmer/tests/integration/components/life-cycle-test', ['ember-bab
 
         nonInteractive: [
         // Sync hooks
-        ['the-top', 'init'], ['the-top', 'didInitAttrs'], ['the-top', 'didReceiveAttrs'], ['the-top', 'on(init)'], ['the-middle', 'init'], ['the-middle', 'didInitAttrs'], ['the-middle', 'didReceiveAttrs'], ['the-middle', 'on(init)'], ['the-bottom', 'init'], ['the-bottom', 'didInitAttrs'], ['the-bottom', 'didReceiveAttrs'], ['the-bottom', 'on(init)']]
+        ['the-top', 'init'], ['the-top', 'didReceiveAttrs'], ['the-top', 'on(init)'], ['the-middle', 'init'], ['the-middle', 'didReceiveAttrs'], ['the-middle', 'on(init)'], ['the-bottom', 'init'], ['the-bottom', 'didReceiveAttrs'], ['the-bottom', 'on(init)']]
       });
 
       this.runTask(function () {
@@ -17626,7 +17606,7 @@ enifed('ember-glimmer/tests/integration/components/life-cycle-test', ['ember-bab
         interactive: [
         // Sync hooks
 
-        ['the-parent', 'init'], ['the-parent', 'didInitAttrs'], ['the-parent', 'didReceiveAttrs'], ['the-parent', 'on(init)'], ['the-parent', 'willRender'], ['the-parent', 'willInsertElement'], ['the-first-child', 'init'], ['the-first-child', 'didInitAttrs'], ['the-first-child', 'didReceiveAttrs'], ['the-first-child', 'on(init)'], ['the-first-child', 'willRender'], ['the-first-child', 'willInsertElement'], ['the-second-child', 'init'], ['the-second-child', 'didInitAttrs'], ['the-second-child', 'didReceiveAttrs'], ['the-second-child', 'on(init)'], ['the-second-child', 'willRender'], ['the-second-child', 'willInsertElement'], ['the-last-child', 'init'], ['the-last-child', 'didInitAttrs'], ['the-last-child', 'didReceiveAttrs'], ['the-last-child', 'on(init)'], ['the-last-child', 'willRender'], ['the-last-child', 'willInsertElement'],
+        ['the-parent', 'init'], ['the-parent', 'didReceiveAttrs'], ['the-parent', 'on(init)'], ['the-parent', 'willRender'], ['the-parent', 'willInsertElement'], ['the-first-child', 'init'], ['the-first-child', 'didReceiveAttrs'], ['the-first-child', 'on(init)'], ['the-first-child', 'willRender'], ['the-first-child', 'willInsertElement'], ['the-second-child', 'init'], ['the-second-child', 'didReceiveAttrs'], ['the-second-child', 'on(init)'], ['the-second-child', 'willRender'], ['the-second-child', 'willInsertElement'], ['the-last-child', 'init'], ['the-last-child', 'didReceiveAttrs'], ['the-last-child', 'on(init)'], ['the-last-child', 'willRender'], ['the-last-child', 'willInsertElement'],
 
         // Async hooks
 
@@ -17635,7 +17615,7 @@ enifed('ember-glimmer/tests/integration/components/life-cycle-test', ['ember-bab
         nonInteractive: [
         // Sync hooks
 
-        ['the-parent', 'init'], ['the-parent', 'didInitAttrs'], ['the-parent', 'didReceiveAttrs'], ['the-parent', 'on(init)'], ['the-first-child', 'init'], ['the-first-child', 'didInitAttrs'], ['the-first-child', 'didReceiveAttrs'], ['the-first-child', 'on(init)'], ['the-second-child', 'init'], ['the-second-child', 'didInitAttrs'], ['the-second-child', 'didReceiveAttrs'], ['the-second-child', 'on(init)'], ['the-last-child', 'init'], ['the-last-child', 'didInitAttrs'], ['the-last-child', 'didReceiveAttrs'], ['the-last-child', 'on(init)']]
+        ['the-parent', 'init'], ['the-parent', 'didReceiveAttrs'], ['the-parent', 'on(init)'], ['the-first-child', 'init'], ['the-first-child', 'didReceiveAttrs'], ['the-first-child', 'on(init)'], ['the-second-child', 'init'], ['the-second-child', 'didReceiveAttrs'], ['the-second-child', 'on(init)'], ['the-last-child', 'init'], ['the-last-child', 'didReceiveAttrs'], ['the-last-child', 'on(init)']]
       });
 
       this.runTask(function () {
@@ -17790,7 +17770,7 @@ enifed('ember-glimmer/tests/integration/components/life-cycle-test', ['ember-bab
         interactive: [
         // Sync hooks
 
-        ['the-top', 'init'], ['the-top', 'didInitAttrs'], ['the-top', 'didReceiveAttrs'], ['the-top', 'on(init)'], ['the-top', 'willRender'], ['the-top', 'willInsertElement'], ['the-middle', 'init'], ['the-middle', 'didInitAttrs'], ['the-middle', 'didReceiveAttrs'], ['the-middle', 'on(init)'], ['the-middle', 'willRender'], ['the-middle', 'willInsertElement'], ['the-bottom', 'init'], ['the-bottom', 'didInitAttrs'], ['the-bottom', 'didReceiveAttrs'], ['the-bottom', 'on(init)'], ['the-bottom', 'willRender'], ['the-bottom', 'willInsertElement'],
+        ['the-top', 'init'], ['the-top', 'didReceiveAttrs'], ['the-top', 'on(init)'], ['the-top', 'willRender'], ['the-top', 'willInsertElement'], ['the-middle', 'init'], ['the-middle', 'didReceiveAttrs'], ['the-middle', 'on(init)'], ['the-middle', 'willRender'], ['the-middle', 'willInsertElement'], ['the-bottom', 'init'], ['the-bottom', 'didReceiveAttrs'], ['the-bottom', 'on(init)'], ['the-bottom', 'willRender'], ['the-bottom', 'willInsertElement'],
 
         // Async hooks
 
@@ -17799,7 +17779,7 @@ enifed('ember-glimmer/tests/integration/components/life-cycle-test', ['ember-bab
         nonInteractive: [
         // Sync hooks
 
-        ['the-top', 'init'], ['the-top', 'didInitAttrs'], ['the-top', 'didReceiveAttrs'], ['the-top', 'on(init)'], ['the-middle', 'init'], ['the-middle', 'didInitAttrs'], ['the-middle', 'didReceiveAttrs'], ['the-middle', 'on(init)'], ['the-bottom', 'init'], ['the-bottom', 'didInitAttrs'], ['the-bottom', 'didReceiveAttrs'], ['the-bottom', 'on(init)']]
+        ['the-top', 'init'], ['the-top', 'didReceiveAttrs'], ['the-top', 'on(init)'], ['the-middle', 'init'], ['the-middle', 'didReceiveAttrs'], ['the-middle', 'on(init)'], ['the-bottom', 'init'], ['the-bottom', 'didReceiveAttrs'], ['the-bottom', 'on(init)']]
       });
 
       this.runTask(function () {
@@ -17875,11 +17855,11 @@ enifed('ember-glimmer/tests/integration/components/life-cycle-test', ['ember-bab
       this.assertRegisteredViews('intial render');
 
       var initialHooks = function () {
-        var ret = [['an-item', 'init'], ['an-item', 'didInitAttrs'], ['an-item', 'didReceiveAttrs'], ['an-item', 'on(init)']];
+        var ret = [['an-item', 'init'], ['an-item', 'didReceiveAttrs'], ['an-item', 'on(init)']];
         if (_this7.isInteractive) {
           ret.push(['an-item', 'willRender'], ['an-item', 'willInsertElement']);
         }
-        ret.push(['nested-item', 'init'], ['nested-item', 'didInitAttrs'], ['nested-item', 'didReceiveAttrs'], ['nested-item', 'on(init)']);
+        ret.push(['nested-item', 'init'], ['nested-item', 'didReceiveAttrs'], ['nested-item', 'on(init)']);
         if (_this7.isInteractive) {
           ret.push(['nested-item', 'willRender'], ['nested-item', 'willInsertElement']);
         }
@@ -17921,9 +17901,9 @@ enifed('ember-glimmer/tests/integration/components/life-cycle-test', ['ember-bab
       this.assertHooks({
         label: 'reset to empty array',
 
-        interactive: [['an-item', 'willDestroyElement'], ['an-item', 'willClearRender'], ['nested-item', 'willDestroyElement'], ['nested-item', 'willClearRender'], ['an-item', 'willDestroyElement'], ['an-item', 'willClearRender'], ['nested-item', 'willDestroyElement'], ['nested-item', 'willClearRender'], ['an-item', 'willDestroyElement'], ['an-item', 'willClearRender'], ['nested-item', 'willDestroyElement'], ['nested-item', 'willClearRender'], ['an-item', 'willDestroyElement'], ['an-item', 'willClearRender'], ['nested-item', 'willDestroyElement'], ['nested-item', 'willClearRender'], ['an-item', 'willDestroyElement'], ['an-item', 'willClearRender'], ['nested-item', 'willDestroyElement'], ['nested-item', 'willClearRender'], ['no-items', 'init'], ['no-items', 'didInitAttrs'], ['no-items', 'didReceiveAttrs'], ['no-items', 'on(init)'], ['no-items', 'willRender'], ['no-items', 'willInsertElement'], ['nested-item', 'init'], ['nested-item', 'didInitAttrs'], ['nested-item', 'didReceiveAttrs'], ['nested-item', 'on(init)'], ['nested-item', 'willRender'], ['nested-item', 'willInsertElement'], ['an-item', 'didDestroyElement'], ['nested-item', 'didDestroyElement'], ['an-item', 'didDestroyElement'], ['nested-item', 'didDestroyElement'], ['an-item', 'didDestroyElement'], ['nested-item', 'didDestroyElement'], ['an-item', 'didDestroyElement'], ['nested-item', 'didDestroyElement'], ['an-item', 'didDestroyElement'], ['nested-item', 'didDestroyElement'], ['nested-item', 'didInsertElement'], ['nested-item', 'didRender'], ['no-items', 'didInsertElement'], ['no-items', 'didRender'], ['an-item', 'willDestroy'], ['nested-item', 'willDestroy'], ['an-item', 'willDestroy'], ['nested-item', 'willDestroy'], ['an-item', 'willDestroy'], ['nested-item', 'willDestroy'], ['an-item', 'willDestroy'], ['nested-item', 'willDestroy'], ['an-item', 'willDestroy'], ['nested-item', 'willDestroy']],
+        interactive: [['an-item', 'willDestroyElement'], ['an-item', 'willClearRender'], ['nested-item', 'willDestroyElement'], ['nested-item', 'willClearRender'], ['an-item', 'willDestroyElement'], ['an-item', 'willClearRender'], ['nested-item', 'willDestroyElement'], ['nested-item', 'willClearRender'], ['an-item', 'willDestroyElement'], ['an-item', 'willClearRender'], ['nested-item', 'willDestroyElement'], ['nested-item', 'willClearRender'], ['an-item', 'willDestroyElement'], ['an-item', 'willClearRender'], ['nested-item', 'willDestroyElement'], ['nested-item', 'willClearRender'], ['an-item', 'willDestroyElement'], ['an-item', 'willClearRender'], ['nested-item', 'willDestroyElement'], ['nested-item', 'willClearRender'], ['no-items', 'init'], ['no-items', 'didReceiveAttrs'], ['no-items', 'on(init)'], ['no-items', 'willRender'], ['no-items', 'willInsertElement'], ['nested-item', 'init'], ['nested-item', 'didReceiveAttrs'], ['nested-item', 'on(init)'], ['nested-item', 'willRender'], ['nested-item', 'willInsertElement'], ['an-item', 'didDestroyElement'], ['nested-item', 'didDestroyElement'], ['an-item', 'didDestroyElement'], ['nested-item', 'didDestroyElement'], ['an-item', 'didDestroyElement'], ['nested-item', 'didDestroyElement'], ['an-item', 'didDestroyElement'], ['nested-item', 'didDestroyElement'], ['an-item', 'didDestroyElement'], ['nested-item', 'didDestroyElement'], ['nested-item', 'didInsertElement'], ['nested-item', 'didRender'], ['no-items', 'didInsertElement'], ['no-items', 'didRender'], ['an-item', 'willDestroy'], ['nested-item', 'willDestroy'], ['an-item', 'willDestroy'], ['nested-item', 'willDestroy'], ['an-item', 'willDestroy'], ['nested-item', 'willDestroy'], ['an-item', 'willDestroy'], ['nested-item', 'willDestroy'], ['an-item', 'willDestroy'], ['nested-item', 'willDestroy']],
 
-        nonInteractive: [['no-items', 'init'], ['no-items', 'didInitAttrs'], ['no-items', 'didReceiveAttrs'], ['no-items', 'on(init)'], ['nested-item', 'init'], ['nested-item', 'didInitAttrs'], ['nested-item', 'didReceiveAttrs'], ['nested-item', 'on(init)'], ['an-item', 'willDestroy'], ['nested-item', 'willDestroy'], ['an-item', 'willDestroy'], ['nested-item', 'willDestroy'], ['an-item', 'willDestroy'], ['nested-item', 'willDestroy'], ['an-item', 'willDestroy'], ['nested-item', 'willDestroy'], ['an-item', 'willDestroy'], ['nested-item', 'willDestroy']]
+        nonInteractive: [['no-items', 'init'], ['no-items', 'didReceiveAttrs'], ['no-items', 'on(init)'], ['nested-item', 'init'], ['nested-item', 'didReceiveAttrs'], ['nested-item', 'on(init)'], ['an-item', 'willDestroy'], ['nested-item', 'willDestroy'], ['an-item', 'willDestroy'], ['nested-item', 'willDestroy'], ['an-item', 'willDestroy'], ['nested-item', 'willDestroy'], ['an-item', 'willDestroy'], ['nested-item', 'willDestroy'], ['an-item', 'willDestroy'], ['nested-item', 'willDestroy']]
       });
 
       this.teardownAssertions.push(function () {

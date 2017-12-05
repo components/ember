@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.0.0-alpha.1-null+ca82befb
+ * @version   3.0.0-alpha.1-null+d5f57aad
  */
 
 /*global process */
@@ -7836,11 +7836,16 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   */
   function addListener(obj, eventName, target, method, once) {
     true && !(!!obj && !!eventName) && emberDebug.assert('You must pass at least an object and event name to addListener', !!obj && !!eventName);
-    true && !(eventName !== 'didInitAttrs') && emberDebug.deprecate('didInitAttrs called in ' + (obj && obj.toString && obj.toString()) + '.', eventName !== 'didInitAttrs', {
-      id: 'ember-views.did-init-attrs',
-      until: '3.0.0',
-      url: 'https://emberjs.com/deprecations/v2.x#toc_ember-component-didinitattrs'
-    });
+
+    if (emberEnvironment.ENV._ENABLE_DID_INIT_ATTRS_SUPPORT === true) {
+      true && !(eventName !== 'didInitAttrs') && emberDebug.deprecate('didInitAttrs called in ' + (obj && obj.toString && obj.toString()) + '.', eventName !== 'didInitAttrs', {
+        id: 'ember-views.did-init-attrs',
+        until: '3.0.0',
+        url: 'https://emberjs.com/deprecations/v2.x#toc_ember-component-didinitattrs'
+      });
+    } else {
+      true && !(eventName !== 'didInitAttrs') && emberDebug.assert('didInitAttrs called in ' + (obj && obj.toString && obj.toString()) + ' is no longer supported.', eventName !== 'didInitAttrs');
+    }
 
     if (!method && 'function' === typeof target) {
       method = target;
@@ -16821,7 +16826,7 @@ enifed('ember/features', ['exports', 'ember-environment', 'ember-utils'], functi
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "3.0.0-alpha.1-null+ca82befb";
+  exports.default = "3.0.0-alpha.1-null+d5f57aad";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";
