@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.0.0-alpha.1-null+ad2fc054
+ * @version   3.0.0-alpha.1-null+4906f0c8
  */
 
 /*global process */
@@ -907,10 +907,20 @@ QUnit.test('should pass ESLint', function(assert) {
   assert.ok(true, 'container/tests/owner_test.js should pass ESLint\n\n');
 });
 
-enifed('container/tests/registry_test', ['container', 'internal-test-helpers', 'ember/features'], function (_container, _internalTestHelpers, _features) {
+enifed('container/tests/registry_test', ['container', 'internal-test-helpers', 'ember/features', 'ember-environment'], function (_container, _internalTestHelpers, _features, _emberEnvironment) {
   'use strict';
 
-  QUnit.module('Registry');
+  var originalResolverFunctionSupport = void 0;
+
+  QUnit.module('Registry', {
+    setup: function () {
+      originalResolverFunctionSupport = _emberEnvironment.ENV._ENABLE_RESOLVER_FUNCTION_SUPPORT;
+      _emberEnvironment.ENV._ENABLE_RESOLVER_FUNCTION_SUPPORT = true;
+    },
+    teardown: function () {
+      _emberEnvironment.ENV._ENABLE_RESOLVER_FUNCTION_SUPPORT = originalResolverFunctionSupport;
+    }
+  });
 
   QUnit.test('A registered factory is returned from resolve', function () {
     var registry = new _container.Registry();
@@ -1381,8 +1391,10 @@ enifed('container/tests/registry_test', ['container', 'internal-test-helpers', '
     });
   });
 
-  QUnit.test('A registry can be created with a deprecated `resolver` function instead of an object', function () {
-    expect(2);
+  QUnit.test('A registry created with `resolver` function instead of an object throws deprecation', function (assert) {
+    assert.expect(2);
+
+    _emberEnvironment.ENV._ENABLE_RESOLVER_FUNCTION_SUPPORT = true;
 
     var registry = void 0;
 
@@ -1394,7 +1406,23 @@ enifed('container/tests/registry_test', ['container', 'internal-test-helpers', '
       });
     }, 'Passing a `resolver` function into a Registry is deprecated. Please pass in a Resolver object with a `resolve` method.');
 
-    equal(registry.resolve('foo:bar'), 'foo:bar-resolved', '`resolve` still calls the deprecated function');
+    assert.equal(registry.resolve('foo:bar'), 'foo:bar-resolved', '`resolve` still calls the deprecated function');
+  });
+
+  QUnit.test('A registry created with `resolver` function instead of an object throws assertion', function (assert) {
+    assert.expect(1);
+
+    _emberEnvironment.ENV._ENABLE_RESOLVER_FUNCTION_SUPPORT = false;
+
+    var registry = void 0;
+
+    expectAssertion(function () {
+      registry = new _container.Registry({
+        resolver: function (fullName) {
+          return fullName + '-resolved';
+        }
+      });
+    }, /Passing a \`resolver\` function into a Registry is deprecated\. Please pass in a Resolver object with a \`resolve\` method\./);
   });
 
   QUnit.test('resolver.expandLocalLookup is not required', function (assert) {

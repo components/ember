@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.0.0-alpha.1-null+ad2fc054
+ * @version   3.0.0-alpha.1-null+4906f0c8
  */
 
 /*global process */
@@ -113,7 +113,7 @@ var mainContext = this; // Used in ember-environment/lib/global.js
   }
 })();
 
-enifed('container', ['exports', 'ember-babel', 'ember-utils', 'ember-debug', 'ember/features'], function (exports, _emberBabel, _emberUtils, _emberDebug, _features) {
+enifed('container', ['exports', 'ember-babel', 'ember-utils', 'ember-debug', 'ember/features', 'ember-environment'], function (exports, _emberBabel, _emberUtils, _emberDebug, _features, _emberEnvironment) {
   'use strict';
 
   exports.Container = exports.privatize = exports.Registry = undefined;
@@ -558,6 +558,7 @@ enifed('container', ['exports', 'ember-babel', 'ember-utils', 'ember-debug', 'em
   }();
 
   var VALID_FULL_NAME_REGEXP = /^[^:]+:[^:]+$/;
+  var missingResolverFunctionsDeprecation = 'Passing a `resolver` function into a Registry is deprecated. Please pass in a Resolver object with a `resolve` method.';
 
   /**
    A registry used to store factory and option information keyed
@@ -581,7 +582,11 @@ enifed('container', ['exports', 'ember-babel', 'ember-utils', 'ember-debug', 'em
       this.fallback = options.fallback || null;
       this.resolver = options.resolver || null;
 
-      if (typeof this.resolver === 'function') {
+      if (_emberEnvironment.ENV._ENABLE_RESOLVER_FUNCTION_SUPPORT !== true) {
+        (true && !(typeof this.resolver !== 'function') && (0, _emberDebug.assert)(missingResolverFunctionsDeprecation, typeof this.resolver !== 'function'));
+      }
+
+      if (typeof this.resolver === 'function' && _emberEnvironment.ENV._ENABLE_RESOLVER_FUNCTION_SUPPORT === true) {
         deprecateResolverFunction(this);
       }
 
@@ -907,7 +912,7 @@ enifed('container', ['exports', 'ember-babel', 'ember-utils', 'ember-debug', 'em
   }();
 
   function deprecateResolverFunction(registry) {
-    (true && !(false) && (0, _emberDebug.deprecate)('Passing a `resolver` function into a Registry is deprecated. Please pass in a Resolver object with a `resolve` method.', false, { id: 'ember-application.registry-resolver-as-function', until: '3.0.0', url: 'https://emberjs.com/deprecations/v2.x#toc_registry-resolver-as-function' }));
+    (true && !(false) && (0, _emberDebug.deprecate)(missingResolverFunctionsDeprecation, false, { id: 'ember-application.registry-resolver-as-function', until: '3.0.0', url: 'https://emberjs.com/deprecations/v2.x#toc_registry-resolver-as-function' }));
 
     registry.resolver = { resolve: registry.resolver };
   }

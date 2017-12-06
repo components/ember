@@ -3,7 +3,7 @@
         "name": "The Ember API",
         "description": "The Ember API: a framework for building ambitious web applications",
         "url": "https://emberjs.com/",
-        "version": "3.0.0-alpha.1.ad2fc054"
+        "version": "3.0.0-alpha.1.4906f0c8"
     },
     "files": {
         "node_modules/rsvp/lib/rsvp/promise/all.js": {
@@ -2197,7 +2197,7 @@
             "extension_for": [],
             "module": "@ember/application",
             "file": "packages/container/lib/registry.js",
-            "line": 9,
+            "line": 11,
             "description": "A registry used to store factory and option information keyed\nby type.\n\nA `Registry` stores the factory and option information needed by a\n`Container` to instantiate and cache objects.\n\nThe API for `Registry` is still in flux and should not be considered stable.",
             "access": "private",
             "tagname": "",
@@ -4619,7 +4619,7 @@
         },
         {
             "file": "packages/container/lib/registry.js",
-            "line": 45,
+            "line": 54,
             "description": "A backup registry for resolving registrations when no matches can be found.",
             "access": "private",
             "tagname": "",
@@ -4630,7 +4630,7 @@
         },
         {
             "file": "packages/container/lib/registry.js",
-            "line": 53,
+            "line": 62,
             "description": "An object that has a `resolve` method that resolves a name.",
             "access": "private",
             "tagname": "",
@@ -4641,7 +4641,7 @@
         },
         {
             "file": "packages/container/lib/registry.js",
-            "line": 61,
+            "line": 70,
             "access": "private",
             "tagname": "",
             "itemtype": "property",
@@ -4651,7 +4651,7 @@
         },
         {
             "file": "packages/container/lib/registry.js",
-            "line": 67,
+            "line": 76,
             "access": "private",
             "tagname": "",
             "itemtype": "property",
@@ -4661,7 +4661,7 @@
         },
         {
             "file": "packages/container/lib/registry.js",
-            "line": 74,
+            "line": 83,
             "access": "private",
             "tagname": "",
             "itemtype": "property",
@@ -4671,7 +4671,7 @@
         },
         {
             "file": "packages/container/lib/registry.js",
-            "line": 81,
+            "line": 90,
             "access": "private",
             "tagname": "",
             "itemtype": "property",
@@ -4681,7 +4681,7 @@
         },
         {
             "file": "packages/container/lib/registry.js",
-            "line": 88,
+            "line": 97,
             "access": "private",
             "tagname": "",
             "itemtype": "property",
@@ -4691,7 +4691,7 @@
         },
         {
             "file": "packages/container/lib/registry.js",
-            "line": 95,
+            "line": 104,
             "access": "private",
             "tagname": "",
             "itemtype": "property",
@@ -4701,7 +4701,7 @@
         },
         {
             "file": "packages/container/lib/registry.js",
-            "line": 102,
+            "line": 111,
             "access": "private",
             "tagname": "",
             "itemtype": "property",
@@ -4711,7 +4711,7 @@
         },
         {
             "file": "packages/container/lib/registry.js",
-            "line": 109,
+            "line": 118,
             "description": "Creates a container based on this registry.",
             "access": "private",
             "tagname": "",
@@ -4732,7 +4732,7 @@
         },
         {
             "file": "packages/container/lib/registry.js",
-            "line": 121,
+            "line": 130,
             "description": "Registers a factory for later injection.\n\nExample:\n\n```javascript\nlet registry = new Registry();\n\nregistry.register('model:user', Person, {singleton: false });\nregistry.register('fruit:favorite', Orange);\nregistry.register('communication:main', Email, {singleton: false});\n```",
             "access": "private",
             "tagname": "",
@@ -4759,7 +4759,7 @@
         },
         {
             "file": "packages/container/lib/registry.js",
-            "line": 152,
+            "line": 161,
             "description": "Unregister a fullName\n\n```javascript\nlet registry = new Registry();\nregistry.register('model:user', User);\n\nregistry.resolve('model:user').create() instanceof User //=> true\n\nregistry.unregister('model:user')\nregistry.resolve('model:user') === undefined //=> true\n```",
             "access": "private",
             "tagname": "",
@@ -4776,7 +4776,7 @@
         },
         {
             "file": "packages/container/lib/registry.js",
-            "line": 182,
+            "line": 191,
             "description": "Given a fullName return the corresponding factory.\n\nBy default `resolve` will retrieve the factory from\nthe registry.\n\n```javascript\nlet registry = new Registry();\nregistry.register('api:twitter', Twitter);\n\nregistry.resolve('api:twitter') // => Twitter\n```\n\nOptionally the registry can be provided with a custom resolver.\nIf provided, `resolve` will first provide the custom resolver\nthe opportunity to resolve the fullName, otherwise it will fallback\nto the registry.\n\n```javascript\nlet registry = new Registry();\nregistry.resolver = function(fullName) {\n   // lookup via the module system of choice\n };\n\n// the twitter factory is added to the module system\nregistry.resolve('api:twitter') // => Twitter\n```",
             "access": "private",
             "tagname": "",
@@ -4811,7 +4811,7 @@
         },
         {
             "file": "packages/container/lib/registry.js",
-            "line": 226,
+            "line": 235,
             "description": "A hook that can be used to describe how the resolver will\nattempt to find the factory.\n\nFor example, the default Ember `.describe` returns the full\nclass name (including namespace) where Ember's resolver expects\nto find the `fullName`.",
             "access": "private",
             "tagname": "",
@@ -4832,7 +4832,7 @@
         },
         {
             "file": "packages/container/lib/registry.js",
-            "line": 249,
+            "line": 258,
             "description": "A hook to enable custom fullName normalization behavior",
             "access": "private",
             "tagname": "",
@@ -4853,7 +4853,7 @@
         },
         {
             "file": "packages/container/lib/registry.js",
-            "line": 267,
+            "line": 276,
             "description": "Normalize a fullName based on the application's conventions",
             "access": "private",
             "tagname": "",
@@ -4874,7 +4874,7 @@
         },
         {
             "file": "packages/container/lib/registry.js",
-            "line": 281,
+            "line": 290,
             "itemtype": "method",
             "name": "makeToString",
             "access": "private",
@@ -4899,7 +4899,7 @@
         },
         {
             "file": "packages/container/lib/registry.js",
-            "line": 299,
+            "line": 308,
             "description": "Given a fullName check if the container is aware of its factory\nor singleton instance.",
             "access": "private",
             "tagname": "",
@@ -4934,7 +4934,7 @@
         },
         {
             "file": "packages/container/lib/registry.js",
-            "line": 320,
+            "line": 329,
             "description": "Allow registering options for all factories of a type.\n\n```javascript\nlet registry = new Registry();\nlet container = registry.container();\n\n// if all of type `connection` must not be singletons\nregistry.optionsForType('connection', { singleton: false });\n\nregistry.register('connection:twitter', TwitterConnection);\nregistry.register('connection:facebook', FacebookConnection);\n\nlet twitter = container.lookup('connection:twitter');\nlet twitter2 = container.lookup('connection:twitter');\n\ntwitter === twitter2; // => false\n\nlet facebook = container.lookup('connection:facebook');\nlet facebook2 = container.lookup('connection:facebook');\n\nfacebook === facebook2; // => false\n```",
             "access": "private",
             "tagname": "",
@@ -4956,7 +4956,7 @@
         },
         {
             "file": "packages/container/lib/registry.js",
-            "line": 361,
+            "line": 370,
             "access": "private",
             "tagname": "",
             "itemtype": "method",
@@ -4977,7 +4977,7 @@
         },
         {
             "file": "packages/container/lib/registry.js",
-            "line": 399,
+            "line": 408,
             "description": "Used only via `injection`.\n\nProvides a specialized form of injection, specifically enabling\nall objects of one type to be injected with a reference to another\nobject.\n\nFor example, provided each object of type `controller` needed a `router`.\none would do the following:\n\n```javascript\nlet registry = new Registry();\nlet container = registry.container();\n\nregistry.register('router:main', Router);\nregistry.register('controller:user', UserController);\nregistry.register('controller:post', PostController);\n\nregistry.typeInjection('controller', 'router', 'router:main');\n\nlet user = container.lookup('controller:user');\nlet post = container.lookup('controller:post');\n\nuser.router instanceof Router; //=> true\npost.router instanceof Router; //=> true\n\n// both controllers share the same router\nuser.router === post.router; //=> true\n```",
             "access": "private",
             "tagname": "",
@@ -5004,7 +5004,7 @@
         },
         {
             "file": "packages/container/lib/registry.js",
-            "line": 447,
+            "line": 456,
             "description": "Defines injection rules.\n\nThese rules are used to inject dependencies onto objects when they\nare instantiated.\n\nTwo forms of injections are possible:\n\n* Injecting one fullName on another fullName\n* Injecting one fullName on a type\n\nExample:\n\n```javascript\nlet registry = new Registry();\nlet container = registry.container();\n\nregistry.register('source:main', Source);\nregistry.register('model:user', User);\nregistry.register('model:post', Post);\n\n// injecting one fullName on another fullName\n// eg. each user model gets a post model\nregistry.injection('model:user', 'post', 'model:post');\n\n// injecting one fullName on another type\nregistry.injection('model', 'source', 'source:main');\n\nlet user = container.lookup('model:user');\nlet post = container.lookup('model:post');\n\nuser.source instanceof Source; //=> true\npost.source instanceof Source; //=> true\n\nuser.post instanceof Post; //=> true\n\n// and both models share the same source\nuser.source === post.source; //=> true\n```",
             "access": "private",
             "tagname": "",
@@ -5031,7 +5031,7 @@
         },
         {
             "file": "packages/container/lib/registry.js",
-            "line": 511,
+            "line": 520,
             "access": "private",
             "tagname": "",
             "itemtype": "method",
@@ -5047,7 +5047,7 @@
         },
         {
             "file": "packages/container/lib/registry.js",
-            "line": 569,
+            "line": 578,
             "description": "Given a fullName and a source fullName returns the fully resolved\nfullName. Used to allow for local lookup.\n\n```javascript\nlet registry = new Registry();\n\n// the twitter factory is added to the module system\nregistry.expandLocalLookup('component:post-title', { source: 'template:post' }) // => component:post/post-title\n```",
             "access": "private",
             "tagname": "",
