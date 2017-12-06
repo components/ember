@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.0.0-alpha.1-null+d5f57aad
+ * @version   3.0.0-alpha.1-null+ad2fc054
  */
 
 /*global process */
@@ -1120,41 +1120,8 @@ enifed('ember-babel', ['exports'], function (exports) {
 
   var slice = exports.slice = Array.prototype.slice;
 });
-enifed('ember-console', ['exports', 'ember-environment'], function (exports, _emberEnvironment) {
-  'use strict';
-
-  function K() {}
-
-  function consoleMethod(name) {
-    var consoleObj = void 0;
-    if (_emberEnvironment.context.imports.console) {
-      consoleObj = _emberEnvironment.context.imports.console;
-    } else if (typeof console !== 'undefined') {
-      // eslint-disable-line no-undef
-      consoleObj = console; // eslint-disable-line no-undef
-    }
-
-    var method = typeof consoleObj === 'object' ? consoleObj[name] : null;
-
-    if (typeof method !== 'function') {
-      return;
-    }
-
-    return method.bind(consoleObj);
-  }
-
-  function assertPolyfill(test, message) {
-    if (!test) {
-      try {
-        // attempt to preserve the stack
-        throw new Error('assertion failed: ' + message);
-      } catch (error) {
-        setTimeout(function () {
-          throw error;
-        }, 0);
-      }
-    }
-  }
+enifed("ember-console", ["exports"], function (exports) {
+  "use strict";
 
   /**
     Inside Ember-Metal, simply uses the methods from `imports.console`.
@@ -1165,93 +1132,36 @@ enifed('ember-console', ['exports', 'ember-environment'], function (exports, _em
     @public
   */
   var index = {
-    /**
-     Logs the arguments to the console.
-     You can pass as many arguments as you want and they will be joined together with a space.
-       ```javascript
-      var foo = 1;
-      Ember.Logger.log('log value of foo:', foo);
-      // "log value of foo: 1" will be printed to the console
-      ```
-      @method log
-     @for Ember.Logger
-     @param {*} arguments
-     @public
-    */
-    log: consoleMethod('log') || K,
+    log: function () {
+      var _console;
 
-    /**
-     Prints the arguments to the console with a warning icon.
-     You can pass as many arguments as you want and they will be joined together with a space.
-       ```javascript
-      Ember.Logger.warn('Something happened!');
-      // "Something happened!" will be printed to the console with a warning icon.
-      ```
-      @method warn
-     @for Ember.Logger
-     @param {*} arguments
-     @public
-    */
-    warn: consoleMethod('warn') || K,
+      return (_console = console).log.apply(_console, arguments);
+    },
+    warn: function () {
+      var _console2;
 
-    /**
-     Prints the arguments to the console with an error icon, red text and a stack trace.
-     You can pass as many arguments as you want and they will be joined together with a space.
-       ```javascript
-      Ember.Logger.error('Danger! Danger!');
-      // "Danger! Danger!" will be printed to the console in red text.
-      ```
-      @method error
-     @for Ember.Logger
-     @param {*} arguments
-     @public
-    */
-    error: consoleMethod('error') || K,
+      return (_console2 = console).warn.apply(_console2, arguments);
+    },
+    error: function () {
+      var _console3;
 
-    /**
-     Logs the arguments to the console.
-     You can pass as many arguments as you want and they will be joined together with a space.
-       ```javascript
-      var foo = 1;
-      Ember.Logger.info('log value of foo:', foo);
-      // "log value of foo: 1" will be printed to the console
-      ```
-      @method info
-     @for Ember.Logger
-     @param {*} arguments
-     @public
-    */
-    info: consoleMethod('info') || K,
+      return (_console3 = console).error.apply(_console3, arguments);
+    },
+    info: function () {
+      var _console4;
 
-    /**
-     Logs the arguments to the console in blue text.
-     You can pass as many arguments as you want and they will be joined together with a space.
-       ```javascript
-      var foo = 1;
-      Ember.Logger.debug('log value of foo:', foo);
-      // "log value of foo: 1" will be printed to the console
-      ```
-      @method debug
-     @for Ember.Logger
-     @param {*} arguments
-     @public
-    */
-    debug: consoleMethod('debug') || consoleMethod('info') || K,
+      return (_console4 = console).info.apply(_console4, arguments);
+    },
+    debug: function () {
+      var _console5, _console6;
 
-    /**
-     If the value passed into `Ember.Logger.assert` is not truthy it will throw an error with a stack trace.
-       ```javascript
-      Ember.Logger.assert(true); // undefined
-      Ember.Logger.assert(true === false); // Throws an Assertion failed error.
-      Ember.Logger.assert(true === false, 'Something invalid'); // Throws an Assertion failed error with message.
-      ```
-      @method assert
-     @for Ember.Logger
-     @param {Boolean} bool Value to test
-     @param {String} message Assertion message on failed
-     @public
-    */
-    assert: consoleMethod('assert') || assertPolyfill
+      return console.debug && (_console5 = console).debug.apply(_console5, arguments) || (_console6 = console).info.apply(_console6, arguments); // eslint-disable-line no-console
+    },
+    assert: function () {
+      var _console7;
+
+      return (_console7 = console).assert.apply(_console7, arguments);
+    }
   };
 
   exports.default = index;
@@ -5536,7 +5446,6 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   }
 
   var backburner$1 = new Backburner(['sync', 'actions', 'destroy'], {
-    GUID_KEY: emberUtils.GUID_KEY,
     sync: {
       before: beginPropertyChanges,
       after: endPropertyChanges
@@ -5656,7 +5565,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
           setup: Ember.run.bind(this, this.setupEditor)
         });
       }),
-      
+  
       didInsertElement() {
         tinymce.init({
           selector: '#' + this.$().prop('id'),
