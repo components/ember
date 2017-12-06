@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.0.0-alpha.1-null+ce7fae0d
+ * @version   3.0.0-alpha.1-null+d9b2b1fa
  */
 
 /*global process */
@@ -42988,7 +42988,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "3.0.0-alpha.1-null+ce7fae0d";
+  exports.default = "3.0.0-alpha.1-null+d9b2b1fa";
 });
 /*global enifed */
 enifed('node-module', ['exports'], function(_exports) {
