@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.0.0-alpha.1-null+3fa2562c
+ * @version   3.0.0-alpha.1-null+e1dc61f1
  */
 
 /*global process */
@@ -21800,6 +21800,170 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     };
   }
 
+  function makeChainNode(obj) {
+    return new ChainNode(null, null, obj);
+  }
+
+  function watchPath(obj, keyPath, meta$$1) {
+    if (typeof obj !== 'object' || obj === null) {
+      return;
+    }
+    var m = meta$$1 === undefined ? meta(obj) : meta$$1;
+    var counter = m.peekWatching(keyPath) || 0;
+
+    m.writeWatching(keyPath, counter + 1);
+    if (counter === 0) {
+      // activate watching first time
+      m.writableChains(makeChainNode).add(keyPath);
+    }
+  }
+
+  function unwatchPath(obj, keyPath, meta$$1) {
+    if (typeof obj !== 'object' || obj === null) {
+      return;
+    }
+    var m = meta$$1 === undefined ? peekMeta(obj) : meta$$1;
+
+    if (m === undefined) {
+      return;
+    }
+    var counter = m.peekWatching(keyPath) || 0;
+
+    if (counter === 1) {
+      m.writeWatching(keyPath, 0);
+      m.readableChains().remove(keyPath);
+    } else if (counter > 1) {
+      m.writeWatching(keyPath, counter - 1);
+    }
+  }
+
+  /**
+  @module ember
+  */
+  /**
+    Starts watching a property on an object. Whenever the property changes,
+    invokes `Ember.propertyWillChange` and `Ember.propertyDidChange`. This is the
+    primitive used by observers and dependent keys; usually you will never call
+    this method directly but instead use higher level methods like
+    `Ember.addObserver()`
+  
+    @private
+    @method watch
+    @for Ember
+    @param obj
+    @param {String} _keyPath
+  */
+  function watch(obj, _keyPath, m) {
+    if (isPath(_keyPath)) {
+      watchPath(obj, _keyPath, m);
+    } else {
+      watchKey(obj, _keyPath, m);
+    }
+  }
+
+  function watcherCount(obj, key) {
+    var meta$$1 = peekMeta(obj);
+    return meta$$1 !== undefined && meta$$1.peekWatching(key) || 0;
+  }
+
+  function unwatch(obj, _keyPath, m) {
+    if (isPath(_keyPath)) {
+      unwatchPath(obj, _keyPath, m);
+    } else {
+      unwatchKey(obj, _keyPath, m);
+    }
+  }
+
+  /**
+  @module @ember/object
+  */
+
+  function changeEvent(keyName) {
+    return keyName + ':change';
+  }
+
+  function beforeEvent(keyName) {
+    return keyName + ':before';
+  }
+
+  /**
+    @method addObserver
+    @static
+    @for @ember/object/observers
+    @param obj
+    @param {String} _path
+    @param {Object|Function} target
+    @param {Function|String} [method]
+    @public
+  */
+  function addObserver(obj, _path, target, method) {
+    addListener(obj, changeEvent(_path), target, method);
+    watch(obj, _path);
+
+    return this;
+  }
+
+  /**
+    @method removeObserver
+    @static
+    @for @ember/object/observers
+    @param obj
+    @param {String} path
+    @param {Object|Function} target
+    @param {Function|String} [method]
+    @public
+  */
+  function removeObserver(obj, path, target, method) {
+    unwatch(obj, path);
+    removeListener(obj, changeEvent(path), target, method);
+
+    return this;
+  }
+
+  /**
+    @method _addBeforeObserver
+    @static
+    @for @ember/object/observers
+    @param obj
+    @param {String} path
+    @param {Object|Function} target
+    @param {Function|String} [method]
+    @deprecated
+    @private
+  */
+  function _addBeforeObserver(obj, path, target, method) {
+    addListener(obj, beforeEvent(path), target, method);
+    watch(obj, path);
+
+    return this;
+  }
+
+  // Suspend observer during callback.
+  //
+  // This should only be used by the target of the observer
+  // while it is setting the observed path.
+  function _suspendObserver(obj, path, target, method, callback) {
+    return suspendListener(obj, changeEvent(path), target, method, callback);
+  }
+
+  /**
+    @method removeBeforeObserver
+    @static
+    @for @ember/object/observers
+    @param obj
+    @param {String} path
+    @param {Object|Function} target
+    @param {Function|String} [method]
+    @deprecated
+    @private
+  */
+  function _removeBeforeObserver(obj, path, target, method) {
+    unwatch(obj, path);
+    removeListener(obj, beforeEvent(path), target, method);
+
+    return this;
+  }
+
   /**
    @module ember
    @private
@@ -22090,7 +22254,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       return;
     }
 
-    var eventName = keyName + ':before';
+    var eventName = beforeEvent(keyName);
     var listeners = void 0,
         added = void 0;
     if (deferred > 0) {
@@ -22105,7 +22269,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       return;
     }
 
-    var eventName = keyName + ':change';
+    var eventName = changeEvent(keyName);
     var listeners = void 0;
     if (deferred > 0) {
       listeners = observerSet.add(obj, keyName, eventName);
@@ -22310,43 +22474,6 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       }
     } else if (count > 1) {
       meta$$1.writeWatching(keyName, count - 1);
-    }
-  }
-
-  function makeChainNode(obj) {
-    return new ChainNode(null, null, obj);
-  }
-
-  function watchPath(obj, keyPath, meta$$1) {
-    if (typeof obj !== 'object' || obj === null) {
-      return;
-    }
-    var m = meta$$1 === undefined ? meta(obj) : meta$$1;
-    var counter = m.peekWatching(keyPath) || 0;
-
-    m.writeWatching(keyPath, counter + 1);
-    if (counter === 0) {
-      // activate watching first time
-      m.writableChains(makeChainNode).add(keyPath);
-    }
-  }
-
-  function unwatchPath(obj, keyPath, meta$$1) {
-    if (typeof obj !== 'object' || obj === null) {
-      return;
-    }
-    var m = meta$$1 === undefined ? peekMeta(obj) : meta$$1;
-
-    if (m === undefined) {
-      return;
-    }
-    var counter = m.peekWatching(keyPath) || 0;
-
-    if (counter === 1) {
-      m.writeWatching(keyPath, 0);
-      m.readableChains().remove(keyPath);
-    } else if (counter > 1) {
-      m.writeWatching(keyPath, counter - 1);
     }
   }
 
@@ -23576,43 +23703,6 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       } else {
         dive(prefix + tempArr[i++], after, newStart, callback);
       }
-    }
-  }
-
-  /**
-  @module ember
-  */
-  /**
-    Starts watching a property on an object. Whenever the property changes,
-    invokes `Ember.propertyWillChange` and `Ember.propertyDidChange`. This is the
-    primitive used by observers and dependent keys; usually you will never call
-    this method directly but instead use higher level methods like
-    `Ember.addObserver()`
-  
-    @private
-    @method watch
-    @for Ember
-    @param obj
-    @param {String} _keyPath
-  */
-  function watch(obj, _keyPath, m) {
-    if (isPath(_keyPath)) {
-      watchPath(obj, _keyPath, m);
-    } else {
-      watchKey(obj, _keyPath, m);
-    }
-  }
-
-  function watcherCount(obj, key) {
-    var meta$$1 = peekMeta(obj);
-    return meta$$1 !== undefined && meta$$1.peekWatching(key) || 0;
-  }
-
-  function unwatch(obj, _keyPath, m) {
-    if (isPath(_keyPath)) {
-      unwatchPath(obj, _keyPath, m);
-    } else {
-      unwatchKey(obj, _keyPath, m);
     }
   }
 
@@ -26067,96 +26157,6 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     @public
   */
 
-
-  /**
-  @module @ember/object
-  */
-
-  function changeEvent(keyName) {
-    return keyName + ':change';
-  }
-
-  function beforeEvent(keyName) {
-    return keyName + ':before';
-  }
-
-  /**
-    @method addObserver
-    @static
-    @for @ember/object/observers
-    @param obj
-    @param {String} _path
-    @param {Object|Function} target
-    @param {Function|String} [method]
-    @public
-  */
-  function addObserver(obj, _path, target, method) {
-    addListener(obj, changeEvent(_path), target, method);
-    watch(obj, _path);
-
-    return this;
-  }
-
-  /**
-    @method removeObserver
-    @static
-    @for @ember/object/observers
-    @param obj
-    @param {String} path
-    @param {Object|Function} target
-    @param {Function|String} [method]
-    @public
-  */
-  function removeObserver(obj, path, target, method) {
-    unwatch(obj, path);
-    removeListener(obj, changeEvent(path), target, method);
-
-    return this;
-  }
-
-  /**
-    @method _addBeforeObserver
-    @static
-    @for @ember/object/observers
-    @param obj
-    @param {String} path
-    @param {Object|Function} target
-    @param {Function|String} [method]
-    @deprecated
-    @private
-  */
-  function _addBeforeObserver(obj, path, target, method) {
-    addListener(obj, beforeEvent(path), target, method);
-    watch(obj, path);
-
-    return this;
-  }
-
-  // Suspend observer during callback.
-  //
-  // This should only be used by the target of the observer
-  // while it is setting the observed path.
-  function _suspendObserver(obj, path, target, method, callback) {
-    return suspendListener(obj, changeEvent(path), target, method, callback);
-  }
-
-  /**
-    @method removeBeforeObserver
-    @static
-    @for @ember/object/observers
-    @param obj
-    @param {String} path
-    @param {Object|Function} target
-    @param {Function|String} [method]
-    @deprecated
-    @private
-  */
-  function _removeBeforeObserver(obj, path, target, method) {
-    unwatch(obj, path);
-    removeListener(obj, beforeEvent(path), target, method);
-
-    return this;
-  }
 
   /**
   @module ember
@@ -43009,7 +43009,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "3.0.0-alpha.1-null+3fa2562c";
+  exports.default = "3.0.0-alpha.1-null+e1dc61f1";
 });
 /*global enifed */
 enifed('node-module', ['exports'], function(_exports) {
