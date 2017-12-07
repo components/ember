@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.0.0-alpha.1-null+1c1e7dcf
+ * @version   3.0.0-alpha.1-null+c1ca4b4f
  */
 
 /*global process */
