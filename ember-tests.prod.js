@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.0.0-alpha.1-null+323f7903
+ * @version   3.0.0-alpha.1-null+1c1e7dcf
  */
 
 /*global process */
@@ -10812,11 +10812,27 @@ enifed('ember-glimmer/tests/integration/components/class-bindings-test', ['ember
 
       expectAssertion(function () {
         _this11.render('{{foo-bar}}');
-      }, /classNameBindings must be strings/);
+      }, /classNameBindings must be non-empty strings/);
+    };
+
+    _class.prototype['@test it asserts that items must be non-empty strings'] = function () {
+      var _this12 = this;
+
+      var FooBarComponent = _helpers.Component.extend({
+        foo: 'foo',
+        bar: 'bar',
+        classNameBindings: ['foo', '', 'bar']
+      });
+
+      this.registerComponent('foo-bar', { ComponentClass: FooBarComponent, template: 'hello' });
+
+      expectAssertion(function () {
+        _this12.render('{{foo-bar}}');
+      }, /classNameBindings must be non-empty strings/);
     };
 
     _class.prototype['@test it can set class name bindings in the constructor'] = function () {
-      var _this12 = this;
+      var _this13 = this;
 
       var FooBarComponent = _helpers.Component.extend({
         classNameBindings: ['foo'],
@@ -10846,7 +10862,7 @@ enifed('ember-glimmer/tests/integration/components/class-bindings-test', ['ember
       this.assertComponentElement(this.nthChild(3), { tagName: 'div', attrs: { 'class': (0, _testHelpers.classes)('ember-view foo') }, content: 'hello' });
 
       this.runTask(function () {
-        return _this12.rerender();
+        return _this13.rerender();
       });
 
       this.assertComponentElement(this.nthChild(0), { tagName: 'div', attrs: { 'class': (0, _testHelpers.classes)('ember-view foo enabled') }, content: 'hello' });
@@ -10855,8 +10871,8 @@ enifed('ember-glimmer/tests/integration/components/class-bindings-test', ['ember
       this.assertComponentElement(this.nthChild(3), { tagName: 'div', attrs: { 'class': (0, _testHelpers.classes)('ember-view foo') }, content: 'hello' });
 
       this.runTask(function () {
-        (0, _emberMetal.set)(_this12.context, 'foo', 'FOO');
-        (0, _emberMetal.set)(_this12.context, 'isEnabled', false);
+        (0, _emberMetal.set)(_this13.context, 'foo', 'FOO');
+        (0, _emberMetal.set)(_this13.context, 'isEnabled', false);
       });
 
       this.assertComponentElement(this.nthChild(0), { tagName: 'div', attrs: { 'class': (0, _testHelpers.classes)('ember-view FOO') }, content: 'hello' });
@@ -10865,8 +10881,8 @@ enifed('ember-glimmer/tests/integration/components/class-bindings-test', ['ember
       this.assertComponentElement(this.nthChild(3), { tagName: 'div', attrs: { 'class': (0, _testHelpers.classes)('ember-view FOO') }, content: 'hello' });
 
       this.runTask(function () {
-        (0, _emberMetal.set)(_this12.context, 'foo', undefined);
-        (0, _emberMetal.set)(_this12.context, 'isHappy', true);
+        (0, _emberMetal.set)(_this13.context, 'foo', undefined);
+        (0, _emberMetal.set)(_this13.context, 'isHappy', true);
       });
 
       this.assertComponentElement(this.nthChild(0), { tagName: 'div', attrs: { 'class': (0, _testHelpers.classes)('ember-view') }, content: 'hello' });
@@ -10875,9 +10891,9 @@ enifed('ember-glimmer/tests/integration/components/class-bindings-test', ['ember
       this.assertComponentElement(this.nthChild(3), { tagName: 'div', attrs: { 'class': (0, _testHelpers.classes)('ember-view') }, content: 'hello' });
 
       this.runTask(function () {
-        (0, _emberMetal.set)(_this12.context, 'foo', 'foo');
-        (0, _emberMetal.set)(_this12.context, 'isEnabled', true);
-        (0, _emberMetal.set)(_this12.context, 'isHappy', false);
+        (0, _emberMetal.set)(_this13.context, 'foo', 'foo');
+        (0, _emberMetal.set)(_this13.context, 'isEnabled', true);
+        (0, _emberMetal.set)(_this13.context, 'isHappy', false);
       });
 
       this.assertComponentElement(this.nthChild(0), { tagName: 'div', attrs: { 'class': (0, _testHelpers.classes)('ember-view foo enabled') }, content: 'hello' });
@@ -10887,7 +10903,7 @@ enifed('ember-glimmer/tests/integration/components/class-bindings-test', ['ember
     };
 
     _class.prototype['@test using a computed property for classNameBindings triggers an assertion'] = function () {
-      var _this13 = this;
+      var _this14 = this;
 
       var FooBarComponent = _helpers.Component.extend({
         classNameBindings: (0, _emberMetal.computed)(function () {
@@ -10898,7 +10914,7 @@ enifed('ember-glimmer/tests/integration/components/class-bindings-test', ['ember
       this.registerComponent('foo-bar', { ComponentClass: FooBarComponent, template: 'hello' });
 
       expectAssertion(function () {
-        _this13.render('{{foo-bar}}');
+        _this14.render('{{foo-bar}}');
       }, /Only arrays are allowed/);
     };
 
@@ -10913,7 +10929,7 @@ enifed('ember-glimmer/tests/integration/components/class-bindings-test', ['ember
     }
 
     _class2.prototype['@test it should apply classBinding without condition always'] = function () {
-      var _this15 = this;
+      var _this16 = this;
 
       this.registerComponent('foo-bar', { template: 'hello' });
 
@@ -10922,14 +10938,14 @@ enifed('ember-glimmer/tests/integration/components/class-bindings-test', ['ember
       this.assertComponentElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': (0, _testHelpers.classes)('foo  ember-view') } });
 
       this.runTask(function () {
-        return _this15.rerender();
+        return _this16.rerender();
       });
 
       this.assertComponentElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': (0, _testHelpers.classes)('foo  ember-view') } });
     };
 
     _class2.prototype['@test it should merge classBinding with class'] = function () {
-      var _this16 = this;
+      var _this17 = this;
 
       this.registerComponent('foo-bar', { template: 'hello' });
 
@@ -10938,14 +10954,14 @@ enifed('ember-glimmer/tests/integration/components/class-bindings-test', ['ember
       this.assertComponentElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': (0, _testHelpers.classes)('respeck myName ember-view') } });
 
       this.runTask(function () {
-        return _this16.rerender();
+        return _this17.rerender();
       });
 
       this.assertComponentElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': (0, _testHelpers.classes)('respeck myName ember-view') } });
     };
 
     _class2.prototype['@test it should apply classBinding with only truthy condition'] = function () {
-      var _this17 = this;
+      var _this18 = this;
 
       this.registerComponent('foo-bar', { template: 'hello' });
 
@@ -10954,14 +10970,14 @@ enifed('ember-glimmer/tests/integration/components/class-bindings-test', ['ember
       this.assertComponentElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': (0, _testHelpers.classes)('respeck  ember-view') } });
 
       this.runTask(function () {
-        return _this17.rerender();
+        return _this18.rerender();
       });
 
       this.assertComponentElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': (0, _testHelpers.classes)('respeck  ember-view') } });
     };
 
     _class2.prototype['@test it should apply classBinding with only falsy condition'] = function () {
-      var _this18 = this;
+      var _this19 = this;
 
       this.registerComponent('foo-bar', { template: 'hello' });
 
@@ -10970,34 +10986,18 @@ enifed('ember-glimmer/tests/integration/components/class-bindings-test', ['ember
       this.assertComponentElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': (0, _testHelpers.classes)('shade  ember-view') } });
 
       this.runTask(function () {
-        return _this18.rerender();
+        return _this19.rerender();
       });
 
       this.assertComponentElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': (0, _testHelpers.classes)('shade  ember-view') } });
     };
 
     _class2.prototype['@test it should apply nothing when classBinding is falsy but only supplies truthy class'] = function () {
-      var _this19 = this;
-
-      this.registerComponent('foo-bar', { template: 'hello' });
-
-      this.render('{{foo-bar classBinding="myName:respeck"}}', { myName: false });
-
-      this.assertComponentElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': (0, _testHelpers.classes)('ember-view') } });
-
-      this.runTask(function () {
-        return _this19.rerender();
-      });
-
-      this.assertComponentElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': (0, _testHelpers.classes)('ember-view') } });
-    };
-
-    _class2.prototype['@test it should apply nothing when classBinding is truthy but only supplies falsy class'] = function () {
       var _this20 = this;
 
       this.registerComponent('foo-bar', { template: 'hello' });
 
-      this.render('{{foo-bar classBinding="myName::shade"}}', { myName: true });
+      this.render('{{foo-bar classBinding="myName:respeck"}}', { myName: false });
 
       this.assertComponentElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': (0, _testHelpers.classes)('ember-view') } });
 
@@ -11008,8 +11008,24 @@ enifed('ember-glimmer/tests/integration/components/class-bindings-test', ['ember
       this.assertComponentElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': (0, _testHelpers.classes)('ember-view') } });
     };
 
-    _class2.prototype['@test it should apply classBinding with falsy condition'] = function () {
+    _class2.prototype['@test it should apply nothing when classBinding is truthy but only supplies falsy class'] = function () {
       var _this21 = this;
+
+      this.registerComponent('foo-bar', { template: 'hello' });
+
+      this.render('{{foo-bar classBinding="myName::shade"}}', { myName: true });
+
+      this.assertComponentElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': (0, _testHelpers.classes)('ember-view') } });
+
+      this.runTask(function () {
+        return _this21.rerender();
+      });
+
+      this.assertComponentElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': (0, _testHelpers.classes)('ember-view') } });
+    };
+
+    _class2.prototype['@test it should apply classBinding with falsy condition'] = function () {
+      var _this22 = this;
 
       this.registerComponent('foo-bar', { template: 'hello' });
 
@@ -11018,14 +11034,14 @@ enifed('ember-glimmer/tests/integration/components/class-bindings-test', ['ember
       this.assertComponentElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': (0, _testHelpers.classes)('scrub  ember-view') } });
 
       this.runTask(function () {
-        return _this21.rerender();
+        return _this22.rerender();
       });
 
       this.assertComponentElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': (0, _testHelpers.classes)('scrub  ember-view') } });
     };
 
     _class2.prototype['@test it should apply classBinding with truthy condition'] = function () {
-      var _this22 = this;
+      var _this23 = this;
 
       this.registerComponent('foo-bar', { template: 'hello' });
 
@@ -11034,7 +11050,7 @@ enifed('ember-glimmer/tests/integration/components/class-bindings-test', ['ember
       this.assertComponentElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': (0, _testHelpers.classes)('fresh  ember-view') } });
 
       this.runTask(function () {
-        return _this22.rerender();
+        return _this23.rerender();
       });
 
       this.assertComponentElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': (0, _testHelpers.classes)('fresh  ember-view') } });

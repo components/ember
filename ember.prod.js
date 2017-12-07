@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.0.0-alpha.1-null+323f7903
+ * @version   3.0.0-alpha.1-null+1c1e7dcf
  */
 
 /*global process */
@@ -14434,18 +14434,18 @@ enifed('ember-glimmer/component-managers/curly', ['exports', 'ember-babel', '@gl
             for (i = 0; i < classNameBindings.length; i++) {
                 binding = classNameBindings[i];
 
-                if (typeof binding !== 'string') {
+                if (typeof binding !== 'string' || binding.length === 0) {
                     return false;
                 }
             }
             return true;
-        }() && (0, _emberDebug.assert)('classNameBindings must be strings: ' + component, function () {
+        }() && (0, _emberDebug.assert)('classNameBindings must be non-empty strings: ' + component, function () {
             var classNameBindings = component.classNameBindings,
                 i,
                 binding;
             for (i = 0; i < classNameBindings.length; i++) {
                 binding = classNameBindings[i];
-                if (typeof binding !== 'string') {
+                if (typeof binding !== 'string' || binding.length === 0) {
                     return false;
                 }
             }return true;
@@ -43009,7 +43009,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "3.0.0-alpha.1-null+323f7903";
+  exports.default = "3.0.0-alpha.1-null+1c1e7dcf";
 });
 /*global enifed */
 enifed('node-module', ['exports'], function(_exports) {
