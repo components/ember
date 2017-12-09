@@ -3,7 +3,7 @@
         "name": "The Ember API",
         "description": "The Ember API: a framework for building ambitious web applications",
         "url": "https://emberjs.com/",
-        "version": "v2.18.0-beta.2"
+        "version": "2.18.0-beta.2.035984b4"
     },
     "files": {
         "node_modules/rsvp/lib/rsvp/promise/all.js": {
@@ -321,6 +321,252 @@
                 "DataAdapter": 1
             },
             "fors": {},
+            "namespaces": {}
+        },
+        "packages/ember-glimmer/lib/components/checkbox.ts": {
+            "name": "packages/ember-glimmer/lib/components/checkbox.ts",
+            "modules": {},
+            "classes": {
+                "Checkbox": 1
+            },
+            "fors": {},
+            "namespaces": {}
+        },
+        "packages/ember-glimmer/lib/components/link-to.ts": {
+            "name": "packages/ember-glimmer/lib/components/link-to.ts",
+            "modules": {},
+            "classes": {
+                "LinkComponent": 1
+            },
+            "fors": {
+                "Ember.Templates.helpers": 1
+            },
+            "namespaces": {}
+        },
+        "packages/ember-glimmer/lib/components/text_area.ts": {
+            "name": "packages/ember-glimmer/lib/components/text_area.ts",
+            "modules": {},
+            "classes": {
+                "TextArea": 1
+            },
+            "fors": {
+                "Ember.Templates.helpers": 1
+            },
+            "namespaces": {}
+        },
+        "packages/ember-glimmer/lib/components/text_field.ts": {
+            "name": "packages/ember-glimmer/lib/components/text_field.ts",
+            "modules": {},
+            "classes": {
+                "TextField": 1
+            },
+            "fors": {},
+            "namespaces": {}
+        },
+        "packages/ember-glimmer/lib/helpers/action.ts": {
+            "name": "packages/ember-glimmer/lib/helpers/action.ts",
+            "modules": {},
+            "classes": {},
+            "fors": {
+                "Ember.Templates.helpers": 1
+            },
+            "namespaces": {}
+        },
+        "packages/ember-glimmer/lib/helpers/component.ts": {
+            "name": "packages/ember-glimmer/lib/helpers/component.ts",
+            "modules": {},
+            "classes": {},
+            "fors": {
+                "Ember.Templates.helpers": 1
+            },
+            "namespaces": {}
+        },
+        "packages/ember-glimmer/lib/helpers/concat.ts": {
+            "name": "packages/ember-glimmer/lib/helpers/concat.ts",
+            "modules": {},
+            "classes": {},
+            "fors": {
+                "Ember.Templates.helpers": 1
+            },
+            "namespaces": {}
+        },
+        "packages/ember-glimmer/lib/helpers/each-in.ts": {
+            "name": "packages/ember-glimmer/lib/helpers/each-in.ts",
+            "modules": {},
+            "classes": {},
+            "fors": {
+                "Ember.Templates.helpers": 1
+            },
+            "namespaces": {}
+        },
+        "packages/ember-glimmer/lib/helpers/get.ts": {
+            "name": "packages/ember-glimmer/lib/helpers/get.ts",
+            "modules": {},
+            "classes": {},
+            "fors": {
+                "Ember.Templates.helpers": 1
+            },
+            "namespaces": {}
+        },
+        "packages/ember-glimmer/lib/helpers/hash.ts": {
+            "name": "packages/ember-glimmer/lib/helpers/hash.ts",
+            "modules": {},
+            "classes": {},
+            "fors": {
+                "Ember.Templates.helpers": 1
+            },
+            "namespaces": {}
+        },
+        "packages/ember-glimmer/lib/helpers/if-unless.ts": {
+            "name": "packages/ember-glimmer/lib/helpers/if-unless.ts",
+            "modules": {
+                "ember-glimmer": 1
+            },
+            "classes": {},
+            "fors": {
+                "Ember.Templates.helpers": 1
+            },
+            "namespaces": {}
+        },
+        "packages/ember-glimmer/lib/helpers/loc.ts": {
+            "name": "packages/ember-glimmer/lib/helpers/loc.ts",
+            "modules": {},
+            "classes": {},
+            "fors": {
+                "Ember.Templates.helpers": 1
+            },
+            "namespaces": {}
+        },
+        "packages/ember-glimmer/lib/helpers/log.ts": {
+            "name": "packages/ember-glimmer/lib/helpers/log.ts",
+            "modules": {},
+            "classes": {},
+            "fors": {
+                "Ember.Templates.helpers": 1
+            },
+            "namespaces": {}
+        },
+        "packages/ember-glimmer/lib/helpers/mut.ts": {
+            "name": "packages/ember-glimmer/lib/helpers/mut.ts",
+            "modules": {},
+            "classes": {},
+            "fors": {
+                "Ember.Templates.helpers": 1
+            },
+            "namespaces": {}
+        },
+        "packages/ember-glimmer/lib/helpers/query-param.ts": {
+            "name": "packages/ember-glimmer/lib/helpers/query-param.ts",
+            "modules": {},
+            "classes": {},
+            "fors": {
+                "Ember.Templates.helpers": 1
+            },
+            "namespaces": {}
+        },
+        "packages/ember-glimmer/lib/helpers/readonly.ts": {
+            "name": "packages/ember-glimmer/lib/helpers/readonly.ts",
+            "modules": {},
+            "classes": {},
+            "fors": {
+                "Ember.Templates.helpers": 1
+            },
+            "namespaces": {}
+        },
+        "packages/ember-glimmer/lib/helpers/unbound.ts": {
+            "name": "packages/ember-glimmer/lib/helpers/unbound.ts",
+            "modules": {},
+            "classes": {},
+            "fors": {
+                "Ember.Templates.helpers": 1
+            },
+            "namespaces": {}
+        },
+        "packages/ember-glimmer/lib/syntax/input.ts": {
+            "name": "packages/ember-glimmer/lib/syntax/input.ts",
+            "modules": {},
+            "classes": {},
+            "fors": {
+                "Ember.Templates.helpers": 1
+            },
+            "namespaces": {}
+        },
+        "packages/ember-glimmer/lib/syntax/mount.ts": {
+            "name": "packages/ember-glimmer/lib/syntax/mount.ts",
+            "modules": {},
+            "classes": {},
+            "fors": {
+                "Ember.Templates.helpers": 1
+            },
+            "namespaces": {}
+        },
+        "packages/ember-glimmer/lib/syntax/outlet.ts": {
+            "name": "packages/ember-glimmer/lib/syntax/outlet.ts",
+            "modules": {},
+            "classes": {},
+            "fors": {
+                "Ember.Templates.helpers": 1
+            },
+            "namespaces": {}
+        },
+        "packages/ember-glimmer/lib/syntax/render.ts": {
+            "name": "packages/ember-glimmer/lib/syntax/render.ts",
+            "modules": {},
+            "classes": {},
+            "fors": {
+                "Ember.Templates.helpers": 1
+            },
+            "namespaces": {}
+        },
+        "packages/ember-glimmer/lib/utils/curly-component-state-bucket.ts": {
+            "name": "packages/ember-glimmer/lib/utils/curly-component-state-bucket.ts",
+            "modules": {},
+            "classes": {
+                "ComponentStateBucket": 1
+            },
+            "fors": {},
+            "namespaces": {}
+        },
+        "packages/ember-glimmer/lib/utils/string.ts": {
+            "name": "packages/ember-glimmer/lib/utils/string.ts",
+            "modules": {},
+            "classes": {},
+            "fors": {
+                "@ember/string": 1
+            },
+            "namespaces": {}
+        },
+        "packages/ember-glimmer/lib/component.ts": {
+            "name": "packages/ember-glimmer/lib/component.ts",
+            "modules": {},
+            "classes": {
+                "Component": 1
+            },
+            "fors": {},
+            "namespaces": {}
+        },
+        "packages/ember-glimmer/lib/helper.ts": {
+            "name": "packages/ember-glimmer/lib/helper.ts",
+            "modules": {},
+            "classes": {
+                "Helper": 1
+            },
+            "fors": {
+                "@ember/component/helper": 1
+            },
+            "namespaces": {}
+        },
+        "packages/ember-glimmer/lib/index.ts": {
+            "name": "packages/ember-glimmer/lib/index.ts",
+            "modules": {
+                "@ember/component": 1
+            },
+            "classes": {
+                "Ember.Templates.helpers": 1
+            },
+            "fors": {
+                "Ember.Templates.helpers": 1
+            },
             "namespaces": {}
         },
         "packages/ember-metal/lib/binding.js": {
@@ -1548,10 +1794,14 @@
         },
         "ember": {
             "name": "ember",
-            "submodules": {},
+            "submodules": {
+                "ember-glimmer": 1
+            },
             "elements": {},
             "classes": {
                 "Ember.FEATURES": 1,
+                "Ember.Templates.helpers": 1,
+                "ComponentStateBucket": 1,
                 "Ember.Binding": 1,
                 "Ember": 1,
                 "Ember.InjectedProperty": 1,
@@ -1585,6 +1835,7 @@
             },
             "fors": {
                 "Ember.FEATURES": 1,
+                "Ember.Templates.helpers": 1,
                 "Ember": 1,
                 "Ember.Ember": 1,
                 "Ember.ControllerMixin": 1,
@@ -1597,8 +1848,85 @@
             "tag": "module",
             "file": "packages/ember/lib/index.js",
             "line": 52,
-            "access": "private",
+            "access": "public",
             "tagname": ""
+        },
+        "@ember/component": {
+            "name": "@ember/component",
+            "submodules": {},
+            "elements": {},
+            "classes": {
+                "Checkbox": 1,
+                "TextArea": 1,
+                "TextField": 1,
+                "Component": 1,
+                "Helper": 1,
+                "@ember/component/helper": 1
+            },
+            "fors": {
+                "Ember.Templates.helpers": 1,
+                "@ember/component/helper": 1
+            },
+            "namespaces": {},
+            "tag": "main",
+            "file": "packages/ember-glimmer/lib/helper.ts",
+            "line": 12,
+            "description": "[Glimmer](https://github.com/tildeio/glimmer) is a templating engine used by Ember.js that is compatible with a subset of the [Handlebars](http://handlebarsjs.com/) syntax.\n\n### Showing a property\n\nTemplates manage the flow of an application's UI, and display state (through\nthe DOM) to a user. For example, given a component with the property \"name\",\nthat component's template can use the name in several ways:\n\n```app/components/person-profile.js\nimport Component from '@ember/component';\n\nexport default Component.extend({\n  name: 'Jill'\n});\n```\n\n```app/components/person-profile.hbs\n{{name}}\n<div>{{name}}</div>\n<span data-name={{name}}></span>\n```\n\nAny time the \"name\" property on the component changes, the DOM will be\nupdated.\n\nProperties can be chained as well:\n\n```handlebars\n{{aUserModel.name}}\n<div>{{listOfUsers.firstObject.name}}</div>\n```\n\n### Using Ember helpers\n\nWhen content is passed in mustaches `{{}}`, Ember will first try to find a helper\nor component with that name. For example, the `if` helper:\n\n```handlebars\n{{if name \"I have a name\" \"I have no name\"}}\n<span data-has-name={{if name true}}></span>\n```\n\nThe returned value is placed where the `{{}}` is called. The above style is\ncalled \"inline\". A second style of helper usage is called \"block\". For example:\n\n```handlebars\n{{#if name}}\nI have a name\n{{else}}\nI have no name\n{{/if}}\n```\n\nThe block form of helpers allows you to control how the UI is created based\non the values of properties.\nA third form of helper is called \"nested\". For example here the concat\nhelper will add \" Doe\" to a displayed name if the person has no last name:\n\n```handlebars\n<span data-name={{concat firstName (\nif lastName (concat \" \" lastName) \"Doe\"\n)}}></span>\n```\n\nEmber's built-in helpers are described under the [Ember.Templates.helpers](/api/classes/Ember.Templates.helpers.html)\nnamespace. Documentation on creating custom helpers can be found under\n[Helper](/api/classes/Ember.Helper.html).\n\n### Invoking a Component\n\nEmber components represent state to the UI of an application. Further\nreading on components can be found under [Component](/api/classes/Ember.Component.html).",
+            "itemtype": "main"
+        },
+        "@ember/routing": {
+            "name": "@ember/routing",
+            "submodules": {},
+            "elements": {},
+            "classes": {
+                "LinkComponent": 1,
+                "Location": 1,
+                "AutoLocation": 1,
+                "HashLocation": 1,
+                "HistoryLocation": 1,
+                "NoneLocation": 1,
+                "Route": 1,
+                "Router": 1
+            },
+            "fors": {
+                "Route": 1
+            },
+            "namespaces": {},
+            "tag": "module",
+            "file": "packages/ember-routing/lib/system/router.js",
+            "line": 54
+        },
+        "ember-glimmer": {
+            "name": "ember-glimmer",
+            "submodules": {},
+            "elements": {},
+            "classes": {},
+            "fors": {
+                "Ember.Templates.helpers": 1
+            },
+            "is_submodule": 1,
+            "namespaces": {},
+            "module": "ember",
+            "namespace": "",
+            "file": "packages/ember-glimmer/lib/helpers/if-unless.ts",
+            "line": 1
+        },
+        "@ember/string": {
+            "name": "@ember/string",
+            "submodules": {},
+            "elements": {},
+            "classes": {
+                "@ember/string": 1,
+                "String": 1
+            },
+            "fors": {
+                "@ember/string": 1,
+                "Ember.Ember": 1
+            },
+            "namespaces": {},
+            "tag": "module",
+            "file": "packages/ember-runtime/lib/system/string.js",
+            "line": 118
         },
         "@ember/object": {
             "name": "@ember/object",
@@ -1706,27 +2034,6 @@
             "file": "packages/ember-metal/lib/run_loop.js",
             "line": 40
         },
-        "@ember/routing": {
-            "name": "@ember/routing",
-            "submodules": {},
-            "elements": {},
-            "classes": {
-                "Location": 1,
-                "AutoLocation": 1,
-                "HashLocation": 1,
-                "HistoryLocation": 1,
-                "NoneLocation": 1,
-                "Route": 1,
-                "Router": 1
-            },
-            "fors": {
-                "Route": 1
-            },
-            "namespaces": {},
-            "tag": "module",
-            "file": "packages/ember-routing/lib/system/router.js",
-            "line": 54
-        },
         "@ember/controller": {
             "name": "@ember/controller",
             "submodules": {},
@@ -1742,23 +2049,6 @@
             "tag": "module",
             "file": "packages/ember-runtime/lib/controllers/controller.js",
             "line": 11
-        },
-        "@ember/string": {
-            "name": "@ember/string",
-            "submodules": {},
-            "elements": {},
-            "classes": {
-                "@ember/string": 1,
-                "String": 1
-            },
-            "fors": {
-                "@ember/string": 1,
-                "Ember.Ember": 1
-            },
-            "namespaces": {},
-            "tag": "module",
-            "file": "packages/ember-runtime/lib/system/string.js",
-            "line": 118
         },
         "@ember/array": {
             "name": "@ember/array",
@@ -2162,6 +2452,175 @@
             "extends": "EmberObject",
             "access": "public",
             "tagname": ""
+        },
+        "Checkbox": {
+            "name": "Checkbox",
+            "shortname": "Checkbox",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "module": "@ember/component",
+            "namespace": "",
+            "file": "packages/ember-glimmer/lib/components/checkbox.ts",
+            "line": 9,
+            "description": "The internal class used to create text inputs when the `{{input}}`\nhelper is used with `type` of `checkbox`.\n\nSee [Ember.Templates.helpers.input](/api/classes/Ember.Templates.helpers.html#method_input)  for usage details.\n\n## Direct manipulation of `checked`\n\nThe `checked` attribute of an `Checkbox` object should always be set\nthrough the Ember object or by interacting with its rendered element\nrepresentation via the mouse, keyboard, or touch. Updating the value of the\ncheckbox via jQuery will result in the checked value of the object and its\nelement losing synchronization.\n\n## Layout and LayoutName properties\n\nBecause HTML `input` elements are self closing `layout` and `layoutName`\nproperties will not be applied.",
+            "extends": "Component",
+            "access": "public",
+            "tagname": ""
+        },
+        "Ember.Templates.helpers": {
+            "name": "Ember.Templates.helpers",
+            "shortname": "Ember.Templates.helpers",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "module": "ember",
+            "namespace": "",
+            "file": "packages/ember-glimmer/lib/index.ts",
+            "line": 80
+        },
+        "LinkComponent": {
+            "name": "LinkComponent",
+            "shortname": "LinkComponent",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "module": "@ember/routing",
+            "namespace": "",
+            "file": "packages/ember-glimmer/lib/components/link-to.ts",
+            "line": 334,
+            "description": "`LinkComponent` renders an element whose `click` event triggers a\ntransition of the application's instance of `Router` to\na supplied route by name.\n\n`LinkComponent` components are invoked with {{#link-to}}. Properties\nof this class can be overridden with `reopen` to customize application-wide\nbehavior.",
+            "extends": "Component",
+            "see": [
+                "{Ember.Templates.helpers.link-to}"
+            ],
+            "access": "public",
+            "tagname": ""
+        },
+        "TextArea": {
+            "name": "TextArea",
+            "shortname": "TextArea",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "module": "@ember/component",
+            "namespace": "",
+            "file": "packages/ember-glimmer/lib/components/text_area.ts",
+            "line": 201,
+            "description": "The internal class used to create textarea element when the `{{textarea}}`\nhelper is used.\n\nSee [Ember.Templates.helpers.textarea](/api/classes/Ember.Templates.helpers.html#method_textarea)  for usage details.\n\n## Layout and LayoutName properties\n\nBecause HTML `textarea` elements do not contain inner HTML the `layout` and\n`layoutName` properties will not be applied.",
+            "extends": "Component",
+            "uses": [
+                "Ember.TextSupport"
+            ],
+            "access": "public",
+            "tagname": ""
+        },
+        "TextField": {
+            "name": "TextField",
+            "shortname": "TextField",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "module": "@ember/component",
+            "namespace": "",
+            "file": "packages/ember-glimmer/lib/components/text_field.ts",
+            "line": 35,
+            "description": "The internal class used to create text inputs when the `{{input}}`\n  helper is used with `type` of `text`.\nSee [Ember.Templates.helpers.input](/api/classes/Ember.Templates.helpers.html#method_input)  for usage details.\n## Layout and LayoutName properties\nBecause HTML `input` elements are self closing `layout` and `layoutName`\n  properties will not be applied.",
+            "extends": "Component",
+            "uses": [
+                "Ember.TextSupport"
+            ],
+            "access": "public",
+            "tagname": ""
+        },
+        "ComponentStateBucket": {
+            "name": "ComponentStateBucket",
+            "shortname": "ComponentStateBucket",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "module": "ember",
+            "namespace": "",
+            "file": "packages/ember-glimmer/lib/utils/curly-component-state-bucket.ts",
+            "line": 30,
+            "description": "Represents the internal state of the component.",
+            "access": "private",
+            "tagname": ""
+        },
+        "@ember/string": {
+            "name": "@ember/string",
+            "shortname": "@ember/string",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "module": "@ember/string",
+            "namespace": ""
+        },
+        "Component": {
+            "name": "Component",
+            "shortname": "Component",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "module": "@ember/component",
+            "namespace": "",
+            "file": "packages/ember-glimmer/lib/component.ts",
+            "line": 35,
+            "description": "A `Component` is a view that is completely\nisolated. Properties accessed in its templates go\nto the view object and actions are targeted at\nthe view object. There is no access to the\nsurrounding context or outer controller; all\ncontextual information must be passed in.\n\nThe easiest way to create a `Component` is via\na template. If you name a template\n`app/components/my-foo.hbs`, you will be able to use\n`{{my-foo}}` in other templates, which will make\nan instance of the isolated component.\n\n```app/components/my-foo.hbs\n{{person-profile person=currentUser}}\n```\n\n```app/components/person-profile.hbs\n<h1>{{person.title}}</h1>\n<img src={{person.avatar}}>\n<p class='signature'>{{person.signature}}</p>\n```\n\nYou can use `yield` inside a template to\ninclude the **contents** of any block attached to\nthe component. The block will be executed in the\ncontext of the surrounding context or outer controller:\n\n```handlebars\n{{#person-profile person=currentUser}}\n  <p>Admin mode</p>\n  {{! Executed in the controller's context. }}\n{{/person-profile}}\n```\n\n```app/components/person-profile.hbs\n<h1>{{person.title}}</h1>\n{{! Executed in the component's context. }}\n{{yield}} {{! block contents }}\n```\n\nIf you want to customize the component, in order to\nhandle events or actions, you implement a subclass\nof `Component` named after the name of the\ncomponent.\n\nFor example, you could implement the action\n`hello` for the `person-profile` component:\n\n```app/components/person-profile.js\nimport Component from '@ember/component';\n\nexport default Component.extend({\n  actions: {\n    hello(name) {\n      console.log(\"Hello\", name);\n    }\n  }\n});\n```\n\nAnd then use it in the component's template:\n\n```app/templates/components/person-profile.hbs\n<h1>{{person.title}}</h1>\n{{yield}} <!-- block contents -->\n<button {{action 'hello' person.name}}>\n  Say Hello to {{person.name}}\n</button>\n```\n\nComponents must have a `-` in their name to avoid\nconflicts with built-in controls that wrap HTML\nelements. This is consistent with the same\nrequirement in web components.\n\n## HTML Tag\n\nThe default HTML tag name used for a component's DOM representation is `div`.\nThis can be customized by setting the `tagName` property.\nThe following component class:\n\n```app/components/emphasized-paragraph.js\nimport Component from '@ember/component';\n\nexport default Component.extend({\n  tagName: 'em'\n});\n```\n\nWould result in instances with the following HTML:\n\n```html\n<em id=\"ember1\" class=\"ember-view\"></em>\n```\n\n## HTML `class` Attribute\n\nThe HTML `class` attribute of a component's tag can be set by providing a\n`classNames` property that is set to an array of strings:\n\n```app/components/my-widget.js\nimport Component from '@ember/component';\n\nexport default Component.extend({\n  classNames: ['my-class', 'my-other-class']\n});\n```\n\nWill result in component instances with an HTML representation of:\n\n```html\n<div id=\"ember1\" class=\"ember-view my-class my-other-class\"></div>\n```\n\n`class` attribute values can also be set by providing a `classNameBindings`\nproperty set to an array of properties names for the component. The return value\nof these properties will be added as part of the value for the components's `class`\nattribute. These properties can be computed properties:\n\n```app/components/my-widget.js\nimport Component from '@ember/component';\nimport { computed } from '@ember/object';\n\nexport default Component.extend({\n  classNameBindings: ['propertyA', 'propertyB'],\n\n  propertyA: 'from-a',\n  propertyB: computed(function() {\n    if (someLogic) { return 'from-b'; }\n  })\n});\n```\n\nWill result in component instances with an HTML representation of:\n\n```html\n<div id=\"ember1\" class=\"ember-view from-a from-b\"></div>\n```\n\nIf the value of a class name binding returns a boolean the property name\nitself will be used as the class name if the property is true.\nThe class name will not be added if the value is `false` or `undefined`.\n\n```app/components/my-widget.js\nimport Component from '@ember/component';\n\nexport default Component.extend({\n  classNameBindings: ['hovered'],\n\n  hovered: true\n});\n```\n\nWill result in component instances with an HTML representation of:\n\n```html\n<div id=\"ember1\" class=\"ember-view hovered\"></div>\n```\n\nWhen using boolean class name bindings you can supply a string value other\nthan the property name for use as the `class` HTML attribute by appending the\npreferred value after a \":\" character when defining the binding:\n\n```app/components/my-widget.js\nimport Component from '@ember/component';\n\nexport default Component.extend({\n  classNameBindings: ['awesome:so-very-cool'],\n\n  awesome: true\n});\n```\n\nWill result in component instances with an HTML representation of:\n\n```html\n<div id=\"ember1\" class=\"ember-view so-very-cool\"></div>\n```\n\nBoolean value class name bindings whose property names are in a\ncamelCase-style format will be converted to a dasherized format:\n\n```app/components/my-widget.js\nimport Component from '@ember/component';\n\nexport default Component.extend({\n  classNameBindings: ['isUrgent'],\n\n  isUrgent: true\n});\n```\n\nWill result in component instances with an HTML representation of:\n\n```html\n<div id=\"ember1\" class=\"ember-view is-urgent\"></div>\n```\n\nClass name bindings can also refer to object values that are found by\ntraversing a path relative to the component itself:\n\n```app/components/my-widget.js\nimport Component from '@ember/component';\nimport EmberObject from '@ember/object';\n\nexport default Component.extend({\n  classNameBindings: ['messages.empty'],\n\n  messages: EmberObject.create({\n    empty: true\n  })\n});\n```\n\nWill result in component instances with an HTML representation of:\n\n```html\n<div id=\"ember1\" class=\"ember-view empty\"></div>\n```\n\nIf you want to add a class name for a property which evaluates to true and\nand a different class name if it evaluates to false, you can pass a binding\nlike this:\n\n```app/components/my-widget.js\nimport Component from '@ember/component';\n\nexport default Component.extend({\n  classNameBindings: ['isEnabled:enabled:disabled'],\n  isEnabled: true\n});\n```\n\nWill result in component instances with an HTML representation of:\n\n```html\n<div id=\"ember1\" class=\"ember-view enabled\"></div>\n```\n\nWhen isEnabled is `false`, the resulting HTML representation looks like\nthis:\n\n```html\n<div id=\"ember1\" class=\"ember-view disabled\"></div>\n```\n\nThis syntax offers the convenience to add a class if a property is `false`:\n\n```app/components/my-widget.js\nimport Component from '@ember/component';\n\n// Applies no class when isEnabled is true and class 'disabled' when isEnabled is false\nexport default Component.extend({\n  classNameBindings: ['isEnabled::disabled'],\n  isEnabled: true\n});\n```\n\nWill result in component instances with an HTML representation of:\n\n```html\n<div id=\"ember1\" class=\"ember-view\"></div>\n```\n\nWhen the `isEnabled` property on the component is set to `false`, it will result\nin component instances with an HTML representation of:\n\n```html\n<div id=\"ember1\" class=\"ember-view disabled\"></div>\n```\n\nUpdates to the value of a class name binding will result in automatic\nupdate of the  HTML `class` attribute in the component's rendered HTML\nrepresentation. If the value becomes `false` or `undefined` the class name\nwill be removed.\nBoth `classNames` and `classNameBindings` are concatenated properties. See\n[EmberObject](/api/classes/Ember.Object.html) documentation for more\ninformation about concatenated properties.\n\n## HTML Attributes\n\nThe HTML attribute section of a component's tag can be set by providing an\n`attributeBindings` property set to an array of property names on the component.\nThe return value of these properties will be used as the value of the component's\nHTML associated attribute:\n\n```app/components/my-anchor.js\nimport Component from '@ember/component';\n\nexport default Component.extend({\n  tagName: 'a',\n  attributeBindings: ['href'],\n\n  href: 'http://google.com'\n});\n```\n\nWill result in component instances with an HTML representation of:\n\n```html\n<a id=\"ember1\" class=\"ember-view\" href=\"http://google.com\"></a>\n```\n\nOne property can be mapped on to another by placing a \":\" between\nthe source property and the destination property:\n\n```app/components/my-anchor.js\nimport Component from '@ember/component';\n\nexport default Component.extend({\n  tagName: 'a',\n  attributeBindings: ['url:href'],\n\n  url: 'http://google.com'\n});\n```\n\nWill result in component instances with an HTML representation of:\n\n```html\n<a id=\"ember1\" class=\"ember-view\" href=\"http://google.com\"></a>\n```\n\nNamespaced attributes (e.g. `xlink:href`) are supported, but have to be\nmapped, since `:` is not a valid character for properties in Javascript:\n\n```app/components/my-use.js\nimport Component from '@ember/component';\n\nexport default Component.extend({\n  tagName: 'use',\n  attributeBindings: ['xlinkHref:xlink:href'],\n\n  xlinkHref: '#triangle'\n});\n```\n\nWill result in component instances with an HTML representation of:\n\n```html\n<use xlink:href=\"#triangle\"></use>\n```\n\nIf the return value of an `attributeBindings` monitored property is a boolean\nthe attribute will be present or absent depending on the value:\n\n```app/components/my-text-input.js\nimport Component from '@ember/component';\n\nexport default Component.extend({\n  tagName: 'input',\n  attributeBindings: ['disabled'],\n\n  disabled: false\n});\n```\n\nWill result in a component instance with an HTML representation of:\n\n```html\n<input id=\"ember1\" class=\"ember-view\" />\n```\n\n`attributeBindings` can refer to computed properties:\n\n```app/components/my-text-input.js\nimport Component from '@ember/component';\nimport { computed } from '@ember/object';\n\nexport default Component.extend({\n  tagName: 'input',\n  attributeBindings: ['disabled'],\n\n  disabled: computed(function() {\n    if (someLogic) {\n      return true;\n    } else {\n      return false;\n    }\n  })\n});\n```\n\nTo prevent setting an attribute altogether, use `null` or `undefined` as the\nreturn value of the `attributeBindings` monitored property:\n\n```app/components/my-text-input.js\nimport Component from '@ember/component';\n\nexport default Component.extend({\n  tagName: 'form',\n  attributeBindings: ['novalidate'],\n  novalidate: null\n});\n```\n\nUpdates to the property of an attribute binding will result in automatic\nupdate of the  HTML attribute in the component's rendered HTML representation.\n`attributeBindings` is a concatenated property. See [EmberObject](/api/classes/Ember.Object.html)\ndocumentation for more information about concatenated properties.\n\n## Layouts\n\nSee [Ember.Templates.helpers.yield](/api/classes/Ember.Templates.helpers.html#method_yield)\nfor more information.\n\nLayout can be used to wrap content in a component. In addition\nto wrapping content in a Component's template, you can also use\nthe public layout API in your Component JavaScript.\n\n```app/templates/components/person-profile.hbs\n  <h1>Person's Title</h1>\n  <div class='details'>{{yield}}</div>\n```\n\n```app/components/person-profile.js\n  import Component from '@ember/component';\n  import layout from '../templates/components/person-profile';\n\n  export default Component.extend({\n    layout\n  });\n```\n\nThe above will result in the following HTML output:\n\n```html\n  <h1>Person's Title</h1>\n  <div class=\"details\">\n    <h2>Chief Basket Weaver</h2>\n    <h3>Fisherman Industries</h3>\n  </div>\n```\n\n## Responding to Browser Events\n\nComponents can respond to user-initiated events in one of three ways: method\nimplementation, through an event manager, and through `{{action}}` helper use\nin their template or layout.\n\n### Method Implementation\n\nComponents can respond to user-initiated events by implementing a method that\nmatches the event name. A `jQuery.Event` object will be passed as the\nargument to this method.\n\n```app/components/my-widget.js\nimport Component from '@ember/component';\n\nexport default Component.extend({\n  click(event) {\n    // will be called when an instance's\n    // rendered element is clicked\n  }\n});\n```\n\n### `{{action}}` Helper\n\nSee [Ember.Templates.helpers.action](/api/classes/Ember.Templates.helpers.html#method_action).\n\n### Event Names\n\nAll of the event handling approaches described above respond to the same set\nof events. The names of the built-in events are listed below. (The hash of\nbuilt-in events exists in `Ember.EventDispatcher`.) Additional, custom events\ncan be registered by using `Ember.Application.customEvents`.\n\nTouch events:\n\n* `touchStart`\n* `touchMove`\n* `touchEnd`\n* `touchCancel`\n\nKeyboard events:\n\n* `keyDown`\n* `keyUp`\n* `keyPress`\n\nMouse events:\n\n* `mouseDown`\n* `mouseUp`\n* `contextMenu`\n* `click`\n* `doubleClick`\n* `mouseMove`\n* `focusIn`\n* `focusOut`\n* `mouseEnter`\n* `mouseLeave`\n\nForm events:\n\n* `submit`\n* `change`\n* `focusIn`\n* `focusOut`\n* `input`\n\nHTML5 drag and drop events:\n\n* `dragStart`\n* `drag`\n* `dragEnter`\n* `dragLeave`\n* `dragOver`\n* `dragEnd`\n* `drop`",
+            "extends": "Ember.CoreView",
+            "uses": [
+                "Ember.TargetActionSupport",
+                "Ember.ClassNamesSupport",
+                "Ember.ActionSupport",
+                "Ember.ViewMixin",
+                "Ember.ViewStateSupport"
+            ],
+            "access": "public",
+            "tagname": ""
+        },
+        "Helper": {
+            "name": "Helper",
+            "shortname": "Helper",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "module": "@ember/component",
+            "namespace": "",
+            "file": "packages/ember-glimmer/lib/helper.ts",
+            "line": 12,
+            "description": "Ember Helpers are functions that can compute values, and are used in templates.\nFor example, this code calls a helper named `format-currency`:\n\n```handlebars\n<div>{{format-currency cents currency=\"$\"}}</div>\n```\n\nAdditionally a helper can be called as a nested helper (sometimes called a\nsubexpression). In this example, the computed value of a helper is passed\nto a component named `show-money`:\n\n```handlebars\n{{show-money amount=(format-currency cents currency=\"$\")}}\n```\n\nHelpers defined using a class must provide a `compute` function. For example:\n\n```app/helpers/format-currency.js\nimport Helper from '@ember/component/helper';\n\nexport default Helper.extend({\n  compute(params, hash) {\n    let cents = params[0];\n    let currency = hash.currency;\n    return `${currency}${cents * 0.01}`;\n  }\n});\n```\n\nEach time the input to a helper changes, the `compute` function will be\ncalled again.\n\nAs instances, these helpers also have access to the container an will accept\ninjected dependencies.\n\nAdditionally, class helpers can call `recompute` to force a new computation.",
+            "access": "public",
+            "tagname": "",
+            "since": "1.13.0"
+        },
+        "@ember/component/helper": {
+            "name": "@ember/component/helper",
+            "shortname": "@ember/component/helper",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "module": "@ember/component",
+            "namespace": ""
         },
         "Ember.Binding": {
             "name": "Ember.Binding",
@@ -2776,17 +3235,6 @@
             "module": "ember",
             "namespace": ""
         },
-        "@ember/string": {
-            "name": "@ember/string",
-            "shortname": "@ember/string",
-            "classitems": [],
-            "plugins": [],
-            "extensions": [],
-            "plugin_for": [],
-            "extension_for": [],
-            "module": "@ember/string",
-            "namespace": ""
-        },
         "Ember.ProxyMixin": {
             "name": "Ember.ProxyMixin",
             "shortname": "Ember.ProxyMixin",
@@ -2962,7 +3410,8 @@
             "plugin_for": [],
             "extension_for": [
                 "Route",
-                "Router"
+                "Router",
+                "Ember.CoreView"
             ],
             "module": "@ember/object",
             "namespace": "",
@@ -3097,6 +3546,7 @@
             "extensions": [],
             "plugin_for": [],
             "extension_for": [
+                "Component",
                 "Ember.TextSupport"
             ],
             "module": "ember",
@@ -3370,7 +3820,9 @@
             "plugins": [],
             "extensions": [],
             "plugin_for": [],
-            "extension_for": [],
+            "extension_for": [
+                "Component"
+            ],
             "module": "ember",
             "namespace": "Ember",
             "file": "packages/ember-views/lib/mixins/action_support.js",
@@ -3385,7 +3837,9 @@
             "plugins": [],
             "extensions": [],
             "plugin_for": [],
-            "extension_for": [],
+            "extension_for": [
+                "Component"
+            ],
             "module": "ember",
             "namespace": "Ember",
             "file": "packages/ember-views/lib/mixins/class_names_support.js",
@@ -3400,7 +3854,10 @@
             "plugins": [],
             "extensions": [],
             "plugin_for": [],
-            "extension_for": [],
+            "extension_for": [
+                "TextArea",
+                "TextField"
+            ],
             "module": "ember",
             "namespace": "Ember",
             "file": "packages/ember-views/lib/mixins/text_support.js",
@@ -3420,7 +3877,9 @@
             "plugins": [],
             "extensions": [],
             "plugin_for": [],
-            "extension_for": [],
+            "extension_for": [
+                "Component"
+            ],
             "module": "ember",
             "namespace": "Ember",
             "file": "packages/ember-views/lib/mixins/view_support.js",
@@ -3458,11 +3917,11 @@
             "file": "packages/ember-views/lib/views/core_view.js",
             "line": 10,
             "description": "`Ember.CoreView` is an abstract class that exists to give view-like behavior\nto both Ember's main view class `Ember.Component` and other classes that don't need\nthe full functionality of `Ember.Component`.\n\nUnless you have specific needs for `CoreView`, you will use `Ember.Component`\nin your applications.",
-            "extends": "Ember.Object",
+            "extends": "EmberObject",
             "deprecated": true,
-            "deprecationMessage": "Use `Ember.Component` instead.",
+            "deprecationMessage": "Use `Component` instead.",
             "uses": [
-                "Ember.Evented",
+                "Evented",
                 "Ember.ActionHandler"
             ],
             "access": "private",
@@ -6642,6 +7101,1141 @@
             },
             "class": "DataAdapter",
             "module": "@ember/debug"
+        },
+        {
+            "file": "packages/ember-glimmer/lib/components/link-to.ts",
+            "line": 5,
+            "description": "The `{{link-to}}` component renders a link to the supplied\n`routeName` passing an optionally supplied model to the\nroute as its `model` context of the route. The block\nfor `{{link-to}}` becomes the innerHTML of the rendered\nelement:\n\n```handlebars\n{{#link-to 'photoGallery'}}\n  Great Hamster Photos\n{{/link-to}}\n```\n\nYou can also use an inline form of `{{link-to}}` component by\npassing the link text as the first argument\nto the component:\n\n```handlebars\n{{link-to 'Great Hamster Photos' 'photoGallery'}}\n```\n\nBoth will result in:\n\n```html\n<a href=\"/hamster-photos\">\n  Great Hamster Photos\n</a>\n```\n\n### Supplying a tagName\nBy default `{{link-to}}` renders an `<a>` element. This can\nbe overridden for a single use of `{{link-to}}` by supplying\na `tagName` option:\n\n```handlebars\n{{#link-to 'photoGallery' tagName=\"li\"}}\n  Great Hamster Photos\n{{/link-to}}\n```\n\n```html\n<li>\n  Great Hamster Photos\n</li>\n```\n\nTo override this option for your entire application, see\n\"Overriding Application-wide Defaults\".\n\n### Disabling the `link-to` component\nBy default `{{link-to}}` is enabled.\nany passed value to the `disabled` component property will disable\nthe `link-to` component.\n\nstatic use: the `disabled` option:\n\n```handlebars\n{{#link-to 'photoGallery' disabled=true}}\n  Great Hamster Photos\n{{/link-to}}\n```\n\ndynamic use: the `disabledWhen` option:\n\n```handlebars\n{{#link-to 'photoGallery' disabledWhen=controller.someProperty}}\n  Great Hamster Photos\n{{/link-to}}\n```\n\nany passed value to `disabled` will disable it except `undefined`.\nto ensure that only `true` disable the `link-to` component you can\noverride the global behavior of `LinkComponent`.\n\n```javascript\nimport LinkComponent from '@ember/routing/link-component';\nimport { computed } from '@ember/object';\n\nLinkComponent.reopen({\n  disabled: computed(function(key, value) {\n    if (value !== undefined) {\n      this.set('_isDisabled', value === true);\n    }\n    return value === true ? get(this, 'disabledClass') : false;\n  })\n});\n```\n\nsee \"Overriding Application-wide Defaults\" for more.\n\n### Handling `href`\n`{{link-to}}` will use your application's Router to\nfill the element's `href` property with a url that\nmatches the path to the supplied `routeName` for your\nrouter's configured `Location` scheme, which defaults\nto HashLocation.\n\n### Handling current route\n`{{link-to}}` will apply a CSS class name of 'active'\nwhen the application's current route matches\nthe supplied routeName. For example, if the application's\ncurrent route is 'photoGallery.recent' the following\nuse of `{{link-to}}`:\n\n```handlebars\n{{#link-to 'photoGallery.recent'}}\n  Great Hamster Photos\n{{/link-to}}\n```\n\nwill result in\n\n```html\n<a href=\"/hamster-photos/this-week\" class=\"active\">\n  Great Hamster Photos\n</a>\n```\n\nThe CSS class name used for active classes can be customized\nfor a single use of `{{link-to}}` by passing an `activeClass`\noption:\n\n```handlebars\n{{#link-to 'photoGallery.recent' activeClass=\"current-url\"}}\n  Great Hamster Photos\n{{/link-to}}\n```\n\n```html\n<a href=\"/hamster-photos/this-week\" class=\"current-url\">\n  Great Hamster Photos\n</a>\n```\n\nTo override this option for your entire application, see\n\"Overriding Application-wide Defaults\".\n\n### Keeping a link active for other routes\n\nIf you need a link to be 'active' even when it doesn't match\nthe current route, you can use the `current-when` argument.\n\n```handlebars\n{{#link-to 'photoGallery' current-when='photos'}}\n  Photo Gallery\n{{/link-to}}\n```\n\nThis may be helpful for keeping links active for:\n\n* non-nested routes that are logically related\n* some secondary menu approaches\n* 'top navigation' with 'sub navigation' scenarios\n\nA link will be active if `current-when` is `true` or the current\nroute is the route this link would transition to.\n\nTo match multiple routes 'space-separate' the routes:\n\n```handlebars\n{{#link-to 'gallery' current-when='photos drawings paintings'}}\n  Art Gallery\n{{/link-to}}\n```\n\n### Supplying a model\nAn optional model argument can be used for routes whose\npaths contain dynamic segments. This argument will become\nthe model context of the linked route:\n\n```javascript\nRouter.map(function() {\n  this.route(\"photoGallery\", {path: \"hamster-photos/:photo_id\"});\n});\n```\n\n```handlebars\n{{#link-to 'photoGallery' aPhoto}}\n  {{aPhoto.title}}\n{{/link-to}}\n```\n\n```html\n<a href=\"/hamster-photos/42\">\n  Tomster\n</a>\n```\n\n### Supplying multiple models\nFor deep-linking to route paths that contain multiple\ndynamic segments, multiple model arguments can be used.\nAs the router transitions through the route path, each\nsupplied model argument will become the context for the\nroute with the dynamic segments:\n\n```javascript\nRouter.map(function() {\n  this.route(\"photoGallery\", { path: \"hamster-photos/:photo_id\" }, function() {\n    this.route(\"comment\", {path: \"comments/:comment_id\"});\n  });\n});\n```\nThis argument will become the model context of the linked route:\n\n```handlebars\n{{#link-to 'photoGallery.comment' aPhoto comment}}\n  {{comment.body}}\n{{/link-to}}\n```\n\n```html\n<a href=\"/hamster-photos/42/comments/718\">\n  A+++ would snuggle again.\n</a>\n```\n\n### Supplying an explicit dynamic segment value\nIf you don't have a model object available to pass to `{{link-to}}`,\nan optional string or integer argument can be passed for routes whose\npaths contain dynamic segments. This argument will become the value\nof the dynamic segment:\n\n```javascript\nRouter.map(function() {\n  this.route(\"photoGallery\", { path: \"hamster-photos/:photo_id\" });\n});\n```\n\n```handlebars\n{{#link-to 'photoGallery' aPhotoId}}\n  {{aPhoto.title}}\n{{/link-to}}\n```\n\n```html\n<a href=\"/hamster-photos/42\">\n  Tomster\n</a>\n```\n\nWhen transitioning into the linked route, the `model` hook will\nbe triggered with parameters including this passed identifier.\n\n### Allowing Default Action\n\nBy default the `{{link-to}}` component prevents the default browser action\nby calling `preventDefault()` as this sort of action bubbling is normally\nhandled internally and we do not want to take the browser to a new URL (for\nexample).\n\nIf you need to override this behavior specify `preventDefault=false` in\nyour template:\n\n```handlebars\n{{#link-to 'photoGallery' aPhotoId preventDefault=false}}\n  {{aPhotoId.title}}\n{{/link-to}}\n```\n\n### Overriding attributes\nYou can override any given property of the `LinkComponent`\nthat is generated by the `{{link-to}}` component by passing\nkey/value pairs, like so:\n\n```handlebars\n{{#link-to  aPhoto tagName='li' title='Following this link will change your life' classNames='pic sweet'}}\n  Uh-mazing!\n{{/link-to}}\n```\n\nSee [LinkComponent](/api/classes/Ember.LinkComponent.html) for a\ncomplete list of overrideable properties. Be sure to also\ncheck out inherited properties of `LinkComponent`.\n\n### Overriding Application-wide Defaults\n``{{link-to}}`` creates an instance of `LinkComponent`\nfor rendering. To override options for your entire\napplication, reopen `LinkComponent` and supply the\ndesired values:\n\n``` javascript\nimport LinkComponent from '@ember/routing/link-component';\n\nLinkComponent.reopen({\n  activeClass: \"is-active\",\n  tagName: 'li'\n})\n```\n\nIt is also possible to override the default event in\nthis manner:\n\n``` javascript\nimport LinkCompoennt from '@ember/routing/link-component';\n\nLinkComponent.reopen({\n  eventName: 'customEventName'\n});\n```",
+            "itemtype": "method",
+            "name": "link-to",
+            "params": [
+                {
+                    "name": "routeName",
+                    "description": "",
+                    "type": "String"
+                },
+                {
+                    "name": "context",
+                    "description": "",
+                    "type": "Object",
+                    "optional": true,
+                    "multiple": true
+                },
+                {
+                    "name": "options",
+                    "description": "Handlebars key/value pairs of options, you can override any property of Ember.LinkComponent",
+                    "type": "Object",
+                    "optional": true
+                }
+            ],
+            "return": {
+                "description": "HTML string",
+                "type": "String"
+            },
+            "see": [
+                "{LinkComponent}"
+            ],
+            "access": "public",
+            "tagname": "",
+            "class": "Ember.Templates.helpers",
+            "module": "ember"
+        },
+        {
+            "file": "packages/ember-glimmer/lib/components/link-to.ts",
+            "line": 353,
+            "deprecated": true,
+            "deprecationMessage": "Use current-when instead.",
+            "itemtype": "property",
+            "name": "currentWhen",
+            "access": "private",
+            "tagname": "",
+            "class": "LinkComponent",
+            "module": "@ember/routing"
+        },
+        {
+            "file": "packages/ember-glimmer/lib/components/link-to.ts",
+            "line": 360,
+            "description": "Used to determine when this `LinkComponent` is active.",
+            "itemtype": "property",
+            "name": "current-when",
+            "access": "public",
+            "tagname": "",
+            "class": "LinkComponent",
+            "module": "@ember/routing"
+        },
+        {
+            "file": "packages/ember-glimmer/lib/components/link-to.ts",
+            "line": 368,
+            "description": "Sets the `title` attribute of the `LinkComponent`'s HTML element.",
+            "itemtype": "property",
+            "name": "title",
+            "default": "null",
+            "access": "public",
+            "tagname": "",
+            "class": "LinkComponent",
+            "module": "@ember/routing"
+        },
+        {
+            "file": "packages/ember-glimmer/lib/components/link-to.ts",
+            "line": 377,
+            "description": "Sets the `rel` attribute of the `LinkComponent`'s HTML element.",
+            "itemtype": "property",
+            "name": "rel",
+            "default": "null",
+            "access": "public",
+            "tagname": "",
+            "class": "LinkComponent",
+            "module": "@ember/routing"
+        },
+        {
+            "file": "packages/ember-glimmer/lib/components/link-to.ts",
+            "line": 386,
+            "description": "Sets the `tabindex` attribute of the `LinkComponent`'s HTML element.",
+            "itemtype": "property",
+            "name": "tabindex",
+            "default": "null",
+            "access": "public",
+            "tagname": "",
+            "class": "LinkComponent",
+            "module": "@ember/routing"
+        },
+        {
+            "file": "packages/ember-glimmer/lib/components/link-to.ts",
+            "line": 395,
+            "description": "Sets the `target` attribute of the `LinkComponent`'s HTML element.",
+            "since": "1.8.0",
+            "itemtype": "property",
+            "name": "target",
+            "default": "null",
+            "access": "public",
+            "tagname": "",
+            "class": "LinkComponent",
+            "module": "@ember/routing"
+        },
+        {
+            "file": "packages/ember-glimmer/lib/components/link-to.ts",
+            "line": 405,
+            "description": "The CSS class to apply to `LinkComponent`'s element when its `active`\nproperty is `true`.",
+            "itemtype": "property",
+            "name": "activeClass",
+            "type": "String",
+            "default": "active",
+            "access": "public",
+            "tagname": "",
+            "class": "LinkComponent",
+            "module": "@ember/routing"
+        },
+        {
+            "file": "packages/ember-glimmer/lib/components/link-to.ts",
+            "line": 416,
+            "description": "The CSS class to apply to `LinkComponent`'s element when its `loading`\nproperty is `true`.",
+            "itemtype": "property",
+            "name": "loadingClass",
+            "type": "String",
+            "default": "loading",
+            "access": "private",
+            "tagname": "",
+            "class": "LinkComponent",
+            "module": "@ember/routing"
+        },
+        {
+            "file": "packages/ember-glimmer/lib/components/link-to.ts",
+            "line": 427,
+            "description": "The CSS class to apply to a `LinkComponent`'s element when its `disabled`\nproperty is `true`.",
+            "itemtype": "property",
+            "name": "disabledClass",
+            "type": "String",
+            "default": "disabled",
+            "access": "private",
+            "tagname": "",
+            "class": "LinkComponent",
+            "module": "@ember/routing"
+        },
+        {
+            "file": "packages/ember-glimmer/lib/components/link-to.ts",
+            "line": 438,
+            "description": "Determines whether the `LinkComponent` will trigger routing via\nthe `replaceWith` routing strategy.",
+            "itemtype": "property",
+            "name": "replace",
+            "type": "Boolean",
+            "default": "false",
+            "access": "public",
+            "tagname": "",
+            "class": "LinkComponent",
+            "module": "@ember/routing"
+        },
+        {
+            "file": "packages/ember-glimmer/lib/components/link-to.ts",
+            "line": 449,
+            "description": "By default the `{{link-to}}` component will bind to the `href` and\n`title` attributes. It's discouraged that you override these defaults,\nhowever you can push onto the array if needed.",
+            "itemtype": "property",
+            "name": "attributeBindings",
+            "type": "Array | String",
+            "default": "['title', 'rel', 'tabindex', 'target']",
+            "access": "public",
+            "tagname": "",
+            "class": "LinkComponent",
+            "module": "@ember/routing"
+        },
+        {
+            "file": "packages/ember-glimmer/lib/components/link-to.ts",
+            "line": 461,
+            "description": "By default the `{{link-to}}` component will bind to the `active`, `loading`,\nand `disabled` classes. It is discouraged to override these directly.",
+            "itemtype": "property",
+            "name": "classNameBindings",
+            "type": "Array",
+            "default": "['active', 'loading', 'disabled', 'ember-transitioning-in', 'ember-transitioning-out']",
+            "access": "public",
+            "tagname": "",
+            "class": "LinkComponent",
+            "module": "@ember/routing"
+        },
+        {
+            "file": "packages/ember-glimmer/lib/components/link-to.ts",
+            "line": 472,
+            "description": "By default the `{{link-to}}` component responds to the `click` event. You\ncan override this globally by setting this property to your custom\nevent name.\n\nThis is particularly useful on mobile when one wants to avoid the 300ms\nclick delay using some sort of custom `tap` event.",
+            "itemtype": "property",
+            "name": "eventName",
+            "type": "String",
+            "default": "click",
+            "access": "private",
+            "tagname": "",
+            "class": "LinkComponent",
+            "module": "@ember/routing"
+        },
+        {
+            "file": "packages/ember-glimmer/lib/components/link-to.ts",
+            "line": 490,
+            "description": "Triggers the `LinkComponent`'s routing behavior. If\n`eventName` is changed to a value other than `click`\nthe routing behavior will trigger on that custom event\ninstead.",
+            "itemtype": "event",
+            "name": "click",
+            "access": "private",
+            "tagname": "",
+            "class": "LinkComponent",
+            "module": "@ember/routing"
+        },
+        {
+            "file": "packages/ember-glimmer/lib/components/link-to.ts",
+            "line": 500,
+            "description": "An overridable method called when `LinkComponent` objects are instantiated.\n\nExample:\n\n```app/components/my-link.js\nimport LinkComponent from '@ember/routing/link-component';\n\nexport default LinkComponent.extend({\n  init() {\n    this._super(...arguments);\n    console.log('Event is ' + this.get('eventName'));\n  }\n});\n```\n\nNOTE: If you do override `init` for a framework class like `Component`,\nbe sure to call `this._super(...arguments)` in your\n`init` declaration! If you don't, Ember may not have an opportunity to\ndo important setup work, and you'll see strange behavior in your\napplication.",
+            "itemtype": "method",
+            "name": "init",
+            "access": "private",
+            "tagname": "",
+            "class": "LinkComponent",
+            "module": "@ember/routing"
+        },
+        {
+            "file": "packages/ember-glimmer/lib/components/link-to.ts",
+            "line": 536,
+            "description": "Accessed as a classname binding to apply the `LinkComponent`'s `disabledClass`\nCSS `class` to the element when the link is disabled.\n\nWhen `true` interactions with the element will not trigger route changes.",
+            "itemtype": "property",
+            "name": "disabled",
+            "access": "private",
+            "tagname": "",
+            "class": "LinkComponent",
+            "module": "@ember/routing"
+        },
+        {
+            "file": "packages/ember-glimmer/lib/components/link-to.ts",
+            "line": 579,
+            "description": "Accessed as a classname binding to apply the `LinkComponent`'s `activeClass`\nCSS `class` to the element when the link is active.\n\nA `LinkComponent` is considered active when its `currentWhen` property is `true`\nor the application's current route is the route the `LinkComponent` would trigger\ntransitions into.\n\nThe `currentWhen` property can match against multiple routes by separating\nroute names using the ` ` (space) character.",
+            "itemtype": "property",
+            "name": "active",
+            "access": "private",
+            "tagname": "",
+            "class": "LinkComponent",
+            "module": "@ember/routing"
+        },
+        {
+            "file": "packages/ember-glimmer/lib/components/link-to.ts",
+            "line": 627,
+            "description": "Event handler that invokes the link, activating the associated route.",
+            "itemtype": "method",
+            "name": "_invoke",
+            "params": [
+                {
+                    "name": "event",
+                    "description": "",
+                    "type": "Event"
+                }
+            ],
+            "access": "private",
+            "tagname": "",
+            "class": "LinkComponent",
+            "module": "@ember/routing"
+        },
+        {
+            "file": "packages/ember-glimmer/lib/components/link-to.ts",
+            "line": 714,
+            "description": "Sets the element's `href` attribute to the url for\nthe `LinkComponent`'s targeted route.\n\nIf the `LinkComponent`'s `tagName` is changed to a value other\nthan `a`, this property will be ignored.",
+            "itemtype": "property",
+            "name": "href",
+            "access": "private",
+            "tagname": "",
+            "class": "LinkComponent",
+            "module": "@ember/routing"
+        },
+        {
+            "file": "packages/ember-glimmer/lib/components/link-to.ts",
+            "line": 801,
+            "description": "The default href value to use while a link-to is loading.\nOnly applies when tagName is 'a'",
+            "itemtype": "property",
+            "name": "loadingHref",
+            "type": "String",
+            "default": "#",
+            "access": "private",
+            "tagname": "",
+            "class": "LinkComponent",
+            "module": "@ember/routing"
+        },
+        {
+            "file": "packages/ember-glimmer/lib/components/text_area.ts",
+            "line": 8,
+            "description": "`{{textarea}}` inserts a new instance of `<textarea>` tag into the template.\nThe attributes of `{{textarea}}` match those of the native HTML tags as\nclosely as possible.\n\nThe following HTML attributes can be set:\n\n  * `value`\n  * `name`\n  * `rows`\n  * `cols`\n  * `placeholder`\n  * `disabled`\n  * `maxlength`\n  * `tabindex`\n  * `selectionEnd`\n  * `selectionStart`\n  * `selectionDirection`\n  * `wrap`\n  * `readonly`\n  * `autofocus`\n  * `form`\n  * `spellcheck`\n  * `required`\n\nWhen set to a quoted string, these value will be directly applied to the HTML\nelement. When left unquoted, these values will be bound to a property on the\ntemplate's current rendering context (most typically a controller instance).\n\nUnbound:\n\n```handlebars\n{{textarea value=\"Lots of static text that ISN'T bound\"}}\n```\n\nWould result in the following HTML:\n\n```html\n<textarea class=\"ember-text-area\">\n  Lots of static text that ISN'T bound\n</textarea>\n```\n\nBound:\n\nIn the following example, the `writtenWords` property on the application\nController will be updated live as the user types 'Lots of text that IS\nbound' into the text area of their browser's window.\n\n```app/controllers/application.js\nimport Controller from '@ember/controller';\n\nexport default Controller.extend({\n  writtenWords: \"Lots of text that IS bound\"\n});\n```\n\n```handlebars\n{{textarea value=writtenWords}}\n```\n\nWould result in the following HTML:\n\n```html\n<textarea class=\"ember-text-area\">\n  Lots of text that IS bound\n</textarea>\n```\n\nIf you wanted a one way binding between the text area and a div tag\nsomewhere else on your screen, you could use `oneWay`:\n\n```app/controllers/application.js\nimport Controller from '@ember/controller';\nimport { oneWay } from '@ember/object/computed';\n\nexport default Controller.extend({\n  writtenWords: \"Lots of text that IS bound\",\n\n  outputWrittenWords: oneWay(\"writtenWords\")\n});\n```\n\n```handlebars\n{{textarea value=writtenWords}}\n<div>\n  {{outputWrittenWords}}\n</div>\n```\n\nWould result in the following HTML:\n\n```html\n<textarea class=\"ember-text-area\">\n  Lots of text that IS bound\n</textarea>\n<-- the following div will be updated in real time as you type -->\n<div>\n  Lots of text that IS bound\n</div>\n```\n\nFinally, this example really shows the power and ease of Ember when two\nproperties are bound to eachother via `alias`. Type into\neither text area box and they'll both stay in sync. Note that\n`alias` costs more in terms of performance, so only use it when\nyour really binding in both directions:\n\n```app/controllers/application.js\nimport Controller from '@ember/controller';\nimport { alias } from '@ember/object/computed';\n\nexport default Controller.extend({\n  writtenWords: \"Lots of text that IS bound\",\n\n  twoWayWrittenWords: alias(\"writtenWords\")\n});\n```\n\n```handlebars\n{{textarea value=writtenWords}}\n{{textarea value=twoWayWrittenWords}}\n```\n\n```html\n<textarea id=\"ember1\" class=\"ember-text-area\">\n  Lots of text that IS bound\n</textarea>\n<-- both updated in real time -->\n<textarea id=\"ember2\" class=\"ember-text-area\">\n  Lots of text that IS bound\n</textarea>\n```\n\n### Actions\n\nThe helper can send multiple actions based on user events.\nThe action property defines the action which is send when\nthe user presses the return key.\n\n```handlebars\n{{input action=\"submit\"}}\n```\n\nThe helper allows some user events to send actions.\n\n* `enter`\n* `insert-newline`\n* `escape-press`\n* `focus-in`\n* `focus-out`\n* `key-press`\n\nFor example, if you desire an action to be sent when the input is blurred,\nyou only need to setup the action name to the event name property.\n\n```handlebars\n{{textarea focus-out=\"alertMessage\"}}\n```\n\nSee more about [Text Support Actions](/api/classes/Ember.TextArea.html)\n\n### Extension\n\nInternally, `{{textarea}}` creates an instance of `TextArea`, passing\narguments from the helper to `TextArea`'s `create` method. You can\nextend the capabilities of text areas in your application by reopening this\nclass. For example, if you are building a Bootstrap project where `data-*`\nattributes are used, you can globally add support for a `data-*` attribute\non all `{{textarea}}`s' in your app by reopening `TextArea` or\n`TextSupport` and adding it to the `attributeBindings` concatenated\nproperty:\n\n```javascript\nimport TextArea from '@ember/component/text-area';\n\nTextArea.reopen({\n  attributeBindings: ['data-error']\n});\n```\n\nKeep in mind when writing `TextArea` subclasses that `TextArea`\nitself extends `Component`. Expect isolated component semantics, not\nlegacy 1.x view semantics (like `controller` being present).\n\nSee more about [Ember components](/api/classes/Ember.Component.html)",
+            "itemtype": "method",
+            "name": "textarea",
+            "params": [
+                {
+                    "name": "options",
+                    "description": "",
+                    "type": "Hash"
+                }
+            ],
+            "access": "public",
+            "tagname": "",
+            "class": "Ember.Templates.helpers",
+            "module": "@ember/component"
+        },
+        {
+            "file": "packages/ember-glimmer/lib/components/text_field.ts",
+            "line": 82,
+            "description": "The `value` attribute of the input element. As the user inputs text, this\nproperty is updated live.",
+            "itemtype": "property",
+            "name": "value",
+            "type": "String",
+            "default": "\"\"",
+            "access": "public",
+            "tagname": "",
+            "class": "TextField",
+            "module": "@ember/component"
+        },
+        {
+            "file": "packages/ember-glimmer/lib/components/text_field.ts",
+            "line": 93,
+            "description": "The `type` attribute of the input element.",
+            "itemtype": "property",
+            "name": "type",
+            "type": "String",
+            "default": "\"text\"",
+            "access": "public",
+            "tagname": "",
+            "class": "TextField",
+            "module": "@ember/component"
+        },
+        {
+            "file": "packages/ember-glimmer/lib/components/text_field.ts",
+            "line": 117,
+            "description": "The `size` of the text field in characters.",
+            "itemtype": "property",
+            "name": "size",
+            "type": "String",
+            "default": "null",
+            "access": "public",
+            "tagname": "",
+            "class": "TextField",
+            "module": "@ember/component"
+        },
+        {
+            "file": "packages/ember-glimmer/lib/components/text_field.ts",
+            "line": 127,
+            "description": "The `pattern` attribute of input element.",
+            "itemtype": "property",
+            "name": "pattern",
+            "type": "String",
+            "default": "null",
+            "access": "public",
+            "tagname": "",
+            "class": "TextField",
+            "module": "@ember/component"
+        },
+        {
+            "file": "packages/ember-glimmer/lib/components/text_field.ts",
+            "line": 137,
+            "description": "The `min` attribute of input element used with `type=\"number\"` or `type=\"range\"`.",
+            "itemtype": "property",
+            "name": "min",
+            "type": "String",
+            "default": "null",
+            "since": "1.4.0",
+            "access": "public",
+            "tagname": "",
+            "class": "TextField",
+            "module": "@ember/component"
+        },
+        {
+            "file": "packages/ember-glimmer/lib/components/text_field.ts",
+            "line": 148,
+            "description": "The `max` attribute of input element used with `type=\"number\"` or `type=\"range\"`.",
+            "itemtype": "property",
+            "name": "max",
+            "type": "String",
+            "default": "null",
+            "since": "1.4.0",
+            "access": "public",
+            "tagname": "",
+            "class": "TextField",
+            "module": "@ember/component"
+        },
+        {
+            "file": "packages/ember-glimmer/lib/helpers/action.ts",
+            "line": 21,
+            "description": "The `{{action}}` helper provides a way to pass triggers for behavior (usually\njust a function) between components, and into components from controllers.\n\n### Passing functions with the action helper\n\nThere are three contexts an action helper can be used in. The first two\ncontexts to discuss are attribute context, and Handlebars value context.\n\n```handlebars\n{{! An example of attribute context }}\n<div onclick={{action \"save\"}}></div>\n{{! Examples of Handlebars value context }}\n{{input on-input=(action \"save\")}}\n{{yield (action \"refreshData\") andAnotherParam}}\n```\n\nIn these contexts,\nthe helper is called a \"closure action\" helper. Its behavior is simple:\nIf passed a function name, read that function off the `actions` property\nof the current context. Once that function is read (or if a function was\npassed), create a closure over that function and any arguments.\nThe resulting value of an action helper used this way is simply a function.\n\nFor example, in the attribute context:\n\n```handlebars\n{{! An example of attribute context }}\n<div onclick={{action \"save\"}}></div>\n```\n\nThe resulting template render logic would be:\n\n```js\nvar div = document.createElement('div');\nvar actionFunction = (function(context){\n  return function() {\n    return context.actions.save.apply(context, arguments);\n  };\n})(context);\ndiv.onclick = actionFunction;\n```\n\nThus when the div is clicked, the action on that context is called.\nBecause the `actionFunction` is just a function, closure actions can be\npassed between components and still execute in the correct context.\n\nHere is an example action handler on a component:\n\n```app/components/my-component.js\nimport Component from '@ember/component';\n\nexport default Component.extend({\n  actions: {\n    save() {\n      this.get('model').save();\n    }\n  }\n});\n```\n\nActions are always looked up on the `actions` property of the current context.\nThis avoids collisions in the naming of common actions, such as `destroy`.\nTwo options can be passed to the `action` helper when it is used in this way.\n\n* `target=someProperty` will look to `someProperty` instead of the current\n  context for the `actions` hash. This can be useful when targeting a\n  service for actions.\n* `value=\"target.value\"` will read the path `target.value` off the first\n  argument to the action when it is called and rewrite the first argument\n  to be that value. This is useful when attaching actions to event listeners.\n\n### Invoking an action\n\nClosure actions curry both their scope and any arguments. When invoked, any\nadditional arguments are added to the already curried list.\nActions should be invoked using the [sendAction](/api/classes/Ember.Component.html#method_sendAction)\nmethod. The first argument to `sendAction` is the action to be called, and\nadditional arguments are passed to the action function. This has interesting\nproperties combined with currying of arguments. For example:\n\n```app/components/my-component.js\nimport Component from '@ember/component';\n\nexport default Component.extend({\n  actions: {\n    // Usage {{input on-input=(action (action 'setName' model) value=\"target.value\")}}\n    setName(model, name) {\n      model.set('name', name);\n    }\n  }\n});\n```\n\nThe first argument (`model`) was curried over, and the run-time argument (`event`)\nbecomes a second argument. Action calls can be nested this way because each simply\nreturns a function. Any function can be passed to the `{{action}}` helper, including\nother actions.\n\nActions invoked with `sendAction` have the same currying behavior as demonstrated\nwith `on-input` above. For example:\n\n```app/components/my-input.js\nimport Component from '@ember/component';\n\nexport default Component.extend({\n  actions: {\n    setName(model, name) {\n      model.set('name', name);\n    }\n  }\n});\n```\n\n```handlebars\n{{my-input submit=(action 'setName' model)}}\n```\n\n```app/components/my-component.js\nimport Component from '@ember/component';\n\nexport default Component.extend({\n  click() {\n    // Note that model is not passed, it was curried in the template\n    this.sendAction('submit', 'bob');\n  }\n});\n```\n\n### Attaching actions to DOM elements\n\nThe third context of the `{{action}}` helper can be called \"element space\".\nFor example:\n\n```handlebars\n{{! An example of element space }}\n<div {{action \"save\"}}></div>\n```\n\nUsed this way, the `{{action}}` helper provides a useful shortcut for\nregistering an HTML element in a template for a single DOM event and\nforwarding that interaction to the template's context (controller or component).\nIf the context of a template is a controller, actions used this way will\nbubble to routes when the controller does not implement the specified action.\nOnce an action hits a route, it will bubble through the route hierarchy.\n\n### Event Propagation\n\n`{{action}}` helpers called in element space can control event bubbling. Note\nthat the closure style actions cannot.\n\nEvents triggered through the action helper will automatically have\n`.preventDefault()` called on them. You do not need to do so in your event\nhandlers. If you need to allow event propagation (to handle file inputs for\nexample) you can supply the `preventDefault=false` option to the `{{action}}` helper:\n\n```handlebars\n<div {{action \"sayHello\" preventDefault=false}}>\n  <input type=\"file\" />\n  <input type=\"checkbox\" />\n</div>\n```\n\nTo disable bubbling, pass `bubbles=false` to the helper:\n\n```handlebars\n<button {{action 'edit' post bubbles=false}}>Edit</button>\n```\n\nTo disable bubbling with closure style actions you must create your own\nwrapper helper that makes use of `event.stopPropagation()`:\n\n```handlebars\n<div onclick={{disable-bubbling (action \"sayHello\")}}>Hello</div>\n```\n\n```app/helpers/disable-bubbling.js\nimport { helper } from '@ember/component/helper';\n\nexport function disableBubbling([action]) {\n  return function(event) {\n    event.stopPropagation();\n    return action(event);\n  };\n}\nexport default helper(disableBubbling);\n```\n\nIf you need the default handler to trigger you should either register your\nown event handler, or use event methods on your view class. See\n[\"Responding to Browser Events\"](/api/classes/Ember.Component#responding-to-browser-events)\nin the documentation for `Component` for more information.\n\n### Specifying DOM event type\n\n`{{action}}` helpers called in element space can specify an event type.\nBy default the `{{action}}` helper registers for DOM `click` events. You can\nsupply an `on` option to the helper to specify a different DOM event name:\n\n```handlebars\n<div {{action \"anActionName\" on=\"doubleClick\"}}>\n  click me\n</div>\n```\n\nSee [\"Event Names\"](/api/classes/Ember.Component#event-names) for a list of\nacceptable DOM event names.\n\n### Specifying whitelisted modifier keys\n\n`{{action}}` helpers called in element space can specify modifier keys.\nBy default the `{{action}}` helper will ignore click events with pressed modifier\nkeys. You can supply an `allowedKeys` option to specify which keys should not be ignored.\n\n```handlebars\n<div {{action \"anActionName\" allowedKeys=\"alt\"}}>\n  click me\n</div>\n```\n\nThis way the action will fire when clicking with the alt key pressed down.\nAlternatively, supply \"any\" to the `allowedKeys` option to accept any combination of modifier keys.\n\n```handlebars\n<div {{action \"anActionName\" allowedKeys=\"any\"}}>\n  click me with any key pressed\n</div>\n```\n\n### Specifying a Target\n\nA `target` option can be provided to the helper to change\nwhich object will receive the method call. This option must be a path\nto an object, accessible in the current context:\n\n```app/templates/application.hbs\n<div {{action \"anActionName\" target=someService}}>\n  click me\n</div>\n```\n\n```app/controllers/application.js\nimport Controller from '@ember/controller';\nimport { inject as service } from '@ember/service';\n\nexport default Controller.extend({\n  someService: service()\n});\n```",
+            "itemtype": "method",
+            "name": "action",
+            "access": "public",
+            "tagname": "",
+            "class": "Ember.Templates.helpers",
+            "module": "ember"
+        },
+        {
+            "file": "packages/ember-glimmer/lib/helpers/component.ts",
+            "line": 18,
+            "description": "The `{{component}}` helper lets you add instances of `Component` to a\ntemplate. See [Component](/api/classes/Ember.Component.html) for\nadditional information on how a `Component` functions.\n`{{component}}`'s primary use is for cases where you want to dynamically\nchange which type of component is rendered as the state of your application\nchanges. This helper has three modes: inline, block, and nested.\n\n### Inline Form\n\nGiven the following template:\n\n```app/application.hbs\n{{component infographicComponentName}}\n```\n\nAnd the following application code:\n\n```app/controllers/application.js\nimport Controller from '@ember/controller';\nimport { computed } from '@ember/object';\n\nexport default Controller.extend({\n  infographicComponentName: computed('isMarketOpen', {\n    get() {\n      if (this.get('isMarketOpen')) {\n        return 'live-updating-chart';\n      } else {\n        return 'market-close-summary';\n      }\n    }\n  })\n});\n```\n\nThe `live-updating-chart` component will be appended when `isMarketOpen` is\n`true`, and the `market-close-summary` component will be appended when\n`isMarketOpen` is `false`. If the value changes while the app is running,\nthe component will be automatically swapped out accordingly.\nNote: You should not use this helper when you are consistently rendering the same\ncomponent. In that case, use standard component syntax, for example:\n\n```app/templates/application.hbs\n{{live-updating-chart}}\n```\n\n### Block Form\n\nUsing the block form of this helper is similar to using the block form\nof a component. Given the following application template:\n\n```app/templates/application.hbs\n{{#component infographicComponentName}}\n  Last update: {{lastUpdateTimestamp}}\n{{/component}}\n```\n\nThe following controller code:\n\n```app/controllers/application.js\nimport Controller from '@ember/controller';\nimport { computed } from '@ember/object';\n\nexport default Controller.extend({\n  lastUpdateTimestamp: computed(function() {\n    return new Date();\n  }),\n\n  infographicComponentName: computed('isMarketOpen', {\n    get() {\n      if (this.get('isMarketOpen')) {\n        return 'live-updating-chart';\n      } else {\n        return 'market-close-summary';\n      }\n    }\n  })\n});\n```\n\nAnd the following component template:\n\n```app/templates/components/live-updating-chart.hbs\n{{! chart }}\n{{yield}}\n```\n\nThe `Last Update: {{lastUpdateTimestamp}}` will be rendered in place of the `{{yield}}`.\n\n### Nested Usage\n\nThe `component` helper can be used to package a component path with initial attrs.\nThe included attrs can then be merged during the final invocation.\nFor example, given a `person-form` component with the following template:\n\n```app/templates/components/person-form.hbs\n{{yield (hash\n  nameInput=(component \"my-input-component\" value=model.name placeholder=\"First Name\")\n)}}\n```\n\nWhen yielding the component via the `hash` helper, the component is invoked directly.\nSee the following snippet:\n\n```\n{{#person-form as |form|}}\n  {{form.nameInput placeholder=\"Username\"}}\n{{/person-form}}\n```\n\nWhich outputs an input whose value is already bound to `model.name` and `placeholder`\nis \"Username\".\n\nWhen yielding the component without the hash helper use the `component` helper.\nFor example, below is a `full-name` component template:\n\n```handlebars\n{{yield (component \"my-input-component\" value=model.name placeholder=\"Name\")}}\n```\n\n```\n{{#full-name as |field|}}\n  {{component field placeholder=\"Full name\"}}\n{{/full-name}}\n```",
+            "itemtype": "method",
+            "name": "component",
+            "since": "1.11.0",
+            "access": "public",
+            "tagname": "",
+            "class": "Ember.Templates.helpers",
+            "module": "ember"
+        },
+        {
+            "file": "packages/ember-glimmer/lib/helpers/concat.ts",
+            "line": 13,
+            "description": "Concatenates the given arguments into a string.\n\nExample:\n\n```handlebars\n{{some-component name=(concat firstName \" \" lastName)}}\n\n{{! would pass name=\"<first name value> <last name value>\" to the component}}\n```",
+            "access": "public",
+            "tagname": "",
+            "itemtype": "method",
+            "name": "concat",
+            "since": "1.13.0",
+            "class": "Ember.Templates.helpers",
+            "module": "ember"
+        },
+        {
+            "file": "packages/ember-glimmer/lib/helpers/each-in.ts",
+            "line": 10,
+            "description": "The `{{#each}}` helper loops over elements in a collection. It is an extension\nof the base Handlebars `{{#each}}` helper.\nThe default behavior of `{{#each}}` is to yield its inner block once for every\nitem in an array passing the item as the first block parameter.\n\n```javascript\nvar developers = [{ name: 'Yehuda' },{ name: 'Tom' }, { name: 'Paul' }];\n```\n\n```handlebars\n{{#each developers key=\"name\" as |person|}}\n  {{person.name}}\n  {{! `this` is whatever it was outside the #each }}\n{{/each}}\n```\n\nThe same rules apply to arrays of primitives.\n\n```javascript\nvar developerNames = ['Yehuda', 'Tom', 'Paul']\n```\n\n```handlebars\n{{#each developerNames key=\"@index\" as |name|}}\n  {{name}}\n{{/each}}\n```\n\nDuring iteration, the index of each item in the array is provided as a second block parameter.\n\n```handlebars\n<ul>\n  {{#each people as |person index|}}\n    <li>Hello, {{person.name}}! You're number {{index}} in line</li>\n  {{/each}}\n</ul>\n```\n\n### Specifying Keys\n\nThe `key` option is used to tell Ember how to determine if the array being\niterated over with `{{#each}}` has changed between renders. By helping Ember\ndetect that some elements in the array are the same, DOM elements can be\nre-used, significantly improving rendering speed.\n\nFor example, here's the `{{#each}}` helper with its `key` set to `id`:\n\n```handlebars\n{{#each model key=\"id\" as |item|}}\n{{/each}}\n```\n\nWhen this `{{#each}}` re-renders, Ember will match up the previously rendered\nitems (and reorder the generated DOM elements) based on each item's `id`\nproperty.\nBy default the item's own reference is used.\n\n### {{else}} condition\n\n`{{#each}}` can have a matching `{{else}}`. The contents of this block will render\nif the collection is empty.\n\n```handlebars\n{{#each developers as |person|}}\n  {{person.name}}\n{{else}}\n  <p>Sorry, nobody is available for this task.</p>\n{{/each}}\n```",
+            "itemtype": "method",
+            "name": "each",
+            "access": "public",
+            "tagname": "",
+            "class": "Ember.Templates.helpers",
+            "module": "ember"
+        },
+        {
+            "file": "packages/ember-glimmer/lib/helpers/each-in.ts",
+            "line": 86,
+            "description": "The `{{each-in}}` helper loops over properties on an object.\n\nFor example, given a `user` object that looks like:\n\n```javascript\n{\n  \"name\": \"Shelly Sails\",\n  \"age\": 42\n}\n```\n\nThis template would display all properties on the `user`\nobject in a list:\n\n```handlebars\n<ul>\n{{#each-in user as |key value|}}\n  <li>{{key}}: {{value}}</li>\n{{/each-in}}\n</ul>\n```\n\nOutputting their name and age.",
+            "itemtype": "method",
+            "name": "each-in",
+            "access": "public",
+            "tagname": "",
+            "since": "2.1.0",
+            "class": "Ember.Templates.helpers",
+            "module": "ember"
+        },
+        {
+            "file": "packages/ember-glimmer/lib/helpers/get.ts",
+            "line": 22,
+            "description": "Dynamically look up a property on an object. The second argument to `{{get}}`\nshould have a string value, although it can be bound.\n\nFor example, these two usages are equivalent:\n\n```handlebars\n{{person.height}}\n{{get person \"height\"}}\n```\n\nIf there were several facts about a person, the `{{get}}` helper can dynamically\npick one:\n\n```handlebars\n{{get person factName}}\n```\n\nFor a more complex example, this template would allow the user to switch\nbetween showing the user's height and weight with a click:\n\n```handlebars\n{{get person factName}}\n<button {{action (action (mut factName)) \"height\"}}>Show height</button>\n<button {{action (action (mut factName)) \"weight\"}}>Show weight</button>\n```\n\nThe `{{get}}` helper can also respect mutable values itself. For example:\n\n```handlebars\n{{input value=(mut (get person factName)) type=\"text\"}}\n<button {{action (action (mut factName)) \"height\"}}>Show height</button>\n<button {{action (action (mut factName)) \"weight\"}}>Show weight</button>\n```\n\nWould allow the user to swap what fact is being displayed, and also edit\nthat fact via a two-way mutable binding.",
+            "access": "public",
+            "tagname": "",
+            "itemtype": "method",
+            "name": "get",
+            "since": "2.1.0",
+            "class": "Ember.Templates.helpers",
+            "module": "ember"
+        },
+        {
+            "file": "packages/ember-glimmer/lib/helpers/hash.ts",
+            "line": 10,
+            "description": "Use the `{{hash}}` helper to create a hash to pass as an option to your\ncomponents. This is specially useful for contextual components where you can\njust yield a hash:\n\n```handlebars\n{{yield (hash\n   name='Sarah'\n   title=office\n)}}\n```\n\nWould result in an object such as:\n\n```js\n{ name: 'Sarah', title: this.get('office') }\n```\n\nWhere the `title` is bound to updates of the `office` property.\n\nNote that the hash is an empty object with no prototype chain, therefore\ncommon methods like `toString` are not available in the resulting hash.\nIf you need to use such a method, you can use the `call` or `apply`\napproach:\n\n```js\nfunction toString(obj) {\n  return Object.prototype.toString.apply(obj);\n}\n```",
+            "itemtype": "method",
+            "name": "hash",
+            "params": [
+                {
+                    "name": "options",
+                    "description": "",
+                    "type": "Object"
+                }
+            ],
+            "return": {
+                "description": "Hash",
+                "type": "Object"
+            },
+            "since": "2.3.0",
+            "access": "public",
+            "tagname": "",
+            "class": "Ember.Templates.helpers",
+            "module": "ember"
+        },
+        {
+            "file": "packages/ember-glimmer/lib/helpers/if-unless.ts",
+            "line": 60,
+            "description": "The `if` helper allows you to conditionally render one of two branches,\ndepending on the \"truthiness\" of a property.\nFor example the following values are all falsey: `false`, `undefined`, `null`, `\"\"`, `0`, `NaN` or an empty array.\n\nThis helper has two forms, block and inline.\n\n## Block form\n\nYou can use the block form of `if` to conditionally render a section of the template.\n\nTo use it, pass the conditional value to the `if` helper,\nusing the block form to wrap the section of template you want to conditionally render.\nLike so:\n\n```handlebars\n{{! will not render if foo is falsey}}\n{{#if foo}}\n  Welcome to the {{foo.bar}}\n{{/if}}\n```\n\nYou can also specify a template to show if the property is falsey by using\nthe `else` helper.\n\n```handlebars\n{{! is it raining outside?}}\n{{#if isRaining}}\n  Yes, grab an umbrella!\n{{else}}\n  No, it's lovely outside!\n{{/if}}\n```\n\nYou are also able to combine `else` and `if` helpers to create more complex\nconditional logic.\n\n```handlebars\n{{#if isMorning}}\n  Good morning\n{{else if isAfternoon}}\n  Good afternoon\n{{else}}\n  Good night\n{{/if}}\n```\n\n## Inline form\n\nThe inline `if` helper conditionally renders a single property or string.\n\nIn this form, the `if` helper receives three arguments, the conditional value,\nthe value to render when truthy, and the value to render when falsey.\n\nFor example, if `useLongGreeting` is truthy, the following:\n\n```handlebars\n{{if useLongGreeting \"Hello\" \"Hi\"}} Alex\n```\n\nWill render:\n\n```html\nHello Alex\n```\n\n### Nested `if`\n\nYou can use the `if` helper inside another helper as a nested helper:\n\n```handlebars\n{{some-component height=(if isBig \"100\" \"10\")}}\n```\n\nOne detail to keep in mind is that both branches of the `if` helper will be evaluated,\nso if you have `{{if condition \"foo\" (expensive-operation \"bar\")`,\n`expensive-operation` will always calculate.",
+            "itemtype": "method",
+            "name": "if",
+            "access": "public",
+            "tagname": "",
+            "class": "Ember.Templates.helpers",
+            "module": "ember",
+            "submodule": "ember-glimmer"
+        },
+        {
+            "file": "packages/ember-glimmer/lib/helpers/if-unless.ts",
+            "line": 151,
+            "description": "The inline `unless` helper conditionally renders a single property or string.\nThis helper acts like a ternary operator. If the first property is falsy,\nthe second argument will be displayed, otherwise, the third argument will be\ndisplayed\n\n```handlebars\n{{unless useLongGreeting \"Hi\" \"Hello\"}} Ben\n```\n\nYou can use the `unless` helper inside another helper as a subexpression.\n\n```handlebars\n{{some-component height=(unless isBig \"10\" \"100\")}}\n```",
+            "itemtype": "method",
+            "name": "unless",
+            "access": "public",
+            "tagname": "",
+            "class": "Ember.Templates.helpers",
+            "module": "ember",
+            "submodule": "ember-glimmer"
+        },
+        {
+            "file": "packages/ember-glimmer/lib/helpers/loc.ts",
+            "line": 9,
+            "description": "Calls [loc](/api/classes/Ember.String.html#method_loc) with the\nprovided string. This is a convenient way to localize text within a template.\nFor example:\n\n```javascript\nEmber.STRINGS = {\n  '_welcome_': 'Bonjour'\n};\n```\n\n```handlebars\n<div class='message'>\n  {{loc '_welcome_'}}\n</div>\n```\n\n```html\n<div class='message'>\n  Bonjour\n</div>\n```\n\nSee [Ember.String.loc](/api/classes/Ember.String.html#method_loc) for how to\nset up localized string references.",
+            "itemtype": "method",
+            "name": "loc",
+            "params": [
+                {
+                    "name": "str",
+                    "description": "The string to format.",
+                    "type": "String"
+                }
+            ],
+            "see": [
+                "{Ember.String#loc}"
+            ],
+            "access": "public",
+            "tagname": "",
+            "class": "Ember.Templates.helpers",
+            "module": "ember"
+        },
+        {
+            "file": "packages/ember-glimmer/lib/helpers/log.ts",
+            "line": 13,
+            "description": "`log` allows you to output the value of variables in the current rendering\ncontext. `log` also accepts primitive types such as strings or numbers.\n\n```handlebars\n{{log \"myVariable:\" myVariable }}\n```",
+            "itemtype": "method",
+            "name": "log",
+            "params": [
+                {
+                    "name": "params",
+                    "description": "",
+                    "type": "Array"
+                }
+            ],
+            "access": "public",
+            "tagname": "",
+            "class": "Ember.Templates.helpers",
+            "module": "ember"
+        },
+        {
+            "file": "packages/ember-glimmer/lib/helpers/mut.ts",
+            "line": 13,
+            "description": "The `mut` helper lets you __clearly specify__ that a child `Component` can update the\n(mutable) value passed to it, which will __change the value of the parent component__.\n\nTo specify that a parameter is mutable, when invoking the child `Component`:\n\n```handlebars\n{{my-child childClickCount=(mut totalClicks)}}\n```\n\nThe child `Component` can then modify the parent's value just by modifying its own\nproperty:\n\n```javascript\n// my-child.js\nexport default Component.extend({\n  click() {\n    this.incrementProperty('childClickCount');\n  }\n});\n```\n\nNote that for curly components (`{{my-component}}`) the bindings are already mutable,\nmaking the `mut` unnecessary.\n\nAdditionally, the `mut` helper can be combined with the `action` helper to\nmutate a value. For example:\n\n```handlebars\n{{my-child childClickCount=totalClicks click-count-change=(action (mut totalClicks))}}\n```\n\nThe child `Component` would invoke the action with the new click value:\n\n```javascript\n// my-child.js\nexport default Component.extend({\n  click() {\n    this.get('click-count-change')(this.get('childClickCount') + 1);\n  }\n});\n```\n\nThe `mut` helper changes the `totalClicks` value to what was provided as the action argument.\n\nThe `mut` helper, when used with `action`, will return a function that\nsets the value passed to `mut` to its first argument. This works like any other\nclosure action and interacts with the other features `action` provides.\nAs an example, we can create a button that increments a value passing the value\ndirectly to the `action`:\n\n```handlebars\n{{! inc helper is not provided by Ember }}\n<button onclick={{action (mut count) (inc count)}}>\n  Increment count\n</button>\n```\n\nYou can also use the `value` option:\n\n```handlebars\n<input value={{name}} oninput={{action (mut name) value=\"target.value\"}}>\n```",
+            "itemtype": "method",
+            "name": "mut",
+            "params": [
+                {
+                    "name": "attr",
+                    "description": "the \"two-way\" attribute that can be modified.",
+                    "type": "Object",
+                    "optional": true
+                }
+            ],
+            "access": "public",
+            "tagname": "",
+            "class": "Ember.Templates.helpers",
+            "module": "ember"
+        },
+        {
+            "file": "packages/ember-glimmer/lib/helpers/query-param.ts",
+            "line": 14,
+            "description": "This is a helper to be used in conjunction with the link-to helper.\nIt will supply url query parameters to the target route.\n\nExample\n\n```handlebars\n{{#link-to 'posts' (query-params direction=\"asc\")}}Sort{{/link-to}}\n```",
+            "itemtype": "method",
+            "name": "query-params",
+            "params": [
+                {
+                    "name": "hash",
+                    "description": "takes a hash of query parameters",
+                    "type": "Object"
+                }
+            ],
+            "return": {
+                "description": "A `QueryParams` object for `{{link-to}}`",
+                "type": "Object"
+            },
+            "access": "public",
+            "tagname": "",
+            "class": "Ember.Templates.helpers",
+            "module": "ember"
+        },
+        {
+            "file": "packages/ember-glimmer/lib/helpers/readonly.ts",
+            "line": 11,
+            "description": "The `readonly` helper let's you specify that a binding is one-way only,\ninstead of two-way.\nWhen you pass a `readonly` binding from an outer context (e.g. parent component),\nto to an inner context (e.g. child component), you are saying that changing that\nproperty in the inner context does not change the value in the outer context.\n\nTo specify that a binding is read-only, when invoking the child `Component`:\n\n```app/components/my-parent.js\nexport default Component.extend({\n  totalClicks: 3\n});\n```\n\n```app/templates/components/my-parent.hbs\n{{log totalClicks}} // -> 3\n{{my-child childClickCount=(readonly totalClicks)}}\n```\n\nNow, when you update `childClickCount`:\n\n```app/components/my-child.js\nexport default Component.extend({\n  click() {\n    this.incrementProperty('childClickCount');\n  }\n});\n```\n\nThe value updates in the child component, but not the parent component:\n\n```app/templates/components/my-child.hbs\n{{log childClickCount}} //-> 4\n```\n\n```app/templates/components/my-parent.hbs\n{{log totalClicks}} //-> 3\n{{my-child childClickCount=(readonly totalClicks)}}\n```\n\n### Objects and Arrays\n\nWhen passing a property that is a complex object (e.g. object, array) instead of a primitive object (e.g. number, string),\nonly the reference to the object is protected using the readonly helper.\nThis means that you can change properties of the object both on the parent component, as well as the child component.\nThe `readonly` binding behaves similar to the `const` keyword in JavaScript.\n\nLet's look at an example:\n\nFirst let's set up the parent component:\n\n```app/components/my-parent.js\nimport Component from '@ember/component';\n\nexport default Component.extend({\n  clicks: null,\n\n  init() {\n    this._super(...arguments);\n    this.set('clicks', { total: 3 });\n  }\n});\n```\n\n```app/templates/components/my-parent.hbs\n{{log clicks.total}} //-> 3\n{{my-child childClicks=(readonly clicks)}}\n```\n\nNow, if you update the `total` property of `childClicks`:\n\n```app/components/my-child.js\nimport Component from '@ember/component';\n\nexport default Component.extend({\n  click() {\n    this.get('clicks').incrementProperty('total');\n  }\n});\n```\n\nYou will see the following happen:\n\n```app/templates/components/my-parent.hbs\n{{log clicks.total}} //-> 4\n{{my-child childClicks=(readonly clicks)}}\n```\n\n```app/templates/components/my-child.hbs\n{{log childClicks.total}} //-> 4\n```",
+            "itemtype": "method",
+            "name": "readonly",
+            "params": [
+                {
+                    "name": "attr",
+                    "description": "the read-only attribute.",
+                    "type": "Object",
+                    "optional": true
+                }
+            ],
+            "access": "private",
+            "tagname": "",
+            "class": "Ember.Templates.helpers",
+            "module": "ember"
+        },
+        {
+            "file": "packages/ember-glimmer/lib/helpers/unbound.ts",
+            "line": 12,
+            "description": "The `{{unbound}}` helper disconnects the one-way binding of a property,\nessentially freezing its value at the moment of rendering. For example,\nin this example the display of the variable `name` will not change even\nif it is set with a new value:\n\n```handlebars\n{{unbound name}}\n```\n\nLike any helper, the `unbound` helper can accept a nested helper expression.\nThis allows for custom helpers to be rendered unbound:\n\n```handlebars\n{{unbound (some-custom-helper)}}\n{{unbound (capitalize name)}}\n{{! You can use any helper, including unbound, in a nested expression }}\n{{capitalize (unbound name)}}\n```\n\nThe `unbound` helper only accepts a single argument, and it return an\nunbound value.",
+            "itemtype": "method",
+            "name": "unbound",
+            "access": "public",
+            "tagname": "",
+            "class": "Ember.Templates.helpers",
+            "module": "ember"
+        },
+        {
+            "file": "packages/ember-glimmer/lib/syntax/input.ts",
+            "line": 15,
+            "description": "The `{{input}}` helper lets you create an HTML `<input />` component.\nIt causes an `TextField` component to be rendered.  For more info,\nsee the [TextField](/api/classes/Ember.TextField.html) docs and\nthe [templates guide](https://emberjs.com/guides/templates/input-helpers/).\n\n```handlebars\n{{input value=\"987\"}}\n```\n\nrenders as:\n\n```HTML\n<input type=\"text\" value=\"987\" />\n```\n\n### Text field\n\nIf no `type` option is specified, a default of type 'text' is used.\nMany of the standard HTML attributes may be passed to this helper.\n<table>\n  <tr><td>`readonly`</td><td>`required`</td><td>`autofocus`</td></tr>\n  <tr><td>`value`</td><td>`placeholder`</td><td>`disabled`</td></tr>\n  <tr><td>`size`</td><td>`tabindex`</td><td>`maxlength`</td></tr>\n  <tr><td>`name`</td><td>`min`</td><td>`max`</td></tr>\n  <tr><td>`pattern`</td><td>`accept`</td><td>`autocomplete`</td></tr>\n  <tr><td>`autosave`</td><td>`formaction`</td><td>`formenctype`</td></tr>\n  <tr><td>`formmethod`</td><td>`formnovalidate`</td><td>`formtarget`</td></tr>\n  <tr><td>`height`</td><td>`inputmode`</td><td>`multiple`</td></tr>\n  <tr><td>`step`</td><td>`width`</td><td>`form`</td></tr>\n  <tr><td>`selectionDirection`</td><td>`spellcheck`</td><td>&nbsp;</td></tr>\n</table>\nWhen set to a quoted string, these values will be directly applied to the HTML\nelement. When left unquoted, these values will be bound to a property on the\ntemplate's current rendering context (most typically a controller instance).\nA very common use of this helper is to bind the `value` of an input to an Object's attribute:\n\n```handlebars\nSearch:\n{{input value=searchWord}}\n```\n\nIn this example, the initial value in the `<input />` will be set to the value of `searchWord`.\nIf the user changes the text, the value of `searchWord` will also be updated.\n\n### Actions\n\nThe helper can send multiple actions based on user events.\nThe action property defines the action which is sent when\nthe user presses the return key.\n\n```handlebars\n{{input action=\"submit\"}}\n```\n\nThe helper allows some user events to send actions.\n\n* `enter`\n* `insert-newline`\n* `escape-press`\n* `focus-in`\n* `focus-out`\n* `key-press`\n* `key-up`\n\nFor example, if you desire an action to be sent when the input is blurred,\nyou only need to setup the action name to the event name property.\n\n```handlebars\n{{input focus-out=\"alertMessage\"}}\n```\nSee more about [Text Support Actions](/api/classes/Ember.TextField.html)\n\n### Extending `TextField`\n\nInternally, `{{input type=\"text\"}}` creates an instance of `TextField`, passing\narguments from the helper to `TextField`'s `create` method. You can extend the\ncapabilities of text inputs in your applications by reopening this class. For example,\nif you are building a Bootstrap project where `data-*` attributes are used, you\ncan add one to the `TextField`'s `attributeBindings` property:\n\n```javascript\nimport TextField from '@ember/component/text-field';\nTextField.reopen({\n  attributeBindings: ['data-error']\n});\n```\n\nKeep in mind when writing `TextField` subclasses that `TextField`\nitself extends `Component`. Expect isolated component semantics, not\nlegacy 1.x view semantics (like `controller` being present).\nSee more about [Ember components](/api/classes/Ember.Component.html)\n\n### Checkbox\n\nCheckboxes are special forms of the `{{input}}` helper.  To create a `<checkbox />`:\n\n```handlebars\nEmberize Everything:\n{{input type=\"checkbox\" name=\"isEmberized\" checked=isEmberized}}\n```\n\nThis will bind checked state of this checkbox to the value of `isEmberized`  -- if either one changes,\nit will be reflected in the other.\n\nThe following HTML attributes can be set via the helper:\n\n* `checked`\n* `disabled`\n* `tabindex`\n* `indeterminate`\n* `name`\n* `autofocus`\n* `form`\n\n### Extending `Checkbox`\n\nInternally, `{{input type=\"checkbox\"}}` creates an instance of `Checkbox`, passing\narguments from the helper to `Checkbox`'s `create` method. You can extend the\ncapablilties of checkbox inputs in your applications by reopening this class. For example,\nif you wanted to add a css class to all checkboxes in your application:\n\n```javascript\nimport Checkbox from '@ember/component/checkbox';\n\nCheckbox.reopen({\n  classNames: ['my-app-checkbox']\n});\n```",
+            "itemtype": "method",
+            "name": "input",
+            "params": [
+                {
+                    "name": "options",
+                    "description": "",
+                    "type": "Hash"
+                }
+            ],
+            "access": "public",
+            "tagname": "",
+            "class": "Ember.Templates.helpers",
+            "module": "ember"
+        },
+        {
+            "file": "packages/ember-glimmer/lib/syntax/mount.ts",
+            "line": 21,
+            "description": "The `{{mount}}` helper lets you embed a routeless engine in a template.\nMounting an engine will cause an instance to be booted and its `application`\ntemplate to be rendered.\n\nFor example, the following template mounts the `ember-chat` engine:\n\n```handlebars\n{{! application.hbs }}\n{{mount \"ember-chat\"}}\n```\n\nAdditionally, you can also pass in a `model` argument that will be\nset as the engines model. This can be an existing object:\n\n```\n<div>\n  {{mount 'admin' model=userSettings}}\n</div>\n```\n\nOr an inline `hash`, and you can even pass components:\n\n```\n<div>\n  <h1>Application template!</h1>\n  {{mount 'admin' model=(hash\n      title='Secret Admin'\n      signInButton=(component 'sign-in-button')\n  )}}\n</div>\n```",
+            "itemtype": "method",
+            "name": "mount",
+            "params": [
+                {
+                    "name": "name",
+                    "description": "Name of the engine to mount.",
+                    "type": "String"
+                },
+                {
+                    "name": "model",
+                    "description": "Object that will be set as\n                        the model of the engine.",
+                    "type": "Object",
+                    "optional": true
+                }
+            ],
+            "category": [
+                "ember-application-engines"
+            ],
+            "access": "public",
+            "tagname": "",
+            "class": "Ember.Templates.helpers",
+            "module": "ember"
+        },
+        {
+            "file": "packages/ember-glimmer/lib/syntax/outlet.ts",
+            "line": 86,
+            "description": "The `{{outlet}}` helper lets you specify where a child route will render in\nyour template. An important use of the `{{outlet}}` helper is in your\napplication's `application.hbs` file:\n\n```handlebars\n{{! app/templates/application.hbs }}\n<!-- header content goes here, and will always display -->\n{{my-header}}\n<div class=\"my-dynamic-content\">\n  <!-- this content will change based on the current route, which depends on the current URL -->\n  {{outlet}}\n</div>\n<!-- footer content goes here, and will always display -->\n{{my-footer}}\n```\n\nSee [templates guide](https://emberjs.com/guides/templates/the-application-template/) for\nadditional information on using `{{outlet}}` in `application.hbs`.\nYou may also specify a name for the `{{outlet}}`, which is useful when using more than one\n`{{outlet}}` in a template:\n\n```handlebars\n{{outlet \"menu\"}}\n{{outlet \"sidebar\"}}\n{{outlet \"main\"}}\n```\n\nYour routes can then render into a specific one of these `outlet`s by specifying the `outlet`\nattribute in your `renderTemplate` function:\n\n```app/routes/menu.js\nimport Route from '@ember/routing/route';\n\nexport default Route.extend({\n  renderTemplate() {\n    this.render({ outlet: 'menu' });\n  }\n});\n```\n\nSee the [routing guide](https://emberjs.com/guides/routing/rendering-a-template/) for more\ninformation on how your `route` interacts with the `{{outlet}}` helper.\nNote: Your content __will not render__ if there isn't an `{{outlet}}` for it.",
+            "itemtype": "method",
+            "name": "outlet",
+            "params": [
+                {
+                    "name": "name",
+                    "description": "",
+                    "type": "String",
+                    "optional": true
+                }
+            ],
+            "access": "public",
+            "tagname": "",
+            "class": "Ember.Templates.helpers",
+            "module": "ember"
+        },
+        {
+            "file": "packages/ember-glimmer/lib/syntax/render.ts",
+            "line": 59,
+            "description": "Calling ``{{render}}`` from within a template will insert another\ntemplate that matches the provided name. The inserted template will\naccess its properties on its own controller (rather than the controller\nof the parent template).\n\nIf a view class with the same name exists, the view class also will be used.\nNote: A given controller may only be used *once* in your app in this manner.\nA singleton instance of the controller will be created for you.\n\nExample:\n\n```app/controllers/navigation.js\nimport Controller from '@ember/controller';\n\nexport default Controller.extend({\n  who: \"world\"\n});\n```\n\n```handlebars\n<!-- navigation.hbs -->\nHello, {{who}}.\n```\n\n```handlebars\n<!-- application.hbs -->\n<h1>My great app</h1>\n{{render \"navigation\"}}\n```\n\n```html\n<h1>My great app</h1>\n<div class='ember-view'>\n  Hello, world.\n</div>\n```\n\nOptionally you may provide a second argument: a property path\nthat will be bound to the `model` property of the controller.\nIf a `model` property path is specified, then a new instance of the\ncontroller will be created and `{{render}}` can be used multiple times\nwith the same name.\n\nFor example if you had this `author` template.\n\n```handlebars\n<div class=\"author\">\n  Written by {{firstName}} {{lastName}}.\n  Total Posts: {{postCount}}\n</div>\n```\n\nYou could render it inside the `post` template using the `render` helper.\n\n```handlebars\n<div class=\"post\">\n  <h1>{{title}}</h1>\n  <div>{{body}}</div>\n  {{render \"author\" author}}\n</div>\n```",
+            "itemtype": "method",
+            "name": "render",
+            "params": [
+                {
+                    "name": "name",
+                    "description": "",
+                    "type": "String"
+                },
+                {
+                    "name": "context",
+                    "description": "",
+                    "type": "Object?"
+                },
+                {
+                    "name": "options",
+                    "description": "",
+                    "type": "Hash"
+                }
+            ],
+            "return": {
+                "description": "HTML string",
+                "type": "String"
+            },
+            "access": "public",
+            "tagname": "",
+            "deprecated": true,
+            "deprecationMessage": "Use a component instead",
+            "class": "Ember.Templates.helpers",
+            "module": "ember"
+        },
+        {
+            "file": "packages/ember-glimmer/lib/utils/string.ts",
+            "line": 75,
+            "description": "Mark a string as safe for unescaped output with Ember templates. If you\nreturn HTML from a helper, use this function to\nensure Ember's rendering layer does not escape the HTML.\n\n```javascript\nimport { htmlSafe } from '@ember/string';\n\nhtmlSafe('<div>someString</div>')\n```",
+            "itemtype": "method",
+            "name": "htmlSafe",
+            "static": 1,
+            "return": {
+                "description": "A string that will not be HTML escaped by Handlebars.",
+                "type": "Handlebars.SafeString"
+            },
+            "access": "public",
+            "tagname": "",
+            "class": "@ember/string",
+            "module": "@ember/string"
+        },
+        {
+            "file": "packages/ember-glimmer/lib/utils/string.ts",
+            "line": 101,
+            "description": "Detects if a string was decorated using `htmlSafe`.\n\n```javascript\nimport { htmlSafe, isHTMLSafe } from '@ember/string';\n\nvar plainString = 'plain string',\n    safeString = htmlSafe('<div>someValue</div>');\n\nisHTMLSafe(plainString); // false\nisHTMLSafe(safeString);  // true\n```",
+            "itemtype": "method",
+            "name": "isHTMLSafe",
+            "static": 1,
+            "return": {
+                "description": "`true` if the string was decorated with `htmlSafe`, `false` otherwise.",
+                "type": "Boolean"
+            },
+            "access": "public",
+            "tagname": "",
+            "class": "@ember/string",
+            "module": "@ember/string"
+        },
+        {
+            "file": "packages/ember-glimmer/lib/component.ts",
+            "line": 645,
+            "description": "Normally, Ember's component model is \"write-only\". The component takes a\nbunch of attributes that it got passed in, and uses them to render its\ntemplate.\n\nOne nice thing about this model is that if you try to set a value to the\nsame thing as last time, Ember (through HTMLBars) will avoid doing any\nwork on the DOM.\n\nThis is not just a performance optimization. If an attribute has not\nchanged, it is important not to clobber the element's \"hidden state\".\nFor example, if you set an input's `value` to the same value as before,\nit will clobber selection state and cursor position. In other words,\nsetting an attribute is not **always** idempotent.\n\nThis method provides a way to read an element's attribute and also\nupdate the last value Ember knows about at the same time. This makes\nsetting an attribute idempotent.\n\nIn particular, what this means is that if you get an `<input>` element's\n`value` attribute and then re-render the template with the same value,\nit will avoid clobbering the cursor and selection position.\nSince most attribute sets are idempotent in the browser, you typically\ncan get away with reading attributes using jQuery, but the most reliable\nway to do so is through this method.",
+            "itemtype": "method",
+            "name": "readDOMAttr",
+            "params": [
+                {
+                    "name": "name",
+                    "description": "the name of the attribute",
+                    "type": "String"
+                }
+            ],
+            "return": {
+                "description": "String"
+            },
+            "access": "public",
+            "tagname": "",
+            "class": "Component",
+            "module": "@ember/component"
+        },
+        {
+            "file": "packages/ember-glimmer/lib/component.ts",
+            "line": 681,
+            "description": "The WAI-ARIA role of the control represented by this view. For example, a\nbutton may have a role of type 'button', or a pane may have a role of\ntype 'alertdialog'. This property is used by assistive software to help\nvisually challenged users navigate rich web applications.\n\nThe full list of valid WAI-ARIA roles is available at:\n[http://www.w3.org/TR/wai-aria/roles#roles_categorization](http://www.w3.org/TR/wai-aria/roles#roles_categorization)",
+            "itemtype": "property",
+            "name": "ariaRole",
+            "type": "String",
+            "default": "null",
+            "access": "public",
+            "tagname": "",
+            "class": "Component",
+            "module": "@ember/component"
+        },
+        {
+            "file": "packages/ember-glimmer/lib/component.ts",
+            "line": 696,
+            "description": "Enables components to take a list of parameters as arguments.\nFor example, a component that takes two parameters with the names\n`name` and `age`:\n\n```app/components/my-component.js\nimport Component from '@ember/component';\n\nlet MyComponent = Component.extend();\n\nMyComponent.reopenClass({\n  positionalParams: ['name', 'age']\n});\n\nexport default MyComponent;\n```\n\nIt can then be invoked like this:\n\n```hbs\n{{my-component \"John\" 38}}\n```\n\nThe parameters can be referred to just like named parameters:\n\n```hbs\nName: {{name}}, Age: {{age}}.\n```\n\nUsing a string instead of an array allows for an arbitrary number of\nparameters:\n\n```app/components/my-component.js\nimport Component from '@ember/component';\n\nlet MyComponent = Component.extend();\n\nMyComponent.reopenClass({\n  positionalParams: 'names'\n});\n\nexport default MyComponent;\n```\n\nIt can then be invoked like this:\n\n```hbs\n{{my-component \"John\" \"Michael\" \"Scott\"}}\n```\nThe parameters can then be referred to by enumerating over the list:\n\n```hbs\n{{#each names as |name|}}{{name}}{{/each}}\n```",
+            "static": 1,
+            "access": "public",
+            "tagname": "",
+            "itemtype": "property",
+            "name": "positionalParams",
+            "since": "1.13.0",
+            "class": "Component",
+            "module": "@ember/component"
+        },
+        {
+            "file": "packages/ember-glimmer/lib/component.ts",
+            "line": 757,
+            "description": "Called when the attributes passed into the component have been updated.\nCalled both during the initial render of a container and during a rerender.\nCan be used in place of an observer; code placed here will be executed\nevery time any attribute updates.",
+            "itemtype": "method",
+            "name": "didReceiveAttrs",
+            "access": "public",
+            "tagname": "",
+            "since": "1.13.0",
+            "class": "Component",
+            "module": "@ember/component"
+        },
+        {
+            "file": "packages/ember-glimmer/lib/component.ts",
+            "line": 767,
+            "description": "Called when the attributes passed into the component have been updated.\nCalled both during the initial render of a container and during a rerender.\nCan be used in place of an observer; code placed here will be executed\nevery time any attribute updates.",
+            "itemtype": "event",
+            "name": "didReceiveAttrs",
+            "access": "public",
+            "tagname": "",
+            "since": "1.13.0",
+            "class": "Component",
+            "module": "@ember/component"
+        },
+        {
+            "file": "packages/ember-glimmer/lib/component.ts",
+            "line": 777,
+            "description": "Called after a component has been rendered, both on initial render and\nin subsequent rerenders.",
+            "itemtype": "method",
+            "name": "didRender",
+            "access": "public",
+            "tagname": "",
+            "since": "1.13.0",
+            "class": "Component",
+            "module": "@ember/component"
+        },
+        {
+            "file": "packages/ember-glimmer/lib/component.ts",
+            "line": 785,
+            "description": "Called after a component has been rendered, both on initial render and\nin subsequent rerenders.",
+            "itemtype": "event",
+            "name": "didRender",
+            "access": "public",
+            "tagname": "",
+            "since": "1.13.0",
+            "class": "Component",
+            "module": "@ember/component"
+        },
+        {
+            "file": "packages/ember-glimmer/lib/component.ts",
+            "line": 793,
+            "description": "Called before a component has been rendered, both on initial render and\nin subsequent rerenders.",
+            "itemtype": "method",
+            "name": "willRender",
+            "access": "public",
+            "tagname": "",
+            "since": "1.13.0",
+            "class": "Component",
+            "module": "@ember/component"
+        },
+        {
+            "file": "packages/ember-glimmer/lib/component.ts",
+            "line": 801,
+            "description": "Called before a component has been rendered, both on initial render and\nin subsequent rerenders.",
+            "itemtype": "event",
+            "name": "willRender",
+            "access": "public",
+            "tagname": "",
+            "since": "1.13.0",
+            "class": "Component",
+            "module": "@ember/component"
+        },
+        {
+            "file": "packages/ember-glimmer/lib/component.ts",
+            "line": 809,
+            "description": "Called when the attributes passed into the component have been changed.\nCalled only during a rerender, not during an initial render.",
+            "itemtype": "method",
+            "name": "didUpdateAttrs",
+            "access": "public",
+            "tagname": "",
+            "since": "1.13.0",
+            "class": "Component",
+            "module": "@ember/component"
+        },
+        {
+            "file": "packages/ember-glimmer/lib/component.ts",
+            "line": 817,
+            "description": "Called when the attributes passed into the component have been changed.\nCalled only during a rerender, not during an initial render.",
+            "itemtype": "event",
+            "name": "didUpdateAttrs",
+            "access": "public",
+            "tagname": "",
+            "since": "1.13.0",
+            "class": "Component",
+            "module": "@ember/component"
+        },
+        {
+            "file": "packages/ember-glimmer/lib/component.ts",
+            "line": 825,
+            "description": "Called when the component is about to update and rerender itself.\nCalled only during a rerender, not during an initial render.",
+            "itemtype": "method",
+            "name": "willUpdate",
+            "access": "public",
+            "tagname": "",
+            "since": "1.13.0",
+            "class": "Component",
+            "module": "@ember/component"
+        },
+        {
+            "file": "packages/ember-glimmer/lib/component.ts",
+            "line": 833,
+            "description": "Called when the component is about to update and rerender itself.\nCalled only during a rerender, not during an initial render.",
+            "itemtype": "event",
+            "name": "willUpdate",
+            "access": "public",
+            "tagname": "",
+            "since": "1.13.0",
+            "class": "Component",
+            "module": "@ember/component"
+        },
+        {
+            "file": "packages/ember-glimmer/lib/component.ts",
+            "line": 841,
+            "description": "Called when the component has updated and rerendered itself.\nCalled only during a rerender, not during an initial render.",
+            "itemtype": "method",
+            "name": "didUpdate",
+            "access": "public",
+            "tagname": "",
+            "since": "1.13.0",
+            "class": "Component",
+            "module": "@ember/component"
+        },
+        {
+            "file": "packages/ember-glimmer/lib/component.ts",
+            "line": 849,
+            "description": "Called when the component has updated and rerendered itself.\nCalled only during a rerender, not during an initial render.",
+            "itemtype": "event",
+            "name": "didUpdate",
+            "access": "public",
+            "tagname": "",
+            "since": "1.13.0",
+            "class": "Component",
+            "module": "@ember/component"
+        },
+        {
+            "file": "packages/ember-glimmer/lib/component.ts",
+            "line": 857,
+            "description": "Layout can be used to wrap content in a component.",
+            "itemtype": "property",
+            "name": "layout",
+            "type": "Function",
+            "access": "public",
+            "tagname": "",
+            "class": "Component",
+            "module": "@ember/component"
+        },
+        {
+            "file": "packages/ember-glimmer/lib/component.ts",
+            "line": 864,
+            "description": "The name of the layout to lookup if no layout is provided.\nBy default `Component` will lookup a template with this name in\n`Ember.TEMPLATES` (a shared global object).",
+            "itemtype": "property",
+            "name": "layoutName",
+            "type": "String",
+            "default": "null",
+            "access": "private",
+            "tagname": "",
+            "class": "Component",
+            "module": "@ember/component"
+        },
+        {
+            "file": "packages/ember-glimmer/lib/component.ts",
+            "line": 874,
+            "description": "Returns a jQuery object for this component's element. If you pass in a selector\nstring, this method will return a jQuery object, using the current element\nas its buffer.\nFor example, calling `component.$('li')` will return a jQuery object containing\nall of the `li` elements inside the DOM element of this component.",
+            "itemtype": "method",
+            "name": "$",
+            "params": [
+                {
+                    "name": "selector",
+                    "description": "a jQuery-compatible selector string",
+                    "type": "String",
+                    "optional": true
+                }
+            ],
+            "return": {
+                "description": "the jQuery object for the DOM node",
+                "type": "JQuery"
+            },
+            "access": "public",
+            "tagname": "",
+            "class": "Component",
+            "module": "@ember/component"
+        },
+        {
+            "file": "packages/ember-glimmer/lib/component.ts",
+            "line": 886,
+            "description": "The HTML `id` of the component's element in the DOM. You can provide this\nvalue yourself but it must be unique (just as in HTML):\n\n```handlebars\n{{my-component elementId=\"a-really-cool-id\"}}\n```\nIf not manually set a default value will be provided by the framework.\nOnce rendered an element's `elementId` is considered immutable and you\nshould never change it. If you need to compute a dynamic value for the\n`elementId`, you should do this when the component or element is being\ninstantiated:\n\n```javascript\nexport default Component.extend({\n  init() {\n    this._super(...arguments);\n\n    var index = this.get('index');\n    this.set('elementId', `component-id${index}`);\n  }\n});\n```",
+            "itemtype": "property",
+            "name": "elementId",
+            "type": "String",
+            "access": "public",
+            "tagname": "",
+            "class": "Component",
+            "module": "@ember/component"
+        },
+        {
+            "file": "packages/ember-glimmer/lib/component.ts",
+            "line": 915,
+            "description": "If `false`, the view will appear hidden in DOM.",
+            "itemtype": "property",
+            "name": "isVisible",
+            "type": "Boolean",
+            "default": "null",
+            "access": "public",
+            "tagname": "",
+            "class": "Component",
+            "module": "@ember/component"
+        },
+        {
+            "file": "packages/ember-glimmer/lib/helper.ts",
+            "line": 62,
+            "description": "On a class-based helper, it may be useful to force a recomputation of that\nhelpers value. This is akin to `rerender` on a component.\n\nFor example, this component will rerender when the `currentUser` on a\nsession service changes:\n\n```app/helpers/current-user-email.js\nimport Helper from '@ember/component/helper'\nimport { inject as service } from '@ember/service'\nimport { observer } from '@ember/object'\n\nexport default Helper.extend({\n  session: service(),\n  onNewUser: observer('session.currentUser', function() {\n    this.recompute();\n  }),\n  compute() {\n    return this.get('session.currentUser.email');\n  }\n});\n```",
+            "itemtype": "method",
+            "name": "recompute",
+            "access": "public",
+            "tagname": "",
+            "since": "1.13.0",
+            "class": "Helper",
+            "module": "@ember/component"
+        },
+        {
+            "file": "packages/ember-glimmer/lib/helper.ts",
+            "line": 93,
+            "description": "Override this function when writing a class-based helper.",
+            "itemtype": "method",
+            "name": "compute",
+            "params": [
+                {
+                    "name": "params",
+                    "description": "The positional arguments to the helper",
+                    "type": "Array"
+                },
+                {
+                    "name": "hash",
+                    "description": "The named arguments to the helper",
+                    "type": "Object"
+                }
+            ],
+            "access": "public",
+            "tagname": "",
+            "since": "1.13.0",
+            "class": "Helper",
+            "module": "@ember/component"
+        },
+        {
+            "file": "packages/ember-glimmer/lib/helper.ts",
+            "line": 120,
+            "description": "In many cases, the ceremony of a full `Helper` class is not required.\nThe `helper` method create pure-function helpers without instances. For\nexample:\n\n```app/helpers/format-currency.js\nimport { helper } from '@ember/component/helper';\n\nexport default helper(function(params, hash) {\n  let cents = params[0];\n  let currency = hash.currency;\n  return `${currency}${cents * 0.01}`;\n});\n```",
+            "static": 1,
+            "params": [
+                {
+                    "name": "helper",
+                    "description": "The helper function",
+                    "type": "Function"
+                }
+            ],
+            "itemtype": "method",
+            "name": "helper",
+            "access": "public",
+            "tagname": "",
+            "since": "1.13.0",
+            "class": "@ember/component/helper",
+            "module": "@ember/component"
+        },
+        {
+            "file": "packages/ember-glimmer/lib/index.ts",
+            "line": 86,
+            "description": "Use the `{{with}}` helper when you want to alias a property to a new name. This is helpful\nfor semantic clarity as it allows you to retain default scope or to reference a property from another\n`{{with}}` block.\n\nIf the aliased property is \"falsey\", for example: `false`, `undefined` `null`, `\"\"`, `0`, `NaN` or\nan empty array, the block will not be rendered.\n\n```handlebars\n{{! Will only render if user.posts contains items}}\n{{#with user.posts as |blogPosts|}}\n  <div class=\"notice\">\n    There are {{blogPosts.length}} blog posts written by {{user.name}}.\n  </div>\n  {{#each blogPosts as |post|}}\n    <li>{{post.title}}</li>\n  {{/each}}\n{{/with}}\n```\n\nNOTE: The alias should not reuse a name from the bound property path.\n\nFor example: `{{#with foo.bar as |foo|}}` is not supported because it attempts to alias using\nthe first part of the property path, `foo`. Instead, use `{{#with foo.bar as |baz|}}`.",
+            "itemtype": "method",
+            "name": "with",
+            "params": [
+                {
+                    "name": "options",
+                    "description": "",
+                    "type": "Object"
+                }
+            ],
+            "return": {
+                "description": "HTML string",
+                "type": "String"
+            },
+            "access": "public",
+            "tagname": "",
+            "class": "Ember.Templates.helpers",
+            "module": "ember"
+        },
+        {
+            "file": "packages/ember-glimmer/lib/index.ts",
+            "line": 118,
+            "description": "`{{yield}}` denotes an area of a template that will be rendered inside\nof another template.\n\n### Use with `Component`\n\nWhen designing components `{{yield}}` is used to denote where, inside the component's\ntemplate, an optional block passed to the component should render:\n\n```app/templates/application.hbs\n{{#labeled-textfield value=someProperty}}\n  First name:\n{{/labeled-textfield}}\n```\n\n```app/templates/components/labeled-textfield.hbs\n<label>\n  {{yield}} {{input value=value}}\n</label>\n```\n\nResult:\n\n```html\n<label>\n  First name: <input type=\"text\" />\n</label>\n```\n\nAdditionally you can `yield` properties into the context for use by the consumer:\n\n```app/templates/application.hbs\n{{#labeled-textfield value=someProperty validator=(action 'firstNameValidator') as |validationError|}}\n  {{#if validationError}}\n    <p class=\"error\">{{ValidationError}}</p>\n  {{/if}}\n  First name:\n{{/labeled-textfield}}\n```\n\n```app/templates/components/labeled-textfield.hbs\n<label>\n  {{yield validationError}} {{input value=value}}\n</label>\n```\n\nResult:\n\n```html\n<label>\n  <p class=\"error\">First Name must be at least 3 characters long.</p>\n  First name: <input type=\"text\" />\n</label>\n```",
+            "itemtype": "method",
+            "name": "yield",
+            "params": [
+                {
+                    "name": "options",
+                    "description": "",
+                    "type": "Hash"
+                }
+            ],
+            "return": {
+                "description": "HTML string",
+                "type": "String"
+            },
+            "access": "public",
+            "tagname": "",
+            "class": "Ember.Templates.helpers",
+            "module": "ember"
+        },
+        {
+            "file": "packages/ember-glimmer/lib/index.ts",
+            "line": 179,
+            "description": "Execute the `debugger` statement in the current template's context.\n\n```handlebars\n{{debugger}}\n```\n\nWhen using the debugger helper you will have access to a `get` function. This\nfunction retrieves values available in the context of the template.\nFor example, if you're wondering why a value `{{foo}}` isn't rendering as\nexpected within a template, you could place a `{{debugger}}` statement and,\nwhen the `debugger;` breakpoint is hit, you can attempt to retrieve this value:\n\n```\n> get('foo')\n```\n\n`get` is also aware of keywords. So in this situation\n\n```handlebars\n{{#each items as |item|}}\n  {{debugger}}\n{{/each}}\n```\n\nYou'll be able to get values from the current item:\n\n```\n> get('item.name')\n```\n\nYou can also access the context of the view to make sure it is the object that\nyou expect:\n\n```\n> context\n```",
+            "itemtype": "method",
+            "name": "debugger",
+            "access": "public",
+            "tagname": "",
+            "class": "Ember.Templates.helpers",
+            "module": "ember"
+        },
+        {
+            "file": "packages/ember-glimmer/lib/index.ts",
+            "line": 222,
+            "description": "The `partial` helper renders another template without\nchanging the template context:\n\n```handlebars\n{{foo}}\n{{partial \"nav\"}}\n```\n\nThe above example template will render a template named\n\"-nav\", which has the same context as the parent template\nit's rendered into, so if the \"-nav\" template also referenced\n`{{foo}}`, it would print the same thing as the `{{foo}}`\nin the above example.\n\nIf a \"-nav\" template isn't found, the `partial` helper will\nfall back to a template named \"nav\".\n\n### Bound template names\n\nThe parameter supplied to `partial` can also be a path\nto a property containing a template name, e.g.:\n\n```handlebars\n{{partial someTemplateName}}\n```\n\nThe above example will look up the value of `someTemplateName`\non the template context (e.g. a controller) and use that\nvalue as the name of the template to render. If the resolved\nvalue is falsy, nothing will be rendered. If `someTemplateName`\nchanges, the partial will be re-rendered using the new template\nname.",
+            "itemtype": "method",
+            "name": "partial",
+            "params": [
+                {
+                    "name": "partialName",
+                    "description": "The name of the template to render minus the leading underscore.",
+                    "type": "String"
+                }
+            ],
+            "access": "public",
+            "tagname": "",
+            "class": "Ember.Templates.helpers",
+            "module": "ember"
         },
         {
             "file": "packages/ember-metal/lib/binding.js",

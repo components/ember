@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.18.0-beta.2
+ * @version   2.18.0-beta.2-null+035984b4
  */
 
 /*global process */
@@ -43083,9 +43083,9 @@ enifed('ember-views/views/core_view', ['exports', 'ember-runtime', 'ember-views/
   
     @class CoreView
     @namespace Ember
-    @extends Ember.Object
-    @deprecated Use `Ember.Component` instead.
-    @uses Ember.Evented
+    @extends EmberObject
+    @deprecated Use `Component` instead.
+    @uses Evented
     @uses Ember.ActionHandler
     @private
   */
@@ -43826,7 +43826,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.18.0-beta.2";
+  exports.default = "2.18.0-beta.2-null+035984b4";
 });
 /*global enifed */
 enifed('node-module', ['exports'], function(_exports) {
