@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.0.0-alpha.1-null+3552f94a
+ * @version   3.0.0-alpha.1-null+6784b695
  */
 
 /*global process */
@@ -23092,9 +23092,9 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
 
           if (innerMap !== undefined) {
             for (var innerKey in innerMap) {
-              seen = seen || Object.create(null);
-              if (seen[innerKey] === undefined) {
-                seen[innerKey] = true;
+              seen = seen === undefined ? new Set() : seen;
+              if (!seen.has(innerKey)) {
+                seen.add(innerKey);
                 calls = calls || [];
                 calls.push(innerKey, innerMap[innerKey]);
               }
@@ -23195,9 +23195,9 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
 
         if (map !== undefined) {
           for (var key in map) {
-            seen = seen || Object.create(null);
-            if (seen[key] === undefined) {
-              seen[key] = true;
+            seen = seen === undefined ? new Set() : seen;
+            if (!seen.has(key)) {
+              seen.add(key);
               fn(key, map[key]);
             }
           }
@@ -23902,8 +23902,6 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     ```
   
     @method volatile
-    @static
-    @for @ember/object/computed
     @return {ComputedProperty} this
     @chainable
     @public
@@ -23932,8 +23930,6 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     ```
   
     @method readOnly
-    @static
-    @for @ember/object/computed
     @return {ComputedProperty} this
     @chainable
     @public
@@ -23968,8 +23964,6 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     ```
   
     @method property
-    @static
-    @for @ember/object/computed
     @param {String} path* zero or more property paths
     @return {ComputedProperty} this
     @chainable
@@ -24015,8 +24009,6 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     via the `metaForProperty()` function.
   
     @method meta
-    @static
-    @for @ember/object/computed
     @param {Object} meta
     @chainable
     @public
@@ -43002,7 +42994,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "3.0.0-alpha.1-null+3552f94a";
+  exports.default = "3.0.0-alpha.1-null+6784b695";
 });
 /*global enifed */
 enifed('node-module', ['exports'], function(_exports) {
