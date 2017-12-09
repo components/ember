@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.0.0-alpha.1-null+5e8b75c9
+ * @version   3.0.0-alpha.1-null+3552f94a
  */
 
 /*global process */
@@ -14456,12 +14456,6 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   exports.getDispatchOverride = function () {
     return dispatchOverride;
   };
-  exports.META_DESC = {
-    writable: true,
-    configurable: true,
-    enumerable: false,
-    value: null
-  };
   exports.meta = meta;
   exports.peekMeta = peekMeta;
   exports.deleteMeta = function (obj) {
@@ -16741,7 +16735,7 @@ enifed('ember/features', ['exports', 'ember-environment', 'ember-utils'], functi
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "3.0.0-alpha.1-null+5e8b75c9";
+  exports.default = "3.0.0-alpha.1-null+3552f94a";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";

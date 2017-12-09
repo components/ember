@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.0.0-alpha.1-null+5e8b75c9
+ * @version   3.0.0-alpha.1-null+3552f94a
  */
 
 /*global process */
@@ -3759,13 +3759,6 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   for (var name in protoMethods) {
     Meta.prototype[name] = protoMethods[name];
   }
-
-  var META_DESC = {
-    writable: true,
-    configurable: true,
-    enumerable: false,
-    value: null
-  };
 
   if (features.MANDATORY_SETTER) {
     Meta.prototype.readInheritedValue = function (key, subkey) {
@@ -8375,7 +8368,6 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   exports.setOnerror = setOnerror;
   exports.setDispatchOverride = setDispatchOverride;
   exports.getDispatchOverride = getDispatchOverride;
-  exports.META_DESC = META_DESC;
   exports.meta = meta;
   exports.peekMeta = peekMeta;
   exports.deleteMeta = deleteMeta;

@@ -3,7 +3,7 @@
         "name": "The Ember API",
         "description": "The Ember API: a framework for building ambitious web applications",
         "url": "https://emberjs.com/",
-        "version": "3.0.0-alpha.1.5e8b75c9"
+        "version": "3.0.0-alpha.1.3552f94a"
     },
     "files": {
         "node_modules/rsvp/lib/rsvp/promise/all.js": {
@@ -2118,7 +2118,7 @@
             "namespaces": {},
             "tag": "module",
             "file": "packages/ember/lib/index.js",
-            "line": 581,
+            "line": 580,
             "access": "public",
             "tagname": ""
         }
@@ -3915,7 +3915,7 @@
             "module": "jquery",
             "namespace": "",
             "file": "packages/ember/lib/index.js",
-            "line": 581,
+            "line": 580,
             "access": "public",
             "tagname": "",
             "static": 1
@@ -9462,7 +9462,7 @@
         },
         {
             "file": "packages/ember-metal/lib/meta.js",
-            "line": 489,
+            "line": 476,
             "description": "Tears down the meta on an object so that it can be garbage collected.\nMultiple calls will have no effect.",
             "itemtype": "method",
             "name": "deleteMeta",
@@ -9485,7 +9485,7 @@
         },
         {
             "file": "packages/ember-metal/lib/meta.js",
-            "line": 510,
+            "line": 497,
             "description": "Retrieves the meta hash for an object. If `writable` is true ensures the\nhash is writable for this object as well.\n\nThe meta object contains information about computed property descriptors as\nwell as any watched properties and other information. You generally will\nnot access this information directly but instead work with higher level\nmethods that manipulate this hash indirectly.",
             "itemtype": "method",
             "name": "meta",
@@ -19459,7 +19459,7 @@
         },
         {
             "file": "packages/ember/lib/index.js",
-            "line": 146,
+            "line": 145,
             "description": "The context that Ember searches for namespace instances on.",
             "access": "private",
             "tagname": "",
@@ -19469,7 +19469,7 @@
         },
         {
             "file": "packages/ember/lib/index.js",
-            "line": 196,
+            "line": 195,
             "description": "A function may be assigned to `Ember.onerror` to be called when Ember\ninternals encounter an error. This is useful for specialized error handling\nand reporting code.\n\n```javascript\nEmber.onerror = function(error) {\n  Em.$.ajax('/report-error', 'POST', {\n    stack: error.stack,\n    otherInformation: 'whatever app state you want to provide'\n  });\n};\n```\n\nInternally, `Ember.onerror` is used as Backburner's error handler.",
             "itemtype": "event",
             "name": "onerror",
@@ -19488,7 +19488,7 @@
         },
         {
             "file": "packages/ember/lib/index.js",
-            "line": 385,
+            "line": 384,
             "description": "Defines the hash of localized strings for the current language. Used by\nthe `Ember.String.loc()` helper. To localize, add string values to this\nhash.",
             "itemtype": "property",
             "name": "STRINGS",
@@ -19501,7 +19501,7 @@
         },
         {
             "file": "packages/ember/lib/index.js",
-            "line": 401,
+            "line": 400,
             "description": "Whether searching on the global for new Namespace instances is enabled.\n\nThis is only exported here as to not break any addons.  Given the new\nvisit API, you will have issues if you treat this as a indicator of\nbooted.\n\nInternally this is only exposing a flag in Namespace.",
             "itemtype": "property",
             "name": "BOOTED",
@@ -19514,7 +19514,7 @@
         },
         {
             "file": "packages/ember/lib/index.js",
-            "line": 462,
+            "line": 461,
             "description": "Global hash of shared templates. This will automatically be populated\nby the build tools so that you can store your Handlebars templates in\nseparate files that get loaded into JavaScript at buildtime.",
             "itemtype": "property",
             "name": "TEMPLATES",
@@ -19527,7 +19527,7 @@
         },
         {
             "file": "packages/ember/lib/index.js",
-            "line": 482,
+            "line": 481,
             "description": "The semantic version",
             "itemtype": "property",
             "name": "VERSION",
@@ -19540,7 +19540,7 @@
         },
         {
             "file": "packages/ember/lib/index.js",
-            "line": 587,
+            "line": 586,
             "description": "Alias for jQuery",
             "itemtype": "method",
             "name": "$",
@@ -19662,7 +19662,7 @@
         },
         {
             "message": "Missing item type\nThe context that Ember searches for namespace instances on.",
-            "line": " packages/ember/lib/index.js:146"
+            "line": " packages/ember/lib/index.js:145"
         }
     ]
 }
