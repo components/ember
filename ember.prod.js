@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.0.0-alpha.1-null+46a964c9
+ * @version   3.0.0-alpha.1-null+a3b3b6c2
  */
 
 /*global process */
@@ -33459,7 +33459,7 @@ enifed('ember-runtime/computed/computed_macros', ['exports', 'ember-metal', 'emb
     return !value;
   });
 });
-enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-utils', 'ember-debug', 'ember-metal', 'ember-runtime/compare', 'ember-runtime/utils', 'ember-runtime/system/native_array'], function (exports, _emberUtils, _emberDebug, _emberMetal, _compare, _utils, _native_array) {
+enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-debug', 'ember-metal', 'ember-runtime/compare', 'ember-runtime/utils', 'ember-runtime/system/native_array'], function (exports, _emberDebug, _emberMetal, _compare, _utils, _native_array) {
   'use strict';
 
   exports.union = undefined;
@@ -33838,14 +33838,16 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-utils
     false && !!/[\[\]\{\}]/g.test(dependentKey) && (0, _emberDebug.assert)('Dependent key passed to `Ember.computed.uniqBy` shouldn\'t contain brace expanding pattern.', !/[\[\]\{\}]/g.test(dependentKey));
 
     var cp = new _emberMetal.ComputedProperty(function () {
-      var uniq = (0, _native_array.A)();
-      var seen = Object.create(null);
+      var uniq = (0, _native_array.A)(),
+          seen;
       var list = (0, _emberMetal.get)(this, dependentKey);
       if ((0, _utils.isArray)(list)) {
+        seen = new Set();
+
         list.forEach(function (item) {
-          var guid = (0, _emberUtils.guidFor)((0, _emberMetal.get)(item, propertyKey));
-          if (!(guid in seen)) {
-            seen[guid] = true;
+          var val = (0, _emberMetal.get)(item, propertyKey);
+          if (!seen.has(val)) {
+            seen.add(val);
             uniq.push(item);
           }
         });
@@ -34149,9 +34151,6 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-utils
       return propertySort(itemsKey, sortDefinition);
     }
   };
-  /**
-  @module @ember/object
-  */
 
   function reduceMacro(dependentKey, callback, initialValue, name) {
     false && !!/[\[\]\{\}]/g.test(dependentKey) && (0, _emberDebug.assert)('Dependent key passed to `Ember.computed.' + name + '` shouldn\'t contain brace expanding pattern.', !/[\[\]\{\}]/g.test(dependentKey));
@@ -34165,7 +34164,9 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-utils
     }, { dependentKeys: [dependentKey + '.[]'], readOnly: true });
 
     return cp;
-  }
+  } /**
+    @module @ember/object
+    */
 
   function arrayMacro(dependentKey, callback) {
     // This is a bit ugly
@@ -34226,12 +34227,14 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-utils
       var _this = this;
 
       var uniq = (0, _native_array.A)();
+      var seen = new Set();
 
       dependentKeys.forEach(function (dependentKey) {
         var value = (0, _emberMetal.get)(_this, dependentKey);
         if ((0, _utils.isArray)(value)) {
           value.forEach(function (item) {
-            if (uniq.indexOf(item) === -1) {
+            if (!seen.has(item)) {
+              seen.add(item);
               uniq.push(item);
             }
           });
@@ -36134,17 +36137,19 @@ enifed('ember-runtime/mixins/copyable', ['exports', 'ember-metal', 'ember-debug'
     copy: null
   });
 });
-enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-utils', 'ember-metal', 'ember-debug', 'ember-runtime/compare', 'require'], function (exports, _emberUtils, _emberMetal, _emberDebug, _compare, _require2) {
+enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-metal', 'ember-debug', 'ember-runtime/compare', 'require'], function (exports, _emberMetal, _emberDebug, _compare, _require2) {
   'use strict';
 
-  var _emberA = void 0; /**
-                        @module @ember/enumerable
-                        @private
-                        */
+  /**
+  @module @ember/enumerable
+  @private
+  */
 
   // ..........................................................
   // HELPERS
   //
+
+  var _emberA = void 0;
 
   function emberA() {
     if (_emberA === undefined) {
@@ -36538,9 +36543,11 @@ enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-utils', 'ember-meta
     uniq: function () {
       var ret = emberA();
 
-      this.forEach(function (k) {
-        if (ret.indexOf(k) < 0) {
-          ret.push(k);
+      var seen = new Set();
+      this.forEach(function (item) {
+        if (!seen.has(item)) {
+          seen.add(item);
+          ret.push(item);
         }
       });
 
@@ -36718,12 +36725,12 @@ enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-utils', 'ember-meta
     },
     uniqBy: function (key) {
       var ret = emberA();
-      var seen = Object.create(null);
+      var seen = new Set();
 
       this.forEach(function (item) {
-        var guid = (0, _emberUtils.guidFor)((0, _emberMetal.get)(item, key));
-        if (!(guid in seen)) {
-          seen[guid] = true;
+        var val = (0, _emberMetal.get)(item, key);
+        if (!seen.has(val)) {
+          seen.add(val);
           ret.push(item);
         }
       });
@@ -42994,7 +43001,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "3.0.0-alpha.1-null+46a964c9";
+  exports.default = "3.0.0-alpha.1-null+a3b3b6c2";
 });
 /*global enifed */
 enifed('node-module', ['exports'], function(_exports) {
