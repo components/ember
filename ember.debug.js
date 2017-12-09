@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.0.0-alpha.1-null+ded42562
+ * @version   3.0.0-alpha.1-null+87be17d8
  */
 
 /*global process */
@@ -36630,12 +36630,7 @@ enifed('ember-runtime/mixins/array', ['exports', 'ember-utils', 'ember-metal', '
     return objectAt(this, 0);
   }).readOnly(), _Mixin$create.lastObject = (0, _emberMetal.computed)(function () {
     return objectAt(this, (0, _emberMetal.get)(this, 'length') - 1);
-  }).readOnly(), _Mixin$create.contains = function (obj) {
-    (true && !(false) && (0, _emberDebug.deprecate)('`Enumerable#contains` is deprecated, use `Enumerable#includes` instead.', false, { id: 'ember-runtime.enumerable-contains', until: '3.0.0', url: 'https://emberjs.com/deprecations/v2.x#toc_enumerable-contains' }));
-
-
-    return this.indexOf(obj) >= 0;
-  }, _Mixin$create.slice = function (beginIndex, endIndex) {
+  }).readOnly(), _Mixin$create.slice = function (beginIndex, endIndex) {
     var ret = _emberMetal.default.A();
     var length = (0, _emberMetal.get)(this, 'length');
 
@@ -46763,7 +46758,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "3.0.0-alpha.1-null+ded42562";
+  exports.default = "3.0.0-alpha.1-null+87be17d8";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";

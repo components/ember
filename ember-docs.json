@@ -3,7 +3,7 @@
         "name": "The Ember API",
         "description": "The Ember API: a framework for building ambitious web applications",
         "url": "https://emberjs.com/",
-        "version": "3.0.0-alpha.1.ded42562"
+        "version": "3.0.0-alpha.1.87be17d8"
     },
     "files": {
         "node_modules/rsvp/lib/rsvp/promise/all.js": {
@@ -3286,7 +3286,7 @@
             "module": "@ember/array",
             "namespace": "",
             "file": "packages/ember-runtime/lib/mixins/array.js",
-            "line": 631,
+            "line": 620,
             "description": "This is the object instance returned when you get the `@each` property on an\narray. It uses the unknownProperty handler to automatically create\nEachArray instances for property names.",
             "access": "private",
             "tagname": ""
@@ -14151,7 +14151,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/mixins/array.js",
-            "line": 321,
+            "line": 310,
             "description": "Returns a new array that is a slice of the receiver. This implementation\nuses the observable array methods to retrieve the objects for the new\nslice.\n\n```javascript\nlet arr = ['red', 'green', 'blue'];\n\narr.slice(0);       // ['red', 'green', 'blue']\narr.slice(0, 2);    // ['red', 'green']\narr.slice(1, 100);  // ['green', 'blue']\n```",
             "itemtype": "method",
             "name": "slice",
@@ -14178,7 +14178,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/mixins/array.js",
-            "line": 363,
+            "line": 352,
             "description": "Returns the index of the given object's first occurrence.\nIf no `startAt` argument is given, the starting location to\nsearch is 0. If it's negative, will count backward from\nthe end of the array. Returns -1 if no match is found.\n\n```javascript\nlet arr = ['a', 'b', 'c', 'd', 'a'];\n\narr.indexOf('a');       //  0\narr.indexOf('z');       // -1\narr.indexOf('a', 2);    //  4\narr.indexOf('a', -1);   //  4\narr.indexOf('b', 3);    // -1\narr.indexOf('a', 100);  // -1\n```",
             "itemtype": "method",
             "name": "indexOf",
@@ -14205,7 +14205,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/mixins/array.js",
-            "line": 406,
+            "line": 395,
             "description": "Returns the index of the given object's last occurrence.\nIf no `startAt` argument is given, the search starts from\nthe last position. If it's negative, will count backward\nfrom the end of the array. Returns -1 if no match is found.\n\n```javascript\nlet arr = ['a', 'b', 'c', 'd', 'a'];\n\narr.lastIndexOf('a');       //  4\narr.lastIndexOf('z');       // -1\narr.lastIndexOf('a', 2);    //  0\narr.lastIndexOf('a', -1);   //  4\narr.lastIndexOf('b', 3);    //  1\narr.lastIndexOf('a', 100);  //  4\n```",
             "itemtype": "method",
             "name": "lastIndexOf",
@@ -14232,7 +14232,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/mixins/array.js",
-            "line": 453,
+            "line": 442,
             "description": "Adds an array observer to the receiving array. The array observer object\nnormally must implement two methods:\n\n* `arrayWillChange(observedObj, start, removeCount, addCount)` - This method will be\n  called just before the array is modified.\n* `arrayDidChange(observedObj, start, removeCount, addCount)` - This method will be\n  called just after the array is modified.\n\nBoth callbacks will be passed the observed object, starting index of the\nchange as well as a count of the items to be removed and added. You can use\nthese callbacks to optionally inspect the array during the change, clear\ncaches, or do any other bookkeeping necessary.\n\nIn addition to passing a target, you can also include an options hash\nwhich you can use to override the method names that will be invoked on the\ntarget.",
             "itemtype": "method",
             "name": "addArrayObserver",
@@ -14259,7 +14259,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/mixins/array.js",
-            "line": 483,
+            "line": 472,
             "description": "Removes an array observer from the object if the observer is current\nregistered. Calling this method multiple times with the same object will\nhave no effect.",
             "itemtype": "method",
             "name": "removeArrayObserver",
@@ -14286,7 +14286,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/mixins/array.js",
-            "line": 499,
+            "line": 488,
             "description": "Becomes true whenever the array currently has observers watching changes\non the array.",
             "itemtype": "property",
             "name": "hasArrayObservers",
@@ -14298,7 +14298,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/mixins/array.js",
-            "line": 510,
+            "line": 499,
             "description": "If you are implementing an object that supports `EmberArray`, call this\nmethod just before the array content changes to notify any observers and\ninvalidate any related properties. Pass the starting index of the change\nas well as a delta of the amounts to change.",
             "itemtype": "method",
             "name": "arrayContentWillChange",
@@ -14330,7 +14330,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/mixins/array.js",
-            "line": 529,
+            "line": 518,
             "description": "If you are implementing an object that supports `EmberArray`, call this\nmethod just after the array content changes to notify any observers and\ninvalidate any related properties. Pass the starting index of the change\nas well as a delta of the amounts to change.",
             "itemtype": "method",
             "name": "arrayContentDidChange",
@@ -14362,7 +14362,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/mixins/array.js",
-            "line": 548,
+            "line": 537,
             "description": "Returns `true` if the passed object can be found in the array.\nThis method is a Polyfill for ES 2016 Array.includes.\nIf no `startAt` argument is given, the starting location to\nsearch is 0. If it's negative, searches from the index of\n`this.length + startAt` by asc.\n\n```javascript\n[1, 2, 3].includes(2);     // true\n[1, 2, 3].includes(4);     // false\n[1, 2, 3].includes(3, 2);  // true\n[1, 2, 3].includes(3, 3);  // false\n[1, 2, 3].includes(3, -1); // true\n[1, 2, 3].includes(1, -1); // false\n[1, 2, 3].includes(1, -4); // true\n[1, 2, NaN].includes(NaN); // true\n```",
             "itemtype": "method",
             "name": "includes",
@@ -14389,7 +14389,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/mixins/array.js",
-            "line": 595,
+            "line": 584,
             "description": "Returns a special object that can be used to observe individual properties\non the array. Just get an equivalent property on this object and it will\nreturn an enumerable that maps automatically to the named key on the\nmember objects.\n\n`@each` should only be used in a non-terminal context. Example:\n\n```javascript\nmyMethod: computed('posts.@each.author', function(){\n  ...\n});\n```\n\nIf you merely want to watch for the array being changed, like an object being\nreplaced, added or removed, use `[]` instead of `@each`.\n\n```javascript\nmyMethod: computed('posts.[]', function(){\n  ...\n});\n```",
             "itemtype": "property",
             "name": "@each",
