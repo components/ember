@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.18.0-beta.2-null+035984b4
+ * @version   2.18.0-beta.2-null+fee50d30
  */
 
 /*global process */
@@ -15214,12 +15214,30 @@ enifed('ember-glimmer/component-managers/curly', ['exports', 'ember-babel', '@gl
 
             for (var i = 0; i < classNameBindings.length; i++) {
                 var binding = classNameBindings[i];
+                if (typeof binding !== 'string' || binding.length === 0) {
+                    return false;
+                }
+            }
+            return true;
+        }()) && (0, _emberDebug.assert)('classNameBindings must be non-empty strings: ' + component, function () {
+            var classNameBindings = component.classNameBindings;
+            for (var i = 0; i < classNameBindings.length; i++) {
+                var binding = classNameBindings[i];if (typeof binding !== 'string' || binding.length === 0) {
+                    return false;
+                }
+            }return true;
+        }()));
+        (true && !(function () {
+            var classNameBindings = component.classNameBindings;
+
+            for (var i = 0; i < classNameBindings.length; i++) {
+                var binding = classNameBindings[i];
                 if (binding.split(' ').length > 1) {
                     return false;
                 }
             }
             return true;
-        }()) && (0, _emberDebug.assert)('classNameBindings must not have spaces in them: ' + component.toString(), function () {
+        }()) && (0, _emberDebug.assert)('classNameBindings must not have spaces in them: ' + component, function () {
             var classNameBindings = component.classNameBindings;
             for (var i = 0; i < classNameBindings.length; i++) {
                 var binding = classNameBindings[i];if (binding.split(' ').length > 1) {
@@ -15227,9 +15245,9 @@ enifed('ember-glimmer/component-managers/curly', ['exports', 'ember-babel', '@gl
                 }
             }return true;
         }()));
-        (true && !(component.tagName !== '' || !component.classNameBindings || component.classNameBindings.length === 0) && (0, _emberDebug.assert)('You cannot use `classNameBindings` on a tag-less component: ' + component.toString(), component.tagName !== '' || !component.classNameBindings || component.classNameBindings.length === 0));
-        (true && !(component.tagName !== '' || props.id === component.elementId || !component.elementId && component.elementId !== '') && (0, _emberDebug.assert)('You cannot use `elementId` on a tag-less component: ' + component.toString(), component.tagName !== '' || props.id === component.elementId || !component.elementId && component.elementId !== ''));
-        (true && !(component.tagName !== '' || !component.attributeBindings || component.attributeBindings.length === 0) && (0, _emberDebug.assert)('You cannot use `attributeBindings` on a tag-less component: ' + component.toString(), component.tagName !== '' || !component.attributeBindings || component.attributeBindings.length === 0));
+        (true && !(component.tagName !== '' || !component.classNameBindings || component.classNameBindings.length === 0) && (0, _emberDebug.assert)('You cannot use `classNameBindings` on a tag-less component: ' + component, component.tagName !== '' || !component.classNameBindings || component.classNameBindings.length === 0));
+        (true && !(component.tagName !== '' || props.id === component.elementId || !component.elementId && component.elementId !== '') && (0, _emberDebug.assert)('You cannot use `elementId` on a tag-less component: ' + component, component.tagName !== '' || props.id === component.elementId || !component.elementId && component.elementId !== ''));
+        (true && !(component.tagName !== '' || !component.attributeBindings || component.attributeBindings.length === 0) && (0, _emberDebug.assert)('You cannot use `attributeBindings` on a tag-less component: ' + component, component.tagName !== '' || !component.attributeBindings || component.attributeBindings.length === 0));
     }
     function initialRenderInstrumentDetails(component) {
         return component.instrumentDetails({ initialRender: true });
@@ -25224,8 +25242,6 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     ```
   
     @method volatile
-    @static
-    @for @ember/object/computed
     @return {ComputedProperty} this
     @chainable
     @public
@@ -25254,8 +25270,6 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     ```
   
     @method readOnly
-    @static
-    @for @ember/object/computed
     @return {ComputedProperty} this
     @chainable
     @public
@@ -25292,8 +25306,6 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     ```
   
     @method property
-    @static
-    @for @ember/object/computed
     @param {String} path* zero or more property paths
     @return {ComputedProperty} this
     @chainable
@@ -25340,8 +25352,6 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     via the `metaForProperty()` function.
   
     @method meta
-    @static
-    @for @ember/object/computed
     @param {Object} meta
     @chainable
     @public
@@ -47691,7 +47701,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.18.0-beta.2-null+035984b4";
+  exports.default = "2.18.0-beta.2-null+fee50d30";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";

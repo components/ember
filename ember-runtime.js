@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.18.0-beta.2-null+035984b4
+ * @version   2.18.0-beta.2-null+fee50d30
  */
 
 /*global process */
@@ -4742,8 +4742,6 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     ```
   
     @method volatile
-    @static
-    @for @ember/object/computed
     @return {ComputedProperty} this
     @chainable
     @public
@@ -4772,8 +4770,6 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     ```
   
     @method readOnly
-    @static
-    @for @ember/object/computed
     @return {ComputedProperty} this
     @chainable
     @public
@@ -4810,8 +4806,6 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     ```
   
     @method property
-    @static
-    @for @ember/object/computed
     @param {String} path* zero or more property paths
     @return {ComputedProperty} this
     @chainable
@@ -4858,8 +4852,6 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     via the `metaForProperty()` function.
   
     @method meta
-    @static
-    @for @ember/object/computed
     @param {Object} meta
     @chainable
     @public
