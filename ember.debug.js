@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.0.0-alpha.1-null+f4324844
+ * @version   3.0.0-alpha.1-null+f827a115
  */
 
 /*global process */
@@ -22385,7 +22385,6 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   exports.assertNotRendered = void 0;
 
   // detect-backtracking-rerender by default is debug build only
-  // detect-glimmer-allow-backtracking-rerender can be enabled in custom builds
   if (features.EMBER_GLIMMER_DETECT_BACKTRACKING_RERENDER) {
 
     // there are 2 states
@@ -40967,10 +40966,17 @@ enifed('ember-template-compiler/plugins/assert-input-helper-without-block', ['ex
     return 'The {{input}} helper cannot be used in block form. ' + sourceInformation;
   }
 });
-enifed('ember-template-compiler/plugins/assert-reserved-named-arguments', ['exports', 'ember-debug', 'ember-template-compiler/system/calculate-location-display'], function (exports, _emberDebug, _calculateLocationDisplay) {
+enifed('ember-template-compiler/plugins/assert-reserved-named-arguments', ['exports', 'ember-debug', 'ember/features', 'ember-template-compiler/system/calculate-location-display'], function (exports, _emberDebug, _features, _calculateLocationDisplay) {
   'use strict';
 
   exports.default = assertReservedNamedArguments;
+
+
+  var RESERVED = ['@arguments', '@args'];
+
+  var isReserved = void 0,
+      assertMessage = void 0;
+
   function assertReservedNamedArguments(env) {
     var moduleName = env.meta.moduleName;
 
@@ -40979,20 +40985,32 @@ enifed('ember-template-compiler/plugins/assert-reserved-named-arguments', ['expo
       name: 'assert-reserved-named-arguments',
 
       visitors: {
-        PathExpression: function (node) {
-          if (node.original[0] === '@') {
-            (true && !(false) && (0, _emberDebug.assert)(assertMessage(moduleName, node)));
+        PathExpression: function (_ref) {
+          var original = _ref.original,
+              loc = _ref.loc;
+
+          if (isReserved(original)) {
+            (true && !(false) && (0, _emberDebug.assert)(assertMessage(original) + ' ' + (0, _calculateLocationDisplay.default)(moduleName, loc)));
           }
         }
       }
     };
   }
 
-  function assertMessage(moduleName, node) {
-    var path = node.original;
-    var source = (0, _calculateLocationDisplay.default)(moduleName, node.loc);
-
-    return '\'' + path + '\' is not a valid path. ' + source;
+  if (_features.EMBER_GLIMMER_NAMED_ARGUMENTS) {
+    isReserved = function (name) {
+      return RESERVED.indexOf(name) !== -1 || name.match(/^@[^a-z]/);
+    };
+    assertMessage = function (name) {
+      return '\'' + name + '\' is reserved.';
+    };
+  } else {
+    isReserved = function (name) {
+      return name[0] === '@';
+    };
+    assertMessage = function (name) {
+      return '\'' + name + '\' is not a valid path.';
+    };
   }
 });
 enifed('ember-template-compiler/plugins/deprecate-render-model', ['exports', 'ember-debug', 'ember-template-compiler/system/calculate-location-display'], function (exports, _emberDebug, _calculateLocationDisplay) {
@@ -46230,14 +46248,14 @@ enifed('ember-views/views/states/pre_render', ['exports', 'ember-views/views/sta
 enifed('ember/features', ['exports', 'ember-environment', 'ember-utils'], function (exports, _emberEnvironment, _emberUtils) {
     'use strict';
 
-    exports.EMBER_GLIMMER_DETECT_BACKTRACKING_RERENDER = exports.MANDATORY_SETTER = exports.GLIMMER_CUSTOM_COMPONENT_MANAGER = exports.EMBER_MODULE_UNIFICATION = exports.EMBER_ENGINES_MOUNT_PARAMS = exports.EMBER_ROUTING_ROUTER_SERVICE = exports.EMBER_GLIMMER_ALLOW_BACKTRACKING_RERENDER = exports.EMBER_IMPROVED_INSTRUMENTATION = exports.EMBER_LIBRARIES_ISREGISTERED = exports.FEATURES_STRIPPED_TEST = exports.FEATURES = exports.DEFAULT_FEATURES = undefined;
-    var DEFAULT_FEATURES = exports.DEFAULT_FEATURES = { "features-stripped-test": null, "ember-libraries-isregistered": null, "ember-improved-instrumentation": null, "ember-glimmer-allow-backtracking-rerender": false, "ember-routing-router-service": true, "ember-engines-mount-params": true, "ember-module-unification": null, "glimmer-custom-component-manager": null, "mandatory-setter": true, "ember-glimmer-detect-backtracking-rerender": true };
+    exports.EMBER_GLIMMER_DETECT_BACKTRACKING_RERENDER = exports.MANDATORY_SETTER = exports.GLIMMER_CUSTOM_COMPONENT_MANAGER = exports.EMBER_MODULE_UNIFICATION = exports.EMBER_ENGINES_MOUNT_PARAMS = exports.EMBER_ROUTING_ROUTER_SERVICE = exports.EMBER_GLIMMER_NAMED_ARGUMENTS = exports.EMBER_IMPROVED_INSTRUMENTATION = exports.EMBER_LIBRARIES_ISREGISTERED = exports.FEATURES_STRIPPED_TEST = exports.FEATURES = exports.DEFAULT_FEATURES = undefined;
+    var DEFAULT_FEATURES = exports.DEFAULT_FEATURES = { "features-stripped-test": null, "ember-libraries-isregistered": null, "ember-improved-instrumentation": null, "ember-glimmer-named-arguments": null, "ember-routing-router-service": true, "ember-engines-mount-params": true, "ember-module-unification": null, "glimmer-custom-component-manager": null, "mandatory-setter": true, "ember-glimmer-detect-backtracking-rerender": true };
     var FEATURES = exports.FEATURES = (0, _emberUtils.assign)(DEFAULT_FEATURES, _emberEnvironment.ENV.FEATURES);
 
     var FEATURES_STRIPPED_TEST = exports.FEATURES_STRIPPED_TEST = FEATURES["features-stripped-test"];
     var EMBER_LIBRARIES_ISREGISTERED = exports.EMBER_LIBRARIES_ISREGISTERED = FEATURES["ember-libraries-isregistered"];
     var EMBER_IMPROVED_INSTRUMENTATION = exports.EMBER_IMPROVED_INSTRUMENTATION = FEATURES["ember-improved-instrumentation"];
-    var EMBER_GLIMMER_ALLOW_BACKTRACKING_RERENDER = exports.EMBER_GLIMMER_ALLOW_BACKTRACKING_RERENDER = FEATURES["ember-glimmer-allow-backtracking-rerender"];
+    var EMBER_GLIMMER_NAMED_ARGUMENTS = exports.EMBER_GLIMMER_NAMED_ARGUMENTS = FEATURES["ember-glimmer-named-arguments"];
     var EMBER_ROUTING_ROUTER_SERVICE = exports.EMBER_ROUTING_ROUTER_SERVICE = FEATURES["ember-routing-router-service"];
     var EMBER_ENGINES_MOUNT_PARAMS = exports.EMBER_ENGINES_MOUNT_PARAMS = FEATURES["ember-engines-mount-params"];
     var EMBER_MODULE_UNIFICATION = exports.EMBER_MODULE_UNIFICATION = FEATURES["ember-module-unification"];
@@ -46758,7 +46776,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "3.0.0-alpha.1-null+f4324844";
+  exports.default = "3.0.0-alpha.1-null+f827a115";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";

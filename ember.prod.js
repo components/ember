@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.0.0-alpha.1-null+f4324844
+ * @version   3.0.0-alpha.1-null+f827a115
  */
 
 /*global process */
@@ -21791,7 +21791,6 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
 
 
   // detect-backtracking-rerender by default is debug build only
-  // detect-glimmer-allow-backtracking-rerender can be enabled in custom builds
   {
     // in production do nothing to detect reflushes
     exports.runInTransaction = function (context$$1, methodName) {
@@ -42487,14 +42486,14 @@ enifed('ember-views/views/states/pre_render', ['exports', 'ember-views/views/sta
 enifed('ember/features', ['exports', 'ember-environment', 'ember-utils'], function (exports, _emberEnvironment, _emberUtils) {
     'use strict';
 
-    exports.GLIMMER_CUSTOM_COMPONENT_MANAGER = exports.EMBER_MODULE_UNIFICATION = exports.EMBER_IMPROVED_INSTRUMENTATION = exports.EMBER_LIBRARIES_ISREGISTERED = exports.FEATURES_STRIPPED_TEST = exports.FEATURES = exports.DEFAULT_FEATURES = undefined;
-    var DEFAULT_FEATURES = exports.DEFAULT_FEATURES = { "features-stripped-test": null, "ember-libraries-isregistered": null, "ember-improved-instrumentation": null, "ember-glimmer-allow-backtracking-rerender": false, "ember-routing-router-service": true, "ember-engines-mount-params": true, "ember-module-unification": null, "glimmer-custom-component-manager": null, "mandatory-setter": false, "ember-glimmer-detect-backtracking-rerender": false };
+    exports.GLIMMER_CUSTOM_COMPONENT_MANAGER = exports.EMBER_MODULE_UNIFICATION = exports.EMBER_GLIMMER_NAMED_ARGUMENTS = exports.EMBER_IMPROVED_INSTRUMENTATION = exports.EMBER_LIBRARIES_ISREGISTERED = exports.FEATURES_STRIPPED_TEST = exports.FEATURES = exports.DEFAULT_FEATURES = undefined;
+    var DEFAULT_FEATURES = exports.DEFAULT_FEATURES = { "features-stripped-test": null, "ember-libraries-isregistered": null, "ember-improved-instrumentation": null, "ember-glimmer-named-arguments": null, "ember-routing-router-service": true, "ember-engines-mount-params": true, "ember-module-unification": null, "glimmer-custom-component-manager": null, "mandatory-setter": false, "ember-glimmer-detect-backtracking-rerender": false };
     var FEATURES = exports.FEATURES = (0, _emberUtils.assign)(DEFAULT_FEATURES, _emberEnvironment.ENV.FEATURES);
 
     var FEATURES_STRIPPED_TEST = exports.FEATURES_STRIPPED_TEST = FEATURES["features-stripped-test"];
     var EMBER_LIBRARIES_ISREGISTERED = exports.EMBER_LIBRARIES_ISREGISTERED = FEATURES["ember-libraries-isregistered"];
     var EMBER_IMPROVED_INSTRUMENTATION = exports.EMBER_IMPROVED_INSTRUMENTATION = FEATURES["ember-improved-instrumentation"];
-    false;
+    var EMBER_GLIMMER_NAMED_ARGUMENTS = exports.EMBER_GLIMMER_NAMED_ARGUMENTS = FEATURES["ember-glimmer-named-arguments"];
     true;
     true;
     var EMBER_MODULE_UNIFICATION = exports.EMBER_MODULE_UNIFICATION = FEATURES["ember-module-unification"];
@@ -42997,7 +42996,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "3.0.0-alpha.1-null+f4324844";
+  exports.default = "3.0.0-alpha.1-null+f827a115";
 });
 /*global enifed */
 enifed('node-module', ['exports'], function(_exports) {

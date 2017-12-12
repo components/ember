@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.0.0-alpha.1-null+f4324844
+ * @version   3.0.0-alpha.1-null+f827a115
  */
 
 /*global process */
@@ -1972,7 +1972,6 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   exports.assertNotRendered = void 0;
 
   // detect-backtracking-rerender by default is debug build only
-  // detect-glimmer-allow-backtracking-rerender can be enabled in custom builds
   if (features.EMBER_GLIMMER_DETECT_BACKTRACKING_RERENDER) {
 
     // there are 2 states
