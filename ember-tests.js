@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.0.0-alpha.1-null+997758a4
+ * @version   3.0.0-alpha.1-null+04ba9aed
  */
 
 /*global process */
@@ -28389,12 +28389,7 @@ enifed('ember-glimmer/tests/integration/helpers/input-test', ['ember-babel', 'em
 
     function InputRenderingTest() {
       (0, _emberBabel.classCallCheck)(this, InputRenderingTest);
-
-      var _this = (0, _emberBabel.possibleConstructorReturn)(this, _RenderingTest.call(this));
-
-      _this.registerComponent('-text-field', { ComponentClass: _helpers.TextField });
-      _this.registerComponent('-checkbox', { ComponentClass: _helpers.Checkbox });
-      return _this;
+      return (0, _emberBabel.possibleConstructorReturn)(this, _RenderingTest.apply(this, arguments));
     }
 
     InputRenderingTest.prototype.$input = function $input() {
@@ -31099,7 +31094,7 @@ QUnit.test('should pass ESLint', function(assert) {
   assert.ok(true, 'ember-glimmer/tests/integration/helpers/render-test.js should pass ESLint\n\n');
 });
 
-enifed('ember-glimmer/tests/integration/helpers/text-area-test', ['ember-babel', 'ember-utils', 'ember-metal', 'ember-glimmer/tests/utils/helpers', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/test-helpers', 'ember-glimmer/tests/utils/abstract-test-case'], function (_emberBabel, _emberUtils, _emberMetal, _helpers, _testCase, _testHelpers, _abstractTestCase) {
+enifed('ember-glimmer/tests/integration/helpers/text-area-test', ['ember-babel', 'ember-utils', 'ember-metal', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/test-helpers', 'ember-glimmer/tests/utils/abstract-test-case'], function (_emberBabel, _emberUtils, _emberMetal, _testCase, _testHelpers, _abstractTestCase) {
   'use strict';
 
   var TextAreaRenderingTest = function (_RenderingTest) {
@@ -31107,11 +31102,7 @@ enifed('ember-glimmer/tests/integration/helpers/text-area-test', ['ember-babel',
 
     function TextAreaRenderingTest() {
       (0, _emberBabel.classCallCheck)(this, TextAreaRenderingTest);
-
-      var _this = (0, _emberBabel.possibleConstructorReturn)(this, _RenderingTest.call(this));
-
-      _this.registerComponent('-text-area', { ComponentClass: _helpers.TextArea });
-      return _this;
+      return (0, _emberBabel.possibleConstructorReturn)(this, _RenderingTest.apply(this, arguments));
     }
 
     TextAreaRenderingTest.prototype.assertTextArea = function assertTextArea() {
@@ -36795,22 +36786,10 @@ enifed('ember-glimmer/tests/utils/helpers', ['exports', 'ember-template-compiler
       return _emberGlimmer.Component;
     }
   });
-  Object.defineProperty(exports, 'TextArea', {
-    enumerable: true,
-    get: function () {
-      return _emberGlimmer.TextArea;
-    }
-  });
   Object.defineProperty(exports, 'LinkComponent', {
     enumerable: true,
     get: function () {
       return _emberGlimmer.LinkComponent;
-    }
-  });
-  Object.defineProperty(exports, 'TextField', {
-    enumerable: true,
-    get: function () {
-      return _emberGlimmer.TextField;
     }
   });
   Object.defineProperty(exports, 'InteractiveRender', {
