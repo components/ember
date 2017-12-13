@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.0.0-alpha.1-null+04ba9aed
+ * @version   3.0.0-alpha.1-null+9536e137
  */
 
 /*global process */
@@ -15223,6 +15223,73 @@ enifed('ember-glimmer/component-managers/root', ['exports', 'ember-babel', '@gli
         return RootComponentDefinition;
     }(_runtime.ComponentDefinition);
 });
+enifed('ember-glimmer/component-managers/template-only', ['exports', 'ember-babel', '@glimmer/runtime', 'ember-glimmer/component-managers/abstract'], function (exports, _emberBabel, _runtime, _abstract) {
+    'use strict';
+
+    exports.TemplateOnlyComponentDefinition = undefined;
+
+    var TemplateOnlyComponentLayoutCompiler = function () {
+        function TemplateOnlyComponentLayoutCompiler(template) {
+
+            this.template = template;
+        }
+
+        TemplateOnlyComponentLayoutCompiler.prototype.compile = function (builder) {
+            // TODO: use fromLayout
+            builder.wrapLayout(this.template);
+        };
+
+        return TemplateOnlyComponentLayoutCompiler;
+    }();
+
+    TemplateOnlyComponentLayoutCompiler.id = 'template-only';
+
+    var TemplateOnlyComponentManager = function (_AbstractManager) {
+        (0, _emberBabel.inherits)(TemplateOnlyComponentManager, _AbstractManager);
+
+        function TemplateOnlyComponentManager() {
+            return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractManager.apply(this, arguments));
+        }
+
+        TemplateOnlyComponentManager.prototype.create = function () {
+            return null;
+        };
+
+        TemplateOnlyComponentManager.prototype.layoutFor = function (_ref, _, env) {
+            var template = _ref.template;
+
+            return env.getCompiledBlock(TemplateOnlyComponentLayoutCompiler, template);
+        };
+
+        TemplateOnlyComponentManager.prototype.getSelf = function () {
+            return _runtime.NULL_REFERENCE;
+        };
+
+        TemplateOnlyComponentManager.prototype.getDestructor = function () {
+            return null;
+        };
+
+        return TemplateOnlyComponentManager;
+    }(_abstract.default);
+
+    exports.default = TemplateOnlyComponentManager;
+
+    var MANAGER = new TemplateOnlyComponentManager();
+
+    exports.TemplateOnlyComponentDefinition = function (_ComponentDefinition) {
+        (0, _emberBabel.inherits)(TemplateOnlyComponentDefinition, _ComponentDefinition);
+
+        function TemplateOnlyComponentDefinition(name, template) {
+
+            var _this2 = (0, _emberBabel.possibleConstructorReturn)(this, _ComponentDefinition.call(this, name, MANAGER, null));
+
+            _this2.template = template;
+            return _this2;
+        }
+
+        return TemplateOnlyComponentDefinition;
+    }(_runtime.ComponentDefinition);
+});
 enifed('ember-glimmer/component', ['exports', '@glimmer/reference', '@glimmer/runtime', 'ember-debug', 'ember-metal', 'ember-runtime', 'ember-utils', 'ember-views', 'ember-glimmer/utils/references'], function (exports, _reference, _runtime, _emberDebug, _emberMetal, _emberRuntime, _emberUtils, _emberViews, _references) {
   'use strict';
 
@@ -16706,7 +16773,7 @@ enifed('ember-glimmer/dom', ['exports', '@glimmer/runtime', '@glimmer/node'], fu
     }
   });
 });
-enifed('ember-glimmer/environment', ['exports', 'ember-babel', '@glimmer/runtime', 'ember-debug', 'ember-metal', 'ember-utils', 'ember-views', 'ember-glimmer/component-managers/curly', 'ember-glimmer/syntax', 'ember-glimmer/utils/debug-stack', 'ember-glimmer/utils/iterable', 'ember-glimmer/utils/references', 'ember-glimmer/helpers/-class', 'ember-glimmer/helpers/-html-safe', 'ember-glimmer/helpers/-input-type', 'ember-glimmer/helpers/-normalize-class', 'ember-glimmer/helpers/action', 'ember-glimmer/helpers/component', 'ember-glimmer/helpers/concat', 'ember-glimmer/helpers/each-in', 'ember-glimmer/helpers/get', 'ember-glimmer/helpers/hash', 'ember-glimmer/helpers/if-unless', 'ember-glimmer/helpers/log', 'ember-glimmer/helpers/mut', 'ember-glimmer/helpers/query-param', 'ember-glimmer/helpers/readonly', 'ember-glimmer/helpers/unbound', 'ember-glimmer/modifiers/action', 'ember-glimmer/protocol-for-url', 'ember/features'], function (exports, _emberBabel, _runtime, _emberDebug, _emberMetal, _emberUtils, _emberViews, _curly, _syntax, _debugStack, _iterable, _references, _class, _htmlSafe, _inputType, _normalizeClass, _action, _component, _concat, _eachIn, _get, _hash, _ifUnless, _log, _mut, _queryParam, _readonly, _unbound, _action2, _protocolForUrl, _features) {
+enifed('ember-glimmer/environment', ['exports', 'ember-babel', '@glimmer/runtime', 'ember-debug', 'ember-metal', 'ember-utils', 'ember-views', 'ember-glimmer/component-managers/curly', 'ember-glimmer/component-managers/template-only', 'ember-glimmer/syntax', 'ember-glimmer/utils/debug-stack', 'ember-glimmer/utils/iterable', 'ember-glimmer/utils/references', 'ember-glimmer/helpers/-class', 'ember-glimmer/helpers/-html-safe', 'ember-glimmer/helpers/-input-type', 'ember-glimmer/helpers/-normalize-class', 'ember-glimmer/helpers/action', 'ember-glimmer/helpers/component', 'ember-glimmer/helpers/concat', 'ember-glimmer/helpers/each-in', 'ember-glimmer/helpers/get', 'ember-glimmer/helpers/hash', 'ember-glimmer/helpers/if-unless', 'ember-glimmer/helpers/log', 'ember-glimmer/helpers/mut', 'ember-glimmer/helpers/query-param', 'ember-glimmer/helpers/readonly', 'ember-glimmer/helpers/unbound', 'ember-glimmer/modifiers/action', 'ember-glimmer/protocol-for-url', 'ember/features'], function (exports, _emberBabel, _runtime, _emberDebug, _emberMetal, _emberUtils, _emberViews, _curly, _templateOnly, _syntax, _debugStack, _iterable, _references, _class, _htmlSafe, _inputType, _normalizeClass, _action, _component, _concat, _eachIn, _get, _hash, _ifUnless, _log, _mut, _queryParam, _readonly, _unbound, _action2, _protocolForUrl, _features) {
     'use strict';
 
     function instrumentationPayload(name) {
@@ -16743,7 +16810,9 @@ enifed('ember-glimmer/environment', ['exports', 'ember-babel', '@glimmer/runtime
                     layout = _lookupComponent.layout;
 
                 var customManager = void 0;
-                if (componentFactory || layout) {
+                if (_features.EMBER_GLIMMER_TEMPLATE_ONLY_COMPONENTS && layout && !componentFactory) {
+                    return new _templateOnly.TemplateOnlyComponentDefinition(name, layout);
+                } else if (componentFactory || layout) {
                     if (_features.GLIMMER_CUSTOM_COMPONENT_MANAGER) {
                         managerId = layout && layout.meta.managerId;
 
@@ -19118,7 +19187,7 @@ enifed('ember-glimmer/renderer', ['exports', 'ember-babel', '@glimmer/reference'
         return InteractiveRenderer;
     }(Renderer);
 });
-enifed('ember-glimmer/setup-registry', ['exports', 'ember-babel', 'container', 'ember-environment', 'ember-glimmer/component', 'ember-glimmer/components/checkbox', 'ember-glimmer/components/link-to', 'ember-glimmer/components/text_area', 'ember-glimmer/components/text_field', 'ember-glimmer/dom', 'ember-glimmer/environment', 'ember-glimmer/renderer', 'ember-glimmer/templates/component', 'ember-glimmer/templates/outlet', 'ember-glimmer/templates/root', 'ember-glimmer/views/outlet', 'ember-glimmer/helpers/loc'], function (exports, _emberBabel, _container, _emberEnvironment, _component, _checkbox, _linkTo, _text_area, _text_field, _dom, _environment, _renderer, _component2, _outlet, _root, _outlet2, _loc) {
+enifed('ember-glimmer/setup-registry', ['exports', 'ember-babel', 'container', 'ember-environment', 'ember-glimmer/component', 'ember-glimmer/components/checkbox', 'ember-glimmer/components/link-to', 'ember-glimmer/components/text_area', 'ember-glimmer/components/text_field', 'ember-glimmer/dom', 'ember-glimmer/environment', 'ember-glimmer/renderer', 'ember-glimmer/templates/component', 'ember-glimmer/templates/outlet', 'ember-glimmer/templates/root', 'ember-glimmer/views/outlet', 'ember-glimmer/helpers/loc', 'ember/features'], function (exports, _emberBabel, _container, _emberEnvironment, _component, _checkbox, _linkTo, _text_area, _text_field, _dom, _environment, _renderer, _component2, _outlet, _root, _outlet2, _loc, _features) {
     'use strict';
 
     exports.setupApplicationRegistry = function (registry) {
@@ -19162,7 +19231,9 @@ enifed('ember-glimmer/setup-registry', ['exports', 'ember-babel', 'container', '
         registry.register('component:-text-area', _text_area.default);
         registry.register('component:-checkbox', _checkbox.default);
         registry.register('component:link-to', _linkTo.default);
-        registry.register((0, _container.privatize)(_templateObject3), _component.default);
+        if (!_features.EMBER_GLIMMER_TEMPLATE_ONLY_COMPONENTS) {
+            registry.register((0, _container.privatize)(_templateObject3), _component.default);
+        }
     };
 
     var _templateObject = (0, _emberBabel.taggedTemplateLiteralLoose)(['template:-root'], ['template:-root']),
@@ -42212,7 +42283,7 @@ enifed('ember-views/system/utils', ['exports', 'ember-utils'], function (exports
     return range;
   }var elMatches = exports.elMatches = typeof Element !== 'undefined' && (Element.prototype.matches || Element.prototype.matchesSelector || Element.prototype.mozMatchesSelector || Element.prototype.msMatchesSelector || Element.prototype.oMatchesSelector || Element.prototype.webkitMatchesSelector);
 });
-enifed('ember-views/utils/lookup-component', ['exports', 'ember-babel', 'container', 'ember/features'], function (exports, _emberBabel, _container, _features) {
+enifed('ember-views/utils/lookup-component', ['exports', 'ember-babel', 'container', 'ember/features', 'ember-environment'], function (exports, _emberBabel, _container, _features) {
   'use strict';
 
   exports.default = function (owner, name, options) {
@@ -42253,13 +42324,18 @@ enifed('ember-views/utils/lookup-component', ['exports', 'ember-babel', 'contain
       return { layout: null, component: localComponent };
     }
 
-    var defaultComponentFactory = owner.factoryFor((0, _container.privatize)(_templateObject));
+    var defaultComponentFactory = null;
+
+    if (!_features.EMBER_GLIMMER_TEMPLATE_ONLY_COMPONENTS) {
+      defaultComponentFactory = owner.factoryFor((0, _container.privatize)(_templateObject));
+    }
 
     if (!localAndUniqueComponent && localAndUniqueLayout) {
       return { layout: localLayout, component: defaultComponentFactory };
     }
 
-    return { layout: globalLayout, component: globalComponent || globalLayout && defaultComponentFactory };
+    var component = globalComponent || globalLayout && defaultComponentFactory;
+    return { layout: globalLayout, component: component };
   }
 
   function lookupComponentPair(componentLookup, owner, name, options) {
@@ -42272,7 +42348,7 @@ enifed('ember-views/utils/lookup-component', ['exports', 'ember-babel', 'contain
 
     var result = { layout: layout, component: component };
 
-    if (layout && !component) {
+    if (!_features.EMBER_GLIMMER_TEMPLATE_ONLY_COMPONENTS && layout && !component) {
       result.component = owner.factoryFor((0, _container.privatize)(_templateObject));
     }
 
@@ -42490,14 +42566,15 @@ enifed('ember-views/views/states/pre_render', ['exports', 'ember-views/views/sta
 enifed('ember/features', ['exports', 'ember-environment', 'ember-utils'], function (exports, _emberEnvironment, _emberUtils) {
     'use strict';
 
-    exports.GLIMMER_CUSTOM_COMPONENT_MANAGER = exports.EMBER_MODULE_UNIFICATION = exports.EMBER_GLIMMER_NAMED_ARGUMENTS = exports.EMBER_IMPROVED_INSTRUMENTATION = exports.EMBER_LIBRARIES_ISREGISTERED = exports.FEATURES_STRIPPED_TEST = exports.FEATURES = exports.DEFAULT_FEATURES = undefined;
-    var DEFAULT_FEATURES = exports.DEFAULT_FEATURES = { "features-stripped-test": null, "ember-libraries-isregistered": null, "ember-improved-instrumentation": null, "ember-glimmer-named-arguments": null, "ember-routing-router-service": true, "ember-engines-mount-params": true, "ember-module-unification": null, "glimmer-custom-component-manager": null, "mandatory-setter": false, "ember-glimmer-detect-backtracking-rerender": false };
+    exports.GLIMMER_CUSTOM_COMPONENT_MANAGER = exports.EMBER_MODULE_UNIFICATION = exports.EMBER_GLIMMER_TEMPLATE_ONLY_COMPONENTS = exports.EMBER_GLIMMER_NAMED_ARGUMENTS = exports.EMBER_IMPROVED_INSTRUMENTATION = exports.EMBER_LIBRARIES_ISREGISTERED = exports.FEATURES_STRIPPED_TEST = exports.FEATURES = exports.DEFAULT_FEATURES = undefined;
+    var DEFAULT_FEATURES = exports.DEFAULT_FEATURES = { "features-stripped-test": null, "ember-libraries-isregistered": null, "ember-improved-instrumentation": null, "ember-glimmer-named-arguments": null, "ember-glimmer-template-only-components": null, "ember-routing-router-service": true, "ember-engines-mount-params": true, "ember-module-unification": null, "glimmer-custom-component-manager": null, "mandatory-setter": false, "ember-glimmer-detect-backtracking-rerender": false };
     var FEATURES = exports.FEATURES = (0, _emberUtils.assign)(DEFAULT_FEATURES, _emberEnvironment.ENV.FEATURES);
 
     var FEATURES_STRIPPED_TEST = exports.FEATURES_STRIPPED_TEST = FEATURES["features-stripped-test"];
     var EMBER_LIBRARIES_ISREGISTERED = exports.EMBER_LIBRARIES_ISREGISTERED = FEATURES["ember-libraries-isregistered"];
     var EMBER_IMPROVED_INSTRUMENTATION = exports.EMBER_IMPROVED_INSTRUMENTATION = FEATURES["ember-improved-instrumentation"];
     var EMBER_GLIMMER_NAMED_ARGUMENTS = exports.EMBER_GLIMMER_NAMED_ARGUMENTS = FEATURES["ember-glimmer-named-arguments"];
+    var EMBER_GLIMMER_TEMPLATE_ONLY_COMPONENTS = exports.EMBER_GLIMMER_TEMPLATE_ONLY_COMPONENTS = FEATURES["ember-glimmer-template-only-components"];
     true;
     true;
     var EMBER_MODULE_UNIFICATION = exports.EMBER_MODULE_UNIFICATION = FEATURES["ember-module-unification"];
@@ -43000,7 +43077,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "3.0.0-alpha.1-null+04ba9aed";
+  exports.default = "3.0.0-alpha.1-null+9536e137";
 });
 /*global enifed */
 enifed('node-module', ['exports'], function(_exports) {
