@@ -3,7 +3,7 @@
         "name": "The Ember API",
         "description": "The Ember API: a framework for building ambitious web applications",
         "url": "https://emberjs.com/",
-        "version": "3.0.0-alpha.1.ab5e69ec"
+        "version": "3.0.0-alpha.1.997758a4"
     },
     "files": {
         "node_modules/rsvp/lib/rsvp/promise/all.js": {
@@ -534,7 +534,7 @@
             "modules": {},
             "classes": {},
             "fors": {
-                "@ember/string": 1
+                "@ember/template": 1
             },
             "namespaces": {}
         },
@@ -1911,10 +1911,12 @@
             "submodules": {},
             "elements": {},
             "classes": {
+                "@ember/template": 1,
                 "@ember/string": 1,
                 "String": 1
             },
             "fors": {
+                "@ember/template": 1,
                 "@ember/string": 1,
                 "Ember.Ember": 1
             },
@@ -2554,9 +2556,9 @@
             "access": "private",
             "tagname": ""
         },
-        "@ember/string": {
-            "name": "@ember/string",
-            "shortname": "@ember/string",
+        "@ember/template": {
+            "name": "@ember/template",
+            "shortname": "@ember/template",
             "classitems": [],
             "plugins": [],
             "extensions": [],
@@ -3228,6 +3230,17 @@
             "plugin_for": [],
             "extension_for": [],
             "module": "ember",
+            "namespace": ""
+        },
+        "@ember/string": {
+            "name": "@ember/string",
+            "shortname": "@ember/string",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "module": "@ember/string",
             "namespace": ""
         },
         "Ember.ProxyMixin": {
@@ -7789,7 +7802,7 @@
             },
             "access": "public",
             "tagname": "",
-            "class": "@ember/string",
+            "class": "@ember/template",
             "module": "@ember/string"
         },
         {
@@ -7805,7 +7818,7 @@
             },
             "access": "public",
             "tagname": "",
-            "class": "@ember/string",
+            "class": "@ember/template",
             "module": "@ember/string"
         },
         {

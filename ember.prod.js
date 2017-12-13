@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.0.0-alpha.1-null+ab5e69ec
+ * @version   3.0.0-alpha.1-null+997758a4
  */
 
 /*global process */
@@ -20935,7 +20935,7 @@ enifed('ember-glimmer/utils/string', ['exports'], function (exports) {
       ```
     
       @method htmlSafe
-      @for @ember/string
+      @for @ember/template
       @static
       @return {Handlebars.SafeString} A string that will not be HTML escaped by Handlebars.
       @public
@@ -20963,7 +20963,7 @@ enifed('ember-glimmer/utils/string', ['exports'], function (exports) {
       ```
     
       @method isHTMLSafe
-      @for @ember/string
+      @for @ember/template
       @static
       @return {Boolean} `true` if the string was decorated with `htmlSafe`, `false` otherwise.
       @public
@@ -43000,7 +43000,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "3.0.0-alpha.1-null+ab5e69ec";
+  exports.default = "3.0.0-alpha.1-null+997758a4";
 });
 /*global enifed */
 enifed('node-module', ['exports'], function(_exports) {
