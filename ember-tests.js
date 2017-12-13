@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.0.0-alpha.1-null+f827a115
+ * @version   3.0.0-alpha.1-null+ab5e69ec
  */
 
 /*global process */
@@ -30531,7 +30531,7 @@ QUnit.test('should pass ESLint', function(assert) {
   assert.ok(true, 'ember-glimmer/tests/integration/helpers/readonly-test.js should pass ESLint\n\n');
 });
 
-enifed('ember-glimmer/tests/integration/helpers/render-test', ['ember-babel', 'ember-metal', 'ember-runtime', 'ember-glimmer/tests/utils/test-case'], function (_emberBabel, _emberMetal, _emberRuntime, _testCase) {
+enifed('ember-glimmer/tests/integration/helpers/render-test', ['ember-babel', 'ember-metal', 'ember-runtime', 'ember-environment', 'ember-glimmer/tests/utils/test-case'], function (_emberBabel, _emberMetal, _emberRuntime, _emberEnvironment, _testCase) {
   'use strict';
 
   (0, _testCase.moduleFor)('Helpers test: {{render}}', function (_RenderingTest) {
@@ -30539,8 +30539,18 @@ enifed('ember-glimmer/tests/integration/helpers/render-test', ['ember-babel', 'e
 
     function _class() {
       (0, _emberBabel.classCallCheck)(this, _class);
-      return (0, _emberBabel.possibleConstructorReturn)(this, _RenderingTest.apply(this, arguments));
+
+      var _this = (0, _emberBabel.possibleConstructorReturn)(this, _RenderingTest.call(this));
+
+      _this.originalRenderSupport = _emberEnvironment.ENV._ENABLE_RENDER_SUPPORT;
+      _emberEnvironment.ENV._ENABLE_RENDER_SUPPORT = true;
+      return _this;
     }
+
+    _class.prototype.teardown = function teardown() {
+      _RenderingTest.prototype.teardown.call(this);
+      _emberEnvironment.ENV._ENABLE_RENDER_SUPPORT = this.originalRenderSupport;
+    };
 
     _class.prototype['@test should render given template'] = function testShouldRenderGivenTemplate() {
       var _this2 = this;
@@ -70758,7 +70768,7 @@ QUnit.test('should pass ESLint', function(assert) {
   assert.ok(true, 'ember/tests/reexports_test.js should pass ESLint\n\n');
 });
 
-enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember-runtime', 'ember-routing', 'ember-metal', 'ember-glimmer', 'ember-views', 'ember-template-compiler', 'ember-application', 'router'], function (_emberUtils, _emberConsole, _emberRuntime, _emberRouting, _emberMetal, _emberGlimmer, _emberViews, _emberTemplateCompiler, _emberApplication, _router) {
+enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember-runtime', 'ember-routing', 'ember-metal', 'ember-glimmer', 'ember-views', 'ember-environment', 'ember-template-compiler', 'ember-application', 'router'], function (_emberUtils, _emberConsole, _emberRuntime, _emberRouting, _emberMetal, _emberGlimmer, _emberViews, _emberEnvironment, _emberTemplateCompiler, _emberApplication, _router) {
   'use strict';
 
   var trim = _emberViews.jQuery.trim;
@@ -70768,7 +70778,8 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
       router = void 0,
       registry = void 0,
       container = void 0,
-      originalLoggerError = void 0;
+      originalLoggerError = void 0,
+      originalRenderSupport = void 0;
 
   function bootApplication() {
     router = container.lookup('router:main');
@@ -70834,6 +70845,9 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
         (0, _emberGlimmer.setTemplate)('camelot', (0, _emberTemplateCompiler.compile)('<section><h3>Is a silly place</h3></section>'));
 
         originalLoggerError = _emberConsole.default.error;
+        originalRenderSupport = _emberEnvironment.ENV._ENABLE_RENDER_SUPPORT;
+
+        _emberEnvironment.ENV._ENABLE_RENDER_SUPPORT = true;
       });
     },
     teardown: function () {
@@ -70843,6 +70857,7 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
 
         (0, _emberGlimmer.setTemplates)({});
         _emberConsole.default.error = originalLoggerError;
+        _emberEnvironment.ENV._ENABLE_RENDER_SUPPORT = originalRenderSupport;
       });
     }
   });

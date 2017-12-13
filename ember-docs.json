@@ -3,7 +3,7 @@
         "name": "The Ember API",
         "description": "The Ember API: a framework for building ambitious web applications",
         "url": "https://emberjs.com/",
-        "version": "3.0.0-alpha.1.f827a115"
+        "version": "3.0.0-alpha.1.ab5e69ec"
     },
     "files": {
         "node_modules/rsvp/lib/rsvp/promise/all.js": {
@@ -511,7 +511,9 @@
         },
         "packages/ember-glimmer/lib/syntax/render.ts": {
             "name": "packages/ember-glimmer/lib/syntax/render.ts",
-            "modules": {},
+            "modules": {
+                "ember\n\nRemove after 3.4 once _ENABLE_RENDER_SUPPORT flag is no longer needed.": 1
+            },
             "classes": {},
             "fors": {
                 "Ember.Templates.helpers": 1
@@ -1889,6 +1891,19 @@
             "module": "ember",
             "namespace": "",
             "file": "packages/ember-glimmer/lib/helpers/if-unless.ts",
+            "line": 1
+        },
+        "ember\n\nRemove after 3.4 once _ENABLE_RENDER_SUPPORT flag is no longer needed.": {
+            "name": "ember\n\nRemove after 3.4 once _ENABLE_RENDER_SUPPORT flag is no longer needed.",
+            "submodules": {},
+            "elements": {},
+            "classes": {},
+            "fors": {
+                "Ember.Templates.helpers": 1
+            },
+            "namespaces": {},
+            "tag": "module",
+            "file": "packages/ember-glimmer/lib/syntax/render.ts",
             "line": 1
         },
         "@ember/string": {
@@ -7729,7 +7744,7 @@
         },
         {
             "file": "packages/ember-glimmer/lib/syntax/render.ts",
-            "line": 59,
+            "line": 61,
             "description": "Calling ``{{render}}`` from within a template will insert another\ntemplate that matches the provided name. The inserted template will\naccess its properties on its own controller (rather than the controller\nof the parent template).\n\nIf a view class with the same name exists, the view class also will be used.\nNote: A given controller may only be used *once* in your app in this manner.\nA singleton instance of the controller will be created for you.\n\nExample:\n\n```app/controllers/navigation.js\nimport Controller from '@ember/controller';\n\nexport default Controller.extend({\n  who: \"world\"\n});\n```\n\n```handlebars\n<!-- navigation.hbs -->\nHello, {{who}}.\n```\n\n```handlebars\n<!-- application.hbs -->\n<h1>My great app</h1>\n{{render \"navigation\"}}\n```\n\n```html\n<h1>My great app</h1>\n<div class='ember-view'>\n  Hello, world.\n</div>\n```\n\nOptionally you may provide a second argument: a property path\nthat will be bound to the `model` property of the controller.\nIf a `model` property path is specified, then a new instance of the\ncontroller will be created and `{{render}}` can be used multiple times\nwith the same name.\n\nFor example if you had this `author` template.\n\n```handlebars\n<div class=\"author\">\n  Written by {{firstName}} {{lastName}}.\n  Total Posts: {{postCount}}\n</div>\n```\n\nYou could render it inside the `post` template using the `render` helper.\n\n```handlebars\n<div class=\"post\">\n  <h1>{{title}}</h1>\n  <div>{{body}}</div>\n  {{render \"author\" author}}\n</div>\n```",
             "itemtype": "method",
             "name": "render",
@@ -7759,7 +7774,7 @@
             "deprecated": true,
             "deprecationMessage": "Use a component instead",
             "class": "Ember.Templates.helpers",
-            "module": "ember"
+            "module": "ember\n\nRemove after 3.4 once _ENABLE_RENDER_SUPPORT flag is no longer needed."
         },
         {
             "file": "packages/ember-glimmer/lib/utils/string.ts",

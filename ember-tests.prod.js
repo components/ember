@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.0.0-alpha.1-null+f827a115
+ * @version   3.0.0-alpha.1-null+ab5e69ec
  */
 
 /*global process */
@@ -29625,15 +29625,25 @@ enifed('ember-glimmer/tests/integration/helpers/readonly-test', ['ember-babel', 
     return _class;
   }(_testCase.RenderingTest));
 });
-enifed('ember-glimmer/tests/integration/helpers/render-test', ['ember-babel', 'ember-metal', 'ember-runtime', 'ember-glimmer/tests/utils/test-case'], function (_emberBabel, _emberMetal, _emberRuntime, _testCase) {
+enifed('ember-glimmer/tests/integration/helpers/render-test', ['ember-babel', 'ember-metal', 'ember-runtime', 'ember-environment', 'ember-glimmer/tests/utils/test-case'], function (_emberBabel, _emberMetal, _emberRuntime, _emberEnvironment, _testCase) {
   'use strict';
 
   (0, _testCase.moduleFor)('Helpers test: {{render}}', function (_RenderingTest) {
     (0, _emberBabel.inherits)(_class, _RenderingTest);
 
     function _class() {
-      return (0, _emberBabel.possibleConstructorReturn)(this, _RenderingTest.apply(this, arguments));
+
+      var _this = (0, _emberBabel.possibleConstructorReturn)(this, _RenderingTest.call(this));
+
+      _this.originalRenderSupport = _emberEnvironment.ENV._ENABLE_RENDER_SUPPORT;
+      _emberEnvironment.ENV._ENABLE_RENDER_SUPPORT = true;
+      return _this;
     }
+
+    _class.prototype.teardown = function () {
+      _RenderingTest.prototype.teardown.call(this);
+      _emberEnvironment.ENV._ENABLE_RENDER_SUPPORT = this.originalRenderSupport;
+    };
 
     _class.prototype['@test should render given template'] = function () {
       var _this2 = this;
@@ -59655,6 +59665,12 @@ enifed('ember-template-compiler/plugins/deprecate-render-model', ['exports', 'em
   'use strict';
 
   exports.default = deprecateRenderModel;
+
+
+  /*
+   * Remove after 3.4 once _ENABLE_RENDER_SUPPORT flag is no
+   * longer needed.
+   */
   function deprecateRenderModel(env) {
     var moduleName = env.meta.moduleName;
 
@@ -59696,6 +59712,12 @@ enifed('ember-template-compiler/plugins/deprecate-render', ['exports', 'ember-de
   'use strict';
 
   exports.default = deprecateRender;
+
+
+  /*
+   * Remove after 3.4 once _ENABLE_RENDER_SUPPORT flag is no
+   * longer needed.
+   */
   function deprecateRender(env) {
     var moduleName = env.meta.moduleName;
 
@@ -67012,7 +67034,7 @@ enifed('ember/tests/reexports_test', ['ember/index', 'internal-test-helpers'], f
     (0, _internalTestHelpers.confirmExport)(_index.default, assert, 'String.isHTMLSafe', 'ember-glimmer', 'isHTMLSafe');
   });
 });
-enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember-runtime', 'ember-routing', 'ember-metal', 'ember-glimmer', 'ember-views', 'ember-template-compiler', 'ember-application', 'router'], function (_emberUtils, _emberConsole, _emberRuntime, _emberRouting, _emberMetal, _emberGlimmer, _emberViews, _emberTemplateCompiler, _emberApplication, _router) {
+enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember-runtime', 'ember-routing', 'ember-metal', 'ember-glimmer', 'ember-views', 'ember-environment', 'ember-template-compiler', 'ember-application', 'router'], function (_emberUtils, _emberConsole, _emberRuntime, _emberRouting, _emberMetal, _emberGlimmer, _emberViews, _emberEnvironment, _emberTemplateCompiler, _emberApplication, _router) {
   'use strict';
 
   var trim = _emberViews.jQuery.trim;
@@ -67022,7 +67044,8 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
       router = void 0,
       registry = void 0,
       container = void 0,
-      originalLoggerError = void 0;
+      originalLoggerError = void 0,
+      originalRenderSupport = void 0;
 
   function bootApplication() {
     router = container.lookup('router:main');
@@ -67088,6 +67111,9 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
         (0, _emberGlimmer.setTemplate)('camelot', (0, _emberTemplateCompiler.compile)('<section><h3>Is a silly place</h3></section>'));
 
         originalLoggerError = _emberConsole.default.error;
+        originalRenderSupport = _emberEnvironment.ENV._ENABLE_RENDER_SUPPORT;
+
+        _emberEnvironment.ENV._ENABLE_RENDER_SUPPORT = true;
       });
     },
     teardown: function () {
@@ -67097,6 +67123,7 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
 
         (0, _emberGlimmer.setTemplates)({});
         _emberConsole.default.error = originalLoggerError;
+        _emberEnvironment.ENV._ENABLE_RENDER_SUPPORT = originalRenderSupport;
       });
     }
   });

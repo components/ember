@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.0.0-alpha.1-null+f827a115
+ * @version   3.0.0-alpha.1-null+ab5e69ec
  */
 
 /*global process */
@@ -14893,7 +14893,13 @@ enifed('ember-template-compiler/plugins/assert-reserved-named-arguments', ['expo
 enifed('ember-template-compiler/plugins/deprecate-render-model', ['exports', 'ember-debug', 'ember-template-compiler/system/calculate-location-display'], function (exports, _emberDebug, _calculateLocationDisplay) {
   'use strict';
 
-  exports.default = function (env) {
+  exports.default =
+
+  /*
+   * Remove after 3.4 once _ENABLE_RENDER_SUPPORT flag is no
+   * longer needed.
+   */
+  function (env) {
     var moduleName = env.meta.moduleName;
 
     return {
@@ -14919,7 +14925,6 @@ enifed('ember-template-compiler/plugins/deprecate-render-model', ['exports', 'em
     };
   };
 
-
   function deprecationMessage(moduleName, node, param) {
     var sourceInformation = (0, _calculateLocationDisplay.default)(moduleName, node.loc);
     var componentName = node.params[0].original;
@@ -14932,7 +14937,13 @@ enifed('ember-template-compiler/plugins/deprecate-render-model', ['exports', 'em
 enifed('ember-template-compiler/plugins/deprecate-render', ['exports', 'ember-debug', 'ember-template-compiler/system/calculate-location-display'], function (exports, _emberDebug, _calculateLocationDisplay) {
   'use strict';
 
-  exports.default = function (env) {
+  exports.default =
+
+  /*
+   * Remove after 3.4 once _ENABLE_RENDER_SUPPORT flag is no
+   * longer needed.
+   */
+  function (env) {
     var moduleName = env.meta.moduleName;
 
     return {
@@ -14962,7 +14973,6 @@ enifed('ember-template-compiler/plugins/deprecate-render', ['exports', 'ember-de
       }
     };
   };
-
 
   function each(list, callback) {
     var i, l;
@@ -16742,7 +16752,7 @@ enifed('ember/features', ['exports', 'ember-environment', 'ember-utils'], functi
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "3.0.0-alpha.1-null+f827a115";
+  exports.default = "3.0.0-alpha.1-null+ab5e69ec";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";

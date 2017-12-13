@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.0.0-alpha.1-null+f827a115
+ * @version   3.0.0-alpha.1-null+ab5e69ec
  */
 
 /*global process */
@@ -19169,7 +19169,7 @@ enifed('ember-glimmer/setup-registry', ['exports', 'ember-babel', 'container', '
         _templateObject2 = (0, _emberBabel.taggedTemplateLiteralLoose)(['template:components/-default'], ['template:components/-default']),
         _templateObject3 = (0, _emberBabel.taggedTemplateLiteralLoose)(['component:-default'], ['component:-default']);
 });
-enifed('ember-glimmer/syntax', ['exports', 'ember-debug', 'ember-glimmer/syntax/-text-area', 'ember-glimmer/syntax/dynamic-component', 'ember-glimmer/syntax/input', 'ember-glimmer/syntax/mount', 'ember-glimmer/syntax/outlet', 'ember-glimmer/syntax/render', 'ember-glimmer/syntax/utils', 'ember-glimmer/utils/bindings'], function (exports, _emberDebug, _textArea, _dynamicComponent, _input, _mount, _outlet, _render, _utils, _bindings) {
+enifed('ember-glimmer/syntax', ['exports', 'ember-debug', 'ember-environment', 'ember-glimmer/syntax/-text-area', 'ember-glimmer/syntax/dynamic-component', 'ember-glimmer/syntax/input', 'ember-glimmer/syntax/mount', 'ember-glimmer/syntax/outlet', 'ember-glimmer/syntax/render', 'ember-glimmer/syntax/utils', 'ember-glimmer/utils/bindings'], function (exports, _emberDebug, _emberEnvironment, _textArea, _dynamicComponent, _input, _mount, _outlet, _render, _utils, _bindings) {
     'use strict';
 
     exports.experimentalMacros = undefined;
@@ -19185,7 +19185,9 @@ enifed('ember-glimmer/syntax', ['exports', 'ember-debug', 'ember-glimmer/syntax/
 
         inlines.add('outlet', _outlet.outletMacro);
         inlines.add('component', _dynamicComponent.inlineComponentMacro);
-        inlines.add('render', _render.renderMacro);
+        if (_emberEnvironment.ENV._ENABLE_RENDER_SUPPORT === true) {
+            inlines.add('render', _render.renderMacro);
+        }
         inlines.add('mount', _mount.mountMacro);
         inlines.add('input', _input.inputMacro);
         inlines.add('textarea', _textArea.textAreaMacro);
@@ -19805,6 +19807,8 @@ enifed('ember-glimmer/syntax/render', ['exports', '@glimmer/reference', 'ember-d
   };
   /**
   @module ember
+  
+  Remove after 3.4 once _ENABLE_RENDER_SUPPORT flag is no longer needed.
   */
   function makeComponentDefinition(vm, args) {
     var env = vm.env,
@@ -42996,7 +43000,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "3.0.0-alpha.1-null+f827a115";
+  exports.default = "3.0.0-alpha.1-null+ab5e69ec";
 });
 /*global enifed */
 enifed('node-module', ['exports'], function(_exports) {
