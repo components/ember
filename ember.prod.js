@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.0.0-alpha.1-null+c3764944
+ * @version   3.0.0-alpha.1-null+5cbfbad8
  */
 
 /*global process */
@@ -14900,7 +14900,7 @@ enifed('ember-glimmer/component-managers/mount', ['exports', 'ember-babel', '@gl
         return MountDefinition;
     }(_runtime.ComponentDefinition);
 });
-enifed('ember-glimmer/component-managers/outlet', ['exports', 'ember-babel', '@glimmer/runtime', 'ember-metal', 'ember-utils', 'ember-glimmer/utils/references', 'ember-glimmer/component-managers/abstract'], function (exports, _emberBabel, _runtime, _emberMetal, _emberUtils, _references, _abstract) {
+enifed('ember-glimmer/component-managers/outlet', ['exports', 'ember-babel', '@glimmer/runtime', 'ember-metal', 'ember-utils', 'ember/features', 'ember-glimmer/utils/references', 'ember-glimmer/component-managers/abstract'], function (exports, _emberBabel, _runtime, _emberMetal, _emberUtils, _features, _references, _abstract) {
     'use strict';
 
     exports.OutletLayoutCompiler = exports.OutletComponentDefinition = exports.TopLevelOutletComponentDefinition = undefined;
@@ -14982,59 +14982,79 @@ enifed('ember-glimmer/component-managers/outlet', ['exports', 'ember-babel', '@g
             return new StateBucket(dynamicScope.outletState.value());
         };
 
-        TopLevelOutletComponentManager.prototype.layoutFor = function (definition, _bucket, env) {
-            return env.getCompiledBlock(TopLevelOutletLayoutCompiler, definition.template);
-        };
-
         return TopLevelOutletComponentManager;
     }(OutletComponentManager);
 
-    var TOP_LEVEL_MANAGER = new TopLevelOutletComponentManager();
+    var TOP_LEVEL_MANAGER = function () {
+        var WrappedTopLevelOutletLayoutCompiler, WrappedTopLevelOutletComponentManager;
+
+        if (_features.EMBER_GLIMMER_REMOVE_APPLICATION_TEMPLATE_WRAPPER) {
+            return new TopLevelOutletComponentManager();
+        } else {
+            WrappedTopLevelOutletLayoutCompiler = function () {
+                function WrappedTopLevelOutletLayoutCompiler(template) {
+
+                    this.template = template;
+                }
+
+                WrappedTopLevelOutletLayoutCompiler.prototype.compile = function (builder) {
+                    builder.wrapLayout(this.template);
+                    builder.tag.static('div');
+                    builder.attrs.static('id', (0, _emberUtils.guidFor)(this));
+                    builder.attrs.static('class', 'ember-view');
+                };
+
+                return WrappedTopLevelOutletLayoutCompiler;
+            }();
+
+
+            WrappedTopLevelOutletLayoutCompiler.id = 'wrapped-top-level-outlet';
+
+            WrappedTopLevelOutletComponentManager = function (_TopLevelOutletCompon) {
+                (0, _emberBabel.inherits)(WrappedTopLevelOutletComponentManager, _TopLevelOutletCompon);
+
+                function WrappedTopLevelOutletComponentManager() {
+                    return (0, _emberBabel.possibleConstructorReturn)(this, _TopLevelOutletCompon.apply(this, arguments));
+                }
+
+                WrappedTopLevelOutletComponentManager.prototype.layoutFor = function (definition, _bucket, env) {
+                    return env.getCompiledBlock(WrappedTopLevelOutletLayoutCompiler, definition.template);
+                };
+
+                return WrappedTopLevelOutletComponentManager;
+            }(TopLevelOutletComponentManager);
+
+
+            return new WrappedTopLevelOutletComponentManager();
+        }
+    }();
 
     exports.TopLevelOutletComponentDefinition = function (_ComponentDefinition) {
         (0, _emberBabel.inherits)(TopLevelOutletComponentDefinition, _ComponentDefinition);
 
         function TopLevelOutletComponentDefinition(instance) {
 
-            var _this3 = (0, _emberBabel.possibleConstructorReturn)(this, _ComponentDefinition.call(this, 'outlet', TOP_LEVEL_MANAGER, instance));
+            var _this4 = (0, _emberBabel.possibleConstructorReturn)(this, _ComponentDefinition.call(this, 'outlet', TOP_LEVEL_MANAGER, instance));
 
-            _this3.template = instance.template;
-            (0, _emberUtils.generateGuid)(_this3);
-            return _this3;
+            _this4.template = instance.template;
+            (0, _emberUtils.generateGuid)(_this4);
+            return _this4;
         }
 
         return TopLevelOutletComponentDefinition;
     }(_runtime.ComponentDefinition);
-
-    var TopLevelOutletLayoutCompiler = function () {
-        function TopLevelOutletLayoutCompiler(template) {
-
-            this.template = template;
-        }
-
-        TopLevelOutletLayoutCompiler.prototype.compile = function (builder) {
-            builder.wrapLayout(this.template);
-            builder.tag.static('div');
-            builder.attrs.static('id', (0, _emberUtils.guidFor)(this));
-            builder.attrs.static('class', 'ember-view');
-        };
-
-        return TopLevelOutletLayoutCompiler;
-    }();
-
-    TopLevelOutletLayoutCompiler.id = 'top-level-outlet';
 
     exports.OutletComponentDefinition = function (_ComponentDefinition2) {
         (0, _emberBabel.inherits)(OutletComponentDefinition, _ComponentDefinition2);
 
         function OutletComponentDefinition(outletName, template) {
 
-            var _this4 = (0, _emberBabel.possibleConstructorReturn)(this, _ComponentDefinition2.call(this, 'outlet', MANAGER, null));
+            var _this5 = (0, _emberBabel.possibleConstructorReturn)(this, _ComponentDefinition2.call(this, 'outlet', MANAGER, null));
 
-            _this4.outletName = outletName;
-            _this4.template = template;
-            (0, _emberUtils.generateGuid)(_this4);
-            return _this4;
+            _this5.outletName = outletName;
+            _this5.template = template;
+            (0, _emberUtils.generateGuid)(_this5);
+            return _this5;
         }
 
         return OutletComponentDefinition;
@@ -42583,14 +42603,15 @@ enifed('ember-views/views/states/pre_render', ['exports', 'ember-views/views/sta
 enifed('ember/features', ['exports', 'ember-environment', 'ember-utils'], function (exports, _emberEnvironment, _emberUtils) {
     'use strict';
 
-    exports.GLIMMER_CUSTOM_COMPONENT_MANAGER = exports.EMBER_MODULE_UNIFICATION = exports.EMBER_GLIMMER_TEMPLATE_ONLY_COMPONENTS = exports.EMBER_GLIMMER_NAMED_ARGUMENTS = exports.EMBER_IMPROVED_INSTRUMENTATION = exports.EMBER_LIBRARIES_ISREGISTERED = exports.FEATURES_STRIPPED_TEST = exports.FEATURES = exports.DEFAULT_FEATURES = undefined;
-    var DEFAULT_FEATURES = exports.DEFAULT_FEATURES = { "features-stripped-test": null, "ember-libraries-isregistered": null, "ember-improved-instrumentation": null, "ember-glimmer-named-arguments": null, "ember-glimmer-template-only-components": null, "ember-routing-router-service": true, "ember-engines-mount-params": true, "ember-module-unification": null, "glimmer-custom-component-manager": null, "mandatory-setter": false, "ember-glimmer-detect-backtracking-rerender": false };
+    exports.GLIMMER_CUSTOM_COMPONENT_MANAGER = exports.EMBER_MODULE_UNIFICATION = exports.EMBER_GLIMMER_TEMPLATE_ONLY_COMPONENTS = exports.EMBER_GLIMMER_REMOVE_APPLICATION_TEMPLATE_WRAPPER = exports.EMBER_GLIMMER_NAMED_ARGUMENTS = exports.EMBER_IMPROVED_INSTRUMENTATION = exports.EMBER_LIBRARIES_ISREGISTERED = exports.FEATURES_STRIPPED_TEST = exports.FEATURES = exports.DEFAULT_FEATURES = undefined;
+    var DEFAULT_FEATURES = exports.DEFAULT_FEATURES = { "features-stripped-test": null, "ember-libraries-isregistered": null, "ember-improved-instrumentation": null, "ember-glimmer-named-arguments": null, "ember-glimmer-remove-application-template-wrapper": null, "ember-glimmer-template-only-components": null, "ember-routing-router-service": true, "ember-engines-mount-params": true, "ember-module-unification": null, "glimmer-custom-component-manager": null, "mandatory-setter": false, "ember-glimmer-detect-backtracking-rerender": false };
     var FEATURES = exports.FEATURES = (0, _emberUtils.assign)(DEFAULT_FEATURES, _emberEnvironment.ENV.FEATURES);
 
     var FEATURES_STRIPPED_TEST = exports.FEATURES_STRIPPED_TEST = FEATURES["features-stripped-test"];
     var EMBER_LIBRARIES_ISREGISTERED = exports.EMBER_LIBRARIES_ISREGISTERED = FEATURES["ember-libraries-isregistered"];
     var EMBER_IMPROVED_INSTRUMENTATION = exports.EMBER_IMPROVED_INSTRUMENTATION = FEATURES["ember-improved-instrumentation"];
     var EMBER_GLIMMER_NAMED_ARGUMENTS = exports.EMBER_GLIMMER_NAMED_ARGUMENTS = FEATURES["ember-glimmer-named-arguments"];
+    var EMBER_GLIMMER_REMOVE_APPLICATION_TEMPLATE_WRAPPER = exports.EMBER_GLIMMER_REMOVE_APPLICATION_TEMPLATE_WRAPPER = FEATURES["ember-glimmer-remove-application-template-wrapper"];
     var EMBER_GLIMMER_TEMPLATE_ONLY_COMPONENTS = exports.EMBER_GLIMMER_TEMPLATE_ONLY_COMPONENTS = FEATURES["ember-glimmer-template-only-components"];
     true;
     true;
@@ -43094,7 +43115,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "3.0.0-alpha.1-null+c3764944";
+  exports.default = "3.0.0-alpha.1-null+5cbfbad8";
 });
 /*global enifed */
 enifed('node-module', ['exports'], function(_exports) {

@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.0.0-alpha.1-null+c3764944
+ * @version   3.0.0-alpha.1-null+5cbfbad8
  */
 
 /*global process */
@@ -2172,12 +2172,11 @@ enifed('ember-application/tests/system/application_test', ['ember-babel', 'ember
     _class3.prototype['@test Minimal Application initialized with just an application template'] = function (assert) {
       var _this12 = this;
 
-      this.$().html('<script type="text/x-handlebars">Hello World</script>');
+      (0, _emberViews.jQuery)('#qunit-fixture').html('<script type="text/x-handlebars">Hello World</script>');
       this.runTask(function () {
         return _this12.createApplication();
       });
-
-      assert.equal(this.$().text().trim(), 'Hello World');
+      this.assertInnerHTML('Hello World');
     };
 
     (0, _emberBabel.createClass)(_class3, [{
@@ -5720,7 +5719,7 @@ enifed('ember-application/tests/system/visit_test', ['ember-babel', 'internal-te
 
       return this.visit('/').then(function (instance) {
         assert.ok(instance instanceof _applicationInstance.default, 'promise is resolved with an ApplicationInstance');
-        assert.equal(_this4.$('.ember-view h1').text(), 'Hello world', 'the application was rendered once the promise resolves');
+        assert.equal(_this4.$('h1').text(), 'Hello world', 'the application was rendered once the promise resolves');
       });
     };
 
@@ -5976,8 +5975,8 @@ enifed('ember-application/tests/system/visit_test', ['ember-babel', 'internal-te
         }
       }));
 
-      var $foo = (0, _emberViews.jQuery)('<div />').appendTo(this.$());
-      var $bar = (0, _emberViews.jQuery)('<div />').appendTo(this.$());
+      var $foo = (0, _emberViews.jQuery)('<div />').appendTo('#qunit-fixture');
+      var $bar = (0, _emberViews.jQuery)('<div />').appendTo('#qunit-fixture');
 
       var data = encodeURIComponent(JSON.stringify({ name: 'Godfrey' }));
       var instances = [];
@@ -8942,14 +8941,14 @@ QUnit.test('should pass ESLint', function(assert) {
   assert.ok(true, 'ember-glimmer/tests/integration/application/engine-test.js should pass ESLint\n\n');
 });
 
-enifed('ember-glimmer/tests/integration/application/rendering-test', ['ember-babel', 'ember-runtime', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-routing', 'ember-glimmer'], function (_emberBabel, _emberRuntime, _testCase, _abstractTestCase, _emberRouting, _emberGlimmer) {
+enifed('ember-glimmer/tests/integration/application/rendering-test', ['ember-babel', 'ember-runtime', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-routing', 'ember-glimmer', 'ember-views'], function (_emberBabel, _emberRuntime, _testCase, _abstractTestCase, _emberRouting, _emberGlimmer, _emberViews) {
   'use strict';
 
   var _templateObject = (0, _emberBabel.taggedTemplateLiteralLoose)(['\n      <ul>\n        {{#each model as |item|}}\n          <li>{{item}}</li>\n        {{/each}}\n      </ul>\n    '], ['\n      <ul>\n        {{#each model as |item|}}\n          <li>{{item}}</li>\n        {{/each}}\n      </ul>\n    ']),
-      _templateObject2 = (0, _emberBabel.taggedTemplateLiteralLoose)(['\n          <ul>\n            <li>red</li>\n            <li>yellow</li>\n            <li>blue</li>\n          </ul>\n        '], ['\n          <ul>\n            <li>red</li>\n            <li>yellow</li>\n            <li>blue</li>\n          </ul>\n        ']),
+      _templateObject2 = (0, _emberBabel.taggedTemplateLiteralLoose)(['\n        <ul>\n          <li>red</li>\n          <li>yellow</li>\n          <li>blue</li>\n        </ul>\n      '], ['\n        <ul>\n          <li>red</li>\n          <li>yellow</li>\n          <li>blue</li>\n        </ul>\n      ']),
       _templateObject3 = (0, _emberBabel.taggedTemplateLiteralLoose)(['\n      <nav>{{outlet "nav"}}</nav>\n      <main>{{outlet}}</main>\n    '], ['\n      <nav>{{outlet "nav"}}</nav>\n      <main>{{outlet}}</main>\n    ']),
       _templateObject4 = (0, _emberBabel.taggedTemplateLiteralLoose)(['\n      <a href="https://emberjs.com/">Ember</a>\n    '], ['\n      <a href="https://emberjs.com/">Ember</a>\n    ']),
-      _templateObject5 = (0, _emberBabel.taggedTemplateLiteralLoose)(['\n          <nav>\n            <a href="https://emberjs.com/">Ember</a>\n          </nav>\n          <main>\n            <ul>\n              <li>red</li>\n              <li>yellow</li>\n              <li>blue</li>\n            </ul>\n          </main>\n        '], ['\n          <nav>\n            <a href="https://emberjs.com/">Ember</a>\n          </nav>\n          <main>\n            <ul>\n              <li>red</li>\n              <li>yellow</li>\n              <li>blue</li>\n            </ul>\n          </main>\n        ']);
+      _templateObject5 = (0, _emberBabel.taggedTemplateLiteralLoose)(['\n        <nav>\n          <a href="https://emberjs.com/">Ember</a>\n        </nav>\n        <main>\n          <ul>\n            <li>red</li>\n            <li>yellow</li>\n            <li>blue</li>\n          </ul>\n        </main>\n      '], ['\n        <nav>\n          <a href="https://emberjs.com/">Ember</a>\n        </nav>\n        <main>\n          <ul>\n            <li>red</li>\n            <li>yellow</li>\n            <li>blue</li>\n          </ul>\n        </main>\n      ']);
 
   (0, _testCase.moduleFor)('Application test: rendering', function (_ApplicationTest) {
     (0, _emberBabel.inherits)(_class, _ApplicationTest);
@@ -8959,18 +8958,28 @@ enifed('ember-glimmer/tests/integration/application/rendering-test', ['ember-bab
       return (0, _emberBabel.possibleConstructorReturn)(this, _ApplicationTest.apply(this, arguments));
     }
 
-    _class.prototype['@test it can render the application template'] = function testItCanRenderTheApplicationTemplate(assert) {
+    _class.prototype['@feature(!ember-glimmer-remove-application-template-wrapper) it can render the application template'] = function featureEmberGlimmerRemoveApplicationTemplateWrapperItCanRenderTheApplicationTemplate(assert) {
       var _this2 = this;
 
       this.addTemplate('application', 'Hello world!');
 
       return this.visit('/').then(function () {
-        _this2.assertText('Hello world!');
+        _this2.assertComponentElement(_this2.element, { content: 'Hello world!' });
+      });
+    };
+
+    _class.prototype['@feature(ember-glimmer-remove-application-template-wrapper) it can render the application template'] = function featureEmberGlimmerRemoveApplicationTemplateWrapperItCanRenderTheApplicationTemplate(assert) {
+      var _this3 = this;
+
+      this.addTemplate('application', 'Hello world!');
+
+      return this.visit('/').then(function () {
+        _this3.assertInnerHTML('Hello world!');
       });
     };
 
     _class.prototype['@test it can access the model provided by the route'] = function testItCanAccessTheModelProvidedByTheRoute(assert) {
-      var _this3 = this;
+      var _this4 = this;
 
       this.add('route:application', _emberRouting.Route.extend({
         model: function () {
@@ -8981,14 +8990,12 @@ enifed('ember-glimmer/tests/integration/application/rendering-test', ['ember-bab
       this.addTemplate('application', (0, _abstractTestCase.strip)(_templateObject));
 
       return this.visit('/').then(function () {
-        _this3.assertComponentElement(_this3.firstChild, {
-          content: (0, _abstractTestCase.strip)(_templateObject2)
-        });
+        _this4.assertInnerHTML((0, _abstractTestCase.strip)(_templateObject2));
       });
     };
 
     _class.prototype['@test it can render a nested route'] = function testItCanRenderANestedRoute(assert) {
-      var _this4 = this;
+      var _this5 = this;
 
       this.router.map(function () {
         this.route('lists', function () {
@@ -9008,45 +9015,7 @@ enifed('ember-glimmer/tests/integration/application/rendering-test', ['ember-bab
       this.addTemplate('lists.colors.favorite', (0, _abstractTestCase.strip)(_templateObject));
 
       return this.visit('/lists/colors/favorite').then(function () {
-        _this4.assertComponentElement(_this4.firstChild, {
-          content: (0, _abstractTestCase.strip)(_templateObject2)
-        });
-      });
-    };
-
-    _class.prototype['@test it can render into named outlets'] = function testItCanRenderIntoNamedOutlets(assert) {
-      var _this5 = this;
-
-      this.router.map(function () {
-        this.route('colors');
-      });
-
-      this.addTemplate('application', (0, _abstractTestCase.strip)(_templateObject3));
-
-      this.addTemplate('nav', (0, _abstractTestCase.strip)(_templateObject4));
-
-      this.add('route:application', _emberRouting.Route.extend({
-        renderTemplate: function () {
-          this.render();
-          this.render('nav', {
-            into: 'application',
-            outlet: 'nav'
-          });
-        }
-      }));
-
-      this.add('route:colors', _emberRouting.Route.extend({
-        model: function () {
-          return ['red', 'yellow', 'blue'];
-        }
-      }));
-
-      this.addTemplate('colors', (0, _abstractTestCase.strip)(_templateObject));
-
-      return this.visit('/colors').then(function () {
-        _this5.assertComponentElement(_this5.firstChild, {
-          content: (0, _abstractTestCase.strip)(_templateObject5)
-        });
+        _this5.assertInnerHTML((0, _abstractTestCase.strip)(_templateObject2));
       });
     };
 
@@ -9080,14 +9049,46 @@ enifed('ember-glimmer/tests/integration/application/rendering-test', ['ember-bab
       this.addTemplate('colors', (0, _abstractTestCase.strip)(_templateObject));
 
       return this.visit('/colors').then(function () {
-        _this6.assertComponentElement(_this6.firstChild, {
-          content: (0, _abstractTestCase.strip)(_templateObject5)
-        });
+        _this6.assertInnerHTML((0, _abstractTestCase.strip)(_templateObject5));
+      });
+    };
+
+    _class.prototype['@test it can render into named outlets'] = function testItCanRenderIntoNamedOutlets(assert) {
+      var _this7 = this;
+
+      this.router.map(function () {
+        this.route('colors');
+      });
+
+      this.addTemplate('application', (0, _abstractTestCase.strip)(_templateObject3));
+
+      this.addTemplate('nav', (0, _abstractTestCase.strip)(_templateObject4));
+
+      this.add('route:application', _emberRouting.Route.extend({
+        renderTemplate: function () {
+          this.render();
+          this.render('nav', {
+            into: 'application',
+            outlet: 'nav'
+          });
+        }
+      }));
+
+      this.add('route:colors', _emberRouting.Route.extend({
+        model: function () {
+          return ['red', 'yellow', 'blue'];
+        }
+      }));
+
+      this.addTemplate('colors', (0, _abstractTestCase.strip)(_templateObject));
+
+      return this.visit('/colors').then(function () {
+        _this7.assertInnerHTML((0, _abstractTestCase.strip)(_templateObject5));
       });
     };
 
     _class.prototype['@test it should update the outlets when switching between routes'] = function testItShouldUpdateTheOutletsWhenSwitchingBetweenRoutes(assert) {
-      var _this7 = this;
+      var _this8 = this;
 
       this.router.map(function () {
         this.route('a');
@@ -9104,20 +9105,20 @@ enifed('ember-glimmer/tests/integration/application/rendering-test', ['ember-bab
 
       return this.visit('/b/c').then(function () {
         // this.assertComponentElement(this.firstChild, { content: 'BC' });
-        _this7.assertText('BC');
-        return _this7.visit('/a');
+        _this8.assertText('BC');
+        return _this8.visit('/a');
       }).then(function () {
         // this.assertComponentElement(this.firstChild, { content: 'A' });
-        _this7.assertText('A');
-        return _this7.visit('/b/d');
+        _this8.assertText('A');
+        return _this8.visit('/b/d');
       }).then(function () {
-        _this7.assertText('BD');
+        _this8.assertText('BD');
         // this.assertComponentElement(this.firstChild, { content: 'BD' });
       });
     };
 
     _class.prototype['@test it should produce a stable DOM when the model changes'] = function testItShouldProduceAStableDOMWhenTheModelChanges(assert) {
-      var _this8 = this;
+      var _this9 = this;
 
       this.router.map(function () {
         this.route('color', { path: '/colors/:color' });
@@ -9132,17 +9133,17 @@ enifed('ember-glimmer/tests/integration/application/rendering-test', ['ember-bab
       this.addTemplate('color', 'color: {{model}}');
 
       return this.visit('/colors/red').then(function () {
-        _this8.assertComponentElement(_this8.firstChild, { content: 'color: red' });
-        _this8.takeSnapshot();
-        return _this8.visit('/colors/green');
+        _this9.assertInnerHTML('color: red');
+        _this9.takeSnapshot();
+        return _this9.visit('/colors/green');
       }).then(function () {
-        _this8.assertComponentElement(_this8.firstChild, { content: 'color: green' });
-        _this8.assertInvariants();
+        _this9.assertInnerHTML('color: green');
+        _this9.assertInvariants();
       });
     };
 
     _class.prototype['@test it should have the right controller in scope for the route template'] = function testItShouldHaveTheRightControllerInScopeForTheRouteTemplate() {
-      var _this9 = this;
+      var _this10 = this;
 
       this.router.map(function () {
         this.route('a');
@@ -9161,15 +9162,15 @@ enifed('ember-glimmer/tests/integration/application/rendering-test', ['ember-bab
       this.addTemplate('b', '{{value}}');
 
       return this.visit('/a').then(function () {
-        _this9.assertText('a');
-        return _this9.visit('/b');
+        _this10.assertText('a');
+        return _this10.visit('/b');
       }).then(function () {
-        return _this9.assertText('b');
+        return _this10.assertText('b');
       });
     };
 
     _class.prototype['@test it should update correctly when the controller changes'] = function testItShouldUpdateCorrectlyWhenTheControllerChanges(assert) {
-      var _this10 = this;
+      var _this11 = this;
 
       this.router.map(function () {
         this.route('color', { path: '/colors/:color' });
@@ -9195,17 +9196,15 @@ enifed('ember-glimmer/tests/integration/application/rendering-test', ['ember-bab
       this.addTemplate('color', 'model color: {{model.color}}, controller color: {{color}}');
 
       return this.visit('/colors/red').then(function () {
-        _this10.assertComponentElement(_this10.firstChild, { content: 'model color: red, controller color: red' });
-        _this10.takeSnapshot();
-        return _this10.visit('/colors/green');
+        _this11.assertInnerHTML('model color: red, controller color: red');
+        return _this11.visit('/colors/green');
       }).then(function () {
-        _this10.assertComponentElement(_this10.firstChild, { content: 'model color: green, controller color: green' });
-        _this10.assertInvariants();
+        _this11.assertInnerHTML('model color: green, controller color: green');
       });
     };
 
     _class.prototype['@test it should produce a stable DOM when two routes render the same template'] = function testItShouldProduceAStableDOMWhenTwoRoutesRenderTheSameTemplate(assert) {
-      var _this11 = this;
+      var _this12 = this;
 
       this.router.map(function () {
         this.route('a');
@@ -9237,27 +9236,27 @@ enifed('ember-glimmer/tests/integration/application/rendering-test', ['ember-bab
       this.addTemplate('common', '{{prefix}} {{model}}');
 
       return this.visit('/a').then(function () {
-        _this11.assertComponentElement(_this11.firstChild, { content: 'common A' });
-        _this11.takeSnapshot();
-        return _this11.visit('/b');
+        _this12.assertInnerHTML('common A');
+        _this12.takeSnapshot();
+        return _this12.visit('/b');
       }).then(function () {
-        _this11.assertComponentElement(_this11.firstChild, { content: 'common B' });
-        _this11.assertInvariants();
+        _this12.assertInnerHTML('common B');
+        _this12.assertInvariants();
       });
     };
 
     _class.prototype['@test a child outlet is always a fragment'] = function testAChildOutletIsAlwaysAFragment() {
-      var _this12 = this;
+      var _this13 = this;
 
       this.addTemplate('application', '{{outlet}}');
       this.addTemplate('index', '{{#if true}}1{{/if}}<div>2</div>');
       return this.visit('/').then(function () {
-        _this12.assertComponentElement(_this12.firstChild, { content: '1<div>2</div>' });
+        _this13.assertInnerHTML('1<div>2</div>');
       });
     };
 
     _class.prototype['@test it allows a transition during route activate'] = function testItAllowsATransitionDuringRouteActivate(assert) {
-      var _this13 = this;
+      var _this14 = this;
 
       this.router.map(function () {
         this.route('a');
@@ -9272,14 +9271,12 @@ enifed('ember-glimmer/tests/integration/application/rendering-test', ['ember-bab
       this.addTemplate('a', 'Hello from A!');
 
       return this.visit('/').then(function () {
-        _this13.assertComponentElement(_this13.firstChild, {
-          content: 'Hello from A!'
-        });
+        _this14.assertInnerHTML('Hello from A!');
       });
     };
 
     _class.prototype['@test it emits a useful backtracking re-render assertion message'] = function testItEmitsAUsefulBacktrackingReRenderAssertionMessage(assert) {
-      var _this14 = this;
+      var _this15 = this;
 
       this.router.map(function () {
         this.route('routeWithError');
@@ -9307,7 +9304,7 @@ enifed('ember-glimmer/tests/integration/application/rendering-test', ['ember-bab
 
       return this.visit('/').then(function () {
         expectAssertion(function () {
-          _this14.visit('/routeWithError');
+          _this15.visit('/routeWithError');
         }, expectedBacktrackingMessage);
       });
     };
@@ -19401,7 +19398,7 @@ enifed('ember-glimmer/tests/integration/components/link-to-test', ['ember-babel'
       this.addTemplate('index', '{{#link-to \'index\' (query-params foo=\'456\' bar=\'NAW\')}}Index{{/link-to}}');
 
       return this.visit('/').then(function () {
-        _this11.assertComponentElement(_this11.firstChild.firstElementChild, {
+        _this11.assertComponentElement(_this11.firstChild, {
           tagName: 'a',
           attrs: { href: '/?bar=NAW&foo=456' },
           content: 'Index'
@@ -19415,7 +19412,7 @@ enifed('ember-glimmer/tests/integration/components/link-to-test', ['ember-babel'
       this.addTemplate('index', '{{#link-to \'index\' (query-params foo=\'123\')}}Index{{/link-to}}');
 
       return this.visit('/').then(function () {
-        _this12.assertComponentElement(_this12.firstChild.firstElementChild, {
+        _this12.assertComponentElement(_this12.firstChild, {
           tagName: 'a',
           attrs: { href: '/', class: (0, _testHelpers.classes)('ember-view active') },
           content: 'Index'
@@ -32994,19 +32991,19 @@ enifed('ember-glimmer/tests/integration/mount-test', ['ember-babel', 'ember-util
         var engineInstance = (0, _emberUtils.getOwner)(controller);
         assert.strictEqual((0, _emberApplication.getEngineParent)(engineInstance), _this10.applicationInstance, 'engine instance has the application instance as its parent');
 
-        _this10.assertComponentElement(_this10.firstChild, { content: '<h2>Chat here, dgeb</h2>' });
+        _this10.assertInnerHTML('<h2>Chat here, dgeb</h2>');
 
         _this10.runTask(function () {
           return (0, _emberMetal.set)(controller, 'username', 'chancancode');
         });
 
-        _this10.assertComponentElement(_this10.firstChild, { content: '<h2>Chat here, chancancode</h2>' });
+        _this10.assertInnerHTML('<h2>Chat here, chancancode</h2>');
 
         _this10.runTask(function () {
           return (0, _emberMetal.set)(controller, 'username', 'dgeb');
         });
 
-        _this10.assertComponentElement(_this10.firstChild, { content: '<h2>Chat here, dgeb</h2>' });
+        _this10.assertInnerHTML('<h2>Chat here, dgeb</h2>');
       });
     };
 
@@ -33074,43 +33071,43 @@ enifed('ember-glimmer/tests/integration/mount-test', ['ember-babel', 'ember-util
       }));
 
       return this.visit('/bound-engine-name').then(function () {
-        _this12.assertComponentElement(_this12.firstChild, { content: '<!---->' });
+        _this12.assertInnerHTML('<!---->');
 
         _this12.runTask(function () {
           return (0, _emberMetal.set)(controller, 'engineName', 'foo');
         });
 
-        _this12.assertComponentElement(_this12.firstChild, { content: '<h2>Foo Engine</h2>' });
+        _this12.assertInnerHTML('<h2>Foo Engine</h2>');
 
         _this12.runTask(function () {
           return (0, _emberMetal.set)(controller, 'engineName', undefined);
         });
 
-        _this12.assertComponentElement(_this12.firstChild, { content: '<!---->' });
+        _this12.assertInnerHTML('<!---->');
 
         _this12.runTask(function () {
           return (0, _emberMetal.set)(controller, 'engineName', 'foo');
         });
 
-        _this12.assertComponentElement(_this12.firstChild, { content: '<h2>Foo Engine</h2>' });
+        _this12.assertInnerHTML('<h2>Foo Engine</h2>');
 
         _this12.runTask(function () {
           return (0, _emberMetal.set)(controller, 'engineName', 'bar');
         });
 
-        _this12.assertComponentElement(_this12.firstChild, { content: '<h2>Bar Engine</h2>' });
+        _this12.assertInnerHTML('<h2>Bar Engine</h2>');
 
         _this12.runTask(function () {
           return (0, _emberMetal.set)(controller, 'engineName', 'foo');
         });
 
-        _this12.assertComponentElement(_this12.firstChild, { content: '<h2>Foo Engine</h2>' });
+        _this12.assertInnerHTML('<h2>Foo Engine</h2>');
 
         _this12.runTask(function () {
           return (0, _emberMetal.set)(controller, 'engineName', null);
         });
 
-        _this12.assertComponentElement(_this12.firstChild, { content: '<!---->' });
+        _this12.assertInnerHTML('<!---->');
       });
     };
 
@@ -33149,7 +33146,7 @@ enifed('ember-glimmer/tests/integration/mount-test', ['ember-babel', 'ember-util
       }));
 
       return this.visit('/engine-event-dispatcher-singleton').then(function () {
-        _this13.assertComponentElement(_this13.firstChild, { content: '<h2>Foo Engine: Tagless Component</h2>' });
+        _this13.assertInnerHTML('<h2>Foo Engine: Tagless Component</h2>');
 
         var controllerOwnerEventDispatcher = (0, _emberUtils.getOwner)(controller).lookup('event_dispatcher:main');
         var taglessComponentOwnerEventDispatcher = (0, _emberUtils.getOwner)(component).lookup('event_dispatcher:main');
@@ -33189,7 +33186,7 @@ enifed('ember-glimmer/tests/integration/mount-test', ['ember-babel', 'ember-util
         this.addTemplate('engine-params-static', '{{mount "paramEngine" model=(hash foo="bar")}}');
 
         return this.visit('/engine-params-static').then(function () {
-          _this15.assertComponentElement(_this15.firstChild, { content: '<h2>Param Engine: bar</h2>' });
+          _this15.assertInnerHTML('<h2>Param Engine: bar</h2>');
         });
       };
 
@@ -33210,43 +33207,43 @@ enifed('ember-glimmer/tests/integration/mount-test', ['ember-babel', 'ember-util
         this.addTemplate('engine-params-bound', '{{mount "paramEngine" model=(hash foo=boundParamValue)}}');
 
         return this.visit('/engine-params-bound').then(function () {
-          _this16.assertComponentElement(_this16.firstChild, { content: '<h2>Param Engine: </h2>' });
+          _this16.assertInnerHTML('<h2>Param Engine: </h2>');
 
           _this16.runTask(function () {
             return (0, _emberMetal.set)(controller, 'boundParamValue', 'bar');
           });
 
-          _this16.assertComponentElement(_this16.firstChild, { content: '<h2>Param Engine: bar</h2>' });
+          _this16.assertInnerHTML('<h2>Param Engine: bar</h2>');
 
           _this16.runTask(function () {
             return (0, _emberMetal.set)(controller, 'boundParamValue', undefined);
           });
 
-          _this16.assertComponentElement(_this16.firstChild, { content: '<h2>Param Engine: </h2>' });
+          _this16.assertInnerHTML('<h2>Param Engine: </h2>');
 
           _this16.runTask(function () {
             return (0, _emberMetal.set)(controller, 'boundParamValue', 'bar');
           });
 
-          _this16.assertComponentElement(_this16.firstChild, { content: '<h2>Param Engine: bar</h2>' });
+          _this16.assertInnerHTML('<h2>Param Engine: bar</h2>');
 
           _this16.runTask(function () {
             return (0, _emberMetal.set)(controller, 'boundParamValue', 'baz');
           });
 
-          _this16.assertComponentElement(_this16.firstChild, { content: '<h2>Param Engine: baz</h2>' });
+          _this16.assertInnerHTML('<h2>Param Engine: baz</h2>');
 
           _this16.runTask(function () {
             return (0, _emberMetal.set)(controller, 'boundParamValue', 'bar');
           });
 
-          _this16.assertComponentElement(_this16.firstChild, { content: '<h2>Param Engine: bar</h2>' });
+          _this16.assertInnerHTML('<h2>Param Engine: bar</h2>');
 
           _this16.runTask(function () {
             return (0, _emberMetal.set)(controller, 'boundParamValue', null);
           });
 
-          _this16.assertComponentElement(_this16.firstChild, { content: '<h2>Param Engine: </h2>' });
+          _this16.assertInnerHTML('<h2>Param Engine: </h2>');
         });
       };
 
@@ -33274,7 +33271,7 @@ enifed('ember-glimmer/tests/integration/mount-test', ['ember-babel', 'ember-util
         this.addTemplate('engine-params-contextual-component', '{{mount "componentParamEngine" model=(hash foo=(component "foo-component"))}}');
 
         return this.visit('/engine-params-contextual-component').then(function () {
-          _this17.assertComponentElement(_this17.firstChild.firstChild, { content: 'foo-component rendered! - rendered app-bar-component from the app' });
+          _this17.assertComponentElement(_this17.firstChild, { content: 'foo-component rendered! - rendered app-bar-component from the app' });
         });
       };
 
@@ -67670,8 +67667,8 @@ enifed('ember/tests/component_registration_test', ['ember-babel', 'ember-runtime
         _this2.addTemplate('application', 'Hello world {{#expand-it}}world{{/expand-it}}');
       });
 
-      var text = this.$('div.ember-view > div.ember-view').html().trim();
-      assert.equal(text, '<p>hello world</p>', 'The component is composed correctly');
+      this.assertText('Hello world hello world');
+      this.assertComponentElement(this.element.firstElementChild, { tagName: 'div', content: '<p>hello world</p>' });
     };
 
     _class.prototype['@feature(ember-glimmer-template-only-components) The helper becomes the body of the component'] = function featureEmberGlimmerTemplateOnlyComponentsTheHelperBecomesTheBodyOfTheComponent(assert) {
@@ -67684,8 +67681,7 @@ enifed('ember/tests/component_registration_test', ['ember-babel', 'ember-runtime
         _this3.addTemplate('application', 'Hello world {{#expand-it}}world{{/expand-it}}');
       });
 
-      var text = this.$('div.ember-view').html().trim();
-      assert.equal(text, 'Hello world <p>hello world</p>', 'The component is composed correctly');
+      this.assertInnerHTML('Hello world <p>hello world</p>');
     };
 
     _class.prototype['@test If a component is registered, it is used'] = function testIfAComponentIsRegisteredItIsUsed(assert) {
@@ -72695,7 +72691,7 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
 
     bootApplication();
 
-    equal((0, _emberViews.jQuery)('#qunit-fixture > div').text(), 'App posts');
+    equal((0, _emberViews.jQuery)('#qunit-fixture').text(), 'App posts');
   });
 
   QUnit.test('The template is not re-rendered when the route\'s context changes', function () {
@@ -79932,13 +79928,23 @@ enifed('ember/tests/routing/toplevel_dom_test', ['ember-babel', 'internal-test-h
       return (0, _emberBabel.possibleConstructorReturn)(this, _ApplicationTestCase.apply(this, arguments));
     }
 
-    _class.prototype['@test Topmost template always get an element'] = function testTopmostTemplateAlwaysGetAnElement(assert) {
+    _class.prototype['@feature(!ember-glimmer-remove-application-template-wrapper) Topmost template always get an element'] = function featureEmberGlimmerRemoveApplicationTemplateWrapperTopmostTemplateAlwaysGetAnElement(assert) {
       var _this2 = this;
 
       this.addTemplate('application', 'hello world');
 
       return this.visit('/').then(function () {
-        assert.equal(_this2.$('> .ember-view').text(), 'hello world');
+        _this2.assertComponentElement(_this2.element, { content: 'hello world' });
+      });
+    };
+
+    _class.prototype['@feature(ember-glimmer-remove-application-template-wrapper) Topmost template does not get an element'] = function featureEmberGlimmerRemoveApplicationTemplateWrapperTopmostTemplateDoesNotGetAnElement(assert) {
+      var _this3 = this;
+
+      this.addTemplate('application', 'hello world');
+
+      return this.visit('/').then(function () {
+        _this3.assertInnerHTML('hello world');
       });
     };
 
@@ -80847,7 +80853,7 @@ enifed('internal-test-helpers/strip', ['exports'], function (exports) {
     }).join('');
   }
 });
-enifed('internal-test-helpers/test-cases/abstract-application', ['exports', 'ember-babel', 'ember-template-compiler', 'internal-test-helpers/test-cases/abstract', 'ember-views', 'internal-test-helpers/run'], function (exports, _emberBabel, _emberTemplateCompiler, _abstract, _emberViews, _run) {
+enifed('internal-test-helpers/test-cases/abstract-application', ['exports', 'ember-babel', 'ember-template-compiler', 'ember-views', 'ember/features', 'internal-test-helpers/test-cases/abstract', 'internal-test-helpers/run'], function (exports, _emberBabel, _emberTemplateCompiler, _emberViews, _features, _abstract, _run) {
   'use strict';
 
   var AbstractApplicationTestCase = function (_AbstractTestCase) {
@@ -80855,11 +80861,7 @@ enifed('internal-test-helpers/test-cases/abstract-application', ['exports', 'emb
 
     function AbstractApplicationTestCase() {
       (0, _emberBabel.classCallCheck)(this, AbstractApplicationTestCase);
-
-      var _this = (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase.call(this));
-
-      _this.element = (0, _emberViews.jQuery)('#qunit-fixture')[0];
-      return _this;
+      return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase.apply(this, arguments));
     }
 
     AbstractApplicationTestCase.prototype.teardown = function teardown() {
@@ -80872,6 +80874,20 @@ enifed('internal-test-helpers/test-cases/abstract-application', ['exports', 'emb
     };
 
     (0, _emberBabel.createClass)(AbstractApplicationTestCase, [{
+      key: 'element',
+      get: function () {
+        if (this._element) {
+          return this._element;
+        } else if (_features.EMBER_GLIMMER_REMOVE_APPLICATION_TEMPLATE_WRAPPER) {
+          return this._element = (0, _emberViews.jQuery)('#qunit-fixture')[0];
+        } else {
+          return this._element = (0, _emberViews.jQuery)('#qunit-fixture > div.ember-view')[0];
+        }
+      },
+      set: function (element) {
+        this._element = element;
+      }
+    }, {
       key: 'applicationOptions',
       get: function () {
         return {
