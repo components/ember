@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.0.0-alpha.1-null+37ceda1b
+ * @version   3.0.0-alpha.1-null+db46888b
  */
 
 /*global process */
@@ -20346,14 +20346,24 @@ enifed('ember-glimmer/utils/iterable', ['exports', 'ember-babel', '@glimmer/refe
     }
 
     var ArrayIterator = function () {
-        function ArrayIterator(array, keyFor) {
+        function ArrayIterator(array, length, keyFor) {
 
             this.array = array;
-            this.length = array.length;
+            this.length = length;
             this.keyFor = keyFor;
             this.position = 0;
             this.seen = Object.create(null);
         }
+
+        ArrayIterator.from = function (array, keyFor) {
+            var length = array.length;
+
+            if (length > 0) {
+                return new this(array, array.length, keyFor);
+            } else {
+                return EMPTY_ITERATOR;
+            }
+        };
 
         ArrayIterator.prototype.isEmpty = function () {
             return false;
@@ -20389,12 +20399,17 @@ enifed('ember-glimmer/utils/iterable', ['exports', 'ember-babel', '@glimmer/refe
     var EmberArrayIterator = function (_ArrayIterator) {
         (0, _emberBabel.inherits)(EmberArrayIterator, _ArrayIterator);
 
-        function EmberArrayIterator(array, keyFor) {
+        EmberArrayIterator.from = function (array, keyFor) {
+            var length = (0, _emberMetal.get)(array, 'length');
+            if (length > 0) {
+                return new this(array, length, keyFor);
+            } else {
+                return EMPTY_ITERATOR;
+            }
+        };
 
-            var _this = (0, _emberBabel.possibleConstructorReturn)(this, _ArrayIterator.call(this, array, keyFor));
-
-            _this.length = (0, _emberMetal.get)(array, 'length');
-            return _this;
+        function EmberArrayIterator(array, length, keyFor) {
+            return (0, _emberBabel.possibleConstructorReturn)(this, _ArrayIterator.call(this, array, length, keyFor));
         }
 
         EmberArrayIterator.prototype.getValue = function (position) {
@@ -20407,13 +20422,26 @@ enifed('ember-glimmer/utils/iterable', ['exports', 'ember-babel', '@glimmer/refe
     var ObjectKeysIterator = function (_ArrayIterator2) {
         (0, _emberBabel.inherits)(ObjectKeysIterator, _ArrayIterator2);
 
-        function ObjectKeysIterator(keys, values, keyFor) {
+        function ObjectKeysIterator(keys, values, length, keyFor) {
 
-            var _this2 = (0, _emberBabel.possibleConstructorReturn)(this, _ArrayIterator2.call(this, values, keyFor));
+            var _this2 = (0, _emberBabel.possibleConstructorReturn)(this, _ArrayIterator2.call(this, values, length, keyFor));
 
             _this2.keys = keys;
             return _this2;
         }
+
+        ObjectKeysIterator.from = function (obj, keyFor) {
+            var keys = Object.keys(obj);
+            var length = keys.length;
+
+            if (length > 0) {
+                return new this(keys, keys.map(function (key) {
+                    return obj[key];
+                }), length, keyFor);
+            } else {
+                return EMPTY_ITERATOR;
+            }
+        };
 
         ObjectKeysIterator.prototype.getMemo = function (position) {
             return this.keys[position];
@@ -20450,9 +20478,7 @@ enifed('ember-glimmer/utils/iterable', ['exports', 'ember-babel', '@glimmer/refe
         EachInIterable.prototype.iterate = function () {
             var ref = this.ref,
                 keyFor = this.keyFor,
-                valueTag = this.valueTag,
-                keys,
-                values;
+                valueTag = this.valueTag;
 
             var iterable = ref.value();
             valueTag.inner.update((0, _emberMetal.tagFor)(iterable));
@@ -20461,12 +20487,7 @@ enifed('ember-glimmer/utils/iterable', ['exports', 'ember-babel', '@glimmer/refe
             }
             var typeofIterable = typeof iterable;
             if (iterable !== null && (typeofIterable === 'object' || typeofIterable === 'function')) {
-                keys = Object.keys(iterable);
-                values = keys.map(function (key) {
-                    return iterable[key];
-                });
-
-                return keys.length > 0 ? new ObjectKeysIterator(keys, values, keyFor) : EMPTY_ITERATOR;
+                return ObjectKeysIterator.from(iterable, keyFor);
             } else {
                 return EMPTY_ITERATOR;
             }
@@ -20512,16 +20533,16 @@ enifed('ember-glimmer/utils/iterable', ['exports', 'ember-babel', '@glimmer/refe
                 return EMPTY_ITERATOR;
             }
             if (Array.isArray(iterable)) {
-                return iterable.length > 0 ? new ArrayIterator(iterable, keyFor) : EMPTY_ITERATOR;
+                return ArrayIterator.from(iterable, keyFor);
             } else if ((0, _emberRuntime.isEmberArray)(iterable)) {
-                return (0, _emberMetal.get)(iterable, 'length') > 0 ? new EmberArrayIterator(iterable, keyFor) : EMPTY_ITERATOR;
+                return EmberArrayIterator.from(iterable, keyFor);
             } else if (typeof iterable.forEach === 'function') {
                 array = [];
 
                 iterable.forEach(function (item) {
-                    array.push(item);
+                    return array.push(item);
                 });
-                return array.length > 0 ? new ArrayIterator(array, keyFor) : EMPTY_ITERATOR;
+                return ArrayIterator.from(array, keyFor);
             } else {
                 return EMPTY_ITERATOR;
             }
@@ -43076,7 +43097,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "3.0.0-alpha.1-null+37ceda1b";
+  exports.default = "3.0.0-alpha.1-null+db46888b";
 });
 /*global enifed */
 enifed('node-module', ['exports'], function(_exports) {

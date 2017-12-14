@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.0.0-alpha.1-null+37ceda1b
+ * @version   3.0.0-alpha.1-null+db46888b
  */
 
 /*global process */
@@ -56571,7 +56571,7 @@ QUnit.test('should pass ESLint', function(assert) {
   assert.ok(true, 'ember-runtime/tests/suites/array/indexOf.js should pass ESLint\n\n');
 });
 
-enifed('ember-runtime/tests/suites/array/lastIndexOf', ['exports', 'ember-runtime/tests/suites/suite'], function (exports, _suite) {
+enifed('ember-runtime/tests/suites/array/lastIndexOf', ['exports', 'ember-metal', 'ember-runtime/tests/suites/suite'], function (exports, _emberMetal, _suite) {
   'use strict';
 
   var suite = _suite.SuiteModuleBuilder.create();
@@ -56619,14 +56619,14 @@ enifed('ember-runtime/tests/suites/array/lastIndexOf', ['exports', 'ember-runtim
     var obj = this.newObject(this.newFixture(3));
     var foo = {};
 
-    equal(obj.lastIndexOf(foo, obj.length), -1, 'obj.lastIndexOf(foo) should be -1');
+    equal(obj.lastIndexOf(foo, (0, _emberMetal.get)(obj, 'length')), -1, 'obj.lastIndexOf(foo) should be -1');
   });
 
   suite.test('should return -1 when no match is found even startAt search location is greater than length', function () {
     var obj = this.newObject(this.newFixture(3));
     var foo = {};
 
-    equal(obj.lastIndexOf(foo, obj.length + 1), -1, 'obj.lastIndexOf(foo) should be -1');
+    equal(obj.lastIndexOf(foo, (0, _emberMetal.get)(obj, 'length') + 1), -1, 'obj.lastIndexOf(foo) should be -1');
   });
 
   exports.default = suite;
