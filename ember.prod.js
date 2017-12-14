@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.0.0-alpha.1-null+d5c758ac
+ * @version   3.0.0-alpha.1-null+37ceda1b
  */
 
 /*global process */
@@ -34357,6 +34357,7 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-debug
         this.notifyPropertyChange(key);
       }
 
+      var itemsKeyIsAtThis = itemsKey === '@this';
       var normalizedSortProperties = normalizeSortProperties(sortProperties);
       activeObservers = normalizedSortProperties.map(function (_ref) {
         var prop = _ref[0];
@@ -34368,7 +34369,6 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-debug
 
       activeObserversMap.set(this, activeObservers);
 
-      var itemsKeyIsAtThis = itemsKey === '@this';
       var items = itemsKeyIsAtThis ? this : (0, _emberMetal.get)(this, itemsKey);
       if (!(0, _utils.isArray)(items)) {
         return (0, _native_array.A)();
@@ -43076,7 +43076,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "3.0.0-alpha.1-null+d5c758ac";
+  exports.default = "3.0.0-alpha.1-null+37ceda1b";
 });
 /*global enifed */
 enifed('node-module', ['exports'], function(_exports) {
