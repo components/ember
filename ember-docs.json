@@ -3,7 +3,7 @@
         "name": "The Ember API",
         "description": "The Ember API: a framework for building ambitious web applications",
         "url": "https://emberjs.com/",
-        "version": "3.0.0-alpha.1.5cbfbad8"
+        "version": "3.0.0-alpha.1.82ec3759"
     },
     "files": {
         "node_modules/rsvp/lib/rsvp/promise/all.js": {
@@ -3352,7 +3352,7 @@
             "module": "ember",
             "namespace": "Ember",
             "file": "packages/ember-runtime/lib/mixins/copyable.js",
-            "line": 11,
+            "line": 7,
             "description": "Implements some standard methods for copying an object. Add this mixin to\nany object you create that can create a copy of itself. This mixin is\nadded automatically to the built-in array.\n\nYou should generally implement the `copy()` method to return a copy of the\nreceiver.",
             "since": "Ember 0.9",
             "access": "private",
@@ -14583,7 +14583,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/mixins/copyable.js",
-            "line": 25,
+            "line": 21,
             "description": "__Required.__ You must implement this method to apply this mixin.\n\nOverride to return a copy of the receiver. Default implementation raises\nan exception.",
             "itemtype": "method",
             "name": "copy",
