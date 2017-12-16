@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.0.0-alpha.1-null+0e192e04
+ * @version   3.0.0-alpha.1-null+ca347213
  */
 
 /*global process */
@@ -39021,37 +39021,6 @@ enifed('ember-metal/tests/computed_test', ['ember-runtime', 'internal-test-helpe
 enifed('ember-metal/tests/descriptor_test', ['ember-babel', 'ember-runtime', 'ember-metal'], function (_emberBabel, _emberRuntime, _emberMetal) {
   'use strict';
 
-  // IE9 soft-fails when trying to delete a non-configurable property
-
-  var hasCompliantDelete = function () {
-    var obj = {};
-
-    Object.defineProperty(obj, 'zomg', { configurable: false, value: 'zomg' });
-
-    try {
-      delete obj.zomg;
-    } catch (e) {
-      return true;
-    }
-
-    return false;
-  }();
-
-  // IE9 soft-fails when trying to assign to a non-writable property
-  var hasCompliantAssign = function () {
-    var obj = {};
-
-    Object.defineProperty(obj, 'zomg', { writable: false, value: 'zomg' });
-
-    try {
-      obj.zomg = 'lol';
-    } catch (e) {
-      return true;
-    }
-
-    return false;
-  }();
-
   var DescriptorTest = function () {
     DescriptorTest.test = function (title, callback) {
       var _this = this;
@@ -39283,13 +39252,9 @@ enifed('ember-metal/tests/descriptor_test', ['ember-babel', 'ember-runtime', 'em
 
       var source = factory.source();
 
-      if (hasCompliantDelete) {
-        assert.throws(function () {
-          return delete source.foo;
-        }, TypeError);
-      } else {
-        delete source.foo;
-      }
+      assert.throws(function () {
+        return delete source.foo;
+      }, TypeError);
 
       assert.throws(function () {
         return Object.defineProperty(source, 'foo', { configurable: true, value: 'baz' });
@@ -39349,17 +39314,12 @@ enifed('ember-metal/tests/descriptor_test', ['ember-babel', 'ember-runtime', 'em
 
       var source = factory.source();
 
-      if (hasCompliantAssign) {
-        assert.throws(function () {
-          return source.foo = 'baz';
-        }, TypeError);
-        assert.throws(function () {
-          return obj.foo = 'baz';
-        }, TypeError);
-      } else {
-        source.foo = 'baz';
-        obj.foo = 'baz';
-      }
+      assert.throws(function () {
+        return source.foo = 'baz';
+      }, TypeError);
+      assert.throws(function () {
+        return obj.foo = 'baz';
+      }, TypeError);
 
       assert.equal(obj.foo, 'bar');
     });
@@ -39443,13 +39403,9 @@ enifed('ember-metal/tests/descriptor_test', ['ember-babel', 'ember-runtime', 'em
 
       assert.equal(obj.fooBar, 'FOO-BAR');
 
-      if (hasCompliantAssign) {
-        assert.throws(function () {
-          return obj.fooBar = 'foobar';
-        }, TypeError);
-      } else {
-        obj.fooBar = 'foobar';
-      }
+      assert.throws(function () {
+        return obj.fooBar = 'foobar';
+      }, TypeError);
 
       assert.equal(obj.fooBar, 'FOO-BAR');
     });
