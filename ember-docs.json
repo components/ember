@@ -3,7 +3,7 @@
         "name": "The Ember API",
         "description": "The Ember API: a framework for building ambitious web applications",
         "url": "https://emberjs.com/",
-        "version": "3.0.0-alpha.1.05b1ab43"
+        "version": "3.0.0-alpha.1.5ffb793c"
     },
     "files": {
         "node_modules/rsvp/lib/rsvp/promise/all.js": {
@@ -2751,7 +2751,7 @@
             "module": "ember",
             "namespace": "Ember",
             "file": "packages/ember-metal/lib/injected_property.js",
-            "line": 11,
+            "line": 13,
             "description": "Read-only property that returns the result of a container lookup.",
             "is_constructor": 1,
             "params": [
@@ -2913,7 +2913,7 @@
             "module": "@ember/object",
             "namespace": "",
             "file": "packages/ember-metal/lib/mixin.js",
-            "line": 398,
+            "line": 395,
             "description": "The `Mixin` class allows you to create mixins, whose properties can be\nadded to other classes. For instance,\n\n```javascript\nimport Mixin from '@ember/object/mixin';\n\nconst EditableMixin = Mixin.create({\n  edit() {\n    console.log('starting to edit');\n    this.set('isEditing', true);\n  },\n  isEditing: false\n});\n```\n\n```javascript\nimport EmberObject from '@ember/object';\nimport EditableMixin from '../mixins/editable';\n\n// Mix mixins into classes by passing them as the first arguments to\n// `.extend.`\nconst Comment = EmberObject.extend(EditableMixin, {\n  post: null\n});\n\nlet comment = Comment.create({\n  post: somePost\n});\n\ncomment.edit(); // outputs 'starting to edit'\n```\n\nNote that Mixins are created with `Mixin.create`, not\n`Mixin.extend`.\n\nNote that mixins extend a constructor's prototype so arrays and object literals\ndefined as properties will be shared amongst objects that implement the mixin.\nIf you want to define a property in a mixin that is not shared, you can define\nit either as a computed property or have it be created on initialization of the object.\n\n```javascript\n// filters array will be shared amongst any object implementing mixin\nimport Mixin from '@ember/object/mixin';\nimport { A } from '@ember/array';\n\nconst FilterableMixin = Mixin.create({\n  filters: A()\n});\n```\n\n```javascript\nimport Mixin from '@ember/object/mixin';\nimport { A } from '@ember/array';\nimport { computed } from '@ember/object';\n\n// filters will be a separate array for every object implementing the mixin\nconst FilterableMixin = Mixin.create({\n  filters: computed(function() {\n    return A();\n  })\n});\n```\n\n```javascript\nimport Mixin from '@ember/object/mixin';\nimport { A } from '@ember/array';\n\n// filters will be created as a separate array during the object's initialization\nconst Filterable = Mixin.create({\n  filters: null,\n\n  init() {\n    this._super(...arguments);\n    this.set(\"filters\", A());\n  }\n});\n```",
             "access": "public",
             "tagname": ""
@@ -3546,7 +3546,7 @@
             "module": "@ember/object",
             "namespace": "",
             "file": "packages/ember-runtime/lib/system/core_object.js",
-            "line": 198,
+            "line": 203,
             "access": "public",
             "tagname": ""
         },
@@ -9505,8 +9505,65 @@
             "namespace": "Ember"
         },
         {
+            "file": "packages/ember-metal/lib/meta.js",
+            "line": 536,
+            "description": "Returns the CP descriptor assocaited with `obj` and `keyName`, if any.",
+            "itemtype": "method",
+            "name": "descriptorFor",
+            "params": [
+                {
+                    "name": "obj",
+                    "description": "the object to check",
+                    "type": "Object"
+                },
+                {
+                    "name": "keyName",
+                    "description": "the key to check",
+                    "type": "String"
+                },
+                {
+                    "name": "meta",
+                    "description": "the meta hash for the object (optional)",
+                    "type": "Object",
+                    "optional": true
+                }
+            ],
+            "return": {
+                "description": "",
+                "type": "Descriptor"
+            },
+            "access": "private",
+            "tagname": "",
+            "class": "Ember.Ember",
+            "module": "ember",
+            "namespace": "Ember"
+        },
+        {
+            "file": "packages/ember-metal/lib/meta.js",
+            "line": 551,
+            "description": "Check whether a value is a CP descriptor.",
+            "itemtype": "method",
+            "name": "descriptorFor",
+            "params": [
+                {
+                    "name": "possibleDesc",
+                    "description": "the value to check",
+                    "type": "Any"
+                }
+            ],
+            "return": {
+                "description": "",
+                "type": "Boolean"
+            },
+            "access": "private",
+            "tagname": "",
+            "class": "Ember.Ember",
+            "module": "ember",
+            "namespace": "Ember"
+        },
+        {
             "file": "packages/ember-metal/lib/mixin.js",
-            "line": 386,
+            "line": 383,
             "itemtype": "method",
             "name": "mixin",
             "params": [
@@ -9530,7 +9587,7 @@
         },
         {
             "file": "packages/ember-metal/lib/mixin.js",
-            "line": 513,
+            "line": 510,
             "itemtype": "method",
             "name": "create",
             "static": 1,
@@ -9548,7 +9605,7 @@
         },
         {
             "file": "packages/ember-metal/lib/mixin.js",
-            "line": 542,
+            "line": 539,
             "itemtype": "method",
             "name": "reopen",
             "params": [
@@ -9565,7 +9622,7 @@
         },
         {
             "file": "packages/ember-metal/lib/mixin.js",
-            "line": 579,
+            "line": 576,
             "itemtype": "method",
             "name": "apply",
             "params": [
@@ -9584,7 +9641,7 @@
         },
         {
             "file": "packages/ember-metal/lib/mixin.js",
-            "line": 593,
+            "line": 590,
             "itemtype": "method",
             "name": "detect",
             "params": [
@@ -9604,7 +9661,7 @@
         },
         {
             "file": "packages/ember-metal/lib/mixin.js",
-            "line": 675,
+            "line": 672,
             "description": "Denotes a required property for a mixin",
             "itemtype": "method",
             "name": "required",
@@ -9616,7 +9673,7 @@
         },
         {
             "file": "packages/ember-metal/lib/mixin.js",
-            "line": 698,
+            "line": 695,
             "description": "Makes a method available via an additional name.\n\n```app/utils/person.js\nimport EmberObject, {\n  aliasMethod\n} from '@ember/object';\n\nexport default EmberObject.extend({\n  name() {\n    return 'Tomhuda Katzdale';\n  },\n  moniker: aliasMethod('name')\n});\n```\n\n```javascript\nlet goodGuy = Person.create();\n\ngoodGuy.name();    // 'Tomhuda Katzdale'\ngoodGuy.moniker(); // 'Tomhuda Katzdale'\n```",
             "itemtype": "method",
             "name": "aliasMethod",
@@ -9635,7 +9692,7 @@
         },
         {
             "file": "packages/ember-metal/lib/mixin.js",
-            "line": 735,
+            "line": 732,
             "description": "Specify a method that observes property changes.\n\n```javascript\nimport EmberObject from '@ember/object';\nimport { observer } from '@ember/object';\n\nexport default EmberObject.extend({\n  valueObserver: observer('value', function() {\n    // Executes whenever the \"value\" property changes\n  })\n});\n```\n\nAlso available as `Function.prototype.observes` if prototype extensions are\nenabled.",
             "itemtype": "method",
             "name": "observer",
@@ -9663,7 +9720,7 @@
         },
         {
             "file": "packages/ember-metal/lib/mixin.js",
-            "line": 778,
+            "line": 775,
             "description": "When observers fire, they are called with the arguments `obj`, `keyName`.\n\nNote, `@each.property` observer is called per each add or replace of an element\nand it's not called with a specific enumeration item.\n\nA `_beforeObserver` fires before a property changes.",
             "itemtype": "method",
             "name": "beforeObserver",
@@ -9861,7 +9918,7 @@
         },
         {
             "file": "packages/ember-metal/lib/property_events.js",
-            "line": 33,
+            "line": 34,
             "description": "This function is called just before an object property is about to change.\nIt will notify any before observers and prepare caches among other things.\n\nNormally you will not need to call this method directly but if for some\nreason you can't directly watch a property you can invoke this method\nmanually along with `Ember.propertyDidChange()` which you should call just\nafter the property value changes.",
             "itemtype": "method",
             "name": "propertyWillChange",
@@ -9922,7 +9979,7 @@
         },
         {
             "file": "packages/ember-metal/lib/property_events.js",
-            "line": 204,
+            "line": 202,
             "itemtype": "method",
             "name": "beginPropertyChanges",
             "chainable": 1,
@@ -9934,7 +9991,7 @@
         },
         {
             "file": "packages/ember-metal/lib/property_events.js",
-            "line": 213,
+            "line": 211,
             "itemtype": "method",
             "name": "endPropertyChanges",
             "access": "private",
@@ -9945,7 +10002,7 @@
         },
         {
             "file": "packages/ember-metal/lib/property_events.js",
-            "line": 225,
+            "line": 223,
             "description": "Make a series of property changes together in an\nexception-safe way.\n\n```javascript\nEmber.changeProperties(function() {\n  obj1.set('foo', mayBlowUpWhenSet);\n  obj2.set('bar', baz);\n});\n```",
             "itemtype": "method",
             "name": "changeProperties",
@@ -9969,7 +10026,7 @@
         },
         {
             "file": "packages/ember-metal/lib/property_get.js",
-            "line": 21,
+            "line": 22,
             "description": "Gets the value of a property on an object. If the property is computed,\nthe function will be invoked. If the property is not defined but the\nobject implements the `unknownProperty` method then that will be invoked.\n\n```javascript\nEmber.get(obj, \"name\");\n```\n\nIf you plan to run on IE8 and older browsers then you should use this\nmethod anytime you want to retrieve a property on an object that you don't\nknow for sure is private. (Properties beginning with an underscore '_'\nare considered private.)\n\nOn all newer browsers, you only need to use this method to retrieve\nproperties if the property might not be defined on the object and you want\nto respect the `unknownProperty` handler. Otherwise you can ignore this\nmethod.\n\nNote that if the object itself is `undefined`, this method will throw\nan error.",
             "itemtype": "method",
             "name": "get",
@@ -9997,7 +10054,7 @@
         },
         {
             "file": "packages/ember-metal/lib/property_get.js",
-            "line": 96,
+            "line": 98,
             "description": "Retrieves the value of a property from an Object, or a default value in the\ncase that the property returns `undefined`.\n\n```javascript\nEmber.getWithDefault(person, 'lastName', 'Doe');\n```",
             "itemtype": "method",
             "name": "getWithDefault",
@@ -10030,7 +10087,7 @@
         },
         {
             "file": "packages/ember-metal/lib/property_set.js",
-            "line": 19,
+            "line": 20,
             "description": "Sets the value of a property on an object, respecting computed properties\nand notifying observers and other listeners of the change. If the\nproperty is not defined but the object implements the `setUnknownProperty`\nmethod then that will be invoked as well.\n\n```javascript\nEmber.set(obj, \"name\", value);\n```",
             "itemtype": "method",
             "name": "set",
@@ -10063,7 +10120,7 @@
         },
         {
             "file": "packages/ember-metal/lib/property_set.js",
-            "line": 114,
+            "line": 116,
             "description": "Error-tolerant form of `Ember.set`. Will not blow up if any part of the\nchain is `undefined`, `null`, or destroyed.\n\nThis is primarily used when syncing bindings, which may try to update after\nan object has been destroyed.",
             "itemtype": "method",
             "name": "trySet",
@@ -16880,7 +16937,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/system/core_object.js",
-            "line": 210,
+            "line": 215,
             "description": "An overridable method called when objects are instantiated. By default,\ndoes nothing unless it is overridden during class definition.\n\nExample:\n\n```javascript\nconst Person = Ember.Object.extend({\n  init() {\n    alert(`Name is ${this.get('name')}`);\n  }\n});\n\nlet steve = Person.create({\n  name: 'Steve'\n});\n\n// alerts 'Name is Steve'.\n```\n\nNOTE: If you do override `init` for a framework class like `Ember.View`,\nbe sure to call `this._super(...arguments)` in your\n`init` declaration! If you don't, Ember may not have an opportunity to\ndo important setup work, and you'll see strange behavior in your\napplication.",
             "itemtype": "method",
             "name": "init",
@@ -16891,7 +16948,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/system/core_object.js",
-            "line": 248,
+            "line": 253,
             "description": "Defines the properties that will be concatenated from the superclass\n(instead of overridden).\n\nBy default, when you extend an Ember class a property defined in\nthe subclass overrides a property with the same name that is defined\nin the superclass. However, there are some cases where it is preferable\nto build up a property's value by combining the superclass' property\nvalue with the subclass' value. An example of this in use within Ember\nis the `classNames` property of `Ember.View`.\n\nHere is some sample code showing the difference between a concatenated\nproperty and a normal one:\n\n```javascript\nconst Bar = Ember.Object.extend({\n  // Configure which properties to concatenate\n  concatenatedProperties: ['concatenatedProperty'],\n\n  someNonConcatenatedProperty: ['bar'],\n  concatenatedProperty: ['bar']\n});\n\nconst FooBar = Bar.extend({\n  someNonConcatenatedProperty: ['foo'],\n  concatenatedProperty: ['foo']\n});\n\nlet fooBar = FooBar.create();\nfooBar.get('someNonConcatenatedProperty'); // ['foo']\nfooBar.get('concatenatedProperty'); // ['bar', 'foo']\n```\n\nThis behavior extends to object creation as well. Continuing the\nabove example:\n\n```javascript\nlet fooBar = FooBar.create({\n  someNonConcatenatedProperty: ['baz'],\n  concatenatedProperty: ['baz']\n})\nfooBar.get('someNonConcatenatedProperty'); // ['baz']\nfooBar.get('concatenatedProperty'); // ['bar', 'foo', 'baz']\n```\n\nAdding a single property that is not an array will just add it in the array:\n\n```javascript\nlet fooBar = FooBar.create({\n  concatenatedProperty: 'baz'\n})\nview.get('concatenatedProperty'); // ['bar', 'foo', 'baz']\n```\n\nUsing the `concatenatedProperties` property, we can tell Ember to mix the\ncontent of the properties.\n\nIn `Ember.Component` the `classNames`, `classNameBindings` and\n`attributeBindings` properties are concatenated.\n\nThis feature is available for you to use throughout the Ember object model,\nalthough typical app developers are likely to use it infrequently. Since\nit changes expectations about behavior of properties, you should properly\ndocument its usage in each individual concatenated property (to not\nmislead your users to think they can override the property in a subclass).",
             "itemtype": "property",
             "name": "concatenatedProperties",
@@ -16904,7 +16961,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/system/core_object.js",
-            "line": 321,
+            "line": 326,
             "description": "Defines the properties that will be merged from the superclass\n(instead of overridden).\n\nBy default, when you extend an Ember class a property defined in\nthe subclass overrides a property with the same name that is defined\nin the superclass. However, there are some cases where it is preferable\nto build up a property's value by merging the superclass property value\nwith the subclass property's value. An example of this in use within Ember\nis the `queryParams` property of routes.\n\nHere is some sample code showing the difference between a merged\nproperty and a normal one:\n\n```javascript\nconst Bar = Ember.Object.extend({\n  // Configure which properties are to be merged\n  mergedProperties: ['mergedProperty'],\n\n  someNonMergedProperty: {\n    nonMerged: 'superclass value of nonMerged'\n  },\n  mergedProperty: {\n    page: { replace: false },\n    limit: { replace: true }\n  }\n});\n\nconst FooBar = Bar.extend({\n  someNonMergedProperty: {\n    completelyNonMerged: 'subclass value of nonMerged'\n  },\n  mergedProperty: {\n    limit: { replace: false }\n  }\n});\n\nlet fooBar = FooBar.create();\n\nfooBar.get('someNonMergedProperty');\n// => { completelyNonMerged: 'subclass value of nonMerged' }\n//\n// Note the entire object, including the nonMerged property of\n// the superclass object, has been replaced\n\nfooBar.get('mergedProperty');\n// => {\n//   page: {replace: false},\n//   limit: {replace: false}\n// }\n//\n// Note the page remains from the superclass, and the\n// `limit` property's value of `false` has been merged from\n// the subclass.\n```\n\nThis behavior is not available during object `create` calls. It is only\navailable at `extend` time.\n\nIn `Ember.Route` the `queryParams` property is merged.\n\nThis feature is available for you to use throughout the Ember object model,\nalthough typical app developers are likely to use it infrequently. Since\nit changes expectations about behavior of properties, you should properly\ndocument its usage in each individual merged property (to not\nmislead your users to think they can override the property in a subclass).",
             "itemtype": "property",
             "name": "mergedProperties",
@@ -16917,7 +16974,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/system/core_object.js",
-            "line": 395,
+            "line": 400,
             "description": "Destroyed object property flag.\n\nif this property is `true` the observers and bindings were already\nremoved by the effect of calling the `destroy()` method.",
             "itemtype": "property",
             "name": "isDestroyed",
@@ -16929,7 +16986,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/system/core_object.js",
-            "line": 420,
+            "line": 425,
             "description": "Destruction scheduled flag. The `destroy()` method has been called.\n\nThe object stays intact until the end of the run loop at which point\nthe `isDestroyed` flag is set.",
             "itemtype": "property",
             "name": "isDestroying",
@@ -16941,7 +16998,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/system/core_object.js",
-            "line": 445,
+            "line": 450,
             "description": "Destroys an object by setting the `isDestroyed` flag and removing its\nmetadata, which effectively destroys observers and bindings.\n\nIf you try to set a property on a destroyed object, an exception will be\nraised.\n\nNote that destruction is scheduled for the end of the run loop and does not\nhappen immediately.  It will set an isDestroying flag immediately.",
             "itemtype": "method",
             "name": "destroy",
@@ -16956,7 +17013,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/system/core_object.js",
-            "line": 471,
+            "line": 476,
             "description": "Override to implement teardown.",
             "itemtype": "method",
             "name": "willDestroy",
@@ -16967,7 +17024,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/system/core_object.js",
-            "line": 479,
+            "line": 484,
             "description": "Invoked by the run loop to actually destroy the object. This is\nscheduled for execution by the `destroy` method.",
             "access": "private",
             "tagname": "",
@@ -16978,7 +17035,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/system/core_object.js",
-            "line": 498,
+            "line": 503,
             "description": "Returns a string representation which attempts to provide more information\nthan Javascript's `toString` typically does, in a generic way for all Ember\nobjects.\n\n```javascript\nconst Person = Ember.Object.extend()\nperson = Person.create()\nperson.toString() //=> \"<Person:ember1024>\"\n```\n\nIf the object's class is not defined on an Ember namespace, it will\nindicate it is a subclass of the registered superclass:\n\n```javascript\nconst Student = Person.extend()\nlet student = Student.create()\nstudent.toString() //=> \"<(subclass of Person):ember1025>\"\n```\n\nIf the method `toStringExtension` is defined, its return value will be\nincluded in the output.\n\n```javascript\nconst Teacher = Person.extend({\n  toStringExtension() {\n    return this.get('fullName');\n  }\n});\nteacher = Teacher.create()\nteacher.toString(); //=> \"<Teacher:ember1026:Tom Dale>\"\n```",
             "itemtype": "method",
             "name": "toString",
@@ -16993,7 +17050,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/system/core_object.js",
-            "line": 560,
+            "line": 565,
             "description": "Creates a new subclass.\n\n```javascript\nconst Person = Ember.Object.extend({\n  say(thing) {\n    alert(thing);\n   }\n});\n```\n\nThis defines a new subclass of Ember.Object: `Person`. It contains one method: `say()`.\n\nYou can also create a subclass from any existing class by calling its `extend()` method.\nFor example, you might want to create a subclass of Ember's built-in `Ember.Component` class:\n\n```javascript\nconst PersonComponent = Ember.Component.extend({\n  tagName: 'li',\n  classNameBindings: ['isAdministrator']\n});\n```\n\nWhen defining a subclass, you can override methods but still access the\nimplementation of your parent class by calling the special `_super()` method:\n\n```javascript\nconst Person = Ember.Object.extend({\n  say(thing) {\n    let name = this.get('name');\n    alert(`${name} says: ${thing}`);\n  }\n});\n\nconst Soldier = Person.extend({\n  say(thing) {\n    this._super(`${thing}, sir!`);\n  },\n  march(numberOfHours) {\n    alert(`${this.get('name')} marches for ${numberOfHours} hours.`);\n  }\n});\n\nlet yehuda = Soldier.create({\n  name: 'Yehuda Katz'\n});\n\nyehuda.say('Yes');  // alerts \"Yehuda Katz says: Yes, sir!\"\n```\n\nThe `create()` on line #17 creates an *instance* of the `Soldier` class.\nThe `extend()` on line #8 creates a *subclass* of `Person`. Any instance\nof the `Person` class will *not* have the `march()` method.\n\nYou can also pass `Mixin` classes to add additional properties to the subclass.\n\n```javascript\nconst Person = Ember.Object.extend({\n  say(thing) {\n    alert(`${this.get('name')} says: ${thing}`);\n  }\n});\n\nconst SingingMixin = Mixin.create({\n  sing(thing){\n    alert(`${this.get('name')} sings: la la la ${thing}`);\n  }\n});\n\nconst BroadwayStar = Person.extend(SingingMixin, {\n  dance() {\n    alert(`${this.get('name')} dances: tap tap tap tap `);\n  }\n});\n```\n\nThe `BroadwayStar` class contains three methods: `say()`, `sing()`, and `dance()`.",
             "itemtype": "method",
             "name": "extend",
@@ -17021,7 +17078,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/system/core_object.js",
-            "line": 668,
+            "line": 673,
             "description": "Creates an instance of a class. Accepts either no arguments, or an object\ncontaining values to initialize the newly instantiated object with.\n\n```javascript\nconst Person = Ember.Object.extend({\n  helloWorld() {\n    alert(`Hi, my name is ${this.get('name')}`);\n  }\n});\n\nlet tom = Person.create({\n  name: 'Tom Dale'\n});\n\ntom.helloWorld(); // alerts \"Hi, my name is Tom Dale\".\n```\n\n`create` will call the `init` function if defined during\n`Ember.AnyObject.extend`\n\nIf no arguments are passed to `create`, it will not set values to the new\ninstance during initialization:\n\n```javascript\nlet noName = Person.create();\nnoName.helloWorld(); // alerts undefined\n```\n\nNOTE: For performance reasons, you cannot declare methods or computed\nproperties during `create`. You should instead declare methods and computed\nproperties when using `extend`.",
             "itemtype": "method",
             "name": "create",
@@ -17041,7 +17098,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/system/core_object.js",
-            "line": 715,
+            "line": 720,
             "description": "Augments a constructor's prototype with additional\nproperties and functions:\n\n```javascript\nconst MyObject = Ember.Object.extend({\n  name: 'an object'\n});\n\no = MyObject.create();\no.get('name'); // 'an object'\n\nMyObject.reopen({\n  say(msg) {\n    console.log(msg);\n  }\n});\n\no2 = MyObject.create();\no2.say('hello'); // logs \"hello\"\n\no.say('goodbye'); // logs \"goodbye\"\n```\n\nTo add functions and properties to the constructor itself,\nsee `reopenClass`",
             "itemtype": "method",
             "name": "reopen",
@@ -17053,7 +17110,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/system/core_object.js",
-            "line": 753,
+            "line": 758,
             "description": "Augments a constructor's own properties and functions:\n\n```javascript\nconst MyObject = Ember.Object.extend({\n  name: 'an object'\n});\n\nMyObject.reopenClass({\n  canBuild: false\n});\n\nMyObject.canBuild; // false\no = MyObject.create();\n```\n\nIn other words, this creates static properties and functions for the class.\nThese are only available on the class and not on any instance of that class.\n\n```javascript\nconst Person = Ember.Object.extend({\n  name: '',\n  sayHello() {\n    alert(`Hello. My name is ${this.get('name')}`);\n  }\n});\n\nPerson.reopenClass({\n  species: 'Homo sapiens',\n\n  createPerson(name) {\n    return Person.create({ name });\n  }\n});\n\nlet tom = Person.create({\n  name: 'Tom Dale'\n});\nlet yehuda = Person.createPerson('Yehuda Katz');\n\ntom.sayHello(); // \"Hello. My name is Tom Dale\"\nyehuda.sayHello(); // \"Hello. My name is Yehuda Katz\"\nalert(Person.species); // \"Homo sapiens\"\n```\n\nNote that `species` and `createPerson` are *not* valid on the `tom` and `yehuda`\nvariables. They are only valid on `Person`.\n\nTo add functions and properties to instances of\na constructor by extending the constructor's prototype\nsee `reopen`",
             "itemtype": "method",
             "name": "reopenClass",
@@ -17065,7 +17122,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/system/core_object.js",
-            "line": 829,
+            "line": 834,
             "description": "In some cases, you may want to annotate computed properties with additional\nmetadata about how they function or what values they operate on. For\nexample, computed property functions may close over variables that are then\nno longer available for introspection.\n\nYou can pass a hash of these values to a computed property like this:\n\n```javascript\nperson: Ember.computed(function() {\n  let personId = this.get('personId');\n  return Person.create({ id: personId });\n}).meta({ type: Person })\n```\n\nOnce you've done this, you can retrieve the values saved to the computed\nproperty from your class like this:\n\n```javascript\nMyClass.metaForProperty('person');\n```\n\nThis will return the original hash that was passed to `meta()`.",
             "static": 1,
             "itemtype": "method",
@@ -17084,7 +17141,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/system/core_object.js",
-            "line": 888,
+            "line": 893,
             "description": "Iterate over each computed property for the class, passing its name\nand any associated metadata (see `metaForProperty`) to the callback.",
             "static": 1,
             "itemtype": "method",
@@ -17108,7 +17165,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/system/core_object.js",
-            "line": 916,
+            "line": 921,
             "description": "Provides lookup-time type validation for injected properties.",
             "access": "private",
             "tagname": "",
@@ -17119,7 +17176,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/system/core_object.js",
-            "line": 923,
+            "line": 928,
             "description": "Returns a hash of property names and container names that injected\nproperties will lookup on the container lazily.",
             "itemtype": "method",
             "name": "_lazyInjections",
