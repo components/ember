@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.0.0-alpha.1-null+5ffb793c
+ * @version   3.0.0-alpha.1-null+ad6f7fea
  */
 
 /*global process */
@@ -2958,40 +2958,6 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       meta$$1.writeWatching(keyName, count - 1);
     }
   }
-
-  function descriptor(desc) {
-    return new Descriptor$1(desc);
-  }
-
-  /**
-    A wrapper for a native ES5 descriptor. In an ideal world, we wouldn't need
-    this at all, however, the way we currently flatten/merge our mixins require
-    a special value to denote a descriptor.
-  
-    @class Descriptor
-    @private
-  */
-
-  var Descriptor$1 = function (_EmberDescriptor) {
-    emberBabel.inherits(Descriptor$$1, _EmberDescriptor);
-
-    function Descriptor$$1(desc) {
-      emberBabel.classCallCheck(this, Descriptor$$1);
-
-      var _this = emberBabel.possibleConstructorReturn(this, _EmberDescriptor.call(this));
-
-      _this.desc = desc;
-      return _this;
-    }
-
-    Descriptor$$1.prototype.setup = function setup(obj, key) {
-      Object.defineProperty(obj, key, this.desc);
-    };
-
-    Descriptor$$1.prototype.teardown = function teardown(obj, key) {};
-
-    return Descriptor$$1;
-  }(Descriptor);
 
   var FIRST_KEY = /^([^\.]+)/;
 
@@ -8361,6 +8327,40 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
 
     return false;
   }
+
+  function descriptor(desc) {
+    return new Descriptor$1(desc);
+  }
+
+  /**
+    A wrapper for a native ES5 descriptor. In an ideal world, we wouldn't need
+    this at all, however, the way we currently flatten/merge our mixins require
+    a special value to denote a descriptor.
+  
+    @class Descriptor
+    @private
+  */
+
+  var Descriptor$1 = function (_EmberDescriptor) {
+    emberBabel.inherits(Descriptor$$1, _EmberDescriptor);
+
+    function Descriptor$$1(desc) {
+      emberBabel.classCallCheck(this, Descriptor$$1);
+
+      var _this = emberBabel.possibleConstructorReturn(this, _EmberDescriptor.call(this));
+
+      _this.desc = desc;
+      return _this;
+    }
+
+    Descriptor$$1.prototype.setup = function setup(obj, key) {
+      Object.defineProperty(obj, key, this.desc);
+    };
+
+    Descriptor$$1.prototype.teardown = function teardown(obj, key) {};
+
+    return Descriptor$$1;
+  }(Descriptor);
 
   exports['default'] = Ember;
   exports.computed = computed;

@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.0.0-alpha.1-null+5ffb793c
+ * @version   3.0.0-alpha.1-null+ad6f7fea
  */
 
 /*global process */
@@ -9120,35 +9120,6 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     }
   }
 
-  /**
-    A wrapper for a native ES5 descriptor. In an ideal world, we wouldn't need
-    this at all, however, the way we currently flatten/merge our mixins require
-    a special value to denote a descriptor.
-  
-    @class Descriptor
-    @private
-  */
-
-  var Descriptor$1 = function (_EmberDescriptor) {
-    emberBabel.inherits(Descriptor$$1, _EmberDescriptor);
-
-    function Descriptor$$1(desc) {
-
-      var _this = emberBabel.possibleConstructorReturn(this, _EmberDescriptor.call(this));
-
-      _this.desc = desc;
-      return _this;
-    }
-
-    Descriptor$$1.prototype.setup = function (obj, key) {
-      Object.defineProperty(obj, key, this.desc);
-    };
-
-    Descriptor$$1.prototype.teardown = function () {};
-
-    return Descriptor$$1;
-  }(Descriptor);
-
   var FIRST_KEY = /^([^\.]+)/;
 
   function firstKey(path) {
@@ -14344,6 +14315,35 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
 
   var splice = Array.prototype.splice;
 
+  /**
+    A wrapper for a native ES5 descriptor. In an ideal world, we wouldn't need
+    this at all, however, the way we currently flatten/merge our mixins require
+    a special value to denote a descriptor.
+  
+    @class Descriptor
+    @private
+  */
+
+  var Descriptor$1 = function (_EmberDescriptor) {
+    emberBabel.inherits(Descriptor$$1, _EmberDescriptor);
+
+    function Descriptor$$1(desc) {
+
+      var _this = emberBabel.possibleConstructorReturn(this, _EmberDescriptor.call(this));
+
+      _this.desc = desc;
+      return _this;
+    }
+
+    Descriptor$$1.prototype.setup = function (obj, key) {
+      Object.defineProperty(obj, key, this.desc);
+    };
+
+    Descriptor$$1.prototype.teardown = function () {};
+
+    return Descriptor$$1;
+  }(Descriptor);
+
   exports['default'] = Ember;
   exports.computed = function () {
     for (_len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
@@ -16770,7 +16770,7 @@ enifed('ember/features', ['exports', 'ember-environment', 'ember-utils'], functi
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "3.0.0-alpha.1-null+5ffb793c";
+  exports.default = "3.0.0-alpha.1-null+ad6f7fea";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";
