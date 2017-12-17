@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.0.0-alpha.1-null+ca347213
+ * @version   3.0.0-alpha.1-null+0a761b22
  */
 
 /*global process */
@@ -5589,6 +5589,8 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     call.
   
     ```javascript
+    import { run } from '@ember/runloop';
+  
     run(function() {
       // code to be executed within a RunLoop
     });
@@ -5618,7 +5620,9 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     If invoked when not within a run loop:
   
     ```javascript
-    run.join(function() {
+    import { join } from '@ember/runloop';
+  
+    join(function() {
       // creates a new run-loop
     });
     ```
@@ -5626,9 +5630,12 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     Alternatively, if called within an existing run loop:
   
     ```javascript
+    import { run, join } from '@ember/runloop';
+  
     run(function() {
       // creates a new run-loop
-      run.join(function() {
+  
+      join(function() {
         // joins with the existing run-loop, and queues for invocation on
         // the existing run-loops action queue.
       });
@@ -5657,7 +5664,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     makes this method a great way to asynchronously integrate third-party libraries
     into your Ember application.
   
-    `run.bind` takes two main arguments, the desired context and the function to
+    `bind` takes two main arguments, the desired context and the function to
     invoke in that context. Any additional arguments will be supplied as arguments
     to the function that is passed in.
   
@@ -5669,10 +5676,11 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   
     ```app/components/rich-text-editor.js
     import Component from '@ember/component';
+    import { on } from '@ember/object/evented';
     import { bind } from '@ember/runloop';
   
     export default Component.extend({
-      initializeTinyMCE: Ember.on('didInsertElement', function() {
+      initializeTinyMCE: on('didInsertElement', function() {
         tinymce.init({
           selector: '#' + this.$().prop('id'),
           setup: Ember.run.bind(this, this.setupEditor)
@@ -5736,9 +5744,11 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     a lower-level way to use a RunLoop instead of using `run()`.
   
     ```javascript
-    run.begin();
+    import { begin, end } from '@ember/runloop';
+  
+    begin();
     // code to be executed within a RunLoop
-    run.end();
+    end();
     ```
   
     @method begin
@@ -5757,9 +5767,11 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     to use a RunLoop instead of using `run()`.
   
     ```javascript
-    run.begin();
+    import { begin, end } from '@ember/runloop';
+  
+    begin();
     // code to be executed within a RunLoop
-    run.end();
+    end();
     ```
   
     @method end
@@ -5795,12 +5807,14 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     the `run.queues` property.
   
     ```javascript
-    run.schedule('sync', this, function() {
+    import { schedule } from '@ember/runloop';
+  
+    schedule('sync', this, function() {
       // this will be executed in the first RunLoop queue, when bindings are synced
       console.log('scheduled on sync queue');
     });
   
-    run.schedule('actions', this, function() {
+    schedule('actions', this, function() {
       // this will be executed in the 'actions' queue, after bindings have synced.
       console.log('scheduled on actions queue');
     });
@@ -5876,7 +5890,9 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     together, which is often more efficient than using a real setTimeout.
   
     ```javascript
-    run.later(myContext, function() {
+    import { later } from '@ember/runloop';
+  
+    later(myContext, function() {
       // code here will execute within a RunLoop in about 500ms with this == myContext
     }, 500);
     ```
@@ -5933,13 +5949,15 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     calls.
   
     ```javascript
+    import { run, scheduleOnce } from '@ember/runloop';
+  
     function sayHi() {
       console.log('hi');
     }
   
     run(function() {
-      run.scheduleOnce('afterRender', myContext, sayHi);
-      run.scheduleOnce('afterRender', myContext, sayHi);
+      scheduleOnce('afterRender', myContext, sayHi);
+      scheduleOnce('afterRender', myContext, sayHi);
       // sayHi will only be executed once, in the afterRender queue of the RunLoop
     });
     ```
@@ -5953,7 +5971,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     }
   
     function scheduleIt() {
-      run.scheduleOnce('actions', myContext, log);
+      scheduleOnce('actions', myContext, log);
     }
   
     scheduleIt();
@@ -5963,8 +5981,10 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     But this other case will schedule the function multiple times:
   
     ```javascript
+    import { scheduleOnce } from '@ember/runloop';
+  
     function scheduleIt() {
-      run.scheduleOnce('actions', myContext, function() {
+      scheduleOnce('actions', myContext, function() {
         console.log('Closure');
       });
     }
@@ -6003,7 +6023,9 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     `run.later` with a wait time of 1ms.
   
     ```javascript
-    run.next(myContext, function() {
+    import { next } from '@ember/runloop';
+  
+    next(myContext, function() {
       // code to be executed in the next run loop,
       // which will be scheduled after the current one
     });
@@ -6025,11 +6047,12 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   
     ```app/components/my-component.js
     import Component from '@ember/component';
+    import { scheduleOnce } from '@ember/runloop';
   
     export Component.extend({
       didInsertElement() {
         this._super(...arguments);
-        run.scheduleOnce('afterRender', this, 'processChildElements');
+        scheduleOnce('afterRender', this, 'processChildElements');
       },
   
       processChildElements() {
@@ -6074,53 +6097,63 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   };
 
   /**
-    Cancels a scheduled item. Must be a value returned by `run.later()`,
-    `run.once()`, `run.scheduleOnce()`, `run.next()`, `run.debounce()`, or
-    `run.throttle()`.
+    Cancels a scheduled item. Must be a value returned by `later()`,
+    `once()`, `scheduleOnce()`, `next()`, `debounce()`, or
+    `throttle()`.
   
     ```javascript
-    let runNext = run.next(myContext, function() {
+    import {
+      next,
+      cancel,
+      later,
+      scheduleOnce,
+      once,
+      throttle,
+      debounce
+    } from '@ember/runloop';
+  
+    let runNext = next(myContext, function() {
       // will not be executed
     });
   
-    run.cancel(runNext);
+    cancel(runNext);
   
-    let runLater = run.later(myContext, function() {
+    let runLater = later(myContext, function() {
       // will not be executed
     }, 500);
   
-    run.cancel(runLater);
+    cancel(runLater);
   
-    let runScheduleOnce = run.scheduleOnce('afterRender', myContext, function() {
+    let runScheduleOnce = scheduleOnce('afterRender', myContext, function() {
       // will not be executed
     });
   
-    run.cancel(runScheduleOnce);
+    cancel(runScheduleOnce);
   
-    let runOnce = run.once(myContext, function() {
+    let runOnce = once(myContext, function() {
       // will not be executed
     });
   
-    run.cancel(runOnce);
+    cancel(runOnce);
   
-    let throttle = run.throttle(myContext, function() {
+    let throttle = throttle(myContext, function() {
       // will not be executed
     }, 1, false);
   
-    run.cancel(throttle);
+    cancel(throttle);
   
-    let debounce = run.debounce(myContext, function() {
+    let debounce = debounce(myContext, function() {
       // will not be executed
     }, 1);
   
-    run.cancel(debounce);
+    cancel(debounce);
   
-    let debounceImmediate = run.debounce(myContext, function() {
+    let debounceImmediate = debounce(myContext, function() {
       // will be executed since we passed in true (immediate)
     }, 100, true);
   
     // the 100ms delay until this method can be called again will be canceled
-    run.cancel(debounceImmediate);
+    cancel(debounceImmediate);
     ```
   
     @method cancel
@@ -6146,16 +6179,18 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     happen once scrolling has ceased.
   
     ```javascript
+    import { debounce } from '@ember/runloop';
+  
     function whoRan() {
       console.log(this.name + ' ran.');
     }
   
     let myContext = { name: 'debounce' };
   
-    run.debounce(myContext, whoRan, 150);
+    debounce(myContext, whoRan, 150);
   
     // less than 150ms passes
-    run.debounce(myContext, whoRan, 150);
+    debounce(myContext, whoRan, 150);
   
     // 150ms passes
     // whoRan is invoked with context myContext
@@ -6169,26 +6204,27 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     the method can be called again.
   
     ```javascript
+    import { debounce } from '@ember/runloop';
+  
     function whoRan() {
       console.log(this.name + ' ran.');
     }
   
     let myContext = { name: 'debounce' };
   
-    run.debounce(myContext, whoRan, 150, true);
+    debounce(myContext, whoRan, 150, true);
   
     // console logs 'debounce ran.' one time immediately.
     // 100ms passes
-    run.debounce(myContext, whoRan, 150, true);
+    debounce(myContext, whoRan, 150, true);
   
     // 150ms passes and nothing else is logged to the console and
     // the debouncee is no longer being watched
-    run.debounce(myContext, whoRan, 150, true);
+    debounce(myContext, whoRan, 150, true);
   
     // console logs 'debounce ran.' one time immediately.
     // 150ms passes and nothing else is logged to the console and
     // the debouncee is no longer being watched
-  
     ```
   
     @method debounce
@@ -6214,24 +6250,26 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     the specified spacing period. The target method is called immediately.
   
     ```javascript
+    import { throttle } from '@ember/runloop';
+  
     function whoRan() {
       console.log(this.name + ' ran.');
     }
   
     let myContext = { name: 'throttle' };
   
-    run.throttle(myContext, whoRan, 150);
+    throttle(myContext, whoRan, 150);
     // whoRan is invoked with context myContext
     // console logs 'throttle ran.'
   
     // 50ms passes
-    run.throttle(myContext, whoRan, 150);
+    throttle(myContext, whoRan, 150);
   
     // 50ms passes
-    run.throttle(myContext, whoRan, 150);
+    throttle(myContext, whoRan, 150);
   
     // 150ms passes
-    run.throttle(myContext, whoRan, 150);
+    throttle(myContext, whoRan, 150);
     // whoRan is invoked with context myContext
     // console logs 'throttle ran.'
     ```
