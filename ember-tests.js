@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.0.0-alpha.1-null+a713856e
+ * @version   3.0.0-alpha.1-null+80cfe621
  */
 
 /*globals process */
@@ -66624,45 +66624,53 @@ QUnit.test('should pass ESLint', function(assert) {
   assert.ok(true, 'ember-utils/lib/to-string.js should pass ESLint\n\n');
 });
 
-enifed('ember-utils/tests/assign_test', ['ember-utils'], function (_emberUtils) {
+enifed('ember-utils/tests/assign_test', ['ember-babel', 'ember-utils', 'internal-test-helpers'], function (_emberBabel, _emberUtils, _internalTestHelpers) {
   'use strict';
 
-  QUnit.module('Ember.assign');
+  (0, _internalTestHelpers.moduleFor)('Ember.assign', function (_TestCase) {
+    (0, _emberBabel.inherits)(_class, _TestCase);
 
-  QUnit.test('merging objects', function () {
-    var trgt = { a: 1 };
-    var src1 = { b: 2 };
-    var src2 = { c: 3 };
+    function _class() {
+      (0, _emberBabel.classCallCheck)(this, _class);
+      return (0, _emberBabel.possibleConstructorReturn)(this, _TestCase.apply(this, arguments));
+    }
 
-    (0, _emberUtils.assignPolyfill)(trgt, src1, src2);
+    _class.prototype['@test merging objects'] = function testMergingObjects(assert) {
+      var trgt = { a: 1 };
+      var src1 = { b: 2 };
+      var src2 = { c: 3 };
+      (0, _emberUtils.assignPolyfill)(trgt, src1, src2);
 
-    deepEqual(trgt, { a: 1, b: 2, c: 3 }, 'assign copies values from one or more source objects to a target object');
-    deepEqual(src1, { b: 2 }, 'assign does not change source object 1');
-    deepEqual(src2, { c: 3 }, 'assign does not change source object 2');
-  });
+      assert.deepEqual(trgt, { a: 1, b: 2, c: 3 }, 'assign copies values from one or more source objects to a target object');
+      assert.deepEqual(src1, { b: 2 }, 'assign does not change source object 1');
+      assert.deepEqual(src2, { c: 3 }, 'assign does not change source object 2');
+    };
 
-  QUnit.test('merging objects with same property', function () {
-    var trgt = { a: 1, b: 1 };
-    var src1 = { a: 2, b: 2 };
-    var src2 = { a: 3 };
+    _class.prototype['@test merging objects with same property'] = function testMergingObjectsWithSameProperty(assert) {
+      var trgt = { a: 1, b: 1 };
+      var src1 = { a: 2, b: 2 };
+      var src2 = { a: 3 };
+      (0, _emberUtils.assignPolyfill)(trgt, src1, src2);
 
-    (0, _emberUtils.assignPolyfill)(trgt, src1, src2);
-    deepEqual(trgt, { a: 3, b: 2 }, 'properties are overwritten by other objects that have the same properties later in the parameters order');
-  });
+      assert.deepEqual(trgt, { a: 3, b: 2 }, 'properties are overwritten by other objects that have the same properties later in the parameters order');
+    };
 
-  QUnit.test('null', function () {
-    var trgt = { a: 1 };
+    _class.prototype['@test null'] = function testNull(assert) {
+      var trgt = { a: 1 };
+      (0, _emberUtils.assignPolyfill)(trgt, null);
 
-    (0, _emberUtils.assignPolyfill)(trgt, null);
-    deepEqual(trgt, { a: 1 }, 'null as a source parameter is ignored');
-  });
+      assert.deepEqual(trgt, { a: 1 }, 'null as a source parameter is ignored');
+    };
 
-  QUnit.test('undefined', function () {
-    var trgt = { a: 1 };
+    _class.prototype['@test undefined'] = function testUndefined(assert) {
+      var trgt = { a: 1 };
+      (0, _emberUtils.assignPolyfill)(trgt, null);
 
-    (0, _emberUtils.assignPolyfill)(trgt, null);
-    deepEqual(trgt, { a: 1 }, 'undefined as a source parameter is ignored');
-  });
+      assert.deepEqual(trgt, { a: 1 }, 'undefined as a source parameter is ignored');
+    };
+
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
 });
 QUnit.module('ESLint | ember-utils/tests/assign_test.js');
 QUnit.test('should pass ESLint', function(assert) {
@@ -66670,44 +66678,54 @@ QUnit.test('should pass ESLint', function(assert) {
   assert.ok(true, 'ember-utils/tests/assign_test.js should pass ESLint\n\n');
 });
 
-enifed('ember-utils/tests/can_invoke_test', ['ember-utils'], function (_emberUtils) {
+enifed('ember-utils/tests/can_invoke_test', ['ember-babel', 'ember-utils', 'internal-test-helpers'], function (_emberBabel, _emberUtils, _internalTestHelpers) {
   'use strict';
 
   var obj = void 0;
 
-  QUnit.module('Ember.canInvoke', {
-    setup: function () {
+  (0, _internalTestHelpers.moduleFor)('Ember.canInvoke', function (_TestCase) {
+    (0, _emberBabel.inherits)(_class, _TestCase);
+
+    function _class() {
+      (0, _emberBabel.classCallCheck)(this, _class);
+
+      var _this = (0, _emberBabel.possibleConstructorReturn)(this, _TestCase.call(this));
+
       obj = {
         foobar: 'foobar',
         aMethodThatExists: function () {}
       };
-    },
-    teardown: function () {
-      obj = undefined;
+      return _this;
     }
-  });
 
-  QUnit.test('should return false if the object doesn\'t exist', function () {
-    equal((0, _emberUtils.canInvoke)(undefined, 'aMethodThatDoesNotExist'), false);
-  });
+    _class.prototype.teardown = function teardown() {
+      obj = undefined;
+    };
 
-  QUnit.test('should return true for falsy values that have methods', function () {
-    equal((0, _emberUtils.canInvoke)(false, 'valueOf'), true);
-    equal((0, _emberUtils.canInvoke)('', 'charAt'), true);
-    equal((0, _emberUtils.canInvoke)(0, 'toFixed'), true);
-  });
+    _class.prototype['@test should return false if the object doesn\'t exist'] = function testShouldReturnFalseIfTheObjectDoesnTExist(assert) {
+      assert.equal((0, _emberUtils.canInvoke)(undefined, 'aMethodThatDoesNotExist'), false);
+    };
 
-  QUnit.test('should return true if the method exists on the object', function () {
-    equal((0, _emberUtils.canInvoke)(obj, 'aMethodThatExists'), true);
-  });
+    _class.prototype['@test should return true for falsy values that have methods'] = function testShouldReturnTrueForFalsyValuesThatHaveMethods(assert) {
+      assert.equal((0, _emberUtils.canInvoke)(false, 'valueOf'), true);
+      assert.equal((0, _emberUtils.canInvoke)('', 'charAt'), true);
+      assert.equal((0, _emberUtils.canInvoke)(0, 'toFixed'), true);
+    };
 
-  QUnit.test('should return false if the method doesn\'t exist on the object', function () {
-    equal((0, _emberUtils.canInvoke)(obj, 'aMethodThatDoesNotExist'), false);
-  });
+    _class.prototype['@test should return true if the method exists on the object'] = function testShouldReturnTrueIfTheMethodExistsOnTheObject(assert) {
+      assert.equal((0, _emberUtils.canInvoke)(obj, 'aMethodThatExists'), true);
+    };
 
-  QUnit.test('should return false if the property exists on the object but is a non-function', function () {
-    equal((0, _emberUtils.canInvoke)(obj, 'foobar'), false);
-  });
+    _class.prototype['@test should return false if the method doesn\'t exist on the object'] = function testShouldReturnFalseIfTheMethodDoesnTExistOnTheObject(assert) {
+      assert.equal((0, _emberUtils.canInvoke)(obj, 'aMethodThatDoesNotExist'), false);
+    };
+
+    _class.prototype['@test should return false if the property exists on the object but is a non-function'] = function testShouldReturnFalseIfThePropertyExistsOnTheObjectButIsANonFunction(assert) {
+      assert.equal((0, _emberUtils.canInvoke)(obj, 'foobar'), false);
+    };
+
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
 });
 QUnit.module('ESLint | ember-utils/tests/can_invoke_test.js');
 QUnit.test('should pass ESLint', function(assert) {
@@ -66715,18 +66733,27 @@ QUnit.test('should pass ESLint', function(assert) {
   assert.ok(true, 'ember-utils/tests/can_invoke_test.js should pass ESLint\n\n');
 });
 
-enifed('ember-utils/tests/checkHasSuper_test', ['ember-environment', 'ember-utils'], function (_emberEnvironment, _emberUtils) {
+enifed('ember-utils/tests/checkHasSuper_test', ['ember-babel', 'ember-environment', 'ember-utils', 'internal-test-helpers'], function (_emberBabel, _emberEnvironment, _emberUtils, _internalTestHelpers) {
   'use strict';
-
-  QUnit.module('checkHasSuper');
 
   // Only run this test on browsers that we are certain should have function
   // source available.  This allows the test suite to continue to pass on other
   // platforms that correctly (for them) fall back to the "always wrap" code.
   if (_emberEnvironment.environment.isChrome || _emberEnvironment.environment.isFirefox) {
-    QUnit.test('does not super wrap needlessly [GH #12462]', function (assert) {
-      assert.notOk((0, _emberUtils.checkHasSuper)(function () {}), 'empty function does not have super');
-    });
+    (0, _internalTestHelpers.moduleFor)('checkHasSuper', function (_TestCase) {
+      (0, _emberBabel.inherits)(_class, _TestCase);
+
+      function _class() {
+        (0, _emberBabel.classCallCheck)(this, _class);
+        return (0, _emberBabel.possibleConstructorReturn)(this, _TestCase.apply(this, arguments));
+      }
+
+      _class.prototype['@test does not super wrap needlessly [GH #12462]'] = function testDoesNotSuperWrapNeedlesslyGH12462(assert) {
+        assert.notOk((0, _emberUtils.checkHasSuper)(function () {}), 'empty function does not have super');
+      };
+
+      return _class;
+    }(_internalTestHelpers.AbstractTestCase));
   }
 });
 QUnit.module('ESLint | ember-utils/tests/checkHasSuper_test.js');
@@ -66735,16 +66762,25 @@ QUnit.test('should pass ESLint', function(assert) {
   assert.ok(true, 'ember-utils/tests/checkHasSuper_test.js should pass ESLint\n\n');
 });
 
-enifed('ember-utils/tests/generate_guid_test', ['ember-utils'], function (_emberUtils) {
+enifed('ember-utils/tests/generate_guid_test', ['ember-babel', 'ember-utils', 'internal-test-helpers'], function (_emberBabel, _emberUtils, _internalTestHelpers) {
   'use strict';
 
-  QUnit.module('Ember.generateGuid');
+  (0, _internalTestHelpers.moduleFor)('Ember.generateGuid', function (_TestCase) {
+    (0, _emberBabel.inherits)(_class, _TestCase);
 
-  QUnit.test('Prefix', function () {
-    var a = {};
+    function _class() {
+      (0, _emberBabel.classCallCheck)(this, _class);
+      return (0, _emberBabel.possibleConstructorReturn)(this, _TestCase.apply(this, arguments));
+    }
 
-    ok((0, _emberUtils.generateGuid)(a, 'tyrell').indexOf('tyrell') > -1, 'guid can be prefixed');
-  });
+    _class.prototype['@test Prefix'] = function testPrefix(assert) {
+      var a = {};
+
+      assert.ok((0, _emberUtils.generateGuid)(a, 'tyrell').indexOf('tyrell') > -1, 'guid can be prefixed');
+    };
+
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
 });
 QUnit.module('ESLint | ember-utils/tests/generate_guid_test.js');
 QUnit.test('should pass ESLint', function(assert) {
@@ -66752,90 +66788,99 @@ QUnit.test('should pass ESLint', function(assert) {
   assert.ok(true, 'ember-utils/tests/generate_guid_test.js should pass ESLint\n\n');
 });
 
-enifed('ember-utils/tests/guid_for_test', ['ember-utils'], function (_emberUtils) {
+enifed('ember-utils/tests/guid_for_test', ['ember-babel', 'ember-utils', 'internal-test-helpers'], function (_emberBabel, _emberUtils, _internalTestHelpers) {
   'use strict';
 
-  QUnit.module('guidFor');
-
-  function sameGuid(a, b, message) {
-    equal((0, _emberUtils.guidFor)(a), (0, _emberUtils.guidFor)(b), message);
+  function sameGuid(assert, a, b, message) {
+    assert.equal((0, _emberUtils.guidFor)(a), (0, _emberUtils.guidFor)(b), message);
   }
 
-  function diffGuid(a, b, message) {
-    ok((0, _emberUtils.guidFor)(a) !== (0, _emberUtils.guidFor)(b), message);
+  function diffGuid(assert, a, b, message) {
+    assert.ok((0, _emberUtils.guidFor)(a) !== (0, _emberUtils.guidFor)(b), message);
   }
 
-  function nanGuid(obj) {
+  function nanGuid(assert, obj) {
     var type = typeof obj;
-    ok(isNaN(parseInt((0, _emberUtils.guidFor)(obj), 0)), 'guids for ' + type + 'don\'t parse to numbers');
+    assert.ok(isNaN(parseInt((0, _emberUtils.guidFor)(obj), 0)), 'guids for ' + type + 'don\'t parse to numbers');
   }
 
-  QUnit.test('Object', function () {
-    var a = {};
-    var b = {};
+  (0, _internalTestHelpers.moduleFor)('guidFor', function (_TestCase) {
+    (0, _emberBabel.inherits)(_class, _TestCase);
 
-    sameGuid(a, a, 'same object always yields same guid');
-    diffGuid(a, b, 'different objects yield different guids');
-    nanGuid(a);
-  });
+    function _class() {
+      (0, _emberBabel.classCallCheck)(this, _class);
+      return (0, _emberBabel.possibleConstructorReturn)(this, _TestCase.apply(this, arguments));
+    }
 
-  QUnit.test('strings', function () {
-    var a = 'string A';
-    var aprime = 'string A';
-    var b = 'String B';
+    _class.prototype['@test Object'] = function testObject(assert) {
+      var a = {};
+      var b = {};
 
-    sameGuid(a, a, 'same string always yields same guid');
-    sameGuid(a, aprime, 'identical strings always yield the same guid');
-    diffGuid(a, b, 'different strings yield different guids');
-    nanGuid(a);
-  });
+      sameGuid(assert, a, a, 'same object always yields same guid');
+      diffGuid(assert, a, b, 'different objects yield different guids');
+      nanGuid(assert, a);
+    };
 
-  QUnit.test('numbers', function () {
-    var a = 23;
-    var aprime = 23;
-    var b = 34;
+    _class.prototype['@test strings'] = function testStrings(assert) {
+      var a = 'string A';
+      var aprime = 'string A';
+      var b = 'String B';
 
-    sameGuid(a, a, 'same numbers always yields same guid');
-    sameGuid(a, aprime, 'identical numbers always yield the same guid');
-    diffGuid(a, b, 'different numbers yield different guids');
-    nanGuid(a);
-  });
+      sameGuid(assert, a, a, 'same string always yields same guid');
+      sameGuid(assert, a, aprime, 'identical strings always yield the same guid');
+      diffGuid(assert, a, b, 'different strings yield different guids');
+      nanGuid(assert, a);
+    };
 
-  QUnit.test('numbers', function () {
-    var a = true;
-    var aprime = true;
-    var b = false;
+    _class.prototype['@test numbers'] = function testNumbers(assert) {
+      var a = 23;
+      var aprime = 23;
+      var b = 34;
 
-    sameGuid(a, a, 'same booleans always yields same guid');
-    sameGuid(a, aprime, 'identical booleans always yield the same guid');
-    diffGuid(a, b, 'different boolean yield different guids');
-    nanGuid(a);
-    nanGuid(b);
-  });
+      sameGuid(assert, a, a, 'same numbers always yields same guid');
+      sameGuid(assert, a, aprime, 'identical numbers always yield the same guid');
+      diffGuid(assert, a, b, 'different numbers yield different guids');
+      nanGuid(assert, a);
+    };
 
-  QUnit.test('null and undefined', function () {
-    var a = null;
-    var aprime = null;
-    var b = void 0;
+    _class.prototype['@test numbers'] = function testNumbers(assert) {
+      var a = true;
+      var aprime = true;
+      var b = false;
 
-    sameGuid(a, a, 'null always returns the same guid');
-    sameGuid(b, b, 'undefined always returns the same guid');
-    sameGuid(a, aprime, 'different nulls return the same guid');
-    diffGuid(a, b, 'null and undefined return different guids');
-    nanGuid(a);
-    nanGuid(b);
-  });
+      sameGuid(assert, a, a, 'same booleans always yields same guid');
+      sameGuid(assert, a, aprime, 'identical booleans always yield the same guid');
+      diffGuid(assert, a, b, 'different boolean yield different guids');
+      nanGuid(assert, a);
+      nanGuid(assert, b);
+    };
 
-  QUnit.test('arrays', function () {
-    var a = ['a', 'b', 'c'];
-    var aprime = ['a', 'b', 'c'];
-    var b = ['1', '2', '3'];
+    _class.prototype['@test null and undefined'] = function testNullAndUndefined(assert) {
+      var a = null;
+      var aprime = null;
+      var b = void 0;
 
-    sameGuid(a, a, 'same instance always yields same guid');
-    diffGuid(a, aprime, 'identical arrays always yield the same guid');
-    diffGuid(a, b, 'different arrays yield different guids');
-    nanGuid(a);
-  });
+      sameGuid(assert, a, a, 'null always returns the same guid');
+      sameGuid(assert, b, b, 'undefined always returns the same guid');
+      sameGuid(assert, a, aprime, 'different nulls return the same guid');
+      diffGuid(assert, a, b, 'null and undefined return different guids');
+      nanGuid(assert, a);
+      nanGuid(assert, b);
+    };
+
+    _class.prototype['@test arrays'] = function testArrays(assert) {
+      var a = ['a', 'b', 'c'];
+      var aprime = ['a', 'b', 'c'];
+      var b = ['1', '2', '3'];
+
+      sameGuid(assert, a, a, 'same instance always yields same guid');
+      diffGuid(assert, a, aprime, 'identical arrays always yield the same guid');
+      diffGuid(assert, a, b, 'different arrays yield different guids');
+      nanGuid(assert, a);
+    };
+
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
 });
 QUnit.module('ESLint | ember-utils/tests/guid_for_test.js');
 QUnit.test('should pass ESLint', function(assert) {
@@ -66843,77 +66888,86 @@ QUnit.test('should pass ESLint', function(assert) {
   assert.ok(true, 'ember-utils/tests/guid_for_test.js should pass ESLint\n\n');
 });
 
-enifed('ember-utils/tests/inspect_test', ['ember-utils'], function (_emberUtils) {
+enifed('ember-utils/tests/inspect_test', ['ember-babel', 'ember-utils', 'internal-test-helpers'], function (_emberBabel, _emberUtils, _internalTestHelpers) {
   'use strict';
 
   // Symbol is not defined on pre-ES2015 runtimes, so this let's us safely test
   // for it's existence (where a simple `if (Symbol)` would ReferenceError)
   var HAS_NATIVE_SYMBOL = typeof Symbol === 'function';
 
-  QUnit.module('Ember.inspect');
+  (0, _internalTestHelpers.moduleFor)('Ember.inspect', function (_TestCase) {
+    (0, _emberBabel.inherits)(_class, _TestCase);
 
-  QUnit.test('strings', function () {
-    equal((0, _emberUtils.inspect)('foo'), 'foo');
-  });
-
-  QUnit.test('numbers', function () {
-    equal((0, _emberUtils.inspect)(2.6), '2.6');
-  });
-
-  QUnit.test('null', function () {
-    equal((0, _emberUtils.inspect)(null), 'null');
-  });
-
-  QUnit.test('undefined', function () {
-    equal((0, _emberUtils.inspect)(undefined), 'undefined');
-  });
-
-  QUnit.test('true', function () {
-    equal((0, _emberUtils.inspect)(true), 'true');
-  });
-
-  QUnit.test('false', function () {
-    equal((0, _emberUtils.inspect)(false), 'false');
-  });
-
-  QUnit.test('object', function () {
-    equal((0, _emberUtils.inspect)({}), '{}');
-    equal((0, _emberUtils.inspect)({ foo: 'bar' }), '{foo: bar}');
-    equal((0, _emberUtils.inspect)({
-      foo: function () {
-        return this;
-      }
-    }), '{foo: function() { ... }}');
-  });
-
-  QUnit.test('objects without a prototype', function () {
-    var prototypelessObj = Object.create(null);
-    equal((0, _emberUtils.inspect)({ foo: prototypelessObj }), '{foo: [object Object]}');
-  });
-
-  QUnit.test('array', function () {
-    equal((0, _emberUtils.inspect)([1, 2, 3]), '[1,2,3]');
-  });
-
-  QUnit.test('regexp', function () {
-    equal((0, _emberUtils.inspect)(/regexp/), '/regexp/');
-  });
-
-  QUnit.test('date', function () {
-    var inspected = (0, _emberUtils.inspect)(new Date('Sat Apr 30 2011 13:24:11'));
-    ok(inspected.match(/Sat Apr 30/), 'The inspected date has its date');
-    ok(inspected.match(/2011/), 'The inspected date has its year');
-    ok(inspected.match(/13:24:11/), 'The inspected date has its time');
-  });
-
-  QUnit.test('inspect outputs the toString() representation of Symbols', function () {
-    if (HAS_NATIVE_SYMBOL) {
-      var symbol = Symbol('test');
-      equal((0, _emberUtils.inspect)(symbol), 'Symbol(test)');
-    } else {
-      expect(0);
+    function _class() {
+      (0, _emberBabel.classCallCheck)(this, _class);
+      return (0, _emberBabel.possibleConstructorReturn)(this, _TestCase.apply(this, arguments));
     }
-  });
+
+    _class.prototype['@test strings'] = function testStrings(assert) {
+      assert.equal((0, _emberUtils.inspect)('foo'), 'foo');
+    };
+
+    _class.prototype['@test numbers'] = function testNumbers(assert) {
+      assert.equal((0, _emberUtils.inspect)(2.6), '2.6');
+    };
+
+    _class.prototype['@test null'] = function testNull(assert) {
+      assert.equal((0, _emberUtils.inspect)(null), 'null');
+    };
+
+    _class.prototype['@test undefined'] = function testUndefined(assert) {
+      assert.equal((0, _emberUtils.inspect)(undefined), 'undefined');
+    };
+
+    _class.prototype['@test true'] = function testTrue(assert) {
+      assert.equal((0, _emberUtils.inspect)(true), 'true');
+    };
+
+    _class.prototype['@test false'] = function testFalse(assert) {
+      assert.equal((0, _emberUtils.inspect)(false), 'false');
+    };
+
+    _class.prototype['@test object'] = function testObject(assert) {
+      assert.equal((0, _emberUtils.inspect)({}), '{}');
+      assert.equal((0, _emberUtils.inspect)({ foo: 'bar' }), '{foo: bar}');
+      assert.equal((0, _emberUtils.inspect)({
+        foo: function () {
+          return this;
+        }
+      }), '{foo: function() { ... }}');
+    };
+
+    _class.prototype['@test objects without a prototype'] = function testObjectsWithoutAPrototype(assert) {
+      var prototypelessObj = Object.create(null);
+      assert.equal((0, _emberUtils.inspect)({ foo: prototypelessObj }), '{foo: [object Object]}');
+    };
+
+    _class.prototype['@test array'] = function testArray(assert) {
+      assert.equal((0, _emberUtils.inspect)([1, 2, 3]), '[1,2,3]');
+    };
+
+    _class.prototype['@test regexp'] = function testRegexp(assert) {
+      assert.equal((0, _emberUtils.inspect)(/regexp/), '/regexp/');
+    };
+
+    _class.prototype['@test date'] = function testDate(assert) {
+      var inspected = (0, _emberUtils.inspect)(new Date('Sat Apr 30 2011 13:24:11'));
+      assert.ok(inspected.match(/Sat Apr 30/), 'The inspected date has its date');
+      assert.ok(inspected.match(/2011/), 'The inspected date has its year');
+      assert.ok(inspected.match(/13:24:11/), 'The inspected date has its time');
+    };
+
+    _class.prototype['@test inspect outputs the toString() representation of Symbols'] = function testInspectOutputsTheToStringRepresentationOfSymbols(assert) {
+      if (HAS_NATIVE_SYMBOL) {
+        var symbol = Symbol('test');
+        assert.equal((0, _emberUtils.inspect)(symbol), 'Symbol(test)');
+      } else {
+        assert.expect(0);
+      }
+    };
+
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
 });
 QUnit.module('ESLint | ember-utils/tests/inspect_test.js');
 QUnit.test('should pass ESLint', function(assert) {
@@ -66921,44 +66975,53 @@ QUnit.test('should pass ESLint', function(assert) {
   assert.ok(true, 'ember-utils/tests/inspect_test.js should pass ESLint\n\n');
 });
 
-enifed('ember-utils/tests/make_array_test', ['ember-utils'], function (_emberUtils) {
+enifed('ember-utils/tests/make_array_test', ['ember-babel', 'ember-utils', 'internal-test-helpers'], function (_emberBabel, _emberUtils, _internalTestHelpers) {
   'use strict';
 
-  QUnit.module('Ember.makeArray');
+  (0, _internalTestHelpers.moduleFor)('Ember.makeArray', function (_TestCase) {
+    (0, _emberBabel.inherits)(_class, _TestCase);
 
-  QUnit.test('undefined', function () {
-    deepEqual((0, _emberUtils.makeArray)(), []);
-    deepEqual((0, _emberUtils.makeArray)(undefined), []);
-  });
+    function _class() {
+      (0, _emberBabel.classCallCheck)(this, _class);
+      return (0, _emberBabel.possibleConstructorReturn)(this, _TestCase.apply(this, arguments));
+    }
 
-  QUnit.test('null', function () {
-    deepEqual((0, _emberUtils.makeArray)(null), []);
-  });
+    _class.prototype['@test undefined'] = function testUndefined(assert) {
+      assert.deepEqual((0, _emberUtils.makeArray)(), []);
+      assert.deepEqual((0, _emberUtils.makeArray)(undefined), []);
+    };
 
-  QUnit.test('string', function () {
-    deepEqual((0, _emberUtils.makeArray)('lindsay'), ['lindsay']);
-  });
+    _class.prototype['@test null'] = function testNull(assert) {
+      assert.deepEqual((0, _emberUtils.makeArray)(null), []);
+    };
 
-  QUnit.test('number', function () {
-    deepEqual((0, _emberUtils.makeArray)(0), [0]);
-    deepEqual((0, _emberUtils.makeArray)(1), [1]);
-  });
+    _class.prototype['@test string'] = function testString(assert) {
+      assert.deepEqual((0, _emberUtils.makeArray)('lindsay'), ['lindsay']);
+    };
 
-  QUnit.test('array', function () {
-    deepEqual((0, _emberUtils.makeArray)([1, 2, 42]), [1, 2, 42]);
-  });
+    _class.prototype['@test number'] = function testNumber(assert) {
+      assert.deepEqual((0, _emberUtils.makeArray)(0), [0]);
+      assert.deepEqual((0, _emberUtils.makeArray)(1), [1]);
+    };
 
-  QUnit.test('true', function () {
-    deepEqual((0, _emberUtils.makeArray)(true), [true]);
-  });
+    _class.prototype['@test array'] = function testArray(assert) {
+      assert.deepEqual((0, _emberUtils.makeArray)([1, 2, 42]), [1, 2, 42]);
+    };
 
-  QUnit.test('false', function () {
-    deepEqual((0, _emberUtils.makeArray)(false), [false]);
-  });
+    _class.prototype['@test true'] = function testTrue(assert) {
+      assert.deepEqual((0, _emberUtils.makeArray)(true), [true]);
+    };
 
-  QUnit.test('object', function () {
-    deepEqual((0, _emberUtils.makeArray)({}), [{}]);
-  });
+    _class.prototype['@test false'] = function testFalse(assert) {
+      assert.deepEqual((0, _emberUtils.makeArray)(false), [false]);
+    };
+
+    _class.prototype['@test object'] = function testObject(assert) {
+      assert.deepEqual((0, _emberUtils.makeArray)({}), [{}]);
+    };
+
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
 });
 QUnit.module('ESLint | ember-utils/tests/make_array_test.js');
 QUnit.test('should pass ESLint', function(assert) {
@@ -66966,33 +67029,42 @@ QUnit.test('should pass ESLint', function(assert) {
   assert.ok(true, 'ember-utils/tests/make_array_test.js should pass ESLint\n\n');
 });
 
-enifed('ember-utils/tests/to-string-test', ['ember-utils'], function (_emberUtils) {
+enifed('ember-utils/tests/to-string-test', ['ember-babel', 'ember-utils', 'internal-test-helpers'], function (_emberBabel, _emberUtils, _internalTestHelpers) {
   'use strict';
 
-  QUnit.module('ember-utils toString');
+  (0, _internalTestHelpers.moduleFor)('ember-utils toString', function (_TestCase) {
+    (0, _emberBabel.inherits)(_class, _TestCase);
 
-  QUnit.test('toString uses an object\'s toString method when available', function () {
-    var obj = {
-      toString: function () {
-        return 'bob';
-      }
+    function _class() {
+      (0, _emberBabel.classCallCheck)(this, _class);
+      return (0, _emberBabel.possibleConstructorReturn)(this, _TestCase.apply(this, arguments));
+    }
+
+    _class.prototype['@test toString uses an object\'s toString method when available'] = function (assert) {
+      var obj = {
+        toString: function () {
+          return 'bob';
+        }
+      };
+
+      assert.strictEqual((0, _emberUtils.toString)(obj), 'bob');
     };
 
-    strictEqual((0, _emberUtils.toString)(obj), 'bob');
-  });
+    _class.prototype['@test toString falls back to Object.prototype.toString'] = function testToStringFallsBackToObjectPrototypeToString(assert) {
+      var obj = Object.create(null);
 
-  QUnit.test('toString falls back to Object.prototype.toString', function () {
-    var obj = Object.create(null);
+      assert.strictEqual((0, _emberUtils.toString)(obj), {}.toString());
+    };
 
-    strictEqual((0, _emberUtils.toString)(obj), {}.toString());
-  });
+    _class.prototype['@test toString does not fail when called on Arrays with objects without toString method'] = function testToStringDoesNotFailWhenCalledOnArraysWithObjectsWithoutToStringMethod(assert) {
+      var obj = Object.create(null);
+      var arr = [obj, 2];
 
-  QUnit.test('toString does not fail when called on Arrays with objects without toString method', function () {
-    var obj = Object.create(null);
-    var arr = [obj, 2];
+      assert.strictEqual((0, _emberUtils.toString)(arr), {}.toString() + ',2');
+    };
 
-    strictEqual((0, _emberUtils.toString)(arr), {}.toString() + ',2');
-  });
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
 });
 QUnit.module('ESLint | ember-utils/tests/to-string-test.js');
 QUnit.test('should pass ESLint', function(assert) {
@@ -67000,13 +67072,19 @@ QUnit.test('should pass ESLint', function(assert) {
   assert.ok(true, 'ember-utils/tests/to-string-test.js should pass ESLint\n\n');
 });
 
-enifed('ember-utils/tests/try_invoke_test', ['ember-utils'], function (_emberUtils) {
+enifed('ember-utils/tests/try_invoke_test', ['ember-babel', 'ember-utils', 'internal-test-helpers'], function (_emberBabel, _emberUtils, _internalTestHelpers) {
   'use strict';
 
   var obj = void 0;
 
-  QUnit.module('Ember.tryInvoke', {
-    setup: function () {
+  (0, _internalTestHelpers.moduleFor)('Ember.tryInvoke', function (_TestCase) {
+    (0, _emberBabel.inherits)(_class, _TestCase);
+
+    function _class() {
+      (0, _emberBabel.classCallCheck)(this, _class);
+
+      var _this = (0, _emberBabel.possibleConstructorReturn)(this, _TestCase.call(this));
+
       obj = {
         aMethodThatExists: function () {
           return true;
@@ -67015,27 +67093,31 @@ enifed('ember-utils/tests/try_invoke_test', ['ember-utils'], function (_emberUti
           return arg1 === arg2;
         }
       };
-    },
-    teardown: function () {
-      obj = undefined;
+      return _this;
     }
-  });
 
-  QUnit.test('should return undefined when the object doesn\'t exist', function () {
-    equal((0, _emberUtils.tryInvoke)(undefined, 'aMethodThatDoesNotExist'), undefined);
-  });
+    _class.prototype.teardown = function teardown() {
+      obj = undefined;
+    };
 
-  QUnit.test('should return undefined when asked to perform a method that doesn\'t exist on the object', function () {
-    equal((0, _emberUtils.tryInvoke)(obj, 'aMethodThatDoesNotExist'), undefined);
-  });
+    _class.prototype['@test should return undefined when the object doesn\'t exist'] = function testShouldReturnUndefinedWhenTheObjectDoesnTExist(assert) {
+      assert.equal((0, _emberUtils.tryInvoke)(undefined, 'aMethodThatDoesNotExist'), undefined);
+    };
 
-  QUnit.test('should return what the method returns when asked to perform a method that exists on the object', function () {
-    equal((0, _emberUtils.tryInvoke)(obj, 'aMethodThatExists'), true);
-  });
+    _class.prototype['@test should return undefined when asked to perform a method that doesn\'t exist on the object'] = function testShouldReturnUndefinedWhenAskedToPerformAMethodThatDoesnTExistOnTheObject(assert) {
+      assert.equal((0, _emberUtils.tryInvoke)(obj, 'aMethodThatDoesNotExist'), undefined);
+    };
 
-  QUnit.test('should return what the method returns when asked to perform a method that takes arguments and exists on the object', function () {
-    equal((0, _emberUtils.tryInvoke)(obj, 'aMethodThatTakesArguments', [true, true]), true);
-  });
+    _class.prototype['@test should return what the method returns when asked to perform a method that exists on the object'] = function testShouldReturnWhatTheMethodReturnsWhenAskedToPerformAMethodThatExistsOnTheObject(assert) {
+      assert.equal((0, _emberUtils.tryInvoke)(obj, 'aMethodThatExists'), true);
+    };
+
+    _class.prototype['@test should return what the method returns when asked to perform a method that takes arguments and exists on the object'] = function testShouldReturnWhatTheMethodReturnsWhenAskedToPerformAMethodThatTakesArgumentsAndExistsOnTheObject(assert) {
+      assert.equal((0, _emberUtils.tryInvoke)(obj, 'aMethodThatTakesArguments', [true, true]), true);
+    };
+
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
 });
 QUnit.module('ESLint | ember-utils/tests/try_invoke_test.js');
 QUnit.test('should pass ESLint', function(assert) {
