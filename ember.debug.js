@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.0.0-alpha.1-null+c8b39f66
+ * @version   3.0.0-alpha.1-null+1d8787ee
  */
 
 /*globals process */
@@ -20532,7 +20532,11 @@ enifed('ember-glimmer/utils/bindings', ['exports', 'ember-babel', '@glimmer/refe
 
     var IsVisibleBinding = exports.IsVisibleBinding = {
         install: function (element, component, operations) {
-            operations.addDynamicAttribute(element, 'style', (0, _reference.map)(referenceForKey(component, 'isVisible'), this.mapStyleValue), false);
+            var ref = (0, _reference.map)(referenceForKey(component, 'isVisible'), this.mapStyleValue);
+            // the upstream type for addDynamicAttribute's `value` argument
+            // appears to be incorrect. It is currently a Reference<string>, I
+            // think it should be a Reference<string|null>.
+            operations.addDynamicAttribute(element, 'style', ref, false);
         },
         mapStyleValue: function (isVisible) {
             return isVisible === false ? SAFE_DISPLAY_NONE : null;
@@ -20558,6 +20562,9 @@ enifed('ember-glimmer/utils/bindings', ['exports', 'ember-babel', '@glimmer/refe
                 } else {
                     ref = new ColonClassNameBindingReference(value, truthy, falsy);
                 }
+                // the upstream type for addDynamicAttribute's `value` argument
+                // appears to be incorrect. It is currently a Reference<string>, I
+                // think it should be a Reference<string|null>.
                 operations.addDynamicAttribute(element, 'class', ref, false);
             }
         }
@@ -46978,7 +46985,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "3.0.0-alpha.1-null+c8b39f66";
+  exports.default = "3.0.0-alpha.1-null+1d8787ee";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";
