@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.0.0-alpha.1-null+fd592f16
+ * @version   3.0.0-alpha.1-null+fe6ca9d3
  */
 
 /*global process */
@@ -6237,18 +6237,27 @@ QUnit.test('should pass ESLint', function(assert) {
   assert.ok(true, 'ember-debug/testing.js should pass ESLint\n\n');
 });
 
-enifed('ember-debug/tests/error_test', ['ember-debug/error'], function (_error) {
+enifed('ember-debug/tests/error_test', ['ember-babel', 'ember-debug/error', 'internal-test-helpers'], function (_emberBabel, _error, _internalTestHelpers) {
   'use strict';
 
-  QUnit.module('Ember Error Throwing');
+  (0, _internalTestHelpers.moduleFor)('Ember Error Throwing', function (_TestCase) {
+    (0, _emberBabel.inherits)(_class, _TestCase);
 
-  QUnit.test('new Ember.Error displays provided message', function () {
-    throws(function () {
-      throw new _error.default('A Message');
-    }, function (e) {
-      return e.message === 'A Message';
-    }, 'the assigned message was displayed');
-  });
+    function _class() {
+      (0, _emberBabel.classCallCheck)(this, _class);
+      return (0, _emberBabel.possibleConstructorReturn)(this, _TestCase.apply(this, arguments));
+    }
+
+    _class.prototype['@test new Ember.Error displays provided message'] = function testNewEmberErrorDisplaysProvidedMessage(assert) {
+      assert.throws(function () {
+        throw new _error.default('A Message');
+      }, function (e) {
+        return e.message === 'A Message';
+      }, 'the assigned message was displayed');
+    };
+
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
 });
 QUnit.module('ESLint | ember-debug/tests/error_test.js');
 QUnit.test('should pass ESLint', function(assert) {
@@ -6256,149 +6265,158 @@ QUnit.test('should pass ESLint', function(assert) {
   assert.ok(true, 'ember-debug/tests/error_test.js should pass ESLint\n\n');
 });
 
-enifed('ember-debug/tests/handlers-test', ['ember-debug/handlers'], function (_handlers) {
+enifed('ember-debug/tests/handlers-test', ['ember-babel', 'ember-debug/handlers', 'internal-test-helpers'], function (_emberBabel, _handlers, _internalTestHelpers) {
   'use strict';
 
-  QUnit.module('ember-debug/handlers', {
-    teardown: function () {
+  (0, _internalTestHelpers.moduleFor)('Ember Error Throwing', function (_TestCase) {
+    (0, _emberBabel.inherits)(_class, _TestCase);
+
+    function _class() {
+      (0, _emberBabel.classCallCheck)(this, _class);
+      return (0, _emberBabel.possibleConstructorReturn)(this, _TestCase.apply(this, arguments));
+    }
+
+    _class.prototype.teardown = function teardown() {
       delete _handlers.HANDLERS.blarz;
-    }
-  });
+    };
 
-  QUnit.test('calls handler on `invoke` when `falsey`', function (assert) {
-    assert.expect(2);
+    _class.prototype['@test calls handler on `invoke` when `falsey`'] = function testCallsHandlerOnInvokeWhenFalsey(assert) {
+      assert.expect(2);
 
-    function handler(message) {
-      assert.ok(true, 'called handler');
-      assert.equal(message, 'Foo bar');
-    }
+      function handler(message) {
+        assert.ok(true, 'called handler');
+        assert.equal(message, 'Foo bar');
+      }
 
-    (0, _handlers.registerHandler)('blarz', handler);
+      (0, _handlers.registerHandler)('blarz', handler);
 
-    (0, _handlers.invoke)('blarz', 'Foo bar', false);
-  });
+      (0, _handlers.invoke)('blarz', 'Foo bar', false);
+    };
 
-  QUnit.test('does not call handler on `invoke` when `truthy`', function (assert) {
-    assert.expect(0);
+    _class.prototype['@test does not call handler on `invoke` when `truthy`'] = function testDoesNotCallHandlerOnInvokeWhenTruthy(assert) {
+      assert.expect(0);
 
-    function handler() {
-      assert.ok(false, 'called handler');
-    }
+      function handler() {
+        assert.ok(false, 'called handler');
+      }
 
-    (0, _handlers.registerHandler)('blarz', handler);
+      (0, _handlers.registerHandler)('blarz', handler);
 
-    (0, _handlers.invoke)('blarz', 'Foo bar', true);
-  });
+      (0, _handlers.invoke)('blarz', 'Foo bar', true);
+    };
 
-  QUnit.test('calling `invoke` without handlers does not throw an error', function (assert) {
-    assert.expect(0);
+    _class.prototype['@test calling `invoke` without handlers does not throw an error'] = function testCallingInvokeWithoutHandlersDoesNotThrowAnError(assert) {
+      assert.expect(0);
 
-    (0, _handlers.invoke)('blarz', 'Foo bar', false);
-  });
+      (0, _handlers.invoke)('blarz', 'Foo bar', false);
+    };
 
-  QUnit.test('invoking `next` argument calls the next handler', function (assert) {
-    assert.expect(2);
+    _class.prototype['@test invoking `next` argument calls the next handler'] = function testInvokingNextArgumentCallsTheNextHandler(assert) {
+      assert.expect(2);
 
-    function handler1(message, options, next) {
-      assert.ok(true, 'called handler1');
-    }
+      function handler1(message, options, next) {
+        assert.ok(true, 'called handler1');
+      }
 
-    function handler2(message, options, next) {
-      assert.ok(true, 'called handler2');
-      next(message, options);
-    }
+      function handler2(message, options, next) {
+        assert.ok(true, 'called handler2');
+        next(message, options);
+      }
 
-    (0, _handlers.registerHandler)('blarz', handler1);
-    (0, _handlers.registerHandler)('blarz', handler2);
+      (0, _handlers.registerHandler)('blarz', handler1);
+      (0, _handlers.registerHandler)('blarz', handler2);
 
-    (0, _handlers.invoke)('blarz', 'Foo', false);
-  });
+      (0, _handlers.invoke)('blarz', 'Foo', false);
+    };
 
-  QUnit.test('invoking `next` when no other handlers exists does not error', function (assert) {
-    assert.expect(1);
+    _class.prototype['@test invoking `next` when no other handlers exists does not error'] = function testInvokingNextWhenNoOtherHandlersExistsDoesNotError(assert) {
+      assert.expect(1);
 
-    function handler(message, options, next) {
-      assert.ok(true, 'called handler1');
-
-      next(message, options);
-    }
-
-    (0, _handlers.registerHandler)('blarz', handler);
-
-    (0, _handlers.invoke)('blarz', 'Foo', false);
-  });
-
-  QUnit.test('handlers are called in the proper order', function (assert) {
-    assert.expect(11);
-
-    var expectedMessage = 'This is the message';
-    var expectedOptions = { id: 'foo-bar' };
-    var expected = ['first', 'second', 'third', 'fourth', 'fifth'];
-    var actualCalls = [];
-
-    function generateHandler(item) {
-      return function (message, options, next) {
-        assert.equal(message, expectedMessage, 'message supplied to ' + item + ' handler is correct');
-        assert.equal(options, expectedOptions, 'options supplied to ' + item + ' handler is correct');
-
-        actualCalls.push(item);
+      function handler(message, options, next) {
+        assert.ok(true, 'called handler1');
 
         next(message, options);
-      };
-    }
+      }
 
-    expected.forEach(function (item) {
-      return (0, _handlers.registerHandler)('blarz', generateHandler(item));
-    });
+      (0, _handlers.registerHandler)('blarz', handler);
 
-    (0, _handlers.invoke)('blarz', expectedMessage, false, expectedOptions);
+      (0, _handlers.invoke)('blarz', 'Foo', false);
+    };
 
-    assert.deepEqual(actualCalls, expected.reverse(), 'handlers were called in proper order');
-  });
+    _class.prototype['@test handlers are called in the proper order'] = function testHandlersAreCalledInTheProperOrder(assert) {
+      assert.expect(11);
 
-  QUnit.test('not invoking `next` prevents further handlers from being called', function (assert) {
-    assert.expect(1);
+      var expectedMessage = 'This is the message';
+      var expectedOptions = { id: 'foo-bar' };
+      var expected = ['first', 'second', 'third', 'fourth', 'fifth'];
+      var actualCalls = [];
 
-    function handler1(message, options, next) {
-      assert.ok(false, 'called handler1');
-    }
+      function generateHandler(item) {
+        return function (message, options, next) {
+          assert.equal(message, expectedMessage, 'message supplied to ' + item + ' handler is correct');
+          assert.equal(options, expectedOptions, 'options supplied to ' + item + ' handler is correct');
 
-    function handler2(message, options, next) {
-      assert.ok(true, 'called handler2');
-    }
+          actualCalls.push(item);
 
-    (0, _handlers.registerHandler)('blarz', handler1);
-    (0, _handlers.registerHandler)('blarz', handler2);
+          next(message, options);
+        };
+      }
 
-    (0, _handlers.invoke)('blarz', 'Foo', false);
-  });
+      expected.forEach(function (item) {
+        return (0, _handlers.registerHandler)('blarz', generateHandler(item));
+      });
 
-  QUnit.test('handlers can call `next` with custom message and/or options', function (assert) {
-    assert.expect(4);
+      (0, _handlers.invoke)('blarz', expectedMessage, false, expectedOptions);
 
-    var initialMessage = 'initial message';
-    var initialOptions = { id: 'initial-options' };
+      assert.deepEqual(actualCalls, expected.reverse(), 'handlers were called in proper order');
+    };
 
-    var handler2Message = 'Handler2 Message';
-    var handler2Options = { id: 'handler-2' };
+    _class.prototype['@test not invoking `next` prevents further handlers from being called'] = function testNotInvokingNextPreventsFurtherHandlersFromBeingCalled(assert) {
+      assert.expect(1);
 
-    function handler1(message, options, next) {
-      assert.equal(message, handler2Message, 'handler2 message provided to handler1');
-      assert.equal(options, handler2Options, 'handler2 options provided to handler1');
-    }
+      function handler1(message, options, next) {
+        assert.ok(false, 'called handler1');
+      }
 
-    function handler2(message, options, next) {
-      assert.equal(message, initialMessage, 'initial message provided to handler2');
-      assert.equal(options, initialOptions, 'initial options proivided to handler2');
+      function handler2(message, options, next) {
+        assert.ok(true, 'called handler2');
+      }
 
-      next(handler2Message, handler2Options);
-    }
+      (0, _handlers.registerHandler)('blarz', handler1);
+      (0, _handlers.registerHandler)('blarz', handler2);
 
-    (0, _handlers.registerHandler)('blarz', handler1);
-    (0, _handlers.registerHandler)('blarz', handler2);
+      (0, _handlers.invoke)('blarz', 'Foo', false);
+    };
 
-    (0, _handlers.invoke)('blarz', initialMessage, false, initialOptions);
-  });
+    _class.prototype['@test handlers can call `next` with custom message and/or options'] = function testHandlersCanCallNextWithCustomMessageAndOrOptions(assert) {
+      assert.expect(4);
+
+      var initialMessage = 'initial message';
+      var initialOptions = { id: 'initial-options' };
+
+      var handler2Message = 'Handler2 Message';
+      var handler2Options = { id: 'handler-2' };
+
+      function handler1(message, options, next) {
+        assert.equal(message, handler2Message, 'handler2 message provided to handler1');
+        assert.equal(options, handler2Options, 'handler2 options provided to handler1');
+      }
+
+      function handler2(message, options, next) {
+        assert.equal(message, initialMessage, 'initial message provided to handler2');
+        assert.equal(options, initialOptions, 'initial options proivided to handler2');
+
+        next(handler2Message, handler2Options);
+      }
+
+      (0, _handlers.registerHandler)('blarz', handler1);
+      (0, _handlers.registerHandler)('blarz', handler2);
+
+      (0, _handlers.invoke)('blarz', initialMessage, false, initialOptions);
+    };
+
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
 });
 QUnit.module('ESLint | ember-debug/tests/handlers-test.js');
 QUnit.test('should pass ESLint', function(assert) {
@@ -6406,7 +6424,7 @@ QUnit.test('should pass ESLint', function(assert) {
   assert.ok(true, 'ember-debug/tests/handlers-test.js should pass ESLint\n\n');
 });
 
-enifed('ember-debug/tests/main_test', ['ember-environment', 'ember-runtime', 'ember-debug/handlers', 'ember-debug/deprecate', 'ember-debug/warn', 'ember-debug/index'], function (_emberEnvironment, _emberRuntime, _handlers, _deprecate, _warn, _index) {
+enifed('ember-debug/tests/main_test', ['ember-babel', 'ember-environment', 'ember-runtime', 'ember-debug/handlers', 'ember-debug/deprecate', 'ember-debug/warn', 'ember-debug/index', 'internal-test-helpers'], function (_emberBabel, _emberEnvironment, _emberRuntime, _handlers, _deprecate, _warn, _index, _internalTestHelpers) {
   'use strict';
 
   var originalEnvValue = void 0;
@@ -6414,8 +6432,14 @@ enifed('ember-debug/tests/main_test', ['ember-environment', 'ember-runtime', 'em
   var originalWarnOptions = void 0;
   var originalDeprecationOptions = void 0;
 
-  QUnit.module('ember-debug', {
-    setup: function () {
+  (0, _internalTestHelpers.moduleFor)('ember-debug', function (_TestCase) {
+    (0, _emberBabel.inherits)(_class, _TestCase);
+
+    function _class() {
+      (0, _emberBabel.classCallCheck)(this, _class);
+
+      var _this = (0, _emberBabel.possibleConstructorReturn)(this, _TestCase.call(this));
+
       originalEnvValue = _emberEnvironment.ENV.RAISE_ON_DEPRECATION;
       originalDeprecateHandler = _handlers.HANDLERS.deprecate;
       originalWarnOptions = _emberEnvironment.ENV._ENABLE_WARN_OPTIONS_SUPPORT;
@@ -6423,362 +6447,366 @@ enifed('ember-debug/tests/main_test', ['ember-environment', 'ember-runtime', 'em
 
       _emberEnvironment.ENV.RAISE_ON_DEPRECATION = true;
       _emberEnvironment.ENV._ENABLE_DEPRECATION_OPTIONS_SUPPORT = true;
-    },
-    teardown: function () {
+      return _this;
+    }
+
+    _class.prototype.teardown = function teardown() {
       _handlers.HANDLERS.deprecate = originalDeprecateHandler;
 
       _emberEnvironment.ENV.RAISE_ON_DEPRECATION = originalEnvValue;
       _emberEnvironment.ENV._ENABLE_WARN_OPTIONS_SUPPORT = originalWarnOptions;
       _emberEnvironment.ENV._ENABLE_DEPRECATION_OPTIONS_SUPPORT = originalDeprecationOptions;
-    }
-  });
+    };
 
-  QUnit.test('Ember.deprecate does not throw if RAISE_ON_DEPRECATION is false', function (assert) {
-    assert.expect(1);
+    _class.prototype['@test Ember.deprecate does not throw if RAISE_ON_DEPRECATION is false'] = function testEmberDeprecateDoesNotThrowIfRAISE_ON_DEPRECATIONIsFalse(assert) {
+      assert.expect(1);
 
-    _emberEnvironment.ENV.RAISE_ON_DEPRECATION = false;
+      _emberEnvironment.ENV.RAISE_ON_DEPRECATION = false;
 
-    try {
-      (0, _index.deprecate)('Should not throw', false, { id: 'test', until: 'forever' });
-      assert.ok(true, 'Ember.deprecate did not throw');
-    } catch (e) {
-      assert.ok(false, 'Expected deprecate not to throw but it did: ' + e.message);
-    }
-  });
-
-  QUnit.test('Ember.deprecate resets deprecation level to RAISE if ENV.RAISE_ON_DEPRECATION is set', function (assert) {
-    assert.expect(2);
-
-    _emberEnvironment.ENV.RAISE_ON_DEPRECATION = false;
-
-    try {
-      (0, _index.deprecate)('Should not throw', false, { id: 'test', until: 'forever' });
-      assert.ok(true, 'Ember.deprecate did not throw');
-    } catch (e) {
-      assert.ok(false, 'Expected deprecate not to throw but it did: ' + e.message);
-    }
-
-    _emberEnvironment.ENV.RAISE_ON_DEPRECATION = true;
-
-    assert.throws(function () {
-      (0, _index.deprecate)('Should throw', false, { id: 'test', until: 'forever' });
-    }, /Should throw/);
-  });
-
-  QUnit.test('When ENV.RAISE_ON_DEPRECATION is true, it is still possible to silence a deprecation by id', function (assert) {
-    assert.expect(3);
-
-    _emberEnvironment.ENV.RAISE_ON_DEPRECATION = true;
-    (0, _deprecate.registerHandler)(function (message, options, next) {
-      if (!options || options.id !== 'my-deprecation') {
-        next.apply(undefined, arguments);
+      try {
+        (0, _index.deprecate)('Should not throw', false, { id: 'test', until: 'forever' });
+        assert.ok(true, 'Ember.deprecate did not throw');
+      } catch (e) {
+        assert.ok(false, 'Expected deprecate not to throw but it did: ' + e.message);
       }
-    });
+    };
 
-    try {
-      (0, _index.deprecate)('should be silenced with matching id', false, { id: 'my-deprecation', until: 'forever' });
-      assert.ok(true, 'Did not throw when level is set by id');
-    } catch (e) {
-      assert.ok(false, 'Expected deprecate not to throw but it did: ' + e.message);
-    }
+    _class.prototype['@test Ember.deprecate resets deprecation level to RAISE if ENV.RAISE_ON_DEPRECATION is set'] = function testEmberDeprecateResetsDeprecationLevelToRAISEIfENVRAISE_ON_DEPRECATIONIsSet(assert) {
+      assert.expect(2);
 
-    assert.throws(function () {
-      (0, _index.deprecate)('Should throw with no matching id', false, { id: 'test', until: 'forever' });
-    }, /Should throw with no matching id/);
+      _emberEnvironment.ENV.RAISE_ON_DEPRECATION = false;
 
-    assert.throws(function () {
-      (0, _index.deprecate)('Should throw with non-matching id', false, { id: 'other-id', until: 'forever' });
-    }, /Should throw with non-matching id/);
-  });
+      try {
+        (0, _index.deprecate)('Should not throw', false, { id: 'test', until: 'forever' });
+        assert.ok(true, 'Ember.deprecate did not throw');
+      } catch (e) {
+        assert.ok(false, 'Expected deprecate not to throw but it did: ' + e.message);
+      }
 
-  QUnit.test('Ember.deprecate throws deprecation if second argument is falsy', function () {
-    expect(3);
+      _emberEnvironment.ENV.RAISE_ON_DEPRECATION = true;
 
-    throws(function () {
-      return (0, _index.deprecate)('Deprecation is thrown', false, { id: 'test', until: 'forever' });
-    });
-    throws(function () {
-      return (0, _index.deprecate)('Deprecation is thrown', '', { id: 'test', until: 'forever' });
-    });
-    throws(function () {
-      return (0, _index.deprecate)('Deprecation is thrown', 0, { id: 'test', until: 'forever' });
-    });
-  });
+      assert.throws(function () {
+        (0, _index.deprecate)('Should throw', false, { id: 'test', until: 'forever' });
+      }, /Should throw/);
+    };
 
-  QUnit.test('Ember.deprecate does not invoke a function as the second argument', function () {
-    expect(1);
+    _class.prototype['@test When ENV.RAISE_ON_DEPRECATION is true, it is still possible to silence a deprecation by id'] = function testWhenENVRAISE_ON_DEPRECATIONIsTrueItIsStillPossibleToSilenceADeprecationById(assert) {
+      assert.expect(3);
 
-    (0, _index.deprecate)('Deprecation is thrown', function () {
-      ok(false, 'this function should not be invoked');
-    }, { id: 'test', until: 'forever' });
-
-    ok(true, 'deprecations were not thrown');
-  });
-
-  QUnit.test('Ember.deprecate does not throw deprecations if second argument is truthy', function () {
-    expect(1);
-
-    (0, _index.deprecate)('Deprecation is thrown', true, { id: 'test', until: 'forever' });
-    (0, _index.deprecate)('Deprecation is thrown', '1', { id: 'test', until: 'forever' });
-    (0, _index.deprecate)('Deprecation is thrown', 1, { id: 'test', until: 'forever' });
-
-    ok(true, 'deprecations were not thrown');
-  });
-
-  QUnit.test('Ember.assert throws if second argument is falsy', function () {
-    expect(3);
-
-    throws(function () {
-      return (0, _index.assert)('Assertion is thrown', false);
-    });
-    throws(function () {
-      return (0, _index.assert)('Assertion is thrown', '');
-    });
-    throws(function () {
-      return (0, _index.assert)('Assertion is thrown', 0);
-    });
-  });
-
-  QUnit.test('Ember.assert does not throw if second argument is a function', function (assert) {
-    assert.expect(1);
-
-    (0, _index.assert)('Assertion is thrown', function () {
-      return true;
-    });
-
-    ok(true, 'assertions were not thrown');
-  });
-
-  QUnit.test('Ember.assert does not throw if second argument is truthy', function () {
-    expect(1);
-
-    (0, _index.assert)('Assertion is thrown', true);
-    (0, _index.assert)('Assertion is thrown', '1');
-    (0, _index.assert)('Assertion is thrown', 1);
-
-    ok(true, 'assertions were not thrown');
-  });
-
-  QUnit.test('Ember.assert does not throw if second argument is an object', function () {
-    expect(1);
-    var Igor = _emberRuntime.Object.extend();
-
-    (0, _index.assert)('is truthy', Igor);
-    (0, _index.assert)('is truthy', Igor.create());
-
-    ok(true, 'assertions were not thrown');
-  });
-
-  QUnit.test('Ember.deprecate does not throw a deprecation at log and silence levels', function () {
-    expect(4);
-    var id = 'ABC';
-    var until = 'forever';
-    var shouldThrow = false;
-
-    (0, _deprecate.registerHandler)(function (message, options, next) {
-      if (options && options.id === id) {
-        if (shouldThrow) {
-          throw new Error(message);
+      _emberEnvironment.ENV.RAISE_ON_DEPRECATION = true;
+      (0, _deprecate.registerHandler)(function (message, options, next) {
+        if (!options || options.id !== 'my-deprecation') {
+          next.apply(undefined, arguments);
         }
+      });
+
+      try {
+        (0, _index.deprecate)('should be silenced with matching id', false, { id: 'my-deprecation', until: 'forever' });
+        assert.ok(true, 'Did not throw when level is set by id');
+      } catch (e) {
+        assert.ok(false, 'Expected deprecate not to throw but it did: ' + e.message);
       }
-    });
 
-    try {
-      (0, _index.deprecate)('Deprecation for testing purposes', false, { id: id, until: until });
-      ok(true, 'Deprecation did not throw');
-    } catch (e) {
-      ok(false, 'Deprecation was thrown despite being added to blacklist');
-    }
+      assert.throws(function () {
+        (0, _index.deprecate)('Should throw with no matching id', false, { id: 'test', until: 'forever' });
+      }, /Should throw with no matching id/);
 
-    try {
-      (0, _index.deprecate)('Deprecation for testing purposes', false, { id: id, until: until });
-      ok(true, 'Deprecation did not throw');
-    } catch (e) {
-      ok(false, 'Deprecation was thrown despite being added to blacklist');
-    }
+      assert.throws(function () {
+        (0, _index.deprecate)('Should throw with non-matching id', false, { id: 'other-id', until: 'forever' });
+      }, /Should throw with non-matching id/);
+    };
 
-    shouldThrow = true;
+    _class.prototype['@test Ember.deprecate throws deprecation if second argument is falsy'] = function testEmberDeprecateThrowsDeprecationIfSecondArgumentIsFalsy(assert) {
+      assert.expect(3);
 
-    throws(function () {
-      (0, _index.deprecate)('Deprecation is thrown', false, { id: id, until: until });
-    });
+      assert.throws(function () {
+        return (0, _index.deprecate)('Deprecation is thrown', false, { id: 'test', until: 'forever' });
+      });
+      assert.throws(function () {
+        return (0, _index.deprecate)('Deprecation is thrown', '', { id: 'test', until: 'forever' });
+      });
+      assert.throws(function () {
+        return (0, _index.deprecate)('Deprecation is thrown', 0, { id: 'test', until: 'forever' });
+      });
+    };
 
-    throws(function () {
-      (0, _index.deprecate)('Deprecation is thrown', false, { id: id, until: until });
-    });
-  });
+    _class.prototype['@test Ember.deprecate does not invoke a function as the second argument'] = function testEmberDeprecateDoesNotInvokeAFunctionAsTheSecondArgument(assert) {
+      assert.expect(1);
 
-  QUnit.test('Ember.deprecate without options triggers a deprecation', function (assert) {
-    assert.expect(4);
+      (0, _index.deprecate)('Deprecation is thrown', function () {
+        assert.ok(false, 'this function should not be invoked');
+      }, { id: 'test', until: 'forever' });
 
-    (0, _deprecate.registerHandler)(function (message) {
-      if (message === _deprecate.missingOptionsDeprecation) {
-        assert.ok(true, 'proper deprecation is triggered when options is missing');
-      } else if (message === 'foo') {
-        assert.ok(true, 'original deprecation is still triggered');
+      assert.ok(true, 'deprecations were not thrown');
+    };
+
+    _class.prototype['@test Ember.deprecate does not throw deprecations if second argument is truthy'] = function testEmberDeprecateDoesNotThrowDeprecationsIfSecondArgumentIsTruthy(assert) {
+      assert.expect(1);
+
+      (0, _index.deprecate)('Deprecation is thrown', true, { id: 'test', until: 'forever' });
+      (0, _index.deprecate)('Deprecation is thrown', '1', { id: 'test', until: 'forever' });
+      (0, _index.deprecate)('Deprecation is thrown', 1, { id: 'test', until: 'forever' });
+
+      assert.ok(true, 'deprecations were not thrown');
+    };
+
+    _class.prototype['@test Ember.assert throws if second argument is falsy'] = function testEmberAssertThrowsIfSecondArgumentIsFalsy(assert) {
+      assert.expect(3);
+
+      assert.throws(function () {
+        return (0, _index.assert)('Assertion is thrown', false);
+      });
+      assert.throws(function () {
+        return (0, _index.assert)('Assertion is thrown', '');
+      });
+      assert.throws(function () {
+        return (0, _index.assert)('Assertion is thrown', 0);
+      });
+    };
+
+    _class.prototype['@test Ember.assert does not throw if second argument is a function'] = function testEmberAssertDoesNotThrowIfSecondArgumentIsAFunction(assert) {
+      assert.expect(1);
+
+      (0, _index.assert)('Assertion is thrown', function () {
+        return true;
+      });
+
+      ok(true, 'assertions were not thrown');
+    };
+
+    _class.prototype['@test Ember.assert does not throw if second argument is falsy'] = function testEmberAssertDoesNotThrowIfSecondArgumentIsFalsy(assert) {
+      assert.expect(1);
+
+      (0, _index.assert)('Assertion is thrown', true);
+      (0, _index.assert)('Assertion is thrown', '1');
+      (0, _index.assert)('Assertion is thrown', 1);
+
+      assert.ok(true, 'assertions were not thrown');
+    };
+
+    _class.prototype['@test Ember.assert does not throw if second argument is an object'] = function testEmberAssertDoesNotThrowIfSecondArgumentIsAnObject(assert) {
+      assert.expect(1);
+      var Igor = _emberRuntime.Object.extend();
+
+      (0, _index.assert)('is truthy', Igor);
+      (0, _index.assert)('is truthy', Igor.create());
+
+      assert.ok(true, 'assertions were not thrown');
+    };
+
+    _class.prototype['@test Ember.deprecate does not throw a deprecation at log and silence'] = function testEmberDeprecateDoesNotThrowADeprecationAtLogAndSilence(assert) {
+      expect(4);
+      var id = 'ABC';
+      var until = 'forever';
+      var shouldThrow = false;
+
+      (0, _deprecate.registerHandler)(function (message, options, next) {
+        if (options && options.id === id) {
+          if (shouldThrow) {
+            throw new Error(message);
+          }
+        }
+      });
+
+      try {
+        (0, _index.deprecate)('Deprecation for testing purposes', false, { id: id, until: until });
+        assert.ok(true, 'Deprecation did not throw');
+      } catch (e) {
+        assert.ok(false, 'Deprecation was thrown despite being added to blacklist');
       }
-    });
 
-    (0, _index.deprecate)('foo');
-    (0, _index.deprecate)('foo', false, {});
-  });
-
-  QUnit.test('Ember.deprecate without options triggers an assertion', function (assert) {
-    expect(2);
-    _emberEnvironment.ENV._ENABLE_DEPRECATION_OPTIONS_SUPPORT = false;
-
-    assert.throws(function () {
-      return (0, _index.deprecate)('foo');
-    }, new RegExp(_deprecate.missingOptionsDeprecation), 'proper assertion is triggered when options is missing');
-
-    assert.throws(function () {
-      return (0, _index.deprecate)('foo', false, {});
-    }, new RegExp(_deprecate.missingOptionsDeprecation), 'proper assertion is triggered when options is missing');
-  });
-
-  QUnit.test('Ember.deprecate without options.id triggers a deprecation', function (assert) {
-    assert.expect(2);
-
-    (0, _deprecate.registerHandler)(function (message) {
-      if (message === _deprecate.missingOptionsIdDeprecation) {
-        assert.ok(true, 'proper deprecation is triggered when options.id is missing');
-      } else if (message === 'foo') {
-        assert.ok(true, 'original deprecation is still triggered');
+      try {
+        (0, _index.deprecate)('Deprecation for testing purposes', false, { id: id, until: until });
+        assert.ok(true, 'Deprecation did not throw');
+      } catch (e) {
+        assert.ok(false, 'Deprecation was thrown despite being added to blacklist');
       }
-    });
 
-    (0, _index.deprecate)('foo', false, { until: 'forever' });
-  });
+      shouldThrow = true;
 
-  QUnit.test('Ember.deprecate without options.id triggers an assertion', function (assert) {
-    expect(1);
-    _emberEnvironment.ENV._ENABLE_DEPRECATION_OPTIONS_SUPPORT = false;
+      assert.throws(function () {
+        (0, _index.deprecate)('Deprecation is thrown', false, { id: id, until: until });
+      });
 
-    assert.throws(function () {
-      return (0, _index.deprecate)('foo', false, { until: 'forever' });
-    }, new RegExp(_deprecate.missingOptionsIdDeprecation), 'proper assertion is triggered when options.id is missing');
-  });
+      assert.throws(function () {
+        (0, _index.deprecate)('Deprecation is thrown', false, { id: id, until: until });
+      });
+    };
 
-  QUnit.test('Ember.deprecate without options.until triggers a deprecation', function (assert) {
-    assert.expect(2);
+    _class.prototype['@test Ember.deprecate without options triggers a deprecation'] = function testEmberDeprecateWithoutOptionsTriggersADeprecation(assert) {
+      assert.expect(4);
 
-    (0, _deprecate.registerHandler)(function (message) {
-      if (message === _deprecate.missingOptionsUntilDeprecation) {
-        assert.ok(true, 'proper deprecation is triggered when options.until is missing');
-      } else if (message === 'foo') {
-        assert.ok(true, 'original deprecation is still triggered');
-      }
-    });
+      (0, _deprecate.registerHandler)(function (message) {
+        if (message === _deprecate.missingOptionsDeprecation) {
+          assert.ok(true, 'proper deprecation is triggered when options is missing');
+        } else if (message === 'foo') {
+          assert.ok(true, 'original deprecation is still triggered');
+        }
+      });
 
-    (0, _index.deprecate)('foo', false, { id: 'test' });
-  });
+      (0, _index.deprecate)('foo');
+      (0, _index.deprecate)('foo', false, {});
+    };
 
-  QUnit.test('Ember.deprecate without options.until triggers an assertion', function (assert) {
-    expect(1);
-    _emberEnvironment.ENV._ENABLE_DEPRECATION_OPTIONS_SUPPORT = false;
+    _class.prototype['@test Ember.deprecate without options triggers an assertion'] = function testEmberDeprecateWithoutOptionsTriggersAnAssertion(assert) {
+      expect(2);
+      _emberEnvironment.ENV._ENABLE_DEPRECATION_OPTIONS_SUPPORT = false;
 
-    assert.throws(function () {
-      return (0, _index.deprecate)('foo', false, { id: 'test' });
-    }, new RegExp(_deprecate.missingOptionsUntilDeprecation), 'proper assertion is triggered when options.until is missing');
-  });
+      assert.throws(function () {
+        return (0, _index.deprecate)('foo');
+      }, new RegExp(_deprecate.missingOptionsDeprecation), 'proper assertion is triggered when options is missing');
 
-  QUnit.test('warn without options triggers a deprecation', function (assert) {
-    assert.expect(2);
+      assert.throws(function () {
+        return (0, _index.deprecate)('foo', false, {});
+      }, new RegExp(_deprecate.missingOptionsDeprecation), 'proper assertion is triggered when options is missing');
+    };
 
-    _emberEnvironment.ENV._ENABLE_WARN_OPTIONS_SUPPORT = true;
+    _class.prototype['@test Ember.deprecate without options.id triggers a deprecation'] = function testEmberDeprecateWithoutOptionsIdTriggersADeprecation(assert) {
+      assert.expect(2);
 
-    (0, _deprecate.registerHandler)(function (message) {
-      assert.equal(message, _warn.missingOptionsDeprecation, 'deprecation is triggered when options is missing');
-    });
+      (0, _deprecate.registerHandler)(function (message) {
+        if (message === _deprecate.missingOptionsIdDeprecation) {
+          assert.ok(true, 'proper deprecation is triggered when options.id is missing');
+        } else if (message === 'foo') {
+          assert.ok(true, 'original deprecation is still triggered');
+        }
+      });
 
-    (0, _warn.registerHandler)(function (message) {
-      assert.equal(message, 'foo', 'original warning is triggered');
-    });
+      (0, _index.deprecate)('foo', false, { until: 'forever' });
+    };
 
-    (0, _index.warn)('foo');
-  });
+    _class.prototype['@test Ember.deprecate without options.id triggers an assertion'] = function testEmberDeprecateWithoutOptionsIdTriggersAnAssertion(assert) {
+      expect(1);
+      _emberEnvironment.ENV._ENABLE_DEPRECATION_OPTIONS_SUPPORT = false;
 
-  QUnit.test('warn without options triggers an assert', function (assert) {
-    assert.expect(1);
+      assert.throws(function () {
+        return (0, _index.deprecate)('foo', false, { until: 'forever' });
+      }, new RegExp(_deprecate.missingOptionsIdDeprecation), 'proper assertion is triggered when options.id is missing');
+    };
 
-    assert.throws(function () {
-      return (0, _index.warn)('foo');
-    }, new RegExp(_warn.missingOptionsDeprecation), 'deprecation is triggered when options is missing');
-  });
+    _class.prototype['@test Ember.deprecate without options.until triggers a deprecation'] = function testEmberDeprecateWithoutOptionsUntilTriggersADeprecation(assert) {
+      assert.expect(2);
 
-  QUnit.test('warn without options.id triggers a deprecation', function (assert) {
-    assert.expect(2);
+      (0, _deprecate.registerHandler)(function (message) {
+        if (message === _deprecate.missingOptionsUntilDeprecation) {
+          assert.ok(true, 'proper deprecation is triggered when options.until is missing');
+        } else if (message === 'foo') {
+          assert.ok(true, 'original deprecation is still triggered');
+        }
+      });
 
-    _emberEnvironment.ENV._ENABLE_WARN_OPTIONS_SUPPORT = true;
+      (0, _index.deprecate)('foo', false, { id: 'test' });
+    };
 
-    (0, _deprecate.registerHandler)(function (message) {
-      assert.equal(message, _warn.missingOptionsIdDeprecation, 'deprecation is triggered when options is missing');
-    });
+    _class.prototype['@test Ember.deprecate without options.until triggers an assertion'] = function testEmberDeprecateWithoutOptionsUntilTriggersAnAssertion(assert) {
+      expect(1);
+      _emberEnvironment.ENV._ENABLE_DEPRECATION_OPTIONS_SUPPORT = false;
 
-    (0, _warn.registerHandler)(function (message) {
-      assert.equal(message, 'foo', 'original warning is triggered');
-    });
+      assert.throws(function () {
+        return (0, _index.deprecate)('foo', false, { id: 'test' });
+      }, new RegExp(_deprecate.missingOptionsUntilDeprecation), 'proper assertion is triggered when options.until is missing');
+    };
 
-    (0, _index.warn)('foo', false, {});
-  });
+    _class.prototype['@test warn without options triggers a deprecation'] = function testWarnWithoutOptionsTriggersADeprecation(assert) {
+      assert.expect(2);
 
-  QUnit.test('warn without options.id triggers an assertion', function (assert) {
-    assert.expect(1);
+      _emberEnvironment.ENV._ENABLE_WARN_OPTIONS_SUPPORT = true;
 
-    assert.throws(function () {
-      return (0, _index.warn)('foo', false, {});
-    }, new RegExp(_warn.missingOptionsIdDeprecation), 'deprecation is triggered when options is missing');
-  });
+      (0, _deprecate.registerHandler)(function (message) {
+        assert.equal(message, _warn.missingOptionsDeprecation, 'deprecation is triggered when options is missing');
+      });
 
-  QUnit.test('warn without options.id nor test triggers a deprecation', function (assert) {
-    assert.expect(2);
+      (0, _warn.registerHandler)(function (message) {
+        assert.equal(message, 'foo', 'original warning is triggered');
+      });
 
-    _emberEnvironment.ENV._ENABLE_WARN_OPTIONS_SUPPORT = true;
+      (0, _index.warn)('foo');
+    };
 
-    (0, _deprecate.registerHandler)(function (message) {
-      assert.equal(message, _warn.missingOptionsIdDeprecation, 'deprecation is triggered when options is missing');
-    });
+    _class.prototype['@test warn without options triggers an assert'] = function testWarnWithoutOptionsTriggersAnAssert(assert) {
+      assert.expect(1);
 
-    (0, _warn.registerHandler)(function (message) {
-      assert.equal(message, 'foo', 'original warning is triggered');
-    });
+      assert.throws(function () {
+        return (0, _index.warn)('foo');
+      }, new RegExp(_warn.missingOptionsDeprecation), 'deprecation is triggered when options is missing');
+    };
 
-    (0, _index.warn)('foo', {});
-  });
+    _class.prototype['@test warn without options.id triggers a deprecation'] = function testWarnWithoutOptionsIdTriggersADeprecation(assert) {
+      assert.expect(2);
 
-  QUnit.test('warn without options.id nor test triggers an assertion', function (assert) {
-    assert.expect(1);
+      _emberEnvironment.ENV._ENABLE_WARN_OPTIONS_SUPPORT = true;
 
-    assert.throws(function () {
-      return (0, _index.warn)('foo', {});
-    }, new RegExp(_warn.missingOptionsIdDeprecation), 'deprecation is triggered when options is missing');
-  });
+      (0, _deprecate.registerHandler)(function (message) {
+        assert.equal(message, _warn.missingOptionsIdDeprecation, 'deprecation is triggered when options is missing');
+      });
 
-  QUnit.test('warn without test but with options does not trigger a deprecation', function (assert) {
-    assert.expect(1);
+      (0, _warn.registerHandler)(function (message) {
+        assert.equal(message, 'foo', 'original warning is triggered');
+      });
 
-    _emberEnvironment.ENV._ENABLE_WARN_OPTIONS_SUPPORT = true;
+      (0, _index.warn)('foo', false, {});
+    };
 
-    (0, _deprecate.registerHandler)(function (message) {
-      assert.ok(false, 'there should be no deprecation ' + message);
-    });
+    _class.prototype['@test warn without options.id triggers an assertion'] = function testWarnWithoutOptionsIdTriggersAnAssertion(assert) {
+      assert.expect(1);
 
-    (0, _warn.registerHandler)(function (message) {
-      assert.equal(message, 'foo', 'warning was triggered');
-    });
+      assert.throws(function () {
+        return (0, _index.warn)('foo', false, {});
+      }, new RegExp(_warn.missingOptionsIdDeprecation), 'deprecation is triggered when options is missing');
+    };
 
-    (0, _index.warn)('foo', { id: 'ember-debug.do-not-raise' });
-  });
+    _class.prototype['@test warn without options.id nor test triggers a deprecation'] = function testWarnWithoutOptionsIdNorTestTriggersADeprecation(assert) {
+      assert.expect(2);
 
-  QUnit.test('warn without test but with options does not trigger an assertion', function (assert) {
-    assert.expect(1);
+      _emberEnvironment.ENV._ENABLE_WARN_OPTIONS_SUPPORT = true;
 
-    (0, _warn.registerHandler)(function (message) {
-      assert.equal(message, 'foo', 'warning was triggered');
-    });
+      (0, _deprecate.registerHandler)(function (message) {
+        assert.equal(message, _warn.missingOptionsIdDeprecation, 'deprecation is triggered when options is missing');
+      });
 
-    (0, _index.warn)('foo', { id: 'ember-debug.do-not-raise' });
-  });
+      (0, _warn.registerHandler)(function (message) {
+        assert.equal(message, 'foo', 'original warning is triggered');
+      });
+
+      (0, _index.warn)('foo', {});
+    };
+
+    _class.prototype['@test warn without options.id nor test triggers an assertion'] = function testWarnWithoutOptionsIdNorTestTriggersAnAssertion(assert) {
+      assert.expect(1);
+
+      assert.throws(function () {
+        return (0, _index.warn)('foo', {});
+      }, new RegExp(_warn.missingOptionsIdDeprecation), 'deprecation is triggered when options is missing');
+    };
+
+    _class.prototype['@test warn without test but with options does not trigger a deprecation'] = function testWarnWithoutTestButWithOptionsDoesNotTriggerADeprecation(assert) {
+      assert.expect(1);
+
+      _emberEnvironment.ENV._ENABLE_WARN_OPTIONS_SUPPORT = true;
+
+      (0, _deprecate.registerHandler)(function (message) {
+        assert.ok(false, 'there should be no deprecation ' + message);
+      });
+
+      (0, _warn.registerHandler)(function (message) {
+        assert.equal(message, 'foo', 'warning was triggered');
+      });
+
+      (0, _index.warn)('foo', { id: 'ember-debug.do-not-raise' });
+    };
+
+    _class.prototype['@test warn without test but with options does not trigger an assertion'] = function testWarnWithoutTestButWithOptionsDoesNotTriggerAnAssertion(assert) {
+      assert.expect(1);
+
+      (0, _warn.registerHandler)(function (message) {
+        assert.equal(message, 'foo', 'warning was triggered');
+      });
+
+      (0, _index.warn)('foo', { id: 'ember-debug.do-not-raise' });
+    };
+
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
 });
 QUnit.module('ESLint | ember-debug/tests/main_test.js');
 QUnit.test('should pass ESLint', function(assert) {
@@ -6786,7 +6814,7 @@ QUnit.test('should pass ESLint', function(assert) {
   assert.ok(true, 'ember-debug/tests/main_test.js should pass ESLint\n\n');
 });
 
-enifed('ember-debug/tests/warn_if_using_stripped_feature_flags_test', ['ember-environment', 'ember-debug', 'ember-debug/index'], function (_emberEnvironment, _emberDebug, _index) {
+enifed('ember-debug/tests/warn_if_using_stripped_feature_flags_test', ['ember-babel', 'ember-environment', 'ember-debug', 'ember-debug/index', 'internal-test-helpers'], function (_emberBabel, _emberEnvironment, _emberDebug, _index, _internalTestHelpers) {
   'use strict';
 
   var oldWarn = void 0,
@@ -6796,12 +6824,12 @@ enifed('ember-debug/tests/warn_if_using_stripped_feature_flags_test', ['ember-en
       features = void 0,
       knownFeatures = void 0;
 
-  function confirmWarns(expectedMsg) {
+  function confirmWarns(assert, expectedMsg) {
     var featuresWereStripped = true;
 
     (0, _emberDebug.setDebugFunction)('warn', function (msg, test) {
       if (!test) {
-        equal(msg, expectedMsg);
+        assert.equal(msg, expectedMsg);
       }
     });
 
@@ -6817,8 +6845,14 @@ enifed('ember-debug/tests/warn_if_using_stripped_feature_flags_test', ['ember-en
     (0, _index._warnIfUsingStrippedFeatureFlags)(features, knownFeatures, featuresWereStripped);
   }
 
-  QUnit.module('ember-debug - _warnIfUsingStrippedFeatureFlags', {
-    setup: function () {
+  (0, _internalTestHelpers.moduleFor)('ember-debug - _warnIfUsingStrippedFeatureFlags', function (_TestCase) {
+    (0, _emberBabel.inherits)(_class, _TestCase);
+
+    function _class() {
+      (0, _emberBabel.classCallCheck)(this, _class);
+
+      var _this = (0, _emberBabel.possibleConstructorReturn)(this, _TestCase.call(this));
+
       oldWarn = (0, _emberDebug.getDebugFunction)('warn');
       oldRunInDebug = (0, _emberDebug.getDebugFunction)('runInDebug');
       origEnvFeatures = _emberEnvironment.ENV.FEATURES;
@@ -6829,56 +6863,60 @@ enifed('ember-debug/tests/warn_if_using_stripped_feature_flags_test', ['ember-en
         'barney': null,
         'wilma': null
       };
-    },
-    teardown: function () {
+      return _this;
+    }
+
+    _class.prototype.teardown = function teardown() {
       (0, _emberDebug.setDebugFunction)('warn', oldWarn);
       (0, _emberDebug.setDebugFunction)('runInDebug', oldRunInDebug);
       _emberEnvironment.ENV.FEATURES = origEnvFeatures;
       _emberEnvironment.ENV.ENABLE_OPTIONAL_FEATURES = origEnableOptional;
-    }
-  });
-
-  QUnit.test('Setting Ember.ENV.ENABLE_OPTIONAL_FEATURES truthy in non-canary, debug build causes a warning', function () {
-    expect(1);
-
-    _emberEnvironment.ENV.ENABLE_OPTIONAL_FEATURES = true;
-    features = {};
-
-    confirmWarns('Ember.ENV.ENABLE_OPTIONAL_FEATURES is only available in canary builds.');
-  });
-
-  QUnit.test('Enabling a known FEATURE flag in non-canary, debug build causes a warning', function () {
-    expect(1);
-
-    _emberEnvironment.ENV.ENABLE_OPTIONAL_FEATURES = false;
-    features = {
-      'fred': true,
-      'barney': false,
-      'wilma': null
     };
 
-    confirmWarns('FEATURE["fred"] is set as enabled, but FEATURE flags are only available in canary builds.');
-  });
+    _class.prototype['@test Setting Ember.ENV.ENABLE_OPTIONAL_FEATURES truthy in non-canary, debug build causes a warning'] = function testSettingEmberENVENABLE_OPTIONAL_FEATURESTruthyInNonCanaryDebugBuildCausesAWarning(assert) {
+      assert.expect(1);
 
-  QUnit.test('Enabling an unknown FEATURE flag in non-canary debug build does not cause a warning', function () {
-    expect(0);
+      _emberEnvironment.ENV.ENABLE_OPTIONAL_FEATURES = true;
+      features = {};
 
-    _emberEnvironment.ENV.ENABLE_OPTIONAL_FEATURES = false;
-    features = {
-      'some-ember-data-feature-flag': true
+      confirmWarns(assert, 'Ember.ENV.ENABLE_OPTIONAL_FEATURES is only available in canary builds.');
     };
 
-    confirmWarns('FEATURE["fred"] is set as enabled, but FEATURE flags are only available in canary builds.');
-  });
+    _class.prototype['@test Enabling a known FEATURE flag in non-canary, debug build causes a warning'] = function testEnablingAKnownFEATUREFlagInNonCanaryDebugBuildCausesAWarning(assert) {
+      assert.expect(1);
 
-  QUnit.test('`ENV.FEATURES` being undefined does not cause an error', function () {
-    expect(0);
+      _emberEnvironment.ENV.ENABLE_OPTIONAL_FEATURES = false;
+      features = {
+        'fred': true,
+        'barney': false,
+        'wilma': null
+      };
 
-    _emberEnvironment.ENV.ENABLE_OPTIONAL_FEATURES = false;
-    features = undefined;
+      confirmWarns(assert, 'FEATURE["fred"] is set as enabled, but FEATURE flags are only available in canary builds.');
+    };
 
-    confirmWarns();
-  });
+    _class.prototype['@test Enabling an unknown FEATURE flag in non-canary debug build does not cause a warning'] = function testEnablingAnUnknownFEATUREFlagInNonCanaryDebugBuildDoesNotCauseAWarning(assert) {
+      assert.expect(0);
+
+      _emberEnvironment.ENV.ENABLE_OPTIONAL_FEATURES = false;
+      features = {
+        'some-ember-data-feature-flag': true
+      };
+
+      confirmWarns(assert, 'FEATURE["fred"] is set as enabled, but FEATURE flags are only available in canary builds.');
+    };
+
+    _class.prototype['@test `ENV.FEATURES` being undefined does not cause an error'] = function testENVFEATURESBeingUndefinedDoesNotCauseAnError(assert) {
+      assert.expect(0);
+
+      _emberEnvironment.ENV.ENABLE_OPTIONAL_FEATURES = false;
+      features = undefined;
+
+      confirmWarns(assert);
+    };
+
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
 });
 QUnit.module('ESLint | ember-debug/tests/warn_if_using_stripped_feature_flags_test.js');
 QUnit.test('should pass ESLint', function(assert) {
