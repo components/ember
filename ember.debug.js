@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.0.0-alpha.1-null+b4aca962
+ * @version   3.0.0-alpha.1-null+c6e3de6a
  */
 
 /*global process */
@@ -22658,10 +22658,6 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     };
   }
 
-  function makeChainNode(obj) {
-    return new ChainNode(null, null, obj);
-  }
-
   function watchPath(obj, keyPath, meta$$1) {
     if (typeof obj !== 'object' || obj === null) {
       return;
@@ -23601,6 +23597,10 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     return new ChainWatchers();
   }
 
+  function makeChainNode(obj) {
+    return new ChainNode(null, null, obj);
+  }
+
   function addChainWatcher(obj, keyName, node) {
     var m = meta(obj);
     m.writableChainWatchers(makeChainWatcher).add(keyName, node);
@@ -23683,7 +23683,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
 
 
     ChainNode.prototype.copy = function copy(obj) {
-      var ret = new ChainNode(null, null, obj);
+      var ret = makeChainNode(obj);
       var paths = this._paths;
       if (paths !== undefined) {
         var path = void 0;
@@ -46975,7 +46975,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "3.0.0-alpha.1-null+b4aca962";
+  exports.default = "3.0.0-alpha.1-null+c6e3de6a";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";
