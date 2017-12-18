@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.0.0-alpha.1-null+2bb4fe2b
+ * @version   3.0.0-alpha.1-null+c8b39f66
  */
 
 /*globals process */
@@ -23390,15 +23390,13 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     handleMandatorySetter = function handleMandatorySetter(m, obj, keyName) {
       var descriptor = emberUtils.lookupDescriptor(obj, keyName);
       var hasDescriptor = descriptor !== null;
+      var possibleDesc = hasDescriptor && descriptor.value;
+      if (isDescriptor(possibleDesc)) {
+        return;
+      }
       var configurable = hasDescriptor ? descriptor.configurable : true;
       var isWritable = hasDescriptor ? descriptor.writable : true;
       var hasValue = hasDescriptor ? 'value' in descriptor : true;
-      var possibleDesc = hasDescriptor && descriptor.value;
-      var isDescriptor$$1 = possibleDesc !== null && typeof possibleDesc === 'object' && possibleDesc.isDescriptor;
-
-      if (isDescriptor$$1) {
-        return;
-      }
 
       // this x in Y deopts, so keeping it in this function is better;
       if (configurable && isWritable && hasValue && keyName in obj) {
@@ -23436,10 +23434,9 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     if (count === 1) {
       meta$$1.writeWatching(keyName, 0);
 
-      var possibleDesc = obj[keyName];
-      var isDescriptor$$1 = possibleDesc !== null && typeof possibleDesc === 'object' && possibleDesc.isDescriptor;
+      var possibleDesc = descriptorFor(obj, keyName, meta$$1);
 
-      if (isDescriptor$$1 && possibleDesc.didUnwatch) {
+      if (possibleDesc !== undefined && possibleDesc.didUnwatch) {
         possibleDesc.didUnwatch(obj, keyName, meta$$1);
       }
 
@@ -23456,7 +23453,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
         // for mutation, will bypass observation. This code exists to assert when
         // that occurs, and attempt to provide more helpful feedback. The alternative
         // is tricky to debug partially observable properties.
-        if (!isDescriptor$$1 && keyName in obj) {
+        if (possibleDesc === undefined && keyName in obj) {
           var maybeMandatoryDescriptor = emberUtils.lookupDescriptor(obj, keyName);
 
           if (maybeMandatoryDescriptor.set && maybeMandatoryDescriptor.set.isMandatorySetter) {
@@ -28233,7 +28230,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     if (descs[altKey] || values[altKey]) {
       value = values[altKey];
       desc = descs[altKey];
-    } else if ((possibleDesc = obj[altKey]) && possibleDesc !== null && typeof possibleDesc === 'object' && possibleDesc.isDescriptor) {
+    } else if ((possibleDesc = obj[altKey]) && isDescriptor(possibleDesc)) {
       desc = possibleDesc;
       value = undefined;
     } else {
@@ -46981,7 +46978,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "3.0.0-alpha.1-null+2bb4fe2b";
+  exports.default = "3.0.0-alpha.1-null+c8b39f66";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";

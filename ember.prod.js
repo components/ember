@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.0.0-alpha.1-null+2bb4fe2b
+ * @version   3.0.0-alpha.1-null+c8b39f66
  */
 
 /*globals process */
@@ -22549,8 +22549,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       return;
     }
     var meta$$1 = _meta === undefined ? peekMeta(obj) : _meta,
-        possibleDesc,
-        isDescriptor$$1;
+        possibleDesc;
 
     // do nothing of this object has already been destroyed
     if (meta$$1 === undefined || meta$$1.isSourceDestroyed()) {
@@ -22561,11 +22560,10 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     if (count === 1) {
       meta$$1.writeWatching(keyName, 0);
 
-      possibleDesc = obj[keyName];
-      isDescriptor$$1 = possibleDesc !== null && typeof possibleDesc === 'object' && possibleDesc.isDescriptor;
+      possibleDesc = descriptorFor(obj, keyName, meta$$1);
 
 
-      if (isDescriptor$$1 && possibleDesc.didUnwatch) {
+      if (possibleDesc !== undefined && possibleDesc.didUnwatch) {
         possibleDesc.didUnwatch(obj, keyName, meta$$1);
       }
 
@@ -27038,7 +27036,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     if (descs[altKey] || values[altKey]) {
       value = values[altKey];
       desc = descs[altKey];
-    } else if ((possibleDesc = obj[altKey]) && possibleDesc !== null && typeof possibleDesc === 'object' && possibleDesc.isDescriptor) {
+    } else if ((possibleDesc = obj[altKey]) && isDescriptor(possibleDesc)) {
       desc = possibleDesc;
       value = undefined;
     } else {
@@ -43183,7 +43181,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "3.0.0-alpha.1-null+2bb4fe2b";
+  exports.default = "3.0.0-alpha.1-null+c8b39f66";
 });
 /*global enifed */
 enifed('node-module', ['exports'], function(_exports) {
