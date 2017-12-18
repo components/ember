@@ -6,12 +6,14 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.0.0-alpha.1-null+c6e3de6a
+ * @version   3.0.0-alpha.1-null+5f3472e8
  */
 
-/*global process */
+/*globals process */
 var enifed, requireModule, Ember;
-var mainContext = this; // Used in ember-environment/lib/global.js
+
+// Used in ember-environment/lib/global.js
+mainContext = this; // eslint-disable-line no-undef
 
 (function() {
     function missingModule(name, referrerName) {
@@ -705,7 +707,6 @@ enifed('container/tests/container_test', ['ember-babel', 'ember-utils', 'ember/f
       registry.injection('component:foo-bar', 'ajax', 'util:ajax');
 
       var componentFactory = container.factoryFor('component:foo-bar');
-
       var instrance = componentFactory.create({ ajax: 'fetch' });
 
       assert.equal(instrance.ajax, 'fetch');
@@ -718,7 +719,7 @@ enifed('container/tests/container_test', ['ember-babel', 'ember-utils', 'ember/f
       var Component = function () {
         function Component() {}
 
-        Component._initFactory = function (_factory) {};
+        Component._initFactory = function () {};
 
         Component.create = function (options) {
           var instance = new this();
@@ -1788,7 +1789,7 @@ enifed('ember-application/tests/system/application_instance_test', ['ember-babel
     assert.equal(registry.resolve('service:-document'), document);
   });
 });
-enifed('ember-application/tests/system/application_test', ['ember-babel', 'ember', 'ember-environment', 'ember-metal', 'ember-debug', 'ember-application/system/application', 'ember-routing', 'ember-views', 'ember-runtime', 'ember-template-compiler', 'ember-glimmer', 'container', 'ember-application/tests/test-helpers/registry-check', 'ember-utils', 'internal-test-helpers'], function (_emberBabel, _ember, _emberEnvironment, _emberMetal, _emberDebug, _application, _emberRouting, _emberViews, _emberRuntime, _emberTemplateCompiler, _emberGlimmer, _container, _registryCheck, _emberUtils, _internalTestHelpers) {
+enifed('ember-application/tests/system/application_test', ['ember-babel', 'ember', 'ember-environment', 'ember-metal', 'ember-debug', 'ember-application/system/application', 'ember-routing', 'ember-views', 'ember-runtime', 'ember-glimmer', 'container', 'ember-application/tests/test-helpers/registry-check', 'ember-utils', 'internal-test-helpers'], function (_emberBabel, _ember, _emberEnvironment, _emberMetal, _emberDebug, _application, _emberRouting, _emberViews, _emberRuntime, _emberGlimmer, _container, _registryCheck, _emberUtils, _internalTestHelpers) {
   'use strict';
 
   var _templateObject = (0, _emberBabel.taggedTemplateLiteralLoose)(['-bucket-cache:main'], ['-bucket-cache:main']),
@@ -2716,7 +2717,7 @@ enifed('ember-application/tests/system/dependency_injection/normalization_test',
     });
   });
 });
-enifed('ember-application/tests/system/dependency_injection/to_string_test', ['ember-babel', 'ember-utils', 'ember-runtime', 'ember-application', 'internal-test-helpers'], function (_emberBabel, _emberUtils, _emberRuntime, _emberApplication, _internalTestHelpers) {
+enifed('ember-application/tests/system/dependency_injection/to_string_test', ['ember-babel', 'ember-utils', 'ember-runtime', 'internal-test-helpers'], function (_emberBabel, _emberUtils, _emberRuntime, _internalTestHelpers) {
   'use strict';
 
   (0, _internalTestHelpers.moduleFor)('Ember.Application Dependency Injection - DefaultResolver#toString', function (_DefaultResolverAppli) {
@@ -4216,7 +4217,8 @@ enifed('ember-application/tests/system/initializers_test', ['ember-babel', 'embe
 
       MyApplication.initializer({
         name: 'deprecated',
-        initialize: function () {}
+        initialize: function () {// eslint-disable-line no-unused-vars
+        }
       });
 
       expectDeprecation(function () {
@@ -8407,9 +8409,6 @@ enifed('ember-glimmer/tests/integration/application/engine-test', ['ember-babel'
     (0, _emberBabel.createClass)(_class, [{
       key: 'routerOptions',
       get: function () {
-        this.assert;
-
-
         return {
           location: 'none',
 
@@ -8455,7 +8454,7 @@ enifed('ember-glimmer/tests/integration/application/engine-test', ['ember-babel'
     return _class;
   }(_testCase.ApplicationTest));
 });
-enifed('ember-glimmer/tests/integration/application/rendering-test', ['ember-babel', 'ember-runtime', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-routing', 'ember-glimmer', 'ember-views'], function (_emberBabel, _emberRuntime, _testCase, _abstractTestCase, _emberRouting, _emberGlimmer) {
+enifed('ember-glimmer/tests/integration/application/rendering-test', ['ember-babel', 'ember-runtime', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-routing', 'ember-glimmer'], function (_emberBabel, _emberRuntime, _testCase, _abstractTestCase, _emberRouting, _emberGlimmer) {
   'use strict';
 
   var _templateObject = (0, _emberBabel.taggedTemplateLiteralLoose)(['\n      <ul>\n        {{#each model as |item|}}\n          <li>{{item}}</li>\n        {{/each}}\n      </ul>\n    '], ['\n      <ul>\n        {{#each model as |item|}}\n          <li>{{item}}</li>\n        {{/each}}\n      </ul>\n    ']),
@@ -14986,11 +14985,6 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
 
       this.registerComponent('x-outer', {
         ComponentClass: _helpers.Component.extend({
-          init: function () {
-            this._super.apply(this, arguments);
-            this;
-          },
-
           value: 1,
           wrapper: _emberRuntime.Object.create({ content: null })
         }),
@@ -17473,14 +17467,11 @@ enifed('ember-glimmer/tests/integration/components/life-cycle-test', ['ember-bab
       };
     };
 
-    LifeCycleHooksTest.prototype.invocationFor = function () {
-      arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-
-
+    LifeCycleHooksTest.prototype.invocationFor = function () /* name, namedArgs = {} */{
       throw new Error('Not implemented: `invocationFor`');
     };
 
-    LifeCycleHooksTest.prototype.attrFor = function () {
+    LifeCycleHooksTest.prototype.attrFor = function () /* name */{
       throw new Error('Not implemented: `attrFor`');
     };
 
@@ -20711,10 +20702,7 @@ enifed('ember-glimmer/tests/integration/content-test', ['ember-babel', 'ember-gl
       return (0, _emberBabel.possibleConstructorReturn)(this, _RenderingTest2.apply(this, arguments));
     }
 
-    DynamicContentTest.prototype.renderPath = function () {
-      arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-
-
+    DynamicContentTest.prototype.renderPath = function () /* path, context = {} */{
       throw new Error('Not implemented: `renderValues`');
     };
 
@@ -20722,7 +20710,7 @@ enifed('ember-glimmer/tests/integration/content-test', ['ember-babel', 'ember-gl
       this.assert.strictEqual(this.firstChild, null);
     };
 
-    DynamicContentTest.prototype.assertContent = function () {
+    DynamicContentTest.prototype.assertContent = function () /* content */{
       throw new Error('Not implemented: `assertContent`');
     };
 
@@ -23222,6 +23210,7 @@ enifed('ember-glimmer/tests/integration/helpers/closure-action-test', ['ember-ba
       var OuterComponent = _helpers.Component.extend({
         third: third,
         outerSubmit: function () {
+          // eslint-disable-line no-unused-vars
           actualArgs = [].concat(Array.prototype.slice.call(arguments));
         }
       });
@@ -30239,7 +30228,7 @@ enifed('ember-glimmer/tests/integration/helpers/render-test', ['ember-babel', 'e
       assert.strictEqual(willDestroyFired, 2, 'it did destroy the controller');
     };
 
-    _class.prototype['@test with a supplied model should not fire observers on the controller'] = function () {
+    _class.prototype['@test with a supplied model should not fire observers on the controller'] = function (assert) {
       var _this12 = this;
 
       this.owner.register('controller:post', _emberRuntime.Controller.extend());
@@ -30264,6 +30253,7 @@ enifed('ember-glimmer/tests/integration/helpers/render-test', ['ember-babel', 'e
       });
 
       this.assertText('HIIt\'s Simple Made Easy');
+      assert.equal(postDidChange, 0);
     };
 
     _class.prototype['@test should raise an error when a given controller name does not resolve to a controller'] = function () {
@@ -35746,7 +35736,7 @@ enifed('ember-glimmer/tests/unit/template-factory-test', ['ember-babel', 'ember-
 enifed('ember-glimmer/tests/unit/utils/debug-stack-test', ['ember-glimmer/utils/debug-stack'], function () {
   'use strict';
 });
-enifed('ember-glimmer/tests/unit/utils/iterable-test', ['ember-babel', 'ember', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/utils/iterable', 'ember-glimmer/utils/references', 'ember-glimmer/helpers/each-in', '@glimmer/runtime'], function (_emberBabel, _ember, _testCase, _iterable, _references) {
+enifed('ember-glimmer/tests/unit/utils/iterable-test', ['ember-babel', 'ember', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/utils/iterable', 'ember-glimmer/utils/references'], function (_emberBabel, _ember, _testCase, _iterable, _references) {
   'use strict';
 
   var ITERATOR_KEY_GUID = 'be277757-bbbe-4620-9fcb-213ef433cca2';
@@ -36008,16 +35998,12 @@ enifed('ember-glimmer/tests/utils/shared-conditional-tests', ['exports', 'ember-
       return this.wrapperFor([this.templateFor(options)]);
     };
 
-    AbstractConditionalsTest.prototype.templateFor = function (_ref) {
-      var cond = _ref.cond,
-          truthy = _ref.truthy,
-          falsy = _ref.falsy;
-
+    AbstractConditionalsTest.prototype.templateFor = function () /* { cond, truthy, falsy } */{
       // e.g. `{{#if ${cond}}}${truthy}{{else}}${falsy}{{/if}}`
       throw new Error('Not implemented: `templateFor`');
     };
 
-    AbstractConditionalsTest.prototype.renderValues = function () {
+    AbstractConditionalsTest.prototype.renderValues = function () /* ...values */{
       throw new Error('Not implemented: `renderValues`');
     };
 
@@ -36043,7 +36029,7 @@ enifed('ember-glimmer/tests/utils/shared-conditional-tests', ['exports', 'ember-
 
     /* abstract */
 
-    AbstractGenerator.prototype.generate = function () {
+    AbstractGenerator.prototype.generate = function () /* value, idx */{
       throw new Error('Not implemented: `generate`');
     };
 
@@ -36058,9 +36044,9 @@ enifed('ember-glimmer/tests/utils/shared-conditional-tests', ['exports', 'ember-
     }
 
     TruthyGenerator.prototype.generate = function (value, idx) {
-      var _ref2;
+      var _ref;
 
-      return _ref2 = {}, _ref2['@test it should consider ' + JSON.stringify(value) + ' truthy [' + idx + ']'] = function () {
+      return _ref = {}, _ref['@test it should consider ' + JSON.stringify(value) + ' truthy [' + idx + ']'] = function () {
         var _this3 = this;
 
         this.renderValues(value);
@@ -36084,7 +36070,7 @@ enifed('ember-glimmer/tests/utils/shared-conditional-tests', ['exports', 'ember-
         });
 
         this.assertText('T1');
-      }, _ref2;
+      }, _ref;
     };
 
     return TruthyGenerator;
@@ -36098,9 +36084,9 @@ enifed('ember-glimmer/tests/utils/shared-conditional-tests', ['exports', 'ember-
     }
 
     FalsyGenerator.prototype.generate = function (value, idx) {
-      var _ref3;
+      var _ref2;
 
-      return _ref3 = {}, _ref3['@test it should consider ' + JSON.stringify(value) + ' falsy [' + idx + ']'] = function () {
+      return _ref2 = {}, _ref2['@test it should consider ' + JSON.stringify(value) + ' falsy [' + idx + ']'] = function () {
         var _this5 = this;
 
         this.renderValues(value);
@@ -36124,7 +36110,7 @@ enifed('ember-glimmer/tests/utils/shared-conditional-tests', ['exports', 'ember-
         });
 
         this.assertText('F1');
-      }, _ref3;
+      }, _ref2;
     };
 
     return FalsyGenerator;
@@ -36218,13 +36204,13 @@ enifed('ember-glimmer/tests/utils/shared-conditional-tests', ['exports', 'ember-
     }
 
     ObjectProxyGenerator.prototype.generate = function (value, idx) {
-      var _ref4, _ref5;
+      var _ref3, _ref4;
 
       // This is inconsistent with our usual to-bool policy, but the current proxy implementation
       // simply uses !!content to determine truthiness
       if (value) {
 
-        return _ref4 = {}, _ref4['@test it should consider an object proxy with `' + JSON.stringify(value) + '` truthy [' + idx + ']'] = function () {
+        return _ref3 = {}, _ref3['@test it should consider an object proxy with `' + JSON.stringify(value) + '` truthy [' + idx + ']'] = function () {
           var _this11 = this;
 
           this.renderValues(_emberRuntime.ObjectProxy.create({ content: value }));
@@ -36248,10 +36234,10 @@ enifed('ember-glimmer/tests/utils/shared-conditional-tests', ['exports', 'ember-
           });
 
           this.assertText('T1');
-        }, _ref4;
+        }, _ref3;
       } else {
 
-        return _ref5 = {}, _ref5['@test it should consider an object proxy with `' + JSON.stringify(value) + '` falsy [' + idx + ']'] = function () {
+        return _ref4 = {}, _ref4['@test it should consider an object proxy with `' + JSON.stringify(value) + '` falsy [' + idx + ']'] = function () {
           var _this12 = this;
 
           this.renderValues(_emberRuntime.ObjectProxy.create({ content: value }));
@@ -36275,7 +36261,7 @@ enifed('ember-glimmer/tests/utils/shared-conditional-tests', ['exports', 'ember-
           });
 
           this.assertText('F1');
-        }, _ref5;
+        }, _ref4;
       }
     };
 
@@ -37273,21 +37259,12 @@ enifed('ember-metal/tests/accessors/get_test', ['internal-test-helpers', 'ember-
   });
 
   (0, _internalTestHelpers.testBoth)('should call unknownProperty on watched values if the value is undefined', function (get) {
-    var obj = {
-      count: 0,
+    equal(get({
       unknownProperty: function (key) {
         equal(key, 'foo', 'should pass key');
-        this.count++;
         return 'FOO';
       }
-    };
-
-    var count = 0;
-    (0, _emberMetal.addObserver)(obj, 'foo', function () {
-      count++;
-    });
-
-    equal(get(obj, 'foo'), 'FOO', 'should return value from unknown');
+    }, 'foo'), 'FOO', 'should return value from unknown');
   });
 
   QUnit.test('warn on attempts to call get with no arguments', function () {
@@ -37412,21 +37389,13 @@ enifed('ember-metal/tests/accessors/get_test', ['internal-test-helpers', 'ember-
 
   (0, _internalTestHelpers.testBoth)('if unknownProperty is present, it is called', function () {
     var obj = {
-      count: 0,
       unknownProperty: function (key) {
         if (key === 'foo') {
           equal(key, 'foo', 'should pass key');
-          this.count++;
           return 'FOO';
         }
       }
     };
-
-    var count = 0;
-    (0, _emberMetal.addObserver)(obj, 'foo', function () {
-      return count++;
-    });
-
     equal((0, _emberMetal.getWithDefault)(obj, 'foo', 'fail'), 'FOO', 'should return value from unknownProperty');
     equal((0, _emberMetal.getWithDefault)(obj, 'bar', 'default'), 'default', 'should convert undefined from unknownProperty into default');
   });
@@ -53079,8 +53048,6 @@ enifed('ember-runtime/tests/mixins/promise_proxy_test', ['ember-metal', 'ember-r
 
   // https://github.com/emberjs/ember.js/issues/15694
   QUnit.test('rejection without specifying reason', function () {
-    new Error('failure');
-
     var deferred = _rsvp2.defer();
     var proxy = ObjectPromiseProxy.create({
       promise: deferred.promise
@@ -53916,7 +53883,7 @@ enifed('ember-runtime/tests/suites/enumerable', ['exports', 'ember-utils', 'embe
     }),
 
     run: function () {},
-    newObserver: function () {
+    newObserver: function () /* obj */{
       var ret = (0, _emberMetal.get)(this, 'observerClass').create();
       if (arguments.length > 0) {
         ret.observeBefore.apply(ret, arguments);
@@ -58088,7 +58055,7 @@ enifed('ember-runtime/tests/system/object/create_test', ['ember-metal', 'ember-r
     var setUnknownPropertyCalled = false;
 
     var MyClass = _object.default.extend({
-      setUnknownProperty: function () {
+      setUnknownProperty: function () /* key, value */{
         setUnknownPropertyCalled = true;
       }
     });
@@ -58162,7 +58129,7 @@ enifed('ember-runtime/tests/system/object/destroy_test', ['ember-metal', 'intern
 
   QUnit.module('ember-runtime/system/object/destroy_test');
 
-  (0, _internalTestHelpers.testBoth)('should schedule objects to be destroyed at the end of the run loop', function (get) {
+  (0, _internalTestHelpers.testBoth)('should schedule objects to be destroyed at the end of the run loop', function (get /*, set */) {
     var obj = _object.default.create();
     var meta = void 0;
 
@@ -59007,7 +58974,7 @@ enifed('ember-runtime/tests/system/object/observer_test', ['ember-metal', 'inter
     equal(get(obj2, 'count'), 1, 'should invoke observer on obj2');
   });
 
-  (0, _internalTestHelpers.testBoth)('chain observer on class that has a reference to an uninitialized object will finish chains that reference it', function () {
+  (0, _internalTestHelpers.testBoth)('chain observer on class that has a reference to an uninitialized object will finish chains that reference it', function (get, set) {
     var changed = false;
 
     var ChildClass = _object.default.extend({
@@ -59032,11 +58999,11 @@ enifed('ember-runtime/tests/system/object/observer_test', ['ember-metal', 'inter
 
     equal(changed, false, 'precond');
 
-    parent.set('one.two', 'new');
+    set(parent, 'one.two', 'new');
 
     equal(changed, true, 'child should have been notified of change to path');
 
-    parent.set('one', { two: 'newer' });
+    set(parent, 'one', { two: 'newer' });
 
     equal(changed, true, 'child should have been notified of change to path');
   });
@@ -60131,7 +60098,7 @@ enifed('ember-template-compiler/plugins/transform-angle-bracket-components', ['e
   'use strict';
 
   exports.default = transformAngleBracketComponents;
-  function transformAngleBracketComponents(env) {
+  function transformAngleBracketComponents() /* env */{
     return {
       name: 'transform-angle-bracket-components',
 
@@ -60186,7 +60153,7 @@ enifed('ember-template-compiler/plugins/transform-attrs-into-args', ['exports'],
             var parent = stack[stack.length - 1];
             stack.push(parent.concat(node.blockParams));
           },
-          exit: function (node) {
+          exit: function () {
             stack.pop();
           }
         },
@@ -60648,8 +60615,7 @@ enifed('ember-template-compiler/plugins/transform-old-class-binding-syntax', ['e
     });
 
     each(allOfTheMicrosyntaxes, function (_ref) {
-      var value = _ref.value,
-          loc = _ref.loc;
+      var value = _ref.value;
 
       var sexprs = [];
       // TODO: add helpful deprecation when both `classNames` and `classNameBindings` can
@@ -60732,7 +60698,7 @@ enifed('ember-template-compiler/plugins/transform-quoted-bindings-into-just-bind
   'use strict';
 
   exports.default = transformQuotedBindingsIntoJustBindings;
-  function transformQuotedBindingsIntoJustBindings(env) {
+  function transformQuotedBindingsIntoJustBindings() /* env */{
 
     return {
       name: 'transform-quoted-bindings-into-just-bindings',
@@ -60781,7 +60747,7 @@ enifed('ember-template-compiler/plugins/transform-top-level-components', ['expor
   'use strict';
 
   exports.default = transformTopLevelComponent;
-  function transformTopLevelComponent(env) {
+  function transformTopLevelComponent() /* env */{
     return {
       name: 'transform-top-level-component',
 
@@ -64916,7 +64882,7 @@ enifed('ember/tests/helpers/helper_registration_test', ['ember-babel', 'internal
     return _class;
   }(_internalTestHelpers.ApplicationTestCase));
 });
-enifed('ember/tests/helpers/link_to_test', ['ember-babel', 'ember-console', 'internal-test-helpers', 'ember-runtime', 'ember-metal', 'ember-routing', 'ember-views', 'ember/features'], function (_emberBabel, _emberConsole, _internalTestHelpers, _emberRuntime, _emberMetal, _emberRouting, _emberViews, _features) {
+enifed('ember/tests/helpers/link_to_test', ['ember-babel', 'internal-test-helpers', 'ember-runtime', 'ember-metal', 'ember-routing', 'ember-views', 'ember/features'], function (_emberBabel, _internalTestHelpers, _emberRuntime, _emberMetal, _emberRouting, _emberViews, _features) {
   'use strict';
 
   // IE includes the host name
@@ -67456,7 +67422,7 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
     });
 
     App.HomeRoute = _emberRouting.Route.extend({
-      setupController: function () {
+      setupController: function () /* controller */{
         (0, _emberMetal.set)(this.controllerFor('home'), 'hours', (0, _emberRuntime.A)(['Monday through Friday: 9am to 5pm', 'Saturday: Noon to Midnight', 'Sunday: Noon to 6pm']));
       }
     });
@@ -68278,7 +68244,7 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
     });
 
     App.ThePostCommentsRoute = _emberRouting.Route.extend({
-      afterModel: function (post) {
+      afterModel: function (post /*, transition */) {
         var parent_model = this.modelFor('thePost');
 
         equal(post, parent_model);
@@ -68292,7 +68258,7 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
     });
 
     App.SharesShareRoute = _emberRouting.Route.extend({
-      afterModel: function (share) {
+      afterModel: function (share /*, transition */) {
         var parent_model = this.modelFor('shares');
 
         equal(share, parent_model);
@@ -68333,7 +68299,7 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
     });
 
     App.CommentsRoute = _emberRouting.Route.extend({
-      afterModel: function (post) {
+      afterModel: function (post /*, transition */) {
         var parent_model = this.modelFor('thePost');
 
         equal(post, parent_model);
@@ -69995,10 +69961,10 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
     var calls = [];
 
     var SpyRoute = _emberRouting.Route.extend({
-      setupController: function () {
+      setupController: function () /* controller, model, transition */{
         calls.push(['setup', this.routeName]);
       },
-      resetController: function () {
+      resetController: function () /* controller */{
         calls.push(['reset', this.routeName]);
       }
     });
@@ -71114,7 +71080,7 @@ enifed('ember/tests/routing/query_params_test', ['ember-babel', 'ember-runtime',
             defaultValue: 'applol'
           }
         },
-        model: function () {
+        model: function () /* params */{
           appModelCount++;
         }
       }));
@@ -71423,7 +71389,7 @@ enifed('ember/tests/routing/query_params_test', ['ember-babel', 'ember-runtime',
       this.setSingleQPController('index');
 
       this.add('route:index', _emberRouting.Route.extend({
-        model: function () {
+        model: function () /* params, transition */{
           assert.deepEqual(this.paramsFor('index'), { something: 'baz', foo: 'bar' }, 'could retrieve params for index');
         }
       }));
@@ -71441,7 +71407,7 @@ enifed('ember/tests/routing/query_params_test', ['ember-babel', 'ember-runtime',
       this.setSingleQPController('index');
 
       this.add('route:index', _emberRouting.Route.extend({
-        model: function () {
+        model: function () /* params, transition */{
           assert.deepEqual(this.paramsFor('index'), { something: 'baz', foo: 'boo' }, 'could retrieve params for index');
         }
       }));
@@ -71459,7 +71425,7 @@ enifed('ember/tests/routing/query_params_test', ['ember-babel', 'ember-runtime',
       this.setSingleQPController('index', 'foo', false);
 
       this.add('route:index', _emberRouting.Route.extend({
-        model: function () {
+        model: function () /* params, transition */{
           assert.deepEqual(this.paramsFor('index'), { something: 'baz', foo: false }, 'could retrieve params for index');
         }
       }));
@@ -71477,7 +71443,7 @@ enifed('ember/tests/routing/query_params_test', ['ember-babel', 'ember-runtime',
       this.setSingleQPController('index', 'foo', true);
 
       this.add('route:index', _emberRouting.Route.extend({
-        model: function () {
+        model: function () /* params, transition */{
           assert.deepEqual(this.paramsFor('index'), { something: 'baz', foo: false }, 'could retrieve params for index');
         }
       }));
@@ -71539,7 +71505,7 @@ enifed('ember/tests/routing/query_params_test', ['ember-babel', 'ember-runtime',
 
       var appModelCount = 0;
       this.add('route:application', _emberRouting.Route.extend({
-        model: function () {
+        model: function () /* params, transition */{
           appModelCount++;
         }
       }));
@@ -71584,7 +71550,7 @@ enifed('ember/tests/routing/query_params_test', ['ember-babel', 'ember-runtime',
 
       var appModelCount = 0;
       this.add('route:application', _emberRouting.Route.extend({
-        model: function () {
+        model: function () /* params */{
           appModelCount++;
         }
       }));
@@ -71716,7 +71682,7 @@ enifed('ember/tests/routing/query_params_test', ['ember-babel', 'ember-runtime',
 
       var appModelCount = 0;
       this.add('route:application', _emberRouting.Route.extend({
-        model: function () {
+        model: function () /* params */{
           appModelCount++;
         }
       }));
@@ -71910,7 +71876,7 @@ enifed('ember/tests/routing/query_params_test', ['ember-babel', 'ember-runtime',
 
       this.add('route:application', _emberRouting.Route.extend({
         queryParams: _emberRuntime.Object.create({
-          unknownProperty: function () {
+          unknownProperty: function () /* keyName */{
             // We are simulating all qps requiring refresh
             return { replace: true };
           }
@@ -72368,7 +72334,7 @@ enifed('ember/tests/routing/query_params_test', ['ember-babel', 'ember-runtime',
       });
 
       this.add('route:application', _emberRouting.Route.extend({
-        model: function () {
+        model: function () /* p, trans */{
           return { woot: true };
         }
       }));
@@ -73993,7 +73959,7 @@ enifed('ember/tests/routing/router_map_test', ['ember-babel', 'internal-test-hel
     return _class;
   }(_internalTestHelpers.ApplicationTestCase));
 });
-enifed('ember/tests/routing/router_service_test/basic_test', ['ember-babel', 'ember-runtime', 'ember-glimmer', 'ember-routing', 'ember-metal', 'internal-test-helpers'], function (_emberBabel, _emberRuntime, _emberGlimmer, _emberRouting, _emberMetal, _internalTestHelpers) {
+enifed('ember/tests/routing/router_service_test/basic_test', ['ember-babel', 'ember-routing', 'ember-metal', 'internal-test-helpers'], function (_emberBabel, _emberRouting, _emberMetal, _internalTestHelpers) {
   'use strict';
 
   (0, _internalTestHelpers.moduleFor)('Router Service - main', function (_RouterTestCase) {
@@ -74230,7 +74196,7 @@ enifed('ember/tests/routing/router_service_test/currenturl_lifecycle_test', ['em
     return _class;
   }(_internalTestHelpers.RouterTestCase));
 });
-enifed('ember/tests/routing/router_service_test/isActive_test', ['ember-babel', 'ember-runtime', 'ember-glimmer', 'ember-routing', 'ember-metal', 'internal-test-helpers'], function (_emberBabel, _emberRuntime, _emberGlimmer, _emberRouting, _emberMetal, _internalTestHelpers) {
+enifed('ember/tests/routing/router_service_test/isActive_test', ['ember-babel', 'ember-runtime', 'internal-test-helpers'], function (_emberBabel, _emberRuntime, _internalTestHelpers) {
   'use strict';
 
   (0, _internalTestHelpers.moduleFor)('Router Service - isActive', function (_RouterTestCase) {
@@ -74890,9 +74856,6 @@ enifed('ember/tests/routing/router_service_test/urlFor_test', ['ember-babel', 'e
         queryParams: ['sort', 'foo'],
         sort: 'ASC'
       }));
-
-      this.buildQueryParams({ sort: 'DESC' });
-
 
       return this.visit('/child/?sort=DESC').then(function () {
         var controller = _this6.applicationInstance.lookup('controller:parent.child');
@@ -76687,7 +76650,7 @@ enifed('internal-test-helpers/matchers', ['exports'], function (exports) {
     }, _ref;
   }
 });
-enifed('internal-test-helpers/module-for', ['exports', 'ember-debug', 'ember-runtime', 'internal-test-helpers/apply-mixins'], function (exports, _emberDebug, _emberRuntime, _applyMixins) {
+enifed('internal-test-helpers/module-for', ['exports', 'ember-debug', 'internal-test-helpers/apply-mixins'], function (exports, _emberDebug, _applyMixins) {
   'use strict';
 
   exports.default = function (description, TestClass) {
@@ -76799,7 +76762,7 @@ enifed('internal-test-helpers/test-cases/abstract-application', ['exports', 'emb
       _AbstractTestCase.prototype.teardown.call(this);
     };
 
-    AbstractApplicationTestCase.prototype.compile = function () {
+    AbstractApplicationTestCase.prototype.compile = function () /* string, options */{
       return _emberTemplateCompiler.compile.apply(undefined, arguments);
     };
 
@@ -77268,7 +77231,7 @@ enifed('internal-test-helpers/test-cases/application', ['exports', 'ember-babel'
 
   exports.default = ApplicationTestCase;
 });
-enifed('internal-test-helpers/test-cases/autoboot-application', ['exports', 'ember-babel', 'internal-test-helpers/test-cases/test-resolver-application', 'internal-test-helpers/test-resolver', 'ember-application', 'ember-utils', 'ember-routing'], function (exports, _emberBabel, _testResolverApplication, _testResolver, _emberApplication, _emberUtils, _emberRouting) {
+enifed('internal-test-helpers/test-cases/autoboot-application', ['exports', 'ember-babel', 'internal-test-helpers/test-cases/test-resolver-application', 'ember-application', 'ember-utils', 'ember-routing'], function (exports, _emberBabel, _testResolverApplication, _emberApplication, _emberUtils, _emberRouting) {
   'use strict';
 
   var AutobootApplicationTestCase = function (_TestResolverApplicat) {

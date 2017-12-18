@@ -6,12 +6,14 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.0.0-alpha.1-null+c6e3de6a
+ * @version   3.0.0-alpha.1-null+5f3472e8
  */
 
-/*global process */
+/*globals process */
 var enifed, requireModule, Ember;
-var mainContext = this; // Used in ember-environment/lib/global.js
+
+// Used in ember-environment/lib/global.js
+mainContext = this; // eslint-disable-line no-undef
 
 (function() {
     function missingModule(name, referrerName) {
@@ -10150,7 +10152,7 @@ enifed('container', ['exports', 'ember-babel', 'ember-utils', 'ember-debug', 'em
   function wrapManagerInDeprecationProxy(manager) {
     if (_emberUtils.HAS_NATIVE_PROXY) {
       var validator = {
-        set: function (obj, prop, value) {
+        set: function (obj, prop) {
           throw new Error('You attempted to set "' + prop + '" on a factory manager created by container#factoryFor. A factory manager is a read-only construct.');
         }
       };
@@ -11843,6 +11845,7 @@ enifed('ember-application/system/application', ['exports', 'ember-babel', 'ember
     _globalsMode: true,
 
     init: function (options) {
+      // eslint-disable-line no-unused-vars
       this._super.apply(this, arguments);
 
       if (!this.$) {
@@ -12066,7 +12069,7 @@ enifed('ember-application/system/application', ['exports', 'ember-babel', 'ember
   Application.reopenClass({
     buildRegistry: function (application) {
       var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-
+      // eslint-disable-line no-unused-vars
       var registry = this._super.apply(this, arguments);
 
       commonSetupRegistry(registry);
@@ -12139,7 +12142,7 @@ enifed('ember-application/system/application', ['exports', 'ember-babel', 'ember
 
   exports.default = Application;
 });
-enifed('ember-application/system/engine-instance', ['exports', 'ember-babel', 'ember-utils', 'ember-runtime', 'ember-debug', 'ember-metal', 'container', 'ember-application/system/engine-parent'], function (exports, _emberBabel, _emberUtils, _emberRuntime, _emberDebug, _emberMetal, _container, _engineParent) {
+enifed('ember-application/system/engine-instance', ['exports', 'ember-babel', 'ember-utils', 'ember-runtime', 'ember-debug', 'container', 'ember-application/system/engine-parent'], function (exports, _emberBabel, _emberUtils, _emberRuntime, _emberDebug, _container, _engineParent) {
   'use strict';
 
   var _templateObject = (0, _emberBabel.taggedTemplateLiteralLoose)(['-bucket-cache:main'], ['-bucket-cache:main']);
@@ -12616,8 +12619,6 @@ enifed('ember-application/system/engine', ['exports', 'ember-babel', 'ember-util
     instanceInitializer: buildInitializerMethod('instanceInitializers', 'instance initializer'),
 
     buildRegistry: function (namespace) {
-      var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-
       var registry = new _container.Registry({
         resolver: resolverFor(namespace)
       });
@@ -12935,7 +12936,7 @@ enifed('ember-application/system/resolver', ['exports', 'ember-utils', 'ember-me
 
       return description;
     },
-    makeToString: function (factory, fullName) {
+    makeToString: function (factory) {
       return factory.toString();
     },
     useRouterNaming: function (parsedName) {
@@ -13048,8 +13049,7 @@ enifed('ember-application/utils/validate-type', ['exports', 'ember-debug'], func
       return;
     }
 
-    var action = validationAttributes[0],
-        factoryFlag = validationAttributes[1],
+    var factoryFlag = validationAttributes[1],
         expectedType = validationAttributes[2];
     (true && !(!!resolvedType[factoryFlag]) && (0, _emberDebug.assert)('Expected ' + parsedName.fullName + ' to resolve to an ' + expectedType + ' but ' + ('instead it was ' + resolvedType + '.'), !!resolvedType[factoryFlag]));
   }
@@ -13911,7 +13911,7 @@ enifed('ember-debug/warn', ['exports', 'ember-environment', 'ember-console', 'em
       (0, _handlers.registerHandler)('warn', handler);
     };
 
-    registerHandler(function logWarning(message, options) {
+    registerHandler(function logWarning(message) {
       _emberConsole.default.warn('WARNING: ' + message);
       if ('trace' in _emberConsole.default) {
         _emberConsole.default.trace();
@@ -14393,10 +14393,9 @@ enifed('ember-extension-support/data_adapter', ['exports', 'ember-utils', 'ember
       of your persistence library.
        @private
       @method detect
-      @param {Class} klass The class to test.
       @return boolean Whether the class is a model class or not.
     */
-    detect: function (klass) {
+    detect: function () {
       return false;
     },
 
@@ -14405,12 +14404,11 @@ enifed('ember-extension-support/data_adapter', ['exports', 'ember-utils', 'ember
       Get the columns for a given model type.
        @private
       @method columnsForType
-      @param {Class} type The model type.
       @return {Array} An array of columns of the following format:
        name: {String} The name of the column.
        desc: {String} Humanized description (what would show in a table column name).
     */
-    columnsForType: function (type) {
+    columnsForType: function () {
       return (0, _emberRuntime.A)();
     },
 
@@ -14560,7 +14558,7 @@ enifed('ember-extension-support/data_adapter', ['exports', 'ember-utils', 'ember
        This array will be observed for changes,
        so it should update when new records are added/removed.
     */
-    getRecords: function (type) {
+    getRecords: function () {
       return (0, _emberRuntime.A)();
     },
 
@@ -14593,7 +14591,7 @@ enifed('ember-extension-support/data_adapter', ['exports', 'ember-utils', 'ember
       @return {Object} Keys should match column names defined
       by the model type.
     */
-    getRecordColumnValues: function (record) {
+    getRecordColumnValues: function () {
       return {};
     },
 
@@ -14604,7 +14602,7 @@ enifed('ember-extension-support/data_adapter', ['exports', 'ember-utils', 'ember
       @method getRecordKeywords
       @return {Array} Relevant keywords for search.
     */
-    getRecordKeywords: function (record) {
+    getRecordKeywords: function () {
       return (0, _emberRuntime.A)();
     },
 
@@ -14616,7 +14614,7 @@ enifed('ember-extension-support/data_adapter', ['exports', 'ember-utils', 'ember
       @param {Object} record The record instance.
       @return {Object} The filter values.
     */
-    getRecordFilterValues: function (record) {
+    getRecordFilterValues: function () {
       return {};
     },
 
@@ -14629,7 +14627,7 @@ enifed('ember-extension-support/data_adapter', ['exports', 'ember-utils', 'ember
       @return {String} The records color.
         Possible options: black, red, blue, green.
     */
-    getRecordColor: function (record) {
+    getRecordColor: function () {
       return null;
     },
 
@@ -14639,11 +14637,9 @@ enifed('ember-extension-support/data_adapter', ['exports', 'ember-utils', 'ember
       when a change occurs.
        @private
       @method observerRecord
-      @param {Object} record The record instance.
-      @param {Function} recordUpdated The callback to call when a record is updated.
       @return {Function} The function to call to remove all observers.
     */
-    observeRecord: function (record, recordUpdated) {
+    observeRecord: function () {
       return function () {};
     }
   });
@@ -21861,12 +21857,12 @@ enifed('ember-glimmer/views/outlet', ['exports', 'ember-babel', '@glimmer/refere
 
     exports.default = OutletView;
 });
-enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-debug', 'ember-babel', 'ember/features', '@glimmer/reference', 'require', 'ember-console', 'backburner'], function (exports, emberEnvironment, emberUtils, emberDebug, emberBabel, features, reference, require, Logger, Backburner) {
+enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-debug', 'ember-babel', 'ember/features', '@glimmer/reference', 'require', 'backburner', 'ember-console'], function (exports, emberEnvironment, emberUtils, emberDebug, emberBabel, features, reference, require, Backburner, Logger) {
   'use strict';
 
   require = require && require.hasOwnProperty('default') ? require['default'] : require;
-  Logger = Logger && Logger.hasOwnProperty('default') ? Logger['default'] : Logger;
   Backburner = Backburner && Backburner.hasOwnProperty('default') ? Backburner['default'] : Backburner;
+  Logger = Logger && Logger.hasOwnProperty('default') ? Logger['default'] : Logger;
 
   /**
   @module ember
@@ -24412,11 +24408,10 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     @method descriptorFor
     @param {Object} obj the object to check
     @param {String} keyName the key to check
-    @param {Object} [meta] the meta hash for the object (optional)
     @return {Descriptor}
     @private
   */
-  function descriptorFor(obj, keyName, meta) {
+  function descriptorFor(obj, keyName) {
     var possibleDesc = obj[keyName];
     return isDescriptor(possibleDesc) ? possibleDesc : undefined;
   }
@@ -25538,6 +25533,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   }(Descriptor);
 
   function AliasedProperty_readOnlySet(obj, keyName, value) {
+    // eslint-disable-line no-unused-vars
     throw new emberDebug.Error('Cannot set read-only property \'' + keyName + '\' on object: ' + emberUtils.inspect(obj));
   }
 
@@ -27686,12 +27682,14 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     /* Called when the from side changes. */
 
     Binding.prototype.fromDidChange = function fromDidChange(target) {
+      // eslint-disable-line no-unused-vars
       this._scheduleSync('fwd');
     };
 
     /* Called when the to side changes. */
 
     Binding.prototype.toDidChange = function toDidChange(target) {
+      // eslint-disable-line no-unused-vars
       this._scheduleSync('back');
     };
 
@@ -28927,7 +28925,8 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       Object.defineProperty(obj, key, this.desc);
     };
 
-    Descriptor$$1.prototype.teardown = function teardown(obj, key) {};
+    Descriptor$$1.prototype.teardown = function teardown(obj, key) {// eslint-disable-line no-unused-vars
+    };
 
     return Descriptor$$1;
   }(Descriptor);
@@ -30699,7 +30698,7 @@ enifed('ember-routing/system/generate_controller', ['exports', 'ember-metal', 'e
     @private
   */
 
-  function generateControllerFactory(owner, controllerName, context) {
+  function generateControllerFactory(owner, controllerName) {
     var Factory = owner.factoryFor('controller:basic').class;
 
     Factory = Factory.extend({
@@ -31466,6 +31465,7 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
     transitionTo: function (name, context) {
       var _router;
 
+      // eslint-disable-line no-unused-vars
       return (_router = this.router).transitionTo.apply(_router, (0, _utils.prefixRouteNameArg)(this, arguments));
     },
     intermediateTransitionTo: function () {
@@ -31771,6 +31771,7 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
     serialize: defaultSerialize,
 
     setupController: function (controller, context, transition) {
+      // eslint-disable-line no-unused-vars
       if (controller && context !== undefined) {
         (0, _emberMetal.set)(controller, 'model', context);
       }
@@ -31825,6 +31826,7 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
       return route && route.currentModel;
     },
     renderTemplate: function (controller, model) {
+      // eslint-disable-line no-unused-vars
       this.render();
     },
     render: function (_name, options) {
@@ -32987,7 +32989,7 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
 
       logError(error, 'Error while processing route: ' + transition.targetName);
     },
-    loading: function (handlerInfos, transition, originRoute) {
+    loading: function (handlerInfos, transition) {
       var router = this;
 
       var handlerInfoWithSlowLoading = handlerInfos[handlerInfos.length - 1];
@@ -36796,6 +36798,7 @@ enifed('ember-runtime/mixins/array', ['exports', 'ember-utils', 'ember-metal', '
     return objectAt(this, idx);
   }, _Mixin$create['[]'] = (0, _emberMetal.computed)({
     get: function (key) {
+      // eslint-disable-line no-unused-vars
       return this;
     },
     set: function (key, value) {
@@ -36921,6 +36924,7 @@ enifed('ember-runtime/mixins/array', ['exports', 'ember-utils', 'ember-metal', '
       this[property.name] = property.descriptor.value;
     },
     arrayWillChange: function (content, idx, removedCnt, addedCnt) {
+      // eslint-disable-line no-unused-vars
       var keys = this._keys;
       var lim = removedCnt > 0 ? idx + removedCnt : -1;
       var meta = (0, _emberMetal.peekMeta)(this);
@@ -37392,6 +37396,7 @@ enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-metal', 'ember-debu
       });
     },
     filterBy: function (key, value) {
+      // eslint-disable-line no-unused-vars
       return this.filter(iter.apply(this, arguments));
     },
     rejectBy: function (key, value) {
@@ -37438,6 +37443,7 @@ enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-metal', 'ember-debu
       return ret;
     },
     findBy: function (key, value) {
+      // eslint-disable-line no-unused-vars
       return this.find(iter.apply(this, arguments));
     },
     every: function (callback, target) {
@@ -37449,6 +37455,7 @@ enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-metal', 'ember-debu
       });
     },
     isEvery: function (key, value) {
+      // eslint-disable-line no-unused-vars
       return this.every(iter.apply(this, arguments));
     },
     any: function (callback, target) {
@@ -37476,6 +37483,7 @@ enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-metal', 'ember-debu
       return found;
     },
     isAny: function (key, value) {
+      // eslint-disable-line no-unused-vars
       return this.any(iter.apply(this, arguments));
     },
     reduce: function (callback, initialValue, reducerProperty) {
@@ -37567,7 +37575,8 @@ enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-metal', 'ember-debu
       get: function (key) {
         return this;
       }
-    }),
+    } // eslint-disable-line no-unused-vars
+    ),
 
     addEnumerableObserver: function (target, opts) {
       var willChange = opts && opts.willChange || 'enumerableWillChange';
@@ -40612,7 +40621,7 @@ enifed('ember-runtime/system/string', ['exports', 'ember-metal', 'ember-debug', 
   var CAMELIZE_CACHE = new _emberMetal.Cache(1000, function (key) {
     return key.replace(STRING_CAMELIZE_REGEXP_1, function (match, separator, chr) {
       return chr ? chr.toUpperCase() : '';
-    }).replace(STRING_CAMELIZE_REGEXP_2, function (match, separator, chr) {
+    }).replace(STRING_CAMELIZE_REGEXP_2, function (match /*, separator, chr */) {
       return match.toLowerCase();
     });
   });
@@ -40632,7 +40641,7 @@ enifed('ember-runtime/system/string', ['exports', 'ember-metal', 'ember-debug', 
     for (var i = 0; i < parts.length; i++) {
       parts[i] = parts[i].replace(STRING_CLASSIFY_REGEXP_1, replace1).replace(STRING_CLASSIFY_REGEXP_2, replace2);
     }
-    return parts.join('/').replace(STRING_CLASSIFY_REGEXP_3, function (match, separator, chr) {
+    return parts.join('/').replace(STRING_CLASSIFY_REGEXP_3, function (match /*, separator, chr */) {
       return match.toUpperCase();
     });
   });
@@ -40647,7 +40656,7 @@ enifed('ember-runtime/system/string', ['exports', 'ember-metal', 'ember-debug', 
   var STRING_CAPITALIZE_REGEXP = /(^|\/)([a-z\u00C0-\u024F])/g;
 
   var CAPITALIZE_CACHE = new _emberMetal.Cache(1000, function (str) {
-    return str.replace(STRING_CAPITALIZE_REGEXP, function (match, separator, chr) {
+    return str.replace(STRING_CAPITALIZE_REGEXP, function (match /*, separator, chr */) {
       return match.toUpperCase();
     });
   });
@@ -40678,7 +40687,7 @@ enifed('ember-runtime/system/string', ['exports', 'ember-metal', 'ember-debug', 
     });
   }
 
-  function fmt(str, formats) {
+  function fmt() /* str, formats */{
     (true && !(false) && (0, _emberDebug.deprecate)('Ember.String.fmt is deprecated, use ES6 template strings instead.', false, { id: 'ember-string-utils.fmt', until: '3.0.0', url: 'http://babeljs.io/docs/learn-es2015/#template-strings' }));
 
     return _fmt.apply(undefined, arguments);
@@ -41404,7 +41413,7 @@ enifed('ember-template-compiler/plugins/transform-angle-bracket-components', ['e
   'use strict';
 
   exports.default = transformAngleBracketComponents;
-  function transformAngleBracketComponents(env) {
+  function transformAngleBracketComponents() /* env */{
     return {
       name: 'transform-angle-bracket-components',
 
@@ -41459,7 +41468,7 @@ enifed('ember-template-compiler/plugins/transform-attrs-into-args', ['exports'],
             var parent = stack[stack.length - 1];
             stack.push(parent.concat(node.blockParams));
           },
-          exit: function (node) {
+          exit: function () {
             stack.pop();
           }
         },
@@ -41921,8 +41930,7 @@ enifed('ember-template-compiler/plugins/transform-old-class-binding-syntax', ['e
     });
 
     each(allOfTheMicrosyntaxes, function (_ref) {
-      var value = _ref.value,
-          loc = _ref.loc;
+      var value = _ref.value;
 
       var sexprs = [];
       // TODO: add helpful deprecation when both `classNames` and `classNameBindings` can
@@ -42005,7 +42013,7 @@ enifed('ember-template-compiler/plugins/transform-quoted-bindings-into-just-bind
   'use strict';
 
   exports.default = transformQuotedBindingsIntoJustBindings;
-  function transformQuotedBindingsIntoJustBindings(env) {
+  function transformQuotedBindingsIntoJustBindings() /* env */{
 
     return {
       name: 'transform-quoted-bindings-into-just-bindings',
@@ -42054,7 +42062,7 @@ enifed('ember-template-compiler/plugins/transform-top-level-components', ['expor
   'use strict';
 
   exports.default = transformTopLevelComponent;
-  function transformTopLevelComponent(env) {
+  function transformTopLevelComponent() /* env */{
     return {
       name: 'transform-top-level-component',
 
@@ -43809,14 +43817,12 @@ enifed('ember-testing/test/run', ['exports', 'ember-metal'], function (exports, 
     }
   }
 });
-enifed('ember-testing/test/waiters', ['exports', 'ember-debug'], function (exports, _emberDebug) {
-  'use strict';
+enifed("ember-testing/test/waiters", ["exports"], function (exports) {
+  "use strict";
 
   exports.registerWaiter = registerWaiter;
   exports.unregisterWaiter = unregisterWaiter;
   exports.checkWaiters = checkWaiters;
-
-
   /**
    @module @ember/test
   */
@@ -46158,7 +46164,7 @@ enifed('ember-views/system/utils', ['exports', 'ember-utils'], function (exports
     return elMatches.call(el, selector);
   }
 });
-enifed('ember-views/utils/lookup-component', ['exports', 'ember-babel', 'container', 'ember/features', 'ember-environment'], function (exports, _emberBabel, _container, _features, _emberEnvironment) {
+enifed('ember-views/utils/lookup-component', ['exports', 'ember-babel', 'container', 'ember/features'], function (exports, _emberBabel, _container, _features) {
   'use strict';
 
   exports.default = lookupComponent;
@@ -46651,7 +46657,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
       get: function () {
         return false;
       },
-      set: function (value) {
+      set: function () {
         (true && !(false) && (0, _emberDebug.deprecate)('Ember.MODEL_FACTORY_INJECTIONS is no longer required', false, {
           id: 'ember-metal.model_factory_injections',
           until: '2.17.0',
@@ -46975,7 +46981,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "3.0.0-alpha.1-null+c6e3de6a";
+  exports.default = "3.0.0-alpha.1-null+5f3472e8";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";

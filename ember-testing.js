@@ -6,12 +6,14 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.0.0-alpha.1-null+c6e3de6a
+ * @version   3.0.0-alpha.1-null+5f3472e8
  */
 
-/*global process */
+/*globals process */
 var enifed, requireModule, Ember;
-var mainContext = this; // Used in ember-environment/lib/global.js
+
+// Used in ember-environment/lib/global.js
+mainContext = this; // eslint-disable-line no-undef
 
 (function() {
     function missingModule(name, referrerName) {
@@ -924,7 +926,7 @@ enifed('ember-debug/warn', ['exports', 'ember-environment', 'ember-console', 'em
       (0, _handlers.registerHandler)('warn', handler);
     };
 
-    registerHandler(function logWarning(message, options) {
+    registerHandler(function logWarning(message) {
       _emberConsole.default.warn('WARNING: ' + message);
       if ('trace' in _emberConsole.default) {
         _emberConsole.default.trace();
@@ -2461,14 +2463,12 @@ enifed('ember-testing/test/run', ['exports', 'ember-metal'], function (exports, 
     }
   }
 });
-enifed('ember-testing/test/waiters', ['exports', 'ember-debug'], function (exports, _emberDebug) {
-  'use strict';
+enifed("ember-testing/test/waiters", ["exports"], function (exports) {
+  "use strict";
 
   exports.registerWaiter = registerWaiter;
   exports.unregisterWaiter = unregisterWaiter;
   exports.checkWaiters = checkWaiters;
-
-
   /**
    @module @ember/test
   */

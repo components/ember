@@ -6,12 +6,14 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.0.0-alpha.1-null+c6e3de6a
+ * @version   3.0.0-alpha.1-null+5f3472e8
  */
 
-/*global process */
+/*globals process */
 var enifed, requireModule, Ember;
-var mainContext = this; // Used in ember-environment/lib/global.js
+
+// Used in ember-environment/lib/global.js
+mainContext = this; // eslint-disable-line no-undef
 
 (function() {
     function missingModule(name, referrerName) {
@@ -7504,12 +7506,12 @@ enifed('ember-environment', ['exports'], function (exports) {
   exports.context = context;
   exports.environment = environment;
 });
-enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-debug', 'ember-babel', 'ember/features', '@glimmer/reference', 'require', 'ember-console', 'backburner'], function (exports, emberEnvironment, emberUtils, emberDebug, emberBabel, features, reference, require, Logger, Backburner) {
+enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-debug', 'ember-babel', 'ember/features', '@glimmer/reference', 'require', 'backburner', 'ember-console'], function (exports, emberEnvironment, emberUtils, emberDebug, emberBabel, features, reference, require, Backburner, Logger) {
   'use strict';
 
   require = require && require.hasOwnProperty('default') ? require['default'] : require;
-  Logger = Logger && Logger.hasOwnProperty('default') ? Logger['default'] : Logger;
   Backburner = Backburner && Backburner.hasOwnProperty('default') ? Backburner['default'] : Backburner;
+  Logger = Logger && Logger.hasOwnProperty('default') ? Logger['default'] : Logger;
 
   /**
   @module ember
@@ -10067,7 +10069,6 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     @method descriptorFor
     @param {Object} obj the object to check
     @param {String} keyName the key to check
-    @param {Object} [meta] the meta hash for the object (optional)
     @return {Descriptor}
     @private
   */
@@ -11173,6 +11174,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   }(Descriptor);
 
   function AliasedProperty_readOnlySet(obj, keyName) {
+    // eslint-disable-line no-unused-vars
     throw new emberDebug.Error('Cannot set read-only property \'' + keyName + '\' on object: ' + emberUtils.inspect(obj));
   }
 
@@ -13221,12 +13223,14 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     /* Called when the from side changes. */
 
     Binding.prototype.fromDidChange = function () {
+      // eslint-disable-line no-unused-vars
       this._scheduleSync('fwd');
     };
 
     /* Called when the to side changes. */
 
     Binding.prototype.toDidChange = function () {
+      // eslint-disable-line no-unused-vars
       this._scheduleSync('back');
     };
 
@@ -14377,7 +14381,8 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       Object.defineProperty(obj, key, this.desc);
     };
 
-    Descriptor$$1.prototype.teardown = function () {};
+    Descriptor$$1.prototype.teardown = function () {// eslint-disable-line no-unused-vars
+    };
 
     return Descriptor$$1;
   }(Descriptor);
@@ -15145,7 +15150,7 @@ enifed('ember-template-compiler/plugins/transform-action-syntax', ['exports'], f
 enifed('ember-template-compiler/plugins/transform-angle-bracket-components', ['exports'], function (exports) {
   'use strict';
 
-  exports.default = function () {
+  exports.default = function () /* env */{
     return {
       name: 'transform-angle-bracket-components',
 
@@ -15659,7 +15664,6 @@ enifed('ember-template-compiler/plugins/transform-old-class-binding-syntax', ['e
 
     each(allOfTheMicrosyntaxes, function (_ref) {
       var value = _ref.value,
-          loc = _ref.loc,
           microsyntax;
 
       var sexprs = [];
@@ -15746,7 +15750,7 @@ enifed('ember-template-compiler/plugins/transform-old-class-binding-syntax', ['e
 enifed('ember-template-compiler/plugins/transform-quoted-bindings-into-just-bindings', ['exports'], function (exports) {
   'use strict';
 
-  exports.default = function () {
+  exports.default = function () /* env */{
 
     return {
       name: 'transform-quoted-bindings-into-just-bindings',
@@ -15796,7 +15800,7 @@ enifed('ember-template-compiler/plugins/transform-quoted-bindings-into-just-bind
 enifed('ember-template-compiler/plugins/transform-top-level-components', ['exports'], function (exports) {
   'use strict';
 
-  exports.default = function () {
+  exports.default = function () /* env */{
     return {
       name: 'transform-top-level-component',
 
@@ -16808,7 +16812,7 @@ enifed('ember/features', ['exports', 'ember-environment', 'ember-utils'], functi
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "3.0.0-alpha.1-null+c6e3de6a";
+  exports.default = "3.0.0-alpha.1-null+5f3472e8";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";
