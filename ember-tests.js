@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.0.0-alpha.1-null+5f3472e8
+ * @version   3.0.0-alpha.1-null+2bb4fe2b
  */
 
 /*globals process */
@@ -25741,49 +25741,7 @@ enifed('ember-glimmer/tests/integration/helpers/custom-helper-test', ['ember-bab
     return _class;
   }(_testCase.RenderingTest));
 
-  // these feature detects prevent errors in these tests
-  // on platforms (*cough* IE9 *cough*) that do not
-  // property support `Object.freeze`
-  var pushingIntoFrozenArrayThrows = function () {
-    var array = [];
-    Object.freeze(array);
-
-    try {
-      array.push('foo');
-
-      return false;
-    } catch (e) {
-      return true;
-    }
-  }();
-
-  var assigningExistingFrozenPropertyThrows = function () {
-    var obj = { foo: 'asdf' };
-    Object.freeze(obj);
-
-    try {
-      obj.foo = 'derp';
-
-      return false;
-    } catch (e) {
-      return true;
-    }
-  }();
-
-  var addingPropertyToFrozenObjectThrows = function () {
-    var obj = { foo: 'asdf' };
-    Object.freeze(obj);
-
-    try {
-      obj.bar = 'derp';
-
-      return false;
-    } catch (e) {
-      return true;
-    }
-  }();
-
-  if (!EmberDev.runningProdBuild && (pushingIntoFrozenArrayThrows || assigningExistingFrozenPropertyThrows || addingPropertyToFrozenObjectThrows)) {
+  if (!EmberDev.runningProdBuild) {
     var HelperMutatingArgsTests = function (_RenderingTest2) {
       (0, _emberBabel.inherits)(HelperMutatingArgsTests, _RenderingTest2);
 
@@ -25796,29 +25754,23 @@ enifed('ember-glimmer/tests/integration/helpers/custom-helper-test', ['ember-bab
         var _this23 = this;
 
         return function (params, hash) {
-          if (pushingIntoFrozenArrayThrows) {
-            _this23.assert.throws(function () {
-              params.push('foo');
+          _this23.assert.throws(function () {
+            params.push('foo');
 
-              // cannot assert error message as it varies by platform
-            });
-          }
+            // cannot assert error message as it varies by platform
+          });
 
-          if (assigningExistingFrozenPropertyThrows) {
-            _this23.assert.throws(function () {
-              hash.foo = 'bar';
+          _this23.assert.throws(function () {
+            hash.foo = 'bar';
 
-              // cannot assert error message as it varies by platform
-            });
-          }
+            // cannot assert error message as it varies by platform
+          });
 
-          if (addingPropertyToFrozenObjectThrows) {
-            _this23.assert.throws(function () {
-              hash.someUnusedHashProperty = 'bar';
+          _this23.assert.throws(function () {
+            hash.someUnusedHashProperty = 'bar';
 
-              // cannot assert error message as it varies by platform
-            });
-          }
+            // cannot assert error message as it varies by platform
+          });
         };
       };
 
