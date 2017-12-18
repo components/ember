@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.0.0-alpha.1-null+fe6ca9d3
+ * @version   3.0.0-alpha.1-null+b4aca962
  */
 
 /*global process */
@@ -113,1467 +113,1510 @@ var mainContext = this; // Used in ember-environment/lib/global.js
   }
 })();
 
-enifed('container/tests/container_test', ['ember-utils', 'ember-metal', 'ember/features', 'container', 'internal-test-helpers'], function (_emberUtils, _emberMetal, _features, _container, _internalTestHelpers) {
+enifed('container/tests/container_test', ['ember-babel', 'ember-utils', 'ember/features', 'container', 'internal-test-helpers'], function (_emberBabel, _emberUtils, _features, _container, _internalTestHelpers) {
   'use strict';
 
-  QUnit.module('Container');
+  (0, _internalTestHelpers.moduleFor)('Container', function (_AbstractTestCase) {
+    (0, _emberBabel.inherits)(_class, _AbstractTestCase);
 
-  QUnit.test('A registered factory returns the same instance each time', function () {
-    var registry = new _container.Registry();
-    var container = registry.container();
-    var PostController = (0, _internalTestHelpers.factory)();
+    function _class() {
+      return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase.apply(this, arguments));
+    }
 
-    registry.register('controller:post', PostController);
+    _class.prototype['@test A registered factory returns the same instance each time'] = function (assert) {
+      var registry = new _container.Registry();
+      var container = registry.container();
+      var PostController = (0, _internalTestHelpers.factory)();
 
-    var postController = container.lookup('controller:post');
+      registry.register('controller:post', PostController);
 
-    ok(postController instanceof PostController, 'The lookup is an instance of the factory');
+      var postController = container.lookup('controller:post');
 
-    equal(postController, container.lookup('controller:post'));
-  });
+      assert.ok(postController instanceof PostController, 'The lookup is an instance of the factory');
 
-  QUnit.test('uses create time injections if factory has no extend', function () {
-    var registry = new _container.Registry();
-    var container = registry.container();
-    var AppleController = (0, _internalTestHelpers.factory)();
-    var PostController = (0, _internalTestHelpers.factory)();
+      assert.equal(postController, container.lookup('controller:post'));
+    };
 
-    PostController.extend = undefined; // remove extend
+    _class.prototype['@test uses create time injections if factory has no extend'] = function (assert) {
+      var registry = new _container.Registry();
+      var container = registry.container();
+      var AppleController = (0, _internalTestHelpers.factory)();
+      var PostController = (0, _internalTestHelpers.factory)();
 
-    registry.register('controller:apple', AppleController);
-    registry.register('controller:post', PostController);
-    registry.injection('controller:post', 'apple', 'controller:apple');
+      PostController.extend = undefined; // remove extend
 
-    var postController = container.lookup('controller:post');
+      registry.register('controller:apple', AppleController);
+      registry.register('controller:post', PostController);
+      registry.injection('controller:post', 'apple', 'controller:apple');
 
-    ok(postController.apple instanceof AppleController, 'instance receives an apple of instance AppleController');
-  });
+      var postController = container.lookup('controller:post');
 
-  QUnit.test('A registered factory returns a fresh instance if singleton: false is passed as an option', function () {
-    var registry = new _container.Registry();
-    var container = registry.container();
-    var PostController = (0, _internalTestHelpers.factory)();
+      assert.ok(postController.apple instanceof AppleController, 'instance receives an apple of instance AppleController');
+    };
 
-    registry.register('controller:post', PostController);
+    _class.prototype['@test A registered factory returns a fresh instance if singleton: false is passed as an option'] = function (assert) {
+      var registry = new _container.Registry();
+      var container = registry.container();
+      var PostController = (0, _internalTestHelpers.factory)();
 
-    var postController1 = container.lookup('controller:post');
-    var postController2 = container.lookup('controller:post', { singleton: false });
-    var postController3 = container.lookup('controller:post', { singleton: false });
-    var postController4 = container.lookup('controller:post');
+      registry.register('controller:post', PostController);
 
-    equal(postController1.toString(), postController4.toString(), 'Singleton factories looked up normally return the same value');
-    notEqual(postController1.toString(), postController2.toString(), 'Singleton factories are not equal to factories looked up with singleton: false');
-    notEqual(postController2.toString(), postController3.toString(), 'Two factories looked up with singleton: false are not equal');
-    notEqual(postController3.toString(), postController4.toString(), 'A singleton factory looked up after a factory called with singleton: false is not equal');
+      var postController1 = container.lookup('controller:post');
+      var postController2 = container.lookup('controller:post', { singleton: false });
+      var postController3 = container.lookup('controller:post', { singleton: false });
+      var postController4 = container.lookup('controller:post');
 
-    ok(postController1 instanceof PostController, 'All instances are instances of the registered factory');
-    ok(postController2 instanceof PostController, 'All instances are instances of the registered factory');
-    ok(postController3 instanceof PostController, 'All instances are instances of the registered factory');
-    ok(postController4 instanceof PostController, 'All instances are instances of the registered factory');
-  });
+      assert.equal(postController1.toString(), postController4.toString(), 'Singleton factories looked up normally return the same value');
+      assert.notEqual(postController1.toString(), postController2.toString(), 'Singleton factories are not equal to factories looked up with singleton: false');
+      assert.notEqual(postController2.toString(), postController3.toString(), 'Two factories looked up with singleton: false are not equal');
+      assert.notEqual(postController3.toString(), postController4.toString(), 'A singleton factory looked up after a factory called with singleton: false is not equal');
 
-  QUnit.test('A factory type with a registered injection\'s instances receive that injection', function () {
-    var registry = new _container.Registry();
-    var container = registry.container();
-    var PostController = (0, _internalTestHelpers.factory)();
-    var Store = (0, _internalTestHelpers.factory)();
+      assert.ok(postController1 instanceof PostController, 'All instances are instances of the registered factory');
+      assert.ok(postController2 instanceof PostController, 'All instances are instances of the registered factory');
+      assert.ok(postController3 instanceof PostController, 'All instances are instances of the registered factory');
+      assert.ok(postController4 instanceof PostController, 'All instances are instances of the registered factory');
+    };
 
-    registry.register('controller:post', PostController);
-    registry.register('store:main', Store);
+    _class.prototype['@test A factory type with a registered injection\'s instances receive that injection'] = function (assert) {
+      var registry = new _container.Registry();
+      var container = registry.container();
+      var PostController = (0, _internalTestHelpers.factory)();
+      var Store = (0, _internalTestHelpers.factory)();
 
-    registry.typeInjection('controller', 'store', 'store:main');
+      registry.register('controller:post', PostController);
+      registry.register('store:main', Store);
 
-    var postController = container.lookup('controller:post');
-    var store = container.lookup('store:main');
+      registry.typeInjection('controller', 'store', 'store:main');
 
-    equal(postController.store, store);
-  });
+      var postController = container.lookup('controller:post');
+      var store = container.lookup('store:main');
 
-  QUnit.test('An individual factory with a registered injection receives the injection', function () {
-    var registry = new _container.Registry();
-    var container = registry.container();
-    var PostController = (0, _internalTestHelpers.factory)();
-    var Store = (0, _internalTestHelpers.factory)();
+      assert.equal(postController.store, store);
+    };
 
-    registry.register('controller:post', PostController);
-    registry.register('store:main', Store);
+    _class.prototype['@test An individual factory with a registered injection receives the injection'] = function (assert) {
+      var registry = new _container.Registry();
+      var container = registry.container();
+      var PostController = (0, _internalTestHelpers.factory)();
+      var Store = (0, _internalTestHelpers.factory)();
 
-    registry.injection('controller:post', 'store', 'store:main');
+      registry.register('controller:post', PostController);
+      registry.register('store:main', Store);
 
-    var postController = container.lookup('controller:post');
-    var store = container.lookup('store:main');
+      registry.injection('controller:post', 'store', 'store:main');
 
-    equal(postController.store, store, 'has the correct store injected');
-  });
+      var postController = container.lookup('controller:post');
+      var store = container.lookup('store:main');
 
-  QUnit.test('A factory with both type and individual injections', function () {
-    var registry = new _container.Registry();
-    var container = registry.container();
-    var PostController = (0, _internalTestHelpers.factory)();
-    var Store = (0, _internalTestHelpers.factory)();
-    var Router = (0, _internalTestHelpers.factory)();
+      assert.equal(postController.store, store, 'has the correct store injected');
+    };
 
-    registry.register('controller:post', PostController);
-    registry.register('store:main', Store);
-    registry.register('router:main', Router);
+    _class.prototype['@test A factory with both type and individual injections'] = function (assert) {
+      var registry = new _container.Registry();
+      var container = registry.container();
+      var PostController = (0, _internalTestHelpers.factory)();
+      var Store = (0, _internalTestHelpers.factory)();
+      var Router = (0, _internalTestHelpers.factory)();
 
-    registry.injection('controller:post', 'store', 'store:main');
-    registry.typeInjection('controller', 'router', 'router:main');
+      registry.register('controller:post', PostController);
+      registry.register('store:main', Store);
+      registry.register('router:main', Router);
 
-    var postController = container.lookup('controller:post');
-    var store = container.lookup('store:main');
-    var router = container.lookup('router:main');
+      registry.injection('controller:post', 'store', 'store:main');
+      registry.typeInjection('controller', 'router', 'router:main');
 
-    equal(postController.store, store);
-    equal(postController.router, router);
-  });
+      var postController = container.lookup('controller:post');
+      var store = container.lookup('store:main');
+      var router = container.lookup('router:main');
 
-  QUnit.test('A non-singleton instance is never cached', function () {
-    var registry = new _container.Registry();
-    var container = registry.container();
-    var PostView = (0, _internalTestHelpers.factory)();
+      assert.equal(postController.store, store);
+      assert.equal(postController.router, router);
+    };
 
-    registry.register('view:post', PostView, { singleton: false });
+    _class.prototype['@test A non-singleton instance is never cached'] = function (assert) {
+      var registry = new _container.Registry();
+      var container = registry.container();
+      var PostView = (0, _internalTestHelpers.factory)();
 
-    var postView1 = container.lookup('view:post');
-    var postView2 = container.lookup('view:post');
+      registry.register('view:post', PostView, { singleton: false });
 
-    ok(postView1 !== postView2, 'Non-singletons are not cached');
-  });
+      var postView1 = container.lookup('view:post');
+      var postView2 = container.lookup('view:post');
 
-  QUnit.test('A non-instantiated property is not instantiated', function () {
-    var registry = new _container.Registry();
-    var container = registry.container();
+      assert.ok(postView1 !== postView2, 'Non-singletons are not cached');
+    };
 
-    var template = function () {};
-    registry.register('template:foo', template, { instantiate: false });
-    equal(container.lookup('template:foo'), template);
-  });
+    _class.prototype['@test A non-instantiated property is not instantiated'] = function (assert) {
+      var registry = new _container.Registry();
+      var container = registry.container();
 
-  QUnit.test('A failed lookup returns undefined', function () {
-    var registry = new _container.Registry();
-    var container = registry.container();
+      var template = function () {};
+      registry.register('template:foo', template, { instantiate: false });
+      assert.equal(container.lookup('template:foo'), template);
+    };
 
-    equal(container.lookup('doesnot:exist'), undefined);
-  });
+    _class.prototype['@test A failed lookup returns undefined'] = function () {
+      var registry = new _container.Registry();
+      var container = registry.container();
 
-  QUnit.test('An invalid factory throws an error', function () {
-    var registry = new _container.Registry();
-    var container = registry.container();
+      equal(container.lookup('doesnot:exist'), undefined);
+    };
 
-    registry.register('controller:foo', {});
+    _class.prototype['@test An invalid factory throws an error'] = function (assert) {
+      var registry = new _container.Registry();
+      var container = registry.container();
 
-    throws(function () {
-      container.lookup('controller:foo');
-    }, /Failed to create an instance of \'controller:foo\'/);
-  });
+      registry.register('controller:foo', {});
 
-  QUnit.test('Injecting a failed lookup raises an error', function () {
-    var registry = new _container.Registry();
-    var container = registry.container();
+      assert.throws(function () {
+        container.lookup('controller:foo');
+      }, /Failed to create an instance of \'controller:foo\'/);
+    };
 
-    var fooInstance = {};
-    var fooFactory = {};
+    _class.prototype['@test Injecting a failed lookup raises an error'] = function (assert) {
+      var registry = new _container.Registry();
+      var container = registry.container();
 
-    registry.register('model:foo', {
-      create: function () {
-        return fooInstance;
-      },
-      extend: function () {
-        return fooFactory;
-      }
-    });
-    registry.injection('model:foo', 'store', 'store:main');
+      var fooInstance = {};
+      var fooFactory = {};
 
-    throws(function () {
-      container.lookup('model:foo');
-    });
-  });
-
-  QUnit.test('Injecting a falsy value does not raise an error', function () {
-    var registry = new _container.Registry();
-    var container = registry.container();
-    var ApplicationController = (0, _internalTestHelpers.factory)();
-
-    registry.register('controller:application', ApplicationController);
-    registry.register('user:current', null, { instantiate: false });
-    registry.injection('controller:application', 'currentUser', 'user:current');
-
-    strictEqual(container.lookup('controller:application').currentUser, null);
-  });
-
-  QUnit.test('The container returns same value each time even if the value is falsy', function () {
-    var registry = new _container.Registry();
-    var container = registry.container();
-
-    registry.register('falsy:value', null, { instantiate: false });
-
-    strictEqual(container.lookup('falsy:value'), container.lookup('falsy:value'));
-  });
-
-  QUnit.test('Destroying the container destroys any cached singletons', function () {
-    var registry = new _container.Registry();
-    var container = registry.container();
-    var PostController = (0, _internalTestHelpers.factory)();
-    var PostView = (0, _internalTestHelpers.factory)();
-
-
-    registry.register('controller:post', PostController);
-    registry.register('view:post', PostView, { singleton: false });
-    registry.register('template:post', function () {}, { instantiate: false });
-
-    registry.injection('controller:post', 'postView', 'view:post');
-
-    var postController = container.lookup('controller:post');
-    var postView = postController.postView;
-
-    ok(postView instanceof PostView, 'The non-singleton was injected');
-
-    container.destroy();
-
-    ok(postController.isDestroyed, 'Singletons are destroyed');
-    ok(!postView.isDestroyed, 'Non-singletons are not destroyed');
-  });
-
-  QUnit.test('The container can use a registry hook to resolve factories lazily', function () {
-    var registry = new _container.Registry();
-    var container = registry.container();
-    var PostController = (0, _internalTestHelpers.factory)();
-
-    registry.resolver = {
-      resolve: function (fullName) {
-        if (fullName === 'controller:post') {
-          return PostController;
+      registry.register('model:foo', {
+        create: function () {
+          return fooInstance;
+        },
+        extend: function () {
+          return fooFactory;
         }
-      }
+      });
+      registry.injection('model:foo', 'store', 'store:main');
+
+      assert.throws(function () {
+        container.lookup('model:foo');
+      });
     };
 
-    var postController = container.lookup('controller:post');
+    _class.prototype['@test Injecting a falsy value does not raise an error'] = function (assert) {
+      var registry = new _container.Registry();
+      var container = registry.container();
+      var ApplicationController = (0, _internalTestHelpers.factory)();
 
-    ok(postController instanceof PostController, 'The correct factory was provided');
-  });
+      registry.register('controller:application', ApplicationController);
+      registry.register('user:current', null, { instantiate: false });
+      registry.injection('controller:application', 'currentUser', 'user:current');
 
-  QUnit.test('The container normalizes names before resolving', function () {
-    var registry = new _container.Registry();
-    var container = registry.container();
-    var PostController = (0, _internalTestHelpers.factory)();
-
-    registry.normalizeFullName = function () {
-      return 'controller:post';
+      assert.strictEqual(container.lookup('controller:application').currentUser, null);
     };
 
-    registry.register('controller:post', PostController);
-    var postController = container.lookup('controller:normalized');
+    _class.prototype['@test The container returns same value each time even if the value is falsy'] = function (assert) {
+      var registry = new _container.Registry();
+      var container = registry.container();
 
-    ok(postController instanceof PostController, 'Normalizes the name before resolving');
-  });
+      registry.register('falsy:value', null, { instantiate: false });
 
-  QUnit.test('The container normalizes names when looking factory up', function () {
-    var registry = new _container.Registry();
-    var container = registry.container();
-    var PostController = (0, _internalTestHelpers.factory)();
-
-    registry.normalizeFullName = function () {
-      return 'controller:post';
+      assert.strictEqual(container.lookup('falsy:value'), container.lookup('falsy:value'));
     };
 
-    registry.register('controller:post', PostController);
-    var fact = container.factoryFor('controller:normalized');
+    _class.prototype['@test Destroying the container destroys any cached singletons'] = function (assert) {
+      var registry = new _container.Registry();
+      var container = registry.container();
+      var PostController = (0, _internalTestHelpers.factory)();
+      var PostView = (0, _internalTestHelpers.factory)();
 
-    var factInstance = fact.create();
-    ok(factInstance instanceof PostController, 'Normalizes the name');
-  });
 
-  QUnit.test('Options can be registered that should be applied to a given factory', function () {
-    var registry = new _container.Registry();
-    var container = registry.container();
-    var PostView = (0, _internalTestHelpers.factory)();
+      registry.register('controller:post', PostController);
+      registry.register('view:post', PostView, { singleton: false });
+      registry.register('template:post', function () {}, { instantiate: false });
 
-    registry.resolver = {
-      resolve: function (fullName) {
-        if (fullName === 'view:post') {
-          return PostView;
+      registry.injection('controller:post', 'postView', 'view:post');
+
+      var postController = container.lookup('controller:post');
+      var postView = postController.postView;
+
+      assert.ok(postView instanceof PostView, 'The non-singleton was injected');
+
+      container.destroy();
+
+      assert.ok(postController.isDestroyed, 'Singletons are destroyed');
+      assert.ok(!postView.isDestroyed, 'Non-singletons are not destroyed');
+    };
+
+    _class.prototype['@test The container can use a registry hook to resolve factories lazily'] = function (assert) {
+      var registry = new _container.Registry();
+      var container = registry.container();
+      var PostController = (0, _internalTestHelpers.factory)();
+
+      registry.resolver = {
+        resolve: function (fullName) {
+          if (fullName === 'controller:post') {
+            return PostController;
+          }
         }
-      }
+      };
+
+      var postController = container.lookup('controller:post');
+
+      assert.ok(postController instanceof PostController, 'The correct factory was provided');
     };
 
-    registry.options('view:post', { instantiate: true, singleton: false });
+    _class.prototype['@test The container normalizes names before resolving'] = function (assert) {
+      var registry = new _container.Registry();
+      var container = registry.container();
+      var PostController = (0, _internalTestHelpers.factory)();
 
-    var postView1 = container.lookup('view:post');
-    var postView2 = container.lookup('view:post');
+      registry.normalizeFullName = function () {
+        return 'controller:post';
+      };
 
-    ok(postView1 instanceof PostView, 'The correct factory was provided');
-    ok(postView2 instanceof PostView, 'The correct factory was provided');
+      registry.register('controller:post', PostController);
+      var postController = container.lookup('controller:normalized');
 
-    ok(postView1 !== postView2, 'The two lookups are different');
-  });
+      assert.ok(postController instanceof PostController, 'Normalizes the name before resolving');
+    };
 
-  QUnit.test('Options can be registered that should be applied to all factories for a given type', function () {
-    var registry = new _container.Registry();
-    var container = registry.container();
-    var PostView = (0, _internalTestHelpers.factory)();
+    _class.prototype['@test The container normalizes names when looking factory up'] = function (assert) {
+      var registry = new _container.Registry();
+      var container = registry.container();
+      var PostController = (0, _internalTestHelpers.factory)();
 
-    registry.resolver = {
-      resolve: function (fullName) {
-        if (fullName === 'view:post') {
-          return PostView;
+      registry.normalizeFullName = function () {
+        return 'controller:post';
+      };
+
+      registry.register('controller:post', PostController);
+      var fact = container.factoryFor('controller:normalized');
+
+      var factInstance = fact.create();
+      assert.ok(factInstance instanceof PostController, 'Normalizes the name');
+    };
+
+    _class.prototype['@test Options can be registered that should be applied to a given factory'] = function (assert) {
+      var registry = new _container.Registry();
+      var container = registry.container();
+      var PostView = (0, _internalTestHelpers.factory)();
+
+      registry.resolver = {
+        resolve: function (fullName) {
+          if (fullName === 'view:post') {
+            return PostView;
+          }
         }
-      }
+      };
+
+      registry.options('view:post', { instantiate: true, singleton: false });
+
+      var postView1 = container.lookup('view:post');
+      var postView2 = container.lookup('view:post');
+
+      assert.ok(postView1 instanceof PostView, 'The correct factory was provided');
+      assert.ok(postView2 instanceof PostView, 'The correct factory was provided');
+
+      assert.ok(postView1 !== postView2, 'The two lookups are different');
     };
 
-    registry.optionsForType('view', { singleton: false });
+    _class.prototype['@test Options can be registered that should be applied to all factories for a given type'] = function (assert) {
+      var registry = new _container.Registry();
+      var container = registry.container();
+      var PostView = (0, _internalTestHelpers.factory)();
 
-    var postView1 = container.lookup('view:post');
-    var postView2 = container.lookup('view:post');
+      registry.resolver = {
+        resolve: function (fullName) {
+          if (fullName === 'view:post') {
+            return PostView;
+          }
+        }
+      };
 
-    ok(postView1 instanceof PostView, 'The correct factory was provided');
-    ok(postView2 instanceof PostView, 'The correct factory was provided');
+      registry.optionsForType('view', { singleton: false });
 
-    ok(postView1 !== postView2, 'The two lookups are different');
-  });
+      var postView1 = container.lookup('view:post');
+      var postView2 = container.lookup('view:post');
 
-  QUnit.test('An injected non-singleton instance is never cached', function () {
-    var registry = new _container.Registry();
-    var container = registry.container();
-    var PostView = (0, _internalTestHelpers.factory)();
-    var PostViewHelper = (0, _internalTestHelpers.factory)();
+      assert.ok(postView1 instanceof PostView, 'The correct factory was provided');
+      assert.ok(postView2 instanceof PostView, 'The correct factory was provided');
 
-    registry.register('view:post', PostView, { singleton: false });
-    registry.register('view_helper:post', PostViewHelper, { singleton: false });
-    registry.injection('view:post', 'viewHelper', 'view_helper:post');
-
-    var postView1 = container.lookup('view:post');
-    var postView2 = container.lookup('view:post');
-
-    ok(postView1.viewHelper !== postView2.viewHelper, 'Injected non-singletons are not cached');
-  });
-
-  QUnit.test('Factory resolves are cached', function () {
-    var registry = new _container.Registry();
-    var container = registry.container();
-    var PostController = (0, _internalTestHelpers.factory)();
-    var resolveWasCalled = [];
-    registry.resolve = function (fullName) {
-      resolveWasCalled.push(fullName);
-      return PostController;
+      assert.ok(postView1 !== postView2, 'The two lookups are different');
     };
 
-    deepEqual(resolveWasCalled, []);
-    container.factoryFor('controller:post');
-    deepEqual(resolveWasCalled, ['controller:post']);
+    _class.prototype['@test An injected non-singleton instance is never cached'] = function (assert) {
+      var registry = new _container.Registry();
+      var container = registry.container();
+      var PostView = (0, _internalTestHelpers.factory)();
+      var PostViewHelper = (0, _internalTestHelpers.factory)();
 
-    container.factoryFor('controller:post');
-    deepEqual(resolveWasCalled, ['controller:post']);
-  });
+      registry.register('view:post', PostView, { singleton: false });
+      registry.register('view_helper:post', PostViewHelper, { singleton: false });
+      registry.injection('view:post', 'viewHelper', 'view_helper:post');
 
-  QUnit.test('factory for non extendables (MODEL) resolves are cached', function () {
-    var registry = new _container.Registry();
-    var container = registry.container();
-    var PostController = (0, _internalTestHelpers.factory)();
-    var resolveWasCalled = [];
-    registry.resolve = function (fullName) {
-      resolveWasCalled.push(fullName);
-      return PostController;
+      var postView1 = container.lookup('view:post');
+      var postView2 = container.lookup('view:post');
+
+      assert.ok(postView1.viewHelper !== postView2.viewHelper, 'Injected non-singletons are not cached');
     };
 
-    deepEqual(resolveWasCalled, []);
-    container.factoryFor('model:post');
-    deepEqual(resolveWasCalled, ['model:post']);
+    _class.prototype['@test Factory resolves are cached'] = function (assert) {
+      var registry = new _container.Registry();
+      var container = registry.container();
+      var PostController = (0, _internalTestHelpers.factory)();
+      var resolveWasCalled = [];
+      registry.resolve = function (fullName) {
+        resolveWasCalled.push(fullName);
+        return PostController;
+      };
 
-    container.factoryFor('model:post');
-    deepEqual(resolveWasCalled, ['model:post']);
-  });
+      assert.deepEqual(resolveWasCalled, []);
+      container.factoryFor('controller:post');
+      assert.deepEqual(resolveWasCalled, ['controller:post']);
 
-  QUnit.test('factory for non extendables resolves are cached', function () {
-    var registry = new _container.Registry();
-    var container = registry.container();
-    var PostController = {};
-    var resolveWasCalled = [];
-
-    registry.resolve = function (fullName) {
-      resolveWasCalled.push(fullName);
-      return PostController;
+      container.factoryFor('controller:post');
+      assert.deepEqual(resolveWasCalled, ['controller:post']);
     };
 
-    deepEqual(resolveWasCalled, []);
-    container.factoryFor('foo:post');
-    deepEqual(resolveWasCalled, ['foo:post']);
+    _class.prototype['@test factory for non extendables (MODEL) resolves are cached'] = function (assert) {
+      var registry = new _container.Registry();
+      var container = registry.container();
+      var PostController = (0, _internalTestHelpers.factory)();
+      var resolveWasCalled = [];
+      registry.resolve = function (fullName) {
+        resolveWasCalled.push(fullName);
+        return PostController;
+      };
 
-    container.factoryFor('foo:post');
-    deepEqual(resolveWasCalled, ['foo:post']);
-  });
+      assert.deepEqual(resolveWasCalled, []);
+      container.factoryFor('model:post');
+      assert.deepEqual(resolveWasCalled, ['model:post']);
 
-  QUnit.test('A factory\'s lazy injections are validated when first instantiated', function () {
-    var registry = new _container.Registry();
-    var container = registry.container();
-    var Apple = (0, _internalTestHelpers.factory)();
-    var Orange = (0, _internalTestHelpers.factory)();
+      container.factoryFor('model:post');
+      assert.deepEqual(resolveWasCalled, ['model:post']);
+    };
 
-    Apple.reopenClass({
-      _lazyInjections: function () {
-        return ['orange:main', 'banana:main'];
-      }
-    });
+    _class.prototype['@test factory for non extendables resolves are cached'] = function (assert) {
+      var registry = new _container.Registry();
+      var container = registry.container();
+      var PostController = {};
+      var resolveWasCalled = [];
 
-    registry.register('apple:main', Apple);
-    registry.register('orange:main', Orange);
+      registry.resolve = function (fullName) {
+        resolveWasCalled.push(fullName);
+        return PostController;
+      };
 
-    throws(function () {
+      assert.deepEqual(resolveWasCalled, []);
+      container.factoryFor('foo:post');
+      assert.deepEqual(resolveWasCalled, ['foo:post']);
+
+      container.factoryFor('foo:post');
+      assert.deepEqual(resolveWasCalled, ['foo:post']);
+    };
+
+    _class.prototype['@test A factory\'s lazy injections are validated when first instantiated'] = function (assert) {
+      var registry = new _container.Registry();
+      var container = registry.container();
+      var Apple = (0, _internalTestHelpers.factory)();
+      var Orange = (0, _internalTestHelpers.factory)();
+
+      Apple.reopenClass({
+        _lazyInjections: function () {
+          return ['orange:main', 'banana:main'];
+        }
+      });
+
+      registry.register('apple:main', Apple);
+      registry.register('orange:main', Orange);
+
+      assert.throws(function () {
+        container.lookup('apple:main');
+      }, /Attempting to inject an unknown injection: 'banana:main'/);
+    };
+
+    _class.prototype['@test Lazy injection validations are cached'] = function (assert) {
+      assert.expect(1);
+
+      var registry = new _container.Registry();
+      var container = registry.container();
+      var Apple = (0, _internalTestHelpers.factory)();
+      var Orange = (0, _internalTestHelpers.factory)();
+
+      Apple.reopenClass({
+        _lazyInjections: function () {
+          assert.ok(true, 'should call lazy injection method');
+          return ['orange:main'];
+        }
+      });
+
+      registry.register('apple:main', Apple);
+      registry.register('orange:main', Orange);
+
       container.lookup('apple:main');
-    }, /Attempting to inject an unknown injection: 'banana:main'/);
-  });
-
-  QUnit.test('Lazy injection validations are cached', function () {
-    expect(1);
-
-    var registry = new _container.Registry();
-    var container = registry.container();
-    var Apple = (0, _internalTestHelpers.factory)();
-    var Orange = (0, _internalTestHelpers.factory)();
-
-    Apple.reopenClass({
-      _lazyInjections: function () {
-        ok(true, 'should call lazy injection method');
-        return ['orange:main'];
-      }
-    });
-
-    registry.register('apple:main', Apple);
-    registry.register('orange:main', Orange);
-
-    container.lookup('apple:main');
-    container.lookup('apple:main');
-  });
-
-  QUnit.test('An object with its owner pre-set should be returned from ownerInjection', function () {
-    var owner = {};
-    var registry = new _container.Registry();
-    var container = registry.container({ owner: owner });
-
-    var result = container.ownerInjection();
-
-    equal(result[_emberUtils.OWNER], owner, 'owner is properly included');
-  });
-
-  QUnit.test('lookup passes options through to expandlocallookup', function (assert) {
-    var registry = new _container.Registry();
-    var container = registry.container();
-    var PostController = (0, _internalTestHelpers.factory)();
-
-    registry.register('controller:post', PostController);
-    registry.expandLocalLookup = function (fullName, options) {
-      assert.ok(true, 'expandLocalLookup was called');
-      assert.equal(fullName, 'foo:bar');
-      assert.deepEqual(options, { source: 'baz:qux' });
-
-      return 'controller:post';
+      container.lookup('apple:main');
     };
 
-    var PostControllerLookupResult = container.lookup('foo:bar', { source: 'baz:qux' });
+    _class.prototype['@test An object with its owner pre-set should be returned from ownerInjection'] = function (assert) {
+      var owner = {};
+      var registry = new _container.Registry();
+      var container = registry.container({ owner: owner });
 
-    assert.ok(PostControllerLookupResult instanceof PostController);
-  });
+      var result = container.ownerInjection();
 
-  QUnit.test('#factoryFor class is registered class', function (assert) {
-    var registry = new _container.Registry();
-    var container = registry.container();
+      assert.equal(result[_emberUtils.OWNER], owner, 'owner is properly included');
+    };
 
-    var Component = (0, _internalTestHelpers.factory)();
-    registry.register('component:foo-bar', Component);
+    _class.prototype['@test lookup passes options through to expandlocallookup'] = function (assert) {
+      var registry = new _container.Registry();
+      var container = registry.container();
+      var PostController = (0, _internalTestHelpers.factory)();
 
-    var factoryManager = container.factoryFor('component:foo-bar');
-    assert.deepEqual(factoryManager.class, Component, 'No double extend');
-  });
+      registry.register('controller:post', PostController);
+      registry.expandLocalLookup = function (fullName, options) {
+        assert.ok(true, 'expandLocalLookup was called');
+        assert.equal(fullName, 'foo:bar');
+        assert.deepEqual(options, { source: 'baz:qux' });
 
-  QUnit.test('#factoryFor must supply a fullname', function () {
-    var registry = new _container.Registry();
-    var container = registry.container();
-    expectAssertion(function () {
-      container.factoryFor('chad-bar');
-    }, /fullName must be a proper full name/);
-  });
-
-  QUnit.test('#factoryFor returns a factory manager', function (assert) {
-    var registry = new _container.Registry();
-    var container = registry.container();
-
-    var Component = (0, _internalTestHelpers.factory)();
-    registry.register('component:foo-bar', Component);
-
-    var factoryManager = container.factoryFor('component:foo-bar');
-    assert.ok(factoryManager.create);
-    assert.ok(factoryManager.class);
-  });
-
-  QUnit.test('#factoryFor returns a cached factory manager for the same type', function (assert) {
-    var registry = new _container.Registry();
-    var container = registry.container();
-
-    var Component = (0, _internalTestHelpers.factory)();
-    registry.register('component:foo-bar', Component);
-    registry.register('component:baz-bar', Component);
-
-    var factoryManager1 = container.factoryFor('component:foo-bar');
-    var factoryManager2 = container.factoryFor('component:foo-bar');
-    var factoryManager3 = container.factoryFor('component:baz-bar');
-
-    assert.equal(factoryManager1, factoryManager2, 'cache hit');
-    assert.notEqual(factoryManager1, factoryManager3, 'cache miss');
-  });
-
-  QUnit.test('#factoryFor class returns the factory function', function (assert) {
-    var registry = new _container.Registry();
-    var container = registry.container();
-
-    var Component = (0, _internalTestHelpers.factory)();
-    registry.register('component:foo-bar', Component);
-
-    var factoryManager = container.factoryFor('component:foo-bar');
-    assert.deepEqual(factoryManager.class, Component, 'No double extend');
-  });
-
-  QUnit.test('#factoryFor instance have a common parent', function (assert) {
-    var registry = new _container.Registry();
-    var container = registry.container();
-
-    var Component = (0, _internalTestHelpers.factory)();
-    registry.register('component:foo-bar', Component);
-
-    var factoryManager1 = container.factoryFor('component:foo-bar');
-    var factoryManager2 = container.factoryFor('component:foo-bar');
-    var instance1 = factoryManager1.create({ foo: 'foo' });
-    var instance2 = factoryManager2.create({ bar: 'bar' });
-
-    assert.deepEqual(instance1.constructor, instance2.constructor);
-  });
-
-  QUnit.test('can properly reset cache', function (assert) {
-    var registry = new _container.Registry();
-    var container = registry.container();
-
-    var Component = (0, _internalTestHelpers.factory)();
-    registry.register('component:foo-bar', Component);
-
-    var factory1 = container.factoryFor('component:foo-bar');
-    var factory2 = container.factoryFor('component:foo-bar');
-
-    var instance1 = container.lookup('component:foo-bar');
-    var instance2 = container.lookup('component:foo-bar');
-
-    assert.equal(instance1, instance2);
-    assert.equal(factory1, factory2);
-
-    container.reset();
-
-    var factory3 = container.factoryFor('component:foo-bar');
-    var instance3 = container.lookup('component:foo-bar');
-
-    assert.notEqual(instance1, instance3);
-    assert.notEqual(factory1, factory3);
-  });
-
-  QUnit.test('#factoryFor created instances come with instance injections', function (assert) {
-    var registry = new _container.Registry();
-    var container = registry.container();
-
-    var Component = (0, _internalTestHelpers.factory)();
-    var Ajax = (0, _internalTestHelpers.factory)();
-    registry.register('component:foo-bar', Component);
-    registry.register('util:ajax', Ajax);
-    registry.injection('component:foo-bar', 'ajax', 'util:ajax');
-
-    var componentFactory = container.factoryFor('component:foo-bar');
-    var component = componentFactory.create();
-
-    assert.ok(component.ajax);
-    assert.ok(component.ajax instanceof Ajax);
-  });
-
-  QUnit.test('#factoryFor options passed to create clobber injections', function (assert) {
-    var registry = new _container.Registry();
-    var container = registry.container();
-
-    var Component = (0, _internalTestHelpers.factory)();
-    var Ajax = (0, _internalTestHelpers.factory)();
-    registry.register('component:foo-bar', Component);
-    registry.register('util:ajax', Ajax);
-    registry.injection('component:foo-bar', 'ajax', 'util:ajax');
-
-    var componentFactory = container.factoryFor('component:foo-bar');
-
-    var instrance = componentFactory.create({ ajax: 'fetch' });
-
-    assert.equal(instrance.ajax, 'fetch');
-  });
-
-  QUnit.test('#factoryFor does not add properties to the object being instantiated when _initFactory is present', function (assert) {
-    var registry = new _container.Registry();
-    var container = registry.container();
-
-    var Component = function () {
-      function Component() {}
-
-      Component._initFactory = function (_factory) {};
-
-      Component.create = function (options) {
-        var instance = new this();
-        (0, _emberUtils.assign)(instance, options);
-        return instance;
+        return 'controller:post';
       };
 
-      return Component;
-    }();
+      var PostControllerLookupResult = container.lookup('foo:bar', { source: 'baz:qux' });
 
-    registry.register('component:foo-bar', Component);
+      assert.ok(PostControllerLookupResult instanceof PostController);
+    };
 
-    var componentFactory = container.factoryFor('component:foo-bar');
-    var instance = componentFactory.create();
+    _class.prototype['@test #factoryFor class is registered class'] = function (assert) {
+      var registry = new _container.Registry();
+      var container = registry.container();
 
-    // note: _guid and isDestroyed are being set in the `factory` constructor
-    // not via registry/container shenanigans
-    assert.deepEqual(Object.keys(instance), []);
-  });
+      var Component = (0, _internalTestHelpers.factory)();
+      registry.register('component:foo-bar', Component);
 
-  // this is skipped until templates and the glimmer environment do not require `OWNER` to be
-  // passed in as constructor args
-  QUnit.skip('#factoryFor does not add properties to the object being instantiated', function (assert) {
-    var registry = new _container.Registry();
-    var container = registry.container();
+      var factoryManager = container.factoryFor('component:foo-bar');
+      assert.deepEqual(factoryManager.class, Component, 'No double extend');
+    };
 
-    var Component = function () {
-      function Component() {}
+    _class.prototype['@test #factoryFor must supply a fullname'] = function () {
+      var registry = new _container.Registry();
+      var container = registry.container();
+      expectAssertion(function () {
+        container.factoryFor('chad-bar');
+      }, /fullName must be a proper full name/);
+    };
 
-      Component.create = function (options) {
-        var instance = new this();
-        (0, _emberUtils.assign)(instance, options);
-        return instance;
-      };
+    _class.prototype['@test #factoryFor returns a factory manager'] = function (assert) {
+      var registry = new _container.Registry();
+      var container = registry.container();
 
-      return Component;
-    }();
+      var Component = (0, _internalTestHelpers.factory)();
+      registry.register('component:foo-bar', Component);
 
-    registry.register('component:foo-bar', Component);
+      var factoryManager = container.factoryFor('component:foo-bar');
+      assert.ok(factoryManager.create);
+      assert.ok(factoryManager.class);
+    };
 
-    var componentFactory = container.factoryFor('component:foo-bar');
-    var instance = componentFactory.create();
+    _class.prototype['@test #factoryFor returns a cached factory manager for the same type'] = function (assert) {
+      var registry = new _container.Registry();
+      var container = registry.container();
 
-    // note: _guid and isDestroyed are being set in the `factory` constructor
-    // not via registry/container shenanigans
-    assert.deepEqual(Object.keys(instance), []);
-  });
+      var Component = (0, _internalTestHelpers.factory)();
+      registry.register('component:foo-bar', Component);
+      registry.register('component:baz-bar', Component);
+
+      var factoryManager1 = container.factoryFor('component:foo-bar');
+      var factoryManager2 = container.factoryFor('component:foo-bar');
+      var factoryManager3 = container.factoryFor('component:baz-bar');
+
+      assert.equal(factoryManager1, factoryManager2, 'cache hit');
+      assert.notEqual(factoryManager1, factoryManager3, 'cache miss');
+    };
+
+    _class.prototype['@test #factoryFor class returns the factory function'] = function (assert) {
+      var registry = new _container.Registry();
+      var container = registry.container();
+
+      var Component = (0, _internalTestHelpers.factory)();
+      registry.register('component:foo-bar', Component);
+
+      var factoryManager = container.factoryFor('component:foo-bar');
+      assert.deepEqual(factoryManager.class, Component, 'No double extend');
+    };
+
+    _class.prototype['@test #factoryFor instance have a common parent'] = function (assert) {
+      var registry = new _container.Registry();
+      var container = registry.container();
+
+      var Component = (0, _internalTestHelpers.factory)();
+      registry.register('component:foo-bar', Component);
+
+      var factoryManager1 = container.factoryFor('component:foo-bar');
+      var factoryManager2 = container.factoryFor('component:foo-bar');
+      var instance1 = factoryManager1.create({ foo: 'foo' });
+      var instance2 = factoryManager2.create({ bar: 'bar' });
+
+      assert.deepEqual(instance1.constructor, instance2.constructor);
+    };
+
+    _class.prototype['@test can properly reset cache'] = function (assert) {
+      var registry = new _container.Registry();
+      var container = registry.container();
+
+      var Component = (0, _internalTestHelpers.factory)();
+      registry.register('component:foo-bar', Component);
+
+      var factory1 = container.factoryFor('component:foo-bar');
+      var factory2 = container.factoryFor('component:foo-bar');
+
+      var instance1 = container.lookup('component:foo-bar');
+      var instance2 = container.lookup('component:foo-bar');
+
+      assert.equal(instance1, instance2);
+      assert.equal(factory1, factory2);
+
+      container.reset();
+
+      var factory3 = container.factoryFor('component:foo-bar');
+      var instance3 = container.lookup('component:foo-bar');
+
+      assert.notEqual(instance1, instance3);
+      assert.notEqual(factory1, factory3);
+    };
+
+    _class.prototype['@test #factoryFor created instances come with instance injections'] = function (assert) {
+      var registry = new _container.Registry();
+      var container = registry.container();
+
+      var Component = (0, _internalTestHelpers.factory)();
+      var Ajax = (0, _internalTestHelpers.factory)();
+      registry.register('component:foo-bar', Component);
+      registry.register('util:ajax', Ajax);
+      registry.injection('component:foo-bar', 'ajax', 'util:ajax');
+
+      var componentFactory = container.factoryFor('component:foo-bar');
+      var component = componentFactory.create();
+
+      assert.ok(component.ajax);
+      assert.ok(component.ajax instanceof Ajax);
+    };
+
+    _class.prototype['@test #factoryFor options passed to create clobber injections'] = function (assert) {
+      var registry = new _container.Registry();
+      var container = registry.container();
+
+      var Component = (0, _internalTestHelpers.factory)();
+      var Ajax = (0, _internalTestHelpers.factory)();
+      registry.register('component:foo-bar', Component);
+      registry.register('util:ajax', Ajax);
+      registry.injection('component:foo-bar', 'ajax', 'util:ajax');
+
+      var componentFactory = container.factoryFor('component:foo-bar');
+
+      var instrance = componentFactory.create({ ajax: 'fetch' });
+
+      assert.equal(instrance.ajax, 'fetch');
+    };
+
+    _class.prototype['@test #factoryFor does not add properties to the object being instantiated when _initFactory is present'] = function (assert) {
+      var registry = new _container.Registry();
+      var container = registry.container();
+
+      var Component = function () {
+        function Component() {}
+
+        Component._initFactory = function (_factory) {};
+
+        Component.create = function (options) {
+          var instance = new this();
+          (0, _emberUtils.assign)(instance, options);
+          return instance;
+        };
+
+        return Component;
+      }();
+
+      registry.register('component:foo-bar', Component);
+
+      var componentFactory = container.factoryFor('component:foo-bar');
+      var instance = componentFactory.create();
+
+      // note: _guid and isDestroyed are being set in the `factory` constructor
+      // not via registry/container shenanigans
+      assert.deepEqual(Object.keys(instance), []);
+    };
+
+    _class.prototype['@skip #factoryFor does not add properties to the object being instantiated'] = function (assert) {
+      var registry = new _container.Registry();
+      var container = registry.container();
+
+      var Component = function () {
+        function Component() {}
+
+        Component.create = function (options) {
+          var instance = new this();
+          (0, _emberUtils.assign)(instance, options);
+          return instance;
+        };
+
+        return Component;
+      }();
+
+      registry.register('component:foo-bar', Component);
+
+      var componentFactory = container.factoryFor('component:foo-bar');
+      var instance = componentFactory.create();
+
+      // note: _guid and isDestroyed are being set in the `factory` constructor
+      // not via registry/container shenanigans
+      assert.deepEqual(Object.keys(instance), []);
+    };
+
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
 
   if (_features.EMBER_MODULE_UNIFICATION) {
     QUnit.module('Container module unification');
 
-    QUnit.test('The container can pass a source to factoryFor', function (assert) {
-      var PrivateComponent = (0, _internalTestHelpers.factory)();
-      var lookup = 'component:my-input';
-      var expectedSource = 'template:routes/application';
-      var registry = new _container.Registry();
-      var resolveCount = 0;
-      registry.resolve = function (fullName, _ref) {
-        var source = _ref.source;
+    (0, _internalTestHelpers.moduleFor)('Container module unification', function (_AbstractTestCase2) {
+      (0, _emberBabel.inherits)(_class2, _AbstractTestCase2);
 
-        resolveCount++;
-        if (fullName === lookup && source === expectedSource) {
-          return PrivateComponent;
-        }
+      function _class2() {
+        return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase2.apply(this, arguments));
+      }
+
+      _class2.prototype['@test The container can pass a source to factoryFor'] = function (assert) {
+        var PrivateComponent = (0, _internalTestHelpers.factory)();
+        var lookup = 'component:my-input';
+        var expectedSource = 'template:routes/application';
+        var registry = new _container.Registry();
+        var resolveCount = 0;
+        registry.resolve = function (fullName, _ref) {
+          var source = _ref.source;
+
+          resolveCount++;
+          if (fullName === lookup && source === expectedSource) {
+            return PrivateComponent;
+          }
+        };
+
+        var container = registry.container();
+
+        assert.strictEqual(container.factoryFor(lookup, { source: expectedSource }).class, PrivateComponent, 'The correct factory was provided');
+        assert.strictEqual(container.factoryFor(lookup, { source: expectedSource }).class, PrivateComponent, 'The correct factory was provided again');
+        assert.equal(resolveCount, 1, 'resolve called only once and a cached factory was returned the second time');
       };
 
-      var container = registry.container();
+      _class2.prototype['@test The container can pass a source to lookup'] = function () {
+        var PrivateComponent = (0, _internalTestHelpers.factory)();
+        var lookup = 'component:my-input';
+        var expectedSource = 'template:routes/application';
+        var registry = new _container.Registry();
+        registry.resolve = function (fullName, _ref2) {
+          var source = _ref2.source;
 
-      assert.strictEqual(container.factoryFor(lookup, { source: expectedSource }).class, PrivateComponent, 'The correct factory was provided');
-      assert.strictEqual(container.factoryFor(lookup, { source: expectedSource }).class, PrivateComponent, 'The correct factory was provided again');
-      assert.equal(resolveCount, 1, 'resolve called only once and a cached factory was returned the second time');
-    });
+          if (fullName === lookup && source === expectedSource) {
+            return PrivateComponent;
+          }
+        };
 
-    QUnit.test('The container can pass a source to lookup', function (assert) {
-      var PrivateComponent = (0, _internalTestHelpers.factory)();
-      var lookup = 'component:my-input';
-      var expectedSource = 'template:routes/application';
-      var registry = new _container.Registry();
-      registry.resolve = function (fullName, _ref2) {
-        var source = _ref2.source;
+        var container = registry.container();
 
-        if (fullName === lookup && source === expectedSource) {
-          return PrivateComponent;
-        }
+        var result = container.lookup(lookup, { source: expectedSource });
+        this.assert.ok(result instanceof PrivateComponent, 'The correct factory was provided');
+
+        this.assert.ok(container.cache['template:routes/application:component:my-input'] instanceof PrivateComponent, 'The correct factory was stored in the cache with the correct key which includes the source.');
       };
 
-      var container = registry.container();
-
-      var result = container.lookup(lookup, { source: expectedSource });
-      assert.ok(result instanceof PrivateComponent, 'The correct factory was provided');
-
-      assert.ok(container.cache['template:routes/application:component:my-input'] instanceof PrivateComponent, 'The correct factory was stored in the cache with the correct key which includes the source.');
-    });
+      return _class2;
+    }(_internalTestHelpers.AbstractTestCase));
   }
 });
-enifed('container/tests/owner_test', ['ember-utils'], function (_emberUtils) {
+enifed('container/tests/owner_test', ['ember-babel', 'ember-utils', 'internal-test-helpers'], function (_emberBabel, _emberUtils, _internalTestHelpers) {
   'use strict';
 
-  QUnit.module('Owner', {});
+  (0, _internalTestHelpers.moduleFor)('Owner', function (_AbstractTestCase) {
+    (0, _emberBabel.inherits)(_class, _AbstractTestCase);
 
-  QUnit.test('An owner can be set with `setOwner` and retrieved with `getOwner`', function () {
-    var owner = {};
-    var obj = {};
-
-    strictEqual((0, _emberUtils.getOwner)(obj), undefined, 'owner has not been set');
-
-    (0, _emberUtils.setOwner)(obj, owner);
-
-    strictEqual((0, _emberUtils.getOwner)(obj), owner, 'owner has been set');
-
-    strictEqual(obj[_emberUtils.OWNER], owner, 'owner has been set to the OWNER symbol');
-  });
-});
-enifed('container/tests/registry_test', ['container', 'internal-test-helpers', 'ember/features', 'ember-environment'], function (_container, _internalTestHelpers, _features, _emberEnvironment) {
-  'use strict';
-
-  var originalResolverFunctionSupport = void 0;
-
-  QUnit.module('Registry', {
-    setup: function () {
-      originalResolverFunctionSupport = _emberEnvironment.ENV._ENABLE_RESOLVER_FUNCTION_SUPPORT;
-      _emberEnvironment.ENV._ENABLE_RESOLVER_FUNCTION_SUPPORT = true;
-    },
-    teardown: function () {
-      _emberEnvironment.ENV._ENABLE_RESOLVER_FUNCTION_SUPPORT = originalResolverFunctionSupport;
+    function _class() {
+      return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase.apply(this, arguments));
     }
-  });
 
-  QUnit.test('A registered factory is returned from resolve', function () {
-    var registry = new _container.Registry();
-    var PostController = (0, _internalTestHelpers.factory)();
+    _class.prototype['@test An owner can be set with `setOwner` and retrieved with `getOwner`'] = function (assert) {
+      var owner = {};
+      var obj = {};
 
-    registry.register('controller:post', PostController);
+      assert.strictEqual((0, _emberUtils.getOwner)(obj), undefined, 'owner has not been set');
 
-    var PostControllerFactory = registry.resolve('controller:post');
+      (0, _emberUtils.setOwner)(obj, owner);
 
-    ok(PostControllerFactory, 'factory is returned');
-    ok(PostControllerFactory.create() instanceof PostController, 'The return of factory.create is an instance of PostController');
-  });
+      assert.strictEqual((0, _emberUtils.getOwner)(obj), owner, 'owner has been set');
 
-  QUnit.test('The registered factory returned from resolve is the same factory each time', function () {
-    var registry = new _container.Registry();
-    var PostController = (0, _internalTestHelpers.factory)();
-
-    registry.register('controller:post', PostController);
-
-    deepEqual(registry.resolve('controller:post'), registry.resolve('controller:post'), 'The return of resolve is always the same');
-  });
-
-  QUnit.test('The registered value returned from resolve is the same value each time even if the value is falsy', function () {
-    var registry = new _container.Registry();
-
-    registry.register('falsy:value', null, { instantiate: false });
-
-    strictEqual(registry.resolve('falsy:value'), registry.resolve('falsy:value'), 'The return of resolve is always the same');
-  });
-
-  QUnit.test('The value returned from resolver is the same value as the original value even if the value is falsy', function () {
-    var registry = new _container.Registry({ resolver: {
-        resolve: function (fullName) {
-          if (fullName === 'falsy:value') {
-            return null;
-          }
-        }
-      } });
-
-    strictEqual(registry.resolve('falsy:value'), null);
-  });
-
-  QUnit.test('A registered factory returns true for `has` if an item is registered', function () {
-    var registry = new _container.Registry();
-    var PostController = (0, _internalTestHelpers.factory)();
-
-    registry.register('controller:post', PostController);
-
-    equal(registry.has('controller:post'), true, 'The `has` method returned true for registered factories');
-    equal(registry.has('controller:posts'), false, 'The `has` method returned false for unregistered factories');
-  });
-
-  QUnit.test('Throw exception when trying to inject `type:thing` on all type(s)', function () {
-    var registry = new _container.Registry();
-    var PostController = (0, _internalTestHelpers.factory)();
-
-    registry.register('controller:post', PostController);
-
-    expectAssertion(function () {
-      registry.typeInjection('controller', 'injected', 'controller:post');
-    }, /Cannot inject a 'controller:post' on other controller\(s\)\./);
-  });
-
-  QUnit.test('The registry can take a hook to resolve factories lazily', function () {
-    var PostController = (0, _internalTestHelpers.factory)();
-
-    var registry = new _container.Registry({ resolver: {
-        resolve: function (fullName) {
-          if (fullName === 'controller:post') {
-            return PostController;
-          }
-        }
-      } });
-
-    strictEqual(registry.resolve('controller:post'), PostController, 'The correct factory was provided');
-  });
-
-  QUnit.test('The registry respects the resolver hook for `has`', function () {
-    var PostController = (0, _internalTestHelpers.factory)();
-
-    var registry = new _container.Registry({ resolver: {
-        resolve: function (fullName) {
-          if (fullName === 'controller:post') {
-            return PostController;
-          }
-        }
-      } });
-
-    ok(registry.has('controller:post'), 'the `has` method uses the resolver hook');
-  });
-
-  QUnit.test('The registry normalizes names when resolving', function () {
-    var registry = new _container.Registry();
-    var PostController = (0, _internalTestHelpers.factory)();
-
-    registry.normalizeFullName = function () {
-      return 'controller:post';
+      assert.strictEqual(obj[_emberUtils.OWNER], owner, 'owner has been set to the OWNER symbol');
     };
 
-    registry.register('controller:post', PostController);
-    var type = registry.resolve('controller:normalized');
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
+});
+enifed('container/tests/registry_test', ['ember-babel', 'container', 'internal-test-helpers', 'ember/features', 'ember-environment'], function (_emberBabel, _container, _internalTestHelpers, _features, _emberEnvironment) {
+  'use strict';
 
-    strictEqual(type, PostController, 'Normalizes the name when resolving');
-  });
+  (0, _internalTestHelpers.moduleFor)('Registry', function (_AbstractTestCase) {
+    (0, _emberBabel.inherits)(_class, _AbstractTestCase);
 
-  QUnit.test('The registry normalizes names when checking if the factory is registered', function () {
-    var registry = new _container.Registry();
-    var PostController = (0, _internalTestHelpers.factory)();
+    function _class() {
 
-    registry.normalizeFullName = function (fullName) {
-      return fullName === 'controller:normalized' ? 'controller:post' : fullName;
+      var _this = (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase.call(this));
+
+      _this.originalResolverFunctionSupport = _emberEnvironment.ENV._ENABLE_RESOLVER_FUNCTION_SUPPORT;
+      _emberEnvironment.ENV._ENABLE_RESOLVER_FUNCTION_SUPPORT = true;
+      return _this;
+    }
+
+    _class.prototype.teardown = function () {
+      _emberEnvironment.ENV._ENABLE_RESOLVER_FUNCTION_SUPPORT = this.originalResolverFunctionSupport;
     };
 
-    registry.register('controller:post', PostController);
-    var isPresent = registry.has('controller:normalized');
+    _class.prototype['@test A registered factory is returned from resolve'] = function (assert) {
+      var registry = new _container.Registry();
+      var PostController = (0, _internalTestHelpers.factory)();
 
-    equal(isPresent, true, 'Normalizes the name when checking if the factory or instance is present');
-  });
+      registry.register('controller:post', PostController);
 
-  QUnit.test('The registry normalizes names when injecting', function () {
-    var registry = new _container.Registry();
-    var PostController = (0, _internalTestHelpers.factory)();
-    var user = { name: 'Stef' };
+      var PostControllerFactory = registry.resolve('controller:post');
 
-    registry.normalize = function () {
-      return 'controller:post';
+      assert.ok(PostControllerFactory, 'factory is returned');
+      assert.ok(PostControllerFactory.create() instanceof PostController, 'The return of factory.create is an instance of PostController');
     };
 
-    registry.register('controller:post', PostController);
-    registry.register('user:post', user, { instantiate: false });
-    registry.injection('controller:post', 'user', 'controller:normalized');
+    _class.prototype['@test The registered factory returned from resolve is the same factory each time'] = function (assert) {
+      var registry = new _container.Registry();
+      var PostController = (0, _internalTestHelpers.factory)();
 
-    deepEqual(registry.resolve('controller:post'), user, 'Normalizes the name when injecting');
-  });
+      registry.register('controller:post', PostController);
 
-  QUnit.test('cannot register an `undefined` factory', function () {
-    var registry = new _container.Registry();
-
-    throws(function () {
-      registry.register('controller:apple', undefined);
-    }, '');
-  });
-
-  QUnit.test('can re-register a factory', function () {
-    var registry = new _container.Registry();
-    var FirstApple = (0, _internalTestHelpers.factory)('first');
-    var SecondApple = (0, _internalTestHelpers.factory)('second');
-
-    registry.register('controller:apple', FirstApple);
-    registry.register('controller:apple', SecondApple);
-
-    ok(registry.resolve('controller:apple').create() instanceof SecondApple);
-  });
-
-  QUnit.test('cannot re-register a factory if it has been resolved', function () {
-    var registry = new _container.Registry();
-    var FirstApple = (0, _internalTestHelpers.factory)('first');
-    var SecondApple = (0, _internalTestHelpers.factory)('second');
-
-    registry.register('controller:apple', FirstApple);
-    strictEqual(registry.resolve('controller:apple'), FirstApple);
-
-    expectAssertion(function () {
-      registry.register('controller:apple', SecondApple);
-    }, /Cannot re-register: 'controller:apple', as it has already been resolved\./);
-
-    strictEqual(registry.resolve('controller:apple'), FirstApple);
-  });
-
-  QUnit.test('registry.has should not accidentally cause injections on that factory to be run. (Mitigate merely on observing)', function () {
-    expect(1);
-
-    var registry = new _container.Registry();
-    var FirstApple = (0, _internalTestHelpers.factory)('first');
-    var SecondApple = (0, _internalTestHelpers.factory)('second');
-
-    SecondApple.extend = function () {
-      ok(false, 'should not extend or touch the injected model, merely to inspect existence of another');
+      assert.deepEqual(registry.resolve('controller:post'), registry.resolve('controller:post'), 'The return of resolve is always the same');
     };
 
-    registry.register('controller:apple', FirstApple);
-    registry.register('controller:second-apple', SecondApple);
-    registry.injection('controller:apple', 'badApple', 'controller:second-apple');
+    _class.prototype['@test The registered value returned from resolve is the same value each time even if the value is falsy'] = function (assert) {
+      var registry = new _container.Registry();
 
-    ok(registry.has('controller:apple'));
-  });
+      registry.register('falsy:value', null, { instantiate: false });
 
-  QUnit.test('registry.has should not error for invalid fullNames)', function () {
-    expect(1);
-
-    var registry = new _container.Registry();
-
-    ok(!registry.has('foo:bar:baz'));
-  });
-
-  QUnit.test('once resolved, always return the same result', function () {
-    expect(1);
-
-    var registry = new _container.Registry();
-
-    registry.resolver = {
-      resolve: function () {
-        return 'bar';
-      }
+      assert.strictEqual(registry.resolve('falsy:value'), registry.resolve('falsy:value'), 'The return of resolve is always the same');
     };
 
-    var Bar = registry.resolve('models:bar');
-
-    registry.resolver = {
-      resolve: function () {
-        return 'not bar';
-      }
-    };
-
-    equal(registry.resolve('models:bar'), Bar);
-  });
-
-  QUnit.test('factory resolves are cached', function () {
-    var registry = new _container.Registry();
-    var PostController = (0, _internalTestHelpers.factory)();
-    var resolveWasCalled = [];
-
-    registry.resolver = {
-      resolve: function (fullName) {
-        resolveWasCalled.push(fullName);
-        return PostController;
-      }
-    };
-
-    deepEqual(resolveWasCalled, []);
-    registry.resolve('controller:post');
-    deepEqual(resolveWasCalled, ['controller:post']);
-
-    registry.resolve('controller:post');
-    deepEqual(resolveWasCalled, ['controller:post']);
-  });
-
-  QUnit.test('factory for non extendables (MODEL) resolves are cached', function () {
-    var registry = new _container.Registry();
-    var PostController = (0, _internalTestHelpers.factory)();
-    var resolveWasCalled = [];
-
-    registry.resolver = {
-      resolve: function (fullName) {
-        resolveWasCalled.push(fullName);
-        return PostController;
-      }
-    };
-
-    deepEqual(resolveWasCalled, []);
-    registry.resolve('model:post');
-    deepEqual(resolveWasCalled, ['model:post']);
-
-    registry.resolve('model:post');
-    deepEqual(resolveWasCalled, ['model:post']);
-  });
-
-  QUnit.test('factory for non extendables resolves are cached', function () {
-    var registry = new _container.Registry();
-    var PostController = {};
-    var resolveWasCalled = [];
-
-    registry.resolver = {
-      resolve: function (fullName) {
-        resolveWasCalled.push(fullName);
-        return PostController;
-      }
-    };
-
-    deepEqual(resolveWasCalled, []);
-    registry.resolve('foo:post');
-    deepEqual(resolveWasCalled, ['foo:post']);
-
-    registry.resolve('foo:post');
-    deepEqual(resolveWasCalled, ['foo:post']);
-  });
-
-  QUnit.test('registry.container creates a container', function () {
-    var registry = new _container.Registry();
-    var PostController = (0, _internalTestHelpers.factory)();
-    registry.register('controller:post', PostController);
-
-    var container = registry.container();
-    var postController = container.lookup('controller:post');
-
-    ok(postController instanceof PostController, 'The lookup is an instance of the registered factory');
-  });
-
-  QUnit.test('`describe` will be handled by the resolver, then by the fallback registry, if available', function () {
-
-    var registry = new _container.Registry({ fallback: {
-        describe: function (fullName) {
-          return fullName + '-fallback';
-        }
-      }, resolver: {
-        lookupDescription: function (fullName) {
-          return fullName + '-resolver';
-        }
-      } });
-
-    equal(registry.describe('controller:post'), 'controller:post-resolver', '`describe` handled by the resolver first.');
-
-    registry.resolver = null;
-
-    equal(registry.describe('controller:post'), 'controller:post-fallback', '`describe` handled by fallback registry next.');
-
-    registry.fallback = null;
-
-    equal(registry.describe('controller:post'), 'controller:post', '`describe` by default returns argument.');
-  });
-
-  QUnit.test('`normalizeFullName` will be handled by the resolver, then by the fallback registry, if available', function () {
-
-    var registry = new _container.Registry({ fallback: {
-        normalizeFullName: function (fullName) {
-          return fullName + '-fallback';
-        }
-      }, resolver: {
-        normalize: function (fullName) {
-          return fullName + '-resolver';
-        }
-      } });
-
-    equal(registry.normalizeFullName('controller:post'), 'controller:post-resolver', '`normalizeFullName` handled by the resolver first.');
-
-    registry.resolver = null;
-
-    equal(registry.normalizeFullName('controller:post'), 'controller:post-fallback', '`normalizeFullName` handled by fallback registry next.');
-
-    registry.fallback = null;
-
-    equal(registry.normalizeFullName('controller:post'), 'controller:post', '`normalizeFullName` by default returns argument.');
-  });
-
-  QUnit.test('`makeToString` will be handled by the resolver, then by the fallback registry, if available', function () {
-
-    var registry = new _container.Registry({ fallback: {
-        makeToString: function (fullName) {
-          return fullName + '-fallback';
-        }
-      }, resolver: {
-        makeToString: function (fullName) {
-          return fullName + '-resolver';
-        }
-      } });
-
-    equal(registry.makeToString('controller:post'), 'controller:post-resolver', '`makeToString` handled by the resolver first.');
-
-    registry.resolver = null;
-
-    equal(registry.makeToString('controller:post'), 'controller:post-fallback', '`makeToString` handled by fallback registry next.');
-
-    registry.fallback = null;
-
-    equal(registry.makeToString('controller:post'), 'controller:post', '`makeToString` by default returns argument.');
-  });
-
-  QUnit.test('`resolve` can be handled by a fallback registry', function () {
-    var fallback = new _container.Registry();
-
-    var registry = new _container.Registry({ fallback: fallback });
-    var PostController = (0, _internalTestHelpers.factory)();
-
-    fallback.register('controller:post', PostController);
-
-    var PostControllerFactory = registry.resolve('controller:post');
-
-    ok(PostControllerFactory, 'factory is returned');
-    ok(PostControllerFactory.create() instanceof PostController, 'The return of factory.create is an instance of PostController');
-  });
-
-  QUnit.test('`has` can be handled by a fallback registry', function () {
-    var fallback = new _container.Registry();
-
-    var registry = new _container.Registry({ fallback: fallback });
-    var PostController = (0, _internalTestHelpers.factory)();
-
-    fallback.register('controller:post', PostController);
-
-    equal(registry.has('controller:post'), true, 'Fallback registry is checked for registration');
-  });
-
-  QUnit.test('`getInjections` includes injections from a fallback registry', function () {
-    var fallback = new _container.Registry();
-    var registry = new _container.Registry({ fallback: fallback });
-
-    equal(registry.getInjections('model:user').length, 0, 'No injections in the primary registry');
-
-    fallback.injection('model:user', 'post', 'model:post');
-
-    equal(registry.getInjections('model:user').length, 1, 'Injections from the fallback registry are merged');
-  });
-
-  QUnit.test('`getTypeInjections` includes type injections from a fallback registry', function () {
-    var fallback = new _container.Registry();
-    var registry = new _container.Registry({ fallback: fallback });
-
-    equal(registry.getTypeInjections('model').length, 0, 'No injections in the primary registry');
-
-    fallback.injection('model', 'source', 'source:main');
-
-    equal(registry.getTypeInjections('model').length, 1, 'Injections from the fallback registry are merged');
-  });
-
-  QUnit.test('`knownForType` contains keys for each item of a given type', function () {
-    var registry = new _container.Registry();
-
-    registry.register('foo:bar-baz', 'baz');
-    registry.register('foo:qux-fez', 'fez');
-
-    var found = registry.knownForType('foo');
-
-    deepEqual(found, {
-      'foo:bar-baz': true,
-      'foo:qux-fez': true
-    });
-  });
-
-  QUnit.test('`knownForType` includes fallback registry results', function () {
-    var fallback = new _container.Registry();
-    var registry = new _container.Registry({ fallback: fallback });
-
-    registry.register('foo:bar-baz', 'baz');
-    registry.register('foo:qux-fez', 'fez');
-    fallback.register('foo:zurp-zorp', 'zorp');
-
-    var found = registry.knownForType('foo');
-
-    deepEqual(found, {
-      'foo:bar-baz': true,
-      'foo:qux-fez': true,
-      'foo:zurp-zorp': true
-    });
-  });
-
-  QUnit.test('`knownForType` is called on the resolver if present', function () {
-    expect(3);
-
-    var registry = new _container.Registry({
-      resolver: {
-        knownForType: function (type) {
-          ok(true, 'knownForType called on the resolver');
-          equal(type, 'foo', 'the type was passed through');
-
-          return { 'foo:yorp': true };
-        }
-      }
-    });
-    registry.register('foo:bar-baz', 'baz');
-
-    var found = registry.knownForType('foo');
-
-    deepEqual(found, {
-      'foo:yorp': true,
-      'foo:bar-baz': true
-    });
-  });
-
-  QUnit.test('A registry created with `resolver` function instead of an object throws deprecation', function (assert) {
-    assert.expect(2);
-
-    _emberEnvironment.ENV._ENABLE_RESOLVER_FUNCTION_SUPPORT = true;
-
-    var registry = void 0;
-
-    expectDeprecation(function () {
-      registry = new _container.Registry({
-        resolver: function (fullName) {
-          return fullName + '-resolved';
-        }
-      });
-    }, 'Passing a `resolver` function into a Registry is deprecated. Please pass in a Resolver object with a `resolve` method.');
-
-    assert.equal(registry.resolve('foo:bar'), 'foo:bar-resolved', '`resolve` still calls the deprecated function');
-  });
-
-  QUnit.test('A registry created with `resolver` function instead of an object throws assertion', function (assert) {
-    assert.expect(1);
-
-    _emberEnvironment.ENV._ENABLE_RESOLVER_FUNCTION_SUPPORT = false;
-
-    expectAssertion(function () {
-      new _container.Registry({
-        resolver: function (fullName) {
-          return fullName + '-resolved';
-        }
-      });
-    }, /Passing a \`resolver\` function into a Registry is deprecated\. Please pass in a Resolver object with a \`resolve\` method\./);
-  });
-
-  QUnit.test('resolver.expandLocalLookup is not required', function (assert) {
-    assert.expect(1);
-
-    var registry = new _container.Registry({
-      resolver: {}
-    });
-
-    var result = registry.expandLocalLookup('foo:bar', {
-      source: 'baz:qux'
-    });
-
-    assert.equal(result, null);
-  });
-
-  QUnit.test('expandLocalLookup is called on the resolver if present', function (assert) {
-    assert.expect(4);
-
-    var registry = new _container.Registry({
-      resolver: {
-        expandLocalLookup: function (targetFullName, sourceFullName) {
-          assert.ok(true, 'expandLocalLookup is called on the resolver');
-          assert.equal(targetFullName, 'foo:bar', 'the targetFullName was passed through');
-          assert.equal(sourceFullName, 'baz:qux', 'the sourceFullName was passed through');
-
-          return 'foo:qux/bar';
-        }
-      }
-    });
-
-    var result = registry.expandLocalLookup('foo:bar', {
-      source: 'baz:qux'
-    });
-
-    assert.equal(result, 'foo:qux/bar');
-  });
-
-  QUnit.test('`expandLocalLookup` is handled by the resolver, then by the fallback registry, if available', function (assert) {
-    assert.expect(9);
-
-    var fallbackRegistry = new _container.Registry({
-      resolver: {
-        expandLocalLookup: function (targetFullName, sourceFullName) {
-          assert.ok(true, 'expandLocalLookup is called on the fallback resolver');
-          assert.equal(targetFullName, 'foo:bar', 'the targetFullName was passed through');
-          assert.equal(sourceFullName, 'baz:qux', 'the sourceFullName was passed through');
-
-          return 'foo:qux/bar-fallback';
-        }
-      }
-    });
-
-    var registry = new _container.Registry({
-      fallback: fallbackRegistry,
-      resolver: {
-        expandLocalLookup: function (targetFullName, sourceFullName) {
-          assert.ok(true, 'expandLocalLookup is called on the resolver');
-          assert.equal(targetFullName, 'foo:bar', 'the targetFullName was passed through');
-          assert.equal(sourceFullName, 'baz:qux', 'the sourceFullName was passed through');
-
-          return 'foo:qux/bar-resolver';
-        }
-      }
-    });
-
-    var result = registry.expandLocalLookup('foo:bar', {
-      source: 'baz:qux'
-    });
-
-    assert.equal(result, 'foo:qux/bar-resolver', 'handled by the resolver');
-
-    registry.resolver = null;
-
-    result = registry.expandLocalLookup('foo:bar', {
-      source: 'baz:qux'
-    });
-
-    assert.equal(result, 'foo:qux/bar-fallback', 'handled by the fallback registry');
-
-    registry.fallback = null;
-
-    result = registry.expandLocalLookup('foo:bar', {
-      source: 'baz:qux'
-    });
-
-    assert.equal(result, null, 'null is returned by default when no resolver or fallback registry is present');
-  });
-
-  QUnit.test('resolver.expandLocalLookup result is cached', function (assert) {
-    assert.expect(3);
-    var result = void 0;
-
-    var registry = new _container.Registry({
-      resolver: {
-        expandLocalLookup: function () {
-          assert.ok(true, 'expandLocalLookup is called on the resolver');
-
-          return 'foo:qux/bar';
-        }
-      }
-    });
-
-    result = registry.expandLocalLookup('foo:bar', {
-      source: 'baz:qux'
-    });
-
-    assert.equal(result, 'foo:qux/bar');
-
-    result = registry.expandLocalLookup('foo:bar', {
-      source: 'baz:qux'
-    });
-
-    assert.equal(result, 'foo:qux/bar');
-  });
-
-  QUnit.test('resolver.expandLocalLookup cache is busted when any unregister is called', function (assert) {
-    assert.expect(4);
-    var result = void 0;
-
-    var registry = new _container.Registry({
-      resolver: {
-        expandLocalLookup: function () {
-          assert.ok(true, 'expandLocalLookup is called on the resolver');
-
-          return 'foo:qux/bar';
-        }
-      }
-    });
-
-    result = registry.expandLocalLookup('foo:bar', {
-      source: 'baz:qux'
-    });
-
-    assert.equal(result, 'foo:qux/bar');
-
-    registry.unregister('foo:bar');
-
-    result = registry.expandLocalLookup('foo:bar', {
-      source: 'baz:qux'
-    });
-
-    assert.equal(result, 'foo:qux/bar');
-  });
-
-  QUnit.test('resolve calls expandLocallookup when it receives options.source', function (assert) {
-    assert.expect(3);
-
-    var registry = new _container.Registry({
-      resolver: {
-        resolve: function () {},
-        expandLocalLookup: function (targetFullName, sourceFullName) {
-          assert.ok(true, 'expandLocalLookup is called on the resolver');
-          assert.equal(targetFullName, 'foo:bar', 'the targetFullName was passed through');
-          assert.equal(sourceFullName, 'baz:qux', 'the sourceFullName was passed through');
-
-          return 'foo:qux/bar';
-        }
-      }
-    });
-
-    registry.resolve('foo:bar', {
-      source: 'baz:qux'
-    });
-  });
-
-  QUnit.test('has uses expandLocalLookup', function (assert) {
-    assert.expect(5);
-    var resolvedFullNames = [];
-    var result = void 0;
-
-    var registry = new _container.Registry({
-      resolver: {
-        resolve: function (name) {
-          if (_features.EMBER_MODULE_UNIFICATION && name === 'foo:baz') {
-            return;
-          }
-          resolvedFullNames.push(name);
-
-          return 'yippie!';
-        },
-        expandLocalLookup: function (targetFullName) {
-          assert.ok(true, 'expandLocalLookup is called on the resolver');
-
-          if (targetFullName === 'foo:bar') {
-            return 'foo:qux/bar';
-          } else {
-            return null;
-          }
-        }
-      }
-    });
-
-    result = registry.has('foo:bar', {
-      source: 'baz:qux'
-    });
-
-    assert.ok(result, 'found foo:bar/qux');
-
-    result = registry.has('foo:baz', {
-      source: 'baz:qux'
-    });
-
-    assert.ok(!result, 'foo:baz/qux not found');
-
-    assert.deepEqual(['foo:qux/bar'], resolvedFullNames);
-  });
-
-  QUnit.module('Registry privatize');
-
-  QUnit.test('valid format', function (assert) {
-    var privatized = (0, _container.privatize)(['secret:factory']);
-    var matched = privatized.match(/^([^:]+):([^:]+)-(\d+)$/);
-
-    assert.ok(matched, 'privatized format was recognized');
-    assert.equal(matched[1], 'secret');
-    assert.equal(matched[2], 'factory');
-    assert.ok(/^\d+$/.test(matched[3]));
-  });
-
-  if (_features.EMBER_MODULE_UNIFICATION) {
-    QUnit.module('Registry module unification');
-
-    QUnit.test('The registry can pass a source to the resolver', function (assert) {
-      var PrivateComponent = (0, _internalTestHelpers.factory)();
-      var lookup = 'component:my-input';
-      var source = 'template:routes/application';
-      var resolveCount = 0;
-
+    _class.prototype['@test The value returned from resolver is the same value as the original value even if the value is falsy'] = function (assert) {
       var registry = new _container.Registry({ resolver: {
-          resolve: function (fullName, src) {
-            resolveCount++;
-            if (fullName === lookup && src === source) {
-              return PrivateComponent;
+          resolve: function (fullName) {
+            if (fullName === 'falsy:value') {
+              return null;
             }
           }
         } });
-      registry.normalize = function (name) {
-        return name;
+
+      assert.strictEqual(registry.resolve('falsy:value'), null);
+    };
+
+    _class.prototype['@test A registered factory returns true for `has` if an item is registered'] = function (assert) {
+      var registry = new _container.Registry();
+      var PostController = (0, _internalTestHelpers.factory)();
+
+      registry.register('controller:post', PostController);
+
+      assert.equal(registry.has('controller:post'), true, 'The `has` method returned true for registered factories');
+      assert.equal(registry.has('controller:posts'), false, 'The `has` method returned false for unregistered factories');
+    };
+
+    _class.prototype['@test Throw exception when trying to inject `type:thing` on all type(s)'] = function () {
+      var registry = new _container.Registry();
+      var PostController = (0, _internalTestHelpers.factory)();
+
+      registry.register('controller:post', PostController);
+
+      expectAssertion(function () {
+        registry.typeInjection('controller', 'injected', 'controller:post');
+      }, /Cannot inject a 'controller:post' on other controller\(s\)\./);
+    };
+
+    _class.prototype['@test The registry can take a hook to resolve factories lazily'] = function (assert) {
+      var PostController = (0, _internalTestHelpers.factory)();
+
+      var registry = new _container.Registry({ resolver: {
+          resolve: function (fullName) {
+            if (fullName === 'controller:post') {
+              return PostController;
+            }
+          }
+        } });
+
+      assert.strictEqual(registry.resolve('controller:post'), PostController, 'The correct factory was provided');
+    };
+
+    _class.prototype['@test The registry respects the resolver hook for `has`'] = function (assert) {
+      var PostController = (0, _internalTestHelpers.factory)();
+
+      var registry = new _container.Registry({ resolver: {
+          resolve: function (fullName) {
+            if (fullName === 'controller:post') {
+              return PostController;
+            }
+          }
+        } });
+
+      assert.ok(registry.has('controller:post'), 'the `has` method uses the resolver hook');
+    };
+
+    _class.prototype['@test The registry normalizes names when resolving'] = function (assert) {
+      var registry = new _container.Registry();
+      var PostController = (0, _internalTestHelpers.factory)();
+
+      registry.normalizeFullName = function () {
+        return 'controller:post';
       };
 
-      assert.strictEqual(registry.resolve(lookup, { source: source }), PrivateComponent, 'The correct factory was provided');
-      assert.strictEqual(registry.resolve(lookup, { source: source }), PrivateComponent, 'The correct factory was provided again');
-      assert.equal(resolveCount, 1, 'resolve called only once and a cached factory was returned the second time');
-    });
+      registry.register('controller:post', PostController);
+      var type = registry.resolve('controller:normalized');
+
+      assert.strictEqual(type, PostController, 'Normalizes the name when resolving');
+    };
+
+    _class.prototype['@test The registry normalizes names when checking if the factory is registered'] = function (assert) {
+      var registry = new _container.Registry();
+      var PostController = (0, _internalTestHelpers.factory)();
+
+      registry.normalizeFullName = function (fullName) {
+        return fullName === 'controller:normalized' ? 'controller:post' : fullName;
+      };
+
+      registry.register('controller:post', PostController);
+      var isPresent = registry.has('controller:normalized');
+
+      assert.equal(isPresent, true, 'Normalizes the name when checking if the factory or instance is present');
+    };
+
+    _class.prototype['@test The registry normalizes names when injecting'] = function (assert) {
+      var registry = new _container.Registry();
+      var PostController = (0, _internalTestHelpers.factory)();
+      var user = { name: 'Stef' };
+
+      registry.normalize = function () {
+        return 'controller:post';
+      };
+
+      registry.register('controller:post', PostController);
+      registry.register('user:post', user, { instantiate: false });
+      registry.injection('controller:post', 'user', 'controller:normalized');
+
+      assert.deepEqual(registry.resolve('controller:post'), user, 'Normalizes the name when injecting');
+    };
+
+    _class.prototype['@test cannot register an `undefined` factory'] = function (assert) {
+      var registry = new _container.Registry();
+
+      assert.throws(function () {
+        registry.register('controller:apple', undefined);
+      }, '');
+    };
+
+    _class.prototype['@test can re-register a factory'] = function (assert) {
+      var registry = new _container.Registry();
+      var FirstApple = (0, _internalTestHelpers.factory)('first');
+      var SecondApple = (0, _internalTestHelpers.factory)('second');
+
+      registry.register('controller:apple', FirstApple);
+      registry.register('controller:apple', SecondApple);
+
+      assert.ok(registry.resolve('controller:apple').create() instanceof SecondApple);
+    };
+
+    _class.prototype['@test cannot re-register a factory if it has been resolved'] = function (assert) {
+      var registry = new _container.Registry();
+      var FirstApple = (0, _internalTestHelpers.factory)('first');
+      var SecondApple = (0, _internalTestHelpers.factory)('second');
+
+      registry.register('controller:apple', FirstApple);
+      assert.strictEqual(registry.resolve('controller:apple'), FirstApple);
+
+      expectAssertion(function () {
+        registry.register('controller:apple', SecondApple);
+      }, /Cannot re-register: 'controller:apple', as it has already been resolved\./);
+
+      assert.strictEqual(registry.resolve('controller:apple'), FirstApple);
+    };
+
+    _class.prototype['@test registry.has should not accidentally cause injections on that factory to be run. (Mitigate merely on observing)'] = function (assert) {
+      assert.expect(1);
+
+      var registry = new _container.Registry();
+      var FirstApple = (0, _internalTestHelpers.factory)('first');
+      var SecondApple = (0, _internalTestHelpers.factory)('second');
+
+      SecondApple.extend = function () {
+        assert.ok(false, 'should not extend or touch the injected model, merely to inspect existence of another');
+      };
+
+      registry.register('controller:apple', FirstApple);
+      registry.register('controller:second-apple', SecondApple);
+      registry.injection('controller:apple', 'badApple', 'controller:second-apple');
+
+      assert.ok(registry.has('controller:apple'));
+    };
+
+    _class.prototype['@test registry.has should not error for invalid fullNames'] = function (assert) {
+      var registry = new _container.Registry();
+
+      assert.ok(!registry.has('foo:bar:baz'));
+    };
+
+    _class.prototype['@test once resolved, always return the same result'] = function (assert) {
+      var registry = new _container.Registry();
+
+      registry.resolver = {
+        resolve: function () {
+          return 'bar';
+        }
+      };
+
+      var Bar = registry.resolve('models:bar');
+
+      registry.resolver = {
+        resolve: function () {
+          return 'not bar';
+        }
+      };
+
+      assert.equal(registry.resolve('models:bar'), Bar);
+    };
+
+    _class.prototype['@test factory resolves are cached'] = function (assert) {
+      var registry = new _container.Registry();
+      var PostController = (0, _internalTestHelpers.factory)();
+      var resolveWasCalled = [];
+
+      registry.resolver = {
+        resolve: function (fullName) {
+          resolveWasCalled.push(fullName);
+          return PostController;
+        }
+      };
+
+      assert.deepEqual(resolveWasCalled, []);
+      registry.resolve('controller:post');
+      assert.deepEqual(resolveWasCalled, ['controller:post']);
+
+      registry.resolve('controller:post');
+      assert.deepEqual(resolveWasCalled, ['controller:post']);
+    };
+
+    _class.prototype['@test factory for non extendables (MODEL) resolves are cached'] = function (assert) {
+      var registry = new _container.Registry();
+      var PostController = (0, _internalTestHelpers.factory)();
+      var resolveWasCalled = [];
+
+      registry.resolver = {
+        resolve: function (fullName) {
+          resolveWasCalled.push(fullName);
+          return PostController;
+        }
+      };
+
+      assert.deepEqual(resolveWasCalled, []);
+      registry.resolve('model:post');
+      assert.deepEqual(resolveWasCalled, ['model:post']);
+
+      registry.resolve('model:post');
+      assert.deepEqual(resolveWasCalled, ['model:post']);
+    };
+
+    _class.prototype['@test factory for non extendables resolves are cached'] = function (assert) {
+      var registry = new _container.Registry();
+      var PostController = {};
+      var resolveWasCalled = [];
+
+      registry.resolver = {
+        resolve: function (fullName) {
+          resolveWasCalled.push(fullName);
+          return PostController;
+        }
+      };
+
+      assert.deepEqual(resolveWasCalled, []);
+      registry.resolve('foo:post');
+      assert.deepEqual(resolveWasCalled, ['foo:post']);
+
+      registry.resolve('foo:post');
+      assert.deepEqual(resolveWasCalled, ['foo:post']);
+    };
+
+    _class.prototype['@test registry.container creates a container'] = function (assert) {
+      var registry = new _container.Registry();
+      var PostController = (0, _internalTestHelpers.factory)();
+      registry.register('controller:post', PostController);
+
+      var container = registry.container();
+      var postController = container.lookup('controller:post');
+
+      assert.ok(postController instanceof PostController, 'The lookup is an instance of the registered factory');
+    };
+
+    _class.prototype['@test `describe` will be handled by the resolver, then by the fallback registry, if available'] = function (assert) {
+
+      var registry = new _container.Registry({ fallback: {
+          describe: function (fullName) {
+            return fullName + '-fallback';
+          }
+        }, resolver: {
+          lookupDescription: function (fullName) {
+            return fullName + '-resolver';
+          }
+        } });
+
+      assert.equal(registry.describe('controller:post'), 'controller:post-resolver', '`describe` handled by the resolver first.');
+
+      registry.resolver = null;
+
+      assert.equal(registry.describe('controller:post'), 'controller:post-fallback', '`describe` handled by fallback registry next.');
+
+      registry.fallback = null;
+
+      assert.equal(registry.describe('controller:post'), 'controller:post', '`describe` by default returns argument.');
+    };
+
+    _class.prototype['@test `normalizeFullName` will be handled by the resolver, then by the fallback registry, if available'] = function (assert) {
+
+      var registry = new _container.Registry({ fallback: {
+          normalizeFullName: function (fullName) {
+            return fullName + '-fallback';
+          }
+        }, resolver: {
+          normalize: function (fullName) {
+            return fullName + '-resolver';
+          }
+        } });
+
+      assert.equal(registry.normalizeFullName('controller:post'), 'controller:post-resolver', '`normalizeFullName` handled by the resolver first.');
+
+      registry.resolver = null;
+
+      assert.equal(registry.normalizeFullName('controller:post'), 'controller:post-fallback', '`normalizeFullName` handled by fallback registry next.');
+
+      registry.fallback = null;
+
+      assert.equal(registry.normalizeFullName('controller:post'), 'controller:post', '`normalizeFullName` by default returns argument.');
+    };
+
+    _class.prototype['@test `makeToString` will be handled by the resolver, then by the fallback registry, if available'] = function (assert) {
+
+      var registry = new _container.Registry({ fallback: {
+          makeToString: function (fullName) {
+            return fullName + '-fallback';
+          }
+        }, resolver: {
+          makeToString: function (fullName) {
+            return fullName + '-resolver';
+          }
+        } });
+
+      assert.equal(registry.makeToString('controller:post'), 'controller:post-resolver', '`makeToString` handled by the resolver first.');
+
+      registry.resolver = null;
+
+      assert.equal(registry.makeToString('controller:post'), 'controller:post-fallback', '`makeToString` handled by fallback registry next.');
+
+      registry.fallback = null;
+
+      assert.equal(registry.makeToString('controller:post'), 'controller:post', '`makeToString` by default returns argument.');
+    };
+
+    _class.prototype['@test `resolve` can be handled by a fallback registry'] = function (assert) {
+      var fallback = new _container.Registry();
+
+      var registry = new _container.Registry({ fallback: fallback });
+      var PostController = (0, _internalTestHelpers.factory)();
+
+      fallback.register('controller:post', PostController);
+
+      var PostControllerFactory = registry.resolve('controller:post');
+
+      assert.ok(PostControllerFactory, 'factory is returned');
+      assert.ok(PostControllerFactory.create() instanceof PostController, 'The return of factory.create is an instance of PostController');
+    };
+
+    _class.prototype['@test `has` can be handled by a fallback registry'] = function (assert) {
+      var fallback = new _container.Registry();
+
+      var registry = new _container.Registry({ fallback: fallback });
+      var PostController = (0, _internalTestHelpers.factory)();
+
+      fallback.register('controller:post', PostController);
+
+      assert.equal(registry.has('controller:post'), true, 'Fallback registry is checked for registration');
+    };
+
+    _class.prototype['@test `getInjections` includes injections from a fallback registry'] = function (assert) {
+      var fallback = new _container.Registry();
+      var registry = new _container.Registry({ fallback: fallback });
+
+      assert.equal(registry.getInjections('model:user').length, 0, 'No injections in the primary registry');
+
+      fallback.injection('model:user', 'post', 'model:post');
+
+      assert.equal(registry.getInjections('model:user').length, 1, 'Injections from the fallback registry are merged');
+    };
+
+    _class.prototype['@test `getTypeInjections` includes type injections from a fallback registry'] = function (assert) {
+      var fallback = new _container.Registry();
+      var registry = new _container.Registry({ fallback: fallback });
+
+      assert.equal(registry.getTypeInjections('model').length, 0, 'No injections in the primary registry');
+
+      fallback.injection('model', 'source', 'source:main');
+
+      assert.equal(registry.getTypeInjections('model').length, 1, 'Injections from the fallback registry are merged');
+    };
+
+    _class.prototype['@test `knownForType` contains keys for each item of a given type'] = function (assert) {
+      var registry = new _container.Registry();
+
+      registry.register('foo:bar-baz', 'baz');
+      registry.register('foo:qux-fez', 'fez');
+
+      var found = registry.knownForType('foo');
+
+      assert.deepEqual(found, {
+        'foo:bar-baz': true,
+        'foo:qux-fez': true
+      });
+    };
+
+    _class.prototype['@test `knownForType` includes fallback registry results'] = function (assert) {
+      var fallback = new _container.Registry();
+      var registry = new _container.Registry({ fallback: fallback });
+
+      registry.register('foo:bar-baz', 'baz');
+      registry.register('foo:qux-fez', 'fez');
+      fallback.register('foo:zurp-zorp', 'zorp');
+
+      var found = registry.knownForType('foo');
+
+      assert.deepEqual(found, {
+        'foo:bar-baz': true,
+        'foo:qux-fez': true,
+        'foo:zurp-zorp': true
+      });
+    };
+
+    _class.prototype['@test `knownForType` is called on the resolver if present'] = function (assert) {
+      assert.expect(3);
+
+      var registry = new _container.Registry({
+        resolver: {
+          knownForType: function (type) {
+            ok(true, 'knownForType called on the resolver');
+            equal(type, 'foo', 'the type was passed through');
+
+            return { 'foo:yorp': true };
+          }
+        }
+      });
+      registry.register('foo:bar-baz', 'baz');
+
+      var found = registry.knownForType('foo');
+
+      assert.deepEqual(found, {
+        'foo:yorp': true,
+        'foo:bar-baz': true
+      });
+    };
+
+    _class.prototype['@test A registry created with `resolver` function instead of an object throws deprecation'] = function (assert) {
+      assert.expect(2);
+
+      _emberEnvironment.ENV._ENABLE_RESOLVER_FUNCTION_SUPPORT = true;
+
+      var registry = void 0;
+
+      expectDeprecation(function () {
+        registry = new _container.Registry({
+          resolver: function (fullName) {
+            return fullName + '-resolved';
+          }
+        });
+      }, 'Passing a `resolver` function into a Registry is deprecated. Please pass in a Resolver object with a `resolve` method.');
+
+      assert.equal(registry.resolve('foo:bar'), 'foo:bar-resolved', '`resolve` still calls the deprecated function');
+    };
+
+    _class.prototype['@test A registry created with `resolver` function instead of an object throws assertion'] = function (assert) {
+      assert.expect(1);
+
+      _emberEnvironment.ENV._ENABLE_RESOLVER_FUNCTION_SUPPORT = false;
+
+      expectAssertion(function () {
+        new _container.Registry({
+          resolver: function (fullName) {
+            return fullName + '-resolved';
+          }
+        });
+      }, /Passing a \`resolver\` function into a Registry is deprecated\. Please pass in a Resolver object with a \`resolve\` method\./);
+    };
+
+    _class.prototype['@test resolver.expandLocalLookup is not required'] = function (assert) {
+      var registry = new _container.Registry({
+        resolver: {}
+      });
+
+      var result = registry.expandLocalLookup('foo:bar', {
+        source: 'baz:qux'
+      });
+
+      assert.equal(result, null);
+    };
+
+    _class.prototype['@test expandLocalLookup is called on the resolver if present'] = function (assert) {
+      assert.expect(4);
+
+      var registry = new _container.Registry({
+        resolver: {
+          expandLocalLookup: function (targetFullName, sourceFullName) {
+            assert.ok(true, 'expandLocalLookup is called on the resolver');
+            assert.equal(targetFullName, 'foo:bar', 'the targetFullName was passed through');
+            assert.equal(sourceFullName, 'baz:qux', 'the sourceFullName was passed through');
+
+            return 'foo:qux/bar';
+          }
+        }
+      });
+
+      var result = registry.expandLocalLookup('foo:bar', {
+        source: 'baz:qux'
+      });
+
+      assert.equal(result, 'foo:qux/bar');
+    };
+
+    _class.prototype['@test `expandLocalLookup` is handled by the resolver, then by the fallback registry, if available'] = function (assert) {
+      assert.expect(9);
+
+      var fallbackRegistry = new _container.Registry({
+        resolver: {
+          expandLocalLookup: function (targetFullName, sourceFullName) {
+            assert.ok(true, 'expandLocalLookup is called on the fallback resolver');
+            assert.equal(targetFullName, 'foo:bar', 'the targetFullName was passed through');
+            assert.equal(sourceFullName, 'baz:qux', 'the sourceFullName was passed through');
+
+            return 'foo:qux/bar-fallback';
+          }
+        }
+      });
+
+      var registry = new _container.Registry({
+        fallback: fallbackRegistry,
+        resolver: {
+          expandLocalLookup: function (targetFullName, sourceFullName) {
+            assert.ok(true, 'expandLocalLookup is called on the resolver');
+            assert.equal(targetFullName, 'foo:bar', 'the targetFullName was passed through');
+            assert.equal(sourceFullName, 'baz:qux', 'the sourceFullName was passed through');
+
+            return 'foo:qux/bar-resolver';
+          }
+        }
+      });
+
+      var result = registry.expandLocalLookup('foo:bar', {
+        source: 'baz:qux'
+      });
+
+      assert.equal(result, 'foo:qux/bar-resolver', 'handled by the resolver');
+
+      registry.resolver = null;
+
+      result = registry.expandLocalLookup('foo:bar', {
+        source: 'baz:qux'
+      });
+
+      assert.equal(result, 'foo:qux/bar-fallback', 'handled by the fallback registry');
+
+      registry.fallback = null;
+
+      result = registry.expandLocalLookup('foo:bar', {
+        source: 'baz:qux'
+      });
+
+      assert.equal(result, null, 'null is returned by default when no resolver or fallback registry is present');
+    };
+
+    _class.prototype['@test resolver.expandLocalLookup result is cached'] = function (assert) {
+      assert.expect(3);
+      var result = void 0;
+
+      var registry = new _container.Registry({
+        resolver: {
+          expandLocalLookup: function () {
+            assert.ok(true, 'expandLocalLookup is called on the resolver');
+
+            return 'foo:qux/bar';
+          }
+        }
+      });
+
+      result = registry.expandLocalLookup('foo:bar', {
+        source: 'baz:qux'
+      });
+
+      assert.equal(result, 'foo:qux/bar');
+
+      result = registry.expandLocalLookup('foo:bar', {
+        source: 'baz:qux'
+      });
+
+      assert.equal(result, 'foo:qux/bar');
+    };
+
+    _class.prototype['@test resolver.expandLocalLookup cache is busted when any unregister is called'] = function (assert) {
+      assert.expect(4);
+      var result = void 0;
+
+      var registry = new _container.Registry({
+        resolver: {
+          expandLocalLookup: function () {
+            assert.ok(true, 'expandLocalLookup is called on the resolver');
+
+            return 'foo:qux/bar';
+          }
+        }
+      });
+
+      result = registry.expandLocalLookup('foo:bar', {
+        source: 'baz:qux'
+      });
+
+      assert.equal(result, 'foo:qux/bar');
+
+      registry.unregister('foo:bar');
+
+      result = registry.expandLocalLookup('foo:bar', {
+        source: 'baz:qux'
+      });
+
+      assert.equal(result, 'foo:qux/bar');
+    };
+
+    _class.prototype['@test resolve calls expandLocallookup when it receives options.source'] = function (assert) {
+      assert.expect(3);
+
+      var registry = new _container.Registry({
+        resolver: {
+          resolve: function () {},
+
+          expandLocalLookup: function (targetFullName, sourceFullName) {
+            assert.ok(true, 'expandLocalLookup is called on the resolver');
+            assert.equal(targetFullName, 'foo:bar', 'the targetFullName was passed through');
+            assert.equal(sourceFullName, 'baz:qux', 'the sourceFullName was passed through');
+
+            return 'foo:qux/bar';
+          }
+        }
+      });
+
+      registry.resolve('foo:bar', {
+        source: 'baz:qux'
+      });
+    };
+
+    _class.prototype['@test has uses expandLocalLookup'] = function (assert) {
+      assert.expect(5);
+      var resolvedFullNames = [];
+      var result = void 0;
+
+      var registry = new _container.Registry({
+        resolver: {
+          resolve: function (name) {
+            if (_features.EMBER_MODULE_UNIFICATION && name === 'foo:baz') {
+              return;
+            }
+            resolvedFullNames.push(name);
+
+            return 'yippie!';
+          },
+
+          expandLocalLookup: function (targetFullName) {
+            assert.ok(true, 'expandLocalLookup is called on the resolver');
+
+            if (targetFullName === 'foo:bar') {
+              return 'foo:qux/bar';
+            } else {
+              return null;
+            }
+          }
+        }
+      });
+
+      result = registry.has('foo:bar', {
+        source: 'baz:qux'
+      });
+
+      assert.ok(result, 'found foo:bar/qux');
+
+      result = registry.has('foo:baz', {
+        source: 'baz:qux'
+      });
+
+      assert.ok(!result, 'foo:baz/qux not found');
+
+      assert.deepEqual(['foo:qux/bar'], resolvedFullNames);
+    };
+
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
+
+  (0, _internalTestHelpers.moduleFor)('Registry privatize', function (_AbstractTestCase2) {
+    (0, _emberBabel.inherits)(_class2, _AbstractTestCase2);
+
+    function _class2() {
+      return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase2.apply(this, arguments));
+    }
+
+    _class2.prototype['@test valid format'] = function (assert) {
+      var privatized = (0, _container.privatize)(['secret:factory']);
+      var matched = privatized.match(/^([^:]+):([^:]+)-(\d+)$/);
+
+      assert.ok(matched, 'privatized format was recognized');
+      assert.equal(matched[1], 'secret');
+      assert.equal(matched[2], 'factory');
+      assert.ok(/^\d+$/.test(matched[3]));
+    };
+
+    return _class2;
+  }(_internalTestHelpers.AbstractTestCase));
+
+  if (_features.EMBER_MODULE_UNIFICATION) {
+    (0, _internalTestHelpers.moduleFor)('Registry module unification', function (_AbstractTestCase3) {
+      (0, _emberBabel.inherits)(_class3, _AbstractTestCase3);
+
+      function _class3() {
+        return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase3.apply(this, arguments));
+      }
+
+      _class3.prototype['@test The registry can pass a source to the resolver'] = function (assert) {
+        var PrivateComponent = (0, _internalTestHelpers.factory)();
+        var lookup = 'component:my-input';
+        var source = 'template:routes/application';
+        var resolveCount = 0;
+
+        var registry = new _container.Registry({ resolver: {
+            resolve: function (fullName, src) {
+              resolveCount++;
+              if (fullName === lookup && src === source) {
+                return PrivateComponent;
+              }
+            }
+          } });
+        registry.normalize = function (name) {
+          return name;
+        };
+
+        assert.strictEqual(registry.resolve(lookup, { source: source }), PrivateComponent, 'The correct factory was provided');
+        assert.strictEqual(registry.resolve(lookup, { source: source }), PrivateComponent, 'The correct factory was provided again');
+        assert.equal(resolveCount, 1, 'resolve called only once and a cached factory was returned the second time');
+      };
+
+      return _class3;
+    }(_internalTestHelpers.AbstractTestCase));
   }
 });
 enifed('ember-application/tests/system/application_instance_test', ['ember-babel', 'ember-application/system/engine', 'ember-application/system/application', 'ember-application/system/application-instance', 'ember-metal', 'ember-views', 'container', 'internal-test-helpers', 'ember-runtime'], function (_emberBabel, _engine, _application, _applicationInstance, _emberMetal, _emberViews, _container, _internalTestHelpers, _emberRuntime) {
