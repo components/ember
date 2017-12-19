@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.0.0-alpha.1-null+80cfe621
+ * @version   3.0.0-alpha.1-null+4c5344c1
  */
 
 /*globals process */
@@ -28493,17 +28493,6 @@ enifed('ember-glimmer/tests/integration/helpers/input-test', ['ember-babel', 'em
         var value = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 25;
 
         this.render('{{input ' + attrs.replace("%x", value) + '}}');
-      };
-
-      _class5.prototype.assertValue = function (expected) {
-        var type = this.$input().attr('type');
-
-        if (type !== 'range') {
-          this.assert.ok(true, 'IE9 does not support range items');
-          return;
-        }
-
-        _InputRenderingTest5.prototype.assertValue.call(this, expected);
       };
 
       _class5.prototype['@test value over default max but below set max is kept'] = function () {
