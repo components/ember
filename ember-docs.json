@@ -3,7 +3,7 @@
         "name": "The Ember API",
         "description": "The Ember API: a framework for building ambitious web applications",
         "url": "https://emberjs.com/",
-        "version": "3.0.0-alpha.1.4c5344c1"
+        "version": "3.0.0-alpha.1.f68038b8"
     },
     "files": {
         "node_modules/rsvp/lib/rsvp/promise/all.js": {
@@ -3621,7 +3621,7 @@
             "module": "@ember/object",
             "namespace": "",
             "file": "packages/ember-runtime/lib/system/object.js",
-            "line": 15,
+            "line": 14,
             "description": "`Ember.Object` is the main base class for all Ember objects. It is a subclass\nof `Ember.CoreObject` with the `Ember.Observable` mixin applied. For details,\nsee the documentation for each of these.",
             "extends": "CoreObject",
             "uses": [

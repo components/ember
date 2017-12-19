@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.0.0-alpha.1-null+4c5344c1
+ * @version   3.0.0-alpha.1-null+f68038b8
  */
 
 /*globals process */
@@ -40472,7 +40472,6 @@ enifed('ember-runtime/system/object', ['exports', 'ember-utils', 'ember-metal', 
 
   var _CoreObject$extend;
 
-  var OVERRIDE_CONTAINER_KEY = (0, _emberUtils.symbol)('OVERRIDE_CONTAINER_KEY');
   var OVERRIDE_OWNER = (0, _emberUtils.symbol)('OVERRIDE_OWNER');
 
   /**
@@ -40489,10 +40488,6 @@ enifed('ember-runtime/system/object', ['exports', 'ember-utils', 'ember-metal', 
     _debugContainerKey: (0, _emberMetal.descriptor)({
       enumerable: false,
       get: function () {
-        if (this[OVERRIDE_CONTAINER_KEY]) {
-          return this[OVERRIDE_CONTAINER_KEY];
-        }
-
         var meta = (0, _emberMetal.peekMeta)(this);
         var factory = meta.factory;
 
@@ -46985,7 +46980,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "3.0.0-alpha.1-null+4c5344c1";
+  exports.default = "3.0.0-alpha.1-null+f68038b8";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";
