@@ -3,7 +3,7 @@
         "name": "The Ember API",
         "description": "The Ember API: a framework for building ambitious web applications",
         "url": "https://emberjs.com/",
-        "version": "3.0.0-alpha.1.5e373fcd"
+        "version": "3.0.0-alpha.1.71b688a0"
     },
     "files": {
         "node_modules/rsvp/lib/rsvp/promise/all.js": {
@@ -5825,7 +5825,7 @@
         },
         {
             "file": "packages/ember-application/lib/system/engine.js",
-            "line": 142,
+            "line": 131,
             "access": "private",
             "tagname": "",
             "since": "1.12.0",
@@ -5836,7 +5836,7 @@
         },
         {
             "file": "packages/ember-application/lib/system/engine.js",
-            "line": 173,
+            "line": 162,
             "description": "The goal of initializers should be to register dependencies and injections.\nThis phase runs once. Because these initializers may load code, they are\nallowed to defer application readiness and advance it. If you need to access\nthe container or store you should use an InstanceInitializer that will be run\nafter all initializers and therefore after all code is loaded and the app is\nready.\n\nInitializer receives an object which has the following attributes:\n`name`, `before`, `after`, `initialize`. The only required attribute is\n`initialize`, all others are optional.\n\n* `name` allows you to specify under which name the initializer is registered.\nThis must be a unique name, as trying to register two initializers with the\nsame name will result in an error.\n\n```app/initializer/named-initializer.js\nimport { debug } from '@ember/debug';\n\nexport function initialize() {\n  debug('Running namedInitializer!');\n}\n\nexport default {\n  name: 'named-initializer',\n  initialize\n};\n```\n\n* `before` and `after` are used to ensure that this initializer is ran prior\nor after the one identified by the value. This value can be a single string\nor an array of strings, referencing the `name` of other initializers.\n\nAn example of ordering initializers, we create an initializer named `first`:\n\n```app/initializer/first.js\nimport { debug } from '@ember/debug';\n\nexport function initialize() {\n  debug('First initializer!');\n}\n\nexport default {\n  name: 'first',\n  initialize\n};\n```\n\n```bash\n// DEBUG: First initializer!\n```\n\nWe add another initializer named `second`, specifying that it should run\nafter the initializer named `first`:\n\n```app/initializer/second.js\nimport { debug } from '@ember/debug';\n\nexport function initialize() {\n  debug('Second initializer!');\n}\n\nexport default {\n  name: 'second',\n  after: 'first',\n  initialize\n};\n```\n\n```\n// DEBUG: First initializer!\n// DEBUG: Second initializer!\n```\n\nAfterwards we add a further initializer named `pre`, this time specifying\nthat it should run before the initializer named `first`:\n\n```app/initializer/pre.js\nimport { debug } from '@ember/debug';\n\nexport function initialize() {\n  debug('Pre initializer!');\n}\n\nexport default {\n  name: 'pre',\n  before: 'first',\n  initialize\n};\n```\n\n```bash\n// DEBUG: Pre initializer!\n// DEBUG: First initializer!\n// DEBUG: Second initializer!\n```\n\nFinally we add an initializer named `post`, specifying it should run after\nboth the `first` and the `second` initializers:\n\n```app/initializer/post.js\nimport { debug } from '@ember/debug';\n\nexport function initialize() {\n  debug('Post initializer!');\n}\n\nexport default {\n  name: 'post',\n  after: ['first', 'second'],\n  initialize\n};\n```\n\n```bash\n// DEBUG: Pre initializer!\n// DEBUG: First initializer!\n// DEBUG: Second initializer!\n// DEBUG: Post initializer!\n```\n\n* `initialize` is a callback function that receives one argument,\n  `application`, on which you can operate.\n\nExample of using `application` to register an adapter:\n\n```app/initializer/api-adapter.js\nimport ApiAdapter from '../utils/api-adapter';\n\nexport function initialize(application) {\n  application.register('api-adapter:main', ApiAdapter);\n}\n\nexport default {\n  name: 'post',\n  after: ['first', 'second'],\n  initialize\n};\n```",
             "itemtype": "method",
             "name": "initializer",
@@ -5854,7 +5854,7 @@
         },
         {
             "file": "packages/ember-application/lib/system/engine.js",
-            "line": 320,
+            "line": 309,
             "description": "Instance initializers run after all initializers have run. Because\ninstance initializers run after the app is fully set up. We have access\nto the store, container, and other items. However, these initializers run\nafter code has loaded and are not allowed to defer readiness.\n\nInstance initializer receives an object which has the following attributes:\n`name`, `before`, `after`, `initialize`. The only required attribute is\n`initialize`, all others are optional.\n\n* `name` allows you to specify under which name the instanceInitializer is\nregistered. This must be a unique name, as trying to register two\ninstanceInitializer with the same name will result in an error.\n\n```app/initializer/named-instance-initializer.js\nimport { debug } from '@ember/debug';\n\nexport function initialize() {\n  debug('Running named-instance-initializer!');\n}\n\nexport default {\n  name: 'named-instance-initializer',\n  initialize\n};\n```\n\n* `before` and `after` are used to ensure that this initializer is ran prior\nor after the one identified by the value. This value can be a single string\nor an array of strings, referencing the `name` of other initializers.\n\n* See Ember.Application.initializer for discussion on the usage of before\nand after.\n\nExample instanceInitializer to preload data into the store.\n\n```app/initializer/preload-data.js\nimport $ from 'jquery';\n\nexport function initialize(application) {\n    var userConfig, userConfigEncoded, store;\n    // We have a HTML escaped JSON representation of the user's basic\n    // configuration generated server side and stored in the DOM of the main\n    // index.html file. This allows the app to have access to a set of data\n    // without making any additional remote calls. Good for basic data that is\n    // needed for immediate rendering of the page. Keep in mind, this data,\n    // like all local models and data can be manipulated by the user, so it\n    // should not be relied upon for security or authorization.\n\n    // Grab the encoded data from the meta tag\n    userConfigEncoded = $('head meta[name=app-user-config]').attr('content');\n\n    // Unescape the text, then parse the resulting JSON into a real object\n    userConfig = JSON.parse(unescape(userConfigEncoded));\n\n    // Lookup the store\n    store = application.lookup('service:store');\n\n    // Push the encoded JSON into the store\n    store.pushPayload(userConfig);\n}\n\nexport default {\n  name: 'named-instance-initializer',\n  initialize\n};\n```",
             "itemtype": "method",
             "name": "instanceInitializer",
@@ -5871,7 +5871,7 @@
         },
         {
             "file": "packages/ember-application/lib/system/engine.js",
-            "line": 394,
+            "line": 383,
             "description": "This creates a registry with the default Ember naming conventions.\n\nIt also configures the registry:\n\n* registered views are created every time they are looked up (they are\n  not singletons)\n* registered templates are not factories; the registered value is\n  returned directly.\n* the router receives the application as its `namespace` property\n* all controllers receive the router as their `target` and `controllers`\n  properties\n* all controllers receive the application as their `namespace` property\n* the application view receives the application controller as its\n  `controller` property\n* the application view receives the application template as its\n  `defaultTemplate` property",
             "itemtype": "method",
             "name": "buildRegistry",
@@ -5894,7 +5894,7 @@
         },
         {
             "file": "packages/ember-application/lib/system/engine.js",
-            "line": 434,
+            "line": 423,
             "description": "Set this to provide an alternate class to `Ember.DefaultResolver`",
             "deprecated": true,
             "deprecationMessage": "Use 'Resolver' instead",
@@ -5907,7 +5907,7 @@
         },
         {
             "file": "packages/ember-application/lib/system/engine.js",
-            "line": 443,
+            "line": 432,
             "description": "Set this to provide an alternate class to `Ember.DefaultResolver`",
             "itemtype": "property",
             "name": "resolver",
@@ -5918,7 +5918,7 @@
         },
         {
             "file": "packages/ember-application/lib/system/engine.js",
-            "line": 452,
+            "line": 441,
             "description": "This function defines the default lookup rules for container lookups:\n\n* templates are looked up on `Ember.TEMPLATES`\n* other names are looked up on the application after classifying the name.\n  For example, `controller:post` looks up `App.PostController` by default.\n* if the default lookup fails, look for registered classes on the container\n\nThis allows the application to register default injections in the container\nthat could be overridden by the normal naming convention.",
             "access": "private",
             "tagname": "",

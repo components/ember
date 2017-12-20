@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.0.0-alpha.1-null+5e373fcd
+ * @version   3.0.0-alpha.1-null+71b688a0
  */
 
 /*globals process */
@@ -12692,17 +12692,7 @@ enifed('ember-application/system/engine', ['exports', 'ember-babel', 'ember-util
       this._runInitializer('initializers', function (name, initializer) {
         false && !!!initializer && (0, _emberDebug.assert)('No application initializer named \'' + name + '\'', !!initializer);
 
-        if (initializer.initialize.length === 2) {
-          false && !false && (0, _emberDebug.deprecate)('The `initialize` method for Application initializer \'' + name + '\' should take only one argument - `App`, an instance of an `Application`.', false, {
-            id: 'ember-application.app-initializer-initialize-arguments',
-            until: '3.0.0',
-            url: 'https://emberjs.com/deprecations/v2.x/#toc_initializer-arity'
-          });
-
-          initializer.initialize(_this.__registry__, _this);
-        } else {
-          initializer.initialize(_this);
-        }
+        initializer.initialize(_this);
       });
     },
     runInstanceInitializers: function (instance) {
@@ -43183,7 +43173,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "3.0.0-alpha.1-null+5e373fcd";
+  exports.default = "3.0.0-alpha.1-null+71b688a0";
 });
 /*global enifed */
 enifed('node-module', ['exports'], function(_exports) {

@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.0.0-alpha.1-null+5e373fcd
+ * @version   3.0.0-alpha.1-null+71b688a0
  */
 
 /*globals process */
@@ -4489,26 +4489,6 @@ enifed('ember-application/tests/system/initializers_test', ['ember-babel', 'embe
       this.runTask(function () {
         return _this10.createApplication({}, MyApplication);
       });
-    };
-
-    _class.prototype['@test initializers throw a deprecation warning when receiving a second argument'] = function (assert) {
-      var _this11 = this;
-
-      assert.expect(1);
-
-      var MyApplication = _emberApplication.Application.extend();
-
-      MyApplication.initializer({
-        name: 'deprecated',
-        initialize: function (registry, application) {// eslint-disable-line no-unused-vars
-        }
-      });
-
-      expectDeprecation(function () {
-        _this11.runTask(function () {
-          return _this11.createApplication({}, MyApplication);
-        });
-      }, /The `initialize` method for Application initializer 'deprecated' should take only one argument - `App`, an instance of an `Application`./);
     };
 
     (0, _emberBabel.createClass)(_class, [{
