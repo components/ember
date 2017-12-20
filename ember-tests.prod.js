@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.0.0-alpha.1-null+71b688a0
+ * @version   3.0.0-alpha.1-null+cacefee4
  */
 
 /*globals process */
@@ -45549,6 +45549,28 @@ enifed('ember-routing/tests/location/history_location_test', ['ember-metal', 'em
     createLocation();
 
     equal(location.getURL(), '/');
+  });
+
+  QUnit.test('Existing state is preserved on init', function () {
+    expect(1);
+
+    var existingState = {
+      path: '/route/path',
+      uuid: 'abcd'
+    };
+
+    FakeHistory.state = existingState;
+
+    HistoryTestLocation.reopen({
+      init: function () {
+        this._super.apply(this, arguments);
+        (0, _emberMetal.set)(this, 'location', mockBrowserLocation('/route/path'));
+      }
+    });
+
+    createLocation();
+    location.initState();
+    deepEqual(location.getState(), existingState);
   });
 });
 enifed('ember-routing/tests/location/none_location_test', ['ember-metal', 'ember-routing/location/none_location'], function (_emberMetal, _none_location) {

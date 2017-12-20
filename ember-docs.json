@@ -3,7 +3,7 @@
         "name": "The Ember API",
         "description": "The Ember API: a framework for building ambitious web applications",
         "url": "https://emberjs.com/",
-        "version": "3.0.0-alpha.1.71b688a0"
+        "version": "3.0.0-alpha.1.cacefee4"
     },
     "files": {
         "node_modules/rsvp/lib/rsvp/promise/all.js": {
@@ -10995,7 +10995,7 @@
         },
         {
             "file": "packages/ember-routing/lib/location/history_location.js",
-            "line": 90,
+            "line": 97,
             "description": "Will be pre-pended to path upon state change",
             "itemtype": "property",
             "name": "rootURL",
@@ -11007,7 +11007,7 @@
         },
         {
             "file": "packages/ember-routing/lib/location/history_location.js",
-            "line": 99,
+            "line": 106,
             "description": "Returns the current `location.pathname` without `rootURL` or `baseURL`",
             "access": "private",
             "tagname": "",
@@ -11022,7 +11022,7 @@
         },
         {
             "file": "packages/ember-routing/lib/location/history_location.js",
-            "line": 129,
+            "line": 136,
             "description": "Uses `history.pushState` to update the url without a page reload.",
             "access": "private",
             "tagname": "",
@@ -11040,7 +11040,7 @@
         },
         {
             "file": "packages/ember-routing/lib/location/history_location.js",
-            "line": 145,
+            "line": 152,
             "description": "Uses `history.replaceState` to update the url without a page reload\nor history modification.",
             "access": "private",
             "tagname": "",
@@ -11058,7 +11058,7 @@
         },
         {
             "file": "packages/ember-routing/lib/location/history_location.js",
-            "line": 162,
+            "line": 169,
             "description": "Get the current `history.state`. Checks for if a polyfill is\nrequired and if so fetches this._historyState. The state returned\nfrom getState may be null if an iframe has changed a window's\nhistory.\n\nThe object returned will contain a `path` for the given state as well\nas a unique state `id`. The state index will allow the app to distinguish\nbetween two states with similar paths but should be unique from one another.",
             "access": "private",
             "tagname": "",
@@ -11073,7 +11073,7 @@
         },
         {
             "file": "packages/ember-routing/lib/location/history_location.js",
-            "line": 184,
+            "line": 191,
             "description": "Pushes a new state.",
             "access": "private",
             "tagname": "",
@@ -11091,7 +11091,7 @@
         },
         {
             "file": "packages/ember-routing/lib/location/history_location.js",
-            "line": 202,
+            "line": 209,
             "description": "Replaces the current state.",
             "access": "private",
             "tagname": "",
@@ -11109,7 +11109,7 @@
         },
         {
             "file": "packages/ember-routing/lib/location/history_location.js",
-            "line": 220,
+            "line": 227,
             "description": "Register a callback to be invoked whenever the browser\nhistory changes, including using forward and back buttons.",
             "access": "private",
             "tagname": "",
@@ -11127,7 +11127,7 @@
         },
         {
             "file": "packages/ember-routing/lib/location/history_location.js",
-            "line": 243,
+            "line": 250,
             "description": "Used when using `{{action}}` helper.  The url is always appended to the rootURL.",
             "access": "private",
             "tagname": "",
@@ -11149,7 +11149,7 @@
         },
         {
             "file": "packages/ember-routing/lib/location/history_location.js",
-            "line": 268,
+            "line": 275,
             "description": "Cleans up the HistoryLocation event listener.",
             "access": "private",
             "tagname": "",
@@ -11160,7 +11160,7 @@
         },
         {
             "file": "packages/ember-routing/lib/location/history_location.js",
-            "line": 278,
+            "line": 285,
             "access": "private",
             "tagname": "Returns normalized location.hash",
             "itemtype": "method",
