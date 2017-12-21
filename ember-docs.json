@@ -3,7 +3,7 @@
         "name": "The Ember API",
         "description": "The Ember API: a framework for building ambitious web applications",
         "url": "https://emberjs.com/",
-        "version": "3.0.0-alpha.1.cacefee4"
+        "version": "3.0.0-alpha.1.47a383af"
     },
     "files": {
         "node_modules/rsvp/lib/rsvp/promise/all.js": {
@@ -9979,11 +9979,6 @@
                     "name": "callback",
                     "description": "",
                     "type": "Function"
-                },
-                {
-                    "name": "binding",
-                    "description": "",
-                    "optional": true
                 }
             ],
             "access": "private",
