@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.0.0-alpha.1-null+8b205f45
+ * @version   3.0.0-alpha.1-null+2069333f
  */
 
 /*globals process */
@@ -64862,26 +64862,56 @@ enifed('ember/tests/error_handler_test', ['ember', 'ember-metal'], function (_em
     });
   }, 20);
 });
-enifed('ember/tests/global-api-test', ['ember-metal', 'ember-runtime'], function (_emberMetal, _emberRuntime) {
+enifed('ember/tests/global-api-test', ['ember-babel', 'ember-metal', 'ember-runtime', 'internal-test-helpers'], function (_emberBabel, _emberMetal, _emberRuntime, _internalTestHelpers) {
   'use strict';
 
-  QUnit.module('Global API Tests');
+  (0, _internalTestHelpers.moduleFor)('Global API Tests', function (_AbstractTestCase) {
+    (0, _emberBabel.inherits)(_class, _AbstractTestCase);
 
-  function confirmExport(property, internal) {
-    QUnit.test('confirm ' + property + ' is exported', function () {
-      var theExport = (0, _emberMetal.get)(window, property);
-      ok(theExport + ' is exported');
+    function _class() {
+      return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase.apply(this, arguments));
+    }
+
+    _class.prototype['@test confirm Ember.DefaultResolver is exported'] = function (assert) {
+      undefined;
+
+      var theExport = (0, _emberMetal.get)(window, 'Ember.DefaultResolver');
+      assert.ok(theExport + ' is exported');
+    };
+
+    _class.prototype['@test confirm Ember.generateController is exported'] = function (assert) {
+      undefined;
+
+      var theExport = (0, _emberMetal.get)(window, 'Ember.generateController');
+      assert.ok(theExport + ' is exported');
+    };
+
+    _class.prototype['@test confirm Ember.Helper is exported'] = function (assert) {
+      undefined;
+
+      var theExport = (0, _emberMetal.get)(window, 'Ember.Helper');
+      assert.ok(theExport + ' is exported');
+    };
+
+    _class.prototype['@test confirm Ember.Helper.helper is exported'] = function (assert) {
+      undefined;
+
+      var theExport = (0, _emberMetal.get)(window, 'Ember.Helper.helper');
+      assert.ok(theExport + ' is exported');
+    };
+
+    _class.prototype['@test confirm Ember.isArray is exported'] = function (assert) {
+      var internal = _emberRuntime.isArray;
+      var theExport = (0, _emberMetal.get)(window, 'Ember.isArray');
+      assert.ok(theExport + ' is exported');
+
       if (internal !== undefined) {
-        equal(theExport, internal, theExport + ' is exported properly');
+        assert.equal(theExport, internal, theExport + ' is exported properly');
       }
-    });
-  }
+    };
 
-  confirmExport('Ember.DefaultResolver');
-  confirmExport('Ember.generateController');
-  confirmExport('Ember.Helper');
-  confirmExport('Ember.Helper.helper');
-  confirmExport('Ember.isArray', _emberRuntime.isArray);
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
 });
 enifed('ember/tests/helpers/helper_registration_test', ['ember-babel', 'internal-test-helpers', 'ember-runtime', 'ember-glimmer'], function (_emberBabel, _internalTestHelpers, _emberRuntime, _emberGlimmer) {
   'use strict';
