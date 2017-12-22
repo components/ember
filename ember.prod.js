@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.0.0-alpha.1-null+71c6ea60
+ * @version   3.0.0-alpha.1-null+a7e2685a
  */
 
 /*globals process */
@@ -16050,7 +16050,6 @@ enifed('ember-glimmer/components/link-to', ['exports', 'ember-debug', 'ember-met
     eventName: 'click',
     init: function () {
       this._super.apply(this, arguments);
-      this._isDisabled = false;
       // Map desired event name to invoke function
       var eventName = (0, _emberMetal.get)(this, 'eventName');
       this.on(eventName, this, this._invoke);
@@ -16066,12 +16065,13 @@ enifed('ember-glimmer/components/link-to', ['exports', 'ember-debug', 'ember-met
     */
     disabled: (0, _emberMetal.computed)({
       get: function () {
+        // always returns false for `get` because (due to the `set` just below)
+        // the cached return value from the set will prevent this getter from _ever_
+        // being called after a set has occured
         return false;
       },
       set: function (_key, value) {
-        if (value !== undefined) {
-          this.set('_isDisabled', value);
-        }
+        this._isDisabled = value;
         return value ? (0, _emberMetal.get)(this, 'disabledClass') : false;
       }
     }),
@@ -16155,7 +16155,7 @@ enifed('ember-glimmer/components/link-to', ['exports', 'ember-debug', 'ember-met
       if ((0, _emberMetal.get)(this, 'bubbles') === false) {
         event.stopPropagation();
       }
-      if ((0, _emberMetal.get)(this, '_isDisabled')) {
+      if (this._isDisabled) {
         return false;
       }
       if ((0, _emberMetal.get)(this, 'loading')) {
@@ -16386,25 +16386,9 @@ enifed('ember-glimmer/components/link-to', ['exports', 'ember-debug', 'ember-met
     {{/link-to}}
     ```
   
-    any passed value to `disabled` will disable it except `undefined`.
-    to ensure that only `true` disable the `link-to` component you can
-    override the global behavior of `LinkComponent`.
+    any truthy value passed to `disabled` will disable it except `undefined`.
   
-    ```javascript
-    import LinkComponent from '@ember/routing/link-component';
-    import { computed } from '@ember/object';
-  
-    LinkComponent.reopen({
-      disabled: computed(function(key, value) {
-        if (value !== undefined) {
-          this.set('_isDisabled', value === true);
-        }
-        return value === true ? get(this, 'disabledClass') : false;
-      })
-    });
-    ```
-  
-    see "Overriding Application-wide Defaults" for more.
+    See "Overriding Application-wide Defaults" for more.
   
     ### Handling `href`
     `{{link-to}}` will use your application's Router to
@@ -16591,30 +16575,31 @@ enifed('ember-glimmer/components/link-to', ['exports', 'ember-debug', 'ember-met
     check out inherited properties of `LinkComponent`.
   
     ### Overriding Application-wide Defaults
-    ``{{link-to}}`` creates an instance of `LinkComponent`
-    for rendering. To override options for your entire
-    application, reopen `LinkComponent` and supply the
-    desired values:
   
-    ``` javascript
+    ``{{link-to}}`` creates an instance of `LinkComponent` for rendering. To
+    override options for your entire application, export your customized
+    `LinkComponent` from `app/components/link-to.js` with the desired overrides:
+  
+    ```javascript
+    // app/components/link-to.js
     import LinkComponent from '@ember/routing/link-component';
   
-    LinkComponent.reopen({
+    export default LinkComponent.extend({
       activeClass: "is-active",
       tagName: 'li'
     })
     ```
   
-    It is also possible to override the default event in
-    this manner:
+    It is also possible to override the default event in this manner:
   
-    ``` javascript
+    ```javascript
     import LinkCompoennt from '@ember/routing/link-component';
   
-    LinkComponent.reopen({
+    export default LinkComponent.extend({
       eventName: 'customEventName'
     });
     ```
+  
     @method link-to
     @for Ember.Templates.helpers
     @param {String} routeName
@@ -43180,7 +43165,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "3.0.0-alpha.1-null+71c6ea60";
+  exports.default = "3.0.0-alpha.1-null+a7e2685a";
 });
 /*global enifed */
 enifed('node-module', ['exports'], function(_exports) {
