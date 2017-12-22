@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.0.0-alpha.1-null+573c8435
+ * @version   3.0.0-alpha.1-null+71c6ea60
  */
 
 /*globals process */
@@ -1817,14 +1817,22 @@ enifed('ember-application/tests/system/application_instance_test', ['ember-babel
   var application = void 0,
       appInstance = void 0;
 
-  QUnit.module('Ember.ApplicationInstance', {
-    setup: function () {
+  (0, _internalTestHelpers.moduleFor)('Ember.ApplicationInstance', function (_TestCase) {
+    (0, _emberBabel.inherits)(_class, _TestCase);
+
+    function _class() {
+      (0, _emberBabel.classCallCheck)(this, _class);
+
+      var _this = (0, _emberBabel.possibleConstructorReturn)(this, _TestCase.call(this));
+
       (0, _emberViews.jQuery)('#qunit-fixture').html('<div id=\'one\'><div id=\'one-child\'>HI</div></div><div id=\'two\'>HI</div>');
       application = (0, _emberMetal.run)(function () {
         return _application.default.create({ rootElement: '#one', router: null });
       });
-    },
-    teardown: function () {
+      return _this;
+    }
+
+    _class.prototype.teardown = function teardown() {
       (0, _emberViews.jQuery)('#qunit-fixture').empty();
 
       if (appInstance) {
@@ -1834,151 +1842,153 @@ enifed('ember-application/tests/system/application_instance_test', ['ember-babel
       if (application) {
         (0, _emberMetal.run)(application, 'destroy');
       }
-    }
-  });
-
-  QUnit.test('an application instance can be created based upon an application', function () {
-    appInstance = (0, _emberMetal.run)(function () {
-      return appInstance = _applicationInstance.default.create({ application: application });
-    });
-
-    ok(appInstance, 'instance should be created');
-    equal(appInstance.application, application, 'application should be set to parent');
-  });
-
-  QUnit.test('customEvents added to the application before setupEventDispatcher', function (assert) {
-    assert.expect(1);
-
-    appInstance = (0, _emberMetal.run)(function () {
-      return _applicationInstance.default.create({ application: application });
-    });
-    appInstance.setupRegistry();
-
-    application.customEvents = {
-      awesome: 'sauce'
     };
 
-    var eventDispatcher = appInstance.lookup('event_dispatcher:main');
-    eventDispatcher.setup = function (events) {
-      assert.equal(events.awesome, 'sauce');
+    _class.prototype['an application instance can be created based upon an application'] = function anApplicationInstanceCanBeCreatedBasedUponAnApplication(assert) {
+      appInstance = (0, _emberMetal.run)(function () {
+        return appInstance = _applicationInstance.default.create({ application: application });
+      });
+
+      assert.ok(appInstance, 'instance should be created');
+      assert.equal(appInstance.application, application, 'application should be set to parent');
     };
 
-    appInstance.setupEventDispatcher();
-  });
+    _class.prototype['customEvents added to the application before setupEventDispatcher'] = function customEventsAddedToTheApplicationBeforeSetupEventDispatcher(assert) {
+      assert.expect(1);
 
-  QUnit.test('customEvents added to the application before setupEventDispatcher', function (assert) {
-    assert.expect(1);
-
-    (0, _emberMetal.run)(function () {
-      return appInstance = _applicationInstance.default.create({ application: application });
-    });
-    appInstance.setupRegistry();
-
-    application.customEvents = {
-      awesome: 'sauce'
-    };
-
-    var eventDispatcher = appInstance.lookup('event_dispatcher:main');
-    eventDispatcher.setup = function (events) {
-      assert.equal(events.awesome, 'sauce');
-    };
-
-    appInstance.setupEventDispatcher();
-  });
-
-  QUnit.test('customEvents added to the application instance before setupEventDispatcher', function (assert) {
-    assert.expect(1);
-
-    appInstance = (0, _emberMetal.run)(function () {
-      return _applicationInstance.default.create({ application: application });
-    });
-    appInstance.setupRegistry();
-
-    appInstance.customEvents = {
-      awesome: 'sauce'
-    };
-
-    var eventDispatcher = appInstance.lookup('event_dispatcher:main');
-    eventDispatcher.setup = function (events) {
-      assert.equal(events.awesome, 'sauce');
-    };
-
-    appInstance.setupEventDispatcher();
-  });
-
-  QUnit.test('unregistering a factory clears all cached instances of that factory', function (assert) {
-    assert.expect(5);
-
-    appInstance = (0, _emberMetal.run)(function () {
-      return _applicationInstance.default.create({ application: application });
-    });
-
-    var PostController1 = (0, _internalTestHelpers.factory)();
-    var PostController2 = (0, _internalTestHelpers.factory)();
-
-    appInstance.register('controller:post', PostController1);
-
-    var postController1 = appInstance.lookup('controller:post');
-    var postController1Factory = appInstance.factoryFor('controller:post');
-    assert.ok(postController1 instanceof PostController1, 'precond - lookup creates instance');
-    assert.equal(PostController1, postController1Factory.class, 'precond - factoryFor().class matches');
-
-    appInstance.unregister('controller:post');
-    appInstance.register('controller:post', PostController2);
-
-    var postController2 = appInstance.lookup('controller:post');
-    var postController2Factory = appInstance.factoryFor('controller:post');
-    assert.ok(postController2 instanceof PostController2, 'lookup creates instance');
-    assert.equal(PostController2, postController2Factory.class, 'factoryFor().class matches');
-
-    assert.notStrictEqual(postController1, postController2, 'lookup creates a brand new instance, because the previous one was reset');
-  });
-
-  QUnit.test('can build and boot a registered engine', function (assert) {
-    assert.expect(11);
-
-    var ChatEngine = _engine.default.extend();
-    var chatEngineInstance = void 0;
-
-    application.register('engine:chat', ChatEngine);
-
-    (0, _emberMetal.run)(function () {
-      appInstance = _applicationInstance.default.create({ application: application });
+      appInstance = (0, _emberMetal.run)(function () {
+        return _applicationInstance.default.create({ application: application });
+      });
       appInstance.setupRegistry();
-      chatEngineInstance = appInstance.buildChildEngineInstance('chat');
-    });
 
-    return chatEngineInstance.boot().then(function () {
-      assert.ok(true, 'boot successful');
+      application.customEvents = {
+        awesome: 'sauce'
+      };
 
-      var registrations = ['route:basic', 'service:-routing', 'service:-glimmer-environment'];
+      var eventDispatcher = appInstance.lookup('event_dispatcher:main');
+      eventDispatcher.setup = function (events) {
+        assert.equal(events.awesome, 'sauce');
+      };
 
-      registrations.forEach(function (key) {
-        assert.strictEqual(chatEngineInstance.resolveRegistration(key), appInstance.resolveRegistration(key), 'Engine and parent app share registrations for \'' + key + '\'');
+      appInstance.setupEventDispatcher();
+    };
+
+    _class.prototype['customEvents added to the application before setupEventDispatcher'] = function customEventsAddedToTheApplicationBeforeSetupEventDispatcher(assert) {
+      assert.expect(1);
+
+      (0, _emberMetal.run)(function () {
+        return appInstance = _applicationInstance.default.create({ application: application });
+      });
+      appInstance.setupRegistry();
+
+      application.customEvents = {
+        awesome: 'sauce'
+      };
+
+      var eventDispatcher = appInstance.lookup('event_dispatcher:main');
+      eventDispatcher.setup = function (events) {
+        assert.equal(events.awesome, 'sauce');
+      };
+
+      appInstance.setupEventDispatcher();
+    };
+
+    _class.prototype['customEvents added to the application instance before setupEventDispatcher'] = function customEventsAddedToTheApplicationInstanceBeforeSetupEventDispatcher(assert) {
+      assert.expect(1);
+
+      appInstance = (0, _emberMetal.run)(function () {
+        return _applicationInstance.default.create({ application: application });
+      });
+      appInstance.setupRegistry();
+
+      appInstance.customEvents = {
+        awesome: 'sauce'
+      };
+
+      var eventDispatcher = appInstance.lookup('event_dispatcher:main');
+      eventDispatcher.setup = function (events) {
+        assert.equal(events.awesome, 'sauce');
+      };
+
+      appInstance.setupEventDispatcher();
+    };
+
+    _class.prototype['unregistering a factory clears all cached instances of that factory'] = function unregisteringAFactoryClearsAllCachedInstancesOfThatFactory(assert) {
+      assert.expect(5);
+
+      appInstance = (0, _emberMetal.run)(function () {
+        return _applicationInstance.default.create({ application: application });
       });
 
-      var singletons = ['router:main', (0, _container.privatize)(_templateObject), '-view-registry:main', '-environment:main', 'service:-document', 'event_dispatcher:main'];
+      var PostController1 = (0, _internalTestHelpers.factory)();
+      var PostController2 = (0, _internalTestHelpers.factory)();
 
-      var env = appInstance.lookup('-environment:main');
-      singletons.push(env.isInteractive ? 'renderer:-dom' : 'renderer:-inert');
+      appInstance.register('controller:post', PostController1);
 
-      singletons.forEach(function (key) {
-        assert.strictEqual(chatEngineInstance.lookup(key), appInstance.lookup(key), 'Engine and parent app share singleton \'' + key + '\'');
+      var postController1 = appInstance.lookup('controller:post');
+      var postController1Factory = appInstance.factoryFor('controller:post');
+      assert.ok(postController1 instanceof PostController1, 'precond - lookup creates instance');
+      assert.equal(PostController1, postController1Factory.class, 'precond - factoryFor().class matches');
+
+      appInstance.unregister('controller:post');
+      appInstance.register('controller:post', PostController2);
+
+      var postController2 = appInstance.lookup('controller:post');
+      var postController2Factory = appInstance.factoryFor('controller:post');
+      assert.ok(postController2 instanceof PostController2, 'lookup creates instance');
+      assert.equal(PostController2, postController2Factory.class, 'factoryFor().class matches');
+
+      assert.notStrictEqual(postController1, postController2, 'lookup creates a brand new instance, because the previous one was reset');
+    };
+
+    _class.prototype['can build and boot a registered engine'] = function canBuildAndBootARegisteredEngine(assert) {
+      assert.expect(11);
+
+      var ChatEngine = _engine.default.extend();
+      var chatEngineInstance = void 0;
+
+      application.register('engine:chat', ChatEngine);
+
+      (0, _emberMetal.run)(function () {
+        appInstance = _applicationInstance.default.create({ application: application });
+        appInstance.setupRegistry();
+        chatEngineInstance = appInstance.buildChildEngineInstance('chat');
       });
-    });
-  });
 
-  QUnit.test('can build a registry via Ember.ApplicationInstance.setupRegistry() -- simulates ember-test-helpers', function (assert) {
-    var namespace = _emberRuntime.Object.create({
-      Resolver: { create: function () {} }
-    });
+      return chatEngineInstance.boot().then(function () {
+        assert.ok(true, 'boot successful');
 
-    var registry = _application.default.buildRegistry(namespace);
+        var registrations = ['route:basic', 'service:-routing', 'service:-glimmer-environment'];
 
-    _applicationInstance.default.setupRegistry(registry);
+        registrations.forEach(function (key) {
+          assert.strictEqual(chatEngineInstance.resolveRegistration(key), appInstance.resolveRegistration(key), 'Engine and parent app share registrations for \'' + key + '\'');
+        });
 
-    assert.equal(registry.resolve('service:-document'), document);
-  });
+        var singletons = ['router:main', (0, _container.privatize)(_templateObject), '-view-registry:main', '-environment:main', 'service:-document', 'event_dispatcher:main'];
+
+        var env = appInstance.lookup('-environment:main');
+        singletons.push(env.isInteractive ? 'renderer:-dom' : 'renderer:-inert');
+
+        singletons.forEach(function (key) {
+          assert.strictEqual(chatEngineInstance.lookup(key), appInstance.lookup(key), 'Engine and parent app share singleton \'' + key + '\'');
+        });
+      });
+    };
+
+    _class.prototype['can build a registry via Ember.ApplicationInstance.setupRegistry() -- simulates ember-test-helpers'] = function canBuildARegistryViaEmberApplicationInstanceSetupRegistrySimulatesEmberTestHelpers(assert) {
+      var namespace = _emberRuntime.Object.create({
+        Resolver: { create: function () {} }
+      });
+
+      var registry = _application.default.buildRegistry(namespace);
+
+      _applicationInstance.default.setupRegistry(registry);
+
+      assert.equal(registry.resolve('service:-document'), document);
+    };
+
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
 });
 QUnit.module('ESLint | ember-application/tests/system/application_instance_test.js');
 QUnit.test('should pass ESLint', function(assert) {
@@ -2900,53 +2910,63 @@ QUnit.test('should pass ESLint', function(assert) {
   assert.ok(true, 'ember-application/tests/system/dependency_injection/default_resolver_test.js should pass ESLint\n\n');
 });
 
-enifed('ember-application/tests/system/dependency_injection/normalization_test', ['ember-metal', 'ember-application/system/application'], function (_emberMetal, _application) {
+enifed('ember-application/tests/system/dependency_injection/normalization_test', ['ember-babel', 'ember-metal', 'ember-application/system/application', 'internal-test-helpers'], function (_emberBabel, _emberMetal, _application, _internalTestHelpers) {
   'use strict';
 
   var application = void 0,
       registry = void 0;
 
-  QUnit.module('Ember.Application Dependency Injection – normalization', {
-    setup: function () {
+  (0, _internalTestHelpers.moduleFor)('Ember.Application Dependency Injection - normalize', function (_TestCase) {
+    (0, _emberBabel.inherits)(_class, _TestCase);
+
+    function _class() {
+      (0, _emberBabel.classCallCheck)(this, _class);
+
+      var _this = (0, _emberBabel.possibleConstructorReturn)(this, _TestCase.call(this));
+
       application = (0, _emberMetal.run)(_application.default, 'create');
       registry = application.__registry__;
-    },
-    teardown: function () {
-      (0, _emberMetal.run)(application, 'destroy');
+      return _this;
     }
-  });
 
-  QUnit.test('normalization', function () {
-    ok(registry.normalize, 'registry#normalize is present');
+    _class.prototype.teardown = function teardown() {
+      (0, _emberMetal.run)(application, 'destroy');
+    };
 
-    equal(registry.normalize('foo:bar'), 'foo:bar');
+    _class.prototype['@test normalization'] = function testNormalization(assert) {
+      assert.ok(registry.normalize, 'registry#normalize is present');
 
-    equal(registry.normalize('controller:posts'), 'controller:posts');
-    equal(registry.normalize('controller:posts_index'), 'controller:postsIndex');
-    equal(registry.normalize('controller:posts.index'), 'controller:postsIndex');
-    equal(registry.normalize('controller:posts-index'), 'controller:postsIndex');
-    equal(registry.normalize('controller:posts.post.index'), 'controller:postsPostIndex');
-    equal(registry.normalize('controller:posts_post.index'), 'controller:postsPostIndex');
-    equal(registry.normalize('controller:posts.post_index'), 'controller:postsPostIndex');
-    equal(registry.normalize('controller:posts.post-index'), 'controller:postsPostIndex');
-    equal(registry.normalize('controller:postsIndex'), 'controller:postsIndex');
-    equal(registry.normalize('controller:blogPosts.index'), 'controller:blogPostsIndex');
-    equal(registry.normalize('controller:blog/posts.index'), 'controller:blog/postsIndex');
-    equal(registry.normalize('controller:blog/posts-index'), 'controller:blog/postsIndex');
-    equal(registry.normalize('controller:blog/posts.post.index'), 'controller:blog/postsPostIndex');
-    equal(registry.normalize('controller:blog/posts_post.index'), 'controller:blog/postsPostIndex');
-    equal(registry.normalize('controller:blog/posts_post-index'), 'controller:blog/postsPostIndex');
+      assert.equal(registry.normalize('foo:bar'), 'foo:bar');
 
-    equal(registry.normalize('template:blog/posts_index'), 'template:blog/posts_index');
-  });
+      assert.equal(registry.normalize('controller:posts'), 'controller:posts');
+      assert.equal(registry.normalize('controller:posts_index'), 'controller:postsIndex');
+      assert.equal(registry.normalize('controller:posts.index'), 'controller:postsIndex');
+      assert.equal(registry.normalize('controller:posts-index'), 'controller:postsIndex');
+      assert.equal(registry.normalize('controller:posts.post.index'), 'controller:postsPostIndex');
+      assert.equal(registry.normalize('controller:posts_post.index'), 'controller:postsPostIndex');
+      assert.equal(registry.normalize('controller:posts.post_index'), 'controller:postsPostIndex');
+      assert.equal(registry.normalize('controller:posts.post-index'), 'controller:postsPostIndex');
+      assert.equal(registry.normalize('controller:postsIndex'), 'controller:postsIndex');
+      assert.equal(registry.normalize('controller:blogPosts.index'), 'controller:blogPostsIndex');
+      assert.equal(registry.normalize('controller:blog/posts.index'), 'controller:blog/postsIndex');
+      assert.equal(registry.normalize('controller:blog/posts-index'), 'controller:blog/postsIndex');
+      assert.equal(registry.normalize('controller:blog/posts.post.index'), 'controller:blog/postsPostIndex');
+      assert.equal(registry.normalize('controller:blog/posts_post.index'), 'controller:blog/postsPostIndex');
+      assert.equal(registry.normalize('controller:blog/posts_post-index'), 'controller:blog/postsPostIndex');
 
-  QUnit.test('normalization is indempotent', function () {
-    var examples = ['controller:posts', 'controller:posts.post.index', 'controller:blog/posts.post_index', 'template:foo_bar'];
+      assert.equal(registry.normalize('template:blog/posts_index'), 'template:blog/posts_index');
+    };
 
-    examples.forEach(function (example) {
-      equal(registry.normalize(registry.normalize(example)), registry.normalize(example));
-    });
-  });
+    _class.prototype['@test normalization is indempotent'] = function testNormalizationIsIndempotent(assert) {
+      var examples = ['controller:posts', 'controller:posts.post.index', 'controller:blog/posts.post_index', 'template:foo_bar'];
+
+      examples.forEach(function (example) {
+        assert.equal(registry.normalize(registry.normalize(example)), registry.normalize(example));
+      });
+    };
+
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
 });
 QUnit.module('ESLint | ember-application/tests/system/dependency_injection/normalization_test.js');
 QUnit.test('should pass ESLint', function(assert) {
@@ -3041,7 +3061,7 @@ QUnit.test('should pass ESLint', function(assert) {
   assert.ok(true, 'ember-application/tests/system/dependency_injection/to_string_test.js should pass ESLint\n\n');
 });
 
-enifed('ember-application/tests/system/dependency_injection_test', ['ember-environment', 'ember-metal', 'ember-runtime', 'ember-application/system/application'], function (_emberEnvironment, _emberMetal, _emberRuntime, _application) {
+enifed('ember-application/tests/system/dependency_injection_test', ['ember-babel', 'ember-environment', 'ember-metal', 'ember-runtime', 'ember-application/system/application', 'internal-test-helpers'], function (_emberBabel, _emberEnvironment, _emberMetal, _emberRuntime, _application, _internalTestHelpers) {
   'use strict';
 
   var EmberApplication = _application.default;
@@ -3051,8 +3071,14 @@ enifed('ember-application/tests/system/dependency_injection_test', ['ember-envir
       locator = void 0,
       application = void 0;
 
-  QUnit.module('Ember.Application Dependency Injection', {
-    setup: function () {
+  (0, _internalTestHelpers.moduleFor)('Ember.Application Dependency Injection', function (_TestCase) {
+    (0, _emberBabel.inherits)(_class, _TestCase);
+
+    function _class() {
+      (0, _emberBabel.classCallCheck)(this, _class);
+
+      var _this = (0, _emberBabel.possibleConstructorReturn)(this, _TestCase.call(this));
+
       application = (0, _emberMetal.run)(EmberApplication, 'create');
 
       application.Person = _emberRuntime.Object.extend({});
@@ -3071,48 +3097,52 @@ enifed('ember-application/tests/system/dependency_injection_test', ['ember-envir
       locator = application.__container__;
 
       _emberEnvironment.context.lookup = {};
-    },
-    teardown: function () {
+      return _this;
+    }
+
+    _class.prototype.teardown = function teardown() {
       (0, _emberMetal.run)(application, 'destroy');
       application = locator = null;
       _emberEnvironment.context.lookup = originalLookup;
-    }
-  });
+    };
 
-  QUnit.test('container lookup is normalized', function () {
-    var dotNotationController = locator.lookup('controller:post.index');
-    var camelCaseController = locator.lookup('controller:postIndex');
+    _class.prototype['@test container lookup is normalized'] = function testContainerLookupIsNormalized(assert) {
+      var dotNotationController = locator.lookup('controller:post.index');
+      var camelCaseController = locator.lookup('controller:postIndex');
 
-    ok(dotNotationController instanceof application.PostIndexController);
-    ok(camelCaseController instanceof application.PostIndexController);
+      assert.ok(dotNotationController instanceof application.PostIndexController);
+      assert.ok(camelCaseController instanceof application.PostIndexController);
 
-    equal(dotNotationController, camelCaseController);
-  });
+      assert.equal(dotNotationController, camelCaseController);
+    };
 
-  QUnit.test('registered entities can be looked up later', function () {
-    equal(registry.resolve('model:person'), application.Person);
-    equal(registry.resolve('model:user'), application.User);
-    equal(registry.resolve('fruit:favorite'), application.Orange);
-    equal(registry.resolve('communication:main'), application.Email);
-    equal(registry.resolve('controller:postIndex'), application.PostIndexController);
+    _class.prototype['@test registered entities can be looked up later'] = function testRegisteredEntitiesCanBeLookedUpLater(assert) {
+      assert.equal(registry.resolve('model:person'), application.Person);
+      assert.equal(registry.resolve('model:user'), application.User);
+      assert.equal(registry.resolve('fruit:favorite'), application.Orange);
+      assert.equal(registry.resolve('communication:main'), application.Email);
+      assert.equal(registry.resolve('controller:postIndex'), application.PostIndexController);
 
-    equal(locator.lookup('fruit:favorite'), locator.lookup('fruit:favorite'), 'singleton lookup worked');
-    ok(locator.lookup('model:user') !== locator.lookup('model:user'), 'non-singleton lookup worked');
-  });
+      assert.equal(locator.lookup('fruit:favorite'), locator.lookup('fruit:favorite'), 'singleton lookup worked');
+      assert.ok(locator.lookup('model:user') !== locator.lookup('model:user'), 'non-singleton lookup worked');
+    };
 
-  QUnit.test('injections', function () {
-    application.inject('model', 'fruit', 'fruit:favorite');
-    application.inject('model:user', 'communication', 'communication:main');
+    _class.prototype['@test injections'] = function testInjections(assert) {
+      application.inject('model', 'fruit', 'fruit:favorite');
+      application.inject('model:user', 'communication', 'communication:main');
 
-    var user = locator.lookup('model:user');
-    var person = locator.lookup('model:person');
-    var fruit = locator.lookup('fruit:favorite');
+      var user = locator.lookup('model:user');
+      var person = locator.lookup('model:person');
+      var fruit = locator.lookup('fruit:favorite');
 
-    equal(user.get('fruit'), fruit);
-    equal(person.get('fruit'), fruit);
+      assert.equal(user.get('fruit'), fruit);
+      assert.equal(person.get('fruit'), fruit);
 
-    ok(application.Email.detectInstance(user.get('communication')));
-  });
+      assert.ok(application.Email.detectInstance(user.get('communication')));
+    };
+
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
 });
 QUnit.module('ESLint | ember-application/tests/system/dependency_injection_test.js');
 QUnit.test('should pass ESLint', function(assert) {
@@ -3120,16 +3150,22 @@ QUnit.test('should pass ESLint', function(assert) {
   assert.ok(true, 'ember-application/tests/system/dependency_injection_test.js should pass ESLint\n\n');
 });
 
-enifed('ember-application/tests/system/engine_initializers_test', ['ember-metal', 'ember-application/system/engine'], function (_emberMetal, _engine) {
+enifed('ember-application/tests/system/engine_initializers_test', ['ember-babel', 'ember-metal', 'ember-application/system/engine', 'internal-test-helpers'], function (_emberBabel, _emberMetal, _engine, _internalTestHelpers) {
   'use strict';
 
   var MyEngine = void 0,
       myEngine = void 0,
       myEngineInstance = void 0;
 
-  QUnit.module('Ember.Engine initializers', {
-    setup: function () {},
-    teardown: function () {
+  (0, _internalTestHelpers.moduleFor)('Ember.Engine initializers', function (_TestCase) {
+    (0, _emberBabel.inherits)(_class, _TestCase);
+
+    function _class() {
+      (0, _emberBabel.classCallCheck)(this, _class);
+      return (0, _emberBabel.possibleConstructorReturn)(this, _TestCase.apply(this, arguments));
+    }
+
+    _class.prototype.teardown = function teardown() {
       (0, _emberMetal.run)(function () {
         if (myEngineInstance) {
           myEngineInstance.destroy();
@@ -3139,340 +3175,342 @@ enifed('ember-application/tests/system/engine_initializers_test', ['ember-metal'
           myEngine.destroy();
         }
       });
-    }
-  });
+    };
 
-  QUnit.test('initializers require proper \'name\' and \'initialize\' properties', function () {
-    MyEngine = _engine.default.extend();
+    _class.prototype['initializers require proper \'name\' and \'initialize\' properties'] = function initializersRequireProperNameAndInitializeProperties() {
+      MyEngine = _engine.default.extend();
 
-    expectAssertion(function () {
-      (0, _emberMetal.run)(function () {
-        MyEngine.initializer({ name: 'initializer' });
-      });
-    });
-
-    expectAssertion(function () {
-      (0, _emberMetal.run)(function () {
-        MyEngine.initializer({
-          initialize: function () {}
+      expectAssertion(function () {
+        (0, _emberMetal.run)(function () {
+          MyEngine.initializer({ name: 'initializer' });
         });
       });
-    });
-  });
 
-  QUnit.test('initializers are passed an Engine', function () {
-    MyEngine = _engine.default.extend();
-
-    MyEngine.initializer({
-      name: 'initializer',
-      initialize: function (engine) {
-        ok(engine instanceof _engine.default, 'initialize is passed an Engine');
-      }
-    });
-
-    myEngine = MyEngine.create();
-    myEngineInstance = myEngine.buildInstance();
-  });
-
-  QUnit.test('initializers can be registered in a specified order', function () {
-    var order = [];
-
-    MyEngine = _engine.default.extend();
-    MyEngine.initializer({
-      name: 'fourth',
-      after: 'third',
-      initialize: function () {
-        order.push('fourth');
-      }
-    });
-
-    MyEngine.initializer({
-      name: 'second',
-      after: 'first',
-      before: 'third',
-      initialize: function () {
-        order.push('second');
-      }
-    });
-
-    MyEngine.initializer({
-      name: 'fifth',
-      after: 'fourth',
-      before: 'sixth',
-      initialize: function () {
-        order.push('fifth');
-      }
-    });
-
-    MyEngine.initializer({
-      name: 'first',
-      before: 'second',
-      initialize: function () {
-        order.push('first');
-      }
-    });
-
-    MyEngine.initializer({
-      name: 'third',
-      initialize: function () {
-        order.push('third');
-      }
-    });
-
-    MyEngine.initializer({
-      name: 'sixth',
-      initialize: function () {
-        order.push('sixth');
-      }
-    });
-
-    myEngine = MyEngine.create();
-    myEngineInstance = myEngine.buildInstance();
-
-    deepEqual(order, ['first', 'second', 'third', 'fourth', 'fifth', 'sixth']);
-  });
-
-  QUnit.test('initializers can be registered in a specified order as an array', function () {
-    var order = [];
-
-    MyEngine = _engine.default.extend();
-
-    MyEngine.initializer({
-      name: 'third',
-      initialize: function () {
-        order.push('third');
-      }
-    });
-
-    MyEngine.initializer({
-      name: 'second',
-      after: 'first',
-      before: ['third', 'fourth'],
-      initialize: function () {
-        order.push('second');
-      }
-    });
-
-    MyEngine.initializer({
-      name: 'fourth',
-      after: ['second', 'third'],
-      initialize: function () {
-        order.push('fourth');
-      }
-    });
-
-    MyEngine.initializer({
-      name: 'fifth',
-      after: 'fourth',
-      before: 'sixth',
-      initialize: function () {
-        order.push('fifth');
-      }
-    });
-
-    MyEngine.initializer({
-      name: 'first',
-      before: ['second'],
-      initialize: function () {
-        order.push('first');
-      }
-    });
-
-    MyEngine.initializer({
-      name: 'sixth',
-      initialize: function () {
-        order.push('sixth');
-      }
-    });
-
-    myEngine = MyEngine.create();
-    myEngineInstance = myEngine.buildInstance();
-
-    deepEqual(order, ['first', 'second', 'third', 'fourth', 'fifth', 'sixth']);
-  });
-
-  QUnit.test('initializers can have multiple dependencies', function () {
-    var order = [];
-
-    MyEngine = _engine.default.extend();
-
-    var a = {
-      name: 'a',
-      before: 'b',
-      initialize: function () {
-        order.push('a');
-      }
-    };
-    var b = {
-      name: 'b',
-      initialize: function () {
-        order.push('b');
-      }
-    };
-    var c = {
-      name: 'c',
-      after: 'b',
-      initialize: function () {
-        order.push('c');
-      }
-    };
-    var afterB = {
-      name: 'after b',
-      after: 'b',
-      initialize: function () {
-        order.push('after b');
-      }
-    };
-    var afterC = {
-      name: 'after c',
-      after: 'c',
-      initialize: function () {
-        order.push('after c');
-      }
+      expectAssertion(function () {
+        (0, _emberMetal.run)(function () {
+          MyEngine.initializer({
+            initialize: function () {}
+          });
+        });
+      });
     };
 
-    MyEngine.initializer(b);
-    MyEngine.initializer(a);
-    MyEngine.initializer(afterC);
-    MyEngine.initializer(afterB);
-    MyEngine.initializer(c);
+    _class.prototype['initializers are passed an Engine'] = function initializersArePassedAnEngine(assert) {
+      MyEngine = _engine.default.extend();
 
-    myEngine = MyEngine.create();
-    myEngineInstance = myEngine.buildInstance();
+      MyEngine.initializer({
+        name: 'initializer',
+        initialize: function (engine) {
+          assert.ok(engine instanceof _engine.default, 'initialize is passed an Engine');
+        }
+      });
 
-    ok(order.indexOf(a.name) < order.indexOf(b.name), 'a < b');
-    ok(order.indexOf(b.name) < order.indexOf(c.name), 'b < c');
-    ok(order.indexOf(b.name) < order.indexOf(afterB.name), 'b < afterB');
-    ok(order.indexOf(c.name) < order.indexOf(afterC.name), 'c < afterC');
-  });
+      myEngine = MyEngine.create();
+      myEngineInstance = myEngine.buildInstance();
+    };
 
-  QUnit.test('initializers set on Engine subclasses are not shared between engines', function () {
-    var firstInitializerRunCount = 0;
-    var secondInitializerRunCount = 0;
-    var FirstEngine = _engine.default.extend();
+    _class.prototype['initializers can be registered in a specified order'] = function initializersCanBeRegisteredInASpecifiedOrder(assert) {
+      var order = [];
 
-    FirstEngine.initializer({
-      name: 'first',
-      initialize: function () {
-        firstInitializerRunCount++;
-      }
-    });
+      MyEngine = _engine.default.extend();
+      MyEngine.initializer({
+        name: 'fourth',
+        after: 'third',
+        initialize: function () {
+          order.push('fourth');
+        }
+      });
 
-    var SecondEngine = _engine.default.extend();
+      MyEngine.initializer({
+        name: 'second',
+        after: 'first',
+        before: 'third',
+        initialize: function () {
+          order.push('second');
+        }
+      });
 
-    SecondEngine.initializer({
-      name: 'second',
-      initialize: function () {
-        secondInitializerRunCount++;
-      }
-    });
+      MyEngine.initializer({
+        name: 'fifth',
+        after: 'fourth',
+        before: 'sixth',
+        initialize: function () {
+          order.push('fifth');
+        }
+      });
 
-    var firstEngine = FirstEngine.create();
-    var firstEngineInstance = firstEngine.buildInstance();
+      MyEngine.initializer({
+        name: 'first',
+        before: 'second',
+        initialize: function () {
+          order.push('first');
+        }
+      });
 
-    equal(firstInitializerRunCount, 1, 'first initializer only was run');
-    equal(secondInitializerRunCount, 0, 'first initializer only was run');
+      MyEngine.initializer({
+        name: 'third',
+        initialize: function () {
+          order.push('third');
+        }
+      });
 
-    var secondEngine = SecondEngine.create();
-    var secondEngineInstance = secondEngine.buildInstance();
+      MyEngine.initializer({
+        name: 'sixth',
+        initialize: function () {
+          order.push('sixth');
+        }
+      });
 
-    equal(firstInitializerRunCount, 1, 'second initializer only was run');
-    equal(secondInitializerRunCount, 1, 'second initializer only was run');
+      myEngine = MyEngine.create();
+      myEngineInstance = myEngine.buildInstance();
 
-    (0, _emberMetal.run)(function () {
-      firstEngineInstance.destroy();
-      secondEngineInstance.destroy();
+      assert.deepEqual(order, ['first', 'second', 'third', 'fourth', 'fifth', 'sixth']);
+    };
 
-      firstEngine.destroy();
-      secondEngine.destroy();
-    });
-  });
+    _class.prototype['initializers can be registered in a specified order as an array'] = function initializersCanBeRegisteredInASpecifiedOrderAsAnArray(assert) {
+      var order = [];
 
-  QUnit.test('initializers are concatenated', function () {
-    var firstInitializerRunCount = 0;
-    var secondInitializerRunCount = 0;
-    var FirstEngine = _engine.default.extend();
+      MyEngine = _engine.default.extend();
 
-    FirstEngine.initializer({
-      name: 'first',
-      initialize: function () {
-        firstInitializerRunCount++;
-      }
-    });
+      MyEngine.initializer({
+        name: 'third',
+        initialize: function () {
+          order.push('third');
+        }
+      });
 
-    var SecondEngine = FirstEngine.extend();
+      MyEngine.initializer({
+        name: 'second',
+        after: 'first',
+        before: ['third', 'fourth'],
+        initialize: function () {
+          order.push('second');
+        }
+      });
 
-    SecondEngine.initializer({
-      name: 'second',
-      initialize: function () {
-        secondInitializerRunCount++;
-      }
-    });
+      MyEngine.initializer({
+        name: 'fourth',
+        after: ['second', 'third'],
+        initialize: function () {
+          order.push('fourth');
+        }
+      });
 
-    var firstEngine = FirstEngine.create();
-    var firstEngineInstance = firstEngine.buildInstance();
+      MyEngine.initializer({
+        name: 'fifth',
+        after: 'fourth',
+        before: 'sixth',
+        initialize: function () {
+          order.push('fifth');
+        }
+      });
 
-    equal(firstInitializerRunCount, 1, 'first initializer only was run when base class created');
-    equal(secondInitializerRunCount, 0, 'second initializer was not run when first base class created');
-    firstInitializerRunCount = 0;
+      MyEngine.initializer({
+        name: 'first',
+        before: ['second'],
+        initialize: function () {
+          order.push('first');
+        }
+      });
 
-    var secondEngine = SecondEngine.create();
-    var secondEngineInstance = secondEngine.buildInstance();
+      MyEngine.initializer({
+        name: 'sixth',
+        initialize: function () {
+          order.push('sixth');
+        }
+      });
 
-    equal(firstInitializerRunCount, 1, 'first initializer was run when subclass created');
-    equal(secondInitializerRunCount, 1, 'second initializers was run when subclass created');
+      myEngine = MyEngine.create();
+      myEngineInstance = myEngine.buildInstance();
 
-    (0, _emberMetal.run)(function () {
-      firstEngineInstance.destroy();
-      secondEngineInstance.destroy();
+      assert.deepEqual(order, ['first', 'second', 'third', 'fourth', 'fifth', 'sixth']);
+    };
 
-      firstEngine.destroy();
-      secondEngine.destroy();
-    });
-  });
+    _class.prototype['initializers can have multiple dependencies'] = function initializersCanHaveMultipleDependencies(assert) {
+      var order = [];
 
-  QUnit.test('initializers are per-engine', function () {
-    expect(2);
+      MyEngine = _engine.default.extend();
 
-    var FirstEngine = _engine.default.extend();
+      var a = {
+        name: 'a',
+        before: 'b',
+        initialize: function () {
+          order.push('a');
+        }
+      };
+      var b = {
+        name: 'b',
+        initialize: function () {
+          order.push('b');
+        }
+      };
+      var c = {
+        name: 'c',
+        after: 'b',
+        initialize: function () {
+          order.push('c');
+        }
+      };
+      var afterB = {
+        name: 'after b',
+        after: 'b',
+        initialize: function () {
+          order.push('after b');
+        }
+      };
+      var afterC = {
+        name: 'after c',
+        after: 'c',
+        initialize: function () {
+          order.push('after c');
+        }
+      };
 
-    FirstEngine.initializer({
-      name: 'abc',
-      initialize: function () {}
-    });
+      MyEngine.initializer(b);
+      MyEngine.initializer(a);
+      MyEngine.initializer(afterC);
+      MyEngine.initializer(afterB);
+      MyEngine.initializer(c);
 
-    expectAssertion(function () {
+      myEngine = MyEngine.create();
+      myEngineInstance = myEngine.buildInstance();
+
+      assert.ok(order.indexOf(a.name) < order.indexOf(b.name), 'a < b');
+      assert.ok(order.indexOf(b.name) < order.indexOf(c.name), 'b < c');
+      assert.ok(order.indexOf(b.name) < order.indexOf(afterB.name), 'b < afterB');
+      assert.ok(order.indexOf(c.name) < order.indexOf(afterC.name), 'c < afterC');
+    };
+
+    _class.prototype['initializers set on Engine subclasses are not shared between engines'] = function initializersSetOnEngineSubclassesAreNotSharedBetweenEngines(assert) {
+      var firstInitializerRunCount = 0;
+      var secondInitializerRunCount = 0;
+      var FirstEngine = _engine.default.extend();
+
+      FirstEngine.initializer({
+        name: 'first',
+        initialize: function () {
+          firstInitializerRunCount++;
+        }
+      });
+
+      var SecondEngine = _engine.default.extend();
+
+      SecondEngine.initializer({
+        name: 'second',
+        initialize: function () {
+          secondInitializerRunCount++;
+        }
+      });
+
+      var firstEngine = FirstEngine.create();
+      var firstEngineInstance = firstEngine.buildInstance();
+
+      assert.equal(firstInitializerRunCount, 1, 'first initializer only was run');
+      assert.equal(secondInitializerRunCount, 0, 'first initializer only was run');
+
+      var secondEngine = SecondEngine.create();
+      var secondEngineInstance = secondEngine.buildInstance();
+
+      assert.equal(firstInitializerRunCount, 1, 'second initializer only was run');
+      assert.equal(secondInitializerRunCount, 1, 'second initializer only was run');
+
+      (0, _emberMetal.run)(function () {
+        firstEngineInstance.destroy();
+        secondEngineInstance.destroy();
+
+        firstEngine.destroy();
+        secondEngine.destroy();
+      });
+    };
+
+    _class.prototype['initializers are concatenated'] = function initializersAreConcatenated(assert) {
+      var firstInitializerRunCount = 0;
+      var secondInitializerRunCount = 0;
+      var FirstEngine = _engine.default.extend();
+
+      FirstEngine.initializer({
+        name: 'first',
+        initialize: function () {
+          firstInitializerRunCount++;
+        }
+      });
+
+      var SecondEngine = FirstEngine.extend();
+
+      SecondEngine.initializer({
+        name: 'second',
+        initialize: function () {
+          secondInitializerRunCount++;
+        }
+      });
+
+      var firstEngine = FirstEngine.create();
+      var firstEngineInstance = firstEngine.buildInstance();
+
+      assert.equal(firstInitializerRunCount, 1, 'first initializer only was run when base class created');
+      assert.equal(secondInitializerRunCount, 0, 'second initializer was not run when first base class created');
+      firstInitializerRunCount = 0;
+
+      var secondEngine = SecondEngine.create();
+      var secondEngineInstance = secondEngine.buildInstance();
+
+      assert.equal(firstInitializerRunCount, 1, 'first initializer was run when subclass created');
+      assert.equal(secondInitializerRunCount, 1, 'second initializers was run when subclass created');
+
+      (0, _emberMetal.run)(function () {
+        firstEngineInstance.destroy();
+        secondEngineInstance.destroy();
+
+        firstEngine.destroy();
+        secondEngine.destroy();
+      });
+    };
+
+    _class.prototype['initializers are per-engine'] = function initializersArePerEngine(assert) {
+      assert.expect(2);
+
+      var FirstEngine = _engine.default.extend();
+
       FirstEngine.initializer({
         name: 'abc',
         initialize: function () {}
       });
-    });
 
-    var SecondEngine = _engine.default.extend();
-    SecondEngine.instanceInitializer({
-      name: 'abc',
-      initialize: function () {}
-    });
+      expectAssertion(function () {
+        FirstEngine.initializer({
+          name: 'abc',
+          initialize: function () {}
+        });
+      });
 
-    ok(true, 'Two engines can have initializers named the same.');
-  });
+      var SecondEngine = _engine.default.extend();
+      SecondEngine.instanceInitializer({
+        name: 'abc',
+        initialize: function () {}
+      });
 
-  QUnit.test('initializers are executed in their own context', function () {
-    expect(1);
+      assert.ok(true, 'Two engines can have initializers named the same.');
+    };
 
-    MyEngine = _engine.default.extend();
+    _class.prototype['initializers are executed in their own context'] = function initializersAreExecutedInTheirOwnContext(assert) {
+      assert.expect(1);
 
-    MyEngine.initializer({
-      name: 'coolInitializer',
-      myProperty: 'cool',
-      initialize: function () {
-        equal(this.myProperty, 'cool', 'should have access to its own context');
-      }
-    });
+      MyEngine = _engine.default.extend();
 
-    myEngine = MyEngine.create();
-    myEngineInstance = myEngine.buildInstance();
-  });
+      MyEngine.initializer({
+        name: 'coolInitializer',
+        myProperty: 'cool',
+        initialize: function () {
+          assert.equal(this.myProperty, 'cool', 'should have access to its own context');
+        }
+      });
+
+      myEngine = MyEngine.create();
+      myEngineInstance = myEngine.buildInstance();
+    };
+
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
 });
 QUnit.module('ESLint | ember-application/tests/system/engine_initializers_test.js');
 QUnit.test('should pass ESLint', function(assert) {
@@ -3480,7 +3518,7 @@ QUnit.test('should pass ESLint', function(assert) {
   assert.ok(true, 'ember-application/tests/system/engine_initializers_test.js should pass ESLint\n\n');
 });
 
-enifed('ember-application/tests/system/engine_instance_initializers_test', ['ember-metal', 'ember-application/system/engine', 'ember-application/system/engine-instance', 'ember-application/system/engine-parent'], function (_emberMetal, _engine, _engineInstance, _engineParent) {
+enifed('ember-application/tests/system/engine_instance_initializers_test', ['ember-babel', 'ember-metal', 'ember-application/system/engine', 'ember-application/system/engine-instance', 'ember-application/system/engine-parent', 'internal-test-helpers'], function (_emberBabel, _emberMetal, _engine, _engineInstance, _engineParent, _internalTestHelpers) {
   'use strict';
 
   var MyEngine = void 0,
@@ -3500,9 +3538,15 @@ enifed('ember-application/tests/system/engine_instance_initializers_test', ['emb
     return engineInstance;
   }
 
-  QUnit.module('Ember.Engine instance initializers', {
-    setup: function () {},
-    teardown: function () {
+  (0, _internalTestHelpers.moduleFor)('Ember.Engine instance initializers', function (_TestCase) {
+    (0, _emberBabel.inherits)(_class, _TestCase);
+
+    function _class() {
+      (0, _emberBabel.classCallCheck)(this, _class);
+      return (0, _emberBabel.possibleConstructorReturn)(this, _TestCase.apply(this, arguments));
+    }
+
+    _class.prototype.teardown = function teardown() {
       (0, _emberMetal.run)(function () {
         if (myEngineInstance) {
           myEngineInstance.destroy();
@@ -3512,362 +3556,364 @@ enifed('ember-application/tests/system/engine_instance_initializers_test', ['emb
           myEngine.destroy();
         }
       });
-    }
-  });
+    };
 
-  QUnit.test('initializers require proper \'name\' and \'initialize\' properties', function () {
-    MyEngine = _engine.default.extend();
+    _class.prototype['@test initializers require proper \'name\' and \'initialize\' properties'] = function testInitializersRequireProperNameAndInitializeProperties() {
+      MyEngine = _engine.default.extend();
 
-    expectAssertion(function () {
-      (0, _emberMetal.run)(function () {
-        MyEngine.instanceInitializer({ name: 'initializer' });
-      });
-    });
-
-    expectAssertion(function () {
-      (0, _emberMetal.run)(function () {
-        MyEngine.instanceInitializer({
-          initialize: function () {}
+      expectAssertion(function () {
+        (0, _emberMetal.run)(function () {
+          MyEngine.instanceInitializer({ name: 'initializer' });
         });
       });
-    });
-  });
 
-  QUnit.test('initializers are passed an engine instance', function () {
-    MyEngine = _engine.default.extend();
-
-    MyEngine.instanceInitializer({
-      name: 'initializer',
-      initialize: function (instance) {
-        ok(instance instanceof _engineInstance.default, 'initialize is passed an engine instance');
-      }
-    });
-
-    myEngine = MyEngine.create();
-    myEngineInstance = buildEngineInstance(myEngine);
-    return myEngineInstance.boot();
-  });
-
-  QUnit.test('initializers can be registered in a specified order', function () {
-    var order = [];
-
-    MyEngine = _engine.default.extend();
-
-    MyEngine.instanceInitializer({
-      name: 'fourth',
-      after: 'third',
-      initialize: function () {
-        order.push('fourth');
-      }
-    });
-
-    MyEngine.instanceInitializer({
-      name: 'second',
-      after: 'first',
-      before: 'third',
-      initialize: function () {
-        order.push('second');
-      }
-    });
-
-    MyEngine.instanceInitializer({
-      name: 'fifth',
-      after: 'fourth',
-      before: 'sixth',
-      initialize: function () {
-        order.push('fifth');
-      }
-    });
-
-    MyEngine.instanceInitializer({
-      name: 'first',
-      before: 'second',
-      initialize: function () {
-        order.push('first');
-      }
-    });
-
-    MyEngine.instanceInitializer({
-      name: 'third',
-      initialize: function () {
-        order.push('third');
-      }
-    });
-
-    MyEngine.instanceInitializer({
-      name: 'sixth',
-      initialize: function () {
-        order.push('sixth');
-      }
-    });
-
-    myEngine = MyEngine.create();
-    myEngineInstance = buildEngineInstance(myEngine);
-
-    return myEngineInstance.boot().then(function () {
-      deepEqual(order, ['first', 'second', 'third', 'fourth', 'fifth', 'sixth']);
-    });
-  });
-
-  QUnit.test('initializers can be registered in a specified order as an array', function () {
-    var order = [];
-    MyEngine = _engine.default.extend();
-
-    MyEngine.instanceInitializer({
-      name: 'third',
-      initialize: function () {
-        order.push('third');
-      }
-    });
-
-    MyEngine.instanceInitializer({
-      name: 'second',
-      after: 'first',
-      before: ['third', 'fourth'],
-      initialize: function () {
-        order.push('second');
-      }
-    });
-
-    MyEngine.instanceInitializer({
-      name: 'fourth',
-      after: ['second', 'third'],
-      initialize: function () {
-        order.push('fourth');
-      }
-    });
-
-    MyEngine.instanceInitializer({
-      name: 'fifth',
-      after: 'fourth',
-      before: 'sixth',
-      initialize: function () {
-        order.push('fifth');
-      }
-    });
-
-    MyEngine.instanceInitializer({
-      name: 'first',
-      before: ['second'],
-      initialize: function () {
-        order.push('first');
-      }
-    });
-
-    MyEngine.instanceInitializer({
-      name: 'sixth',
-      initialize: function () {
-        order.push('sixth');
-      }
-    });
-
-    myEngine = MyEngine.create();
-    myEngineInstance = buildEngineInstance(myEngine);
-
-    return myEngineInstance.boot().then(function () {
-      deepEqual(order, ['first', 'second', 'third', 'fourth', 'fifth', 'sixth']);
-    });
-  });
-
-  QUnit.test('initializers can have multiple dependencies', function () {
-    var order = [];
-
-    MyEngine = _engine.default.extend();
-
-    var a = {
-      name: 'a',
-      before: 'b',
-      initialize: function () {
-        order.push('a');
-      }
-    };
-    var b = {
-      name: 'b',
-      initialize: function () {
-        order.push('b');
-      }
-    };
-    var c = {
-      name: 'c',
-      after: 'b',
-      initialize: function () {
-        order.push('c');
-      }
-    };
-    var afterB = {
-      name: 'after b',
-      after: 'b',
-      initialize: function () {
-        order.push('after b');
-      }
-    };
-    var afterC = {
-      name: 'after c',
-      after: 'c',
-      initialize: function () {
-        order.push('after c');
-      }
-    };
-
-    MyEngine.instanceInitializer(b);
-    MyEngine.instanceInitializer(a);
-    MyEngine.instanceInitializer(afterC);
-    MyEngine.instanceInitializer(afterB);
-    MyEngine.instanceInitializer(c);
-
-    myEngine = MyEngine.create();
-    myEngineInstance = buildEngineInstance(myEngine);
-
-    return myEngineInstance.boot().then(function () {
-      ok(order.indexOf(a.name) < order.indexOf(b.name), 'a < b');
-      ok(order.indexOf(b.name) < order.indexOf(c.name), 'b < c');
-      ok(order.indexOf(b.name) < order.indexOf(afterB.name), 'b < afterB');
-      ok(order.indexOf(c.name) < order.indexOf(afterC.name), 'c < afterC');
-    });
-  });
-
-  QUnit.test('initializers set on Engine subclasses should not be shared between engines', function () {
-    var firstInitializerRunCount = 0;
-    var secondInitializerRunCount = 0;
-    var FirstEngine = _engine.default.extend();
-    var firstEngine = void 0,
-        firstEngineInstance = void 0;
-
-    FirstEngine.instanceInitializer({
-      name: 'first',
-      initialize: function () {
-        firstInitializerRunCount++;
-      }
-    });
-
-    var SecondEngine = _engine.default.extend();
-    var secondEngine = void 0,
-        secondEngineInstance = void 0;
-
-    SecondEngine.instanceInitializer({
-      name: 'second',
-      initialize: function () {
-        secondInitializerRunCount++;
-      }
-    });
-
-    firstEngine = FirstEngine.create();
-    firstEngineInstance = buildEngineInstance(firstEngine);
-
-    return firstEngineInstance.boot().then(function () {
-      equal(firstInitializerRunCount, 1, 'first initializer only was run');
-      equal(secondInitializerRunCount, 0, 'first initializer only was run');
-
-      secondEngine = SecondEngine.create();
-      secondEngineInstance = buildEngineInstance(secondEngine);
-      return secondEngineInstance.boot();
-    }).then(function () {
-      equal(firstInitializerRunCount, 1, 'second initializer only was run');
-      equal(secondInitializerRunCount, 1, 'second initializer only was run');
-
-      (0, _emberMetal.run)(function () {
-        firstEngineInstance.destroy();
-        secondEngineInstance.destroy();
-
-        firstEngine.destroy();
-        secondEngine.destroy();
+      expectAssertion(function () {
+        (0, _emberMetal.run)(function () {
+          MyEngine.instanceInitializer({
+            initialize: function () {}
+          });
+        });
       });
-    });
-  });
+    };
 
-  QUnit.test('initializers are concatenated', function () {
-    var firstInitializerRunCount = 0;
-    var secondInitializerRunCount = 0;
-    var FirstEngine = _engine.default.extend();
+    _class.prototype['@test initializers are passed an engine instance'] = function testInitializersArePassedAnEngineInstance() {
+      MyEngine = _engine.default.extend();
 
-    FirstEngine.instanceInitializer({
-      name: 'first',
-      initialize: function () {
-        firstInitializerRunCount++;
-      }
-    });
-
-    var SecondEngine = FirstEngine.extend();
-
-    SecondEngine.instanceInitializer({
-      name: 'second',
-      initialize: function () {
-        secondInitializerRunCount++;
-      }
-    });
-
-    var firstEngine = FirstEngine.create();
-    var firstEngineInstance = buildEngineInstance(firstEngine);
-
-    var secondEngine = void 0,
-        secondEngineInstance = void 0;
-
-    return firstEngineInstance.boot().then(function () {
-      equal(firstInitializerRunCount, 1, 'first initializer only was run when base class created');
-      equal(secondInitializerRunCount, 0, 'second initializer was not run when first base class created');
-      firstInitializerRunCount = 0;
-
-      secondEngine = SecondEngine.create();
-      secondEngineInstance = buildEngineInstance(secondEngine);
-      return secondEngineInstance.boot();
-    }).then(function () {
-      equal(firstInitializerRunCount, 1, 'first initializer was run when subclass created');
-      equal(secondInitializerRunCount, 1, 'second initializers was run when subclass created');
-
-      (0, _emberMetal.run)(function () {
-        firstEngineInstance.destroy();
-        secondEngineInstance.destroy();
-
-        firstEngine.destroy();
-        secondEngine.destroy();
+      MyEngine.instanceInitializer({
+        name: 'initializer',
+        initialize: function (instance) {
+          ok(instance instanceof _engineInstance.default, 'initialize is passed an engine instance');
+        }
       });
-    });
-  });
 
-  QUnit.test('initializers are per-engine', function () {
-    expect(2);
+      myEngine = MyEngine.create();
+      myEngineInstance = buildEngineInstance(myEngine);
+      return myEngineInstance.boot();
+    };
 
-    var FirstEngine = _engine.default.extend();
+    _class.prototype['@test initializers can be registered in a specified order'] = function testInitializersCanBeRegisteredInASpecifiedOrder() {
+      var order = [];
 
-    FirstEngine.instanceInitializer({
-      name: 'abc',
-      initialize: function () {}
-    });
+      MyEngine = _engine.default.extend();
 
-    expectAssertion(function () {
+      MyEngine.instanceInitializer({
+        name: 'fourth',
+        after: 'third',
+        initialize: function () {
+          order.push('fourth');
+        }
+      });
+
+      MyEngine.instanceInitializer({
+        name: 'second',
+        after: 'first',
+        before: 'third',
+        initialize: function () {
+          order.push('second');
+        }
+      });
+
+      MyEngine.instanceInitializer({
+        name: 'fifth',
+        after: 'fourth',
+        before: 'sixth',
+        initialize: function () {
+          order.push('fifth');
+        }
+      });
+
+      MyEngine.instanceInitializer({
+        name: 'first',
+        before: 'second',
+        initialize: function () {
+          order.push('first');
+        }
+      });
+
+      MyEngine.instanceInitializer({
+        name: 'third',
+        initialize: function () {
+          order.push('third');
+        }
+      });
+
+      MyEngine.instanceInitializer({
+        name: 'sixth',
+        initialize: function () {
+          order.push('sixth');
+        }
+      });
+
+      myEngine = MyEngine.create();
+      myEngineInstance = buildEngineInstance(myEngine);
+
+      return myEngineInstance.boot().then(function () {
+        deepEqual(order, ['first', 'second', 'third', 'fourth', 'fifth', 'sixth']);
+      });
+    };
+
+    _class.prototype['@test initializers can be registered in a specified order as an array'] = function testInitializersCanBeRegisteredInASpecifiedOrderAsAnArray() {
+      var order = [];
+      MyEngine = _engine.default.extend();
+
+      MyEngine.instanceInitializer({
+        name: 'third',
+        initialize: function () {
+          order.push('third');
+        }
+      });
+
+      MyEngine.instanceInitializer({
+        name: 'second',
+        after: 'first',
+        before: ['third', 'fourth'],
+        initialize: function () {
+          order.push('second');
+        }
+      });
+
+      MyEngine.instanceInitializer({
+        name: 'fourth',
+        after: ['second', 'third'],
+        initialize: function () {
+          order.push('fourth');
+        }
+      });
+
+      MyEngine.instanceInitializer({
+        name: 'fifth',
+        after: 'fourth',
+        before: 'sixth',
+        initialize: function () {
+          order.push('fifth');
+        }
+      });
+
+      MyEngine.instanceInitializer({
+        name: 'first',
+        before: ['second'],
+        initialize: function () {
+          order.push('first');
+        }
+      });
+
+      MyEngine.instanceInitializer({
+        name: 'sixth',
+        initialize: function () {
+          order.push('sixth');
+        }
+      });
+
+      myEngine = MyEngine.create();
+      myEngineInstance = buildEngineInstance(myEngine);
+
+      return myEngineInstance.boot().then(function () {
+        deepEqual(order, ['first', 'second', 'third', 'fourth', 'fifth', 'sixth']);
+      });
+    };
+
+    _class.prototype['@test initializers can have multiple dependencies'] = function testInitializersCanHaveMultipleDependencies() {
+      var order = [];
+
+      MyEngine = _engine.default.extend();
+
+      var a = {
+        name: 'a',
+        before: 'b',
+        initialize: function () {
+          order.push('a');
+        }
+      };
+      var b = {
+        name: 'b',
+        initialize: function () {
+          order.push('b');
+        }
+      };
+      var c = {
+        name: 'c',
+        after: 'b',
+        initialize: function () {
+          order.push('c');
+        }
+      };
+      var afterB = {
+        name: 'after b',
+        after: 'b',
+        initialize: function () {
+          order.push('after b');
+        }
+      };
+      var afterC = {
+        name: 'after c',
+        after: 'c',
+        initialize: function () {
+          order.push('after c');
+        }
+      };
+
+      MyEngine.instanceInitializer(b);
+      MyEngine.instanceInitializer(a);
+      MyEngine.instanceInitializer(afterC);
+      MyEngine.instanceInitializer(afterB);
+      MyEngine.instanceInitializer(c);
+
+      myEngine = MyEngine.create();
+      myEngineInstance = buildEngineInstance(myEngine);
+
+      return myEngineInstance.boot().then(function () {
+        ok(order.indexOf(a.name) < order.indexOf(b.name), 'a < b');
+        ok(order.indexOf(b.name) < order.indexOf(c.name), 'b < c');
+        ok(order.indexOf(b.name) < order.indexOf(afterB.name), 'b < afterB');
+        ok(order.indexOf(c.name) < order.indexOf(afterC.name), 'c < afterC');
+      });
+    };
+
+    _class.prototype['@test initializers set on Engine subclasses should not be shared between engines'] = function testInitializersSetOnEngineSubclassesShouldNotBeSharedBetweenEngines() {
+      var firstInitializerRunCount = 0;
+      var secondInitializerRunCount = 0;
+      var FirstEngine = _engine.default.extend();
+      var firstEngine = void 0,
+          firstEngineInstance = void 0;
+
+      FirstEngine.instanceInitializer({
+        name: 'first',
+        initialize: function () {
+          firstInitializerRunCount++;
+        }
+      });
+
+      var SecondEngine = _engine.default.extend();
+      var secondEngine = void 0,
+          secondEngineInstance = void 0;
+
+      SecondEngine.instanceInitializer({
+        name: 'second',
+        initialize: function () {
+          secondInitializerRunCount++;
+        }
+      });
+
+      firstEngine = FirstEngine.create();
+      firstEngineInstance = buildEngineInstance(firstEngine);
+
+      return firstEngineInstance.boot().then(function () {
+        equal(firstInitializerRunCount, 1, 'first initializer only was run');
+        equal(secondInitializerRunCount, 0, 'first initializer only was run');
+
+        secondEngine = SecondEngine.create();
+        secondEngineInstance = buildEngineInstance(secondEngine);
+        return secondEngineInstance.boot();
+      }).then(function () {
+        equal(firstInitializerRunCount, 1, 'second initializer only was run');
+        equal(secondInitializerRunCount, 1, 'second initializer only was run');
+
+        (0, _emberMetal.run)(function () {
+          firstEngineInstance.destroy();
+          secondEngineInstance.destroy();
+
+          firstEngine.destroy();
+          secondEngine.destroy();
+        });
+      });
+    };
+
+    _class.prototype['@test initializers are concatenated'] = function testInitializersAreConcatenated() {
+      var firstInitializerRunCount = 0;
+      var secondInitializerRunCount = 0;
+      var FirstEngine = _engine.default.extend();
+
+      FirstEngine.instanceInitializer({
+        name: 'first',
+        initialize: function () {
+          firstInitializerRunCount++;
+        }
+      });
+
+      var SecondEngine = FirstEngine.extend();
+
+      SecondEngine.instanceInitializer({
+        name: 'second',
+        initialize: function () {
+          secondInitializerRunCount++;
+        }
+      });
+
+      var firstEngine = FirstEngine.create();
+      var firstEngineInstance = buildEngineInstance(firstEngine);
+
+      var secondEngine = void 0,
+          secondEngineInstance = void 0;
+
+      return firstEngineInstance.boot().then(function () {
+        equal(firstInitializerRunCount, 1, 'first initializer only was run when base class created');
+        equal(secondInitializerRunCount, 0, 'second initializer was not run when first base class created');
+        firstInitializerRunCount = 0;
+
+        secondEngine = SecondEngine.create();
+        secondEngineInstance = buildEngineInstance(secondEngine);
+        return secondEngineInstance.boot();
+      }).then(function () {
+        equal(firstInitializerRunCount, 1, 'first initializer was run when subclass created');
+        equal(secondInitializerRunCount, 1, 'second initializers was run when subclass created');
+
+        (0, _emberMetal.run)(function () {
+          firstEngineInstance.destroy();
+          secondEngineInstance.destroy();
+
+          firstEngine.destroy();
+          secondEngine.destroy();
+        });
+      });
+    };
+
+    _class.prototype['@test initializers are per-engine'] = function testInitializersArePerEngine() {
+      expect(2);
+
+      var FirstEngine = _engine.default.extend();
+
       FirstEngine.instanceInitializer({
         name: 'abc',
         initialize: function () {}
       });
-    });
 
-    var SecondEngine = _engine.default.extend();
-    SecondEngine.instanceInitializer({
-      name: 'abc',
-      initialize: function () {}
-    });
+      expectAssertion(function () {
+        FirstEngine.instanceInitializer({
+          name: 'abc',
+          initialize: function () {}
+        });
+      });
 
-    ok(true, 'Two engines can have initializers named the same.');
-  });
+      var SecondEngine = _engine.default.extend();
+      SecondEngine.instanceInitializer({
+        name: 'abc',
+        initialize: function () {}
+      });
 
-  QUnit.test('initializers are executed in their own context', function () {
-    expect(1);
+      ok(true, 'Two engines can have initializers named the same.');
+    };
 
-    var MyEngine = _engine.default.extend();
+    _class.prototype['@test initializers are executed in their own context'] = function testInitializersAreExecutedInTheirOwnContext() {
+      expect(1);
 
-    MyEngine.instanceInitializer({
-      name: 'coolInitializer',
-      myProperty: 'cool',
-      initialize: function () {
-        equal(this.myProperty, 'cool', 'should have access to its own context');
-      }
-    });
+      var MyEngine = _engine.default.extend();
 
-    myEngine = MyEngine.create();
-    myEngineInstance = buildEngineInstance(myEngine);
+      MyEngine.instanceInitializer({
+        name: 'coolInitializer',
+        myProperty: 'cool',
+        initialize: function () {
+          equal(this.myProperty, 'cool', 'should have access to its own context');
+        }
+      });
 
-    return myEngineInstance.boot();
-  });
+      myEngine = MyEngine.create();
+      myEngineInstance = buildEngineInstance(myEngine);
+
+      return myEngineInstance.boot();
+    };
+
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
 });
 QUnit.module('ESLint | ember-application/tests/system/engine_instance_initializers_test.js');
 QUnit.test('should pass ESLint', function(assert) {
@@ -3875,19 +3921,27 @@ QUnit.test('should pass ESLint', function(assert) {
   assert.ok(true, 'ember-application/tests/system/engine_instance_initializers_test.js should pass ESLint\n\n');
 });
 
-enifed('ember-application/tests/system/engine_instance_test', ['ember-application/system/engine', 'ember-application/system/engine-instance', 'ember-application/system/engine-parent', 'ember-metal', 'internal-test-helpers'], function (_engine, _engineInstance, _engineParent, _emberMetal, _internalTestHelpers) {
+enifed('ember-application/tests/system/engine_instance_test', ['ember-babel', 'ember-application/system/engine', 'ember-application/system/engine-instance', 'ember-application/system/engine-parent', 'ember-metal', 'internal-test-helpers'], function (_emberBabel, _engine, _engineInstance, _engineParent, _emberMetal, _internalTestHelpers) {
   'use strict';
 
   var engine = void 0,
       engineInstance = void 0;
 
-  QUnit.module('Ember.EngineInstance', {
-    setup: function () {
+  (0, _internalTestHelpers.moduleFor)('Ember.EngineInstance', function (_TestCase) {
+    (0, _emberBabel.inherits)(_class, _TestCase);
+
+    function _class() {
+      (0, _emberBabel.classCallCheck)(this, _class);
+
+      var _this = (0, _emberBabel.possibleConstructorReturn)(this, _TestCase.call(this));
+
       (0, _emberMetal.run)(function () {
         engine = _engine.default.create({ router: null });
       });
-    },
-    teardown: function () {
+      return _this;
+    }
+
+    _class.prototype.teardown = function teardown() {
       if (engineInstance) {
         (0, _emberMetal.run)(engineInstance, 'destroy');
       }
@@ -3895,87 +3949,89 @@ enifed('ember-application/tests/system/engine_instance_test', ['ember-applicatio
       if (engine) {
         (0, _emberMetal.run)(engine, 'destroy');
       }
-    }
-  });
-
-  QUnit.test('an engine instance can be created based upon a base engine', function () {
-    (0, _emberMetal.run)(function () {
-      engineInstance = _engineInstance.default.create({ base: engine });
-    });
-
-    ok(engineInstance, 'instance should be created');
-    equal(engineInstance.base, engine, 'base should be set to engine');
-  });
-
-  QUnit.test('unregistering a factory clears all cached instances of that factory', function (assert) {
-    assert.expect(3);
-
-    engineInstance = (0, _emberMetal.run)(function () {
-      return _engineInstance.default.create({ base: engine });
-    });
-
-    var PostComponent = (0, _internalTestHelpers.factory)();
-
-    engineInstance.register('component:post', PostComponent);
-
-    var postComponent1 = engineInstance.lookup('component:post');
-    assert.ok(postComponent1, 'lookup creates instance');
-
-    engineInstance.unregister('component:post');
-    engineInstance.register('component:post', PostComponent);
-
-    var postComponent2 = engineInstance.lookup('component:post');
-    assert.ok(postComponent2, 'lookup creates instance');
-
-    assert.notStrictEqual(postComponent1, postComponent2, 'lookup creates a brand new instance because previous one was reset');
-  });
-
-  QUnit.test('can be booted when its parent has been set', function (assert) {
-    assert.expect(3);
-
-    engineInstance = (0, _emberMetal.run)(function () {
-      return _engineInstance.default.create({ base: engine });
-    });
-
-    expectAssertion(function () {
-      engineInstance._bootSync();
-    }, 'An engine instance\'s parent must be set via `setEngineParent(engine, parent)` prior to calling `engine.boot()`.');
-
-    (0, _engineParent.setEngineParent)(engineInstance, {});
-
-    // Stub `cloneParentDependencies`, the internals of which are tested along
-    // with application instances.
-    engineInstance.cloneParentDependencies = function () {
-      assert.ok(true, 'parent dependencies are cloned');
     };
 
-    return engineInstance.boot().then(function () {
-      assert.ok(true, 'boot successful');
-    });
-  });
+    _class.prototype['@test an engine instance can be created based upon a base engine'] = function testAnEngineInstanceCanBeCreatedBasedUponABaseEngine(assert) {
+      (0, _emberMetal.run)(function () {
+        engineInstance = _engineInstance.default.create({ base: engine });
+      });
 
-  QUnit.test('can build a child instance of a registered engine', function (assert) {
-    var ChatEngine = _engine.default.extend();
-    var chatEngineInstance = void 0;
+      assert.ok(engineInstance, 'instance should be created');
+      assert.equal(engineInstance.base, engine, 'base should be set to engine');
+    };
 
-    engine.register('engine:chat', ChatEngine);
+    _class.prototype['@test unregistering a factory clears all cached instances of that factory'] = function testUnregisteringAFactoryClearsAllCachedInstancesOfThatFactory(assert) {
+      assert.expect(3);
 
-    (0, _emberMetal.run)(function () {
-      engineInstance = _engineInstance.default.create({ base: engine });
+      engineInstance = (0, _emberMetal.run)(function () {
+        return _engineInstance.default.create({ base: engine });
+      });
 
-      // Try to build an unregistered engine.
-      throws(function () {
-        engineInstance.buildChildEngineInstance('fake');
-      }, 'You attempted to mount the engine \'fake\', but it is not registered with its parent.');
+      var PostComponent = (0, _internalTestHelpers.factory)();
 
-      // Build the `chat` engine, registered above.
-      chatEngineInstance = engineInstance.buildChildEngineInstance('chat');
-    });
+      engineInstance.register('component:post', PostComponent);
 
-    assert.ok(chatEngineInstance, 'child engine instance successfully created');
+      var postComponent1 = engineInstance.lookup('component:post');
+      assert.ok(postComponent1, 'lookup creates instance');
 
-    assert.strictEqual((0, _engineParent.getEngineParent)(chatEngineInstance), engineInstance, 'child engine instance is assigned the correct parent');
-  });
+      engineInstance.unregister('component:post');
+      engineInstance.register('component:post', PostComponent);
+
+      var postComponent2 = engineInstance.lookup('component:post');
+      assert.ok(postComponent2, 'lookup creates instance');
+
+      assert.notStrictEqual(postComponent1, postComponent2, 'lookup creates a brand new instance because previous one was reset');
+    };
+
+    _class.prototype['@test can be booted when its parent has been set'] = function testCanBeBootedWhenItsParentHasBeenSet(assert) {
+      assert.expect(3);
+
+      engineInstance = (0, _emberMetal.run)(function () {
+        return _engineInstance.default.create({ base: engine });
+      });
+
+      expectAssertion(function () {
+        engineInstance._bootSync();
+      }, 'An engine instance\'s parent must be set via `setEngineParent(engine, parent)` prior to calling `engine.boot()`.');
+
+      (0, _engineParent.setEngineParent)(engineInstance, {});
+
+      // Stub `cloneParentDependencies`, the internals of which are tested along
+      // with application instances.
+      engineInstance.cloneParentDependencies = function () {
+        assert.ok(true, 'parent dependencies are cloned');
+      };
+
+      return engineInstance.boot().then(function () {
+        assert.ok(true, 'boot successful');
+      });
+    };
+
+    _class.prototype['@test can build a child instance of a registered engine'] = function testCanBuildAChildInstanceOfARegisteredEngine(assert) {
+      var ChatEngine = _engine.default.extend();
+      var chatEngineInstance = void 0;
+
+      engine.register('engine:chat', ChatEngine);
+
+      (0, _emberMetal.run)(function () {
+        engineInstance = _engineInstance.default.create({ base: engine });
+
+        // Try to build an unregistered engine.
+        assert.throws(function () {
+          engineInstance.buildChildEngineInstance('fake');
+        }, 'You attempted to mount the engine \'fake\', but it is not registered with its parent.');
+
+        // Build the `chat` engine, registered above.
+        chatEngineInstance = engineInstance.buildChildEngineInstance('chat');
+      });
+
+      assert.ok(chatEngineInstance, 'child engine instance successfully created');
+
+      assert.strictEqual((0, _engineParent.getEngineParent)(chatEngineInstance), engineInstance, 'child engine instance is assigned the correct parent');
+    };
+
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
 });
 QUnit.module('ESLint | ember-application/tests/system/engine_instance_test.js');
 QUnit.test('should pass ESLint', function(assert) {
@@ -3983,23 +4039,31 @@ QUnit.test('should pass ESLint', function(assert) {
   assert.ok(true, 'ember-application/tests/system/engine_instance_test.js should pass ESLint\n\n');
 });
 
-enifed('ember-application/tests/system/engine_parent_test', ['ember-application/system/engine-parent'], function (_engineParent) {
+enifed('ember-application/tests/system/engine_parent_test', ['ember-babel', 'ember-application/system/engine-parent', 'internal-test-helpers'], function (_emberBabel, _engineParent, _internalTestHelpers) {
   'use strict';
 
-  QUnit.module('EngineParent', {});
+  (0, _internalTestHelpers.moduleFor)('EngineParent', function (_TestCase) {
+    (0, _emberBabel.inherits)(_class, _TestCase);
 
-  QUnit.test('An engine\'s parent can be set with `setEngineParent` and retrieved with `getEngineParent`', function () {
-    var engine = {};
-    var parent = {};
+    function _class() {
+      (0, _emberBabel.classCallCheck)(this, _class);
+      return (0, _emberBabel.possibleConstructorReturn)(this, _TestCase.apply(this, arguments));
+    }
 
-    strictEqual((0, _engineParent.getEngineParent)(engine), undefined, 'parent has not been set');
+    _class.prototype['@test An engine\'s parent can be set with `setEngineParent` and retrieved with `getEngineParent`'] = function testAnEngineSParentCanBeSetWithSetEngineParentAndRetrievedWithGetEngineParent(assert) {
+      var engine = {};
+      var parent = {};
 
-    (0, _engineParent.setEngineParent)(engine, parent);
+      assert.strictEqual((0, _engineParent.getEngineParent)(engine), undefined, 'parent has not been set');
 
-    strictEqual((0, _engineParent.getEngineParent)(engine), parent, 'parent has been set');
+      (0, _engineParent.setEngineParent)(engine, parent);
 
-    strictEqual(engine[_engineParent.ENGINE_PARENT], parent, 'parent has been set to the ENGINE_PARENT symbol');
-  });
+      assert.strictEqual((0, _engineParent.getEngineParent)(engine), parent, 'parent has been set');
+      assert.strictEqual(engine[_engineParent.ENGINE_PARENT], parent, 'parent has been set to the ENGINE_PARENT symbol');
+    };
+
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
 });
 QUnit.module('ESLint | ember-application/tests/system/engine_parent_test.js');
 QUnit.test('should pass ESLint', function(assert) {
@@ -4007,7 +4071,7 @@ QUnit.test('should pass ESLint', function(assert) {
   assert.ok(true, 'ember-application/tests/system/engine_parent_test.js should pass ESLint\n\n');
 });
 
-enifed('ember-application/tests/system/engine_test', ['ember-babel', 'ember-environment', 'ember-metal', 'ember-application/system/engine', 'ember-runtime', 'container', 'ember-application/tests/test-helpers/registry-check'], function (_emberBabel, _emberEnvironment, _emberMetal, _engine, _emberRuntime, _container, _registryCheck) {
+enifed('ember-application/tests/system/engine_test', ['ember-babel', 'ember-environment', 'ember-metal', 'ember-application/system/engine', 'ember-runtime', 'container', 'ember-application/tests/test-helpers/registry-check', 'internal-test-helpers'], function (_emberBabel, _emberEnvironment, _emberMetal, _engine, _emberRuntime, _container, _registryCheck, _internalTestHelpers) {
   'use strict';
 
   var _templateObject = (0, _emberBabel.taggedTemplateLiteralLoose)(['-bucket-cache:main'], ['-bucket-cache:main']),
@@ -4017,71 +4081,81 @@ enifed('ember-application/tests/system/engine_test', ['ember-babel', 'ember-envi
   var originalLookup = _emberEnvironment.context.lookup;
   var lookup = void 0;
 
-  QUnit.module('Ember.Engine', {
-    setup: function () {
+  (0, _internalTestHelpers.moduleFor)('Ember.Engine', function (_TestCase) {
+    (0, _emberBabel.inherits)(_class, _TestCase);
+
+    function _class() {
+      (0, _emberBabel.classCallCheck)(this, _class);
+
+      var _this = (0, _emberBabel.possibleConstructorReturn)(this, _TestCase.call(this));
+
       lookup = _emberEnvironment.context.lookup = {};
       engine = (0, _emberMetal.run)(function () {
         return _engine.default.create();
       });
-    },
-    teardown: function () {
+      return _this;
+    }
+
+    _class.prototype.teardown = function teardown() {
       _emberEnvironment.context.lookup = originalLookup;
       if (engine) {
         (0, _emberMetal.run)(engine, 'destroy');
       }
-    }
-  });
+    };
 
-  QUnit.test('acts like a namespace', function () {
-    engine = (0, _emberMetal.run)(function () {
-      return lookup.TestEngine = _engine.default.create();
-    });
+    _class.prototype['@test acts like a namespace'] = function testActsLikeANamespace(assert) {
+      engine = (0, _emberMetal.run)(function () {
+        return lookup.TestEngine = _engine.default.create();
+      });
 
-    engine.Foo = _emberRuntime.Object.extend();
-    equal(engine.Foo.toString(), 'TestEngine.Foo', 'Classes pick up their parent namespace');
-  });
+      engine.Foo = _emberRuntime.Object.extend();
+      assert.equal(engine.Foo.toString(), 'TestEngine.Foo', 'Classes pick up their parent namespace');
+    };
 
-  QUnit.test('builds a registry', function () {
-    strictEqual(engine.resolveRegistration('application:main'), engine, 'application:main is registered');
-    deepEqual(engine.registeredOptionsForType('component'), { singleton: false }, 'optionsForType \'component\'');
-    deepEqual(engine.registeredOptionsForType('view'), { singleton: false }, 'optionsForType \'view\'');
-    (0, _registryCheck.verifyRegistration)(engine, 'controller:basic');
-    (0, _registryCheck.verifyInjection)(engine, 'view', '_viewRegistry', '-view-registry:main');
-    (0, _registryCheck.verifyInjection)(engine, 'route', '_topLevelViewTemplate', 'template:-outlet');
-    (0, _registryCheck.verifyInjection)(engine, 'view:-outlet', 'namespace', 'application:main');
+    _class.prototype['@test builds a registry'] = function testBuildsARegistry(assert) {
+      assert.strictEqual(engine.resolveRegistration('application:main'), engine, 'application:main is registered');
+      assert.deepEqual(engine.registeredOptionsForType('component'), { singleton: false }, 'optionsForType \'component\'');
+      assert.deepEqual(engine.registeredOptionsForType('view'), { singleton: false }, 'optionsForType \'view\'');
+      (0, _registryCheck.verifyRegistration)(engine, 'controller:basic');
+      (0, _registryCheck.verifyInjection)(engine, 'view', '_viewRegistry', '-view-registry:main');
+      (0, _registryCheck.verifyInjection)(engine, 'route', '_topLevelViewTemplate', 'template:-outlet');
+      (0, _registryCheck.verifyInjection)(engine, 'view:-outlet', 'namespace', 'application:main');
 
-    (0, _registryCheck.verifyInjection)(engine, 'controller', 'target', 'router:main');
-    (0, _registryCheck.verifyInjection)(engine, 'controller', 'namespace', 'application:main');
+      (0, _registryCheck.verifyInjection)(engine, 'controller', 'target', 'router:main');
+      (0, _registryCheck.verifyInjection)(engine, 'controller', 'namespace', 'application:main');
 
-    (0, _registryCheck.verifyInjection)(engine, 'router', '_bucketCache', (0, _container.privatize)(_templateObject));
-    (0, _registryCheck.verifyInjection)(engine, 'route', '_bucketCache', (0, _container.privatize)(_templateObject));
+      (0, _registryCheck.verifyInjection)(engine, 'router', '_bucketCache', (0, _container.privatize)(_templateObject));
+      (0, _registryCheck.verifyInjection)(engine, 'route', '_bucketCache', (0, _container.privatize)(_templateObject));
 
-    (0, _registryCheck.verifyInjection)(engine, 'route', 'router', 'router:main');
+      (0, _registryCheck.verifyInjection)(engine, 'route', 'router', 'router:main');
 
-    (0, _registryCheck.verifyRegistration)(engine, 'component:-text-field');
-    (0, _registryCheck.verifyRegistration)(engine, 'component:-text-area');
-    (0, _registryCheck.verifyRegistration)(engine, 'component:-checkbox');
-    (0, _registryCheck.verifyRegistration)(engine, 'component:link-to');
+      (0, _registryCheck.verifyRegistration)(engine, 'component:-text-field');
+      (0, _registryCheck.verifyRegistration)(engine, 'component:-text-area');
+      (0, _registryCheck.verifyRegistration)(engine, 'component:-checkbox');
+      (0, _registryCheck.verifyRegistration)(engine, 'component:link-to');
 
-    (0, _registryCheck.verifyRegistration)(engine, 'service:-routing');
-    (0, _registryCheck.verifyInjection)(engine, 'service:-routing', 'router', 'router:main');
+      (0, _registryCheck.verifyRegistration)(engine, 'service:-routing');
+      (0, _registryCheck.verifyInjection)(engine, 'service:-routing', 'router', 'router:main');
 
-    // DEBUGGING
-    (0, _registryCheck.verifyRegistration)(engine, 'resolver-for-debugging:main');
-    (0, _registryCheck.verifyInjection)(engine, 'container-debug-adapter:main', 'resolver', 'resolver-for-debugging:main');
-    (0, _registryCheck.verifyInjection)(engine, 'data-adapter:main', 'containerDebugAdapter', 'container-debug-adapter:main');
-    (0, _registryCheck.verifyRegistration)(engine, 'container-debug-adapter:main');
-    (0, _registryCheck.verifyRegistration)(engine, 'component-lookup:main');
+      // DEBUGGING
+      (0, _registryCheck.verifyRegistration)(engine, 'resolver-for-debugging:main');
+      (0, _registryCheck.verifyInjection)(engine, 'container-debug-adapter:main', 'resolver', 'resolver-for-debugging:main');
+      (0, _registryCheck.verifyInjection)(engine, 'data-adapter:main', 'containerDebugAdapter', 'container-debug-adapter:main');
+      (0, _registryCheck.verifyRegistration)(engine, 'container-debug-adapter:main');
+      (0, _registryCheck.verifyRegistration)(engine, 'component-lookup:main');
 
-    (0, _registryCheck.verifyInjection)(engine, 'service:-dom-changes', 'document', 'service:-document');
-    (0, _registryCheck.verifyInjection)(engine, 'service:-dom-tree-construction', 'document', 'service:-document');
-    (0, _registryCheck.verifyRegistration)(engine, 'view:-outlet');
-    (0, _registryCheck.verifyRegistration)(engine, (0, _container.privatize)(_templateObject2));
-    (0, _registryCheck.verifyRegistration)(engine, 'template:-outlet');
-    (0, _registryCheck.verifyInjection)(engine, 'view:-outlet', 'template', 'template:-outlet');
-    (0, _registryCheck.verifyInjection)(engine, 'template', 'env', 'service:-glimmer-environment');
-    deepEqual(engine.registeredOptionsForType('helper'), { instantiate: false }, 'optionsForType \'helper\'');
-  });
+      (0, _registryCheck.verifyInjection)(engine, 'service:-dom-changes', 'document', 'service:-document');
+      (0, _registryCheck.verifyInjection)(engine, 'service:-dom-tree-construction', 'document', 'service:-document');
+      (0, _registryCheck.verifyRegistration)(engine, 'view:-outlet');
+      (0, _registryCheck.verifyRegistration)(engine, (0, _container.privatize)(_templateObject2));
+      (0, _registryCheck.verifyRegistration)(engine, 'template:-outlet');
+      (0, _registryCheck.verifyInjection)(engine, 'view:-outlet', 'template', 'template:-outlet');
+      (0, _registryCheck.verifyInjection)(engine, 'template', 'env', 'service:-glimmer-environment');
+      assert.deepEqual(engine.registeredOptionsForType('helper'), { instantiate: false }, 'optionsForType \'helper\'');
+    };
+
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
 });
 QUnit.module('ESLint | ember-application/tests/system/engine_test.js');
 QUnit.test('should pass ESLint', function(assert) {
@@ -5143,7 +5217,7 @@ QUnit.test('should pass ESLint', function(assert) {
   assert.ok(true, 'ember-application/tests/system/logging_test.js should pass ESLint\n\n');
 });
 
-enifed('ember-application/tests/system/readiness_test', ['ember-metal', 'ember-application/system/application'], function (_emberMetal, _application) {
+enifed('ember-application/tests/system/readiness_test', ['ember-babel', 'internal-test-helpers', 'ember-metal', 'ember-application/system/application'], function (_emberBabel, _internalTestHelpers, _emberMetal, _application) {
   'use strict';
 
   var jQuery = void 0,
@@ -5157,9 +5231,14 @@ enifed('ember-application/tests/system/readiness_test', ['ember-metal', 'ember-a
   // very well-defined semantics, and we want to confirm that a jQuery stub run
   // in a more minimal server environment that implements this behavior will be
   // sufficient for Ember's requirements.
+  (0, _internalTestHelpers.moduleFor)('Application readiness', function (_ApplicationTestCase) {
+    (0, _emberBabel.inherits)(_class, _ApplicationTestCase);
 
-  QUnit.module('Application readiness', {
-    setup: function () {
+    function _class() {
+      (0, _emberBabel.classCallCheck)(this, _class);
+
+      var _this = (0, _emberBabel.possibleConstructorReturn)(this, _ApplicationTestCase.call(this));
+
       readyWasCalled = 0;
       readyCallbacks = [];
 
@@ -5195,91 +5274,91 @@ enifed('ember-application/tests/system/readiness_test', ['ember-metal', 'ember-a
           readyWasCalled++;
         }
       });
-    },
-    teardown: function () {
+      return _this;
+    }
+
+    _class.prototype.teardown = function teardown() {
       if (application) {
         (0, _emberMetal.run)(function () {
           return application.destroy();
         });
       }
-    }
-  });
+    };
 
-  // These tests are confirming that if the callbacks passed into jQuery's ready hook is called
-  // synchronously during the application's initialization, we get the same behavior as if
-  // it was triggered after initialization.
+    _class.prototype['@test Ember.Application\'s ready event is called right away if jQuery is already ready'] = function testEmberApplicationSReadyEventIsCalledRightAwayIfJQueryIsAlreadyReady(assert) {
+      jQuery.isReady = true;
 
-  QUnit.test('Ember.Application\'s ready event is called right away if jQuery is already ready', function () {
-    jQuery.isReady = true;
+      (0, _emberMetal.run)(function () {
+        application = Application.create({ router: false });
 
-    (0, _emberMetal.run)(function () {
-      application = Application.create({ router: false });
+        assert.equal(readyWasCalled, 0, 'ready is not called until later');
+      });
 
-      equal(readyWasCalled, 0, 'ready is not called until later');
-    });
+      assert.equal(readyWasCalled, 1, 'ready was called');
 
-    equal(readyWasCalled, 1, 'ready was called');
+      domReady();
 
-    domReady();
+      assert.equal(readyWasCalled, 1, 'application\'s ready was not called again');
+    };
 
-    equal(readyWasCalled, 1, 'application\'s ready was not called again');
-  });
+    _class.prototype['@test Ember.Application\'s ready event is called after the document becomes ready'] = function testEmberApplicationSReadyEventIsCalledAfterTheDocumentBecomesReady(assert) {
+      (0, _emberMetal.run)(function () {
+        application = Application.create({ router: false });
+      });
 
-  QUnit.test('Ember.Application\'s ready event is called after the document becomes ready', function () {
-    (0, _emberMetal.run)(function () {
-      application = Application.create({ router: false });
-    });
+      assert.equal(readyWasCalled, 0, 'ready wasn\'t called yet');
 
-    equal(readyWasCalled, 0, 'ready wasn\'t called yet');
+      domReady();
 
-    domReady();
+      assert.equal(readyWasCalled, 1, 'ready was called now that DOM is ready');
+    };
 
-    equal(readyWasCalled, 1, 'ready was called now that DOM is ready');
-  });
+    _class.prototype['@test Ember.Application\'s ready event can be deferred by other components'] = function testEmberApplicationSReadyEventCanBeDeferredByOtherComponents(assert) {
+      (0, _emberMetal.run)(function () {
+        application = Application.create({ router: false });
+        application.deferReadiness();
+      });
 
-  QUnit.test('Ember.Application\'s ready event can be deferred by other components', function () {
-    (0, _emberMetal.run)(function () {
-      application = Application.create({ router: false });
-      application.deferReadiness();
-    });
+      assert.equal(readyWasCalled, 0, 'ready wasn\'t called yet');
 
-    equal(readyWasCalled, 0, 'ready wasn\'t called yet');
+      domReady();
 
-    domReady();
+      assert.equal(readyWasCalled, 0, 'ready wasn\'t called yet');
 
-    equal(readyWasCalled, 0, 'ready wasn\'t called yet');
+      (0, _emberMetal.run)(function () {
+        application.advanceReadiness();
+        assert.equal(readyWasCalled, 0);
+      });
 
-    (0, _emberMetal.run)(function () {
-      application.advanceReadiness();
-      equal(readyWasCalled, 0);
-    });
+      assert.equal(readyWasCalled, 1, 'ready was called now all readiness deferrals are advanced');
+    };
 
-    equal(readyWasCalled, 1, 'ready was called now all readiness deferrals are advanced');
-  });
+    _class.prototype['@test Ember.Application\'s ready event can be deferred by other components'] = function testEmberApplicationSReadyEventCanBeDeferredByOtherComponents(assert) {
+      jQuery.isReady = false;
 
-  QUnit.test('Ember.Application\'s ready event can be deferred by other components', function () {
-    jQuery.isReady = false;
+      (0, _emberMetal.run)(function () {
+        application = Application.create({ router: false });
+        application.deferReadiness();
+        assert.equal(readyWasCalled, 0, 'ready wasn\'t called yet');
+      });
 
-    (0, _emberMetal.run)(function () {
-      application = Application.create({ router: false });
-      application.deferReadiness();
-      equal(readyWasCalled, 0, 'ready wasn\'t called yet');
-    });
+      domReady();
 
-    domReady();
+      assert.equal(readyWasCalled, 0, 'ready wasn\'t called yet');
 
-    equal(readyWasCalled, 0, 'ready wasn\'t called yet');
+      (0, _emberMetal.run)(function () {
+        application.advanceReadiness();
+      });
 
-    (0, _emberMetal.run)(function () {
-      application.advanceReadiness();
-    });
+      assert.equal(readyWasCalled, 1, 'ready was called now all readiness deferrals are advanced');
 
-    equal(readyWasCalled, 1, 'ready was called now all readiness deferrals are advanced');
+      expectAssertion(function () {
+        application.deferReadiness();
+      });
+    };
 
-    expectAssertion(function () {
-      application.deferReadiness();
-    });
-  });
+    return _class;
+  }(_internalTestHelpers.ApplicationTestCase));
 });
 QUnit.module('ESLint | ember-application/tests/system/readiness_test.js');
 QUnit.test('should pass ESLint', function(assert) {
