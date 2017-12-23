@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.0.0-alpha.1-null+2069333f
+ * @version   3.0.0-alpha.1-null+39233bc2
  */
 
 /*globals process */
@@ -58812,6 +58812,34 @@ enifed('ember-runtime/tests/system/object/extend_test', ['ember-metal', 'ember-r
     deepEqual((0, _emberMetal.get)(another.constructor, 'things'), ['foo', 'bar'], 'subclass should have base class\' and its own');
     deepEqual((0, _emberMetal.get)(yetAnother.constructor, 'things'), ['foo', 'baz'], 'subclass should have base class\' and its own');
   });
+
+  QUnit.test('Overriding a computed property with an observer', function (assert) {
+    var Parent = _object.default.extend({
+      foo: (0, _emberMetal.computed)(function () {
+        return 'FOO';
+      })
+    });
+
+    var seen = [];
+
+    var Child = Parent.extend({
+      foo: (0, _emberMetal.observer)('bar', function () {
+        seen.push(this.get('bar'));
+      })
+    });
+
+    var child = Child.create({ bar: 0 });
+
+    assert.deepEqual(seen, []);
+
+    child.set('bar', 1);
+
+    assert.deepEqual(seen, [1]);
+
+    child.set('bar', 2);
+
+    assert.deepEqual(seen, [1, 2]);
+  });
 });
 enifed('ember-runtime/tests/system/object/observer_test', ['ember-metal', 'internal-test-helpers', 'ember-runtime/system/object'], function (_emberMetal, _internalTestHelpers, _object) {
   'use strict';
@@ -76814,8 +76842,20 @@ enifed('internal-test-helpers/module-for', ['exports', 'ember-debug', 'internal-
       proto = Object.getPrototypeOf(proto);
     }
 
+    function shouldTest(features) {
+      return features.every(function (feature) {
+        if (feature[0] === '!' && (0, _emberDebug.isFeatureEnabled)(feature.slice(1))) {
+          return false;
+        } else if (!(0, _emberDebug.isFeatureEnabled)(feature)) {
+          return false;
+        } else {
+          return true;
+        }
+      });
+    }
+
     function generateTest(name) {
-      var match, shouldTest;
+      var match, features;
 
       if (name.indexOf('@test ') === 0) {
         QUnit.test(name.slice(5), function (assert) {
@@ -76826,18 +76866,18 @@ enifed('internal-test-helpers/module-for', ['exports', 'ember-debug', 'internal-
           return context[name](assert);
         });
       } else {
-        match = /^@feature\((!?)([a-z-]+)\) /.exec(name);
-        shouldTest = match && (0, _emberDebug.isFeatureEnabled)(match[2]);
+        match = /^@feature\(([a-z-!]+)\) /.exec(name);
 
 
-        if (match && match[1] === '!') {
-          shouldTest = !shouldTest;
-        }
+        if (match) {
+          features = match[1].replace(/ /g, '').split(',');
 
-        if (shouldTest) {
-          QUnit.test(name.slice(match[0].length), function (assert) {
-            return context[name](assert);
-          });
+
+          if (shouldTest(features)) {
+            QUnit.test(name.slice(match[0].length), function (assert) {
+              return context[name](assert);
+            });
+          }
         }
       }
     }

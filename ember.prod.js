@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.0.0-alpha.1-null+2069333f
+ * @version   3.0.0-alpha.1-null+39233bc2
  */
 
 /*globals process */
@@ -15868,7 +15868,6 @@ enifed('ember-glimmer/component', ['exports', '@glimmer/reference', '@glimmer/ru
           }
         }return false;
       }());
-      false && !!(this.tagName && this.tagName.isDescriptor) && (0, _emberDebug.assert)('You cannot use a computed property for the component\'s `tagName` (' + this + ').', !(this.tagName && this.tagName.isDescriptor));
     },
     rerender: function () {
       this[DIRTY_TAG].dirty();
@@ -18803,7 +18802,6 @@ enifed('ember-glimmer/renderer', ['exports', 'ember-babel', '@glimmer/reference'
             this.result = undefined;
             this.shouldReflush = false;
             this.destroyed = false;
-            this._removing = false;
             var options = this.options = {
                 alwaysRevalidate: false
             };
@@ -22530,7 +22528,8 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       return;
     }
     var meta$$1 = _meta === undefined ? peekMeta(obj) : _meta,
-        possibleDesc;
+        possibleDesc,
+        _isDescriptor;
 
     // do nothing of this object has already been destroyed
     if (meta$$1 === undefined || meta$$1.isSourceDestroyed()) {
@@ -22542,9 +22541,10 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       meta$$1.writeWatching(keyName, 0);
 
       possibleDesc = descriptorFor(obj, keyName, meta$$1);
+      _isDescriptor = possibleDesc !== undefined;
 
 
-      if (possibleDesc !== undefined && possibleDesc.didUnwatch) {
+      if (_isDescriptor && possibleDesc.didUnwatch) {
         possibleDesc.didUnwatch(obj, keyName, meta$$1);
       }
 
@@ -27017,7 +27017,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     if (descs[altKey] || values[altKey]) {
       value = values[altKey];
       desc = descs[altKey];
-    } else if ((possibleDesc = obj[altKey]) && isDescriptor(possibleDesc)) {
+    } else if ((possibleDesc = descriptorFor(obj, altKey)) !== undefined) {
       desc = possibleDesc;
       value = undefined;
     } else {
@@ -27616,8 +27616,15 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       Object.defineProperty(obj, key, this.desc);
     };
 
-    Descriptor$$1.prototype.teardown = function () {// eslint-disable-line no-unused-vars
+    Descriptor$$1.prototype.get = function (obj, key) {
+      return obj[key];
     };
+
+    Descriptor$$1.prototype.set = function (obj, key, value) {
+      return obj[key] = value;
+    };
+
+    Descriptor$$1.prototype.teardown = function () {};
 
     return Descriptor$$1;
   }(Descriptor);
@@ -38917,6 +38924,30 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-utils', 'ember-met
     return Class;
   }
 
+  var IS_DESTROYED = (0, _emberMetal.descriptor)({
+    configurable: true,
+    enumerable: false,
+
+    get: function () {
+      return (0, _emberMetal.peekMeta)(this).isSourceDestroyed();
+    },
+    set: function (value) {
+      false && !(value === IS_DESTROYED) && (0, _emberDebug.assert)('You cannot set `' + this + '.isDestroyed` directly, please use `.destroy()`.', value === IS_DESTROYED);
+    }
+  });
+
+  var IS_DESTROYING = (0, _emberMetal.descriptor)({
+    configurable: true,
+    enumerable: false,
+
+    get: function () {
+      return (0, _emberMetal.peekMeta)(this).isSourceDestroying();
+    },
+    set: function (value) {
+      false && !(value === IS_DESTROYING) && (0, _emberDebug.assert)('You cannot set `' + this + '.isDestroying` directly, please use `.destroy()`.', value === IS_DESTROYING);
+    }
+  });
+
   /**
     @class CoreObject
     @public
@@ -38940,31 +38971,7 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-utils', 'ember-met
   }, _Mixin$create[POST_INIT] = function () {}, _Mixin$create.__defineNonEnumerable = function (property) {
     Object.defineProperty(this, property.name, property.descriptor);
     //this[property.name] = property.descriptor.value;
-  }, _Mixin$create.concatenatedProperties = null, _Mixin$create.mergedProperties = null, _Mixin$create.isDestroyed = (0, _emberMetal.descriptor)({
-    get: function () {
-      return (0, _emberMetal.peekMeta)(this).isSourceDestroyed();
-    },
-    set: function (value) {
-      // prevent setting while applying mixins
-      if (value !== null && typeof value === 'object' && value.isDescriptor) {
-        return;
-      }
-
-      false && !false && (0, _emberDebug.assert)('You cannot set `' + this + '.isDestroyed` directly, please use `.destroy()`.', false);
-    }
-  }), _Mixin$create.isDestroying = (0, _emberMetal.descriptor)({
-    get: function () {
-      return (0, _emberMetal.peekMeta)(this).isSourceDestroying();
-    },
-    set: function (value) {
-      // prevent setting while applying mixins
-      if (value !== null && typeof value === 'object' && value.isDescriptor) {
-        return;
-      }
-
-      false && !false && (0, _emberDebug.assert)('You cannot set `' + this + '.isDestroying` directly, please use `.destroy()`.', false);
-    }
-  }), _Mixin$create.destroy = function () {
+  }, _Mixin$create.concatenatedProperties = null, _Mixin$create.mergedProperties = null, _Mixin$create.isDestroyed = IS_DESTROYED, _Mixin$create.isDestroying = IS_DESTROYING, _Mixin$create.destroy = function () {
     var m = (0, _emberMetal.peekMeta)(this);
     if (m.isSourceDestroying()) {
       return;
@@ -41256,8 +41263,8 @@ enifed('ember-views/mixins/class_names_support', ['exports', 'ember-metal', 'emb
     init: function () {
       this._super.apply(this, arguments);
 
-      false && !Array.isArray(this.classNameBindings) && (0, _emberDebug.assert)('Only arrays are allowed for \'classNameBindings\'', Array.isArray(this.classNameBindings));
-      false && !Array.isArray(this.classNames) && (0, _emberDebug.assert)('Only arrays of static class strings are allowed for \'classNames\'. For dynamic classes, use \'classNameBindings\'.', Array.isArray(this.classNames));
+      false && !((0, _emberMetal.descriptorFor)(this, 'classNameBindings') === undefined && Array.isArray(this.classNameBindings)) && (0, _emberDebug.assert)('Only arrays are allowed for \'classNameBindings\'', (0, _emberMetal.descriptorFor)(this, 'classNameBindings') === undefined && Array.isArray(this.classNameBindings));
+      false && !((0, _emberMetal.descriptorFor)(this, 'classNames') === undefined && Array.isArray(this.classNames)) && (0, _emberDebug.assert)('Only arrays of static class strings are allowed for \'classNames\'. For dynamic classes, use \'classNameBindings\'.', (0, _emberMetal.descriptorFor)(this, 'classNames') === undefined && Array.isArray(this.classNames));
     },
 
     /**
@@ -41755,6 +41762,13 @@ enifed('ember-views/mixins/view_support', ['exports', 'ember-utils', 'ember-meta
     var owner, dispatcher;
 
     this._super.apply(this, arguments);
+
+    // tslint:disable-next-line:max-line-length
+    false && !((0, _emberMetal.descriptorFor)(this, 'elementId') === undefined) && (0, _emberDebug.assert)('You cannot use a computed property for the component\'s `elementId` (' + this + ').', (0, _emberMetal.descriptorFor)(this, 'elementId') === undefined);
+
+    // tslint:disable-next-line:max-line-length
+
+    false && !((0, _emberMetal.descriptorFor)(this, 'tagName') === undefined) && (0, _emberDebug.assert)('You cannot use a computed property for the component\'s `tagName` (' + this + ').', (0, _emberMetal.descriptorFor)(this, 'tagName') === undefined);
 
     if (!this.elementId && this.tagName !== '') {
       this.elementId = (0, _emberUtils.guidFor)(this);
@@ -43165,7 +43179,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "3.0.0-alpha.1-null+2069333f";
+  exports.default = "3.0.0-alpha.1-null+39233bc2";
 });
 /*global enifed */
 enifed('node-module', ['exports'], function(_exports) {

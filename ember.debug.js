@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.0.0-alpha.1-null+2069333f
+ * @version   3.0.0-alpha.1-null+39233bc2
  */
 
 /*globals process */
@@ -16229,7 +16229,6 @@ enifed('ember-glimmer/component', ['exports', '@glimmer/reference', '@glimmer/ru
           }
         }return false;
       }()));
-      (true && !(!(this.tagName && this.tagName.isDescriptor)) && (0, _emberDebug.assert)('You cannot use a computed property for the component\'s `tagName` (' + this + ').', !(this.tagName && this.tagName.isDescriptor)));
     },
     rerender: function () {
       this[DIRTY_TAG].dirty();
@@ -19208,7 +19207,6 @@ enifed('ember-glimmer/renderer', ['exports', 'ember-babel', '@glimmer/reference'
             this.result = undefined;
             this.shouldReflush = false;
             this.destroyed = false;
-            this._removing = false;
             var options = this.options = {
                 alwaysRevalidate: false
             };
@@ -23415,8 +23413,9 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       meta$$1.writeWatching(keyName, 0);
 
       var possibleDesc = descriptorFor(obj, keyName, meta$$1);
+      var _isDescriptor = possibleDesc !== undefined;
 
-      if (possibleDesc !== undefined && possibleDesc.didUnwatch) {
+      if (_isDescriptor && possibleDesc.didUnwatch) {
         possibleDesc.didUnwatch(obj, keyName, meta$$1);
       }
 
@@ -23433,7 +23432,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
         // for mutation, will bypass observation. This code exists to assert when
         // that occurs, and attempt to provide more helpful feedback. The alternative
         // is tricky to debug partially observable properties.
-        if (possibleDesc === undefined && keyName in obj) {
+        if (!_isDescriptor && keyName in obj) {
           var maybeMandatoryDescriptor = emberUtils.lookupDescriptor(obj, keyName);
 
           if (maybeMandatoryDescriptor.set && maybeMandatoryDescriptor.set.isMandatorySetter) {
@@ -24293,6 +24292,10 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   var metaStore = new WeakMap();
 
   function setMeta(obj, meta) {
+    true && !(obj !== null) && emberDebug.assert('Cannot call `setMeta` on null', obj !== null);
+    true && !(obj !== undefined) && emberDebug.assert('Cannot call `setMeta` on undefined', obj !== undefined);
+    true && !(typeof obj === 'object' || typeof obj === 'function') && emberDebug.assert('Cannot call `setMeta` on ' + typeof obj, typeof obj === 'object' || typeof obj === 'function');
+
     {
       counters.setCalls++;
     }
@@ -24300,6 +24303,10 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   }
 
   function peekMeta(obj) {
+    true && !(obj !== null) && emberDebug.assert('Cannot call `peekMeta` on null', obj !== null);
+    true && !(obj !== undefined) && emberDebug.assert('Cannot call `peekMeta` on undefined', obj !== undefined);
+    true && !(typeof obj === 'object' || typeof obj === 'function') && emberDebug.assert('Cannot call `peekMeta` on ' + typeof obj, typeof obj === 'object' || typeof obj === 'function');
+
     var pointer = obj;
     var meta = void 0;
     while (pointer !== undefined && pointer !== null) {
@@ -24330,6 +24337,10 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     @private
   */
   function deleteMeta(obj) {
+    true && !(obj !== null) && emberDebug.assert('Cannot call `deleteMeta` on null', obj !== null);
+    true && !(obj !== undefined) && emberDebug.assert('Cannot call `deleteMeta` on undefined', obj !== undefined);
+    true && !(typeof obj === 'object' || typeof obj === 'function') && emberDebug.assert('Cannot call `deleteMeta` on ' + typeof obj, typeof obj === 'object' || typeof obj === 'function');
+
     {
       counters.deleteCalls++;
     }
@@ -24359,6 +24370,10 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     @return {Object} the meta hash for an object
   */
   function meta(obj) {
+    true && !(obj !== null) && emberDebug.assert('Cannot call `meta` on null', obj !== null);
+    true && !(obj !== undefined) && emberDebug.assert('Cannot call `meta` on undefined', obj !== undefined);
+    true && !(typeof obj === 'object' || typeof obj === 'function') && emberDebug.assert('Cannot call `meta` on ' + typeof obj, typeof obj === 'object' || typeof obj === 'function');
+
     {
       counters.metaCalls++;
     }
@@ -24389,6 +24404,10 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     @private
   */
   function descriptorFor(obj, keyName) {
+    true && !(obj !== null) && emberDebug.assert('Cannot call `descriptorFor` on null', obj !== null);
+    true && !(obj !== undefined) && emberDebug.assert('Cannot call `descriptorFor` on undefined', obj !== undefined);
+    true && !(typeof obj === 'object' || typeof obj === 'function') && emberDebug.assert('Cannot call `descriptorFor` on ' + typeof obj, typeof obj === 'object' || typeof obj === 'function');
+
     var possibleDesc = obj[keyName];
     return isDescriptor(possibleDesc) ? possibleDesc : undefined;
   }
@@ -28210,7 +28229,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     if (descs[altKey] || values[altKey]) {
       value = values[altKey];
       desc = descs[altKey];
-    } else if ((possibleDesc = obj[altKey]) && isDescriptor(possibleDesc)) {
+    } else if ((possibleDesc = descriptorFor(obj, altKey)) !== undefined) {
       desc = possibleDesc;
       value = undefined;
     } else {
@@ -28902,8 +28921,15 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       Object.defineProperty(obj, key, this.desc);
     };
 
-    Descriptor$$1.prototype.teardown = function teardown(obj, key) {// eslint-disable-line no-unused-vars
+    Descriptor$$1.prototype.get = function get(obj, key) {
+      return obj[key];
     };
+
+    Descriptor$$1.prototype.set = function set(obj, key, value) {
+      return obj[key] = value;
+    };
+
+    Descriptor$$1.prototype.teardown = function teardown() {};
 
     return Descriptor$$1;
   }(Descriptor);
@@ -39773,6 +39799,30 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-babel', 'ember-uti
     return Class;
   }
 
+  var IS_DESTROYED = (0, _emberMetal.descriptor)({
+    configurable: true,
+    enumerable: false,
+
+    get: function () {
+      return (0, _emberMetal.peekMeta)(this).isSourceDestroyed();
+    },
+    set: function (value) {
+      (true && !(value === IS_DESTROYED) && (0, _emberDebug.assert)('You cannot set `' + this + '.isDestroyed` directly, please use `.destroy()`.', value === IS_DESTROYED));
+    }
+  });
+
+  var IS_DESTROYING = (0, _emberMetal.descriptor)({
+    configurable: true,
+    enumerable: false,
+
+    get: function () {
+      return (0, _emberMetal.peekMeta)(this).isSourceDestroying();
+    },
+    set: function (value) {
+      (true && !(value === IS_DESTROYING) && (0, _emberDebug.assert)('You cannot set `' + this + '.isDestroying` directly, please use `.destroy()`.', value === IS_DESTROYING));
+    }
+  });
+
   /**
     @class CoreObject
     @public
@@ -39794,31 +39844,7 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-babel', 'ember-uti
   }, _Mixin$create[POST_INIT] = function () {}, _Mixin$create.__defineNonEnumerable = function (property) {
     Object.defineProperty(this, property.name, property.descriptor);
     //this[property.name] = property.descriptor.value;
-  }, _Mixin$create.concatenatedProperties = null, _Mixin$create.mergedProperties = null, _Mixin$create.isDestroyed = (0, _emberMetal.descriptor)({
-    get: function () {
-      return (0, _emberMetal.peekMeta)(this).isSourceDestroyed();
-    },
-    set: function (value) {
-      // prevent setting while applying mixins
-      if (value !== null && typeof value === 'object' && value.isDescriptor) {
-        return;
-      }
-
-      (true && !(false) && (0, _emberDebug.assert)('You cannot set `' + this + '.isDestroyed` directly, please use `.destroy()`.', false));
-    }
-  }), _Mixin$create.isDestroying = (0, _emberMetal.descriptor)({
-    get: function () {
-      return (0, _emberMetal.peekMeta)(this).isSourceDestroying();
-    },
-    set: function (value) {
-      // prevent setting while applying mixins
-      if (value !== null && typeof value === 'object' && value.isDescriptor) {
-        return;
-      }
-
-      (true && !(false) && (0, _emberDebug.assert)('You cannot set `' + this + '.isDestroying` directly, please use `.destroy()`.', false));
-    }
-  }), _Mixin$create.destroy = function () {
+  }, _Mixin$create.concatenatedProperties = null, _Mixin$create.mergedProperties = null, _Mixin$create.isDestroyed = IS_DESTROYED, _Mixin$create.isDestroying = IS_DESTROYING, _Mixin$create.destroy = function () {
     var m = (0, _emberMetal.peekMeta)(this);
     if (m.isSourceDestroying()) {
       return;
@@ -45007,8 +45033,8 @@ enifed('ember-views/mixins/class_names_support', ['exports', 'ember-metal', 'emb
     init: function () {
       this._super.apply(this, arguments);
 
-      (true && !(Array.isArray(this.classNameBindings)) && (0, _emberDebug.assert)('Only arrays are allowed for \'classNameBindings\'', Array.isArray(this.classNameBindings)));
-      (true && !(Array.isArray(this.classNames)) && (0, _emberDebug.assert)('Only arrays of static class strings are allowed for \'classNames\'. For dynamic classes, use \'classNameBindings\'.', Array.isArray(this.classNames)));
+      (true && !((0, _emberMetal.descriptorFor)(this, 'classNameBindings') === undefined && Array.isArray(this.classNameBindings)) && (0, _emberDebug.assert)('Only arrays are allowed for \'classNameBindings\'', (0, _emberMetal.descriptorFor)(this, 'classNameBindings') === undefined && Array.isArray(this.classNameBindings)));
+      (true && !((0, _emberMetal.descriptorFor)(this, 'classNames') === undefined && Array.isArray(this.classNames)) && (0, _emberDebug.assert)('Only arrays of static class strings are allowed for \'classNames\'. For dynamic classes, use \'classNameBindings\'.', (0, _emberMetal.descriptorFor)(this, 'classNames') === undefined && Array.isArray(this.classNames)));
     },
 
 
@@ -45515,6 +45541,14 @@ enifed('ember-views/mixins/view_support', ['exports', 'ember-utils', 'ember-meta
     this._currentState.destroy(this);
   }, _Mixin$create.willDestroyElement = K, _Mixin$create.parentViewDidChange = K, _Mixin$create.tagName = null, _Mixin$create.init = function () {
     this._super.apply(this, arguments);
+
+    // tslint:disable-next-line:max-line-length
+    (true && !((0, _emberMetal.descriptorFor)(this, 'elementId') === undefined) && (0, _emberDebug.assert)('You cannot use a computed property for the component\'s `elementId` (' + this + ').', (0, _emberMetal.descriptorFor)(this, 'elementId') === undefined));
+
+    // tslint:disable-next-line:max-line-length
+
+    (true && !((0, _emberMetal.descriptorFor)(this, 'tagName') === undefined) && (0, _emberDebug.assert)('You cannot use a computed property for the component\'s `tagName` (' + this + ').', (0, _emberMetal.descriptorFor)(this, 'tagName') === undefined));
+
 
     if (!this.elementId && this.tagName !== '') {
       this.elementId = (0, _emberUtils.guidFor)(this);
@@ -46961,7 +46995,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "3.0.0-alpha.1-null+2069333f";
+  exports.default = "3.0.0-alpha.1-null+39233bc2";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";

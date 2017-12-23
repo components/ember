@@ -3,7 +3,7 @@
         "name": "The Ember API",
         "description": "The Ember API: a framework for building ambitious web applications",
         "url": "https://emberjs.com/",
-        "version": "3.0.0-alpha.1.2069333f"
+        "version": "3.0.0-alpha.1.39233bc2"
     },
     "files": {
         "node_modules/rsvp/lib/rsvp/promise/all.js": {
@@ -2576,7 +2576,7 @@
             "module": "@ember/component",
             "namespace": "",
             "file": "packages/ember-glimmer/lib/component.ts",
-            "line": 34,
+            "line": 32,
             "description": "A `Component` is a view that is completely\nisolated. Properties accessed in its templates go\nto the view object and actions are targeted at\nthe view object. There is no access to the\nsurrounding context or outer controller; all\ncontextual information must be passed in.\n\nThe easiest way to create a `Component` is via\na template. If you name a template\n`app/components/my-foo.hbs`, you will be able to use\n`{{my-foo}}` in other templates, which will make\nan instance of the isolated component.\n\n```app/components/my-foo.hbs\n{{person-profile person=currentUser}}\n```\n\n```app/components/person-profile.hbs\n<h1>{{person.title}}</h1>\n<img src={{person.avatar}}>\n<p class='signature'>{{person.signature}}</p>\n```\n\nYou can use `yield` inside a template to\ninclude the **contents** of any block attached to\nthe component. The block will be executed in the\ncontext of the surrounding context or outer controller:\n\n```handlebars\n{{#person-profile person=currentUser}}\n  <p>Admin mode</p>\n  {{! Executed in the controller's context. }}\n{{/person-profile}}\n```\n\n```app/components/person-profile.hbs\n<h1>{{person.title}}</h1>\n{{! Executed in the component's context. }}\n{{yield}} {{! block contents }}\n```\n\nIf you want to customize the component, in order to\nhandle events or actions, you implement a subclass\nof `Component` named after the name of the\ncomponent.\n\nFor example, you could implement the action\n`hello` for the `person-profile` component:\n\n```app/components/person-profile.js\nimport Component from '@ember/component';\n\nexport default Component.extend({\n  actions: {\n    hello(name) {\n      console.log(\"Hello\", name);\n    }\n  }\n});\n```\n\nAnd then use it in the component's template:\n\n```app/templates/components/person-profile.hbs\n<h1>{{person.title}}</h1>\n{{yield}} <!-- block contents -->\n<button {{action 'hello' person.name}}>\n  Say Hello to {{person.name}}\n</button>\n```\n\nComponents must have a `-` in their name to avoid\nconflicts with built-in controls that wrap HTML\nelements. This is consistent with the same\nrequirement in web components.\n\n## HTML Tag\n\nThe default HTML tag name used for a component's DOM representation is `div`.\nThis can be customized by setting the `tagName` property.\nThe following component class:\n\n```app/components/emphasized-paragraph.js\nimport Component from '@ember/component';\n\nexport default Component.extend({\n  tagName: 'em'\n});\n```\n\nWould result in instances with the following HTML:\n\n```html\n<em id=\"ember1\" class=\"ember-view\"></em>\n```\n\n## HTML `class` Attribute\n\nThe HTML `class` attribute of a component's tag can be set by providing a\n`classNames` property that is set to an array of strings:\n\n```app/components/my-widget.js\nimport Component from '@ember/component';\n\nexport default Component.extend({\n  classNames: ['my-class', 'my-other-class']\n});\n```\n\nWill result in component instances with an HTML representation of:\n\n```html\n<div id=\"ember1\" class=\"ember-view my-class my-other-class\"></div>\n```\n\n`class` attribute values can also be set by providing a `classNameBindings`\nproperty set to an array of properties names for the component. The return value\nof these properties will be added as part of the value for the components's `class`\nattribute. These properties can be computed properties:\n\n```app/components/my-widget.js\nimport Component from '@ember/component';\nimport { computed } from '@ember/object';\n\nexport default Component.extend({\n  classNameBindings: ['propertyA', 'propertyB'],\n\n  propertyA: 'from-a',\n  propertyB: computed(function() {\n    if (someLogic) { return 'from-b'; }\n  })\n});\n```\n\nWill result in component instances with an HTML representation of:\n\n```html\n<div id=\"ember1\" class=\"ember-view from-a from-b\"></div>\n```\n\nIf the value of a class name binding returns a boolean the property name\nitself will be used as the class name if the property is true.\nThe class name will not be added if the value is `false` or `undefined`.\n\n```app/components/my-widget.js\nimport Component from '@ember/component';\n\nexport default Component.extend({\n  classNameBindings: ['hovered'],\n\n  hovered: true\n});\n```\n\nWill result in component instances with an HTML representation of:\n\n```html\n<div id=\"ember1\" class=\"ember-view hovered\"></div>\n```\n\nWhen using boolean class name bindings you can supply a string value other\nthan the property name for use as the `class` HTML attribute by appending the\npreferred value after a \":\" character when defining the binding:\n\n```app/components/my-widget.js\nimport Component from '@ember/component';\n\nexport default Component.extend({\n  classNameBindings: ['awesome:so-very-cool'],\n\n  awesome: true\n});\n```\n\nWill result in component instances with an HTML representation of:\n\n```html\n<div id=\"ember1\" class=\"ember-view so-very-cool\"></div>\n```\n\nBoolean value class name bindings whose property names are in a\ncamelCase-style format will be converted to a dasherized format:\n\n```app/components/my-widget.js\nimport Component from '@ember/component';\n\nexport default Component.extend({\n  classNameBindings: ['isUrgent'],\n\n  isUrgent: true\n});\n```\n\nWill result in component instances with an HTML representation of:\n\n```html\n<div id=\"ember1\" class=\"ember-view is-urgent\"></div>\n```\n\nClass name bindings can also refer to object values that are found by\ntraversing a path relative to the component itself:\n\n```app/components/my-widget.js\nimport Component from '@ember/component';\nimport EmberObject from '@ember/object';\n\nexport default Component.extend({\n  classNameBindings: ['messages.empty'],\n\n  messages: EmberObject.create({\n    empty: true\n  })\n});\n```\n\nWill result in component instances with an HTML representation of:\n\n```html\n<div id=\"ember1\" class=\"ember-view empty\"></div>\n```\n\nIf you want to add a class name for a property which evaluates to true and\nand a different class name if it evaluates to false, you can pass a binding\nlike this:\n\n```app/components/my-widget.js\nimport Component from '@ember/component';\n\nexport default Component.extend({\n  classNameBindings: ['isEnabled:enabled:disabled'],\n  isEnabled: true\n});\n```\n\nWill result in component instances with an HTML representation of:\n\n```html\n<div id=\"ember1\" class=\"ember-view enabled\"></div>\n```\n\nWhen isEnabled is `false`, the resulting HTML representation looks like\nthis:\n\n```html\n<div id=\"ember1\" class=\"ember-view disabled\"></div>\n```\n\nThis syntax offers the convenience to add a class if a property is `false`:\n\n```app/components/my-widget.js\nimport Component from '@ember/component';\n\n// Applies no class when isEnabled is true and class 'disabled' when isEnabled is false\nexport default Component.extend({\n  classNameBindings: ['isEnabled::disabled'],\n  isEnabled: true\n});\n```\n\nWill result in component instances with an HTML representation of:\n\n```html\n<div id=\"ember1\" class=\"ember-view\"></div>\n```\n\nWhen the `isEnabled` property on the component is set to `false`, it will result\nin component instances with an HTML representation of:\n\n```html\n<div id=\"ember1\" class=\"ember-view disabled\"></div>\n```\n\nUpdates to the value of a class name binding will result in automatic\nupdate of the  HTML `class` attribute in the component's rendered HTML\nrepresentation. If the value becomes `false` or `undefined` the class name\nwill be removed.\nBoth `classNames` and `classNameBindings` are concatenated properties. See\n[EmberObject](/api/classes/Ember.Object.html) documentation for more\ninformation about concatenated properties.\n\n## HTML Attributes\n\nThe HTML attribute section of a component's tag can be set by providing an\n`attributeBindings` property set to an array of property names on the component.\nThe return value of these properties will be used as the value of the component's\nHTML associated attribute:\n\n```app/components/my-anchor.js\nimport Component from '@ember/component';\n\nexport default Component.extend({\n  tagName: 'a',\n  attributeBindings: ['href'],\n\n  href: 'http://google.com'\n});\n```\n\nWill result in component instances with an HTML representation of:\n\n```html\n<a id=\"ember1\" class=\"ember-view\" href=\"http://google.com\"></a>\n```\n\nOne property can be mapped on to another by placing a \":\" between\nthe source property and the destination property:\n\n```app/components/my-anchor.js\nimport Component from '@ember/component';\n\nexport default Component.extend({\n  tagName: 'a',\n  attributeBindings: ['url:href'],\n\n  url: 'http://google.com'\n});\n```\n\nWill result in component instances with an HTML representation of:\n\n```html\n<a id=\"ember1\" class=\"ember-view\" href=\"http://google.com\"></a>\n```\n\nNamespaced attributes (e.g. `xlink:href`) are supported, but have to be\nmapped, since `:` is not a valid character for properties in Javascript:\n\n```app/components/my-use.js\nimport Component from '@ember/component';\n\nexport default Component.extend({\n  tagName: 'use',\n  attributeBindings: ['xlinkHref:xlink:href'],\n\n  xlinkHref: '#triangle'\n});\n```\n\nWill result in component instances with an HTML representation of:\n\n```html\n<use xlink:href=\"#triangle\"></use>\n```\n\nIf the return value of an `attributeBindings` monitored property is a boolean\nthe attribute will be present or absent depending on the value:\n\n```app/components/my-text-input.js\nimport Component from '@ember/component';\n\nexport default Component.extend({\n  tagName: 'input',\n  attributeBindings: ['disabled'],\n\n  disabled: false\n});\n```\n\nWill result in a component instance with an HTML representation of:\n\n```html\n<input id=\"ember1\" class=\"ember-view\" />\n```\n\n`attributeBindings` can refer to computed properties:\n\n```app/components/my-text-input.js\nimport Component from '@ember/component';\nimport { computed } from '@ember/object';\n\nexport default Component.extend({\n  tagName: 'input',\n  attributeBindings: ['disabled'],\n\n  disabled: computed(function() {\n    if (someLogic) {\n      return true;\n    } else {\n      return false;\n    }\n  })\n});\n```\n\nTo prevent setting an attribute altogether, use `null` or `undefined` as the\nreturn value of the `attributeBindings` monitored property:\n\n```app/components/my-text-input.js\nimport Component from '@ember/component';\n\nexport default Component.extend({\n  tagName: 'form',\n  attributeBindings: ['novalidate'],\n  novalidate: null\n});\n```\n\nUpdates to the property of an attribute binding will result in automatic\nupdate of the  HTML attribute in the component's rendered HTML representation.\n`attributeBindings` is a concatenated property. See [EmberObject](/api/classes/Ember.Object.html)\ndocumentation for more information about concatenated properties.\n\n## Layouts\n\nSee [Ember.Templates.helpers.yield](/api/classes/Ember.Templates.helpers.html#method_yield)\nfor more information.\n\nLayout can be used to wrap content in a component. In addition\nto wrapping content in a Component's template, you can also use\nthe public layout API in your Component JavaScript.\n\n```app/templates/components/person-profile.hbs\n  <h1>Person's Title</h1>\n  <div class='details'>{{yield}}</div>\n```\n\n```app/components/person-profile.js\n  import Component from '@ember/component';\n  import layout from '../templates/components/person-profile';\n\n  export default Component.extend({\n    layout\n  });\n```\n\nThe above will result in the following HTML output:\n\n```html\n  <h1>Person's Title</h1>\n  <div class=\"details\">\n    <h2>Chief Basket Weaver</h2>\n    <h3>Fisherman Industries</h3>\n  </div>\n```\n\n## Responding to Browser Events\n\nComponents can respond to user-initiated events in one of three ways: method\nimplementation, through an event manager, and through `{{action}}` helper use\nin their template or layout.\n\n### Method Implementation\n\nComponents can respond to user-initiated events by implementing a method that\nmatches the event name. A `jQuery.Event` object will be passed as the\nargument to this method.\n\n```app/components/my-widget.js\nimport Component from '@ember/component';\n\nexport default Component.extend({\n  click(event) {\n    // will be called when an instance's\n    // rendered element is clicked\n  }\n});\n```\n\n### `{{action}}` Helper\n\nSee [Ember.Templates.helpers.action](/api/classes/Ember.Templates.helpers.html#method_action).\n\n### Event Names\n\nAll of the event handling approaches described above respond to the same set\nof events. The names of the built-in events are listed below. (The hash of\nbuilt-in events exists in `Ember.EventDispatcher`.) Additional, custom events\ncan be registered by using `Ember.Application.customEvents`.\n\nTouch events:\n\n* `touchStart`\n* `touchMove`\n* `touchEnd`\n* `touchCancel`\n\nKeyboard events:\n\n* `keyDown`\n* `keyUp`\n* `keyPress`\n\nMouse events:\n\n* `mouseDown`\n* `mouseUp`\n* `contextMenu`\n* `click`\n* `doubleClick`\n* `mouseMove`\n* `focusIn`\n* `focusOut`\n* `mouseEnter`\n* `mouseLeave`\n\nForm events:\n\n* `submit`\n* `change`\n* `focusIn`\n* `focusOut`\n* `input`\n\nHTML5 drag and drop events:\n\n* `dragStart`\n* `drag`\n* `dragEnter`\n* `dragLeave`\n* `dragOver`\n* `dragEnd`\n* `drop`",
             "extends": "Ember.CoreView",
             "uses": [
@@ -3546,7 +3546,7 @@
             "module": "@ember/object",
             "namespace": "",
             "file": "packages/ember-runtime/lib/system/core_object.js",
-            "line": 203,
+            "line": 229,
             "access": "public",
             "tagname": ""
         },
@@ -7765,7 +7765,7 @@
         },
         {
             "file": "packages/ember-glimmer/lib/component.ts",
-            "line": 627,
+            "line": 622,
             "description": "Normally, Ember's component model is \"write-only\". The component takes a\nbunch of attributes that it got passed in, and uses them to render its\ntemplate.\n\nOne nice thing about this model is that if you try to set a value to the\nsame thing as last time, Ember (through HTMLBars) will avoid doing any\nwork on the DOM.\n\nThis is not just a performance optimization. If an attribute has not\nchanged, it is important not to clobber the element's \"hidden state\".\nFor example, if you set an input's `value` to the same value as before,\nit will clobber selection state and cursor position. In other words,\nsetting an attribute is not **always** idempotent.\n\nThis method provides a way to read an element's attribute and also\nupdate the last value Ember knows about at the same time. This makes\nsetting an attribute idempotent.\n\nIn particular, what this means is that if you get an `<input>` element's\n`value` attribute and then re-render the template with the same value,\nit will avoid clobbering the cursor and selection position.\nSince most attribute sets are idempotent in the browser, you typically\ncan get away with reading attributes using jQuery, but the most reliable\nway to do so is through this method.",
             "itemtype": "method",
             "name": "readDOMAttr",
@@ -7786,7 +7786,7 @@
         },
         {
             "file": "packages/ember-glimmer/lib/component.ts",
-            "line": 663,
+            "line": 658,
             "description": "The WAI-ARIA role of the control represented by this view. For example, a\nbutton may have a role of type 'button', or a pane may have a role of\ntype 'alertdialog'. This property is used by assistive software to help\nvisually challenged users navigate rich web applications.\n\nThe full list of valid WAI-ARIA roles is available at:\n[http://www.w3.org/TR/wai-aria/roles#roles_categorization](http://www.w3.org/TR/wai-aria/roles#roles_categorization)",
             "itemtype": "property",
             "name": "ariaRole",
@@ -7799,7 +7799,7 @@
         },
         {
             "file": "packages/ember-glimmer/lib/component.ts",
-            "line": 678,
+            "line": 673,
             "description": "Enables components to take a list of parameters as arguments.\nFor example, a component that takes two parameters with the names\n`name` and `age`:\n\n```app/components/my-component.js\nimport Component from '@ember/component';\n\nlet MyComponent = Component.extend();\n\nMyComponent.reopenClass({\n  positionalParams: ['name', 'age']\n});\n\nexport default MyComponent;\n```\n\nIt can then be invoked like this:\n\n```hbs\n{{my-component \"John\" 38}}\n```\n\nThe parameters can be referred to just like named parameters:\n\n```hbs\nName: {{name}}, Age: {{age}}.\n```\n\nUsing a string instead of an array allows for an arbitrary number of\nparameters:\n\n```app/components/my-component.js\nimport Component from '@ember/component';\n\nlet MyComponent = Component.extend();\n\nMyComponent.reopenClass({\n  positionalParams: 'names'\n});\n\nexport default MyComponent;\n```\n\nIt can then be invoked like this:\n\n```hbs\n{{my-component \"John\" \"Michael\" \"Scott\"}}\n```\nThe parameters can then be referred to by enumerating over the list:\n\n```hbs\n{{#each names as |name|}}{{name}}{{/each}}\n```",
             "static": 1,
             "access": "public",
@@ -7812,7 +7812,7 @@
         },
         {
             "file": "packages/ember-glimmer/lib/component.ts",
-            "line": 739,
+            "line": 734,
             "description": "Called when the attributes passed into the component have been updated.\nCalled both during the initial render of a container and during a rerender.\nCan be used in place of an observer; code placed here will be executed\nevery time any attribute updates.",
             "itemtype": "method",
             "name": "didReceiveAttrs",
@@ -7824,7 +7824,7 @@
         },
         {
             "file": "packages/ember-glimmer/lib/component.ts",
-            "line": 749,
+            "line": 744,
             "description": "Called when the attributes passed into the component have been updated.\nCalled both during the initial render of a container and during a rerender.\nCan be used in place of an observer; code placed here will be executed\nevery time any attribute updates.",
             "itemtype": "event",
             "name": "didReceiveAttrs",
@@ -7836,7 +7836,7 @@
         },
         {
             "file": "packages/ember-glimmer/lib/component.ts",
-            "line": 759,
+            "line": 754,
             "description": "Called after a component has been rendered, both on initial render and\nin subsequent rerenders.",
             "itemtype": "method",
             "name": "didRender",
@@ -7848,7 +7848,7 @@
         },
         {
             "file": "packages/ember-glimmer/lib/component.ts",
-            "line": 767,
+            "line": 762,
             "description": "Called after a component has been rendered, both on initial render and\nin subsequent rerenders.",
             "itemtype": "event",
             "name": "didRender",
@@ -7860,7 +7860,7 @@
         },
         {
             "file": "packages/ember-glimmer/lib/component.ts",
-            "line": 775,
+            "line": 770,
             "description": "Called before a component has been rendered, both on initial render and\nin subsequent rerenders.",
             "itemtype": "method",
             "name": "willRender",
@@ -7872,7 +7872,7 @@
         },
         {
             "file": "packages/ember-glimmer/lib/component.ts",
-            "line": 783,
+            "line": 778,
             "description": "Called before a component has been rendered, both on initial render and\nin subsequent rerenders.",
             "itemtype": "event",
             "name": "willRender",
@@ -7884,7 +7884,7 @@
         },
         {
             "file": "packages/ember-glimmer/lib/component.ts",
-            "line": 791,
+            "line": 786,
             "description": "Called when the attributes passed into the component have been changed.\nCalled only during a rerender, not during an initial render.",
             "itemtype": "method",
             "name": "didUpdateAttrs",
@@ -7896,7 +7896,7 @@
         },
         {
             "file": "packages/ember-glimmer/lib/component.ts",
-            "line": 799,
+            "line": 794,
             "description": "Called when the attributes passed into the component have been changed.\nCalled only during a rerender, not during an initial render.",
             "itemtype": "event",
             "name": "didUpdateAttrs",
@@ -7908,7 +7908,7 @@
         },
         {
             "file": "packages/ember-glimmer/lib/component.ts",
-            "line": 807,
+            "line": 802,
             "description": "Called when the component is about to update and rerender itself.\nCalled only during a rerender, not during an initial render.",
             "itemtype": "method",
             "name": "willUpdate",
@@ -7920,7 +7920,7 @@
         },
         {
             "file": "packages/ember-glimmer/lib/component.ts",
-            "line": 815,
+            "line": 810,
             "description": "Called when the component is about to update and rerender itself.\nCalled only during a rerender, not during an initial render.",
             "itemtype": "event",
             "name": "willUpdate",
@@ -7932,7 +7932,7 @@
         },
         {
             "file": "packages/ember-glimmer/lib/component.ts",
-            "line": 823,
+            "line": 818,
             "description": "Called when the component has updated and rerendered itself.\nCalled only during a rerender, not during an initial render.",
             "itemtype": "method",
             "name": "didUpdate",
@@ -7944,7 +7944,7 @@
         },
         {
             "file": "packages/ember-glimmer/lib/component.ts",
-            "line": 831,
+            "line": 826,
             "description": "Called when the component has updated and rerendered itself.\nCalled only during a rerender, not during an initial render.",
             "itemtype": "event",
             "name": "didUpdate",
@@ -7956,7 +7956,7 @@
         },
         {
             "file": "packages/ember-glimmer/lib/component.ts",
-            "line": 839,
+            "line": 834,
             "description": "Layout can be used to wrap content in a component.",
             "itemtype": "property",
             "name": "layout",
@@ -7968,7 +7968,7 @@
         },
         {
             "file": "packages/ember-glimmer/lib/component.ts",
-            "line": 846,
+            "line": 841,
             "description": "The name of the layout to lookup if no layout is provided.\nBy default `Component` will lookup a template with this name in\n`Ember.TEMPLATES` (a shared global object).",
             "itemtype": "property",
             "name": "layoutName",
@@ -7981,7 +7981,7 @@
         },
         {
             "file": "packages/ember-glimmer/lib/component.ts",
-            "line": 856,
+            "line": 851,
             "description": "Returns a jQuery object for this component's element. If you pass in a selector\nstring, this method will return a jQuery object, using the current element\nas its buffer.\nFor example, calling `component.$('li')` will return a jQuery object containing\nall of the `li` elements inside the DOM element of this component.",
             "itemtype": "method",
             "name": "$",
@@ -8004,7 +8004,7 @@
         },
         {
             "file": "packages/ember-glimmer/lib/component.ts",
-            "line": 868,
+            "line": 863,
             "description": "The HTML `id` of the component's element in the DOM. You can provide this\nvalue yourself but it must be unique (just as in HTML):\n\n```handlebars\n{{my-component elementId=\"a-really-cool-id\"}}\n```\nIf not manually set a default value will be provided by the framework.\nOnce rendered an element's `elementId` is considered immutable and you\nshould never change it. If you need to compute a dynamic value for the\n`elementId`, you should do this when the component or element is being\ninstantiated:\n\n```javascript\nexport default Component.extend({\n  init() {\n    this._super(...arguments);\n\n    var index = this.get('index');\n    this.set('elementId', `component-id${index}`);\n  }\n});\n```",
             "itemtype": "property",
             "name": "elementId",
@@ -8016,7 +8016,7 @@
         },
         {
             "file": "packages/ember-glimmer/lib/component.ts",
-            "line": 897,
+            "line": 892,
             "description": "If `false`, the view will appear hidden in DOM.",
             "itemtype": "property",
             "name": "isVisible",
@@ -9427,7 +9427,7 @@
         },
         {
             "file": "packages/ember-metal/lib/meta.js",
-            "line": 475,
+            "line": 483,
             "description": "Tears down the meta on an object so that it can be garbage collected.\nMultiple calls will have no effect.",
             "itemtype": "method",
             "name": "deleteMeta",
@@ -9450,7 +9450,7 @@
         },
         {
             "file": "packages/ember-metal/lib/meta.js",
-            "line": 496,
+            "line": 508,
             "description": "Retrieves the meta hash for an object. If `writable` is true ensures the\nhash is writable for this object as well.\n\nThe meta object contains information about computed property descriptors as\nwell as any watched properties and other information. You generally will\nnot access this information directly but instead work with higher level\nmethods that manipulate this hash indirectly.",
             "itemtype": "method",
             "name": "meta",
@@ -9480,7 +9480,7 @@
         },
         {
             "file": "packages/ember-metal/lib/meta.js",
-            "line": 535,
+            "line": 551,
             "description": "Returns the CP descriptor assocaited with `obj` and `keyName`, if any.",
             "itemtype": "method",
             "name": "descriptorFor",
@@ -9508,7 +9508,7 @@
         },
         {
             "file": "packages/ember-metal/lib/meta.js",
-            "line": 549,
+            "line": 569,
             "description": "Check whether a value is a CP descriptor.",
             "itemtype": "method",
             "name": "descriptorFor",
@@ -16900,7 +16900,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/system/core_object.js",
-            "line": 215,
+            "line": 241,
             "description": "An overridable method called when objects are instantiated. By default,\ndoes nothing unless it is overridden during class definition.\n\nExample:\n\n```javascript\nconst Person = Ember.Object.extend({\n  init() {\n    alert(`Name is ${this.get('name')}`);\n  }\n});\n\nlet steve = Person.create({\n  name: 'Steve'\n});\n\n// alerts 'Name is Steve'.\n```\n\nNOTE: If you do override `init` for a framework class like `Ember.View`,\nbe sure to call `this._super(...arguments)` in your\n`init` declaration! If you don't, Ember may not have an opportunity to\ndo important setup work, and you'll see strange behavior in your\napplication.",
             "itemtype": "method",
             "name": "init",
@@ -16911,7 +16911,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/system/core_object.js",
-            "line": 253,
+            "line": 279,
             "description": "Defines the properties that will be concatenated from the superclass\n(instead of overridden).\n\nBy default, when you extend an Ember class a property defined in\nthe subclass overrides a property with the same name that is defined\nin the superclass. However, there are some cases where it is preferable\nto build up a property's value by combining the superclass' property\nvalue with the subclass' value. An example of this in use within Ember\nis the `classNames` property of `Ember.View`.\n\nHere is some sample code showing the difference between a concatenated\nproperty and a normal one:\n\n```javascript\nconst Bar = Ember.Object.extend({\n  // Configure which properties to concatenate\n  concatenatedProperties: ['concatenatedProperty'],\n\n  someNonConcatenatedProperty: ['bar'],\n  concatenatedProperty: ['bar']\n});\n\nconst FooBar = Bar.extend({\n  someNonConcatenatedProperty: ['foo'],\n  concatenatedProperty: ['foo']\n});\n\nlet fooBar = FooBar.create();\nfooBar.get('someNonConcatenatedProperty'); // ['foo']\nfooBar.get('concatenatedProperty'); // ['bar', 'foo']\n```\n\nThis behavior extends to object creation as well. Continuing the\nabove example:\n\n```javascript\nlet fooBar = FooBar.create({\n  someNonConcatenatedProperty: ['baz'],\n  concatenatedProperty: ['baz']\n})\nfooBar.get('someNonConcatenatedProperty'); // ['baz']\nfooBar.get('concatenatedProperty'); // ['bar', 'foo', 'baz']\n```\n\nAdding a single property that is not an array will just add it in the array:\n\n```javascript\nlet fooBar = FooBar.create({\n  concatenatedProperty: 'baz'\n})\nview.get('concatenatedProperty'); // ['bar', 'foo', 'baz']\n```\n\nUsing the `concatenatedProperties` property, we can tell Ember to mix the\ncontent of the properties.\n\nIn `Ember.Component` the `classNames`, `classNameBindings` and\n`attributeBindings` properties are concatenated.\n\nThis feature is available for you to use throughout the Ember object model,\nalthough typical app developers are likely to use it infrequently. Since\nit changes expectations about behavior of properties, you should properly\ndocument its usage in each individual concatenated property (to not\nmislead your users to think they can override the property in a subclass).",
             "itemtype": "property",
             "name": "concatenatedProperties",
@@ -16924,7 +16924,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/system/core_object.js",
-            "line": 326,
+            "line": 352,
             "description": "Defines the properties that will be merged from the superclass\n(instead of overridden).\n\nBy default, when you extend an Ember class a property defined in\nthe subclass overrides a property with the same name that is defined\nin the superclass. However, there are some cases where it is preferable\nto build up a property's value by merging the superclass property value\nwith the subclass property's value. An example of this in use within Ember\nis the `queryParams` property of routes.\n\nHere is some sample code showing the difference between a merged\nproperty and a normal one:\n\n```javascript\nconst Bar = Ember.Object.extend({\n  // Configure which properties are to be merged\n  mergedProperties: ['mergedProperty'],\n\n  someNonMergedProperty: {\n    nonMerged: 'superclass value of nonMerged'\n  },\n  mergedProperty: {\n    page: { replace: false },\n    limit: { replace: true }\n  }\n});\n\nconst FooBar = Bar.extend({\n  someNonMergedProperty: {\n    completelyNonMerged: 'subclass value of nonMerged'\n  },\n  mergedProperty: {\n    limit: { replace: false }\n  }\n});\n\nlet fooBar = FooBar.create();\n\nfooBar.get('someNonMergedProperty');\n// => { completelyNonMerged: 'subclass value of nonMerged' }\n//\n// Note the entire object, including the nonMerged property of\n// the superclass object, has been replaced\n\nfooBar.get('mergedProperty');\n// => {\n//   page: {replace: false},\n//   limit: {replace: false}\n// }\n//\n// Note the page remains from the superclass, and the\n// `limit` property's value of `false` has been merged from\n// the subclass.\n```\n\nThis behavior is not available during object `create` calls. It is only\navailable at `extend` time.\n\nIn `Ember.Route` the `queryParams` property is merged.\n\nThis feature is available for you to use throughout the Ember object model,\nalthough typical app developers are likely to use it infrequently. Since\nit changes expectations about behavior of properties, you should properly\ndocument its usage in each individual merged property (to not\nmislead your users to think they can override the property in a subclass).",
             "itemtype": "property",
             "name": "mergedProperties",
@@ -16937,7 +16937,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/system/core_object.js",
-            "line": 400,
+            "line": 426,
             "description": "Destroyed object property flag.\n\nif this property is `true` the observers and bindings were already\nremoved by the effect of calling the `destroy()` method.",
             "itemtype": "property",
             "name": "isDestroyed",
@@ -16949,7 +16949,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/system/core_object.js",
-            "line": 425,
+            "line": 438,
             "description": "Destruction scheduled flag. The `destroy()` method has been called.\n\nThe object stays intact until the end of the run loop at which point\nthe `isDestroyed` flag is set.",
             "itemtype": "property",
             "name": "isDestroying",
@@ -19179,7 +19179,7 @@
         },
         {
             "file": "packages/ember-views/lib/mixins/view_support.js",
-            "line": 461,
+            "line": 467,
             "description": "Handle events from `EventDispatcher`",
             "itemtype": "method",
             "name": "handleEvent",

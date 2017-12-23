@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.0.0-alpha.1-null+2069333f
+ * @version   3.0.0-alpha.1-null+39233bc2
  */
 
 /*globals process */
@@ -2908,8 +2908,9 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       meta$$1.writeWatching(keyName, 0);
 
       var possibleDesc = descriptorFor(obj, keyName, meta$$1);
+      var _isDescriptor = possibleDesc !== undefined;
 
-      if (possibleDesc !== undefined && possibleDesc.didUnwatch) {
+      if (_isDescriptor && possibleDesc.didUnwatch) {
         possibleDesc.didUnwatch(obj, keyName, meta$$1);
       }
 
@@ -2926,7 +2927,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
         // for mutation, will bypass observation. This code exists to assert when
         // that occurs, and attempt to provide more helpful feedback. The alternative
         // is tricky to debug partially observable properties.
-        if (possibleDesc === undefined && keyName in obj) {
+        if (!_isDescriptor && keyName in obj) {
           var maybeMandatoryDescriptor = emberUtils.lookupDescriptor(obj, keyName);
 
           if (maybeMandatoryDescriptor.set && maybeMandatoryDescriptor.set.isMandatorySetter) {
@@ -3786,6 +3787,10 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   var metaStore = new WeakMap();
 
   function setMeta(obj, meta) {
+    true && !(obj !== null) && emberDebug.assert('Cannot call `setMeta` on null', obj !== null);
+    true && !(obj !== undefined) && emberDebug.assert('Cannot call `setMeta` on undefined', obj !== undefined);
+    true && !(typeof obj === 'object' || typeof obj === 'function') && emberDebug.assert('Cannot call `setMeta` on ' + typeof obj, typeof obj === 'object' || typeof obj === 'function');
+
     {
       counters.setCalls++;
     }
@@ -3793,6 +3798,10 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   }
 
   function peekMeta(obj) {
+    true && !(obj !== null) && emberDebug.assert('Cannot call `peekMeta` on null', obj !== null);
+    true && !(obj !== undefined) && emberDebug.assert('Cannot call `peekMeta` on undefined', obj !== undefined);
+    true && !(typeof obj === 'object' || typeof obj === 'function') && emberDebug.assert('Cannot call `peekMeta` on ' + typeof obj, typeof obj === 'object' || typeof obj === 'function');
+
     var pointer = obj;
     var meta = void 0;
     while (pointer !== undefined && pointer !== null) {
@@ -3823,6 +3832,10 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     @private
   */
   function deleteMeta(obj) {
+    true && !(obj !== null) && emberDebug.assert('Cannot call `deleteMeta` on null', obj !== null);
+    true && !(obj !== undefined) && emberDebug.assert('Cannot call `deleteMeta` on undefined', obj !== undefined);
+    true && !(typeof obj === 'object' || typeof obj === 'function') && emberDebug.assert('Cannot call `deleteMeta` on ' + typeof obj, typeof obj === 'object' || typeof obj === 'function');
+
     {
       counters.deleteCalls++;
     }
@@ -3852,6 +3865,10 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     @return {Object} the meta hash for an object
   */
   function meta(obj) {
+    true && !(obj !== null) && emberDebug.assert('Cannot call `meta` on null', obj !== null);
+    true && !(obj !== undefined) && emberDebug.assert('Cannot call `meta` on undefined', obj !== undefined);
+    true && !(typeof obj === 'object' || typeof obj === 'function') && emberDebug.assert('Cannot call `meta` on ' + typeof obj, typeof obj === 'object' || typeof obj === 'function');
+
     {
       counters.metaCalls++;
     }
@@ -3882,6 +3899,10 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     @private
   */
   function descriptorFor(obj, keyName) {
+    true && !(obj !== null) && emberDebug.assert('Cannot call `descriptorFor` on null', obj !== null);
+    true && !(obj !== undefined) && emberDebug.assert('Cannot call `descriptorFor` on undefined', obj !== undefined);
+    true && !(typeof obj === 'object' || typeof obj === 'function') && emberDebug.assert('Cannot call `descriptorFor` on ' + typeof obj, typeof obj === 'object' || typeof obj === 'function');
+
     var possibleDesc = obj[keyName];
     return isDescriptor(possibleDesc) ? possibleDesc : undefined;
   }
@@ -7703,7 +7724,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     if (descs[altKey] || values[altKey]) {
       value = values[altKey];
       desc = descs[altKey];
-    } else if ((possibleDesc = obj[altKey]) && isDescriptor(possibleDesc)) {
+    } else if ((possibleDesc = descriptorFor(obj, altKey)) !== undefined) {
       desc = possibleDesc;
       value = undefined;
     } else {
@@ -8395,8 +8416,15 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       Object.defineProperty(obj, key, this.desc);
     };
 
-    Descriptor$$1.prototype.teardown = function teardown(obj, key) {// eslint-disable-line no-unused-vars
+    Descriptor$$1.prototype.get = function get(obj, key) {
+      return obj[key];
     };
+
+    Descriptor$$1.prototype.set = function set(obj, key, value) {
+      return obj[key] = value;
+    };
+
+    Descriptor$$1.prototype.teardown = function teardown() {};
 
     return Descriptor$$1;
   }(Descriptor);
