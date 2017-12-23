@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.0.0-alpha.1-null+39233bc2
+ * @version   3.0.0-alpha.1-null+0d68d0a3
  */
 
 /*globals process */
@@ -21836,7 +21836,7 @@ enifed('ember-glimmer/views/outlet', ['exports', 'ember-babel', '@glimmer/refere
 
     exports.default = OutletView;
 });
-enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-debug', 'ember-babel', 'ember/features', '@glimmer/reference', 'require', 'backburner', 'ember-console'], function (exports, emberEnvironment, emberUtils, emberDebug, emberBabel, features, reference, require, Backburner, Logger) {
+enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-debug', 'ember/features', 'ember-babel', '@glimmer/reference', 'require', 'backburner', 'ember-console'], function (exports, emberEnvironment, emberUtils, emberDebug, features, emberBabel, reference, require, Backburner, Logger) {
   'use strict';
 
   require = require && require.hasOwnProperty('default') ? require['default'] : require;
@@ -23182,6 +23182,78 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     return IGETTER_FUNCTION;
   }
 
+  var DESCRIPTOR_GETTER_FUNCTION = void 0;
+
+  if (features.EMBER_METAL_ES5_GETTERS) {
+    DESCRIPTOR_GETTER_FUNCTION = function (name, descriptor) {
+      return function CPGETTER_FUNCTION() {
+        return descriptor.get(this, name);
+      };
+    };
+  } else if (features.DESCRIPTOR_TRAP) {
+    // Future traveler, although this code looks scary. It merely exists in
+    // development to aid in development asertions. Production builds of
+    // ember strip this entire branch out.
+    var messageFor = function (obj, keyName, property, value) {
+      return 'You attempted to access the `' + keyName + '.' + property + '` property ' + ('(of ' + obj + '). Due to certain internal implementation details of Ember, ') + ('the `' + keyName + '` property previously contained an internal "descriptor" ') + ('object (a private API), therefore `' + keyName + '.' + property + '` would have ') + ('been `' + String(value).replace(/\n/g, ' ') + '`. This internal implementaiton ') + 'detail was never intended to be a public (or even intimate) API.\n\n' + 'This internal implementation detail has now changed and the (still private) ' + '"descriptor" object has been relocated to the object\'s "meta" (also a ' + ('private API). Soon, accessing `' + keyName + '` on this object will ') + 'return the computed value (see RFC #281 for more details).\n\n' + 'If you are seeing this error, you are likely using an addon that ' + 'relies on this now-defunct private implementation detail. If you can, ' + 'find out which addon is doing this from the stack trace below and ' + 'report this bug to the addon authors. If you feel stuck, the Ember ' + 'Community Slack (https://ember-community-slackin.herokuapp.com/) ' + 'may be able to offer some help.\n\n' + 'If you are an addon author and need help transitioning your code, ' + 'please get in touch in the #dev-ember channel in the Ember Community ' + 'Slack.';
+    };
+
+    var trapFor = void 0;
+
+    if (emberUtils.HAS_NATIVE_PROXY) {
+      /* globals Proxy */
+      trapFor = function (obj, keyName, descriptor) {
+        return new Proxy(descriptor, {
+          get: function (descriptor, property) {
+            if (property === DESCRIPTOR) {
+              return descriptor;
+            } else if (property === 'toString' || property == 'valueOf' || Symbol && property === Symbol.toPrimitive) {
+              return function () {
+                return '[COMPUTED PROPERTY]';
+              };
+            }
+
+            true && !false && emberDebug.assert(messageFor(obj, keyName, property, descriptor[property]));
+          }
+        });
+      };
+    } else {
+      trapFor = function (obj, keyName, descriptor) {
+        var trap = Object.create(null);
+
+        Object.defineProperty(trap, DESCRIPTOR, {
+          configurable: false,
+          enumerable: false,
+          writable: false,
+          value: descriptor
+        });
+
+        trap.toString = trap.valueOf = function () {
+          return '[COMPUTED PROPERTY]';
+        };
+
+        // Without a proxy, we can only trap the "likely" properties
+        ['isDescriptor', 'setup', 'teardown', 'get', '_getter', 'set', '_setter', 'meta'].forEach(function (property) {
+          Object.defineProperty(trap, property, {
+            configurable: false,
+            enumerable: false,
+            get: function () {
+              true && !false && emberDebug.assert(messageFor(obj, keyName, property, descriptor[property]));
+            }
+          });
+        });
+
+        return trap;
+      };
+    }
+
+    DESCRIPTOR_GETTER_FUNCTION = function (name, descriptor) {
+      return function CPGETTER_FUNCTION() {
+        return trapFor(this, name, descriptor);
+      };
+    };
+  }
+
   /**
     NOTE: This is a low-level method used by other parts of the API. You almost
     never want to call this method directly. Instead you should use
@@ -23237,27 +23309,39 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     var watchEntry = meta$$1.peekWatching(keyName);
     var watching = watchEntry !== undefined && watchEntry > 0;
     var previousDesc = descriptorFor(obj, keyName, meta$$1);
+    var wasDescriptor = previousDesc !== undefined;
 
-    if (previousDesc) {
+    if (wasDescriptor) {
       previousDesc.teardown(obj, keyName, meta$$1);
+
+      if (features.EMBER_METAL_ES5_GETTERS) {
+        meta$$1.removeDescriptors(keyName);
+      }
     }
 
     var value = void 0;
     if (desc instanceof Descriptor) {
       value = desc;
-      if (features.MANDATORY_SETTER) {
-        if (watching) {
-          Object.defineProperty(obj, keyName, {
-            configurable: true,
-            enumerable: true,
-            writable: true,
-            value: value
-          });
-        } else {
-          obj[keyName] = value;
-        }
+
+      if (features.EMBER_METAL_ES5_GETTERS || features.DESCRIPTOR_TRAP) {
+        Object.defineProperty(obj, keyName, {
+          configurable: true,
+          enumerable: true,
+          get: DESCRIPTOR_GETTER_FUNCTION(keyName, value)
+        });
+      } else if (features.MANDATORY_SETTER && watching) {
+        Object.defineProperty(obj, keyName, {
+          configurable: true,
+          enumerable: true,
+          writable: true,
+          value: value
+        });
       } else {
         obj[keyName] = value;
+      }
+
+      if (features.EMBER_METAL_ES5_GETTERS) {
+        meta$$1.writeDescriptors(keyName, value);
       }
 
       didDefineComputedProperty(obj.constructor);
@@ -23268,21 +23352,24 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     } else if (desc === undefined || desc === null) {
       value = data;
 
-      if (features.MANDATORY_SETTER) {
-        if (watching) {
-          meta$$1.writeValues(keyName, data);
+      if (features.MANDATORY_SETTER && watching) {
+        meta$$1.writeValues(keyName, data);
 
-          var defaultDescriptor = {
-            configurable: true,
-            enumerable: true,
-            set: MANDATORY_SETTER_FUNCTION(keyName),
-            get: DEFAULT_GETTER_FUNCTION(keyName)
-          };
+        var defaultDescriptor = {
+          configurable: true,
+          enumerable: true,
+          set: MANDATORY_SETTER_FUNCTION(keyName),
+          get: DEFAULT_GETTER_FUNCTION(keyName)
+        };
 
-          Object.defineProperty(obj, keyName, defaultDescriptor);
-        } else {
-          obj[keyName] = data;
-        }
+        Object.defineProperty(obj, keyName, defaultDescriptor);
+      } else if ((features.EMBER_METAL_ES5_GETTERS || features.DESCRIPTOR_TRAP) && wasDescriptor) {
+        Object.defineProperty(obj, keyName, {
+          configurable: true,
+          enumerable: true,
+          writable: true,
+          value: value
+        });
       } else {
         obj[keyName] = data;
       }
@@ -23865,6 +23952,11 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       }
 
       this._cache = undefined;
+
+      if (features.EMBER_METAL_ES5_GETTERS) {
+        this._descriptors = undefined;
+      }
+
       this._watching = undefined;
       this._mixins = undefined;
       this._bindings = undefined;
@@ -24288,6 +24380,24 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     };
   }
 
+  if (features.EMBER_METAL_ES5_GETTERS) {
+    Meta.prototype.writeDescriptors = function (subkey, value) {
+      true && !!this.isMetaDestroyed() && emberDebug.assert('Cannot update descriptors for `' + subkey + '` on `' + emberUtils.toString(this.source) + '` after it has been destroyed.', !this.isMetaDestroyed());
+
+      var map = this._getOrCreateOwnMap('_descriptors');
+      map[subkey] = value;
+    };
+
+    Meta.prototype.peekDescriptors = function (subkey) {
+      var possibleDesc = this._findInherited('_descriptors', subkey);
+      return possibleDesc === UNDEFINED ? undefined : possibleDesc;
+    };
+
+    Meta.prototype.removeDescriptors = function (subkey) {
+      this.writeDescriptors(subkey, UNDEFINED);
+    };
+  }
+
   var getPrototypeOf = Object.getPrototypeOf;
   var metaStore = new WeakMap();
 
@@ -24394,6 +24504,12 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     return newMeta;
   }
 
+  // Using `symbol()` here causes some node test to fail, presumably
+  // because we define the CP with one copy of Ember and boot the app
+  // with a different copy, so the random key we generate do not line
+  // up. Is that testing a legit scenario?
+  var DESCRIPTOR = '__DESCRIPTOR__';
+
   /**
     Returns the CP descriptor assocaited with `obj` and `keyName`, if any.
   
@@ -24403,13 +24519,34 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     @return {Descriptor}
     @private
   */
-  function descriptorFor(obj, keyName) {
+  function descriptorFor(obj, keyName, _meta) {
     true && !(obj !== null) && emberDebug.assert('Cannot call `descriptorFor` on null', obj !== null);
     true && !(obj !== undefined) && emberDebug.assert('Cannot call `descriptorFor` on undefined', obj !== undefined);
     true && !(typeof obj === 'object' || typeof obj === 'function') && emberDebug.assert('Cannot call `descriptorFor` on ' + typeof obj, typeof obj === 'object' || typeof obj === 'function');
 
-    var possibleDesc = obj[keyName];
-    return isDescriptor(possibleDesc) ? possibleDesc : undefined;
+    if (features.EMBER_METAL_ES5_GETTERS) {
+      var _meta2 = _meta === undefined ? peekMeta(obj) : _meta;
+
+      if (_meta2 !== undefined) {
+        return _meta2.peekDescriptors(keyName);
+      }
+    } else {
+      var possibleDesc = obj[keyName];
+
+      if (features.DESCRIPTOR_TRAP && isDescriptorTrap(possibleDesc)) {
+        return possibleDesc[DESCRIPTOR];
+      } else {
+        return isDescriptor(possibleDesc) ? possibleDesc : undefined;
+      }
+    }
+  }
+
+  function isDescriptorTrap(possibleDesc) {
+    if (features.DESCRIPTOR_TRAP) {
+      return possibleDesc !== null && typeof possibleDesc === 'object' && possibleDesc[DESCRIPTOR] !== undefined;
+    } else {
+      throw new Error('Cannot call `isDescriptorTrap` in production');
+    }
   }
 
   /**
@@ -24593,16 +24730,40 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     true && !(keyName.lastIndexOf('this.', 0) !== 0) && emberDebug.assert('\'this\' in paths is not supported', keyName.lastIndexOf('this.', 0) !== 0);
     true && !(keyName !== '') && emberDebug.assert('Cannot call `Ember.get` with an empty string', keyName !== '');
 
-    // we can't use `descriptorFor` here because we don't want to access the property
-    // more than once (e.g. side-effectful ES5 getters, etc)
+    var type = typeof obj;
 
-    var value = obj[keyName];
+    var isObject = type === 'object';
+    var isFunction = type === 'function';
+    var isObjectLike = isObject || isFunction;
 
-    if (isDescriptor(value)) {
-      return value.get(obj, keyName);
-    } else if (isPath(keyName)) {
+    var descriptor = undefined;
+    var value = void 0;
+
+    if (isObjectLike) {
+      if (features.EMBER_METAL_ES5_GETTERS) {
+        descriptor = descriptorFor(obj, keyName);
+      }
+
+      if (!features.EMBER_METAL_ES5_GETTERS || descriptor === undefined) {
+        value = obj[keyName];
+
+        if (features.DESCRIPTOR_TRAP && isDescriptorTrap(value)) {
+          descriptor = value[DESCRIPTOR];
+        } else if (isDescriptor(value)) {
+          descriptor = value;
+        }
+      }
+
+      if (descriptor !== undefined) {
+        return descriptor.get(obj, keyName);
+      }
+    } else {
+      value = obj[keyName];
+    }
+
+    if (isPath(keyName)) {
       return _getPath(obj, keyName);
-    } else if (value === undefined && 'object' === typeof obj && !(keyName in obj) && typeof obj.unknownProperty === 'function') {
+    } else if (value === undefined && isObject && !(keyName in obj) && typeof obj.unknownProperty === 'function') {
       return obj.unknownProperty(keyName);
     } else {
       return value;
@@ -24691,9 +24852,21 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       return setPath(obj, keyName, value, tolerant);
     }
 
-    // we can't use `descriptorFor` here because we don't want to access the property
-    // more than once (e.g. side-effectful ES5 getters, etc)
+    if (features.EMBER_METAL_ES5_GETTERS) {
+      var possibleDesc = descriptorFor(obj, keyName);
+
+      if (possibleDesc !== undefined) {
+        /* computed property */
+        possibleDesc.set(obj, keyName, value);
+        return value;
+      }
+    }
+
     var currentValue = obj[keyName];
+
+    if (features.DESCRIPTOR_TRAP && isDescriptorTrap(currentValue)) {
+      currentValue = currentValue[DESCRIPTOR];
+    }
 
     if (isDescriptor(currentValue)) {
       /* computed property */
@@ -28028,24 +28201,26 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   }
 
   function giveMethodSuper(obj, key, method, values, descs) {
-    var superMethod = void 0;
-
     // Methods overwrite computed properties, and do not call super to them.
-    if (descs[key] === undefined) {
-      // Find the original method in a parent mixin
-      superMethod = values[key];
-    }
-
-    // If we didn't find the original value in a parent mixin, find it in
-    // the original object
-    superMethod = superMethod || obj[key];
-
-    // Only wrap the new method if the original method was a function
-    if (superMethod === undefined || 'function' !== typeof superMethod) {
+    if (descs[key] !== undefined) {
       return method;
     }
 
-    return emberUtils.wrap(method, superMethod);
+    // Find the original method in a parent mixin
+    var superMethod = values[key];
+
+    // If we didn't find the original value in a parent mixin, find it in
+    // the original object
+    if (superMethod === undefined && (!features.EMBER_METAL_ES5_GETTERS || descriptorFor(obj, key) === undefined)) {
+      superMethod = obj[key];
+    }
+
+    // Only wrap the new method if the original method was a function
+    if (typeof superMethod === 'function') {
+      return emberUtils.wrap(method, superMethod);
+    }
+
+    return method;
   }
 
   function applyConcatenatedProperties(obj, key, value, values) {
@@ -28248,19 +28423,17 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     }
   }
 
-  function replaceObserversAndListeners(obj, key, observerOrListener) {
-    var prev = obj[key];
-
+  function replaceObserversAndListeners(obj, key, prev, next) {
     if (typeof prev === 'function') {
       updateObserversAndListeners(obj, key, prev.__ember_observesBefore__, _removeBeforeObserver);
       updateObserversAndListeners(obj, key, prev.__ember_observes__, removeObserver);
       updateObserversAndListeners(obj, key, prev.__ember_listens__, removeListener);
     }
 
-    if (typeof observerOrListener === 'function') {
-      updateObserversAndListeners(obj, key, observerOrListener.__ember_observesBefore__, _addBeforeObserver);
-      updateObserversAndListeners(obj, key, observerOrListener.__ember_observes__, addObserver);
-      updateObserversAndListeners(obj, key, observerOrListener.__ember_listens__, addListener);
+    if (typeof next === 'function') {
+      updateObserversAndListeners(obj, key, next.__ember_observesBefore__, _addBeforeObserver);
+      updateObserversAndListeners(obj, key, next.__ember_observes__, addObserver);
+      updateObserversAndListeners(obj, key, next.__ember_listens__, addListener);
     }
   }
 
@@ -28307,7 +28480,11 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
         continue;
       }
 
-      replaceObserversAndListeners(obj, key, value);
+      if (features.EMBER_METAL_ES5_GETTERS && descriptorFor(obj, key) !== undefined) {
+        replaceObserversAndListeners(obj, key, null, value);
+      } else {
+        replaceObserversAndListeners(obj, key, obj[key], value);
+      }
 
       if (detectBinding(key)) {
         meta$$1.writeBindings(key, value);
@@ -46465,8 +46642,8 @@ enifed('ember-views/views/states/pre_render', ['exports', 'ember-views/views/sta
 enifed('ember/features', ['exports', 'ember-environment', 'ember-utils'], function (exports, _emberEnvironment, _emberUtils) {
     'use strict';
 
-    exports.EMBER_GLIMMER_DETECT_BACKTRACKING_RERENDER = exports.MANDATORY_SETTER = exports.GLIMMER_CUSTOM_COMPONENT_MANAGER = exports.EMBER_MODULE_UNIFICATION = exports.EMBER_ENGINES_MOUNT_PARAMS = exports.EMBER_ROUTING_ROUTER_SERVICE = exports.EMBER_GLIMMER_TEMPLATE_ONLY_COMPONENTS = exports.EMBER_GLIMMER_REMOVE_APPLICATION_TEMPLATE_WRAPPER = exports.EMBER_GLIMMER_NAMED_ARGUMENTS = exports.EMBER_IMPROVED_INSTRUMENTATION = exports.EMBER_LIBRARIES_ISREGISTERED = exports.FEATURES_STRIPPED_TEST = exports.FEATURES = exports.DEFAULT_FEATURES = undefined;
-    var DEFAULT_FEATURES = exports.DEFAULT_FEATURES = { "features-stripped-test": null, "ember-libraries-isregistered": null, "ember-improved-instrumentation": null, "ember-glimmer-named-arguments": null, "ember-glimmer-remove-application-template-wrapper": null, "ember-glimmer-template-only-components": null, "ember-routing-router-service": true, "ember-engines-mount-params": true, "ember-module-unification": null, "glimmer-custom-component-manager": null, "mandatory-setter": true, "ember-glimmer-detect-backtracking-rerender": true };
+    exports.EMBER_GLIMMER_DETECT_BACKTRACKING_RERENDER = exports.MANDATORY_SETTER = exports.DESCRIPTOR_TRAP = exports.GLIMMER_CUSTOM_COMPONENT_MANAGER = exports.EMBER_MODULE_UNIFICATION = exports.EMBER_ENGINES_MOUNT_PARAMS = exports.EMBER_ROUTING_ROUTER_SERVICE = exports.EMBER_METAL_ES5_GETTERS = exports.EMBER_GLIMMER_TEMPLATE_ONLY_COMPONENTS = exports.EMBER_GLIMMER_REMOVE_APPLICATION_TEMPLATE_WRAPPER = exports.EMBER_GLIMMER_NAMED_ARGUMENTS = exports.EMBER_IMPROVED_INSTRUMENTATION = exports.EMBER_LIBRARIES_ISREGISTERED = exports.FEATURES_STRIPPED_TEST = exports.FEATURES = exports.DEFAULT_FEATURES = undefined;
+    var DEFAULT_FEATURES = exports.DEFAULT_FEATURES = { "features-stripped-test": null, "ember-libraries-isregistered": null, "ember-improved-instrumentation": null, "ember-glimmer-named-arguments": null, "ember-glimmer-remove-application-template-wrapper": null, "ember-glimmer-template-only-components": null, "ember-metal-es5-getters": null, "ember-routing-router-service": true, "ember-engines-mount-params": true, "ember-module-unification": null, "glimmer-custom-component-manager": null, "descriptor-trap": true, "mandatory-setter": true, "ember-glimmer-detect-backtracking-rerender": true };
     var FEATURES = exports.FEATURES = (0, _emberUtils.assign)(DEFAULT_FEATURES, _emberEnvironment.ENV.FEATURES);
 
     var FEATURES_STRIPPED_TEST = exports.FEATURES_STRIPPED_TEST = FEATURES["features-stripped-test"];
@@ -46475,10 +46652,12 @@ enifed('ember/features', ['exports', 'ember-environment', 'ember-utils'], functi
     var EMBER_GLIMMER_NAMED_ARGUMENTS = exports.EMBER_GLIMMER_NAMED_ARGUMENTS = FEATURES["ember-glimmer-named-arguments"];
     var EMBER_GLIMMER_REMOVE_APPLICATION_TEMPLATE_WRAPPER = exports.EMBER_GLIMMER_REMOVE_APPLICATION_TEMPLATE_WRAPPER = FEATURES["ember-glimmer-remove-application-template-wrapper"];
     var EMBER_GLIMMER_TEMPLATE_ONLY_COMPONENTS = exports.EMBER_GLIMMER_TEMPLATE_ONLY_COMPONENTS = FEATURES["ember-glimmer-template-only-components"];
+    var EMBER_METAL_ES5_GETTERS = exports.EMBER_METAL_ES5_GETTERS = FEATURES["ember-metal-es5-getters"];
     var EMBER_ROUTING_ROUTER_SERVICE = exports.EMBER_ROUTING_ROUTER_SERVICE = FEATURES["ember-routing-router-service"];
     var EMBER_ENGINES_MOUNT_PARAMS = exports.EMBER_ENGINES_MOUNT_PARAMS = FEATURES["ember-engines-mount-params"];
     var EMBER_MODULE_UNIFICATION = exports.EMBER_MODULE_UNIFICATION = FEATURES["ember-module-unification"];
     var GLIMMER_CUSTOM_COMPONENT_MANAGER = exports.GLIMMER_CUSTOM_COMPONENT_MANAGER = FEATURES["glimmer-custom-component-manager"];
+    var DESCRIPTOR_TRAP = exports.DESCRIPTOR_TRAP = FEATURES["descriptor-trap"];
     var MANDATORY_SETTER = exports.MANDATORY_SETTER = FEATURES["mandatory-setter"];
     var EMBER_GLIMMER_DETECT_BACKTRACKING_RERENDER = exports.EMBER_GLIMMER_DETECT_BACKTRACKING_RERENDER = FEATURES["ember-glimmer-detect-backtracking-rerender"];
 });
@@ -46995,7 +47174,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "3.0.0-alpha.1-null+39233bc2";
+  exports.default = "3.0.0-alpha.1-null+0d68d0a3";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";

@@ -3,7 +3,7 @@
         "name": "The Ember API",
         "description": "The Ember API: a framework for building ambitious web applications",
         "url": "https://emberjs.com/",
-        "version": "3.0.0-alpha.1.39233bc2"
+        "version": "3.0.0-alpha.1.0d68d0a3"
     },
     "files": {
         "node_modules/rsvp/lib/rsvp/promise/all.js": {
@@ -2713,7 +2713,7 @@
             "module": "@ember/object",
             "namespace": "",
             "file": "packages/ember-metal/lib/properties.js",
-            "line": 13,
+            "line": 14,
             "description": "Objects of this type can implement an interface to respond to requests to\nget and set. The default implementation handles simple properties.",
             "access": "private",
             "tagname": ""
@@ -2913,7 +2913,7 @@
             "module": "@ember/object",
             "namespace": "",
             "file": "packages/ember-metal/lib/mixin.js",
-            "line": 395,
+            "line": 400,
             "description": "The `Mixin` class allows you to create mixins, whose properties can be\nadded to other classes. For instance,\n\n```javascript\nimport Mixin from '@ember/object/mixin';\n\nconst EditableMixin = Mixin.create({\n  edit() {\n    console.log('starting to edit');\n    this.set('isEditing', true);\n  },\n  isEditing: false\n});\n```\n\n```javascript\nimport EmberObject from '@ember/object';\nimport EditableMixin from '../mixins/editable';\n\n// Mix mixins into classes by passing them as the first arguments to\n// `.extend.`\nconst Comment = EmberObject.extend(EditableMixin, {\n  post: null\n});\n\nlet comment = Comment.create({\n  post: somePost\n});\n\ncomment.edit(); // outputs 'starting to edit'\n```\n\nNote that Mixins are created with `Mixin.create`, not\n`Mixin.extend`.\n\nNote that mixins extend a constructor's prototype so arrays and object literals\ndefined as properties will be shared amongst objects that implement the mixin.\nIf you want to define a property in a mixin that is not shared, you can define\nit either as a computed property or have it be created on initialization of the object.\n\n```javascript\n// filters array will be shared amongst any object implementing mixin\nimport Mixin from '@ember/object/mixin';\nimport { A } from '@ember/array';\n\nconst FilterableMixin = Mixin.create({\n  filters: A()\n});\n```\n\n```javascript\nimport Mixin from '@ember/object/mixin';\nimport { A } from '@ember/array';\nimport { computed } from '@ember/object';\n\n// filters will be a separate array for every object implementing the mixin\nconst FilterableMixin = Mixin.create({\n  filters: computed(function() {\n    return A();\n  })\n});\n```\n\n```javascript\nimport Mixin from '@ember/object/mixin';\nimport { A } from '@ember/array';\n\n// filters will be created as a separate array during the object's initialization\nconst Filterable = Mixin.create({\n  filters: null,\n\n  init() {\n    this._super(...arguments);\n    this.set(\"filters\", A());\n  }\n});\n```",
             "access": "public",
             "tagname": ""
@@ -9427,7 +9427,7 @@
         },
         {
             "file": "packages/ember-metal/lib/meta.js",
-            "line": 483,
+            "line": 505,
             "description": "Tears down the meta on an object so that it can be garbage collected.\nMultiple calls will have no effect.",
             "itemtype": "method",
             "name": "deleteMeta",
@@ -9450,7 +9450,7 @@
         },
         {
             "file": "packages/ember-metal/lib/meta.js",
-            "line": 508,
+            "line": 530,
             "description": "Retrieves the meta hash for an object. If `writable` is true ensures the\nhash is writable for this object as well.\n\nThe meta object contains information about computed property descriptors as\nwell as any watched properties and other information. You generally will\nnot access this information directly but instead work with higher level\nmethods that manipulate this hash indirectly.",
             "itemtype": "method",
             "name": "meta",
@@ -9480,7 +9480,7 @@
         },
         {
             "file": "packages/ember-metal/lib/meta.js",
-            "line": 551,
+            "line": 579,
             "description": "Returns the CP descriptor assocaited with `obj` and `keyName`, if any.",
             "itemtype": "method",
             "name": "descriptorFor",
@@ -9508,7 +9508,7 @@
         },
         {
             "file": "packages/ember-metal/lib/meta.js",
-            "line": 569,
+            "line": 618,
             "description": "Check whether a value is a CP descriptor.",
             "itemtype": "method",
             "name": "descriptorFor",
@@ -9531,7 +9531,7 @@
         },
         {
             "file": "packages/ember-metal/lib/mixin.js",
-            "line": 383,
+            "line": 388,
             "itemtype": "method",
             "name": "mixin",
             "params": [
@@ -9555,7 +9555,7 @@
         },
         {
             "file": "packages/ember-metal/lib/mixin.js",
-            "line": 510,
+            "line": 515,
             "itemtype": "method",
             "name": "create",
             "static": 1,
@@ -9573,7 +9573,7 @@
         },
         {
             "file": "packages/ember-metal/lib/mixin.js",
-            "line": 539,
+            "line": 544,
             "itemtype": "method",
             "name": "reopen",
             "params": [
@@ -9590,7 +9590,7 @@
         },
         {
             "file": "packages/ember-metal/lib/mixin.js",
-            "line": 576,
+            "line": 581,
             "itemtype": "method",
             "name": "apply",
             "params": [
@@ -9609,7 +9609,7 @@
         },
         {
             "file": "packages/ember-metal/lib/mixin.js",
-            "line": 590,
+            "line": 595,
             "itemtype": "method",
             "name": "detect",
             "params": [
@@ -9629,7 +9629,7 @@
         },
         {
             "file": "packages/ember-metal/lib/mixin.js",
-            "line": 672,
+            "line": 677,
             "description": "Denotes a required property for a mixin",
             "itemtype": "method",
             "name": "required",
@@ -9641,7 +9641,7 @@
         },
         {
             "file": "packages/ember-metal/lib/mixin.js",
-            "line": 695,
+            "line": 700,
             "description": "Makes a method available via an additional name.\n\n```app/utils/person.js\nimport EmberObject, {\n  aliasMethod\n} from '@ember/object';\n\nexport default EmberObject.extend({\n  name() {\n    return 'Tomhuda Katzdale';\n  },\n  moniker: aliasMethod('name')\n});\n```\n\n```javascript\nlet goodGuy = Person.create();\n\ngoodGuy.name();    // 'Tomhuda Katzdale'\ngoodGuy.moniker(); // 'Tomhuda Katzdale'\n```",
             "itemtype": "method",
             "name": "aliasMethod",
@@ -9660,7 +9660,7 @@
         },
         {
             "file": "packages/ember-metal/lib/mixin.js",
-            "line": 732,
+            "line": 737,
             "description": "Specify a method that observes property changes.\n\n```javascript\nimport EmberObject from '@ember/object';\nimport { observer } from '@ember/object';\n\nexport default EmberObject.extend({\n  valueObserver: observer('value', function() {\n    // Executes whenever the \"value\" property changes\n  })\n});\n```\n\nAlso available as `Function.prototype.observes` if prototype extensions are\nenabled.",
             "itemtype": "method",
             "name": "observer",
@@ -9688,7 +9688,7 @@
         },
         {
             "file": "packages/ember-metal/lib/mixin.js",
-            "line": 775,
+            "line": 780,
             "description": "When observers fire, they are called with the arguments `obj`, `keyName`.\n\nNote, `@each.property` observer is called per each add or replace of an element\nand it's not called with a specific enumeration item.\n\nA `_beforeObserver` fires before a property changes.",
             "itemtype": "method",
             "name": "beforeObserver",
@@ -9851,7 +9851,7 @@
         },
         {
             "file": "packages/ember-metal/lib/properties.js",
-            "line": 71,
+            "line": 158,
             "description": "NOTE: This is a low-level method used by other parts of the API. You almost\nnever want to call this method directly. Instead you should use\n`mixin()` to define new properties.\n\nDefines a property on an object. This method works much like the ES5\n`Object.defineProperty()` method except that it can also accept computed\nproperties and other special descriptors.\n\nNormally this method takes only three parameters. However if you pass an\ninstance of `Descriptor` as the third param then you can pass an\noptional value as the fourth parameter. This is often more efficient than\ncreating new descriptor hashes for each property.\n\n## Examples\n\n```javascript\nimport { defineProperty, computed } from '@ember/object';\n\n// ES5 compatible mode\ndefineProperty(contact, 'firstName', {\n  writable: true,\n  configurable: false,\n  enumerable: true,\n  value: 'Charles'\n});\n\n// define a simple property\ndefineProperty(contact, 'lastName', undefined, 'Jolley');\n\n// define a computed property\ndefineProperty(contact, 'fullName', computed('firstName', 'lastName', function() {\n  return this.firstName+' '+this.lastName;\n}));\n```",
             "access": "private",
             "tagname": "",
@@ -9989,7 +9989,7 @@
         },
         {
             "file": "packages/ember-metal/lib/property_get.js",
-            "line": 22,
+            "line": 23,
             "description": "Gets the value of a property on an object. If the property is computed,\nthe function will be invoked. If the property is not defined but the\nobject implements the `unknownProperty` method then that will be invoked.\n\n```javascript\nEmber.get(obj, \"name\");\n```\n\nIf you plan to run on IE8 and older browsers then you should use this\nmethod anytime you want to retrieve a property on an object that you don't\nknow for sure is private. (Properties beginning with an underscore '_'\nare considered private.)\n\nOn all newer browsers, you only need to use this method to retrieve\nproperties if the property might not be defined on the object and you want\nto respect the `unknownProperty` handler. Otherwise you can ignore this\nmethod.\n\nNote that if the object itself is `undefined`, this method will throw\nan error.",
             "itemtype": "method",
             "name": "get",
@@ -10017,7 +10017,7 @@
         },
         {
             "file": "packages/ember-metal/lib/property_get.js",
-            "line": 98,
+            "line": 124,
             "description": "Retrieves the value of a property from an Object, or a default value in the\ncase that the property returns `undefined`.\n\n```javascript\nEmber.getWithDefault(person, 'lastName', 'Doe');\n```",
             "itemtype": "method",
             "name": "getWithDefault",
@@ -10050,7 +10050,7 @@
         },
         {
             "file": "packages/ember-metal/lib/property_set.js",
-            "line": 20,
+            "line": 23,
             "description": "Sets the value of a property on an object, respecting computed properties\nand notifying observers and other listeners of the change. If the\nproperty is not defined but the object implements the `setUnknownProperty`\nmethod then that will be invoked as well.\n\n```javascript\nEmber.set(obj, \"name\", value);\n```",
             "itemtype": "method",
             "name": "set",
@@ -10083,7 +10083,7 @@
         },
         {
             "file": "packages/ember-metal/lib/property_set.js",
-            "line": 116,
+            "line": 130,
             "description": "Error-tolerant form of `Ember.set`. Will not blow up if any part of the\nchain is `undefined`, `null`, or destroyed.\n\nThis is primarily used when syncing bindings, which may try to update after\nan object has been destroyed.",
             "itemtype": "method",
             "name": "trySet",

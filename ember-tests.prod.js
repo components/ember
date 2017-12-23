@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.0.0-alpha.1-null+39233bc2
+ * @version   3.0.0-alpha.1-null+0d68d0a3
  */
 
 /*globals process */
@@ -38224,7 +38224,7 @@ enifed('ember-metal/tests/chains_test', ['ember-metal'], function (_emberMetal) 
     assert.strictEqual(chainNode.value(), undefined);
   });
 });
-enifed('ember-metal/tests/computed_test', ['ember-runtime', 'internal-test-helpers', 'ember-metal'], function (_emberRuntime, _internalTestHelpers, _emberMetal) {
+enifed('ember-metal/tests/computed_test', ['ember/features', 'ember-runtime', 'internal-test-helpers', 'ember-metal'], function (_features, _emberRuntime, _internalTestHelpers, _emberMetal) {
   'use strict';
 
   var obj = void 0,
@@ -38257,6 +38257,20 @@ enifed('ember-metal/tests/computed_test', ['ember-runtime', 'internal-test-helpe
       });
     }, 'Config object passed to computed can only contain `get` or `set` keys.');
   });
+
+  if (_features.EMBER_METAL_ES5_GETTERS) {
+    QUnit.test('computed property can be accessed without `get`', function (assert) {
+      var obj = {};
+      var count = 0;
+      (0, _emberMetal.defineProperty)(obj, 'foo', (0, _emberMetal.computed)(function (key) {
+        count++;
+        return 'computed ' + key;
+      }));
+
+      assert.equal(obj.foo, 'computed foo', 'should return value');
+      assert.equal(count, 1, 'should have invoked computed property');
+    });
+  }
 
   QUnit.test('defining computed property should invoke property on get', function () {
     var obj = {};
