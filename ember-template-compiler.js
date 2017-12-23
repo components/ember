@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.0.0-alpha.1-null+0d68d0a3
+ * @version   3.0.0-alpha.1-null+4b254773
  */
 
 /*globals process */
@@ -5493,23 +5493,6 @@ enifed('container', ['exports', 'ember-utils', 'ember-debug', 'ember/features', 
 
   exports.Container = exports.privatize = exports.Registry = undefined;
 
-  /* globals Proxy */
-  var CONTAINER_OVERRIDE = (0, _emberUtils.symbol)('CONTAINER_OVERRIDE');
-
-  /**
-   A container used to instantiate and cache objects.
-  
-   Every `Container` must be associated with a `Registry`, which is referenced
-   to determine the factory and options that should be used to instantiate
-   objects.
-  
-   The public API for `Container` is still in flux and should not be considered
-   stable.
-  
-   @private
-   @class Container
-   */
-
   var Container = function () {
     function Container(registry) {
       var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
@@ -5519,7 +5502,6 @@ enifed('container', ['exports', 'ember-utils', 'ember-debug', 'ember/features', 
       this.owner = options.owner || null;
       this.cache = (0, _emberUtils.dictionary)(options.cache || null);
       this.factoryManagerCache = (0, _emberUtils.dictionary)(options.factoryManagerCache || null);
-      this[CONTAINER_OVERRIDE] = undefined;
       this.isDestroyed = false;
 
       this.validationCache = (0, _emberUtils.dictionary)(options.validationCache || null);
@@ -17022,7 +17004,7 @@ enifed('ember/features', ['exports', 'ember-environment', 'ember-utils'], functi
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "3.0.0-alpha.1-null+0d68d0a3";
+  exports.default = "3.0.0-alpha.1-null+4b254773";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";

@@ -3,7 +3,7 @@
         "name": "The Ember API",
         "description": "The Ember API: a framework for building ambitious web applications",
         "url": "https://emberjs.com/",
-        "version": "3.0.0-alpha.1.0d68d0a3"
+        "version": "3.0.0-alpha.1.4b254773"
     },
     "files": {
         "node_modules/rsvp/lib/rsvp/promise/all.js": {
@@ -2196,7 +2196,7 @@
             "extension_for": [],
             "module": "@ember/application",
             "file": "packages/container/lib/container.js",
-            "line": 16,
+            "line": 14,
             "description": "A container used to instantiate and cache objects.\n\nEvery `Container` must be associated with a `Registry`, which is referenced\nto determine the factory and options that should be used to instantiate\nobjects.\n\nThe public API for `Container` is still in flux and should not be considered\nstable.",
             "access": "private",
             "tagname": ""
@@ -4472,7 +4472,7 @@
         },
         {
             "file": "packages/container/lib/container.js",
-            "line": 43,
+            "line": 40,
             "access": "private",
             "tagname": "",
             "itemtype": "property",
@@ -4483,7 +4483,7 @@
         },
         {
             "file": "packages/container/lib/container.js",
-            "line": 50,
+            "line": 47,
             "access": "private",
             "tagname": "",
             "itemtype": "property",
@@ -4493,7 +4493,7 @@
         },
         {
             "file": "packages/container/lib/container.js",
-            "line": 56,
+            "line": 53,
             "access": "private",
             "tagname": "",
             "itemtype": "property",
@@ -4503,7 +4503,7 @@
         },
         {
             "file": "packages/container/lib/container.js",
-            "line": 62,
+            "line": 59,
             "description": "Given a fullName return a corresponding instance.\n The default behavior is for lookup to return a singleton instance.\nThe singleton is scoped to the container, allowing multiple containers\nto all have their own locally scoped singletons.\n ```javascript\nlet registry = new Registry();\nlet container = registry.container();\n registry.register('api:twitter', Twitter);\n let twitter = container.lookup('api:twitter');\n twitter instanceof Twitter; // => true\n // by default the container will return singletons\nlet twitter2 = container.lookup('api:twitter');\ntwitter2 instanceof Twitter; // => true\n twitter === twitter2; //=> true\n```\n If singletons are not wanted, an optional flag can be provided at lookup.\n ```javascript\nlet registry = new Registry();\nlet container = registry.container();\n registry.register('api:twitter', Twitter);\n let twitter = container.lookup('api:twitter', { singleton: false });\nlet twitter2 = container.lookup('api:twitter', { singleton: false });\n twitter === twitter2; //=> false\n```",
             "access": "private",
             "tagname": "",
@@ -4538,7 +4538,7 @@
         },
         {
             "file": "packages/container/lib/container.js",
-            "line": 99,
+            "line": 96,
             "description": "A depth first traversal, destroying the container, its descendant containers and all\ntheir managed objects.",
             "access": "private",
             "tagname": "",
@@ -4548,7 +4548,7 @@
         },
         {
             "file": "packages/container/lib/container.js",
-            "line": 110,
+            "line": 107,
             "description": "Clear either the entire cache or just the cache for a particular key.",
             "access": "private",
             "tagname": "",
@@ -4565,7 +4565,7 @@
         },
         {
             "file": "packages/container/lib/container.js",
-            "line": 125,
+            "line": 122,
             "description": "Returns an object that can be used to provide an owner to a\nmanually created instance.",
             "access": "private",
             "tagname": "",
@@ -4579,7 +4579,7 @@
         },
         {
             "file": "packages/container/lib/container.js",
-            "line": 140,
+            "line": 137,
             "description": "Given a fullName, return the corresponding factory. The consumer of the factory\nis responsible for the destruction of any factory instances, as there is no\nway for the container to ensure instances are destroyed when it itself is\ndestroyed.",
             "access": "public",
             "tagname": "",
@@ -19600,7 +19600,7 @@
     "warnings": [
         {
             "message": "replacing incorrect tag: returns with return",
-            "line": " packages/container/lib/container.js:125"
+            "line": " packages/container/lib/container.js:122"
         },
         {
             "message": "replacing incorrect tag: returns with return",
