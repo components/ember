@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.0.0-alpha.1-null+4b254773
+ * @version   3.0.0-alpha.1-null+92f664b9
  */
 
 /*globals process */
@@ -32392,7 +32392,7 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
 
       this._qpCache = Object.create(null);
       this._resetQueuedQueryParameterChanges();
-      this._handledErrors = (0, _emberUtils.dictionary)(null);
+      this._handledErrors = new Set();
       this._engineInstances = Object.create(null);
       this._engineInfoByRoute = Object.create(null);
     },
@@ -33039,14 +33039,14 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
       }
       this._slowTransitionTimer = null;
     },
-    _markErrorAsHandled: function (errorGuid) {
-      this._handledErrors[errorGuid] = true;
+    _markErrorAsHandled: function (error) {
+      this._handledErrors.add(error);
     },
-    _isErrorHandled: function (errorGuid) {
-      return this._handledErrors[errorGuid];
+    _isErrorHandled: function (error) {
+      return this._handledErrors.has(error);
     },
-    _clearHandledError: function (errorGuid) {
-      delete this._handledErrors[errorGuid];
+    _clearHandledError: function (error) {
+      this._handledErrors.delete(error);
     },
     _getEngineInstance: function (_ref) {
       var name = _ref.name,
@@ -33137,8 +33137,7 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
           // Check for the existence of an 'error' route.
           var errorRouteName = findRouteStateName(route, 'error');
           if (errorRouteName) {
-            var _errorId = (0, _emberUtils.guidFor)(error);
-            router._markErrorAsHandled(_errorId);
+            router._markErrorAsHandled(error);
             router.intermediateTransitionTo(errorRouteName, error);
             return false;
           }
@@ -33147,8 +33146,7 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
         // Check for an 'error' substate route
         var errorSubstateName = findRouteSubstateName(route, 'error');
         if (errorSubstateName) {
-          var errorId = (0, _emberUtils.guidFor)(error);
-          router._markErrorAsHandled(errorId);
+          router._markErrorAsHandled(error);
           router.intermediateTransitionTo(errorSubstateName, error);
           return false;
         }
@@ -33304,8 +33302,7 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
         } else {
           // Should only hit here if a non-bubbling error action is triggered on a route.
           if (name === 'error') {
-            var errorId = (0, _emberUtils.guidFor)(args[0]);
-            handler.router._markErrorAsHandled(errorId);
+            handler.router._markErrorAsHandled(args[0]);
           }
           return;
         }
@@ -33440,10 +33437,8 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
     router.set('targetState', routerState);
 
     transition.promise = transition.catch(function (error) {
-      var errorId = (0, _emberUtils.guidFor)(error);
-
-      if (router._isErrorHandled(errorId)) {
-        router._clearHandledError(errorId);
+      if (router._isErrorHandled(error)) {
+        router._clearHandledError(error);
       } else {
         throw error;
       }
@@ -47155,7 +47150,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "3.0.0-alpha.1-null+4b254773";
+  exports.default = "3.0.0-alpha.1-null+92f664b9";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";
