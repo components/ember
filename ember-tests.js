@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.0.0-alpha.1-null+92f664b9
+ * @version   3.0.0-alpha.1-null+cd61ae43
  */
 
 /*globals process */
@@ -47584,13 +47584,24 @@ QUnit.test('should pass ESLint', function(assert) {
   assert.ok(true, 'ember-routing/tests/location/auto_location_test.js should pass ESLint\n\n');
 });
 
-enifed('ember-routing/tests/location/hash_location_test', ['ember-metal', 'ember-routing/location/hash_location'], function (_emberMetal, _hash_location) {
+enifed('ember-routing/tests/location/hash_location_test', ['ember-babel', 'ember-metal', 'ember-routing/location/hash_location', 'internal-test-helpers'], function (_emberBabel, _emberMetal, _hash_location, _internalTestHelpers) {
   'use strict';
 
-  var HashTestLocation = void 0,
-      location = void 0;
+  var location = void 0;
 
-  function createLocation(options) {
+  function createLocation(options, assert) {
+    var HashTestLocation = _hash_location.default.extend({
+      _location: {
+        href: 'http://test.com/',
+        pathname: '/',
+        hash: '',
+        search: '',
+        replace: function () {
+          assert.ok(false, 'location.replace should not be called during testing');
+        }
+      }
+    });
+
     if (!options) {
       options = {};
     }
@@ -47624,157 +47635,141 @@ enifed('ember-routing/tests/location/hash_location_test', ['ember-metal', 'ember
     window.dispatchEvent(event);
   }
 
-  QUnit.module('Ember.HashLocation', {
-    setup: function () {
-      HashTestLocation = _hash_location.default.extend({
-        _location: {
-          href: 'http://test.com/',
-          pathname: '/',
-          hash: '',
-          search: '',
-          replace: function () {
-            ok(false, 'location.replace should not be called during testing');
-          }
-        }
-      });
-    },
-    teardown: function () {
+  (0, _internalTestHelpers.moduleFor)('Ember.HashLocation', function (_AbstractTestCase) {
+    (0, _emberBabel.inherits)(_class, _AbstractTestCase);
+
+    function _class() {
+      (0, _emberBabel.classCallCheck)(this, _class);
+      return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase.apply(this, arguments));
+    }
+
+    _class.prototype.teardown = function teardown() {
       (0, _emberMetal.run)(function () {
         if (location) {
           location.destroy();
         }
       });
-    }
-  });
+    };
 
-  QUnit.test('HashLocation.getURL() returns the current url', function () {
-    expect(1);
+    _class.prototype['@test HashLocation.getURL() returns the current url'] = function testHashLocationGetURLReturnsTheCurrentUrl(assert) {
+      createLocation({
+        _location: mockBrowserLocation('/#/foo/bar')
+      }, assert);
 
-    createLocation({
-      _location: mockBrowserLocation('/#/foo/bar')
-    });
+      assert.equal(location.getURL(), '/foo/bar');
+    };
 
-    equal(location.getURL(), '/foo/bar');
-  });
+    _class.prototype['@test HashLocation.getURL() includes extra hashes'] = function testHashLocationGetURLIncludesExtraHashes(assert) {
+      createLocation({
+        _location: mockBrowserLocation('/#/foo#bar#car')
+      }, assert);
 
-  QUnit.test('HashLocation.getURL() includes extra hashes', function () {
-    expect(1);
+      assert.equal(location.getURL(), '/foo#bar#car');
+    };
 
-    createLocation({
-      _location: mockBrowserLocation('/#/foo#bar#car')
-    });
+    _class.prototype['@test HashLocation.getURL() assumes location.hash without #/ prefix is not a route path'] = function testHashLocationGetURLAssumesLocationHashWithoutPrefixIsNotARoutePath(assert) {
+      createLocation({
+        _location: mockBrowserLocation('/#foo#bar')
+      }, assert);
 
-    equal(location.getURL(), '/foo#bar#car');
-  });
+      assert.equal(location.getURL(), '/#foo#bar');
+    };
 
-  QUnit.test('HashLocation.getURL() assumes location.hash without #/ prefix is not a route path', function () {
-    expect(1);
+    _class.prototype['@test HashLocation.getURL() returns a normal forward slash when there is no location.hash'] = function testHashLocationGetURLReturnsANormalForwardSlashWhenThereIsNoLocationHash(assert) {
+      createLocation({
+        _location: mockBrowserLocation('/')
+      }, assert);
 
-    createLocation({
-      _location: mockBrowserLocation('/#foo#bar')
-    });
+      assert.equal(location.getURL(), '/');
+    };
 
-    equal(location.getURL(), '/#foo#bar');
-  });
+    _class.prototype['@test HashLocation.setURL() correctly sets the url'] = function testHashLocationSetURLCorrectlySetsTheUrl(assert) {
+      createLocation({}, assert);
 
-  QUnit.test('HashLocation.getURL() returns a normal forward slash when there is no location.hash', function () {
-    expect(1);
+      location.setURL('/bar');
 
-    createLocation({
-      _location: mockBrowserLocation('/')
-    });
+      assert.equal((0, _emberMetal.get)(location, 'location.hash'), '/bar');
+      assert.equal((0, _emberMetal.get)(location, 'lastSetURL'), '/bar');
+    };
 
-    equal(location.getURL(), '/');
-  });
+    _class.prototype['@test HashLocation.replaceURL() correctly replaces to the path with a page reload'] = function testHashLocationReplaceURLCorrectlyReplacesToThePathWithAPageReload(assert) {
+      expect(2);
 
-  QUnit.test('HashLocation.setURL() correctly sets the url', function () {
-    expect(2);
-
-    createLocation();
-
-    location.setURL('/bar');
-
-    equal((0, _emberMetal.get)(location, 'location.hash'), '/bar');
-    equal((0, _emberMetal.get)(location, 'lastSetURL'), '/bar');
-  });
-
-  QUnit.test('HashLocation.replaceURL() correctly replaces to the path with a page reload', function () {
-    expect(2);
-
-    createLocation({
-      _location: {
-        replace: function (path) {
-          equal(path, '#/foo');
+      createLocation({
+        _location: {
+          replace: function (path) {
+            assert.equal(path, '#/foo');
+          }
         }
-      }
-    });
+      }, assert);
 
-    location.replaceURL('/foo');
+      location.replaceURL('/foo');
 
-    equal((0, _emberMetal.get)(location, 'lastSetURL'), '/foo');
-  });
-
-  QUnit.test('HashLocation.onUpdateURL callback executes as expected', function () {
-    expect(1);
-
-    createLocation({
-      _location: mockBrowserLocation('/#/foo/bar')
-    });
-
-    var callback = function (param) {
-      equal(param, '/foo/bar', 'path is passed as param');
+      assert.equal((0, _emberMetal.get)(location, 'lastSetURL'), '/foo');
     };
 
-    location.onUpdateURL(callback);
+    _class.prototype['@test HashLocation.onUpdateURL callback executes as expected'] = function testHashLocationOnUpdateURLCallbackExecutesAsExpected(assert) {
+      expect(1);
 
-    triggerHashchange();
-  });
+      createLocation({
+        _location: mockBrowserLocation('/#/foo/bar')
+      }, assert);
 
-  QUnit.test('HashLocation.onUpdateURL doesn\'t execute callback if lastSetURL === path', function () {
-    expect(0);
+      var callback = function (param) {
+        assert.equal(param, '/foo/bar', 'path is passed as param');
+      };
 
-    createLocation({
-      _location: {
-        href: '/#/foo/bar'
-      },
-      lastSetURL: '/foo/bar'
-    });
+      location.onUpdateURL(callback);
 
-    var callback = function () {
-      ok(false, 'callback should not be called');
+      triggerHashchange();
     };
 
-    location.onUpdateURL(callback);
+    _class.prototype['@test HashLocation.onUpdateURL doesn\'t execute callback if lastSetURL === path'] = function testHashLocationOnUpdateURLDoesnTExecuteCallbackIfLastSetURLPath(assert) {
+      expect(0);
 
-    triggerHashchange();
-  });
+      createLocation({
+        _location: {
+          href: '/#/foo/bar'
+        },
+        lastSetURL: '/foo/bar'
+      }, assert);
 
-  QUnit.test('HashLocation.formatURL() prepends a # to the provided string', function () {
-    expect(1);
+      var callback = function () {
+        assert.ok(false, 'callback should not be called');
+      };
 
-    createLocation();
+      location.onUpdateURL(callback);
 
-    equal(location.formatURL('/foo#bar'), '#/foo#bar');
-  });
-
-  QUnit.test('HashLocation.willDestroy() cleans up hashchange event listener', function () {
-    expect(1);
-
-    createLocation();
-
-    var callback = function () {
-      ok(true, 'should invoke callback once');
+      triggerHashchange();
     };
 
-    location.onUpdateURL(callback);
+    _class.prototype['@test HashLocation.formatURL() prepends a # to the provided string'] = function testHashLocationFormatURLPrependsAToTheProvidedString(assert) {
+      createLocation({}, assert);
 
-    triggerHashchange();
+      assert.equal(location.formatURL('/foo#bar'), '#/foo#bar');
+    };
 
-    (0, _emberMetal.run)(location, 'destroy');
-    location = null;
+    _class.prototype['@test HashLocation.willDestroy() cleans up hashchange event listener'] = function testHashLocationWillDestroyCleansUpHashchangeEventListener(assert) {
+      expect(1);
 
-    triggerHashchange();
-  });
+      createLocation({}, assert);
+
+      var callback = function () {
+        assert.ok(true, 'should invoke callback once');
+      };
+
+      location.onUpdateURL(callback);
+
+      triggerHashchange();
+
+      (0, _emberMetal.run)(location, 'destroy');
+      location = null;
+
+      triggerHashchange();
+    };
+
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
 });
 QUnit.module('ESLint | ember-routing/tests/location/hash_location_test.js');
 QUnit.test('should pass ESLint', function(assert) {
@@ -47782,7 +47777,7 @@ QUnit.test('should pass ESLint', function(assert) {
   assert.ok(true, 'ember-routing/tests/location/hash_location_test.js should pass ESLint\n\n');
 });
 
-enifed('ember-routing/tests/location/history_location_test', ['ember-metal', 'ember-routing/location/history_location'], function (_emberMetal, _history_location) {
+enifed('ember-routing/tests/location/history_location_test', ['ember-babel', 'ember-metal', 'ember-routing/location/history_location', 'internal-test-helpers'], function (_emberBabel, _emberMetal, _history_location, _internalTestHelpers) {
   'use strict';
 
   var FakeHistory = void 0,
@@ -47817,8 +47812,14 @@ enifed('ember-routing/tests/location/history_location_test', ['ember-metal', 'em
     };
   }
 
-  QUnit.module('Ember.HistoryLocation', {
-    setup: function () {
+  (0, _internalTestHelpers.moduleFor)('Ember.HistoryLocation', function (_AbstractTestCase) {
+    (0, _emberBabel.inherits)(_class, _AbstractTestCase);
+
+    function _class() {
+      (0, _emberBabel.classCallCheck)(this, _class);
+
+      var _this = (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase.call(this));
+
       FakeHistory = {
         state: null,
         _states: [],
@@ -47835,282 +47836,262 @@ enifed('ember-routing/tests/location/history_location_test', ['ember-metal', 'em
       HistoryTestLocation = _history_location.default.extend({
         history: FakeHistory
       });
-    },
-    teardown: function () {
+      return _this;
+    }
+
+    _class.prototype.teardown = function teardown() {
       (0, _emberMetal.run)(function () {
         if (location) {
           location.destroy();
         }
       });
-    }
-  });
-
-  QUnit.test('HistoryLocation initState does not get fired on init', function () {
-    expect(1);
-
-    HistoryTestLocation.reopen({
-      init: function () {
-        ok(true, 'init was called');
-        this._super.apply(this, arguments);
-      },
-      initState: function () {
-        ok(false, 'initState() should not be called automatically');
-      }
-    });
-
-    createLocation();
-  });
-
-  QUnit.test('webkit doesn\'t fire popstate on page load', function () {
-    expect(1);
-
-    HistoryTestLocation.reopen({
-      initState: function () {
-        this._super.apply(this, arguments);
-        // these two should be equal to be able
-        // to successfully detect webkit initial popstate
-        equal(this._previousURL, this.getURL());
-      }
-    });
-
-    createLocation();
-    location.initState();
-  });
-
-  QUnit.test('base URL is removed when retrieving the current pathname', function () {
-    expect(1);
-
-    HistoryTestLocation.reopen({
-      init: function () {
-        this._super.apply(this, arguments);
-
-        (0, _emberMetal.set)(this, 'location', mockBrowserLocation('/base/foo/bar'));
-        (0, _emberMetal.set)(this, 'baseURL', '/base/');
-      },
-      initState: function () {
-        this._super.apply(this, arguments);
-
-        equal(this.getURL(), '/foo/bar');
-      }
-    });
-
-    createLocation();
-    location.initState();
-  });
-
-  QUnit.test('base URL is preserved when moving around', function () {
-    expect(2);
-
-    HistoryTestLocation.reopen({
-      init: function () {
-        this._super.apply(this, arguments);
-
-        (0, _emberMetal.set)(this, 'location', mockBrowserLocation('/base/foo/bar'));
-        (0, _emberMetal.set)(this, 'baseURL', '/base/');
-      }
-    });
-
-    createLocation();
-    location.initState();
-    location.setURL('/one/two');
-
-    equal(location._historyState.path, '/base/one/two');
-    ok(location._historyState.uuid);
-  });
-
-  QUnit.test('setURL continues to set even with a null state (iframes may set this)', function () {
-    expect(2);
-
-    createLocation();
-    location.initState();
-
-    FakeHistory.pushState(null);
-    location.setURL('/three/four');
-
-    equal(location._historyState.path, '/three/four');
-    ok(location._historyState.uuid);
-  });
-
-  QUnit.test('replaceURL continues to set even with a null state (iframes may set this)', function () {
-    expect(2);
-
-    createLocation();
-    location.initState();
-
-    FakeHistory.pushState(null);
-    location.replaceURL('/three/four');
-
-    equal(location._historyState.path, '/three/four');
-    ok(location._historyState.uuid);
-  });
-
-  QUnit.test('HistoryLocation.getURL() returns the current url, excluding both rootURL and baseURL', function () {
-    expect(1);
-
-    HistoryTestLocation.reopen({
-      init: function () {
-        this._super.apply(this, arguments);
-
-        (0, _emberMetal.set)(this, 'location', mockBrowserLocation('/base/foo/bar'));
-        (0, _emberMetal.set)(this, 'rootURL', '/app/');
-        (0, _emberMetal.set)(this, 'baseURL', '/base/');
-      }
-    });
-
-    createLocation();
-
-    equal(location.getURL(), '/foo/bar');
-  });
-
-  QUnit.test('HistoryLocation.getURL() returns the current url, does not remove rootURL if its not at start of url', function () {
-    expect(1);
-
-    HistoryTestLocation.reopen({
-      init: function () {
-        this._super.apply(this, arguments);
-
-        (0, _emberMetal.set)(this, 'location', mockBrowserLocation('/foo/bar/baz'));
-        (0, _emberMetal.set)(this, 'rootURL', '/bar/');
-      }
-    });
-
-    createLocation();
-
-    equal(location.getURL(), '/foo/bar/baz');
-  });
-
-  QUnit.test('HistoryLocation.getURL() will not remove the rootURL when only a partial match', function () {
-    expect(1);
-
-    HistoryTestLocation.reopen({
-      init: function () {
-        this._super.apply(this, arguments);
-        (0, _emberMetal.set)(this, 'location', mockBrowserLocation('/bars/baz'));
-        (0, _emberMetal.set)(this, 'rootURL', '/bar/');
-      }
-    });
-
-    createLocation();
-
-    equal(location.getURL(), '/bars/baz');
-  });
-
-  QUnit.test('HistoryLocation.getURL() returns the current url, does not remove baseURL if its not at start of url', function () {
-    expect(1);
-
-    HistoryTestLocation.reopen({
-      init: function () {
-        this._super.apply(this, arguments);
-
-        (0, _emberMetal.set)(this, 'location', mockBrowserLocation('/foo/bar/baz'));
-        (0, _emberMetal.set)(this, 'baseURL', '/bar/');
-      }
-    });
-
-    createLocation();
-
-    equal(location.getURL(), '/foo/bar/baz');
-  });
-
-  QUnit.test('HistoryLocation.getURL() will not remove the baseURL when only a partial match', function () {
-    expect(1);
-
-    HistoryTestLocation.reopen({
-      init: function () {
-        this._super.apply(this, arguments);
-        (0, _emberMetal.set)(this, 'location', mockBrowserLocation('/bars/baz'));
-        (0, _emberMetal.set)(this, 'baseURL', '/bar/');
-      }
-    });
-
-    createLocation();
-
-    equal(location.getURL(), '/bars/baz');
-  });
-
-  QUnit.test('HistoryLocation.getURL() includes location.search', function () {
-    expect(1);
-
-    HistoryTestLocation.reopen({
-      init: function () {
-        this._super.apply(this, arguments);
-        (0, _emberMetal.set)(this, 'location', mockBrowserLocation('/foo/bar?time=morphin'));
-      }
-    });
-
-    createLocation();
-
-    equal(location.getURL(), '/foo/bar?time=morphin');
-  });
-
-  QUnit.test('HistoryLocation.getURL() includes location.hash', function () {
-    expect(1);
-
-    HistoryTestLocation.reopen({
-      init: function () {
-        this._super.apply(this, arguments);
-        (0, _emberMetal.set)(this, 'location', mockBrowserLocation('/foo/bar#pink-power-ranger'));
-      }
-    });
-
-    createLocation();
-
-    equal(location.getURL(), '/foo/bar#pink-power-ranger');
-  });
-
-  QUnit.test('HistoryLocation.getURL() includes location.hash and location.search', function () {
-    expect(1);
-
-    HistoryTestLocation.reopen({
-      init: function () {
-        this._super.apply(this, arguments);
-        (0, _emberMetal.set)(this, 'location', mockBrowserLocation('/foo/bar?time=morphin#pink-power-ranger'));
-      }
-    });
-
-    createLocation();
-
-    equal(location.getURL(), '/foo/bar?time=morphin#pink-power-ranger');
-  });
-
-  QUnit.test('HistoryLocation.getURL() drops duplicate slashes', function () {
-    expect(1);
-
-    HistoryTestLocation.reopen({
-      init: function () {
-        this._super.apply(this, arguments);
-        var location = mockBrowserLocation('//');
-        location.pathname = '//'; // mockBrowserLocation does not allow for `//`, so force it
-        (0, _emberMetal.set)(this, 'location', location);
-      }
-    });
-
-    createLocation();
-
-    equal(location.getURL(), '/');
-  });
-
-  QUnit.test('Existing state is preserved on init', function () {
-    expect(1);
-
-    var existingState = {
-      path: '/route/path',
-      uuid: 'abcd'
     };
 
-    FakeHistory.state = existingState;
+    _class.prototype['@test HistoryLocation initState does not get fired on init'] = function testHistoryLocationInitStateDoesNotGetFiredOnInit(assert) {
+      assert.expect(1);
 
-    HistoryTestLocation.reopen({
-      init: function () {
-        this._super.apply(this, arguments);
-        (0, _emberMetal.set)(this, 'location', mockBrowserLocation('/route/path'));
-      }
-    });
+      HistoryTestLocation.reopen({
+        init: function () {
+          assert.ok(true, 'init was called');
+          this._super.apply(this, arguments);
+        },
+        initState: function () {
+          assert.ok(false, 'initState() should not be called automatically');
+        }
+      });
 
-    createLocation();
-    location.initState();
-    deepEqual(location.getState(), existingState);
-  });
+      createLocation();
+    };
+
+    _class.prototype['@test webkit doesn\'t fire popstate on page load'] = function testWebkitDoesnTFirePopstateOnPageLoad(assert) {
+      assert.expect(1);
+
+      HistoryTestLocation.reopen({
+        initState: function () {
+          this._super.apply(this, arguments);
+          // these two should be equal to be able
+          // to successfully detect webkit initial popstate
+          assert.equal(this._previousURL, this.getURL());
+        }
+      });
+
+      createLocation();
+      location.initState();
+    };
+
+    _class.prototype['@test base URL is removed when retrieving the current pathname'] = function testBaseURLIsRemovedWhenRetrievingTheCurrentPathname(assert) {
+      assert.expect(1);
+
+      HistoryTestLocation.reopen({
+        init: function () {
+          this._super.apply(this, arguments);
+
+          (0, _emberMetal.set)(this, 'location', mockBrowserLocation('/base/foo/bar'));
+          (0, _emberMetal.set)(this, 'baseURL', '/base/');
+        },
+        initState: function () {
+          this._super.apply(this, arguments);
+
+          assert.equal(this.getURL(), '/foo/bar');
+        }
+      });
+
+      createLocation();
+      location.initState();
+    };
+
+    _class.prototype['@test base URL is preserved when moving around'] = function testBaseURLIsPreservedWhenMovingAround(assert) {
+      assert.expect(2);
+
+      HistoryTestLocation.reopen({
+        init: function () {
+          this._super.apply(this, arguments);
+
+          (0, _emberMetal.set)(this, 'location', mockBrowserLocation('/base/foo/bar'));
+          (0, _emberMetal.set)(this, 'baseURL', '/base/');
+        }
+      });
+
+      createLocation();
+      location.initState();
+      location.setURL('/one/two');
+
+      assert.equal(location._historyState.path, '/base/one/two');
+      assert.ok(location._historyState.uuid);
+    };
+
+    _class.prototype['@test setURL continues to set even with a null state (iframes may set this)'] = function testSetURLContinuesToSetEvenWithANullStateIframesMaySetThis(assert) {
+      createLocation();
+      location.initState();
+
+      FakeHistory.pushState(null);
+      location.setURL('/three/four');
+
+      assert.equal(location._historyState.path, '/three/four');
+      assert.ok(location._historyState.uuid);
+    };
+
+    _class.prototype['@test replaceURL continues to set even with a null state (iframes may set this)'] = function testReplaceURLContinuesToSetEvenWithANullStateIframesMaySetThis(assert) {
+      createLocation();
+      location.initState();
+
+      FakeHistory.pushState(null);
+      location.replaceURL('/three/four');
+
+      assert.equal(location._historyState.path, '/three/four');
+      assert.ok(location._historyState.uuid);
+    };
+
+    _class.prototype['@test HistoryLocation.getURL() returns the current url, excluding both rootURL and baseURL'] = function testHistoryLocationGetURLReturnsTheCurrentUrlExcludingBothRootURLAndBaseURL(assert) {
+      HistoryTestLocation.reopen({
+        init: function () {
+          this._super.apply(this, arguments);
+
+          (0, _emberMetal.set)(this, 'location', mockBrowserLocation('/base/foo/bar'));
+          (0, _emberMetal.set)(this, 'rootURL', '/app/');
+          (0, _emberMetal.set)(this, 'baseURL', '/base/');
+        }
+      });
+
+      createLocation();
+
+      assert.equal(location.getURL(), '/foo/bar');
+    };
+
+    _class.prototype['@test HistoryLocation.getURL() returns the current url, does not remove rootURL if its not at start of url'] = function testHistoryLocationGetURLReturnsTheCurrentUrlDoesNotRemoveRootURLIfItsNotAtStartOfUrl(assert) {
+      HistoryTestLocation.reopen({
+        init: function () {
+          this._super.apply(this, arguments);
+
+          (0, _emberMetal.set)(this, 'location', mockBrowserLocation('/foo/bar/baz'));
+          (0, _emberMetal.set)(this, 'rootURL', '/bar/');
+        }
+      });
+
+      createLocation();
+
+      assert.equal(location.getURL(), '/foo/bar/baz');
+    };
+
+    _class.prototype['@test HistoryLocation.getURL() will not remove the rootURL when only a partial match'] = function testHistoryLocationGetURLWillNotRemoveTheRootURLWhenOnlyAPartialMatch(assert) {
+      HistoryTestLocation.reopen({
+        init: function () {
+          this._super.apply(this, arguments);
+          (0, _emberMetal.set)(this, 'location', mockBrowserLocation('/bars/baz'));
+          (0, _emberMetal.set)(this, 'rootURL', '/bar/');
+        }
+      });
+
+      createLocation();
+
+      assert.equal(location.getURL(), '/bars/baz');
+    };
+
+    _class.prototype['@test HistoryLocation.getURL() returns the current url, does not remove baseURL if its not at start of url'] = function testHistoryLocationGetURLReturnsTheCurrentUrlDoesNotRemoveBaseURLIfItsNotAtStartOfUrl(assert) {
+      HistoryTestLocation.reopen({
+        init: function () {
+          this._super.apply(this, arguments);
+
+          (0, _emberMetal.set)(this, 'location', mockBrowserLocation('/foo/bar/baz'));
+          (0, _emberMetal.set)(this, 'baseURL', '/bar/');
+        }
+      });
+
+      createLocation();
+
+      assert.equal(location.getURL(), '/foo/bar/baz');
+    };
+
+    _class.prototype['@test HistoryLocation.getURL() will not remove the baseURL when only a partial match'] = function testHistoryLocationGetURLWillNotRemoveTheBaseURLWhenOnlyAPartialMatch(assert) {
+      HistoryTestLocation.reopen({
+        init: function () {
+          this._super.apply(this, arguments);
+          (0, _emberMetal.set)(this, 'location', mockBrowserLocation('/bars/baz'));
+          (0, _emberMetal.set)(this, 'baseURL', '/bar/');
+        }
+      });
+
+      createLocation();
+
+      assert.equal(location.getURL(), '/bars/baz');
+    };
+
+    _class.prototype['@test HistoryLocation.getURL() includes location.search'] = function testHistoryLocationGetURLIncludesLocationSearch(assert) {
+      HistoryTestLocation.reopen({
+        init: function () {
+          this._super.apply(this, arguments);
+          (0, _emberMetal.set)(this, 'location', mockBrowserLocation('/foo/bar?time=morphin'));
+        }
+      });
+
+      createLocation();
+
+      assert.equal(location.getURL(), '/foo/bar?time=morphin');
+    };
+
+    _class.prototype['@test HistoryLocation.getURL() includes location.hash'] = function testHistoryLocationGetURLIncludesLocationHash(assert) {
+      HistoryTestLocation.reopen({
+        init: function () {
+          this._super.apply(this, arguments);
+          (0, _emberMetal.set)(this, 'location', mockBrowserLocation('/foo/bar#pink-power-ranger'));
+        }
+      });
+
+      createLocation();
+
+      assert.equal(location.getURL(), '/foo/bar#pink-power-ranger');
+    };
+
+    _class.prototype['@test HistoryLocation.getURL() includes location.hash and location.search'] = function testHistoryLocationGetURLIncludesLocationHashAndLocationSearch(assert) {
+      HistoryTestLocation.reopen({
+        init: function () {
+          this._super.apply(this, arguments);
+          (0, _emberMetal.set)(this, 'location', mockBrowserLocation('/foo/bar?time=morphin#pink-power-ranger'));
+        }
+      });
+
+      createLocation();
+
+      assert.equal(location.getURL(), '/foo/bar?time=morphin#pink-power-ranger');
+    };
+
+    _class.prototype['@test HistoryLocation.getURL() drops duplicate slashes'] = function testHistoryLocationGetURLDropsDuplicateSlashes(assert) {
+      HistoryTestLocation.reopen({
+        init: function () {
+          this._super.apply(this, arguments);
+          var location = mockBrowserLocation('//');
+          location.pathname = '//'; // mockBrowserLocation does not allow for `//`, so force it
+          (0, _emberMetal.set)(this, 'location', location);
+        }
+      });
+
+      createLocation();
+
+      assert.equal(location.getURL(), '/');
+    };
+
+    _class.prototype['@test Existing state is preserved on init'] = function testExistingStateIsPreservedOnInit(assert) {
+      var existingState = {
+        path: '/route/path',
+        uuid: 'abcd'
+      };
+
+      FakeHistory.state = existingState;
+
+      HistoryTestLocation.reopen({
+        init: function () {
+          this._super.apply(this, arguments);
+          (0, _emberMetal.set)(this, 'location', mockBrowserLocation('/route/path'));
+        }
+      });
+
+      createLocation();
+      location.initState();
+      assert.deepEqual(location.getState(), existingState);
+    };
+
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
 });
 QUnit.module('ESLint | ember-routing/tests/location/history_location_test.js');
 QUnit.test('should pass ESLint', function(assert) {
@@ -48118,7 +48099,7 @@ QUnit.test('should pass ESLint', function(assert) {
   assert.ok(true, 'ember-routing/tests/location/history_location_test.js should pass ESLint\n\n');
 });
 
-enifed('ember-routing/tests/location/none_location_test', ['ember-metal', 'ember-routing/location/none_location'], function (_emberMetal, _none_location) {
+enifed('ember-routing/tests/location/none_location_test', ['ember-babel', 'ember-metal', 'ember-routing/location/none_location', 'internal-test-helpers'], function (_emberBabel, _emberMetal, _none_location, _internalTestHelpers) {
   'use strict';
 
   var NoneTestLocation = void 0,
@@ -48131,81 +48112,83 @@ enifed('ember-routing/tests/location/none_location_test', ['ember-metal', 'ember
     location = NoneTestLocation.create(options);
   }
 
-  QUnit.module('Ember.NoneLocation', {
-    setup: function () {
+  (0, _internalTestHelpers.moduleFor)('Ember.NoneLocation', function (_AbstractTestCase) {
+    (0, _emberBabel.inherits)(_class, _AbstractTestCase);
+
+    function _class() {
+      (0, _emberBabel.classCallCheck)(this, _class);
+
+      var _this = (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase.call(this));
+
       NoneTestLocation = _none_location.default.extend({});
-    },
-    teardown: function () {
+      return _this;
+    }
+
+    _class.prototype.teardown = function teardown() {
       (0, _emberMetal.run)(function () {
         if (location) {
           location.destroy();
         }
       });
-    }
-  });
+    };
 
-  QUnit.test('NoneLocation.formatURL() returns the current url always appending rootURL', function () {
-    expect(1);
+    _class.prototype['@test NoneLocation.formatURL() returns the current url always appending rootURL'] = function testNoneLocationFormatURLReturnsTheCurrentUrlAlwaysAppendingRootURL(assert) {
+      NoneTestLocation.reopen({
+        init: function () {
+          this._super.apply(this, arguments);
+          (0, _emberMetal.set)(this, 'rootURL', '/en/');
+        }
+      });
 
-    NoneTestLocation.reopen({
-      init: function () {
-        this._super.apply(this, arguments);
-        (0, _emberMetal.set)(this, 'rootURL', '/en/');
-      }
-    });
+      createLocation();
 
-    createLocation();
+      assert.equal(location.formatURL('/foo/bar'), '/en/foo/bar');
+    };
 
-    equal(location.formatURL('/foo/bar'), '/en/foo/bar');
-  });
+    _class.prototype['@test NoneLocation.getURL() returns the current path minus rootURL'] = function testNoneLocationGetURLReturnsTheCurrentPathMinusRootURL(assert) {
+      NoneTestLocation.reopen({
+        init: function () {
+          this._super.apply(this, arguments);
+          (0, _emberMetal.set)(this, 'rootURL', '/foo/');
+          (0, _emberMetal.set)(this, 'path', '/foo/bar');
+        }
+      });
 
-  QUnit.test('NoneLocation.getURL() returns the current path minus rootURL', function () {
-    expect(1);
+      createLocation();
 
-    NoneTestLocation.reopen({
-      init: function () {
-        this._super.apply(this, arguments);
-        (0, _emberMetal.set)(this, 'rootURL', '/foo/');
-        (0, _emberMetal.set)(this, 'path', '/foo/bar');
-      }
-    });
+      assert.equal(location.getURL(), '/bar');
+    };
 
-    createLocation();
+    _class.prototype['@test NoneLocation.getURL() will remove the rootURL only from the beginning of a url'] = function testNoneLocationGetURLWillRemoveTheRootURLOnlyFromTheBeginningOfAUrl(assert) {
+      NoneTestLocation.reopen({
+        init: function () {
+          this._super.apply(this, arguments);
+          (0, _emberMetal.set)(this, 'rootURL', '/bar/');
+          (0, _emberMetal.set)(this, 'path', '/foo/bar/baz');
+        }
+      });
 
-    equal(location.getURL(), '/bar');
-  });
+      createLocation();
 
-  QUnit.test('NoneLocation.getURL() will remove the rootURL only from the beginning of a url', function () {
-    expect(1);
+      assert.equal(location.getURL(), '/foo/bar/baz');
+    };
 
-    NoneTestLocation.reopen({
-      init: function () {
-        this._super.apply(this, arguments);
-        (0, _emberMetal.set)(this, 'rootURL', '/bar/');
-        (0, _emberMetal.set)(this, 'path', '/foo/bar/baz');
-      }
-    });
+    _class.prototype['@test NoneLocation.getURL() will not remove the rootURL when only a partial match'] = function testNoneLocationGetURLWillNotRemoveTheRootURLWhenOnlyAPartialMatch(assert) {
+      NoneTestLocation.reopen({
+        init: function () {
+          this._super.apply(this, arguments);
+          (0, _emberMetal.set)(this, 'rootURL', '/bar/');
+          (0, _emberMetal.set)(this, 'path', '/bars/baz');
+        }
+      });
 
-    createLocation();
+      createLocation();
 
-    equal(location.getURL(), '/foo/bar/baz');
-  });
+      assert.equal(location.getURL(), '/bars/baz');
+    };
 
-  QUnit.test('NoneLocation.getURL() will not remove the rootURL when only a partial match', function () {
-    expect(1);
-
-    NoneTestLocation.reopen({
-      init: function () {
-        this._super.apply(this, arguments);
-        (0, _emberMetal.set)(this, 'rootURL', '/bar/');
-        (0, _emberMetal.set)(this, 'path', '/bars/baz');
-      }
-    });
-
-    createLocation();
-
-    equal(location.getURL(), '/bars/baz');
-  });
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
 });
 QUnit.module('ESLint | ember-routing/tests/location/none_location_test.js');
 QUnit.test('should pass ESLint', function(assert) {
@@ -48213,101 +48196,104 @@ QUnit.test('should pass ESLint', function(assert) {
   assert.ok(true, 'ember-routing/tests/location/none_location_test.js should pass ESLint\n\n');
 });
 
-enifed('ember-routing/tests/location/util_test', ['ember-utils', 'ember-routing/location/util'], function (_emberUtils, _util) {
+enifed('ember-routing/tests/location/util_test', ['ember-babel', 'ember-utils', 'ember-routing/location/util', 'internal-test-helpers'], function (_emberBabel, _emberUtils, _util, _internalTestHelpers) {
   'use strict';
 
-  function mockBrowserLocation(overrides) {
+  function mockBrowserLocation(overrides, assert) {
     return (0, _emberUtils.assign)({
       href: 'http://test.com/',
       pathname: '/',
       hash: '',
       search: '',
       replace: function () {
-        ok(false, 'location.replace should not be called during testing');
+        assert.ok(false, 'location.replace should not be called during testing');
       }
     }, overrides);
   }
 
-  QUnit.module('Location Utilities');
+  (0, _internalTestHelpers.moduleFor)('Location Utilities', function (_AbstractTestCase) {
+    (0, _emberBabel.inherits)(_class, _AbstractTestCase);
 
-  QUnit.test('replacePath cannot be used to redirect to a different origin', function () {
-    expect(1);
+    function _class() {
+      (0, _emberBabel.classCallCheck)(this, _class);
+      return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase.apply(this, arguments));
+    }
 
-    var expectedURL = void 0;
+    _class.prototype['@test replacePath cannot be used to redirect to a different origin'] = function testReplacePathCannotBeUsedToRedirectToADifferentOrigin(assert) {
+      assert.expect(1);
 
-    var location = {
-      protocol: 'http:',
-      hostname: 'emberjs.com',
-      port: '1337',
+      var expectedURL = void 0;
 
-      replace: function (url) {
-        equal(url, expectedURL);
-      }
+      var location = {
+        protocol: 'http:',
+        hostname: 'emberjs.com',
+        port: '1337',
+
+        replace: function (url) {
+          assert.equal(url, expectedURL);
+        }
+      };
+
+      expectedURL = 'http://emberjs.com:1337//google.com';
+      (0, _util.replacePath)(location, '//google.com');
     };
 
-    expectedURL = 'http://emberjs.com:1337//google.com';
-    (0, _util.replacePath)(location, '//google.com');
-  });
+    _class.prototype['@test getPath() should normalize location.pathname, making sure it always returns a leading slash'] = function testGetPathShouldNormalizeLocationPathnameMakingSureItAlwaysReturnsALeadingSlash(assert) {
+      var location = mockBrowserLocation({ pathname: 'test' }, assert);
+      assert.equal((0, _util.getPath)(location), '/test', 'When there is no leading slash, one is added.');
 
-  QUnit.test('getPath() should normalize location.pathname, making sure it always returns a leading slash', function () {
-    expect(2);
+      location = mockBrowserLocation({ pathname: '/test' }, assert);
+      assert.equal((0, _util.getPath)(location), '/test', 'When a leading slash is already there, it isn\'t added again');
+    };
 
-    var location = mockBrowserLocation({ pathname: 'test' });
-    equal((0, _util.getPath)(location), '/test', 'When there is no leading slash, one is added.');
+    _class.prototype['@test getQuery() should return location.search as-is'] = function testGetQueryShouldReturnLocationSearchAsIs(assert) {
+      var location = mockBrowserLocation({ search: '?foo=bar' }, assert);
+      assert.equal((0, _util.getQuery)(location), '?foo=bar');
+    };
 
-    location = mockBrowserLocation({ pathname: '/test' });
-    equal((0, _util.getPath)(location), '/test', 'When a leading slash is already there, it isn\'t added again');
-  });
+    _class.prototype['@test getFullPath() should return full pathname including query and hash'] = function testGetFullPathShouldReturnFullPathnameIncludingQueryAndHash(assert) {
+      var location = mockBrowserLocation({
+        href: 'http://test.com/about?foo=bar#foo',
+        pathname: '/about',
+        search: '?foo=bar',
+        hash: '#foo'
+      }, assert);
 
-  QUnit.test('getQuery() should return location.search as-is', function () {
-    expect(1);
+      assert.equal((0, _util.getFullPath)(location), '/about?foo=bar#foo');
+    };
 
-    var location = mockBrowserLocation({ search: '?foo=bar' });
-    equal((0, _util.getQuery)(location), '?foo=bar');
-  });
+    _class.prototype['@test Feature-Detecting onhashchange'] = function testFeatureDetectingOnhashchange(assert) {
+      assert.equal((0, _util.supportsHashChange)(undefined, {
+        onhashchange: function () {}
+      }), true, 'When not in IE, use onhashchange existence as evidence of the feature');
+      assert.equal((0, _util.supportsHashChange)(undefined, {}), false, 'When not in IE, use onhashchange absence as evidence of the feature absence');
+      assert.equal((0, _util.supportsHashChange)(7, {
+        onhashchange: function () {}
+      }), false, 'When in IE7 compatibility mode, never report existence of the feature');
+      assert.equal((0, _util.supportsHashChange)(8, {
+        onhashchange: function () {}
+      }), true, 'When in IE8+, use onhashchange existence as evidence of the feature');
+    };
 
-  QUnit.test('getFullPath() should return full pathname including query and hash', function () {
-    expect(1);
+    _class.prototype['@test Feature-detecting the history API'] = function testFeatureDetectingTheHistoryAPI(assert) {
+      assert.equal((0, _util.supportsHistory)("", { pushState: true }), true, "returns true if not Android Gingerbread and history.pushState exists");
+      assert.equal((0, _util.supportsHistory)("", {}), false, "returns false if history.pushState doesn't exist");
+      assert.equal((0, _util.supportsHistory)("", undefined), false, "returns false if history doesn't exist");
 
-    var location = mockBrowserLocation({
-      href: 'http://test.com/about?foo=bar#foo',
-      pathname: '/about',
-      search: '?foo=bar',
-      hash: '#foo'
-    });
+      assert.equal((0, _util.supportsHistory)("Mozilla/5.0 (Linux; U; Android 2.3.5; en-us; HTC Vision Build/GRI40) AppleWebKit/533.1 (KHTML, like Gecko) Version/4.0 Mobile Safari/533.1", { pushState: true }), false, "returns false if Android 2.x stock browser (not Chrome) claiming to support pushState");
 
-    equal((0, _util.getFullPath)(location), '/about?foo=bar#foo');
-  });
+      assert.equal((0, _util.supportsHistory)("Mozilla/5.0 (Linux; U; Android 4.0.3; nl-nl; GT-N7000 Build/IML74K) AppleWebKit/534.30 (KHTML, like Gecko) Version/4.0 Mobile Safari/534.30", { pushState: true }), false, "returns false for Android 4.0.x stock browser (not Chrome) claiming to support pushState");
 
-  QUnit.test('Feature-Detecting onhashchange', function () {
-    equal((0, _util.supportsHashChange)(undefined, {
-      onhashchange: function () {}
-    }), true, 'When not in IE, use onhashchange existence as evidence of the feature');
-    equal((0, _util.supportsHashChange)(undefined, {}), false, 'When not in IE, use onhashchange absence as evidence of the feature absence');
-    equal((0, _util.supportsHashChange)(7, {
-      onhashchange: function () {}
-    }), false, 'When in IE7 compatibility mode, never report existence of the feature');
-    equal((0, _util.supportsHashChange)(8, {
-      onhashchange: function () {}
-    }), true, 'When in IE8+, use onhashchange existence as evidence of the feature');
-  });
+      assert.equal((0, _util.supportsHistory)("Mozilla/5.0 (Linux; U; Android 20.3.5; en-us; HTC Vision Build/GRI40) AppleWebKit/533.1 (KHTML, like Gecko) Version/4.0 Mobile Safari/533.1", { pushState: true }), true, "returns true if Android version begins with 2, but is greater than 2");
 
-  QUnit.test("Feature-detecting the history API", function () {
-    equal((0, _util.supportsHistory)("", { pushState: true }), true, "returns true if not Android Gingerbread and history.pushState exists");
-    equal((0, _util.supportsHistory)("", {}), false, "returns false if history.pushState doesn't exist");
-    equal((0, _util.supportsHistory)("", undefined), false, "returns false if history doesn't exist");
+      assert.equal((0, _util.supportsHistory)("Mozilla/5.0 (Linux; Android 4.0.4; Galaxy Nexus Build/IMM76B) AppleWebKit/535.19 (KHTML, like Gecko) Chrome/18.0.1025.133 Mobile Safari/535.19", { pushState: true }), true, "returns true for Chrome (not stock browser) on Android 4.0.x");
 
-    equal((0, _util.supportsHistory)("Mozilla/5.0 (Linux; U; Android 2.3.5; en-us; HTC Vision Build/GRI40) AppleWebKit/533.1 (KHTML, like Gecko) Version/4.0 Mobile Safari/533.1", { pushState: true }), false, "returns false if Android 2.x stock browser (not Chrome) claiming to support pushState");
+      // Windows Phone UA and History API: https://github.com/Modernizr/Modernizr/issues/1471
+      assert.equal((0, _util.supportsHistory)("Mozilla/5.0 (Mobile; Windows Phone 8.1; Android 4.0; ARM; Trident/7.0; Touch; rv:11.0; IEMobile/11.0; Microsoft; Virtual) like iPhone OS 7_0_3 Mac OS X AppleWebKit/537 (KHTML, like Gecko) Mobile Safari/537", { pushState: true }), true, "returns true for Windows Phone 8.1 with misleading user agent string");
+    };
 
-    equal((0, _util.supportsHistory)("Mozilla/5.0 (Linux; U; Android 4.0.3; nl-nl; GT-N7000 Build/IML74K) AppleWebKit/534.30 (KHTML, like Gecko) Version/4.0 Mobile Safari/534.30", { pushState: true }), false, "returns false for Android 4.0.x stock browser (not Chrome) claiming to support pushState");
-
-    equal((0, _util.supportsHistory)("Mozilla/5.0 (Linux; U; Android 20.3.5; en-us; HTC Vision Build/GRI40) AppleWebKit/533.1 (KHTML, like Gecko) Version/4.0 Mobile Safari/533.1", { pushState: true }), true, "returns true if Android version begins with 2, but is greater than 2");
-
-    equal((0, _util.supportsHistory)("Mozilla/5.0 (Linux; Android 4.0.4; Galaxy Nexus Build/IMM76B) AppleWebKit/535.19 (KHTML, like Gecko) Chrome/18.0.1025.133 Mobile Safari/535.19", { pushState: true }), true, "returns true for Chrome (not stock browser) on Android 4.0.x");
-
-    // Windows Phone UA and History API: https://github.com/Modernizr/Modernizr/issues/1471
-    equal((0, _util.supportsHistory)("Mozilla/5.0 (Mobile; Windows Phone 8.1; Android 4.0; ARM; Trident/7.0; Touch; rv:11.0; IEMobile/11.0; Microsoft; Virtual) like iPhone OS 7_0_3 Mac OS X AppleWebKit/537 (KHTML, like Gecko) Mobile Safari/537", { pushState: true }), true, "returns true for Windows Phone 8.1 with misleading user agent string");
-  });
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
 });
 QUnit.module('ESLint | ember-routing/tests/location/util_test.js');
 QUnit.test('should pass ESLint', function(assert) {
@@ -48315,55 +48301,64 @@ QUnit.test('should pass ESLint', function(assert) {
   assert.ok(true, 'ember-routing/tests/location/util_test.js should pass ESLint\n\n');
 });
 
-enifed('ember-routing/tests/system/cache_test', ['ember-routing/system/cache'], function (_cache) {
+enifed('ember-routing/tests/system/cache_test', ['ember-babel', 'ember-routing/system/cache', 'internal-test-helpers'], function (_emberBabel, _cache, _internalTestHelpers) {
   'use strict';
 
-  QUnit.module('BucketCache', {
-    setup: function () {
-      this.cache = _cache.default.create();
+  (0, _internalTestHelpers.moduleFor)('BucketCache', function (_AbstractTestCase) {
+    (0, _emberBabel.inherits)(_class, _AbstractTestCase);
+
+    function _class() {
+      (0, _emberBabel.classCallCheck)(this, _class);
+
+      var _this = (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase.call(this));
+
+      _this.cache = _cache.default.create();
+      return _this;
     }
-  });
 
-  QUnit.test('has - returns false when bucket is not in cache', function (assert) {
-    assert.strictEqual(this.cache.has('foo'), false);
-    assert.strictEqual(this.cache.has('constructor'), false);
-  });
+    _class.prototype['@test has - returns false when bucket is not in cache'] = function testHasReturnsFalseWhenBucketIsNotInCache(assert) {
+      assert.strictEqual(this.cache.has('foo'), false);
+      assert.strictEqual(this.cache.has('constructor'), false);
+    };
 
-  QUnit.test('has - returns true when bucket is in cache', function (assert) {
-    var token = {};
+    _class.prototype['@test has - returns true when bucket is in cache'] = function testHasReturnsTrueWhenBucketIsInCache(assert) {
+      var token = {};
 
-    this.cache.stash('foo', 'bar', token);
-    this.cache.stash('constructor', 'bar', token);
+      this.cache.stash('foo', 'bar', token);
+      this.cache.stash('constructor', 'bar', token);
 
-    assert.strictEqual(this.cache.has('foo'), true);
-    assert.strictEqual(this.cache.has('constructor'), true);
-  });
+      assert.strictEqual(this.cache.has('foo'), true);
+      assert.strictEqual(this.cache.has('constructor'), true);
+    };
 
-  QUnit.test('lookup - returns stashed value if key does exist in bucket', function (assert) {
-    var token = {};
-    var defaultValue = {};
+    _class.prototype['@test lookup - returns stashed value if key does exist in bucket'] = function testLookupReturnsStashedValueIfKeyDoesExistInBucket(assert) {
+      var token = {};
+      var defaultValue = {};
 
-    this.cache.stash('foo', 'bar', token);
+      this.cache.stash('foo', 'bar', token);
 
-    assert.strictEqual(this.cache.lookup('foo', 'bar', defaultValue), token);
-  });
+      assert.strictEqual(this.cache.lookup('foo', 'bar', defaultValue), token);
+    };
 
-  QUnit.test('lookup - returns default value if key does not exist in bucket', function (assert) {
-    var token = {};
-    var defaultValue = {};
+    _class.prototype['@test lookup - returns default value if key does not exist in bucket'] = function testLookupReturnsDefaultValueIfKeyDoesNotExistInBucket(assert) {
+      var token = {};
+      var defaultValue = {};
 
-    this.cache.stash('foo', 'bar', token);
+      this.cache.stash('foo', 'bar', token);
 
-    assert.strictEqual(this.cache.lookup('foo', 'boo', defaultValue), defaultValue);
-    assert.strictEqual(this.cache.lookup('foo', 'constructor', defaultValue), defaultValue);
-  });
+      assert.strictEqual(this.cache.lookup('foo', 'boo', defaultValue), defaultValue);
+      assert.strictEqual(this.cache.lookup('foo', 'constructor', defaultValue), defaultValue);
+    };
 
-  QUnit.test('lookup - returns default value if bucket does not exist', function (assert) {
-    var defaultValue = {};
+    _class.prototype['@test lookup - returns default value if bucket does not exist'] = function testLookupReturnsDefaultValueIfBucketDoesNotExist(assert) {
+      var defaultValue = {};
 
-    assert.strictEqual(this.cache.lookup('boo', 'bar', defaultValue), defaultValue);
-    assert.strictEqual(this.cache.lookup('constructor', 'bar', defaultValue), defaultValue);
-  });
+      assert.strictEqual(this.cache.lookup('boo', 'bar', defaultValue), defaultValue);
+      assert.strictEqual(this.cache.lookup('constructor', 'bar', defaultValue), defaultValue);
+    };
+
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
 });
 QUnit.module('ESLint | ember-routing/tests/system/cache_test.js');
 QUnit.test('should pass ESLint', function(assert) {
@@ -48449,334 +48444,354 @@ QUnit.test('should pass ESLint', function(assert) {
   assert.ok(true, 'ember-routing/tests/system/controller_for_test.js should pass ESLint\n\n');
 });
 
-enifed('ember-routing/tests/system/dsl_test', ['ember-utils', 'ember-routing/system/router', 'internal-test-helpers'], function (_emberUtils, _router, _internalTestHelpers) {
+enifed('ember-routing/tests/system/dsl_test', ['ember-babel', 'ember-utils', 'ember-routing/system/router', 'internal-test-helpers'], function (_emberBabel, _emberUtils, _router, _internalTestHelpers) {
   'use strict';
 
   var Router = void 0;
 
-  function setup() {
-    Router = _router.default.extend();
-  }
+  (0, _internalTestHelpers.moduleFor)('Ember Router DSL', function (_AbstractTestCase) {
+    (0, _emberBabel.inherits)(_class, _AbstractTestCase);
 
-  function teardown() {
-    Router = null;
-  }
+    function _class() {
+      (0, _emberBabel.classCallCheck)(this, _class);
 
-  QUnit.module('Ember Router DSL', {
-    setup: setup,
-    teardown: teardown
-  });
+      var _this = (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase.call(this));
 
-  QUnit.test('should fail when using a reserved route name', function () {
-    expectDeprecation('this.resource() is deprecated. Use this.route(\'name\', { resetNamespace: true }, function () {}) instead.');
-    var reservedNames = ['array', 'basic', 'object', 'application'];
+      Router = _router.default.extend();
+      return _this;
+    }
 
-    expect(reservedNames.length * 2 + 1);
+    _class.prototype.teardown = function teardown() {
+      Router = null;
+    };
 
-    reservedNames.forEach(function (reservedName) {
-      expectAssertion(function () {
-        Router = _router.default.extend();
+    _class.prototype['@test should fail when using a reserved route name'] = function testShouldFailWhenUsingAReservedRouteName(assert) {
+      expectDeprecation('this.resource() is deprecated. Use this.route(\'name\', { resetNamespace: true }, function () {}) instead.');
+      var reservedNames = ['array', 'basic', 'object', 'application'];
 
-        Router.map(function () {
-          this.route(reservedName);
-        });
+      assert.expect(reservedNames.length * 2 + 1);
 
-        var router = Router.create();
-        router._initRouterJs();
-      }, '\'' + reservedName + '\' cannot be used as a route name.');
+      reservedNames.forEach(function (reservedName) {
+        expectAssertion(function () {
+          Router = _router.default.extend();
 
-      expectAssertion(function () {
-        Router = _router.default.extend();
+          Router.map(function () {
+            this.route(reservedName);
+          });
 
-        Router.map(function () {
-          this.resource(reservedName);
-        });
+          var router = Router.create();
+          router._initRouterJs();
+        }, '\'' + reservedName + '\' cannot be used as a route name.');
 
-        var router = Router.create();
-        router._initRouterJs();
-      }, '\'' + reservedName + '\' cannot be used as a route name.');
-    });
-  });
+        expectAssertion(function () {
+          Router = _router.default.extend();
 
-  QUnit.test('should reset namespace if nested with resource', function () {
-    expectDeprecation('this.resource() is deprecated. Use this.route(\'name\', { resetNamespace: true }, function () {}) instead.');
+          Router.map(function () {
+            this.resource(reservedName);
+          });
 
-    Router = Router.map(function () {
-      this.resource('bleep', function () {
-        this.resource('bloop', function () {
-          this.resource('blork');
+          var router = Router.create();
+          router._initRouterJs();
+        }, '\'' + reservedName + '\' cannot be used as a route name.');
+      });
+    };
+
+    _class.prototype['@test should reset namespace if nested with resource'] = function testShouldResetNamespaceIfNestedWithResource(assert) {
+      expectDeprecation('this.resource() is deprecated. Use this.route(\'name\', { resetNamespace: true }, function () {}) instead.');
+
+      Router = Router.map(function () {
+        this.resource('bleep', function () {
+          this.resource('bloop', function () {
+            this.resource('blork');
+          });
         });
       });
-    });
 
-    var router = Router.create();
-    router._initRouterJs();
+      var router = Router.create();
+      router._initRouterJs();
 
-    ok(router._routerMicrolib.recognizer.names['bleep'], 'nested resources do not contain parent name');
-    ok(router._routerMicrolib.recognizer.names['bloop'], 'nested resources do not contain parent name');
-    ok(router._routerMicrolib.recognizer.names['blork'], 'nested resources do not contain parent name');
-  });
+      assert.ok(router._routerMicrolib.recognizer.names['bleep'], 'nested resources do not contain parent name');
+      assert.ok(router._routerMicrolib.recognizer.names['bloop'], 'nested resources do not contain parent name');
+      assert.ok(router._routerMicrolib.recognizer.names['blork'], 'nested resources do not contain parent name');
+    };
 
-  QUnit.test('should retain resource namespace if nested with routes', function () {
-    Router = Router.map(function () {
-      this.route('bleep', function () {
-        this.route('bloop', function () {
-          this.route('blork');
+    _class.prototype['@test should retain resource namespace if nested with routes'] = function testShouldRetainResourceNamespaceIfNestedWithRoutes(assert) {
+      Router = Router.map(function () {
+        this.route('bleep', function () {
+          this.route('bloop', function () {
+            this.route('blork');
+          });
         });
       });
-    });
 
-    var router = Router.create();
-    router._initRouterJs();
+      var router = Router.create();
+      router._initRouterJs();
 
-    ok(router._routerMicrolib.recognizer.names['bleep'], 'parent name was used as base of nested routes');
-    ok(router._routerMicrolib.recognizer.names['bleep.bloop'], 'parent name was used as base of nested routes');
-    ok(router._routerMicrolib.recognizer.names['bleep.bloop.blork'], 'parent name was used as base of nested routes');
-  });
+      assert.ok(router._routerMicrolib.recognizer.names['bleep'], 'parent name was used as base of nested routes');
+      assert.ok(router._routerMicrolib.recognizer.names['bleep.bloop'], 'parent name was used as base of nested routes');
+      assert.ok(router._routerMicrolib.recognizer.names['bleep.bloop.blork'], 'parent name was used as base of nested routes');
+    };
 
-  QUnit.test('should add loading and error routes if _isRouterMapResult is true', function () {
-    Router.map(function () {
-      this.route('blork');
-    });
-
-    var router = Router.create({
-      _hasModuleBasedResolver: function () {
-        return true;
-      }
-    });
-
-    router._initRouterJs();
-
-    ok(router._routerMicrolib.recognizer.names['blork'], 'main route was created');
-    ok(router._routerMicrolib.recognizer.names['blork_loading'], 'loading route was added');
-    ok(router._routerMicrolib.recognizer.names['blork_error'], 'error route was added');
-  });
-
-  QUnit.test('should not add loading and error routes if _isRouterMapResult is false', function () {
-    Router.map(function () {
-      this.route('blork');
-    });
-
-    var router = Router.create();
-    router._initRouterJs(false);
-
-    ok(router._routerMicrolib.recognizer.names['blork'], 'main route was created');
-    ok(!router._routerMicrolib.recognizer.names['blork_loading'], 'loading route was not added');
-    ok(!router._routerMicrolib.recognizer.names['blork_error'], 'error route was not added');
-  });
-
-  QUnit.test('should reset namespace of loading and error routes for routes with resetNamespace', function () {
-    Router.map(function () {
-      this.route('blork', function () {
-        this.route('blorp');
-        this.route('bleep', { resetNamespace: true });
+    _class.prototype['@test should add loading and error routes if _isRouterMapResult is true'] = function testShouldAddLoadingAndErrorRoutesIf_isRouterMapResultIsTrue(assert) {
+      Router.map(function () {
+        this.route('blork');
       });
-    });
 
-    var router = Router.create({
-      _hasModuleBasedResolver: function () {
-        return true;
-      }
-    });
+      var router = Router.create({
+        _hasModuleBasedResolver: function () {
+          return true;
+        }
+      });
 
-    router._initRouterJs();
+      router._initRouterJs();
 
-    ok(router._routerMicrolib.recognizer.names['blork.blorp'], 'nested route was created');
-    ok(router._routerMicrolib.recognizer.names['blork.blorp_loading'], 'nested loading route was added');
-    ok(router._routerMicrolib.recognizer.names['blork.blorp_error'], 'nested error route was added');
+      assert.ok(router._routerMicrolib.recognizer.names['blork'], 'main route was created');
+      assert.ok(router._routerMicrolib.recognizer.names['blork_loading'], 'loading route was added');
+      assert.ok(router._routerMicrolib.recognizer.names['blork_error'], 'error route was added');
+    };
 
-    ok(router._routerMicrolib.recognizer.names['bleep'], 'reset route was created');
-    ok(router._routerMicrolib.recognizer.names['bleep_loading'], 'reset loading route was added');
-    ok(router._routerMicrolib.recognizer.names['bleep_error'], 'reset error route was added');
+    _class.prototype['@test should not add loading and error routes if _isRouterMapResult is false'] = function testShouldNotAddLoadingAndErrorRoutesIf_isRouterMapResultIsFalse(assert) {
+      Router.map(function () {
+        this.route('blork');
+      });
 
-    ok(!router._routerMicrolib.recognizer.names['blork.bleep'], 'nested reset route was not created');
-    ok(!router._routerMicrolib.recognizer.names['blork.bleep_loading'], 'nested reset loading route was not added');
-    ok(!router._routerMicrolib.recognizer.names['blork.bleep_error'], 'nested reset error route was not added');
-  });
+      var router = Router.create();
+      router._initRouterJs(false);
 
-  QUnit.test('should throw an error when defining a route serializer outside an engine', function () {
-    Router.map(function () {
-      var _this = this;
+      assert.ok(router._routerMicrolib.recognizer.names['blork'], 'main route was created');
+      assert.ok(!router._routerMicrolib.recognizer.names['blork_loading'], 'loading route was not added');
+      assert.ok(!router._routerMicrolib.recognizer.names['blork_error'], 'error route was not added');
+    };
 
-      throws(function () {
-        _this.route('posts', { serialize: function () {} });
-      }, /Defining a route serializer on route 'posts' outside an Engine is not allowed/);
-    });
-
-    Router.create()._initRouterJs();
-  });
-
-  QUnit.module('Ember Router DSL with engines', {
-    setup: setup,
-    teardown: teardown
-  });
-
-  QUnit.test('should allow mounting of engines', function (assert) {
-    assert.expect(3);
-
-    Router = Router.map(function () {
-      this.route('bleep', function () {
-        this.route('bloop', function () {
-          this.mount('chat');
+    _class.prototype['@test should reset namespace of loading and error routes for routes with resetNamespace'] = function testShouldResetNamespaceOfLoadingAndErrorRoutesForRoutesWithResetNamespace(assert) {
+      Router.map(function () {
+        this.route('blork', function () {
+          this.route('blorp');
+          this.route('bleep', { resetNamespace: true });
         });
       });
-    });
 
-    var engineInstance = (0, _internalTestHelpers.buildOwner)({
-      ownerOptions: { routable: true }
-    });
+      var router = Router.create({
+        _hasModuleBasedResolver: function () {
+          return true;
+        }
+      });
 
-    var router = Router.create();
-    (0, _emberUtils.setOwner)(router, engineInstance);
-    router._initRouterJs();
+      router._initRouterJs();
 
-    assert.ok(router._routerMicrolib.recognizer.names['bleep'], 'parent name was used as base of nested routes');
-    assert.ok(router._routerMicrolib.recognizer.names['bleep.bloop'], 'parent name was used as base of nested routes');
-    assert.ok(router._routerMicrolib.recognizer.names['bleep.bloop.chat'], 'parent name was used as base of mounted engine');
-  });
+      assert.ok(router._routerMicrolib.recognizer.names['blork.blorp'], 'nested route was created');
+      assert.ok(router._routerMicrolib.recognizer.names['blork.blorp_loading'], 'nested loading route was added');
+      assert.ok(router._routerMicrolib.recognizer.names['blork.blorp_error'], 'nested error route was added');
 
-  QUnit.test('should allow mounting of engines at a custom path', function (assert) {
-    assert.expect(1);
+      assert.ok(router._routerMicrolib.recognizer.names['bleep'], 'reset route was created');
+      assert.ok(router._routerMicrolib.recognizer.names['bleep_loading'], 'reset loading route was added');
+      assert.ok(router._routerMicrolib.recognizer.names['bleep_error'], 'reset error route was added');
 
-    Router = Router.map(function () {
-      this.route('bleep', function () {
-        this.route('bloop', function () {
-          this.mount('chat', { path: 'custom-chat' });
+      assert.ok(!router._routerMicrolib.recognizer.names['blork.bleep'], 'nested reset route was not created');
+      assert.ok(!router._routerMicrolib.recognizer.names['blork.bleep_loading'], 'nested reset loading route was not added');
+      assert.ok(!router._routerMicrolib.recognizer.names['blork.bleep_error'], 'nested reset error route was not added');
+    };
+
+    _class.prototype['@test should throw an error when defining a route serializer outside an engine'] = function testShouldThrowAnErrorWhenDefiningARouteSerializerOutsideAnEngine(assert) {
+      Router.map(function () {
+        var _this2 = this;
+
+        assert.throws(function () {
+          _this2.route('posts', { serialize: function () {} });
+        }, /Defining a route serializer on route 'posts' outside an Engine is not allowed/);
+      });
+
+      Router.create()._initRouterJs();
+    };
+
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
+
+  (0, _internalTestHelpers.moduleFor)('Ember Router DSL with engines', function (_AbstractTestCase2) {
+    (0, _emberBabel.inherits)(_class2, _AbstractTestCase2);
+
+    function _class2() {
+      (0, _emberBabel.classCallCheck)(this, _class2);
+
+      var _this3 = (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase2.call(this));
+
+      Router = _router.default.extend();
+      return _this3;
+    }
+
+    _class2.prototype.teardown = function teardown() {
+      Router = null;
+    };
+
+    _class2.prototype['@test should allow mounting of engines'] = function testShouldAllowMountingOfEngines(assert) {
+      assert.expect(3);
+
+      Router = Router.map(function () {
+        this.route('bleep', function () {
+          this.route('bloop', function () {
+            this.mount('chat');
+          });
         });
       });
-    });
 
-    var engineInstance = (0, _internalTestHelpers.buildOwner)({
-      ownerOptions: { routable: true }
-    });
+      var engineInstance = (0, _internalTestHelpers.buildOwner)({
+        ownerOptions: { routable: true }
+      });
 
-    var router = Router.create();
-    (0, _emberUtils.setOwner)(router, engineInstance);
-    router._initRouterJs();
+      var router = Router.create();
+      (0, _emberUtils.setOwner)(router, engineInstance);
+      router._initRouterJs();
 
-    assert.deepEqual(router._routerMicrolib.recognizer.names['bleep.bloop.chat'].segments.slice(1, 4).map(function (s) {
-      return s.value;
-    }), ['bleep', 'bloop', 'custom-chat'], 'segments are properly associated with mounted engine');
-  });
+      assert.ok(router._routerMicrolib.recognizer.names['bleep'], 'parent name was used as base of nested routes');
+      assert.ok(router._routerMicrolib.recognizer.names['bleep.bloop'], 'parent name was used as base of nested routes');
+      assert.ok(router._routerMicrolib.recognizer.names['bleep.bloop.chat'], 'parent name was used as base of mounted engine');
+    };
 
-  QUnit.test('should allow aliasing of engine names with `as`', function (assert) {
-    assert.expect(1);
+    _class2.prototype['@test should allow mounting of engines at a custom path'] = function testShouldAllowMountingOfEnginesAtACustomPath(assert) {
+      assert.expect(1);
 
-    Router = Router.map(function () {
-      this.route('bleep', function () {
-        this.route('bloop', function () {
-          this.mount('chat', { as: 'blork' });
+      Router = Router.map(function () {
+        this.route('bleep', function () {
+          this.route('bloop', function () {
+            this.mount('chat', { path: 'custom-chat' });
+          });
         });
       });
-    });
 
-    var engineInstance = (0, _internalTestHelpers.buildOwner)({
-      ownerOptions: { routable: true }
-    });
+      var engineInstance = (0, _internalTestHelpers.buildOwner)({
+        ownerOptions: { routable: true }
+      });
 
-    var router = Router.create();
-    (0, _emberUtils.setOwner)(router, engineInstance);
-    router._initRouterJs();
+      var router = Router.create();
+      (0, _emberUtils.setOwner)(router, engineInstance);
+      router._initRouterJs();
 
-    assert.deepEqual(router._routerMicrolib.recognizer.names['bleep.bloop.blork'].segments.slice(1, 4).map(function (s) {
-      return s.value;
-    }), ['bleep', 'bloop', 'blork'], 'segments are properly associated with mounted engine with aliased name');
-  });
+      assert.deepEqual(router._routerMicrolib.recognizer.names['bleep.bloop.chat'].segments.slice(1, 4).map(function (s) {
+        return s.value;
+      }), ['bleep', 'bloop', 'custom-chat'], 'segments are properly associated with mounted engine');
+    };
 
-  QUnit.test('should add loading and error routes to a mount if _isRouterMapResult is true', function () {
-    Router.map(function () {
-      this.mount('chat');
-    });
+    _class2.prototype['@test should allow aliasing of engine names with `as`'] = function testShouldAllowAliasingOfEngineNamesWithAs(assert) {
+      assert.expect(1);
 
-    var engineInstance = (0, _internalTestHelpers.buildOwner)({
-      ownerOptions: { routable: true }
-    });
+      Router = Router.map(function () {
+        this.route('bleep', function () {
+          this.route('bloop', function () {
+            this.mount('chat', { as: 'blork' });
+          });
+        });
+      });
 
-    var router = Router.create({
-      _hasModuleBasedResolver: function () {
-        return true;
-      }
-    });
-    (0, _emberUtils.setOwner)(router, engineInstance);
-    router._initRouterJs();
+      var engineInstance = (0, _internalTestHelpers.buildOwner)({
+        ownerOptions: { routable: true }
+      });
 
-    ok(router._routerMicrolib.recognizer.names['chat'], 'main route was created');
-    ok(router._routerMicrolib.recognizer.names['chat_loading'], 'loading route was added');
-    ok(router._routerMicrolib.recognizer.names['chat_error'], 'error route was added');
-  });
+      var router = Router.create();
+      (0, _emberUtils.setOwner)(router, engineInstance);
+      router._initRouterJs();
 
-  QUnit.test('should add loading and error routes to a mount alias if _isRouterMapResult is true', function () {
-    Router.map(function () {
-      this.mount('chat', { as: 'shoutbox' });
-    });
+      assert.deepEqual(router._routerMicrolib.recognizer.names['bleep.bloop.blork'].segments.slice(1, 4).map(function (s) {
+        return s.value;
+      }), ['bleep', 'bloop', 'blork'], 'segments are properly associated with mounted engine with aliased name');
+    };
 
-    var engineInstance = (0, _internalTestHelpers.buildOwner)({
-      ownerOptions: { routable: true }
-    });
-
-    var router = Router.create({
-      _hasModuleBasedResolver: function () {
-        return true;
-      }
-    });
-    (0, _emberUtils.setOwner)(router, engineInstance);
-    router._initRouterJs();
-
-    ok(router._routerMicrolib.recognizer.names['shoutbox'], 'main route was created');
-    ok(router._routerMicrolib.recognizer.names['shoutbox_loading'], 'loading route was added');
-    ok(router._routerMicrolib.recognizer.names['shoutbox_error'], 'error route was added');
-  });
-
-  QUnit.test('should not add loading and error routes to a mount if _isRouterMapResult is false', function () {
-    Router.map(function () {
-      this.mount('chat');
-    });
-
-    var engineInstance = (0, _internalTestHelpers.buildOwner)({
-      ownerOptions: { routable: true }
-    });
-
-    var router = Router.create();
-    (0, _emberUtils.setOwner)(router, engineInstance);
-    router._initRouterJs(false);
-
-    ok(router._routerMicrolib.recognizer.names['chat'], 'main route was created');
-    ok(!router._routerMicrolib.recognizer.names['chat_loading'], 'loading route was not added');
-    ok(!router._routerMicrolib.recognizer.names['chat_error'], 'error route was not added');
-  });
-
-  QUnit.test('should reset namespace of loading and error routes for mounts with resetNamespace', function () {
-    Router.map(function () {
-      this.route('news', function () {
+    _class2.prototype['@test should add loading and error routes to a mount if _isRouterMapResult is true'] = function testShouldAddLoadingAndErrorRoutesToAMountIf_isRouterMapResultIsTrue(assert) {
+      Router.map(function () {
         this.mount('chat');
-        this.mount('blog', { resetNamespace: true });
       });
-    });
 
-    var engineInstance = (0, _internalTestHelpers.buildOwner)({
-      ownerOptions: { routable: true }
-    });
+      var engineInstance = (0, _internalTestHelpers.buildOwner)({
+        ownerOptions: { routable: true }
+      });
 
-    var router = Router.create({
-      _hasModuleBasedResolver: function () {
-        return true;
-      }
-    });
-    (0, _emberUtils.setOwner)(router, engineInstance);
-    router._initRouterJs();
+      var router = Router.create({
+        _hasModuleBasedResolver: function () {
+          return true;
+        }
+      });
+      (0, _emberUtils.setOwner)(router, engineInstance);
+      router._initRouterJs();
 
-    ok(router._routerMicrolib.recognizer.names['news.chat'], 'nested route was created');
-    ok(router._routerMicrolib.recognizer.names['news.chat_loading'], 'nested loading route was added');
-    ok(router._routerMicrolib.recognizer.names['news.chat_error'], 'nested error route was added');
+      assert.ok(router._routerMicrolib.recognizer.names['chat'], 'main route was created');
+      assert.ok(router._routerMicrolib.recognizer.names['chat_loading'], 'loading route was added');
+      assert.ok(router._routerMicrolib.recognizer.names['chat_error'], 'error route was added');
+    };
 
-    ok(router._routerMicrolib.recognizer.names['blog'], 'reset route was created');
-    ok(router._routerMicrolib.recognizer.names['blog_loading'], 'reset loading route was added');
-    ok(router._routerMicrolib.recognizer.names['blog_error'], 'reset error route was added');
+    _class2.prototype['@test should add loading and error routes to a mount alias if _isRouterMapResult is true'] = function testShouldAddLoadingAndErrorRoutesToAMountAliasIf_isRouterMapResultIsTrue(assert) {
+      Router.map(function () {
+        this.mount('chat', { as: 'shoutbox' });
+      });
 
-    ok(!router._routerMicrolib.recognizer.names['news.blog'], 'nested reset route was not created');
-    ok(!router._routerMicrolib.recognizer.names['news.blog_loading'], 'nested reset loading route was not added');
-    ok(!router._routerMicrolib.recognizer.names['news.blog_error'], 'nested reset error route was not added');
-  });
+      var engineInstance = (0, _internalTestHelpers.buildOwner)({
+        ownerOptions: { routable: true }
+      });
+
+      var router = Router.create({
+        _hasModuleBasedResolver: function () {
+          return true;
+        }
+      });
+      (0, _emberUtils.setOwner)(router, engineInstance);
+      router._initRouterJs();
+
+      assert.ok(router._routerMicrolib.recognizer.names['shoutbox'], 'main route was created');
+      assert.ok(router._routerMicrolib.recognizer.names['shoutbox_loading'], 'loading route was added');
+      assert.ok(router._routerMicrolib.recognizer.names['shoutbox_error'], 'error route was added');
+    };
+
+    _class2.prototype['@test should not add loading and error routes to a mount if _isRouterMapResult is false'] = function testShouldNotAddLoadingAndErrorRoutesToAMountIf_isRouterMapResultIsFalse(assert) {
+      Router.map(function () {
+        this.mount('chat');
+      });
+
+      var engineInstance = (0, _internalTestHelpers.buildOwner)({
+        ownerOptions: { routable: true }
+      });
+
+      var router = Router.create();
+      (0, _emberUtils.setOwner)(router, engineInstance);
+      router._initRouterJs(false);
+
+      assert.ok(router._routerMicrolib.recognizer.names['chat'], 'main route was created');
+      assert.ok(!router._routerMicrolib.recognizer.names['chat_loading'], 'loading route was not added');
+      assert.ok(!router._routerMicrolib.recognizer.names['chat_error'], 'error route was not added');
+    };
+
+    _class2.prototype['@test should reset namespace of loading and error routes for mounts with resetNamespace'] = function testShouldResetNamespaceOfLoadingAndErrorRoutesForMountsWithResetNamespace(assert) {
+      Router.map(function () {
+        this.route('news', function () {
+          this.mount('chat');
+          this.mount('blog', { resetNamespace: true });
+        });
+      });
+
+      var engineInstance = (0, _internalTestHelpers.buildOwner)({
+        ownerOptions: { routable: true }
+      });
+
+      var router = Router.create({
+        _hasModuleBasedResolver: function () {
+          return true;
+        }
+      });
+      (0, _emberUtils.setOwner)(router, engineInstance);
+      router._initRouterJs();
+
+      assert.ok(router._routerMicrolib.recognizer.names['news.chat'], 'nested route was created');
+      assert.ok(router._routerMicrolib.recognizer.names['news.chat_loading'], 'nested loading route was added');
+      assert.ok(router._routerMicrolib.recognizer.names['news.chat_error'], 'nested error route was added');
+
+      assert.ok(router._routerMicrolib.recognizer.names['blog'], 'reset route was created');
+      assert.ok(router._routerMicrolib.recognizer.names['blog_loading'], 'reset loading route was added');
+      assert.ok(router._routerMicrolib.recognizer.names['blog_error'], 'reset error route was added');
+
+      assert.ok(!router._routerMicrolib.recognizer.names['news.blog'], 'nested reset route was not created');
+      assert.ok(!router._routerMicrolib.recognizer.names['news.blog_loading'], 'nested reset loading route was not added');
+      assert.ok(!router._routerMicrolib.recognizer.names['news.blog_error'], 'nested reset error route was not added');
+    };
+
+    return _class2;
+  }(_internalTestHelpers.AbstractTestCase));
 });
 QUnit.module('ESLint | ember-routing/tests/system/dsl_test.js');
 QUnit.test('should pass ESLint', function(assert) {
@@ -48784,7 +48799,7 @@ QUnit.test('should pass ESLint', function(assert) {
   assert.ok(true, 'ember-routing/tests/system/dsl_test.js should pass ESLint\n\n');
 });
 
-enifed('ember-routing/tests/system/route_test', ['ember-utils', 'internal-test-helpers', 'ember-runtime', 'ember-routing/system/route'], function (_emberUtils, _internalTestHelpers, _emberRuntime, _route) {
+enifed('ember-routing/tests/system/route_test', ['ember-babel', 'ember-utils', 'internal-test-helpers', 'ember-runtime', 'ember-routing/system/route'], function (_emberBabel, _emberUtils, _internalTestHelpers, _emberRuntime, _route) {
   'use strict';
 
   var route = void 0,
@@ -48792,227 +48807,247 @@ enifed('ember-routing/tests/system/route_test', ['ember-utils', 'internal-test-h
       routeTwo = void 0,
       lookupHash = void 0;
 
-  function setup() {
-    route = _route.default.create();
-  }
+  (0, _internalTestHelpers.moduleFor)('Ember.Route', function (_AbstractTestCase) {
+    (0, _emberBabel.inherits)(_class, _AbstractTestCase);
 
-  function teardown() {
-    (0, _internalTestHelpers.runDestroy)(route);
-  }
+    function _class() {
+      (0, _emberBabel.classCallCheck)(this, _class);
 
-  QUnit.module('Ember.Route', {
-    setup: setup,
-    teardown: teardown
-  });
+      var _this = (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase.call(this));
 
-  QUnit.test('default store utilizes the container to acquire the model factory', function () {
-    expect(4);
+      route = _route.default.create();
+      return _this;
+    }
 
-    var Post = _emberRuntime.Object.extend();
-    var post = {};
-
-    Post.reopenClass({
-      find: function () {
-        return post;
-      }
-    });
-
-    var ownerOptions = {
-      ownerOptions: {
-        hasRegistration: function () {
-          return true;
-        },
-        factoryFor: function (fullName) {
-          equal(fullName, 'model:post', 'correct factory was looked up');
-
-          return {
-            class: Post,
-            create: function () {
-              return Post.create();
-            }
-          };
-        }
-      }
+    _class.prototype.teardown = function teardown() {
+      (0, _internalTestHelpers.runDestroy)(route);
     };
 
-    (0, _emberUtils.setOwner)(route, (0, _internalTestHelpers.buildOwner)(ownerOptions));
+    _class.prototype['@test default store utilizes the container to acquire the model factory'] = function testDefaultStoreUtilizesTheContainerToAcquireTheModelFactory(assert) {
+      assert.expect(4);
 
-    route.set('_qp', null);
+      var Post = _emberRuntime.Object.extend();
+      var post = {};
 
-    equal(route.model({ post_id: 1 }), post);
-    equal(route.findModel('post', 1), post, '#findModel returns the correct post');
-  });
+      Post.reopenClass({
+        find: function () {
+          return post;
+        }
+      });
 
-  QUnit.test('\'store\' can be injected by data persistence frameworks', function () {
-    expect(8);
-    (0, _internalTestHelpers.runDestroy)(route);
+      var ownerOptions = {
+        ownerOptions: {
+          hasRegistration: function () {
+            return true;
+          },
+          factoryFor: function (fullName) {
+            assert.equal(fullName, 'model:post', 'correct factory was looked up');
 
-    var owner = (0, _internalTestHelpers.buildOwner)();
+            return {
+              class: Post,
+              create: function () {
+                return Post.create();
+              }
+            };
+          }
+        }
+      };
 
-    var post = {
-      id: 1
+      (0, _emberUtils.setOwner)(route, (0, _internalTestHelpers.buildOwner)(ownerOptions));
+
+      route.set('_qp', null);
+
+      assert.equal(route.model({ post_id: 1 }), post);
+      assert.equal(route.findModel('post', 1), post, '#findModel returns the correct post');
     };
 
-    var Store = _emberRuntime.Object.extend({
-      find: function (type, value) {
-        ok(true, 'injected model was called');
-        equal(type, 'post', 'correct type was called');
-        equal(value, 1, 'correct value was called');
-        return post;
-      }
-    });
+    _class.prototype['@test \'store\' can be injected by data persistence frameworks'] = function testStoreCanBeInjectedByDataPersistenceFrameworks(assert) {
+      assert.expect(8);
+      (0, _internalTestHelpers.runDestroy)(route);
 
-    owner.register('route:index', _route.default);
-    owner.register('store:main', Store);
+      var owner = (0, _internalTestHelpers.buildOwner)();
 
-    owner.inject('route', 'store', 'store:main');
+      var post = {
+        id: 1
+      };
 
-    route = owner.lookup('route:index');
-
-    equal(route.model({ post_id: 1 }), post, '#model returns the correct post');
-    equal(route.findModel('post', 1), post, '#findModel returns the correct post');
-  });
-
-  QUnit.test('assert if \'store.find\' method is not found', function () {
-    expect(1);
-    (0, _internalTestHelpers.runDestroy)(route);
-
-    var owner = (0, _internalTestHelpers.buildOwner)();
-    var Post = _emberRuntime.Object.extend();
-
-    owner.register('route:index', _route.default);
-    owner.register('model:post', Post);
-
-    route = owner.lookup('route:index');
-
-    expectAssertion(function () {
-      route.findModel('post', 1);
-    }, 'Post has no method `find`.');
-  });
-
-  QUnit.test('asserts if model class is not found', function () {
-    expect(1);
-    (0, _internalTestHelpers.runDestroy)(route);
-
-    var owner = (0, _internalTestHelpers.buildOwner)();
-    owner.register('route:index', _route.default);
-
-    route = owner.lookup('route:index');
-
-    expectAssertion(function () {
-      route.model({ post_id: 1 });
-    }, /You used the dynamic segment post_id in your route undefined, but <Ember.Object:ember\d+>.Post did not exist and you did not override your route\'s `model` hook./);
-  });
-
-  QUnit.test('\'store\' does not need to be injected', function () {
-    expect(1);
-
-    (0, _internalTestHelpers.runDestroy)(route);
-
-    var owner = (0, _internalTestHelpers.buildOwner)();
-
-    owner.register('route:index', _route.default);
-
-    route = owner.lookup('route:index');
-
-    ignoreAssertion(function () {
-      route.model({ post_id: 1 });
-    });
-
-    ok(true, 'no error was raised');
-  });
-
-  QUnit.test('modelFor doesn\'t require the router', function () {
-    expect(1);
-
-    var owner = (0, _internalTestHelpers.buildOwner)();
-    (0, _emberUtils.setOwner)(route, owner);
-
-    var foo = { name: 'foo' };
-
-    var FooRoute = _route.default.extend({
-      currentModel: foo
-    });
-
-    owner.register('route:foo', FooRoute);
-
-    strictEqual(route.modelFor('foo'), foo);
-  });
-
-  QUnit.test('.send just calls an action if the router is absent', function () {
-    expect(7);
-    var route = _route.default.extend({
-      actions: {
-        returnsTrue: function (foo, bar) {
-          equal(foo, 1);
-          equal(bar, 2);
-          equal(this, route);
-          return true;
-        },
-        returnsFalse: function () {
-          ok(true, 'returnsFalse was called');
-          return false;
+      var Store = _emberRuntime.Object.extend({
+        find: function (type, value) {
+          assert.ok(true, 'injected model was called');
+          assert.equal(type, 'post', 'correct type was called');
+          assert.equal(value, 1, 'correct value was called');
+          return post;
         }
-      }
-    }).create();
+      });
 
-    equal(true, route.send('returnsTrue', 1, 2));
-    equal(false, route.send('returnsFalse'));
-    equal(undefined, route.send('nonexistent', 1, 2, 3));
-  });
+      owner.register('route:index', _route.default);
+      owner.register('store:main', Store);
 
-  QUnit.test('.send just calls an action if the routers internal router property is absent', function () {
-    expect(7);
-    var route = _route.default.extend({
-      router: {},
-      actions: {
-        returnsTrue: function (foo, bar) {
-          equal(foo, 1);
-          equal(bar, 2);
-          equal(this, route);
-          return true;
-        },
-        returnsFalse: function () {
-          ok(true, 'returnsFalse was called');
-          return false;
+      owner.inject('route', 'store', 'store:main');
+
+      route = owner.lookup('route:index');
+
+      assert.equal(route.model({ post_id: 1 }), post, '#model returns the correct post');
+      assert.equal(route.findModel('post', 1), post, '#findModel returns the correct post');
+    };
+
+    _class.prototype['@test assert if \'store.find\' method is not found'] = function testAssertIfStoreFindMethodIsNotFound() {
+      (0, _internalTestHelpers.runDestroy)(route);
+
+      var owner = (0, _internalTestHelpers.buildOwner)();
+      var Post = _emberRuntime.Object.extend();
+
+      owner.register('route:index', _route.default);
+      owner.register('model:post', Post);
+
+      route = owner.lookup('route:index');
+
+      expectAssertion(function () {
+        route.findModel('post', 1);
+      }, 'Post has no method `find`.');
+    };
+
+    _class.prototype['@test asserts if model class is not found'] = function testAssertsIfModelClassIsNotFound() {
+      (0, _internalTestHelpers.runDestroy)(route);
+
+      var owner = (0, _internalTestHelpers.buildOwner)();
+      owner.register('route:index', _route.default);
+
+      route = owner.lookup('route:index');
+
+      expectAssertion(function () {
+        route.model({ post_id: 1 });
+      }, /You used the dynamic segment post_id in your route undefined, but <Ember.Object:ember\d+>.Post did not exist and you did not override your route\'s `model` hook./);
+    };
+
+    _class.prototype['@test \'store\' does not need to be injected'] = function testStoreDoesNotNeedToBeInjected(assert) {
+      (0, _internalTestHelpers.runDestroy)(route);
+
+      var owner = (0, _internalTestHelpers.buildOwner)();
+
+      owner.register('route:index', _route.default);
+
+      route = owner.lookup('route:index');
+
+      ignoreAssertion(function () {
+        route.model({ post_id: 1 });
+      });
+
+      assert.ok(true, 'no error was raised');
+    };
+
+    _class.prototype['@test modelFor doesn\'t require the router'] = function testModelForDoesnTRequireTheRouter(assert) {
+      var owner = (0, _internalTestHelpers.buildOwner)();
+      (0, _emberUtils.setOwner)(route, owner);
+
+      var foo = { name: 'foo' };
+
+      var FooRoute = _route.default.extend({
+        currentModel: foo
+      });
+
+      owner.register('route:foo', FooRoute);
+
+      assert.strictEqual(route.modelFor('foo'), foo);
+    };
+
+    _class.prototype['@test .send just calls an action if the router is absent'] = function testSendJustCallsAnActionIfTheRouterIsAbsent(assert) {
+      assert.expect(7);
+      var route = _route.default.extend({
+        actions: {
+          returnsTrue: function (foo, bar) {
+            assert.equal(foo, 1);
+            assert.equal(bar, 2);
+            assert.equal(this, route);
+            return true;
+          },
+          returnsFalse: function () {
+            assert.ok(true, 'returnsFalse was called');
+            return false;
+          }
         }
-      }
-    }).create();
+      }).create();
 
-    equal(true, route.send('returnsTrue', 1, 2));
-    equal(false, route.send('returnsFalse'));
-    equal(undefined, route.send('nonexistent', 1, 2, 3));
-  });
+      assert.equal(true, route.send('returnsTrue', 1, 2));
+      assert.equal(false, route.send('returnsFalse'));
+      assert.equal(undefined, route.send('nonexistent', 1, 2, 3));
+    };
 
-  QUnit.module('Ember.Route serialize', {
-    setup: setup,
-    teardown: teardown
-  });
+    _class.prototype['@test .send just calls an action if the routers internal router property is absent'] = function testSendJustCallsAnActionIfTheRoutersInternalRouterPropertyIsAbsent(assert) {
+      assert.expect(7);
+      var route = _route.default.extend({
+        router: {},
+        actions: {
+          returnsTrue: function (foo, bar) {
+            assert.equal(foo, 1);
+            assert.equal(bar, 2);
+            assert.equal(this, route);
+            return true;
+          },
+          returnsFalse: function () {
+            assert.ok(true, 'returnsFalse was called');
+            return false;
+          }
+        }
+      }).create();
 
-  QUnit.test('returns the models properties if params does not include *_id', function () {
-    var model = { id: 2, firstName: 'Ned', lastName: 'Ryerson' };
+      assert.equal(true, route.send('returnsTrue', 1, 2));
+      assert.equal(false, route.send('returnsFalse'));
+      assert.equal(undefined, route.send('nonexistent', 1, 2, 3));
+    };
 
-    deepEqual(route.serialize(model, ['firstName', 'lastName']), { firstName: 'Ned', lastName: 'Ryerson' }, 'serialized correctly');
-  });
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
 
-  QUnit.test('returns model.id if params include *_id', function () {
-    var model = { id: 2 };
+  (0, _internalTestHelpers.moduleFor)('Ember.Route serialize', function (_AbstractTestCase2) {
+    (0, _emberBabel.inherits)(_class2, _AbstractTestCase2);
 
-    deepEqual(route.serialize(model, ['post_id']), { post_id: 2 }, 'serialized correctly');
-  });
+    function _class2() {
+      (0, _emberBabel.classCallCheck)(this, _class2);
 
-  QUnit.test('returns checks for existence of model.post_id before trying model.id', function () {
-    var model = { post_id: 3 };
+      var _this2 = (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase2.call(this));
 
-    deepEqual(route.serialize(model, ['post_id']), { post_id: 3 }, 'serialized correctly');
-  });
+      route = _route.default.create();
+      return _this2;
+    }
 
-  QUnit.test('returns undefined if model is not set', function () {
-    equal(route.serialize(undefined, ['post_id']), undefined, 'serialized correctly');
-  });
+    _class2.prototype.teardown = function teardown() {
+      (0, _internalTestHelpers.runDestroy)(route);
+    };
 
-  QUnit.module('Ember.Route interaction', {
-    setup: function () {
+    _class2.prototype['@test returns the models properties if params does not include *_id'] = function testReturnsTheModelsPropertiesIfParamsDoesNotInclude_id(assert) {
+      var model = { id: 2, firstName: 'Ned', lastName: 'Ryerson' };
+
+      assert.deepEqual(route.serialize(model, ['firstName', 'lastName']), { firstName: 'Ned', lastName: 'Ryerson' }, 'serialized correctly');
+    };
+
+    _class2.prototype['@test returns model.id if params include *_id'] = function testReturnsModelIdIfParamsInclude_id(assert) {
+      var model = { id: 2 };
+
+      assert.deepEqual(route.serialize(model, ['post_id']), { post_id: 2 }, 'serialized correctly');
+    };
+
+    _class2.prototype['@test returns checks for existence of model.post_id before trying model.id'] = function testReturnsChecksForExistenceOfModelPost_idBeforeTryingModelId(assert) {
+      var model = { post_id: 3 };
+
+      assert.deepEqual(route.serialize(model, ['post_id']), { post_id: 3 }, 'serialized correctly');
+    };
+
+    _class2.prototype['@test returns undefined if model is not set'] = function testReturnsUndefinedIfModelIsNotSet() {
+      equal(route.serialize(undefined, ['post_id']), undefined, 'serialized correctly');
+    };
+
+    return _class2;
+  }(_internalTestHelpers.AbstractTestCase));
+
+  (0, _internalTestHelpers.moduleFor)('Ember.Route interaction', function (_AbstractTestCase3) {
+    (0, _emberBabel.inherits)(_class3, _AbstractTestCase3);
+
+    function _class3() {
+      (0, _emberBabel.classCallCheck)(this, _class3);
+
+      var _this3 = (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase3.call(this));
+
       var owner = {
         lookup: function (fullName) {
           return lookupHash[fullName];
@@ -49029,234 +49064,246 @@ enifed('ember-routing/tests/system/route_test', ['ember-utils', 'internal-test-h
         'route:one': routeOne,
         'route:two': routeTwo
       };
-    },
-    teardown: function () {
+      return _this3;
+    }
+
+    _class3.prototype.teardown = function teardown() {
       (0, _internalTestHelpers.runDestroy)(routeOne);
       (0, _internalTestHelpers.runDestroy)(routeTwo);
+    };
+
+    _class3.prototype['@test route._qp does not crash if the controller has no QP, or setProperties'] = function testRoute_qpDoesNotCrashIfTheControllerHasNoQPOrSetProperties(assert) {
+      lookupHash['controller:test'] = {};
+
+      routeOne.controllerName = 'test';
+      var qp = routeOne.get('_qp');
+
+      assert.deepEqual(qp.map, {}, 'map should be empty');
+      assert.deepEqual(qp.propertyNames, [], 'property names should be empty');
+      assert.deepEqual(qp.qps, [], 'qps is should be empty');
+    };
+
+    _class3.prototype['@test controllerFor uses route\'s controllerName if specified'] = function testControllerForUsesRouteSControllerNameIfSpecified(assert) {
+      var testController = {};
+      lookupHash['controller:test'] = testController;
+
+      routeOne.controllerName = 'test';
+
+      assert.equal(routeTwo.controllerFor('one'), testController);
+    };
+
+    return _class3;
+  }(_internalTestHelpers.AbstractTestCase));
+
+  (0, _internalTestHelpers.moduleFor)('Route injected properties', function (_AbstractTestCase4) {
+    (0, _emberBabel.inherits)(_class4, _AbstractTestCase4);
+
+    function _class4() {
+      (0, _emberBabel.classCallCheck)(this, _class4);
+      return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase4.apply(this, arguments));
     }
-  });
 
-  QUnit.test('route._qp does not crash if the controller has no QP, or setProperties', function () {
-    lookupHash['controller:test'] = {};
+    _class4.prototype['@test services can be injected into routes'] = function testServicesCanBeInjectedIntoRoutes(assert) {
+      var owner = (0, _internalTestHelpers.buildOwner)();
 
-    routeOne.controllerName = 'test';
-    var qp = routeOne.get('_qp');
+      owner.register('route:application', _route.default.extend({
+        authService: _emberRuntime.inject.service('auth')
+      }));
 
-    deepEqual(qp.map, {}, 'map should be empty');
-    deepEqual(qp.propertyNames, [], 'property names should be empty');
-    deepEqual(qp.qps, [], 'qps is should be empty');
-  });
+      owner.register('service:auth', _emberRuntime.Service.extend());
 
-  QUnit.test('controllerFor uses route\'s controllerName if specified', function () {
-    var testController = {};
-    lookupHash['controller:test'] = testController;
+      var appRoute = owner.lookup('route:application');
+      var authService = owner.lookup('service:auth');
 
-    routeOne.controllerName = 'test';
+      assert.equal(authService, appRoute.get('authService'), 'service.auth is injected');
+    };
 
-    equal(routeTwo.controllerFor('one'), testController);
-  });
+    return _class4;
+  }(_internalTestHelpers.AbstractTestCase));
 
-  QUnit.module('Route injected properties');
+  (0, _internalTestHelpers.moduleFor)('Ember.Route with engines', function (_AbstractTestCase5) {
+    (0, _emberBabel.inherits)(_class5, _AbstractTestCase5);
 
-  QUnit.test('services can be injected into routes', function () {
-    var owner = (0, _internalTestHelpers.buildOwner)();
+    function _class5() {
+      (0, _emberBabel.classCallCheck)(this, _class5);
+      return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase5.apply(this, arguments));
+    }
 
-    owner.register('route:application', _route.default.extend({
-      authService: _emberRuntime.inject.service('auth')
-    }));
+    _class5.prototype['@test paramsFor considers an engine\'s mountPoint'] = function testParamsForConsidersAnEngineSMountPoint(assert) {
+      var router = {
+        _deserializeQueryParams: function () {},
 
-    owner.register('service:auth', _emberRuntime.Service.extend());
-
-    var appRoute = owner.lookup('route:application');
-    var authService = owner.lookup('service:auth');
-
-    equal(authService, appRoute.get('authService'), 'service.auth is injected');
-  });
-
-  QUnit.module('Ember.Route with engines');
-
-  QUnit.test('paramsFor considers an engine\'s mountPoint', function (assert) {
-    expect(2);
-
-    var router = {
-      _deserializeQueryParams: function () {},
-
-      _routerMicrolib: {
-        state: {
-          handlerInfos: [{ name: 'posts' }],
-          params: {
-            'foo.bar': { a: 'b' },
-            'foo.bar.posts': { c: 'd' }
+        _routerMicrolib: {
+          state: {
+            handlerInfos: [{ name: 'posts' }],
+            params: {
+              'foo.bar': { a: 'b' },
+              'foo.bar.posts': { c: 'd' }
+            }
           }
         }
-      }
-    };
+      };
 
-    var engineInstance = (0, _internalTestHelpers.buildOwner)({
-      ownerOptions: {
-        routable: true,
+      var engineInstance = (0, _internalTestHelpers.buildOwner)({
+        ownerOptions: {
+          routable: true,
 
-        mountPoint: 'foo.bar',
+          mountPoint: 'foo.bar',
 
-        lookup: function (name) {
-          if (name === 'route:posts') {
-            return postsRoute;
-          } else if (name === 'route:application') {
-            return applicationRoute;
+          lookup: function (name) {
+            if (name === 'route:posts') {
+              return postsRoute;
+            } else if (name === 'route:application') {
+              return applicationRoute;
+            }
           }
         }
-      }
-    });
+      });
 
-    var applicationRoute = _route.default.create({ router: router, routeName: 'application', fullRouteName: 'foo.bar' });
-    var postsRoute = _route.default.create({ router: router, routeName: 'posts', fullRouteName: 'foo.bar.posts' });
-    var route = _route.default.create({ router: router });
+      var applicationRoute = _route.default.create({ router: router, routeName: 'application', fullRouteName: 'foo.bar' });
+      var postsRoute = _route.default.create({ router: router, routeName: 'posts', fullRouteName: 'foo.bar.posts' });
+      var route = _route.default.create({ router: router });
 
-    (0, _emberUtils.setOwner)(applicationRoute, engineInstance);
-    (0, _emberUtils.setOwner)(postsRoute, engineInstance);
-    (0, _emberUtils.setOwner)(route, engineInstance);
+      (0, _emberUtils.setOwner)(applicationRoute, engineInstance);
+      (0, _emberUtils.setOwner)(postsRoute, engineInstance);
+      (0, _emberUtils.setOwner)(route, engineInstance);
 
-    assert.deepEqual(route.paramsFor('application'), { a: 'b' }, 'params match for root `application` route in engine');
-    assert.deepEqual(route.paramsFor('posts'), { c: 'd' }, 'params match for `posts` route in engine');
-  });
+      assert.deepEqual(route.paramsFor('application'), { a: 'b' }, 'params match for root `application` route in engine');
+      assert.deepEqual(route.paramsFor('posts'), { c: 'd' }, 'params match for `posts` route in engine');
+    };
 
-  QUnit.test('modelFor considers an engine\'s mountPoint', function () {
-    expect(2);
+    _class5.prototype['@test modelFor considers an engine\'s mountPoint'] = function testModelForConsidersAnEngineSMountPoint(assert) {
+      var applicationModel = { id: '1' };
+      var postsModel = { id: '2' };
 
-    var applicationModel = { id: '1' };
-    var postsModel = { id: '2' };
-
-    var router = {
-      _routerMicrolib: {
-        activeTransition: {
-          resolvedModels: {
-            'foo.bar': applicationModel,
-            'foo.bar.posts': postsModel
+      var router = {
+        _routerMicrolib: {
+          activeTransition: {
+            resolvedModels: {
+              'foo.bar': applicationModel,
+              'foo.bar.posts': postsModel
+            }
           }
         }
-      }
-    };
+      };
 
-    var engineInstance = (0, _internalTestHelpers.buildOwner)({
-      ownerOptions: {
-        routable: true,
+      var engineInstance = (0, _internalTestHelpers.buildOwner)({
+        ownerOptions: {
+          routable: true,
 
-        mountPoint: 'foo.bar',
+          mountPoint: 'foo.bar',
 
-        lookup: function (name) {
-          if (name === 'route:posts') {
-            return postsRoute;
-          } else if (name === 'route:application') {
-            return applicationRoute;
+          lookup: function (name) {
+            if (name === 'route:posts') {
+              return postsRoute;
+            } else if (name === 'route:application') {
+              return applicationRoute;
+            }
           }
         }
-      }
-    });
+      });
 
-    var applicationRoute = _route.default.create({ router: router, routeName: 'application' });
-    var postsRoute = _route.default.create({ router: router, routeName: 'posts' });
-    var route = _route.default.create({ router: router });
+      var applicationRoute = _route.default.create({ router: router, routeName: 'application' });
+      var postsRoute = _route.default.create({ router: router, routeName: 'posts' });
+      var route = _route.default.create({ router: router });
 
-    (0, _emberUtils.setOwner)(applicationRoute, engineInstance);
-    (0, _emberUtils.setOwner)(postsRoute, engineInstance);
-    (0, _emberUtils.setOwner)(route, engineInstance);
+      (0, _emberUtils.setOwner)(applicationRoute, engineInstance);
+      (0, _emberUtils.setOwner)(postsRoute, engineInstance);
+      (0, _emberUtils.setOwner)(route, engineInstance);
 
-    strictEqual(route.modelFor('application'), applicationModel);
-    strictEqual(route.modelFor('posts'), postsModel);
-  });
-
-  QUnit.test('transitionTo considers an engine\'s mountPoint', function () {
-    expect(4);
-
-    var router = {
-      transitionTo: function (route) {
-        return route;
-      }
+      assert.strictEqual(route.modelFor('application'), applicationModel);
+      assert.strictEqual(route.modelFor('posts'), postsModel);
     };
 
-    var engineInstance = (0, _internalTestHelpers.buildOwner)({
-      ownerOptions: {
-        routable: true,
-        mountPoint: 'foo.bar'
-      }
-    });
+    _class5.prototype['@test transitionTo considers an engine\'s mountPoint'] = function testTransitionToConsidersAnEngineSMountPoint(assert) {
+      var router = {
+        transitionTo: function (route) {
+          return route;
+        }
+      };
 
-    var route = _route.default.create({ router: router });
-    (0, _emberUtils.setOwner)(route, engineInstance);
+      var engineInstance = (0, _internalTestHelpers.buildOwner)({
+        ownerOptions: {
+          routable: true,
+          mountPoint: 'foo.bar'
+        }
+      });
 
-    strictEqual(route.transitionTo('application'), 'foo.bar.application', 'properly prefixes application route');
-    strictEqual(route.transitionTo('posts'), 'foo.bar.posts', 'properly prefixes child routes');
-    throws(function () {
-      return route.transitionTo('/posts');
-    }, 'throws when trying to use a url');
+      var route = _route.default.create({ router: router });
+      (0, _emberUtils.setOwner)(route, engineInstance);
 
-    var queryParams = {};
-    strictEqual(route.transitionTo(queryParams), queryParams, 'passes query param only transitions through');
-  });
+      assert.strictEqual(route.transitionTo('application'), 'foo.bar.application', 'properly prefixes application route');
+      assert.strictEqual(route.transitionTo('posts'), 'foo.bar.posts', 'properly prefixes child routes');
+      assert.throws(function () {
+        return route.transitionTo('/posts');
+      }, 'throws when trying to use a url');
 
-  QUnit.test('intermediateTransitionTo considers an engine\'s mountPoint', function () {
-    expect(4);
-
-    var lastRoute = void 0;
-    var router = {
-      intermediateTransitionTo: function (route) {
-        lastRoute = route;
-      }
+      var queryParams = {};
+      assert.strictEqual(route.transitionTo(queryParams), queryParams, 'passes query param only transitions through');
     };
 
-    var engineInstance = (0, _internalTestHelpers.buildOwner)({
-      ownerOptions: {
-        routable: true,
-        mountPoint: 'foo.bar'
-      }
-    });
+    _class5.prototype['@test intermediateTransitionTo considers an engine\'s mountPoint'] = function testIntermediateTransitionToConsidersAnEngineSMountPoint(assert) {
+      var lastRoute = void 0;
+      var router = {
+        intermediateTransitionTo: function (route) {
+          lastRoute = route;
+        }
+      };
 
-    var route = _route.default.create({ router: router });
-    (0, _emberUtils.setOwner)(route, engineInstance);
+      var engineInstance = (0, _internalTestHelpers.buildOwner)({
+        ownerOptions: {
+          routable: true,
+          mountPoint: 'foo.bar'
+        }
+      });
 
-    route.intermediateTransitionTo('application');
-    strictEqual(lastRoute, 'foo.bar.application', 'properly prefixes application route');
+      var route = _route.default.create({ router: router });
+      (0, _emberUtils.setOwner)(route, engineInstance);
 
-    route.intermediateTransitionTo('posts');
-    strictEqual(lastRoute, 'foo.bar.posts', 'properly prefixes child routes');
+      route.intermediateTransitionTo('application');
+      assert.strictEqual(lastRoute, 'foo.bar.application', 'properly prefixes application route');
 
-    throws(function () {
-      return route.intermediateTransitionTo('/posts');
-    }, 'throws when trying to use a url');
+      route.intermediateTransitionTo('posts');
+      assert.strictEqual(lastRoute, 'foo.bar.posts', 'properly prefixes child routes');
 
-    var queryParams = {};
-    route.intermediateTransitionTo(queryParams);
-    strictEqual(lastRoute, queryParams, 'passes query param only transitions through');
-  });
+      assert.throws(function () {
+        return route.intermediateTransitionTo('/posts');
+      }, 'throws when trying to use a url');
 
-  QUnit.test('replaceWith considers an engine\'s mountPoint', function () {
-    expect(4);
-
-    var router = {
-      replaceWith: function (route) {
-        return route;
-      }
+      var queryParams = {};
+      route.intermediateTransitionTo(queryParams);
+      assert.strictEqual(lastRoute, queryParams, 'passes query param only transitions through');
     };
 
-    var engineInstance = (0, _internalTestHelpers.buildOwner)({
-      ownerOptions: {
-        routable: true,
-        mountPoint: 'foo.bar'
-      }
-    });
+    _class5.prototype['@test replaceWith considers an engine\'s mountPoint'] = function testReplaceWithConsidersAnEngineSMountPoint(assert) {
+      var router = {
+        replaceWith: function (route) {
+          return route;
+        }
+      };
 
-    var route = _route.default.create({ router: router });
-    (0, _emberUtils.setOwner)(route, engineInstance);
+      var engineInstance = (0, _internalTestHelpers.buildOwner)({
+        ownerOptions: {
+          routable: true,
+          mountPoint: 'foo.bar'
+        }
+      });
 
-    strictEqual(route.replaceWith('application'), 'foo.bar.application', 'properly prefixes application route');
-    strictEqual(route.replaceWith('posts'), 'foo.bar.posts', 'properly prefixes child routes');
-    throws(function () {
-      return route.replaceWith('/posts');
-    }, 'throws when trying to use a url');
+      var route = _route.default.create({ router: router });
+      (0, _emberUtils.setOwner)(route, engineInstance);
 
-    var queryParams = {};
-    strictEqual(route.replaceWith(queryParams), queryParams, 'passes query param only transitions through');
-  });
+      assert.strictEqual(route.replaceWith('application'), 'foo.bar.application', 'properly prefixes application route');
+      assert.strictEqual(route.replaceWith('posts'), 'foo.bar.posts', 'properly prefixes child routes');
+      assert.throws(function () {
+        return route.replaceWith('/posts');
+      }, 'throws when trying to use a url');
+
+      var queryParams = {};
+      assert.strictEqual(route.replaceWith(queryParams), queryParams, 'passes query param only transitions through');
+    };
+
+    return _class5;
+  }(_internalTestHelpers.AbstractTestCase));
 });
 QUnit.module('ESLint | ember-routing/tests/system/route_test.js');
 QUnit.test('should pass ESLint', function(assert) {
@@ -49264,7 +49311,7 @@ QUnit.test('should pass ESLint', function(assert) {
   assert.ok(true, 'ember-routing/tests/system/route_test.js should pass ESLint\n\n');
 });
 
-enifed('ember-routing/tests/system/router_test', ['ember-utils', 'ember-routing/location/hash_location', 'ember-routing/location/history_location', 'ember-routing/location/auto_location', 'ember-routing/location/none_location', 'ember-routing/system/router', 'internal-test-helpers'], function (_emberUtils, _hash_location, _history_location, _auto_location, _none_location, _router, _internalTestHelpers) {
+enifed('ember-routing/tests/system/router_test', ['ember-babel', 'ember-utils', 'ember-routing/location/hash_location', 'ember-routing/location/history_location', 'ember-routing/location/auto_location', 'ember-routing/location/none_location', 'ember-routing/system/router', 'internal-test-helpers'], function (_emberBabel, _emberUtils, _hash_location, _history_location, _auto_location, _none_location, _router, _internalTestHelpers) {
   'use strict';
 
   var owner = void 0;
@@ -49286,8 +49333,14 @@ enifed('ember-routing/tests/system/router_test', ['ember-utils', 'ember-routing/
     return router;
   }
 
-  QUnit.module('Ember Router', {
-    setup: function () {
+  (0, _internalTestHelpers.moduleFor)('Ember Router', function (_AbstractTestCase) {
+    (0, _emberBabel.inherits)(_class, _AbstractTestCase);
+
+    function _class() {
+      (0, _emberBabel.classCallCheck)(this, _class);
+
+      var _this = (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase.call(this));
+
       owner = (0, _internalTestHelpers.buildOwner)();
 
       //register the HashLocation (the default)
@@ -49295,233 +49348,235 @@ enifed('ember-routing/tests/system/router_test', ['ember-utils', 'ember-routing/
       owner.register('location:history', _history_location.default);
       owner.register('location:auto', _auto_location.default);
       owner.register('location:none', _none_location.default);
-    },
-    teardown: function () {
+      return _this;
+    }
+
+    _class.prototype.teardown = function teardown() {
       (0, _internalTestHelpers.runDestroy)(owner);
       owner = null;
-    }
-  });
-
-  QUnit.test('can create a router without an owner', function () {
-    createRouter(null, { disableSetup: true, skipOwner: true });
-
-    ok(true, 'no errors were thrown when creating without a container');
-  });
-
-  QUnit.test('[GH#15237] EmberError is imported correctly', function () {
-    // If we get the right message it means Error is being imported correctly.
-    throws(function () {
-      (0, _router.triggerEvent)(null, false, []);
-    }, /because your app hasn't finished transitioning/);
-  });
-
-  QUnit.test('should not create a router.js instance upon init', function () {
-    var router = createRouter(null, { disableSetup: true });
-
-    ok(!router._routerMicrolib);
-  });
-
-  QUnit.test('should not reify location until setupRouter is called', function () {
-    var router = createRouter(null, { disableSetup: true });
-    equal(typeof router.location, 'string', 'location is specified as a string');
-
-    router.setupRouter();
-
-    equal(typeof router.location, 'object', 'location is reified into an object');
-  });
-
-  QUnit.test('should destroy its location upon destroying the routers owner.', function () {
-    var router = createRouter();
-    var location = router.get('location');
-
-    (0, _internalTestHelpers.runDestroy)(owner);
-
-    ok(location.isDestroyed, 'location should be destroyed');
-  });
-
-  QUnit.test('should instantiate its location with its `rootURL`', function () {
-    var router = createRouter({
-      rootURL: '/rootdir/'
-    });
-    var location = router.get('location');
-
-    equal(location.get('rootURL'), '/rootdir/');
-  });
-
-  QUnit.test('replacePath should be called with the right path', function () {
-    expect(1);
-
-    var location = owner.lookup('location:auto');
-
-    var browserLocation = {
-      href: 'http://test.com/rootdir/welcome',
-      origin: 'http://test.com',
-      pathname: '/rootdir/welcome',
-      hash: '',
-      search: '',
-      replace: function (url) {
-        equal(url, 'http://test.com/rootdir/#/welcome');
-      }
     };
 
-    location.location = browserLocation;
-    location.global = {
-      onhashchange: function () {}
+    _class.prototype['@test can create a router without an owner'] = function testCanCreateARouterWithoutAnOwner(assert) {
+      createRouter(null, { disableSetup: true, skipOwner: true });
+
+      assert.ok(true, 'no errors were thrown when creating without a container');
     };
-    location.history = null;
 
-    createRouter({
-      location: 'auto',
-      rootURL: '/rootdir/'
-    });
-  });
+    _class.prototype['@test [GH#15237] EmberError is imported correctly'] = function testGH15237EmberErrorIsImportedCorrectly(assert) {
+      // If we get the right message it means Error is being imported correctly.
+      assert.throws(function () {
+        (0, _router.triggerEvent)(null, false, []);
+      }, /because your app hasn't finished transitioning/);
+    };
 
-  QUnit.test('Ember.Router._routePath should consume identical prefixes', function () {
-    createRouter();
+    _class.prototype['@test should not create a router.js instance upon init'] = function testShouldNotCreateARouterJsInstanceUponInit(assert) {
+      var router = createRouter(null, { disableSetup: true });
 
-    expect(8);
+      assert.ok(!router._routerMicrolib);
+    };
 
-    function routePath() {
-      var handlerInfos = Array.prototype.slice.call(arguments).map(function (s) {
-        return { name: s };
+    _class.prototype['@test should not reify location until setupRouter is called'] = function testShouldNotReifyLocationUntilSetupRouterIsCalled(assert) {
+      var router = createRouter(null, { disableSetup: true });
+      assert.equal(typeof router.location, 'string', 'location is specified as a string');
+
+      router.setupRouter();
+
+      assert.equal(typeof router.location, 'object', 'location is reified into an object');
+    };
+
+    _class.prototype['@test should destroy its location upon destroying the routers owner.'] = function testShouldDestroyItsLocationUponDestroyingTheRoutersOwner(assert) {
+      var router = createRouter();
+      var location = router.get('location');
+
+      (0, _internalTestHelpers.runDestroy)(owner);
+
+      assert.ok(location.isDestroyed, 'location should be destroyed');
+    };
+
+    _class.prototype['@test should instantiate its location with its `rootURL`'] = function testShouldInstantiateItsLocationWithItsRootURL(assert) {
+      var router = createRouter({
+        rootURL: '/rootdir/'
       });
-      handlerInfos.unshift({ name: 'ignored' });
+      var location = router.get('location');
 
-      return _router.default._routePath(handlerInfos);
-    }
-
-    equal(routePath('foo'), 'foo');
-    equal(routePath('foo', 'bar', 'baz'), 'foo.bar.baz');
-    equal(routePath('foo', 'foo.bar'), 'foo.bar');
-    equal(routePath('foo', 'foo.bar', 'foo.bar.baz'), 'foo.bar.baz');
-    equal(routePath('foo', 'foo.bar', 'foo.bar.baz.wow'), 'foo.bar.baz.wow');
-    equal(routePath('foo', 'foo.bar.baz.wow'), 'foo.bar.baz.wow');
-    equal(routePath('foo.bar', 'bar.baz.wow'), 'foo.bar.baz.wow');
-
-    // This makes no sense, not trying to handle it, just
-    // making sure it doesn't go boom.
-    equal(routePath('foo.bar.baz', 'foo'), 'foo.bar.baz.foo');
-  });
-
-  QUnit.test('Router should cancel routing setup when the Location class says so via cancelRouterSetup', function () {
-    expect(0);
-
-    var router = void 0;
-    var FakeLocation = {
-      cancelRouterSetup: true,
-      create: function () {
-        return this;
-      }
+      assert.equal(location.get('rootURL'), '/rootdir/');
     };
 
-    owner.register('location:fake', FakeLocation);
+    _class.prototype['@test replacePath should be called with the right path'] = function testReplacePathShouldBeCalledWithTheRightPath(assert) {
+      assert.expect(1);
 
-    router = createRouter({
-      location: 'fake',
+      var location = owner.lookup('location:auto');
 
-      _setupRouter: function () {
-        ok(false, '_setupRouter should not be called');
-      }
-    });
+      var browserLocation = {
+        href: 'http://test.com/rootdir/welcome',
+        origin: 'http://test.com',
+        pathname: '/rootdir/welcome',
+        hash: '',
+        search: '',
+        replace: function (url) {
+          assert.equal(url, 'http://test.com/rootdir/#/welcome');
+        }
+      };
 
-    router.startRouting();
-  });
+      location.location = browserLocation;
+      location.global = {
+        onhashchange: function () {}
+      };
+      location.history = null;
 
-  QUnit.test('AutoLocation should replace the url when it\'s not in the preferred format', function () {
-    expect(1);
-
-    var location = owner.lookup('location:auto');
-
-    location.location = {
-      href: 'http://test.com/rootdir/welcome',
-      origin: 'http://test.com',
-      pathname: '/rootdir/welcome',
-      hash: '',
-      search: '',
-      replace: function (url) {
-        equal(url, 'http://test.com/rootdir/#/welcome');
-      }
-    };
-    location.history = null;
-    location.global = {
-      onhashchange: function () {}
+      createRouter({
+        location: 'auto',
+        rootURL: '/rootdir/'
+      });
     };
 
-    createRouter({
-      location: 'auto',
-      rootURL: '/rootdir/'
-    });
-  });
+    _class.prototype['@test Ember.Router._routePath should consume identical prefixes'] = function testEmberRouter_routePathShouldConsumeIdenticalPrefixes(assert) {
+      createRouter();
 
-  QUnit.test('Router#handleURL should remove any #hashes before doing URL transition', function () {
-    expect(2);
+      function routePath() {
+        var handlerInfos = Array.prototype.slice.call(arguments).map(function (s) {
+          return { name: s };
+        });
+        handlerInfos.unshift({ name: 'ignored' });
 
-    var router = createRouter({
-      _doURLTransition: function (routerJsMethod, url) {
-        equal(routerJsMethod, 'handleURL');
-        equal(url, '/foo/bar?time=morphin');
+        return _router.default._routePath(handlerInfos);
       }
-    });
 
-    router.handleURL('/foo/bar?time=morphin#pink-power-ranger');
-  });
+      assert.equal(routePath('foo'), 'foo');
+      assert.equal(routePath('foo', 'bar', 'baz'), 'foo.bar.baz');
+      assert.equal(routePath('foo', 'foo.bar'), 'foo.bar');
+      assert.equal(routePath('foo', 'foo.bar', 'foo.bar.baz'), 'foo.bar.baz');
+      assert.equal(routePath('foo', 'foo.bar', 'foo.bar.baz.wow'), 'foo.bar.baz.wow');
+      assert.equal(routePath('foo', 'foo.bar.baz.wow'), 'foo.bar.baz.wow');
+      equal(routePath('foo.bar', 'bar.baz.wow'), 'foo.bar.baz.wow');
 
-  QUnit.test('Router#triggerEvent allows actions to bubble when returning true', function (assert) {
-    assert.expect(2);
+      // This makes no sense, not trying to handle it, just
+      // making sure it doesn't go boom.
+      assert.equal(routePath('foo.bar.baz', 'foo'), 'foo.bar.baz.foo');
+    };
 
-    var handlerInfos = [{
-      name: 'application',
-      handler: {
-        actions: {
-          loading: function () {
-            assert.ok(false, 'loading not handled by application route');
+    _class.prototype['@test Router should cancel routing setup when the Location class says so via cancelRouterSetup'] = function testRouterShouldCancelRoutingSetupWhenTheLocationClassSaysSoViaCancelRouterSetup(assert) {
+      assert.expect(0);
+
+      var router = void 0;
+      var FakeLocation = {
+        cancelRouterSetup: true,
+        create: function () {
+          return this;
+        }
+      };
+
+      owner.register('location:fake', FakeLocation);
+
+      router = createRouter({
+        location: 'fake',
+
+        _setupRouter: function () {
+          assert.ok(false, '_setupRouter should not be called');
+        }
+      });
+
+      router.startRouting();
+    };
+
+    _class.prototype['@test AutoLocation should replace the url when it\'s not in the preferred format'] = function testAutoLocationShouldReplaceTheUrlWhenItSNotInThePreferredFormat(assert) {
+      assert.expect(1);
+
+      var location = owner.lookup('location:auto');
+
+      location.location = {
+        href: 'http://test.com/rootdir/welcome',
+        origin: 'http://test.com',
+        pathname: '/rootdir/welcome',
+        hash: '',
+        search: '',
+        replace: function (url) {
+          assert.equal(url, 'http://test.com/rootdir/#/welcome');
+        }
+      };
+      location.history = null;
+      location.global = {
+        onhashchange: function () {}
+      };
+
+      createRouter({
+        location: 'auto',
+        rootURL: '/rootdir/'
+      });
+    };
+
+    _class.prototype['@test Router#handleURL should remove any #hashes before doing URL transition'] = function testRouterHandleURLShouldRemoveAnyHashesBeforeDoingURLTransition(assert) {
+      assert.expect(2);
+
+      var router = createRouter({
+        _doURLTransition: function (routerJsMethod, url) {
+          assert.equal(routerJsMethod, 'handleURL');
+          assert.equal(url, '/foo/bar?time=morphin');
+        }
+      });
+
+      router.handleURL('/foo/bar?time=morphin#pink-power-ranger');
+    };
+
+    _class.prototype['@test Router#triggerEvent allows actions to bubble when returning true'] = function testRouterTriggerEventAllowsActionsToBubbleWhenReturningTrue(assert) {
+      assert.expect(2);
+
+      var handlerInfos = [{
+        name: 'application',
+        handler: {
+          actions: {
+            loading: function () {
+              assert.ok(false, 'loading not handled by application route');
+            }
           }
         }
-      }
-    }, {
-      name: 'about',
-      handler: {
-        actions: {
-          loading: function () {
-            assert.ok(true, 'loading handled by about route');
-            return false;
+      }, {
+        name: 'about',
+        handler: {
+          actions: {
+            loading: function () {
+              assert.ok(true, 'loading handled by about route');
+              return false;
+            }
           }
         }
-      }
-    }, {
-      name: 'about.me',
-      handler: {
-        actions: {
-          loading: function () {
-            assert.ok(true, 'loading handled by about.me route');
-            return true;
+      }, {
+        name: 'about.me',
+        handler: {
+          actions: {
+            loading: function () {
+              assert.ok(true, 'loading handled by about.me route');
+              return true;
+            }
           }
         }
-      }
-    }];
+      }];
 
-    (0, _router.triggerEvent)(handlerInfos, false, ['loading']);
-  });
+      (0, _router.triggerEvent)(handlerInfos, false, ['loading']);
+    };
 
-  QUnit.test('Router#triggerEvent ignores handlers that have not loaded yet', function (assert) {
-    assert.expect(1);
+    _class.prototype['@test Router#triggerEvent ignores handlers that have not loaded yet'] = function testRouterTriggerEventIgnoresHandlersThatHaveNotLoadedYet(assert) {
+      assert.expect(1);
 
-    var handlerInfos = [{
-      name: 'about',
-      handler: {
-        actions: {
-          loading: function () {
-            assert.ok(true, 'loading handled by about route');
+      var handlerInfos = [{
+        name: 'about',
+        handler: {
+          actions: {
+            loading: function () {
+              assert.ok(true, 'loading handled by about route');
+            }
           }
         }
-      }
-    }, {
-      name: 'about.me',
-      handler: undefined
-    }];
+      }, {
+        name: 'about.me',
+        handler: undefined
+      }];
 
-    (0, _router.triggerEvent)(handlerInfos, false, ['loading']);
-  });
+      (0, _router.triggerEvent)(handlerInfos, false, ['loading']);
+    };
+
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
 });
 QUnit.module('ESLint | ember-routing/tests/system/router_test.js');
 QUnit.test('should pass ESLint', function(assert) {
