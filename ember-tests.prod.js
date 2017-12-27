@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.0.0-alpha.1-null+0486d07d
+ * @version   3.0.0-alpha.1-null+28da3574
  */
 
 /*globals process */
@@ -1808,9 +1808,7 @@ enifed('ember-application/tests/system/application_test', ['ember-babel', 'ember
     (0, _emberBabel.inherits)(_class, _ApplicationTestCase);
 
     function _class() {
-
-      (0, _emberViews.jQuery)('#qunit-fixture').html('\n      <div id="one">\n        <div id="one-child">HI</div>\n      </div>\n      <div id="two">HI</div>\n    ');
-      return (0, _emberBabel.possibleConstructorReturn)(this, _ApplicationTestCase.call(this));
+      return (0, _emberBabel.possibleConstructorReturn)(this, _ApplicationTestCase.apply(this, arguments));
     }
 
     _class.prototype.createSecondApplication = function (options) {
@@ -1892,6 +1890,11 @@ enifed('ember-application/tests/system/application_test', ['ember-babel', 'ember
     };
 
     (0, _emberBabel.createClass)(_class, [{
+      key: 'fixture',
+      get: function () {
+        return '\n      <div id="one">\n        <div id="one-child">HI</div>\n      </div>\n      <div id="two">HI</div>\n    ';
+      }
+    }, {
       key: 'applicationOptions',
       get: function () {
         return (0, _emberUtils.assign)(_ApplicationTestCase.prototype.applicationOptions, {
@@ -2020,7 +2023,7 @@ enifed('ember-application/tests/system/application_test', ['ember-babel', 'ember
     _class3.prototype['@test Minimal Application initialized with just an application template'] = function () {
       var _this12 = this;
 
-      (0, _emberViews.jQuery)('#qunit-fixture').html('<script type="text/x-handlebars">Hello World</script>');
+      this.setupFixture('<script type="text/x-handlebars">Hello World</script>');
       this.runTask(function () {
         return _this12.createApplication();
       });
@@ -2058,7 +2061,7 @@ enifed('ember-application/tests/system/application_test', ['ember-babel', 'ember
       _AutobootApplicationT.prototype.teardown.call(this);
     };
 
-    _class4.prototype['@test initialized application goes to initial route'] = function (assert) {
+    _class4.prototype['@test initialized application goes to initial route'] = function () {
       var _this14 = this;
 
       this.runTask(function () {
@@ -2067,7 +2070,7 @@ enifed('ember-application/tests/system/application_test', ['ember-babel', 'ember
         _this14.addTemplate('index', '<h1>Hi from index</h1>');
       });
 
-      assert.equal(this.$('h1').text(), 'Hi from index');
+      this.assertText('Hi from index');
     };
 
     _class4.prototype['@test ready hook is called before routing begins'] = function (assert) {
@@ -2124,10 +2127,10 @@ enifed('ember-application/tests/system/application_test', ['ember-babel', 'ember
       // need to make some assertions about the created router
       var router = this.application.__deprecatedInstance__.lookup('router:main');
       assert.equal(router instanceof _emberRouting.Router, true, 'Router was set from initialize call');
-      assert.equal(this.$('h1').text(), 'Hello!');
+      this.assertText('Hello!');
     };
 
-    _class4.prototype['@test Application Controller backs the appplication template'] = function (assert) {
+    _class4.prototype['@test Application Controller backs the appplication template'] = function () {
       var _this18 = this;
 
       this.runTask(function () {
@@ -2137,7 +2140,7 @@ enifed('ember-application/tests/system/application_test', ['ember-babel', 'ember
           greeting: 'Hello!'
         }));
       });
-      assert.equal(this.$('h1').text(), 'Hello!');
+      this.assertText('Hello!');
     };
 
     _class4.prototype['@test enable log of libraries with an ENV var'] = function (assert) {
@@ -2163,8 +2166,12 @@ enifed('ember-application/tests/system/application_test', ['ember-babel', 'ember
       });
 
       assert.equal(messages[1], 'Ember  : ' + _ember.VERSION);
-      assert.equal(messages[2], 'jQuery : ' + (0, _emberViews.jQuery)().jquery);
-      assert.equal(messages[3], 'my-lib : ' + '2.0.0a');
+      if (_emberViews.jQuery) {
+        assert.equal(messages[2], 'jQuery : ' + (0, _emberViews.jQuery)().jquery);
+        assert.equal(messages[3], 'my-lib : ' + '2.0.0a');
+      } else {
+        assert.equal(messages[2], 'my-lib : ' + '2.0.0a');
+      }
 
       _emberMetal.libraries.deRegister('my-lib');
     };
@@ -2249,16 +2256,14 @@ enifed('ember-application/tests/system/application_test', ['ember-babel', 'ember
     return _class5;
   }(_internalTestHelpers.AbstractTestCase));
 });
-enifed('ember-application/tests/system/bootstrap-test', ['ember-babel', 'ember-utils', 'ember-views', 'internal-test-helpers'], function (_emberBabel, _emberUtils, _emberViews, _internalTestHelpers) {
+enifed('ember-application/tests/system/bootstrap-test', ['ember-babel', 'ember-utils', 'internal-test-helpers'], function (_emberBabel, _emberUtils, _internalTestHelpers) {
   'use strict';
 
   (0, _internalTestHelpers.moduleFor)('Ember.Application with default resolver and autoboot', function (_DefaultResolverAppli) {
     (0, _emberBabel.inherits)(_class, _DefaultResolverAppli);
 
     function _class() {
-
-      (0, _emberViews.jQuery)('#qunit-fixture').html('\n      <div id="app"></div>\n\n      <script type="text/x-handlebars">Hello {{outlet}}</script>\n      <script type="text/x-handlebars" id="index">World!</script>\n    ');
-      return (0, _emberBabel.possibleConstructorReturn)(this, _DefaultResolverAppli.call(this));
+      return (0, _emberBabel.possibleConstructorReturn)(this, _DefaultResolverAppli.apply(this, arguments));
     }
 
     _class.prototype['@test templates in script tags are extracted at application creation'] = function (assert) {
@@ -2267,10 +2272,15 @@ enifed('ember-application/tests/system/bootstrap-test', ['ember-babel', 'ember-u
       this.runTask(function () {
         return _this2.createApplication();
       });
-      assert.equal(this.$('#app').text(), 'Hello World!');
+      assert.equal(document.getElementById('app').textContent, 'Hello World!');
     };
 
     (0, _emberBabel.createClass)(_class, [{
+      key: 'fixture',
+      get: function () {
+        return '\n      <div id="app"></div>\n\n      <script type="text/x-handlebars">Hello {{outlet}}</script>\n      <script type="text/x-handlebars" id="index">World!</script>\n    ';
+      }
+    }, {
       key: 'applicationOptions',
       get: function () {
         return (0, _emberUtils.assign)(_DefaultResolverAppli.prototype.applicationOptions, {
@@ -2292,13 +2302,13 @@ enifed('ember-application/tests/system/dependency_injection/custom_resolver_test
       return (0, _emberBabel.possibleConstructorReturn)(this, _DefaultResolverAppli.apply(this, arguments));
     }
 
-    _class.prototype['@test a resolver can be supplied to application'] = function (assert) {
+    _class.prototype['@test a resolver can be supplied to application'] = function () {
       var _this2 = this;
 
       this.runTask(function () {
         return _this2.createApplication();
       });
-      assert.equal(this.$('h1').text(), 'Fallback');
+      this.assertText('Fallback');
     };
 
     (0, _emberBabel.createClass)(_class, [{
@@ -3873,16 +3883,14 @@ enifed('ember-application/tests/system/engine_test', ['ember-babel', 'ember-envi
     return _class;
   }(_internalTestHelpers.AbstractTestCase));
 });
-enifed('ember-application/tests/system/initializers_test', ['ember-babel', 'ember-utils', 'internal-test-helpers', 'ember-application', 'ember-views'], function (_emberBabel, _emberUtils, _internalTestHelpers, _emberApplication, _emberViews) {
+enifed('ember-application/tests/system/initializers_test', ['ember-babel', 'ember-utils', 'internal-test-helpers', 'ember-application'], function (_emberBabel, _emberUtils, _internalTestHelpers, _emberApplication) {
   'use strict';
 
   (0, _internalTestHelpers.moduleFor)('Ember.Application initializers', function (_AutobootApplicationT) {
     (0, _emberBabel.inherits)(_class, _AutobootApplicationT);
 
     function _class() {
-
-      (0, _emberViews.jQuery)('#qunit-fixture').html('\n      <div id="one">ONE</div>\n      <div id="two">TWO</div>\n    ');
-      return (0, _emberBabel.possibleConstructorReturn)(this, _AutobootApplicationT.call(this));
+      return (0, _emberBabel.possibleConstructorReturn)(this, _AutobootApplicationT.apply(this, arguments));
     }
 
     _class.prototype.createSecondApplication = function (options) {
@@ -4275,6 +4283,11 @@ enifed('ember-application/tests/system/initializers_test', ['ember-babel', 'embe
     };
 
     (0, _emberBabel.createClass)(_class, [{
+      key: 'fixture',
+      get: function () {
+        return '<div id="one">ONE</div>\n      <div id="two">TWO</div>\n    ';
+      }
+    }, {
       key: 'applicationOptions',
       get: function () {
         return (0, _emberUtils.assign)(_AutobootApplicationT.prototype.applicationOptions, {
@@ -4285,16 +4298,14 @@ enifed('ember-application/tests/system/initializers_test', ['ember-babel', 'embe
     return _class;
   }(_internalTestHelpers.AutobootApplicationTestCase));
 });
-enifed('ember-application/tests/system/instance_initializers_test', ['ember-babel', 'ember-utils', 'internal-test-helpers', 'ember-application', 'ember-views'], function (_emberBabel, _emberUtils, _internalTestHelpers, _emberApplication, _emberViews) {
+enifed('ember-application/tests/system/instance_initializers_test', ['ember-babel', 'ember-utils', 'internal-test-helpers', 'ember-application'], function (_emberBabel, _emberUtils, _internalTestHelpers, _emberApplication) {
   'use strict';
 
   (0, _internalTestHelpers.moduleFor)('Ember.Application instance initializers', function (_AutobootApplicationT) {
     (0, _emberBabel.inherits)(_class, _AutobootApplicationT);
 
     function _class() {
-
-      (0, _emberViews.jQuery)('#qunit-fixture').html('\n      <div id="one">ONE</div>\n      <div id="two">TWO</div>\n    ');
-      return (0, _emberBabel.possibleConstructorReturn)(this, _AutobootApplicationT.call(this));
+      return (0, _emberBabel.possibleConstructorReturn)(this, _AutobootApplicationT.apply(this, arguments));
     }
 
     _class.prototype.createSecondApplication = function (options) {
@@ -4713,6 +4724,11 @@ enifed('ember-application/tests/system/instance_initializers_test', ['ember-babe
     };
 
     (0, _emberBabel.createClass)(_class, [{
+      key: 'fixture',
+      get: function () {
+        return '<div id="one">ONE</div>\n      <div id="two">TWO</div>\n    ';
+      }
+    }, {
       key: 'applicationOptions',
       get: function () {
         return (0, _emberUtils.assign)(_AutobootApplicationT.prototype.applicationOptions, {
@@ -5209,7 +5225,7 @@ enifed('ember-application/tests/system/reset_test', ['ember-babel', 'ember-metal
     return _class;
   }(_internalTestHelpers.AutobootApplicationTestCase));
 });
-enifed('ember-application/tests/system/visit_test', ['ember-babel', 'internal-test-helpers', 'ember-runtime', 'ember-metal', 'ember-application/system/application', 'ember-application/system/application-instance', 'ember-application/system/engine', 'ember-routing', 'ember-glimmer', 'ember-template-compiler', 'ember-views'], function (_emberBabel, _internalTestHelpers, _emberRuntime, _emberMetal, _application, _applicationInstance, _engine, _emberRouting, _emberGlimmer, _emberTemplateCompiler, _emberViews) {
+enifed('ember-application/tests/system/visit_test', ['ember-babel', 'internal-test-helpers', 'ember-runtime', 'ember-metal', 'ember-application/system/application', 'ember-application/system/application-instance', 'ember-application/system/engine', 'ember-routing', 'ember-glimmer', 'ember-template-compiler'], function (_emberBabel, _internalTestHelpers, _emberRuntime, _emberMetal, _application, _applicationInstance, _engine, _emberRouting, _emberGlimmer, _emberTemplateCompiler) {
   'use strict';
 
   function expectAsyncError() {
@@ -5230,6 +5246,10 @@ enifed('ember-application/tests/system/visit_test', ['ember-babel', 'internal-te
 
     _class.prototype.createApplication = function (options) {
       return _ApplicationTestCase.prototype.createApplication.call(this, options, _application.default.extend());
+    };
+
+    _class.prototype.assertEmptyFixture = function (message) {
+      this.assert.strictEqual(document.getElementById('qunit-fixture').children.length, 0, 'there are no elements in the fixture element ' + (message ? message : ''));
     };
 
     _class.prototype['@test Applications with autoboot set to false do not autoboot'] = function (assert) {
@@ -5481,11 +5501,11 @@ enifed('ember-application/tests/system/visit_test', ['ember-babel', 'internal-te
 
       this.addTemplate('application', '<h1>Hello world</h1>');
 
-      assert.strictEqual(this.$().children().length, 0, 'there are no elements in the fixture element');
+      this.assertEmptyFixture();
 
       return this.visit('/').then(function (instance) {
         assert.ok(instance instanceof _applicationInstance.default, 'promise is resolved with an ApplicationInstance');
-        assert.equal(_this4.$('h1').text(), 'Hello world', 'the application was rendered once the promise resolves');
+        assert.equal(_this4.element.textContent, 'Hello world', 'the application was rendered once the promise resolves');
       });
     };
 
@@ -5496,31 +5516,30 @@ enifed('ember-application/tests/system/visit_test', ['ember-babel', 'internal-te
 
       this.addTemplate('application', '<h1>Hello world</h1>');
 
-      assert.strictEqual(this.$().children().length, 0, 'there are no elements in the fixture element');
+      this.assertEmptyFixture();
 
       return this.visit('/', { shouldRender: false }).then(function (instance) {
         assert.ok(instance instanceof _applicationInstance.default, 'promise is resolved with an ApplicationInstance');
-        assert.strictEqual(_this5.$().children().length, 0, 'there are still no elements in the fixture element after visit');
+
+        _this5.assertEmptyFixture('after visit');
       });
     };
 
     _class.prototype['@test visit() renders a template when shouldRender is set to true'] = function (assert) {
-      var _this6 = this;
-
       assert.expect(3);
 
       this.addTemplate('application', '<h1>Hello world</h1>');
 
-      assert.strictEqual(this.$('#qunit-fixture').children().length, 0, 'there are no elements in the fixture element');
+      this.assertEmptyFixture();
 
       return this.visit('/', { shouldRender: true }).then(function (instance) {
         assert.ok(instance instanceof _applicationInstance.default, 'promise is resolved with an ApplicationInstance');
-        assert.strictEqual(_this6.$().children().length, 1, 'there is 1 element in the fixture element after visit');
+        assert.strictEqual(document.querySelector('#qunit-fixture').children.length, 1, 'there is 1 element in the fixture element after visit');
       });
     };
 
     _class.prototype['@test visit() returns a promise that resolves without rendering when shouldRender is set to false with Engines'] = function (assert) {
-      var _this7 = this;
+      var _this6 = this;
 
       assert.expect(3);
 
@@ -5538,16 +5557,17 @@ enifed('ember-application/tests/system/visit_test', ['ember-babel', 'internal-te
 
       this.add('route-map:blog', function () {});
 
-      assert.strictEqual(this.$('#qunit-fixture').children().length, 0, 'there are no elements in the fixture element');
+      this.assertEmptyFixture();
 
       return this.visit('/blog', { shouldRender: false }).then(function (instance) {
         assert.ok(instance instanceof _applicationInstance.default, 'promise is resolved with an ApplicationInstance');
-        assert.strictEqual(_this7.$().children().length, 0, 'there are still no elements in the fixture element after visit');
+
+        _this6.assertEmptyFixture('after visit');
       });
     };
 
     _class.prototype['@test visit() does not setup the event_dispatcher:main if isInteractive is false (with Engines) GH#15615'] = function (assert) {
-      var _this8 = this;
+      var _this7 = this;
 
       assert.expect(3);
 
@@ -5583,16 +5603,16 @@ enifed('ember-application/tests/system/visit_test', ['ember-babel', 'internal-te
 
       this.add('route-map:blog', function () {});
 
-      assert.strictEqual(this.$('#qunit-fixture').children().length, 0, 'there are no elements in the fixture element');
+      this.assertEmptyFixture();
 
       return this.visit('/blog', { isInteractive: false }).then(function (instance) {
         assert.ok(instance instanceof _applicationInstance.default, 'promise is resolved with an ApplicationInstance');
-        assert.strictEqual(_this8.$().find('p').text(), 'Dis cache money', 'Engine component is resolved');
+        assert.strictEqual(_this7.element.querySelector('p').textContent, 'Dis cache money', 'Engine component is resolved');
       });
     };
 
     _class.prototype['@test visit() on engine resolves engine component'] = function (assert) {
-      var _this9 = this;
+      var _this8 = this;
 
       assert.expect(2);
 
@@ -5621,15 +5641,15 @@ enifed('ember-application/tests/system/visit_test', ['ember-babel', 'internal-te
 
       this.add('route-map:blog', function () {});
 
-      assert.strictEqual(this.$().children().length, 0, 'there are no elements in the fixture element');
+      this.assertEmptyFixture();
 
       return this.visit('/blog', { shouldRender: true }).then(function () {
-        assert.strictEqual(_this9.$().find('p').text(), 'Dis cache money', 'Engine component is resolved');
+        assert.strictEqual(_this8.element.querySelector('p').textContent, 'Dis cache money', 'Engine component is resolved');
       });
     };
 
     _class.prototype['@test visit() on engine resolves engine helper'] = function (assert) {
-      var _this10 = this;
+      var _this9 = this;
 
       assert.expect(2);
 
@@ -5659,15 +5679,15 @@ enifed('ember-application/tests/system/visit_test', ['ember-babel', 'internal-te
 
       this.add('route-map:blog', function () {});
 
-      assert.strictEqual(this.$().children().length, 0, 'there are no elements in the fixture element');
+      this.assertEmptyFixture();
 
       return this.visit('/blog', { shouldRender: true }).then(function () {
-        assert.strictEqual(_this10.$().text(), 'turnt up', 'Engine component is resolved');
+        assert.strictEqual(_this9.element.textContent, 'turnt up', 'Engine component is resolved');
       });
     };
 
     _class.prototype['@test Ember Islands-style setup'] = function (assert) {
-      var _this11 = this;
+      var _this10 = this;
 
       var xFooInitCalled = false;
       var xFooDidInsertElementCalled = false;
@@ -5747,16 +5767,19 @@ enifed('ember-application/tests/system/visit_test', ['ember-babel', 'internal-te
         }
       }));
 
-      var $foo = (0, _emberViews.jQuery)('<div />').appendTo('#qunit-fixture');
-      var $bar = (0, _emberViews.jQuery)('<div />').appendTo('#qunit-fixture');
+      var fixtureElement = document.querySelector('#qunit-fixture');
+      var foo = document.createElement('div');
+      var bar = document.createElement('div');
+      fixtureElement.appendChild(foo);
+      fixtureElement.appendChild(bar);
 
       var data = encodeURIComponent(JSON.stringify({ name: 'Godfrey' }));
       var instances = [];
 
       return _emberRuntime.RSVP.all([this.runTask(function () {
-        return _this11.application.visit('/x-foo?data=' + data, { rootElement: $foo[0] });
+        return _this10.application.visit('/x-foo?data=' + data, { rootElement: foo });
       }), this.runTask(function () {
-        return _this11.application.visit('/x-bar', { rootElement: $bar[0] });
+        return _this10.application.visit('/x-bar', { rootElement: bar });
       })]).then(function (_instances) {
         instances = _instances;
 
@@ -5766,30 +5789,30 @@ enifed('ember-application/tests/system/visit_test', ['ember-babel', 'internal-te
         assert.ok(xBarInitCalled);
         assert.ok(xBarDidInsertElementCalled);
 
-        assert.equal($foo.find('h1').text(), 'X-Foo');
-        assert.equal($foo.find('p').text(), 'Hello Godfrey, I have been clicked 0 times (0 times combined)!');
-        assert.ok($foo.text().indexOf('X-Bar') === -1);
+        assert.equal(foo.querySelector('h1').textContent, 'X-Foo');
+        assert.equal(foo.querySelector('p').textContent, 'Hello Godfrey, I have been clicked 0 times (0 times combined)!');
+        assert.ok(foo.textContent.indexOf('X-Bar') === -1);
 
-        assert.equal($bar.find('h1').text(), 'X-Bar');
-        assert.equal($bar.find('button').text(), 'Join 0 others in clicking me!');
-        assert.ok($bar.text().indexOf('X-Foo') === -1);
+        assert.equal(bar.querySelector('h1').textContent, 'X-Bar');
+        assert.equal(bar.querySelector('button').textContent, 'Join 0 others in clicking me!');
+        assert.ok(bar.textContent.indexOf('X-Foo') === -1);
 
-        _this11.runTask(function () {
-          $foo.find('x-foo').click();
+        _this10.runTask(function () {
+          _this10.click(foo.querySelector('x-foo'));
         });
 
-        assert.equal($foo.find('p').text(), 'Hello Godfrey, I have been clicked 1 times (1 times combined)!');
-        assert.equal($bar.find('button').text(), 'Join 1 others in clicking me!');
+        assert.equal(foo.querySelector('p').textContent, 'Hello Godfrey, I have been clicked 1 times (1 times combined)!');
+        assert.equal(bar.querySelector('button').textContent, 'Join 1 others in clicking me!');
 
-        _this11.runTask(function () {
-          $bar.find('button').click();
-          $bar.find('button').click();
+        _this10.runTask(function () {
+          _this10.click(bar.querySelector('button'));
+          _this10.click(bar.querySelector('button'));
         });
 
-        assert.equal($foo.find('p').text(), 'Hello Godfrey, I have been clicked 1 times (3 times combined)!');
-        assert.equal($bar.find('button').text(), 'Join 3 others in clicking me!');
+        assert.equal(foo.querySelector('p').textContent, 'Hello Godfrey, I have been clicked 1 times (3 times combined)!');
+        assert.equal(bar.querySelector('button').textContent, 'Join 3 others in clicking me!');
       }).finally(function () {
-        _this11.runTask(function () {
+        _this10.runTask(function () {
           instances.forEach(function (instance) {
             instance.destroy();
           });
@@ -8008,7 +8031,7 @@ enifed('ember-glimmer/tests/integration/application/engine-test', ['ember-babel'
       this.setupAppAndRoutableEngine(hooks);
 
       return this.visit('/blog', { shouldRender: false }).then(function () {
-        _this6.assertText('');
+        assert.strictEqual(document.getElementById('qunit-fixture').children.length, 0, 'there are no elements in the qunit-fixture element');
 
         _this6.assert.deepEqual(hooks, ['application - application', 'engine - application'], 'the expected model hooks were fired');
       });
@@ -61660,8 +61683,6 @@ enifed('ember-template-compiler/tests/plugins/transform-input-type-syntax-test',
 enifed('ember-template-compiler/tests/system/bootstrap-test', ['ember-babel', 'ember-metal', 'ember-views', 'ember-glimmer', 'ember-template-compiler/system/bootstrap', 'internal-test-helpers'], function (_emberBabel, _emberMetal, _emberViews, _emberGlimmer, _bootstrap, _internalTestHelpers) {
   'use strict';
 
-  var trim = _emberViews.jQuery.trim;
-
   var component = void 0,
       fixture = void 0;
 
@@ -61736,7 +61757,7 @@ enifed('ember-template-compiler/tests/system/bootstrap-test', ['ember-babel', 'e
       assert.ok(template, 'template with name funkyTemplate available');
 
       // This won't even work with Ember templates
-      assert.equal(trim(template({ name: 'Tobias' })), 'Tobias');
+      assert.equal(template({ name: 'Tobias' }).trim(), 'Tobias');
     };
 
     _class.prototype['@test duplicated default application templates should throw exception'] = function (assert) {
@@ -66019,7 +66040,7 @@ enifed('ember/tests/helpers/link_to_test', ['ember-babel', 'internal-test-helper
         this.route('item', { path: '/item/:id' });
       });
 
-      this.addTemplate('about', '\n      <h3>List</h3>\n      <ul>\n        {{#each model as |person|}}\n          <li>\n            {{#link-to \'item\' person}}\n              {{person.name}}\n            {{/link-to}}\n          </li>\n        {{/each}}\n      </ul>\n      {{#link-to \'index\' id=\'home-link\'}}Home{{/link-to}}\n    ');
+      this.addTemplate('about', '\n      <h3>List</h3>\n      <ul>\n        {{#each model as |person|}}\n          <li>\n            {{#link-to \'item\' person id=person.id}}\n              {{person.name}}\n            {{/link-to}}\n          </li>\n        {{/each}}\n      </ul>\n      {{#link-to \'index\' id=\'home-link\'}}Home{{/link-to}}\n    ');
 
       this.addTemplate('item', '\n      <h3>Item</h3>\n      <p>{{model.name}}</p>\n      {{#link-to \'index\' id=\'home-link\'}}Home{{/link-to}}\n    ');
 
@@ -66036,7 +66057,7 @@ enifed('ember/tests/helpers/link_to_test', ['ember-babel', 'internal-test-helper
       assert.equal(this.$('h3:contains(List)').length, 1, 'The home template was rendered');
       assert.equal(normalizeUrl(this.$('#home-link').attr('href')), '/', 'The home link points back at /');
 
-      this.click('li a:contains(Yehuda)');
+      this.click('#yehuda');
 
       assert.equal(this.$('h3:contains(Item)').length, 1, 'The item template was rendered');
       assert.equal(this.$('p').text(), 'Yehuda Katz', 'The name is correct');
@@ -66048,7 +66069,7 @@ enifed('ember/tests/helpers/link_to_test', ['ember-babel', 'internal-test-helper
       assert.equal(normalizeUrl(this.$('li a:contains(Tom)').attr('href')), '/item/tom');
       assert.equal(normalizeUrl(this.$('li a:contains(Erik)').attr('href')), '/item/erik');
 
-      this.click('li a:contains(Erik)');
+      this.click('#erik');
 
       assert.equal(this.$('h3:contains(Item)').length, 1, 'The item template was rendered');
       assert.equal(this.$('p').text(), 'Erik Brynroflsson', 'The name is correct');
@@ -66426,12 +66447,12 @@ enifed('ember/tests/helpers/link_to_test', ['ember-babel', 'internal-test-helper
         }
       }));
 
-      this.addTemplate('index', '\n      <h3>Home</h3>\n      <ul>\n        {{#each model as |person|}}\n          <li>\n            {{link-to person.name \'item\' person}}\n          </li>\n        {{/each}}\n      </ul>\n    ');
+      this.addTemplate('index', '\n      <h3>Home</h3>\n      <ul>\n        {{#each model as |person|}}\n          <li>\n            {{link-to person.name \'item\' person id=person.id}}\n          </li>\n        {{/each}}\n      </ul>\n    ');
       this.addTemplate('item', '\n      <h3>Item</h3>\n      <p>{{model.name}}</p>\n      {{#link-to \'index\' id=\'home-link\'}}Home{{/link-to}}\n    ');
 
       this.visit('/');
 
-      this.click('li a:contains(Yehuda)');
+      this.click('#yehuda');
 
       assert.equal(this.$('h3:contains(Item)').length, 1, 'The item template was rendered');
       assert.equal(this.$('p').text(), 'Yehuda Katz', 'The name is correct');
@@ -66725,7 +66746,7 @@ enifed('ember/tests/helpers/link_to_test', ['ember-babel', 'internal-test-helper
       assertLinkStatus(staticLink);
 
       expectWarning(function () {
-        _this9.click(contextLink);
+        _this9.click(contextLink[0]);
       }, warningMessage);
 
       // Set the destinationRoute (context is still null).
@@ -66759,7 +66780,7 @@ enifed('ember/tests/helpers/link_to_test', ['ember-babel', 'internal-test-helper
       assertLinkStatus(contextLink);
 
       expectWarning(function () {
-        _this9.click(staticLink);
+        _this9.click(staticLink[0]);
       }, warningMessage);
 
       this.runTask(function () {
@@ -66768,7 +66789,7 @@ enifed('ember/tests/helpers/link_to_test', ['ember-babel', 'internal-test-helper
       assertLinkStatus(staticLink, '/about');
 
       // Click the now-active link
-      this.click(staticLink);
+      this.click(staticLink[0]);
     };
 
     return _class5;
@@ -67854,8 +67875,6 @@ enifed('ember/tests/reexports_test', ['ember/index', 'internal-test-helpers'], f
 });
 enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember-runtime', 'ember-routing', 'ember-metal', 'ember-glimmer', 'ember-views', 'ember-environment', 'ember-template-compiler', 'ember-application', 'router'], function (_emberUtils, _emberConsole, _emberRuntime, _emberRouting, _emberMetal, _emberGlimmer, _emberViews, _emberEnvironment, _emberTemplateCompiler, _emberApplication, _router) {
   'use strict';
-
-  var trim = _emberViews.jQuery.trim;
 
   var Router = void 0,
       App = void 0,
@@ -70830,13 +70849,13 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
       }
     });
     bootApplication();
-    equal(trim((0, _emberViews.jQuery)('#qunit-fixture').text()), 'hi');
+    equal((0, _emberViews.jQuery)('#qunit-fixture').text().trim(), 'hi');
     (0, _emberMetal.run)(router, 'send', 'openLayer');
-    equal(trim((0, _emberViews.jQuery)('#qunit-fixture').text()), 'hilayer');
+    equal((0, _emberViews.jQuery)('#qunit-fixture').text().trim(), 'hilayer');
     (0, _emberMetal.run)(router, 'send', 'openLayer');
-    equal(trim((0, _emberViews.jQuery)('#qunit-fixture').text()), 'hilayer');
+    equal((0, _emberViews.jQuery)('#qunit-fixture').text().trim(), 'hilayer');
     (0, _emberMetal.run)(router, 'send', 'close');
-    equal(trim((0, _emberViews.jQuery)('#qunit-fixture').text()), 'hi');
+    equal((0, _emberViews.jQuery)('#qunit-fixture').text().trim(), 'hi');
   });
 
   QUnit.test('Renders child into parent with non-default template name', function () {
@@ -70890,11 +70909,11 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
       }
     });
     bootApplication();
-    equal(trim((0, _emberViews.jQuery)('#qunit-fixture').text()), 'hi');
+    equal((0, _emberViews.jQuery)('#qunit-fixture').text().trim(), 'hi');
     (0, _emberMetal.run)(router, 'send', 'openLayer');
-    equal(trim((0, _emberViews.jQuery)('#qunit-fixture').text()), 'hilayer');
+    equal((0, _emberViews.jQuery)('#qunit-fixture').text().trim(), 'hilayer');
     (0, _emberMetal.run)(router, 'send', 'close');
-    equal(trim((0, _emberViews.jQuery)('#qunit-fixture').text()), 'hi');
+    equal((0, _emberViews.jQuery)('#qunit-fixture').text().trim(), 'hi');
   });
 
   QUnit.test('Can this.render({into:...}) the render helper', function () {
@@ -77338,7 +77357,7 @@ enifed('internal-test-helpers/strip', ['exports'], function (exports) {
     }).join('');
   };
 });
-enifed('internal-test-helpers/test-cases/abstract-application', ['exports', 'ember-babel', 'ember-template-compiler', 'ember-views', 'ember/features', 'internal-test-helpers/test-cases/abstract', 'internal-test-helpers/run'], function (exports, _emberBabel, _emberTemplateCompiler, _emberViews, _features, _abstract, _run) {
+enifed('internal-test-helpers/test-cases/abstract-application', ['exports', 'ember-babel', 'ember-template-compiler', 'ember/features', 'internal-test-helpers/test-cases/abstract', 'internal-test-helpers/run'], function (exports, _emberBabel, _emberTemplateCompiler, _features, _abstract, _run) {
   'use strict';
 
   var AbstractApplicationTestCase = function (_AbstractTestCase) {
@@ -77363,9 +77382,9 @@ enifed('internal-test-helpers/test-cases/abstract-application', ['exports', 'emb
         if (this._element) {
           return this._element;
         } else if (_features.EMBER_GLIMMER_REMOVE_APPLICATION_TEMPLATE_WRAPPER) {
-          return this._element = (0, _emberViews.jQuery)('#qunit-fixture')[0];
+          return this._element = document.querySelector('#qunit-fixture');
         } else {
-          return this._element = (0, _emberViews.jQuery)('#qunit-fixture > div.ember-view')[0];
+          return this._element = document.querySelector('#qunit-fixture > div.ember-view');
         }
       },
       set: function (element) {
@@ -77417,7 +77436,7 @@ enifed('internal-test-helpers/test-cases/abstract-rendering', ['exports', 'ember
       });
 
       _this.renderer = _this.owner.lookup('renderer:-dom');
-      _this.element = (0, _emberViews.jQuery)('#qunit-fixture')[0];
+      _this.element = document.querySelector('#qunit-fixture');
       _this.component = null;
 
       owner.register('event_dispatcher:main', _emberViews.EventDispatcher);
@@ -77579,6 +77598,12 @@ enifed('internal-test-helpers/test-cases/abstract', ['exports', 'ember-babel', '
       this.element = null;
       this.snapshot = null;
       this.assert = QUnit.config.current.assert;
+
+      var fixture = this.fixture;
+
+      if (fixture) {
+        this.setupFixture(fixture);
+      }
     }
 
     AbstractTestCase.prototype.teardown = function () {};
@@ -77589,6 +77614,11 @@ enifed('internal-test-helpers/test-cases/abstract', ['exports', 'ember-babel', '
 
     AbstractTestCase.prototype.runTaskNext = function (callback) {
       return _emberMetal.run.next(callback);
+    };
+
+    AbstractTestCase.prototype.setupFixture = function (innerHTML) {
+      var fixture = document.getElementById('qunit-fixture');
+      fixture.innerHTML = innerHTML;
     };
 
     AbstractTestCase.prototype.nthChild = function (n) {
@@ -77615,11 +77645,17 @@ enifed('internal-test-helpers/test-cases/abstract', ['exports', 'ember-babel', '
     };
 
     AbstractTestCase.prototype.click = function (selector) {
-      return this.$(selector).click();
+      var element = void 0;
+      if (typeof selector === 'string') {
+        element = this.element.querySelector(selector);
+      } else {
+        element = selector;
+      }
+      return element.click();
     };
 
     AbstractTestCase.prototype.textValue = function () {
-      return this.$().text();
+      return this.element.textContent;
     };
 
     AbstractTestCase.prototype.takeSnapshot = function () {

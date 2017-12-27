@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.0.0-alpha.1-null+0486d07d
+ * @version   3.0.0-alpha.1-null+28da3574
  */
 
 /*globals process */
@@ -41918,6 +41918,7 @@ enifed('ember-views/system/event_dispatcher', ['exports', 'ember-utils', 'ember-
   @module ember
   */
 
+  var HAS_JQUERY = _jquery.default !== undefined;
   var ROOT_ELEMENT_CLASS = 'ember-application';
   var ROOT_ELEMENT_SELECTOR = '.' + ROOT_ELEMENT_CLASS;
 
@@ -42046,6 +42047,8 @@ enifed('ember-views/system/event_dispatcher', ['exports', 'ember-utils', 'ember-
         id: 'ember-views.event-dispatcher.canDispatchToEventManager',
         until: '2.17.0'
       });
+
+      this._eventHandlers = Object.create(null);
     },
 
     /**
@@ -42058,26 +42061,58 @@ enifed('ember-views/system/event_dispatcher', ['exports', 'ember-utils', 'ember-
       @method setup
       @param addedEvents {Object}
     */
-    setup: function (addedEvents, rootElement) {
-      var event = void 0;
+    setup: function (addedEvents, _rootElement) {
+      var event = void 0,
+          rootElement = void 0;
       var events = this._finalEvents = (0, _emberUtils.assign)({}, (0, _emberMetal.get)(this, 'events'), addedEvents);
 
-      if ((0, _emberMetal.isNone)(rootElement)) {
-        rootElement = (0, _emberMetal.get)(this, 'rootElement');
-      } else {
-        (0, _emberMetal.set)(this, 'rootElement', rootElement);
+      if (!(0, _emberMetal.isNone)(_rootElement)) {
+        (0, _emberMetal.set)(this, 'rootElement', _rootElement);
       }
 
-      rootElement = (0, _jquery.default)(rootElement);
+      var rootElementSelector = (0, _emberMetal.get)(this, 'rootElement');
+      if (HAS_JQUERY) {
+        rootElement = (0, _jquery.default)(rootElementSelector);
+        false && !!rootElement.is(ROOT_ELEMENT_SELECTOR) && (0, _emberDebug.assert)('You cannot use the same root element (' + (rootElement.selector || rootElement[0].tagName) + ') multiple times in an Ember.Application', !rootElement.is(ROOT_ELEMENT_SELECTOR));
+        false && !!rootElement.closest(ROOT_ELEMENT_SELECTOR).length && (0, _emberDebug.assert)('You cannot make a new Ember.Application using a root element that is a descendent of an existing Ember.Application', !rootElement.closest(ROOT_ELEMENT_SELECTOR).length);
+        false && !!rootElement.find(ROOT_ELEMENT_SELECTOR).length && (0, _emberDebug.assert)('You cannot make a new Ember.Application using a root element that is an ancestor of an existing Ember.Application', !rootElement.find(ROOT_ELEMENT_SELECTOR).length);
 
-      false && !!rootElement.is(ROOT_ELEMENT_SELECTOR) && (0, _emberDebug.assert)('You cannot use the same root element (' + (rootElement.selector || rootElement[0].tagName) + ') multiple times in an Ember.Application', !rootElement.is(ROOT_ELEMENT_SELECTOR));
-      false && !!rootElement.closest(ROOT_ELEMENT_SELECTOR).length && (0, _emberDebug.assert)('You cannot make a new Ember.Application using a root element that is a descendent of an existing Ember.Application', !rootElement.closest(ROOT_ELEMENT_SELECTOR).length);
-      false && !!rootElement.find(ROOT_ELEMENT_SELECTOR).length && (0, _emberDebug.assert)('You cannot make a new Ember.Application using a root element that is an ancestor of an existing Ember.Application', !rootElement.find(ROOT_ELEMENT_SELECTOR).length);
+        rootElement.addClass(ROOT_ELEMENT_CLASS);
 
-      rootElement.addClass(ROOT_ELEMENT_CLASS);
+        if (!rootElement.is(ROOT_ELEMENT_SELECTOR)) {
+          throw new TypeError('Unable to add \'' + ROOT_ELEMENT_CLASS + '\' class to root element (' + (rootElement.selector || rootElement[0].tagName) + '). Make sure you set rootElement to the body or an element in the body.');
+        }
+      } else {
+        if (typeof rootElementSelector !== 'string') {
+          rootElement = rootElementSelector;
+        } else {
+          rootElement = document.querySelector(rootElementSelector);
+        }
 
-      if (!rootElement.is(ROOT_ELEMENT_SELECTOR)) {
-        throw new TypeError('Unable to add \'' + ROOT_ELEMENT_CLASS + '\' class to root element (' + (rootElement.selector || rootElement[0].tagName) + '). Make sure you set rootElement to the body or an element in the body.');
+        false && !!rootElement.classList.contains(ROOT_ELEMENT_CLASS) && (0, _emberDebug.assert)('You cannot use the same root element (' + ((0, _emberMetal.get)(this, 'rootElement') || rootElement.tagName) + ') multiple times in an Ember.Application', !rootElement.classList.contains(ROOT_ELEMENT_CLASS));
+        false && !function () {
+          var target = rootElement.parentNode;
+          do {
+            if (target.classList.contains(ROOT_ELEMENT_CLASS)) {
+              return false;
+            }
+
+            target = target.parentNode;
+          } while (target && target.nodeType === 1);
+
+          return true;
+        }() && (0, _emberDebug.assert)('You cannot make a new Ember.Application using a root element that is a descendent of an existing Ember.Application', function () {
+          var target = rootElement.parentNode;do {
+            if (target.classList.contains(ROOT_ELEMENT_CLASS)) {
+              return false;
+            }target = target.parentNode;
+          } while (target && target.nodeType === 1);return true;
+        }());
+        false && !!rootElement.querySelector(ROOT_ELEMENT_SELECTOR) && (0, _emberDebug.assert)('You cannot make a new Ember.Application using a root element that is an ancestor of an existing Ember.Application', !rootElement.querySelector(ROOT_ELEMENT_SELECTOR));
+
+        rootElement.classList.add(ROOT_ELEMENT_CLASS);
+
+        false && !rootElement.classList.contains(ROOT_ELEMENT_CLASS) && (0, _emberDebug.assert)('Unable to add \'' + ROOT_ELEMENT_CLASS + '\' class to root element (' + ((0, _emberMetal.get)(this, 'rootElement') || rootElement.tagName) + '). Make sure you set rootElement to the body or an element in the body.', rootElement.classList.contains(ROOT_ELEMENT_CLASS));
       }
 
       var viewRegistry = this._getViewRegistry();
@@ -42103,57 +42138,145 @@ enifed('ember-views/system/event_dispatcher', ['exports', 'ember-utils', 'ember-
       @param {Object} viewRegistry
     */
     setupHandler: function (rootElement, event, eventName, viewRegistry) {
+      var _this2 = this,
+          viewHandler,
+          actionHandler,
+          handleEvent;
+
       var self = this;
 
       if (eventName === null) {
         return;
       }
 
-      rootElement.on(event + '.ember', '.ember-view', function (evt, triggeringManager) {
-        var view = viewRegistry[this.id];
-        var result = true;
+      if (HAS_JQUERY) {
+        rootElement.on(event + '.ember', '.ember-view', function (evt, triggeringManager) {
+          var view = viewRegistry[this.id];
+          var result = true;
 
-        var manager = self.canDispatchToEventManager ? self._findNearestEventManager(view, eventName) : null;
+          var manager = self.canDispatchToEventManager ? self._findNearestEventManager(view, eventName) : null;
 
-        if (manager && manager !== triggeringManager) {
-          result = self._dispatchEvent(manager, evt, eventName, view);
-        } else if (view) {
-          result = self._bubbleEvent(view, evt, eventName);
-        }
+          if (manager && manager !== triggeringManager) {
+            result = self._dispatchEvent(manager, evt, eventName, view);
+          } else if (view) {
+            result = self._bubbleEvent(view, evt, eventName);
+          }
 
-        return result;
-      });
+          return result;
+        });
 
-      rootElement.on(event + '.ember', '[data-ember-action]', function (evt) {
-        var attributes = evt.currentTarget.attributes,
-            i,
-            attr,
-            attrName,
-            action;
-        var handledActions = [];
+        rootElement.on(event + '.ember', '[data-ember-action]', function (evt) {
+          var attributes = evt.currentTarget.attributes,
+              i,
+              attr,
+              attrName,
+              action;
+          var handledActions = [];
 
-        for (i = 0; i < attributes.length; i++) {
-          attr = attributes.item(i);
-          attrName = attr.name;
+          for (i = 0; i < attributes.length; i++) {
+            attr = attributes.item(i);
+            attrName = attr.name;
 
 
-          if (attrName.lastIndexOf('data-ember-action-', 0) !== -1) {
-            action = _action_manager.default.registeredActions[attr.value];
+            if (attrName.lastIndexOf('data-ember-action-', 0) !== -1) {
+              action = _action_manager.default.registeredActions[attr.value];
 
-            // We have to check for action here since in some cases, jQuery will trigger
-            // an event on `removeChild` (i.e. focusout) after we've already torn down the
-            // action handlers for the view.
+              // We have to check for action here since in some cases, jQuery will trigger
+              // an event on `removeChild` (i.e. focusout) after we've already torn down the
+              // action handlers for the view.
 
-            if (action && action.eventName === eventName && handledActions.indexOf(action) === -1) {
-              action.handler(evt);
-              // Action handlers can mutate state which in turn creates new attributes on the element.
-              // This effect could cause the `data-ember-action` attribute to shift down and be invoked twice.
-              // To avoid this, we keep track of which actions have been handled.
-              handledActions.push(action);
+              if (action && action.eventName === eventName && handledActions.indexOf(action) === -1) {
+                action.handler(evt);
+                // Action handlers can mutate state which in turn creates new attributes on the element.
+                // This effect could cause the `data-ember-action` attribute to shift down and be invoked twice.
+                // To avoid this, we keep track of which actions have been handled.
+                handledActions.push(action);
+              }
             }
           }
-        }
-      });
+        });
+      } else {
+        viewHandler = function (target, event) {
+          var view = viewRegistry[target.id];
+          var result = true;
+
+          if (view) {
+            result = _this2._bubbleEvent(view, event, eventName);
+          }
+
+          return result;
+        };
+        actionHandler = function (target, event) {
+          var actionId = target.getAttribute('data-ember-action'),
+              attributes,
+              attributeCount,
+              i,
+              attr,
+              attrName,
+              index,
+              action;
+          var actions = _action_manager.default.registeredActions[actionId];
+
+          // In Glimmer2 this attribute is set to an empty string and an additional
+          // attribute it set for each action on a given element. In this case, the
+          // attributes need to be read so that a proper set of action handlers can
+          // be coalesced.
+          if (actionId === '') {
+            attributes = target.attributes;
+            attributeCount = attributes.length;
+
+
+            actions = [];
+
+            for (i = 0; i < attributeCount; i++) {
+              attr = attributes.item(i);
+              attrName = attr.name;
+
+
+              if (attrName.indexOf('data-ember-action-') === 0) {
+                actions = actions.concat(_action_manager.default.registeredActions[attr.value]);
+              }
+            }
+          }
+
+          // We have to check for actions here since in some cases, jQuery will trigger
+          // an event on `removeChild` (i.e. focusout) after we've already torn down the
+          // action handlers for the view.
+          if (!actions) {
+            return;
+          }
+
+          for (index = 0; index < actions.length; index++) {
+            action = actions[index];
+
+
+            if (action && action.eventName === eventName) {
+              return action.handler(event);
+            }
+          }
+        };
+        handleEvent = this._eventHandlers[event] = function (event) {
+          var target = event.target;
+
+          do {
+            if (viewRegistry[target.id]) {
+              if (viewHandler(target, event) === false) {
+                event.preventDefault();
+                event.stopPropagation();
+                break;
+              }
+            } else if (target.hasAttribute('data-ember-action')) {
+              actionHandler(target, event);
+              break;
+            }
+
+            target = target.parentNode;
+          } while (target && target.nodeType === 1);
+        };
+
+
+        rootElement.addEventListener(event, handleEvent);
+      }
     },
     _getViewRegistry: function () {
       var owner = (0, _emberUtils.getOwner)(this);
@@ -42193,8 +42316,28 @@ enifed('ember-views/system/event_dispatcher', ['exports', 'ember-utils', 'ember-
       return view.handleEvent(eventName, evt);
     },
     destroy: function () {
-      var rootElement = (0, _emberMetal.get)(this, 'rootElement');
-      (0, _jquery.default)(rootElement).off('.ember', '**').removeClass(ROOT_ELEMENT_CLASS);
+      var rootElementSelector = (0, _emberMetal.get)(this, 'rootElement');
+      var rootElement = void 0;
+      if (rootElementSelector.nodeType) {
+        rootElement = rootElementSelector;
+      } else {
+        rootElement = document.querySelector(rootElementSelector);
+      }
+
+      if (!rootElement) {
+        return;
+      }
+
+      if (HAS_JQUERY) {
+        (0, _jquery.default)(rootElementSelector).off('.ember', '**');
+      } else {
+        for (var event in this._eventHandlers) {
+          rootElement.removeEventListener(event, this._eventHandlers[event]);
+        }
+      }
+
+      rootElement.classList.remove(ROOT_ELEMENT_CLASS);
+
       return this._super.apply(this, arguments);
     },
     toString: function () {
@@ -43264,7 +43407,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "3.0.0-alpha.1-null+0486d07d";
+  exports.default = "3.0.0-alpha.1-null+28da3574";
 });
 /*global enifed */
 enifed('node-module', ['exports'], function(_exports) {

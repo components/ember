@@ -3,7 +3,7 @@
         "name": "The Ember API",
         "description": "The Ember API: a framework for building ambitious web applications",
         "url": "https://emberjs.com/",
-        "version": "3.0.0-alpha.1.0486d07d"
+        "version": "3.0.0-alpha.1.28da3574"
     },
     "files": {
         "node_modules/rsvp/lib/rsvp/promise/all.js": {
@@ -3855,7 +3855,7 @@
             "module": "ember",
             "namespace": "Ember",
             "file": "packages/ember-views/lib/system/event_dispatcher.js",
-            "line": 17,
+            "line": 18,
             "description": "`Ember.EventDispatcher` handles delegating browser events to their\ncorresponding `Ember.Views.` For example, when you click on a view,\n`Ember.EventDispatcher` ensures that that view's `mouseDown` method gets\ncalled.",
             "access": "private",
             "tagname": "",
@@ -19215,7 +19215,7 @@
         },
         {
             "file": "packages/ember-views/lib/system/event_dispatcher.js",
-            "line": 30,
+            "line": 31,
             "description": "The set of events names (and associated handler function names) to be setup\nand dispatched by the `EventDispatcher`. Modifications to this list can be done\nat setup time, generally via the `Ember.Application.customEvents` hash.\n\nTo add new events to be listened to:\n\n```javascript\nlet App = Ember.Application.create({\n  customEvents: {\n    paste: 'paste'\n  }\n});\n```\n\nTo prevent default events from being listened to:\n\n```javascript\nlet App = Ember.Application.create({\n  customEvents: {\n    mouseenter: null,\n    mouseleave: null\n  }\n});\n```",
             "itemtype": "property",
             "name": "events",
@@ -19228,7 +19228,7 @@
         },
         {
             "file": "packages/ember-views/lib/system/event_dispatcher.js",
-            "line": 89,
+            "line": 90,
             "description": "The root DOM element to which event listeners should be attached. Event\nlisteners will be attached to the document unless this is overridden.\n\nCan be specified as a DOMElement or a selector string.\n\nThe default body is a string since this may be evaluated before document.body\nexists in the DOM.",
             "access": "private",
             "tagname": "",
@@ -19242,7 +19242,7 @@
         },
         {
             "file": "packages/ember-views/lib/system/event_dispatcher.js",
-            "line": 105,
+            "line": 106,
             "description": "It enables events to be dispatched to the view's `eventManager.` When present,\nthis object takes precedence over handling of events on the view itself.\n\nNote that most Ember applications do not use this feature. If your app also\ndoes not use it, consider setting this property to false to gain some performance\nimprovement by allowing the EventDispatcher to skip the search for the\n`eventManager` on the view tree.\n\n```javascript\nlet EventDispatcher = Em.EventDispatcher.extend({\n  events: {\n      click       : 'click',\n      focusin     : 'focusIn',\n      focusout    : 'focusOut',\n      change      : 'change'\n  },\n  canDispatchToEventManager: false\n});\ncontainer.register('event_dispatcher:main', EventDispatcher);\n```",
             "itemtype": "property",
             "name": "canDispatchToEventManager",
@@ -19258,7 +19258,7 @@
         },
         {
             "file": "packages/ember-views/lib/system/event_dispatcher.js",
-            "line": 155,
+            "line": 158,
             "description": "Sets up event listeners for standard browser events.\n\nThis will be called after the browser sends a `DOMContentReady` event. By\ndefault, it will set up all of the listeners on the document body. If you\nwould like to register the listeners on a different element, set the event\ndispatcher's `root` property.",
             "access": "private",
             "tagname": "",
@@ -19277,7 +19277,7 @@
         },
         {
             "file": "packages/ember-views/lib/system/event_dispatcher.js",
-            "line": 198,
+            "line": 226,
             "description": "Registers an event listener on the rootElement. If the given event is\ntriggered, the provided event handler will be triggered on the target view.\n\nIf the target view does not implement the event handler, or if the handler\nreturns `false`, the parent view will be called. The event will continue to\nbubble to each successive parent view until it reaches the top.",
             "access": "private",
             "tagname": "",
