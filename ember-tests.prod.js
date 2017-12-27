@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.18.0-beta.4
+ * @version   2.18.0-beta.4-null+dc2b9fc8
  */
 
 /*global process */
@@ -64659,8 +64659,17 @@ enifed('ember/tests/helpers/link_to_test', ['ember-babel', 'ember-console', 'int
       assert.equal(this.$('#about-link.do-not-want').length, 1, 'The link can apply a custom disabled class via bound param');
     };
 
-    _class.prototype['@test the {{link-to}} helper does not respond to clicks when disabled'] = function (assert) {
+    _class.prototype['@test the {{link-to}} helper does not respond to clicks when disabledWhen'] = function (assert) {
       this.addTemplate('index', '\n      {{#link-to "about" id="about-link" disabledWhen=true}}About{{/link-to}}\n    ');
+
+      this.visit('/');
+      this.click('#about-link');
+
+      assert.equal(this.$('h3:contains(About)').length, 0, 'Transitioning did not occur');
+    };
+
+    _class.prototype['@test the {{link-to}} helper does not respond to clicks when disabled'] = function (assert) {
+      this.addTemplate('index', '\n      {{#link-to "about" id="about-link" disabled=true}}About{{/link-to}}\n    ');
 
       this.visit('/');
       this.click('#about-link');

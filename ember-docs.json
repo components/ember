@@ -3,7 +3,7 @@
         "name": "The Ember API",
         "description": "The Ember API: a framework for building ambitious web applications",
         "url": "https://emberjs.com/",
-        "version": "v2.18.0-beta.4"
+        "version": "2.18.0-beta.4.dc2b9fc8"
     },
     "files": {
         "node_modules/rsvp/lib/rsvp/promise/all.js": {
@@ -2493,7 +2493,7 @@
             "module": "@ember/routing",
             "namespace": "",
             "file": "packages/ember-glimmer/lib/components/link-to.ts",
-            "line": 334,
+            "line": 319,
             "description": "`LinkComponent` renders an element whose `click` event triggers a\ntransition of the application's instance of `Router` to\na supplied route by name.\n\n`LinkComponent` components are invoked with {{#link-to}}. Properties\nof this class can be overridden with `reopen` to customize application-wide\nbehavior.",
             "extends": "Component",
             "see": [
@@ -7085,7 +7085,7 @@
         {
             "file": "packages/ember-glimmer/lib/components/link-to.ts",
             "line": 5,
-            "description": "The `{{link-to}}` component renders a link to the supplied\n`routeName` passing an optionally supplied model to the\nroute as its `model` context of the route. The block\nfor `{{link-to}}` becomes the innerHTML of the rendered\nelement:\n\n```handlebars\n{{#link-to 'photoGallery'}}\n  Great Hamster Photos\n{{/link-to}}\n```\n\nYou can also use an inline form of `{{link-to}}` component by\npassing the link text as the first argument\nto the component:\n\n```handlebars\n{{link-to 'Great Hamster Photos' 'photoGallery'}}\n```\n\nBoth will result in:\n\n```html\n<a href=\"/hamster-photos\">\n  Great Hamster Photos\n</a>\n```\n\n### Supplying a tagName\nBy default `{{link-to}}` renders an `<a>` element. This can\nbe overridden for a single use of `{{link-to}}` by supplying\na `tagName` option:\n\n```handlebars\n{{#link-to 'photoGallery' tagName=\"li\"}}\n  Great Hamster Photos\n{{/link-to}}\n```\n\n```html\n<li>\n  Great Hamster Photos\n</li>\n```\n\nTo override this option for your entire application, see\n\"Overriding Application-wide Defaults\".\n\n### Disabling the `link-to` component\nBy default `{{link-to}}` is enabled.\nany passed value to the `disabled` component property will disable\nthe `link-to` component.\n\nstatic use: the `disabled` option:\n\n```handlebars\n{{#link-to 'photoGallery' disabled=true}}\n  Great Hamster Photos\n{{/link-to}}\n```\n\ndynamic use: the `disabledWhen` option:\n\n```handlebars\n{{#link-to 'photoGallery' disabledWhen=controller.someProperty}}\n  Great Hamster Photos\n{{/link-to}}\n```\n\nany passed value to `disabled` will disable it except `undefined`.\nto ensure that only `true` disable the `link-to` component you can\noverride the global behavior of `LinkComponent`.\n\n```javascript\nimport LinkComponent from '@ember/routing/link-component';\nimport { computed } from '@ember/object';\n\nLinkComponent.reopen({\n  disabled: computed(function(key, value) {\n    if (value !== undefined) {\n      this.set('_isDisabled', value === true);\n    }\n    return value === true ? get(this, 'disabledClass') : false;\n  })\n});\n```\n\nsee \"Overriding Application-wide Defaults\" for more.\n\n### Handling `href`\n`{{link-to}}` will use your application's Router to\nfill the element's `href` property with a url that\nmatches the path to the supplied `routeName` for your\nrouter's configured `Location` scheme, which defaults\nto HashLocation.\n\n### Handling current route\n`{{link-to}}` will apply a CSS class name of 'active'\nwhen the application's current route matches\nthe supplied routeName. For example, if the application's\ncurrent route is 'photoGallery.recent' the following\nuse of `{{link-to}}`:\n\n```handlebars\n{{#link-to 'photoGallery.recent'}}\n  Great Hamster Photos\n{{/link-to}}\n```\n\nwill result in\n\n```html\n<a href=\"/hamster-photos/this-week\" class=\"active\">\n  Great Hamster Photos\n</a>\n```\n\nThe CSS class name used for active classes can be customized\nfor a single use of `{{link-to}}` by passing an `activeClass`\noption:\n\n```handlebars\n{{#link-to 'photoGallery.recent' activeClass=\"current-url\"}}\n  Great Hamster Photos\n{{/link-to}}\n```\n\n```html\n<a href=\"/hamster-photos/this-week\" class=\"current-url\">\n  Great Hamster Photos\n</a>\n```\n\nTo override this option for your entire application, see\n\"Overriding Application-wide Defaults\".\n\n### Keeping a link active for other routes\n\nIf you need a link to be 'active' even when it doesn't match\nthe current route, you can use the `current-when` argument.\n\n```handlebars\n{{#link-to 'photoGallery' current-when='photos'}}\n  Photo Gallery\n{{/link-to}}\n```\n\nThis may be helpful for keeping links active for:\n\n* non-nested routes that are logically related\n* some secondary menu approaches\n* 'top navigation' with 'sub navigation' scenarios\n\nA link will be active if `current-when` is `true` or the current\nroute is the route this link would transition to.\n\nTo match multiple routes 'space-separate' the routes:\n\n```handlebars\n{{#link-to 'gallery' current-when='photos drawings paintings'}}\n  Art Gallery\n{{/link-to}}\n```\n\n### Supplying a model\nAn optional model argument can be used for routes whose\npaths contain dynamic segments. This argument will become\nthe model context of the linked route:\n\n```javascript\nRouter.map(function() {\n  this.route(\"photoGallery\", {path: \"hamster-photos/:photo_id\"});\n});\n```\n\n```handlebars\n{{#link-to 'photoGallery' aPhoto}}\n  {{aPhoto.title}}\n{{/link-to}}\n```\n\n```html\n<a href=\"/hamster-photos/42\">\n  Tomster\n</a>\n```\n\n### Supplying multiple models\nFor deep-linking to route paths that contain multiple\ndynamic segments, multiple model arguments can be used.\nAs the router transitions through the route path, each\nsupplied model argument will become the context for the\nroute with the dynamic segments:\n\n```javascript\nRouter.map(function() {\n  this.route(\"photoGallery\", { path: \"hamster-photos/:photo_id\" }, function() {\n    this.route(\"comment\", {path: \"comments/:comment_id\"});\n  });\n});\n```\nThis argument will become the model context of the linked route:\n\n```handlebars\n{{#link-to 'photoGallery.comment' aPhoto comment}}\n  {{comment.body}}\n{{/link-to}}\n```\n\n```html\n<a href=\"/hamster-photos/42/comments/718\">\n  A+++ would snuggle again.\n</a>\n```\n\n### Supplying an explicit dynamic segment value\nIf you don't have a model object available to pass to `{{link-to}}`,\nan optional string or integer argument can be passed for routes whose\npaths contain dynamic segments. This argument will become the value\nof the dynamic segment:\n\n```javascript\nRouter.map(function() {\n  this.route(\"photoGallery\", { path: \"hamster-photos/:photo_id\" });\n});\n```\n\n```handlebars\n{{#link-to 'photoGallery' aPhotoId}}\n  {{aPhoto.title}}\n{{/link-to}}\n```\n\n```html\n<a href=\"/hamster-photos/42\">\n  Tomster\n</a>\n```\n\nWhen transitioning into the linked route, the `model` hook will\nbe triggered with parameters including this passed identifier.\n\n### Allowing Default Action\n\nBy default the `{{link-to}}` component prevents the default browser action\nby calling `preventDefault()` as this sort of action bubbling is normally\nhandled internally and we do not want to take the browser to a new URL (for\nexample).\n\nIf you need to override this behavior specify `preventDefault=false` in\nyour template:\n\n```handlebars\n{{#link-to 'photoGallery' aPhotoId preventDefault=false}}\n  {{aPhotoId.title}}\n{{/link-to}}\n```\n\n### Overriding attributes\nYou can override any given property of the `LinkComponent`\nthat is generated by the `{{link-to}}` component by passing\nkey/value pairs, like so:\n\n```handlebars\n{{#link-to  aPhoto tagName='li' title='Following this link will change your life' classNames='pic sweet'}}\n  Uh-mazing!\n{{/link-to}}\n```\n\nSee [LinkComponent](/api/classes/Ember.LinkComponent.html) for a\ncomplete list of overrideable properties. Be sure to also\ncheck out inherited properties of `LinkComponent`.\n\n### Overriding Application-wide Defaults\n``{{link-to}}`` creates an instance of `LinkComponent`\nfor rendering. To override options for your entire\napplication, reopen `LinkComponent` and supply the\ndesired values:\n\n``` javascript\nimport LinkComponent from '@ember/routing/link-component';\n\nLinkComponent.reopen({\n  activeClass: \"is-active\",\n  tagName: 'li'\n})\n```\n\nIt is also possible to override the default event in\nthis manner:\n\n``` javascript\nimport LinkCompoennt from '@ember/routing/link-component';\n\nLinkComponent.reopen({\n  eventName: 'customEventName'\n});\n```",
+            "description": "The `{{link-to}}` component renders a link to the supplied\n`routeName` passing an optionally supplied model to the\nroute as its `model` context of the route. The block\nfor `{{link-to}}` becomes the innerHTML of the rendered\nelement:\n\n```handlebars\n{{#link-to 'photoGallery'}}\n  Great Hamster Photos\n{{/link-to}}\n```\n\nYou can also use an inline form of `{{link-to}}` component by\npassing the link text as the first argument\nto the component:\n\n```handlebars\n{{link-to 'Great Hamster Photos' 'photoGallery'}}\n```\n\nBoth will result in:\n\n```html\n<a href=\"/hamster-photos\">\n  Great Hamster Photos\n</a>\n```\n\n### Supplying a tagName\nBy default `{{link-to}}` renders an `<a>` element. This can\nbe overridden for a single use of `{{link-to}}` by supplying\na `tagName` option:\n\n```handlebars\n{{#link-to 'photoGallery' tagName=\"li\"}}\n  Great Hamster Photos\n{{/link-to}}\n```\n\n```html\n<li>\n  Great Hamster Photos\n</li>\n```\n\nTo override this option for your entire application, see\n\"Overriding Application-wide Defaults\".\n\n### Disabling the `link-to` component\nBy default `{{link-to}}` is enabled.\nany passed value to the `disabled` component property will disable\nthe `link-to` component.\n\nstatic use: the `disabled` option:\n\n```handlebars\n{{#link-to 'photoGallery' disabled=true}}\n  Great Hamster Photos\n{{/link-to}}\n```\n\ndynamic use: the `disabledWhen` option:\n\n```handlebars\n{{#link-to 'photoGallery' disabledWhen=controller.someProperty}}\n  Great Hamster Photos\n{{/link-to}}\n```\n\nany truthy value passed to `disabled` will disable it except `undefined`.\n\nSee \"Overriding Application-wide Defaults\" for more.\n\n### Handling `href`\n`{{link-to}}` will use your application's Router to\nfill the element's `href` property with a url that\nmatches the path to the supplied `routeName` for your\nrouter's configured `Location` scheme, which defaults\nto HashLocation.\n\n### Handling current route\n`{{link-to}}` will apply a CSS class name of 'active'\nwhen the application's current route matches\nthe supplied routeName. For example, if the application's\ncurrent route is 'photoGallery.recent' the following\nuse of `{{link-to}}`:\n\n```handlebars\n{{#link-to 'photoGallery.recent'}}\n  Great Hamster Photos\n{{/link-to}}\n```\n\nwill result in\n\n```html\n<a href=\"/hamster-photos/this-week\" class=\"active\">\n  Great Hamster Photos\n</a>\n```\n\nThe CSS class name used for active classes can be customized\nfor a single use of `{{link-to}}` by passing an `activeClass`\noption:\n\n```handlebars\n{{#link-to 'photoGallery.recent' activeClass=\"current-url\"}}\n  Great Hamster Photos\n{{/link-to}}\n```\n\n```html\n<a href=\"/hamster-photos/this-week\" class=\"current-url\">\n  Great Hamster Photos\n</a>\n```\n\nTo override this option for your entire application, see\n\"Overriding Application-wide Defaults\".\n\n### Keeping a link active for other routes\n\nIf you need a link to be 'active' even when it doesn't match\nthe current route, you can use the `current-when` argument.\n\n```handlebars\n{{#link-to 'photoGallery' current-when='photos'}}\n  Photo Gallery\n{{/link-to}}\n```\n\nThis may be helpful for keeping links active for:\n\n* non-nested routes that are logically related\n* some secondary menu approaches\n* 'top navigation' with 'sub navigation' scenarios\n\nA link will be active if `current-when` is `true` or the current\nroute is the route this link would transition to.\n\nTo match multiple routes 'space-separate' the routes:\n\n```handlebars\n{{#link-to 'gallery' current-when='photos drawings paintings'}}\n  Art Gallery\n{{/link-to}}\n```\n\n### Supplying a model\nAn optional model argument can be used for routes whose\npaths contain dynamic segments. This argument will become\nthe model context of the linked route:\n\n```javascript\nRouter.map(function() {\n  this.route(\"photoGallery\", {path: \"hamster-photos/:photo_id\"});\n});\n```\n\n```handlebars\n{{#link-to 'photoGallery' aPhoto}}\n  {{aPhoto.title}}\n{{/link-to}}\n```\n\n```html\n<a href=\"/hamster-photos/42\">\n  Tomster\n</a>\n```\n\n### Supplying multiple models\nFor deep-linking to route paths that contain multiple\ndynamic segments, multiple model arguments can be used.\nAs the router transitions through the route path, each\nsupplied model argument will become the context for the\nroute with the dynamic segments:\n\n```javascript\nRouter.map(function() {\n  this.route(\"photoGallery\", { path: \"hamster-photos/:photo_id\" }, function() {\n    this.route(\"comment\", {path: \"comments/:comment_id\"});\n  });\n});\n```\nThis argument will become the model context of the linked route:\n\n```handlebars\n{{#link-to 'photoGallery.comment' aPhoto comment}}\n  {{comment.body}}\n{{/link-to}}\n```\n\n```html\n<a href=\"/hamster-photos/42/comments/718\">\n  A+++ would snuggle again.\n</a>\n```\n\n### Supplying an explicit dynamic segment value\nIf you don't have a model object available to pass to `{{link-to}}`,\nan optional string or integer argument can be passed for routes whose\npaths contain dynamic segments. This argument will become the value\nof the dynamic segment:\n\n```javascript\nRouter.map(function() {\n  this.route(\"photoGallery\", { path: \"hamster-photos/:photo_id\" });\n});\n```\n\n```handlebars\n{{#link-to 'photoGallery' aPhotoId}}\n  {{aPhoto.title}}\n{{/link-to}}\n```\n\n```html\n<a href=\"/hamster-photos/42\">\n  Tomster\n</a>\n```\n\nWhen transitioning into the linked route, the `model` hook will\nbe triggered with parameters including this passed identifier.\n\n### Allowing Default Action\n\nBy default the `{{link-to}}` component prevents the default browser action\nby calling `preventDefault()` as this sort of action bubbling is normally\nhandled internally and we do not want to take the browser to a new URL (for\nexample).\n\nIf you need to override this behavior specify `preventDefault=false` in\nyour template:\n\n```handlebars\n{{#link-to 'photoGallery' aPhotoId preventDefault=false}}\n  {{aPhotoId.title}}\n{{/link-to}}\n```\n\n### Overriding attributes\nYou can override any given property of the `LinkComponent`\nthat is generated by the `{{link-to}}` component by passing\nkey/value pairs, like so:\n\n```handlebars\n{{#link-to  aPhoto tagName='li' title='Following this link will change your life' classNames='pic sweet'}}\n  Uh-mazing!\n{{/link-to}}\n```\n\nSee [LinkComponent](/api/classes/Ember.LinkComponent.html) for a\ncomplete list of overrideable properties. Be sure to also\ncheck out inherited properties of `LinkComponent`.\n\n### Overriding Application-wide Defaults\n\n``{{link-to}}`` creates an instance of `LinkComponent` for rendering. To\noverride options for your entire application, export your customized\n`LinkComponent` from `app/components/link-to.js` with the desired overrides:\n\n```javascript\n// app/components/link-to.js\nimport LinkComponent from '@ember/routing/link-component';\n\nexport default LinkComponent.extend({\n  activeClass: \"is-active\",\n  tagName: 'li'\n})\n```\n\nIt is also possible to override the default event in this manner:\n\n```javascript\nimport LinkCompoennt from '@ember/routing/link-component';\n\nexport default LinkComponent.extend({\n  eventName: 'customEventName'\n});\n```",
             "itemtype": "method",
             "name": "link-to",
             "params": [
@@ -7122,7 +7122,7 @@
         },
         {
             "file": "packages/ember-glimmer/lib/components/link-to.ts",
-            "line": 353,
+            "line": 338,
             "deprecated": true,
             "deprecationMessage": "Use current-when instead.",
             "itemtype": "property",
@@ -7134,7 +7134,7 @@
         },
         {
             "file": "packages/ember-glimmer/lib/components/link-to.ts",
-            "line": 360,
+            "line": 345,
             "description": "Used to determine when this `LinkComponent` is active.",
             "itemtype": "property",
             "name": "current-when",
@@ -7145,7 +7145,7 @@
         },
         {
             "file": "packages/ember-glimmer/lib/components/link-to.ts",
-            "line": 368,
+            "line": 353,
             "description": "Sets the `title` attribute of the `LinkComponent`'s HTML element.",
             "itemtype": "property",
             "name": "title",
@@ -7157,7 +7157,7 @@
         },
         {
             "file": "packages/ember-glimmer/lib/components/link-to.ts",
-            "line": 377,
+            "line": 362,
             "description": "Sets the `rel` attribute of the `LinkComponent`'s HTML element.",
             "itemtype": "property",
             "name": "rel",
@@ -7169,7 +7169,7 @@
         },
         {
             "file": "packages/ember-glimmer/lib/components/link-to.ts",
-            "line": 386,
+            "line": 371,
             "description": "Sets the `tabindex` attribute of the `LinkComponent`'s HTML element.",
             "itemtype": "property",
             "name": "tabindex",
@@ -7181,7 +7181,7 @@
         },
         {
             "file": "packages/ember-glimmer/lib/components/link-to.ts",
-            "line": 395,
+            "line": 380,
             "description": "Sets the `target` attribute of the `LinkComponent`'s HTML element.",
             "since": "1.8.0",
             "itemtype": "property",
@@ -7194,7 +7194,7 @@
         },
         {
             "file": "packages/ember-glimmer/lib/components/link-to.ts",
-            "line": 405,
+            "line": 390,
             "description": "The CSS class to apply to `LinkComponent`'s element when its `active`\nproperty is `true`.",
             "itemtype": "property",
             "name": "activeClass",
@@ -7207,7 +7207,7 @@
         },
         {
             "file": "packages/ember-glimmer/lib/components/link-to.ts",
-            "line": 416,
+            "line": 401,
             "description": "The CSS class to apply to `LinkComponent`'s element when its `loading`\nproperty is `true`.",
             "itemtype": "property",
             "name": "loadingClass",
@@ -7220,7 +7220,7 @@
         },
         {
             "file": "packages/ember-glimmer/lib/components/link-to.ts",
-            "line": 427,
+            "line": 412,
             "description": "The CSS class to apply to a `LinkComponent`'s element when its `disabled`\nproperty is `true`.",
             "itemtype": "property",
             "name": "disabledClass",
@@ -7233,7 +7233,7 @@
         },
         {
             "file": "packages/ember-glimmer/lib/components/link-to.ts",
-            "line": 438,
+            "line": 423,
             "description": "Determines whether the `LinkComponent` will trigger routing via\nthe `replaceWith` routing strategy.",
             "itemtype": "property",
             "name": "replace",
@@ -7246,7 +7246,7 @@
         },
         {
             "file": "packages/ember-glimmer/lib/components/link-to.ts",
-            "line": 449,
+            "line": 434,
             "description": "By default the `{{link-to}}` component will bind to the `href` and\n`title` attributes. It's discouraged that you override these defaults,\nhowever you can push onto the array if needed.",
             "itemtype": "property",
             "name": "attributeBindings",
@@ -7259,7 +7259,7 @@
         },
         {
             "file": "packages/ember-glimmer/lib/components/link-to.ts",
-            "line": 461,
+            "line": 446,
             "description": "By default the `{{link-to}}` component will bind to the `active`, `loading`,\nand `disabled` classes. It is discouraged to override these directly.",
             "itemtype": "property",
             "name": "classNameBindings",
@@ -7272,7 +7272,7 @@
         },
         {
             "file": "packages/ember-glimmer/lib/components/link-to.ts",
-            "line": 472,
+            "line": 457,
             "description": "By default the `{{link-to}}` component responds to the `click` event. You\ncan override this globally by setting this property to your custom\nevent name.\n\nThis is particularly useful on mobile when one wants to avoid the 300ms\nclick delay using some sort of custom `tap` event.",
             "itemtype": "property",
             "name": "eventName",
@@ -7285,7 +7285,7 @@
         },
         {
             "file": "packages/ember-glimmer/lib/components/link-to.ts",
-            "line": 490,
+            "line": 475,
             "description": "Triggers the `LinkComponent`'s routing behavior. If\n`eventName` is changed to a value other than `click`\nthe routing behavior will trigger on that custom event\ninstead.",
             "itemtype": "event",
             "name": "click",
@@ -7296,7 +7296,7 @@
         },
         {
             "file": "packages/ember-glimmer/lib/components/link-to.ts",
-            "line": 500,
+            "line": 485,
             "description": "An overridable method called when `LinkComponent` objects are instantiated.\n\nExample:\n\n```app/components/my-link.js\nimport LinkComponent from '@ember/routing/link-component';\n\nexport default LinkComponent.extend({\n  init() {\n    this._super(...arguments);\n    console.log('Event is ' + this.get('eventName'));\n  }\n});\n```\n\nNOTE: If you do override `init` for a framework class like `Component`,\nbe sure to call `this._super(...arguments)` in your\n`init` declaration! If you don't, Ember may not have an opportunity to\ndo important setup work, and you'll see strange behavior in your\napplication.",
             "itemtype": "method",
             "name": "init",
@@ -7307,7 +7307,7 @@
         },
         {
             "file": "packages/ember-glimmer/lib/components/link-to.ts",
-            "line": 536,
+            "line": 520,
             "description": "Accessed as a classname binding to apply the `LinkComponent`'s `disabledClass`\nCSS `class` to the element when the link is disabled.\n\nWhen `true` interactions with the element will not trigger route changes.",
             "itemtype": "property",
             "name": "disabled",
@@ -7318,7 +7318,7 @@
         },
         {
             "file": "packages/ember-glimmer/lib/components/link-to.ts",
-            "line": 579,
+            "line": 567,
             "description": "Accessed as a classname binding to apply the `LinkComponent`'s `activeClass`\nCSS `class` to the element when the link is active.\n\nA `LinkComponent` is considered active when its `currentWhen` property is `true`\nor the application's current route is the route the `LinkComponent` would trigger\ntransitions into.\n\nThe `currentWhen` property can match against multiple routes by separating\nroute names using the ` ` (space) character.",
             "itemtype": "property",
             "name": "active",
@@ -7329,7 +7329,7 @@
         },
         {
             "file": "packages/ember-glimmer/lib/components/link-to.ts",
-            "line": 627,
+            "line": 615,
             "description": "Event handler that invokes the link, activating the associated route.",
             "itemtype": "method",
             "name": "_invoke",
@@ -7347,7 +7347,7 @@
         },
         {
             "file": "packages/ember-glimmer/lib/components/link-to.ts",
-            "line": 714,
+            "line": 702,
             "description": "Sets the element's `href` attribute to the url for\nthe `LinkComponent`'s targeted route.\n\nIf the `LinkComponent`'s `tagName` is changed to a value other\nthan `a`, this property will be ignored.",
             "itemtype": "property",
             "name": "href",
@@ -7358,7 +7358,7 @@
         },
         {
             "file": "packages/ember-glimmer/lib/components/link-to.ts",
-            "line": 801,
+            "line": 789,
             "description": "The default href value to use while a link-to is loading.\nOnly applies when tagName is 'a'",
             "itemtype": "property",
             "name": "loadingHref",
