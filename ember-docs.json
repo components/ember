@@ -3,7 +3,7 @@
         "name": "The Ember API",
         "description": "The Ember API: a framework for building ambitious web applications",
         "url": "https://emberjs.com/",
-        "version": "3.0.0-alpha.1.cd61ae43"
+        "version": "3.0.0-alpha.1.0486d07d"
     },
     "files": {
         "node_modules/rsvp/lib/rsvp/promise/all.js": {
@@ -5042,7 +5042,7 @@
         },
         {
             "file": "packages/container/lib/registry.js",
-            "line": 578,
+            "line": 577,
             "description": "Given a fullName and a source fullName returns the fully resolved\nfullName. Used to allow for local lookup.\n\n```javascript\nlet registry = new Registry();\n\n// the twitter factory is added to the module system\nregistry.expandLocalLookup('component:post-title', { source: 'template:post' }) // => component:post/post-title\n```",
             "access": "private",
             "tagname": "",

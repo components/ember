@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.0.0-alpha.1-null+cd61ae43
+ * @version   3.0.0-alpha.1-null+0486d07d
  */
 
 /*globals process */
@@ -10765,7 +10765,7 @@ enifed('container', ['exports', 'ember-utils', 'ember-debug', 'ember/features', 
       this._localLookupCache = Object.create(null);
       this._normalizeCache = (0, _emberUtils.dictionary)(null);
       this._resolveCache = (0, _emberUtils.dictionary)(null);
-      this._failCache = (0, _emberUtils.dictionary)(null);
+      this._failSet = new Set();
 
       this._options = (0, _emberUtils.dictionary)(null);
       this._typeOptions = (0, _emberUtils.dictionary)(null);
@@ -10847,7 +10847,7 @@ enifed('container', ['exports', 'ember-utils', 'ember-debug', 'ember/features', 
       var normalizedName = this.normalize(fullName);
       false && !!this._resolveCache[normalizedName] && (0, _emberDebug.assert)('Cannot re-register: \'' + fullName + '\', as it has already been resolved.', !this._resolveCache[normalizedName]);
 
-      delete this._failCache[normalizedName];
+      this._failSet.delete(normalizedName);
       this.registrations[normalizedName] = factory;
       this._options[normalizedName] = options;
     };
@@ -10861,8 +10861,8 @@ enifed('container', ['exports', 'ember-utils', 'ember-debug', 'ember/features', 
 
       delete this.registrations[normalizedName];
       delete this._resolveCache[normalizedName];
-      delete this._failCache[normalizedName];
       delete this._options[normalizedName];
+      this._failSet.delete(normalizedName);
     };
 
     Registry.prototype.resolve = function (fullName, options) {
@@ -10997,13 +10997,10 @@ enifed('container', ['exports', 'ember-utils', 'ember-debug', 'ember/features', 
     };
 
     Registry.prototype.knownForType = function (type) {
-      var fallbackKnown = void 0,
-          resolverKnown = void 0,
+      var localKnown = (0, _emberUtils.dictionary)(null),
           index,
           fullName,
           itemType;
-
-      var localKnown = (0, _emberUtils.dictionary)(null);
       var registeredNames = Object.keys(this.registrations);
       for (index = 0; index < registeredNames.length; index++) {
         fullName = registeredNames[index];
@@ -11015,6 +11012,8 @@ enifed('container', ['exports', 'ember-utils', 'ember-debug', 'ember/features', 
         }
       }
 
+      var fallbackKnown = void 0,
+          resolverKnown = void 0;
       if (this.fallback !== null) {
         fallbackKnown = this.fallback.knownForType(type);
       }
@@ -11130,7 +11129,7 @@ enifed('container', ['exports', 'ember-utils', 'ember-debug', 'ember/features', 
     if (cached !== undefined) {
       return cached;
     }
-    if (registry._failCache[cacheKey]) {
+    if (registry._failSet.has(cacheKey)) {
       return;
     }
 
@@ -11145,7 +11144,7 @@ enifed('container', ['exports', 'ember-utils', 'ember-debug', 'ember/features', 
     }
 
     if (resolved === undefined) {
-      registry._failCache[cacheKey] = true;
+      registry._failSet.add(cacheKey);
     } else {
       registry._resolveCache[cacheKey] = resolved;
     }
@@ -43265,7 +43264,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "3.0.0-alpha.1-null+cd61ae43";
+  exports.default = "3.0.0-alpha.1-null+0486d07d";
 });
 /*global enifed */
 enifed('node-module', ['exports'], function(_exports) {

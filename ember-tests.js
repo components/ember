@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.0.0-alpha.1-null+cd61ae43
+ * @version   3.0.0-alpha.1-null+0486d07d
  */
 
 /*globals process */
@@ -63726,22 +63726,30 @@ QUnit.test('should pass ESLint', function(assert) {
   assert.ok(true, 'ember-template-compiler/system/precompile.js should pass ESLint\n\n');
 });
 
-enifed('ember-template-compiler/tests/plugins/assert-input-helper-without-block-test', ['ember-template-compiler/index'], function (_index) {
+enifed('ember-template-compiler/tests/plugins/assert-input-helper-without-block-test', ['ember-babel', 'ember-template-compiler/index', 'internal-test-helpers'], function (_emberBabel, _index, _internalTestHelpers) {
   'use strict';
 
-  QUnit.module('ember-template-compiler: assert-input-helper-without-block');
+  (0, _internalTestHelpers.moduleFor)('ember-template-compiler: assert-input-helper-without-block', function (_AbstractTestCase) {
+    (0, _emberBabel.inherits)(_class, _AbstractTestCase);
 
-  QUnit.test('Using {{#input}}{{/input}} is not valid', function () {
-    expect(1);
+    function _class() {
+      (0, _emberBabel.classCallCheck)(this, _class);
+      return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase.apply(this, arguments));
+    }
 
-    var expectedMessage = 'The {{input}} helper cannot be used in block form. (\'baz/foo-bar\' @ L1:C0) ';
+    _class.prototype['@test Using {{#input}}{{/input}} is not valid'] = function testUsingInputInputIsNotValid() {
 
-    expectAssertion(function () {
-      (0, _index.compile)('{{#input value="123"}}Completely invalid{{/input}}', {
-        moduleName: 'baz/foo-bar'
-      });
-    }, expectedMessage);
-  });
+      var expectedMessage = 'The {{input}} helper cannot be used in block form. (\'baz/foo-bar\' @ L1:C0) ';
+
+      expectAssertion(function () {
+        (0, _index.compile)('{{#input value="123"}}Completely invalid{{/input}}', {
+          moduleName: 'baz/foo-bar'
+        });
+      }, expectedMessage);
+    };
+
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
 });
 QUnit.module('ESLint | ember-template-compiler/tests/plugins/assert-input-helper-without-block-test.js');
 QUnit.test('should pass ESLint', function(assert) {
@@ -63749,87 +63757,391 @@ QUnit.test('should pass ESLint', function(assert) {
   assert.ok(true, 'ember-template-compiler/tests/plugins/assert-input-helper-without-block-test.js should pass ESLint\n\n');
 });
 
-enifed('ember-template-compiler/tests/plugins/assert-reserved-named-arguments-test', ['ember/features', 'ember-template-compiler/index'], function (_features, _index) {
+enifed('ember-template-compiler/tests/plugins/assert-reserved-named-arguments-test', ['ember-babel', 'ember/features', 'ember-template-compiler/index', 'internal-test-helpers'], function (_emberBabel, _features, _index, _internalTestHelpers) {
   'use strict';
 
-  QUnit.module('ember-template-compiler: assert-reserved-named-arguments');
-
   if (_features.EMBER_GLIMMER_NAMED_ARGUMENTS) {
-    var RESERVED = ['@arguments', '@args',
-    // anything else that doesn't start with a lower case letter
-    '@Arguments', '@Args', '@A', '@FOO', '@Foo', '@.', '@_', '@-', '@$'];
+    (0, _internalTestHelpers.moduleFor)('ember-template-compiler: assert-reserved-named-arguments (EMBER_GLIMMER_NAMED_ARGUMENTS) ', function (_AbstractTestCase) {
+      (0, _emberBabel.inherits)(_class, _AbstractTestCase);
 
-    RESERVED.forEach(function (name) {
-      QUnit.test('\'' + name + '\' is reserved', function () {
-        expect(3);
+      function _class() {
+        (0, _emberBabel.classCallCheck)(this, _class);
+        return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase.apply(this, arguments));
+      }
 
+      _class.prototype['@test \'@arguments\' is reserved'] = function () {
         expectAssertion(function () {
-          (0, _index.compile)('{{' + name + '}}', {
+          (0, _index.compile)('{{@arguments}}', {
             moduleName: 'baz/foo-bar'
           });
-        }, '\'' + name + '\' is reserved. (\'baz/foo-bar\' @ L1:C2) ');
+        }, '\'@arguments\' is reserved. (\'baz/foo-bar\' @ L1:C2) ');
 
         expectAssertion(function () {
-          (0, _index.compile)('{{#if ' + name + '}}Yup{{/if}}', {
+          (0, _index.compile)('{{#if @arguments}}Yup{{/if}}', {
             moduleName: 'baz/foo-bar'
           });
-        }, '\'' + name + '\' is reserved. (\'baz/foo-bar\' @ L1:C6) ');
+        }, '\'@arguments\' is reserved. (\'baz/foo-bar\' @ L1:C6) ');
 
         expectAssertion(function () {
-          (0, _index.compile)('{{input type=(if ' + name + ' "bar" "baz")}}', {
+          (0, _index.compile)('{{input type=(if @arguments "bar" "baz")}}', {
             moduleName: 'baz/foo-bar'
           });
-        }, '\'' + name + '\' is reserved. (\'baz/foo-bar\' @ L1:C17) ');
-      });
-    });
+        }, '\'@arguments\' is reserved. (\'baz/foo-bar\' @ L1:C17) ');
+      };
 
-    var DE_FACTO_RESERVED = ['@', '@0', '@1', '@2', '@@', '@!', '@='];
+      _class.prototype['@test \'@args\' is reserved'] = function () {
+        expectAssertion(function () {
+          (0, _index.compile)('{{@args}}', {
+            moduleName: 'baz/foo-bar'
+          });
+        }, '\'@args\' is reserved. (\'baz/foo-bar\' @ L1:C2) ');
 
-    DE_FACTO_RESERVED.forEach(function (name) {
-      QUnit.test('\'' + name + '\' is de facto reserved (parse error)', function (assert) {
-        expect(3);
+        expectAssertion(function () {
+          (0, _index.compile)('{{#if @args}}Yup{{/if}}', {
+            moduleName: 'baz/foo-bar'
+          });
+        }, '\'@args\' is reserved. (\'baz/foo-bar\' @ L1:C6) ');
 
+        expectAssertion(function () {
+          (0, _index.compile)('{{input type=(if @args "bar" "baz")}}', {
+            moduleName: 'baz/foo-bar'
+          });
+        }, '\'@args\' is reserved. (\'baz/foo-bar\' @ L1:C17) ');
+      };
+
+      _class.prototype['@test \'@Arguments\' is reserved'] = function () {
+        expectAssertion(function () {
+          (0, _index.compile)('{{@Arguments}}', {
+            moduleName: 'baz/foo-bar'
+          });
+        }, '\'@Arguments\' is reserved. (\'baz/foo-bar\' @ L1:C2) ');
+
+        expectAssertion(function () {
+          (0, _index.compile)('{{#if @Arguments}}Yup{{/if}}', {
+            moduleName: 'baz/foo-bar'
+          });
+        }, '\'@Arguments\' is reserved. (\'baz/foo-bar\' @ L1:C6) ');
+
+        expectAssertion(function () {
+          (0, _index.compile)('{{input type=(if @Arguments "bar" "baz")}}', {
+            moduleName: 'baz/foo-bar'
+          });
+        }, '\'@Arguments\' is reserved. (\'baz/foo-bar\' @ L1:C17) ');
+      };
+
+      _class.prototype['@test \'@Args\' is reserved'] = function () {
+        expectAssertion(function () {
+          (0, _index.compile)('{{@Args}}', {
+            moduleName: 'baz/foo-bar'
+          });
+        }, '\'@Args\' is reserved. (\'baz/foo-bar\' @ L1:C2) ');
+
+        expectAssertion(function () {
+          (0, _index.compile)('{{#if @Args}}Yup{{/if}}', {
+            moduleName: 'baz/foo-bar'
+          });
+        }, '\'@Args\' is reserved. (\'baz/foo-bar\' @ L1:C6) ');
+
+        expectAssertion(function () {
+          (0, _index.compile)('{{input type=(if @Args "bar" "baz")}}', {
+            moduleName: 'baz/foo-bar'
+          });
+        }, '\'@Args\' is reserved. (\'baz/foo-bar\' @ L1:C17) ');
+      };
+
+      _class.prototype['@test \'@FOO\' is reserved'] = function () {
+        expectAssertion(function () {
+          (0, _index.compile)('{{@FOO}}', {
+            moduleName: 'baz/foo-bar'
+          });
+        }, '\'@FOO\' is reserved. (\'baz/foo-bar\' @ L1:C2) ');
+
+        expectAssertion(function () {
+          (0, _index.compile)('{{#if @FOO}}Yup{{/if}}', {
+            moduleName: 'baz/foo-bar'
+          });
+        }, '\'@FOO\' is reserved. (\'baz/foo-bar\' @ L1:C6) ');
+
+        expectAssertion(function () {
+          (0, _index.compile)('{{input type=(if @FOO "bar" "baz")}}', {
+            moduleName: 'baz/foo-bar'
+          });
+        }, '\'@FOO\' is reserved. (\'baz/foo-bar\' @ L1:C17) ');
+      };
+
+      _class.prototype['@test \'@Foo\' is reserved'] = function () {
+        expectAssertion(function () {
+          (0, _index.compile)('{{@Foo}}', {
+            moduleName: 'baz/foo-bar'
+          });
+        }, '\'@Foo\' is reserved. (\'baz/foo-bar\' @ L1:C2) ');
+
+        expectAssertion(function () {
+          (0, _index.compile)('{{#if @Foo}}Yup{{/if}}', {
+            moduleName: 'baz/foo-bar'
+          });
+        }, '\'@Foo\' is reserved. (\'baz/foo-bar\' @ L1:C6) ');
+
+        expectAssertion(function () {
+          (0, _index.compile)('{{input type=(if @Foo "bar" "baz")}}', {
+            moduleName: 'baz/foo-bar'
+          });
+        }, '\'@Foo\' is reserved. (\'baz/foo-bar\' @ L1:C17) ');
+      };
+
+      _class.prototype['@test \'@.\' is reserved'] = function () {
+        expectAssertion(function () {
+          (0, _index.compile)('{{@.}}', {
+            moduleName: 'baz/foo-bar'
+          });
+        }, '\'@.\' is reserved. (\'baz/foo-bar\' @ L1:C2) ');
+
+        expectAssertion(function () {
+          (0, _index.compile)('{{#if @.}}Yup{{/if}}', {
+            moduleName: 'baz/foo-bar'
+          });
+        }, '\'@.\' is reserved. (\'baz/foo-bar\' @ L1:C6) ');
+
+        expectAssertion(function () {
+          (0, _index.compile)('{{input type=(if @. "bar" "baz")}}', {
+            moduleName: 'baz/foo-bar'
+          });
+        }, '\'@.\' is reserved. (\'baz/foo-bar\' @ L1:C17) ');
+      };
+
+      _class.prototype['@test \'@_\' is reserved'] = function () {
+        expectAssertion(function () {
+          (0, _index.compile)('{{@_}}', {
+            moduleName: 'baz/foo-bar'
+          });
+        }, '\'@_\' is reserved. (\'baz/foo-bar\' @ L1:C2) ');
+
+        expectAssertion(function () {
+          (0, _index.compile)('{{#if @_}}Yup{{/if}}', {
+            moduleName: 'baz/foo-bar'
+          });
+        }, '\'@_\' is reserved. (\'baz/foo-bar\' @ L1:C6) ');
+
+        expectAssertion(function () {
+          (0, _index.compile)('{{input type=(if @_ "bar" "baz")}}', {
+            moduleName: 'baz/foo-bar'
+          });
+        }, '\'@_\' is reserved. (\'baz/foo-bar\' @ L1:C17) ');
+      };
+
+      _class.prototype['@test \'@-\' is reserved'] = function () {
+        expectAssertion(function () {
+          (0, _index.compile)('{{@-}}', {
+            moduleName: 'baz/foo-bar'
+          });
+        }, '\'@-\' is reserved. (\'baz/foo-bar\' @ L1:C2) ');
+
+        expectAssertion(function () {
+          (0, _index.compile)('{{#if @-}}Yup{{/if}}', {
+            moduleName: 'baz/foo-bar'
+          });
+        }, '\'@-\' is reserved. (\'baz/foo-bar\' @ L1:C6) ');
+
+        expectAssertion(function () {
+          (0, _index.compile)('{{input type=(if @- "bar" "baz")}}', {
+            moduleName: 'baz/foo-bar'
+          });
+        }, '\'@-\' is reserved. (\'baz/foo-bar\' @ L1:C17) ');
+      };
+
+      _class.prototype['@test \'@$\' is reserved'] = function () {
+        expectAssertion(function () {
+          (0, _index.compile)('{{@$}}', {
+            moduleName: 'baz/foo-bar'
+          });
+        }, '\'@$\' is reserved. (\'baz/foo-bar\' @ L1:C2) ');
+
+        expectAssertion(function () {
+          (0, _index.compile)('{{#if @$}}Yup{{/if}}', {
+            moduleName: 'baz/foo-bar'
+          });
+        }, '\'@$\' is reserved. (\'baz/foo-bar\' @ L1:C6) ');
+
+        expectAssertion(function () {
+          (0, _index.compile)('{{input type=(if @$ "bar" "baz")}}', {
+            moduleName: 'baz/foo-bar'
+          });
+        }, '\'@$\' is reserved. (\'baz/foo-bar\' @ L1:C17) ');
+      };
+
+      _class.prototype['@test \'@\' is de facto reserved (parse error)'] = function (assert) {
         assert.throws(function () {
-          (0, _index.compile)('{{' + name + '}}', {
+          (0, _index.compile)('{{@}}', {
             moduleName: 'baz/foo-bar'
           });
         }, /Expecting 'ID'/);
 
         assert.throws(function () {
-          (0, _index.compile)('{{#if ' + name + '}}Yup{{/if}}', {
+          (0, _index.compile)('{{#if @}}Yup{{/if}}', {
             moduleName: 'baz/foo-bar'
           });
         }, /Expecting 'ID'/);
 
         assert.throws(function () {
-          (0, _index.compile)('{{input type=(if ' + name + ' "bar" "baz")}}', {
+          (0, _index.compile)('{{input type=(if @ "bar" "baz")}}', {
             moduleName: 'baz/foo-bar'
           });
         }, /Expecting 'ID'/);
-      });
-    });
+      };
+
+      _class.prototype['@test \'@0\' is de facto reserved (parse error)'] = function (assert) {
+        assert.throws(function () {
+          (0, _index.compile)('{{@0}}', {
+            moduleName: 'baz/foo-bar'
+          });
+        }, /Expecting 'ID'/);
+
+        assert.throws(function () {
+          (0, _index.compile)('{{#if @0}}Yup{{/if}}', {
+            moduleName: 'baz/foo-bar'
+          });
+        }, /Expecting 'ID'/);
+
+        assert.throws(function () {
+          (0, _index.compile)('{{input type=(if @0 "bar" "baz")}}', {
+            moduleName: 'baz/foo-bar'
+          });
+        }, /Expecting 'ID'/);
+      };
+
+      _class.prototype['@test \'@1\' is de facto reserved (parse error)'] = function (assert) {
+        assert.throws(function () {
+          (0, _index.compile)('{{@1}}', {
+            moduleName: 'baz/foo-bar'
+          });
+        }, /Expecting 'ID'/);
+
+        assert.throws(function () {
+          (0, _index.compile)('{{#if @1}}Yup{{/if}}', {
+            moduleName: 'baz/foo-bar'
+          });
+        }, /Expecting 'ID'/);
+
+        assert.throws(function () {
+          (0, _index.compile)('{{input type=(if @1 "bar" "baz")}}', {
+            moduleName: 'baz/foo-bar'
+          });
+        }, /Expecting 'ID'/);
+      };
+
+      _class.prototype['@test \'@2\' is de facto reserved (parse error)'] = function (assert) {
+        assert.throws(function () {
+          (0, _index.compile)('{{@2}}', {
+            moduleName: 'baz/foo-bar'
+          });
+        }, /Expecting 'ID'/);
+
+        assert.throws(function () {
+          (0, _index.compile)('{{#if @2}}Yup{{/if}}', {
+            moduleName: 'baz/foo-bar'
+          });
+        }, /Expecting 'ID'/);
+
+        assert.throws(function () {
+          (0, _index.compile)('{{input type=(if @2 "bar" "baz")}}', {
+            moduleName: 'baz/foo-bar'
+          });
+        }, /Expecting 'ID'/);
+      };
+
+      _class.prototype['@test \'@@\' is de facto reserved (parse error)'] = function (assert) {
+        assert.throws(function () {
+          (0, _index.compile)('{{@@}}', {
+            moduleName: 'baz/foo-bar'
+          });
+        }, /Expecting 'ID'/);
+
+        assert.throws(function () {
+          (0, _index.compile)('{{#if @@}}Yup{{/if}}', {
+            moduleName: 'baz/foo-bar'
+          });
+        }, /Expecting 'ID'/);
+
+        assert.throws(function () {
+          (0, _index.compile)('{{input type=(if @@ "bar" "baz")}}', {
+            moduleName: 'baz/foo-bar'
+          });
+        }, /Expecting 'ID'/);
+      };
+
+      _class.prototype['@test \'@=\' is de facto reserved (parse error)'] = function (assert) {
+        assert.throws(function () {
+          (0, _index.compile)('{{@=}}', {
+            moduleName: 'baz/foo-bar'
+          });
+        }, /Expecting 'ID'/);
+
+        assert.throws(function () {
+          (0, _index.compile)('{{#if @=}}Yup{{/if}}', {
+            moduleName: 'baz/foo-bar'
+          });
+        }, /Expecting 'ID'/);
+
+        assert.throws(function () {
+          (0, _index.compile)('{{input type=(if @= "bar" "baz")}}', {
+            moduleName: 'baz/foo-bar'
+          });
+        }, /Expecting 'ID'/);
+      };
+
+      _class.prototype['@test \'@!\' is de facto reserved (parse error)'] = function (assert) {
+        assert.throws(function () {
+          (0, _index.compile)('{{@!}}', {
+            moduleName: 'baz/foo-bar'
+          });
+        }, /Expecting 'ID'/);
+
+        assert.throws(function () {
+          (0, _index.compile)('{{#if @!}}Yup{{/if}}', {
+            moduleName: 'baz/foo-bar'
+          });
+        }, /Expecting 'ID'/);
+
+        assert.throws(function () {
+          (0, _index.compile)('{{input type=(if @! "bar" "baz")}}', {
+            moduleName: 'baz/foo-bar'
+          });
+        }, /Expecting 'ID'/);
+      };
+
+      return _class;
+    }(_internalTestHelpers.AbstractTestCase));
   } else {
-    QUnit.test('Paths beginning with @ are not valid', function () {
-      expect(3);
+    (0, _internalTestHelpers.moduleFor)('ember-template-compiler: assert-reserved-named-arguments', function (_AbstractTestCase2) {
+      (0, _emberBabel.inherits)(_class2, _AbstractTestCase2);
 
-      expectAssertion(function () {
-        (0, _index.compile)('{{@foo}}', {
-          moduleName: 'baz/foo-bar'
-        });
-      }, '\'@foo\' is not a valid path. (\'baz/foo-bar\' @ L1:C2) ');
+      function _class2() {
+        (0, _emberBabel.classCallCheck)(this, _class2);
+        return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase2.apply(this, arguments));
+      }
 
-      expectAssertion(function () {
-        (0, _index.compile)('{{#if @foo}}Yup{{/if}}', {
-          moduleName: 'baz/foo-bar'
-        });
-      }, '\'@foo\' is not a valid path. (\'baz/foo-bar\' @ L1:C6) ');
+      _class2.prototype['@test Paths beginning with @ are not valid'] = function testPathsBeginningWithAreNotValid() {
+        expectAssertion(function () {
+          (0, _index.compile)('{{@foo}}', {
+            moduleName: 'baz/foo-bar'
+          });
+        }, '\'@foo\' is not a valid path. (\'baz/foo-bar\' @ L1:C2) ');
 
-      expectAssertion(function () {
-        (0, _index.compile)('{{input type=(if @foo "bar" "baz")}}', {
-          moduleName: 'baz/foo-bar'
-        });
-      }, '\'@foo\' is not a valid path. (\'baz/foo-bar\' @ L1:C17) ');
-    });
+        expectAssertion(function () {
+          (0, _index.compile)('{{#if @foo}}Yup{{/if}}', {
+            moduleName: 'baz/foo-bar'
+          });
+        }, '\'@foo\' is not a valid path. (\'baz/foo-bar\' @ L1:C6) ');
+
+        expectAssertion(function () {
+          (0, _index.compile)('{{input type=(if @foo "bar" "baz")}}', {
+            moduleName: 'baz/foo-bar'
+          });
+        }, '\'@foo\' is not a valid path. (\'baz/foo-bar\' @ L1:C17) ');
+      };
+
+      return _class2;
+    }(_internalTestHelpers.AbstractTestCase));
   }
 });
 QUnit.module('ESLint | ember-template-compiler/tests/plugins/assert-reserved-named-arguments-test.js');
@@ -63838,22 +64150,30 @@ QUnit.test('should pass ESLint', function(assert) {
   assert.ok(true, 'ember-template-compiler/tests/plugins/assert-reserved-named-arguments-test.js should pass ESLint\n\n');
 });
 
-enifed('ember-template-compiler/tests/plugins/deprecate-render-model-test', ['ember-template-compiler/index'], function (_index) {
+enifed('ember-template-compiler/tests/plugins/deprecate-render-model-test', ['ember-babel', 'ember-template-compiler/index', 'internal-test-helpers'], function (_emberBabel, _index, _internalTestHelpers) {
   'use strict';
 
-  QUnit.module('ember-template-compiler: deprecate-model-render');
+  (0, _internalTestHelpers.moduleFor)('ember-template-compiler: deprecate-model-render', function (_AbstractTestCase) {
+    (0, _emberBabel.inherits)(_class, _AbstractTestCase);
 
-  QUnit.test('Using `{{render` with model provides a deprecation', function () {
-    expect(1);
+    function _class() {
+      (0, _emberBabel.classCallCheck)(this, _class);
+      return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase.apply(this, arguments));
+    }
 
-    var expectedMessage = 'Please refactor `{{render "foo-bar" coolModel}}` to a component and' + ' invoke via `{{foo-bar model=coolModel}}`. (\'baz/foo-bar\' @ L1:C0) ';
+    _class.prototype['@test Using `{{render` with model provides a deprecation'] = function testUsingRenderWithModelProvidesADeprecation() {
 
-    expectDeprecation(function () {
-      (0, _index.compile)('{{render "foo-bar" coolModel}}', {
-        moduleName: 'baz/foo-bar'
-      });
-    }, expectedMessage);
-  });
+      var expectedMessage = 'Please refactor `{{render "foo-bar" coolModel}}` to a component and' + ' invoke via `{{foo-bar model=coolModel}}`. (\'baz/foo-bar\' @ L1:C0) ';
+
+      expectDeprecation(function () {
+        (0, _index.compile)('{{render "foo-bar" coolModel}}', {
+          moduleName: 'baz/foo-bar'
+        });
+      }, expectedMessage);
+    };
+
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
 });
 QUnit.module('ESLint | ember-template-compiler/tests/plugins/deprecate-render-model-test.js');
 QUnit.test('should pass ESLint', function(assert) {
@@ -63861,22 +64181,30 @@ QUnit.test('should pass ESLint', function(assert) {
   assert.ok(true, 'ember-template-compiler/tests/plugins/deprecate-render-model-test.js should pass ESLint\n\n');
 });
 
-enifed('ember-template-compiler/tests/plugins/deprecate-render-test', ['ember-template-compiler/index'], function (_index) {
+enifed('ember-template-compiler/tests/plugins/deprecate-render-test', ['ember-babel', 'ember-template-compiler/index', 'internal-test-helpers'], function (_emberBabel, _index, _internalTestHelpers) {
   'use strict';
 
-  QUnit.module('ember-template-compiler: deprecate-render');
+  (0, _internalTestHelpers.moduleFor)('ember-template-compiler: deprecate-render', function (_AbstractTestCase) {
+    (0, _emberBabel.inherits)(_class, _AbstractTestCase);
 
-  QUnit.test('Using `{{render` without a model provides a deprecation', function () {
-    expect(1);
+    function _class() {
+      (0, _emberBabel.classCallCheck)(this, _class);
+      return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase.apply(this, arguments));
+    }
 
-    var expectedMessage = 'Please refactor `{{render "foo-bar"}}` to a component and' + ' invoke via `{{foo-bar}}`. (\'baz/foo-bar\' @ L1:C0) ';
+    _class.prototype['@test Using `{{render` without a model provides a deprecation'] = function testUsingRenderWithoutAModelProvidesADeprecation() {
 
-    expectDeprecation(function () {
-      (0, _index.compile)('{{render "foo-bar"}}', {
-        moduleName: 'baz/foo-bar'
-      });
-    }, expectedMessage);
-  });
+      var expectedMessage = 'Please refactor `{{render "foo-bar"}}` to a component and' + ' invoke via `{{foo-bar}}`. (\'baz/foo-bar\' @ L1:C0) ';
+
+      expectDeprecation(function () {
+        (0, _index.compile)('{{render "foo-bar"}}', {
+          moduleName: 'baz/foo-bar'
+        });
+      }, expectedMessage);
+    };
+
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
 });
 QUnit.module('ESLint | ember-template-compiler/tests/plugins/deprecate-render-test.js');
 QUnit.test('should pass ESLint', function(assert) {
@@ -63884,22 +64212,29 @@ QUnit.test('should pass ESLint', function(assert) {
   assert.ok(true, 'ember-template-compiler/tests/plugins/deprecate-render-test.js should pass ESLint\n\n');
 });
 
-enifed('ember-template-compiler/tests/plugins/transform-dot-component-invocation-test', ['ember-template-compiler/index'], function (_index) {
+enifed('ember-template-compiler/tests/plugins/transform-dot-component-invocation-test', ['ember-babel', 'ember-template-compiler/index', 'internal-test-helpers'], function (_emberBabel, _index, _internalTestHelpers) {
   'use strict';
 
-  QUnit.module('ember-template-compiler: transforms dot component invocation');
+  (0, _internalTestHelpers.moduleFor)('ember-template-compiler: transforms dot component invocation', function (_AbstractTestCase) {
+    (0, _emberBabel.inherits)(_class, _AbstractTestCase);
 
-  QUnit.test('Does not throw a compiler error for path components', function (assert) {
-    assert.expect(1);
+    function _class() {
+      (0, _emberBabel.classCallCheck)(this, _class);
+      return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase.apply(this, arguments));
+    }
 
-    ['{{this.modal open}}', '{{this.modal isOpen=true}}', '{{#this.modal}}Woot{{/this.modal}}', '{{c.modal open}}', '{{c.modal isOpen=true}}', '{{#c.modal}}Woot{{/c.modal}}', '{{#my-component as |c|}}{{c.a name="Chad"}}{{/my-component}}', '{{#my-component as |c|}}{{c.a "Chad"}}{{/my-component}}', '{{#my-component as |c|}}{{#c.a}}{{/c.a}}{{/my-component}}', '<input disabled={{true}}>', // GH#15740
-    '<td colspan={{3}}></td>' // GH#15217
-    ].forEach(function (layout, i) {
-      (0, _index.compile)(layout, { moduleName: 'example-' + i });
-    });
+    _class.prototype['@test Does not throw a compiler error for path components'] = function testDoesNotThrowACompilerErrorForPathComponents(assert) {
+      assert.expect(0);
 
-    assert.ok(true);
-  });
+      ['{{this.modal open}}', '{{this.modal isOpen=true}}', '{{#this.modal}}Woot{{/this.modal}}', '{{c.modal open}}', '{{c.modal isOpen=true}}', '{{#c.modal}}Woot{{/c.modal}}', '{{#my-component as |c|}}{{c.a name="Chad"}}{{/my-component}}', '{{#my-component as |c|}}{{c.a "Chad"}}{{/my-component}}', '{{#my-component as |c|}}{{#c.a}}{{/c.a}}{{/my-component}}', '<input disabled={{true}}>', // GH#15740
+      '<td colspan={{3}}></td>' // GH#15217
+      ].forEach(function (layout, i) {
+        (0, _index.compile)(layout, { moduleName: 'example-' + i });
+      });
+    };
+
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
 });
 QUnit.module('ESLint | ember-template-compiler/tests/plugins/transform-dot-component-invocation-test.js');
 QUnit.test('should pass ESLint', function(assert) {
@@ -63907,18 +64242,27 @@ QUnit.test('should pass ESLint', function(assert) {
   assert.ok(true, 'ember-template-compiler/tests/plugins/transform-dot-component-invocation-test.js should pass ESLint\n\n');
 });
 
-enifed('ember-template-compiler/tests/plugins/transform-inline-link-to-test', ['ember-template-compiler/index'], function (_index) {
+enifed('ember-template-compiler/tests/plugins/transform-inline-link-to-test', ['ember-babel', 'ember-template-compiler/index', 'internal-test-helpers'], function (_emberBabel, _index, _internalTestHelpers) {
   'use strict';
 
-  QUnit.module('ember-template-compiler: assert-no-view-and-controller-paths without legacy view support');
+  (0, _internalTestHelpers.moduleFor)('ember-template-compiler: inline-link-to', function (_AbstractTestCase) {
+    (0, _emberBabel.inherits)(_class, _AbstractTestCase);
 
-  QUnit.test('Can transform an inline {{link-to}} without error', function () {
-    expect(0);
+    function _class() {
+      (0, _emberBabel.classCallCheck)(this, _class);
+      return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase.apply(this, arguments));
+    }
 
-    (0, _index.compile)('{{link-to \'foo\' \'index\'}}', {
-      moduleName: 'foo/bar/baz'
-    });
-  });
+    _class.prototype['@test Can transform an inline {{link-to}} without error'] = function testCanTransformAnInlineLinkToWithoutError(assert) {
+      assert.expect(0);
+
+      (0, _index.compile)('{{link-to \'foo\' \'index\'}}', {
+        moduleName: 'foo/bar/baz'
+      });
+    };
+
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
 });
 QUnit.module('ESLint | ember-template-compiler/tests/plugins/transform-inline-link-to-test.js');
 QUnit.test('should pass ESLint', function(assert) {
@@ -63926,28 +64270,37 @@ QUnit.test('should pass ESLint', function(assert) {
   assert.ok(true, 'ember-template-compiler/tests/plugins/transform-inline-link-to-test.js should pass ESLint\n\n');
 });
 
-enifed('ember-template-compiler/tests/plugins/transform-input-type-syntax-test', ['ember-template-compiler/index'], function (_index) {
+enifed('ember-template-compiler/tests/plugins/transform-input-type-syntax-test', ['ember-babel', 'ember-template-compiler/index', 'internal-test-helpers'], function (_emberBabel, _index, _internalTestHelpers) {
   'use strict';
 
-  QUnit.module('ember-template-compiler: input type syntax');
+  (0, _internalTestHelpers.moduleFor)('ember-template-compiler: input type syntax', function (_AbstractTestCase) {
+    (0, _emberBabel.inherits)(_class, _AbstractTestCase);
 
-  QUnit.test('Can compile an {{input}} helper that has a sub-expression value as its type', function () {
-    expect(0);
+    function _class() {
+      (0, _emberBabel.classCallCheck)(this, _class);
+      return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase.apply(this, arguments));
+    }
 
-    (0, _index.compile)('{{input type=(if true \'password\' \'text\')}}');
-  });
+    _class.prototype['@test Can compile an {{input}} helper that has a sub-expression value as its type'] = function testCanCompileAnInputHelperThatHasASubExpressionValueAsItsType(assert) {
+      assert.expect(0);
 
-  QUnit.test('Can compile an {{input}} helper with a string literal type', function () {
-    expect(0);
+      (0, _index.compile)('{{input type=(if true \'password\' \'text\')}}');
+    };
 
-    (0, _index.compile)('{{input type=\'text\'}}');
-  });
+    _class.prototype['@test Can compile an {{input}} helper with a string literal type'] = function testCanCompileAnInputHelperWithAStringLiteralType(assert) {
+      assert.expect(0);
 
-  QUnit.test('Can compile an {{input}} helper with a type stored in a var', function () {
-    expect(0);
+      (0, _index.compile)('{{input type=\'text\'}}');
+    };
 
-    (0, _index.compile)('{{input type=_type}}');
-  });
+    _class.prototype['@test Can compile an {{input}} helper with a type stored in a var'] = function testCanCompileAnInputHelperWithATypeStoredInAVar(assert) {
+      assert.expect(0);
+
+      (0, _index.compile)('{{input type=_type}}');
+    };
+
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
 });
 QUnit.module('ESLint | ember-template-compiler/tests/plugins/transform-input-type-syntax-test.js');
 QUnit.test('should pass ESLint', function(assert) {
@@ -63955,7 +64308,7 @@ QUnit.test('should pass ESLint', function(assert) {
   assert.ok(true, 'ember-template-compiler/tests/plugins/transform-input-type-syntax-test.js should pass ESLint\n\n');
 });
 
-enifed('ember-template-compiler/tests/system/bootstrap-test', ['ember-metal', 'ember-views', 'ember-glimmer', 'ember-template-compiler/system/bootstrap', 'internal-test-helpers'], function (_emberMetal, _emberViews, _emberGlimmer, _bootstrap, _internalTestHelpers) {
+enifed('ember-template-compiler/tests/system/bootstrap-test', ['ember-babel', 'ember-metal', 'ember-views', 'ember-glimmer', 'ember-template-compiler/system/bootstrap', 'internal-test-helpers'], function (_emberBabel, _emberMetal, _emberViews, _emberGlimmer, _bootstrap, _internalTestHelpers) {
   'use strict';
 
   var trim = _emberViews.jQuery.trim;
@@ -63964,15 +64317,15 @@ enifed('ember-template-compiler/tests/system/bootstrap-test', ['ember-metal', 'e
   var component = void 0,
       fixture = void 0;
 
-  function checkTemplate(templateName) {
+  function checkTemplate(templateName, assert) {
     (0, _emberMetal.run)(function () {
       return (0, _bootstrap.default)({ context: fixture, hasTemplate: _emberGlimmer.hasTemplate, setTemplate: _emberGlimmer.setTemplate });
     });
 
     var template = (0, _emberGlimmer.getTemplate)(templateName);
 
-    ok(template, 'template is available on Ember.TEMPLATES');
-    equal((0, _emberViews.jQuery)('#qunit-fixture script').length, 0, 'script removed');
+    assert.ok(template, 'template is available on Ember.TEMPLATES');
+    assert.equal((0, _emberViews.jQuery)('#qunit-fixture script').length, 0, 'script removed');
 
     var owner = (0, _internalTestHelpers.buildOwner)();
     owner.register('template:-top-level', template);
@@ -63985,40 +64338,46 @@ enifed('ember-template-compiler/tests/system/bootstrap-test', ['ember-metal', 'e
     component = owner.lookup('component:-top-level');
     (0, _internalTestHelpers.runAppend)(component);
 
-    equal((0, _emberViews.jQuery)('#qunit-fixture').text().trim(), 'Tobias takes teamocil', 'template works');
+    assert.equal((0, _emberViews.jQuery)('#qunit-fixture').text().trim(), 'Tobias takes teamocil', 'template works');
     (0, _internalTestHelpers.runDestroy)(component);
   }
 
-  QUnit.module('ember-templates: bootstrap', {
-    setup: function () {
+  (0, _internalTestHelpers.moduleFor)('ember-templates: bootstrap', function (_AbstractTestCase) {
+    (0, _emberBabel.inherits)(_class, _AbstractTestCase);
+
+    function _class() {
+      (0, _emberBabel.classCallCheck)(this, _class);
+
+      var _this = (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase.call(this));
+
       fixture = document.getElementById('qunit-fixture');
-    },
-    teardown: function () {
+      return _this;
+    }
+
+    _class.prototype.teardown = function teardown() {
       (0, _emberGlimmer.setTemplates)({});
       (0, _internalTestHelpers.runDestroy)(component);
-    }
-  });
+    };
 
-  QUnit.test('template with data-template-name should add a new template to Ember.TEMPLATES', function () {
-    (0, _emberViews.jQuery)('#qunit-fixture').html('<script type="text/x-handlebars" data-template-name="funkyTemplate">{{firstName}} takes {{drug}}</script>');
+    _class.prototype['@test template with data-template-name should add a new template to Ember.TEMPLATES'] = function testTemplateWithDataTemplateNameShouldAddANewTemplateToEmberTEMPLATES(assert) {
+      (0, _emberViews.jQuery)('#qunit-fixture').html('<script type="text/x-handlebars" data-template-name="funkyTemplate">{{firstName}} takes {{drug}}</script>');
 
-    checkTemplate('funkyTemplate');
-  });
+      checkTemplate('funkyTemplate', assert);
+    };
 
-  QUnit.test('template with id instead of data-template-name should add a new template to Ember.TEMPLATES', function () {
-    (0, _emberViews.jQuery)('#qunit-fixture').html('<script type="text/x-handlebars" id="funkyTemplate" >{{firstName}} takes {{drug}}</script>');
+    _class.prototype['@test template with id instead of data-template-name should add a new template to Ember.TEMPLATES'] = function testTemplateWithIdInsteadOfDataTemplateNameShouldAddANewTemplateToEmberTEMPLATES(assert) {
+      (0, _emberViews.jQuery)('#qunit-fixture').html('<script type="text/x-handlebars" id="funkyTemplate" >{{firstName}} takes {{drug}}</script>');
 
-    checkTemplate('funkyTemplate');
-  });
+      checkTemplate('funkyTemplate', assert);
+    };
 
-  QUnit.test('template without data-template-name or id should default to application', function () {
-    (0, _emberViews.jQuery)('#qunit-fixture').html('<script type="text/x-handlebars">{{firstName}} takes {{drug}}</script>');
+    _class.prototype['@test template without data-template-name or id should default to application'] = function testTemplateWithoutDataTemplateNameOrIdShouldDefaultToApplication(assert) {
+      (0, _emberViews.jQuery)('#qunit-fixture').html('<script type="text/x-handlebars">{{firstName}} takes {{drug}}</script>');
 
-    checkTemplate('application');
-  });
+      checkTemplate('application', assert);
+    };
 
-  if (typeof Handlebars === 'object') {
-    QUnit.test('template with type text/x-raw-handlebars should be parsed', function () {
+    _class.prototype[(typeof Handlebars === 'object' ? '@test' : '@skip') + ' template with type text/x-raw-handlebars should be parsed'] = function (assert) {
       (0, _emberViews.jQuery)('#qunit-fixture').html('<script type="text/x-raw-handlebars" data-template-name="funkyTemplate">{{name}}</script>');
 
       (0, _emberMetal.run)(function () {
@@ -64027,52 +64386,54 @@ enifed('ember-template-compiler/tests/system/bootstrap-test', ['ember-metal', 'e
 
       var template = (0, _emberGlimmer.getTemplate)('funkyTemplate');
 
-      ok(template, 'template with name funkyTemplate available');
+      assert.ok(template, 'template with name funkyTemplate available');
 
       // This won't even work with Ember templates
-      equal(trim(template({ name: 'Tobias' })), 'Tobias');
-    });
-  }
+      assert.equal(trim(template({ name: 'Tobias' })), 'Tobias');
+    };
 
-  QUnit.test('duplicated default application templates should throw exception', function () {
-    (0, _emberViews.jQuery)('#qunit-fixture').html('<script type="text/x-handlebars">first</script><script type="text/x-handlebars">second</script>');
+    _class.prototype['@test duplicated default application templates should throw exception'] = function testDuplicatedDefaultApplicationTemplatesShouldThrowException(assert) {
+      (0, _emberViews.jQuery)('#qunit-fixture').html('<script type="text/x-handlebars">first</script><script type="text/x-handlebars">second</script>');
 
-    throws(function () {
-      return (0, _bootstrap.default)({ context: fixture, hasTemplate: _emberGlimmer.hasTemplate, setTemplate: _emberGlimmer.setTemplate });
-    }, /Template named "[^"]+" already exists\./, 'duplicate templates should not be allowed');
-  });
+      assert.throws(function () {
+        return (0, _bootstrap.default)({ context: fixture, hasTemplate: _emberGlimmer.hasTemplate, setTemplate: _emberGlimmer.setTemplate });
+      }, /Template named "[^"]+" already exists\./, 'duplicate templates should not be allowed');
+    };
 
-  QUnit.test('default application template and id application template present should throw exception', function () {
-    (0, _emberViews.jQuery)('#qunit-fixture').html('<script type="text/x-handlebars">first</script><script type="text/x-handlebars" id="application">second</script>');
+    _class.prototype['@test default default application template and id application template present should throw exception'] = function testDefaultDefaultApplicationTemplateAndIdApplicationTemplatePresentShouldThrowException(assert) {
+      (0, _emberViews.jQuery)('#qunit-fixture').html('<script type="text/x-handlebars">first</script><script type="text/x-handlebars" id="application">second</script>');
 
-    throws(function () {
-      return (0, _bootstrap.default)({ context: fixture, hasTemplate: _emberGlimmer.hasTemplate, setTemplate: _emberGlimmer.setTemplate });
-    }, /Template named "[^"]+" already exists\./, 'duplicate templates should not be allowed');
-  });
+      assert.throws(function () {
+        return (0, _bootstrap.default)({ context: fixture, hasTemplate: _emberGlimmer.hasTemplate, setTemplate: _emberGlimmer.setTemplate });
+      }, /Template named "[^"]+" already exists\./, 'duplicate templates should not be allowed');
+    };
 
-  QUnit.test('default application template and data-template-name application template present should throw exception', function () {
-    (0, _emberViews.jQuery)('#qunit-fixture').html('<script type="text/x-handlebars">first</script><script type="text/x-handlebars" data-template-name="application">second</script>');
+    _class.prototype['@test default application template and data-template-name application template present should throw exception'] = function testDefaultApplicationTemplateAndDataTemplateNameApplicationTemplatePresentShouldThrowException(assert) {
+      (0, _emberViews.jQuery)('#qunit-fixture').html('<script type="text/x-handlebars">first</script><script type="text/x-handlebars" data-template-name="application">second</script>');
 
-    throws(function () {
-      return (0, _bootstrap.default)({ context: fixture, hasTemplate: _emberGlimmer.hasTemplate, setTemplate: _emberGlimmer.setTemplate });
-    }, /Template named "[^"]+" already exists\./, 'duplicate templates should not be allowed');
-  });
+      assert.throws(function () {
+        return (0, _bootstrap.default)({ context: fixture, hasTemplate: _emberGlimmer.hasTemplate, setTemplate: _emberGlimmer.setTemplate });
+      }, /Template named "[^"]+" already exists\./, 'duplicate templates should not be allowed');
+    };
 
-  QUnit.test('duplicated template id should throw exception', function () {
-    (0, _emberViews.jQuery)('#qunit-fixture').html('<script type="text/x-handlebars" id="funkyTemplate">first</script><script type="text/x-handlebars" id="funkyTemplate">second</script>');
+    _class.prototype['@test duplicated template id should throw exception'] = function testDuplicatedTemplateIdShouldThrowException(assert) {
+      (0, _emberViews.jQuery)('#qunit-fixture').html('<script type="text/x-handlebars" id="funkyTemplate">first</script><script type="text/x-handlebars" id="funkyTemplate">second</script>');
 
-    throws(function () {
-      return (0, _bootstrap.default)({ context: fixture, hasTemplate: _emberGlimmer.hasTemplate, setTemplate: _emberGlimmer.setTemplate });
-    }, /Template named "[^"]+" already exists\./, 'duplicate templates should not be allowed');
-  });
+      assert.throws(function () {
+        return (0, _bootstrap.default)({ context: fixture, hasTemplate: _emberGlimmer.hasTemplate, setTemplate: _emberGlimmer.setTemplate });
+      }, /Template named "[^"]+" already exists\./, 'duplicate templates should not be allowed');
+    };
 
-  QUnit.test('duplicated template data-template-name should throw exception', function () {
-    (0, _emberViews.jQuery)('#qunit-fixture').html('<script type="text/x-handlebars" data-template-name="funkyTemplate">first</script><script type="text/x-handlebars" data-template-name="funkyTemplate">second</script>');
+    _class.prototype['@test duplicated template data-template-name should throw exception'] = function testDuplicatedTemplateDataTemplateNameShouldThrowException(assert) {
+      (0, _emberViews.jQuery)('#qunit-fixture').html('<script type="text/x-handlebars" data-template-name="funkyTemplate">first</script><script type="text/x-handlebars" data-template-name="funkyTemplate">second</script>');
 
-    throws(function () {
-      return (0, _bootstrap.default)({ context: fixture, hasTemplate: _emberGlimmer.hasTemplate, setTemplate: _emberGlimmer.setTemplate });
-    }, /Template named "[^"]+" already exists\./, 'duplicate templates should not be allowed');
-  });
+      assert.throws(function () {
+        return (0, _bootstrap.default)({ context: fixture, hasTemplate: _emberGlimmer.hasTemplate, setTemplate: _emberGlimmer.setTemplate });
+      }, /Template named "[^"]+" already exists\./, 'duplicate templates should not be allowed');
+    };
+
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
 });
 QUnit.module('ESLint | ember-template-compiler/tests/system/bootstrap-test.js');
 QUnit.test('should pass ESLint', function(assert) {
@@ -64080,25 +64441,34 @@ QUnit.test('should pass ESLint', function(assert) {
   assert.ok(true, 'ember-template-compiler/tests/system/bootstrap-test.js should pass ESLint\n\n');
 });
 
-enifed('ember-template-compiler/tests/system/compile_options_test', ['ember-template-compiler/index'], function (_index) {
+enifed('ember-template-compiler/tests/system/compile_options_test', ['ember-babel', 'ember-template-compiler/index', 'internal-test-helpers'], function (_emberBabel, _index, _internalTestHelpers) {
   'use strict';
 
-  QUnit.module('ember-template-compiler: default compile options');
+  (0, _internalTestHelpers.moduleFor)('ember-template-compiler: default compile options', function (_AbstractTestCase) {
+    (0, _emberBabel.inherits)(_class, _AbstractTestCase);
 
-  QUnit.test('default options are a new copy', function () {
-    notEqual((0, _index.compileOptions)(), (0, _index.compileOptions)());
-  });
-
-  QUnit.test('has default AST plugins', function (assert) {
-    assert.expect(_index.defaultPlugins.length);
-
-    var plugins = (0, _index.compileOptions)().plugins.ast;
-
-    for (var i = 0; i < _index.defaultPlugins.length; i++) {
-      var plugin = _index.defaultPlugins[i];
-      assert.ok(plugins.indexOf(plugin) > -1, 'includes ' + plugin);
+    function _class() {
+      (0, _emberBabel.classCallCheck)(this, _class);
+      return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase.apply(this, arguments));
     }
-  });
+
+    _class.prototype['@test default options are a new copy'] = function testDefaultOptionsAreANewCopy(assert) {
+      assert.notEqual((0, _index.compileOptions)(), (0, _index.compileOptions)());
+    };
+
+    _class.prototype['@test has default AST plugins'] = function testHasDefaultASTPlugins(assert) {
+      assert.expect(_index.defaultPlugins.length);
+
+      var plugins = (0, _index.compileOptions)().plugins.ast;
+
+      for (var i = 0; i < _index.defaultPlugins.length; i++) {
+        var plugin = _index.defaultPlugins[i];
+        assert.ok(plugins.indexOf(plugin) > -1, 'includes ' + plugin);
+      }
+    };
+
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
 });
 QUnit.module('ESLint | ember-template-compiler/tests/system/compile_options_test.js');
 QUnit.test('should pass ESLint', function(assert) {
