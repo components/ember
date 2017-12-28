@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.0.0-alpha.1-null+23e53865
+ * @version   3.0.0-alpha.1-null+213d4366
  */
 
 /*globals process */
@@ -13832,7 +13832,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
 
   function addNormalizedProperty(base, key, value, meta$$1, descs, values, concats, mergings) {
     if (value instanceof Descriptor) {
-      if (value === REQUIRED && descs[key]) {
+      if (emberEnvironment.ENV._ENABLE_PROPERTY_REQUIRED_SUPPORT && value === REQUIRED && descs[key]) {
         return CONTINUE;
       }
 
@@ -14019,7 +14019,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       desc = descs[key];
       value = values[key];
 
-      if (desc === REQUIRED) {
+      if (emberEnvironment.ENV._ENABLE_PROPERTY_REQUIRED_SUPPORT && desc === REQUIRED) {
         continue;
       }
 
@@ -17003,7 +17003,7 @@ enifed('ember/features', ['exports', 'ember-environment', 'ember-utils'], functi
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "3.0.0-alpha.1-null+23e53865";
+  exports.default = "3.0.0-alpha.1-null+213d4366";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";

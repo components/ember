@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.0.0-alpha.1-null+23e53865
+ * @version   3.0.0-alpha.1-null+213d4366
  */
 
 /*globals process */
@@ -28267,7 +28267,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
 
   function addNormalizedProperty(base, key, value, meta$$1, descs, values, concats, mergings) {
     if (value instanceof Descriptor) {
-      if (value === REQUIRED && descs[key]) {
+      if (emberEnvironment.ENV._ENABLE_PROPERTY_REQUIRED_SUPPORT && value === REQUIRED && descs[key]) {
         return CONTINUE;
       }
 
@@ -28446,7 +28446,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       desc = descs[key];
       value = values[key];
 
-      if (desc === REQUIRED) {
+      if (emberEnvironment.ENV._ENABLE_PROPERTY_REQUIRED_SUPPORT && desc === REQUIRED) {
         continue;
       }
 
@@ -39788,7 +39788,7 @@ enifed('ember-runtime/system/array_proxy', ['exports', 'ember-metal', 'ember-run
     }
   });
 });
-enifed('ember-runtime/system/core_object', ['exports', 'ember-babel', 'ember-utils', 'ember-metal', 'ember-runtime/mixins/action_handler', 'ember-runtime/inject', 'ember-debug', 'ember/features'], function (exports, _emberBabel, _emberUtils, _emberMetal, _action_handler, _inject, _emberDebug, _features) {
+enifed('ember-runtime/system/core_object', ['exports', 'ember-babel', 'ember-utils', 'ember-metal', 'ember-runtime/mixins/action_handler', 'ember-runtime/inject', 'ember-debug', 'ember-environment', 'ember/features'], function (exports, _emberBabel, _emberUtils, _emberMetal, _action_handler, _inject, _emberDebug, _emberEnvironment, _features) {
   'use strict';
 
   exports.POST_INIT = undefined;
@@ -40035,10 +40035,6 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-babel', 'ember-uti
 
   var ClassMixinProps = (_ClassMixinProps = {
 
-    ClassMixin: _emberMetal.REQUIRED,
-
-    PrototypeMixin: _emberMetal.REQUIRED,
-
     isClass: true,
 
     isMethod: false
@@ -40130,6 +40126,11 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-babel', 'ember-uti
       callback.call(binding || this, property.name, property.meta || empty);
     }
   }, _ClassMixinProps);
+
+  if (_emberEnvironment.ENV._ENABLE_PROPERTY_REQUIRED_SUPPORT) {
+    ClassMixinProps.ClassMixin = _emberMetal.REQUIRED;
+    ClassMixinProps.PrototypeMixin = _emberMetal.REQUIRED;
+  }
 
   function injectedPropertyAssertion() {
     (true && !((0, _inject.validatePropertyInjections)(this)) && (0, _emberDebug.assert)('Injected properties are invalid', (0, _inject.validatePropertyInjections)(this)));
@@ -46895,7 +46896,9 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
   _emberMetal.default.removeObserver = _emberMetal.removeObserver;
   _emberMetal.default._suspendObserver = _emberMetal._suspendObserver;
   _emberMetal.default._suspendObservers = _emberMetal._suspendObservers;
-  _emberMetal.default.required = _emberMetal.required;
+  if (_emberEnvironment.ENV._ENABLE_PROPERTY_REQUIRED_SUPPORT) {
+    _emberMetal.default.required = _emberMetal.required;
+  }
   _emberMetal.default.aliasMethod = _emberMetal.aliasMethod;
   _emberMetal.default.observer = _emberMetal.observer;
   _emberMetal.default.mixin = _emberMetal.mixin;
@@ -47282,7 +47285,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "3.0.0-alpha.1-null+23e53865";
+  exports.default = "3.0.0-alpha.1-null+213d4366";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";

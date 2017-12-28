@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.0.0-alpha.1-null+23e53865
+ * @version   3.0.0-alpha.1-null+213d4366
  */
 
 /*globals process */
@@ -42187,15 +42187,17 @@ enifed('ember-metal/tests/mixin/reopen_test', ['ember-runtime', 'ember-metal'], 
     equal(result, 'Breakfast!');
   });
 });
-enifed('ember-metal/tests/mixin/required_test', ['ember-metal'], function (_emberMetal) {
+enifed('ember-metal/tests/mixin/required_test', ['ember-metal', 'ember-environment'], function (_emberMetal, _emberEnvironment) {
   'use strict';
 
   var PartialMixin = void 0,
       FinalMixin = void 0,
       obj = void 0;
-
+  var originalEnvVal = void 0;
   QUnit.module('Module.required', {
     setup: function () {
+      originalEnvVal = _emberEnvironment.ENV._ENABLE_PROPERTY_REQUIRED_SUPPORT;
+      _emberEnvironment.ENV._ENABLE_PROPERTY_REQUIRED_SUPPORT = true;
       expectDeprecation(function () {
         PartialMixin = _emberMetal.Mixin.create({
           foo: (0, _emberMetal.required)(),
@@ -42211,6 +42213,7 @@ enifed('ember-metal/tests/mixin/required_test', ['ember-metal'], function (_embe
     },
     teardown: function () {
       PartialMixin = FinalMixin = obj = null;
+      _emberEnvironment.ENV._ENABLE_PROPERTY_REQUIRED_SUPPORT = originalEnvVal;
     }
   });
 
@@ -67814,12 +67817,12 @@ enifed('ember/tests/production_build_test', ['ember-debug'], function (_emberDeb
     assert.equal(fired, false, 'runInDebug callback should not be ran');
   });
 });
-enifed('ember/tests/reexports_test', ['ember/index', 'internal-test-helpers'], function (_index, _internalTestHelpers) {
+enifed('ember/tests/reexports_test', ['ember/index', 'ember-environment', 'internal-test-helpers'], function (_index, _emberEnvironment, _internalTestHelpers) {
   'use strict';
 
   QUnit.module('ember reexports');
 
-  [
+  var allExports = [
   // ember-utils
   ['getOwner', 'ember-utils', 'getOwner'], ['setOwner', 'ember-utils', 'setOwner'], ['assign', 'ember-utils'], ['GUID_KEY', 'ember-utils'], ['uuid', 'ember-utils'], ['generateGuid', 'ember-utils'], ['guidFor', 'ember-utils'], ['inspect', 'ember-utils'], ['makeArray', 'ember-utils'], ['canInvoke', 'ember-utils'], ['tryInvoke', 'ember-utils'], ['wrap', 'ember-utils'], ['applyStr', 'ember-utils'],
 
@@ -67836,7 +67839,7 @@ enifed('ember/tests/reexports_test', ['ember/index', 'internal-test-helpers'], f
   ['computed', 'ember-metal'], ['computed.alias', 'ember-metal', 'alias'], ['ComputedProperty', 'ember-metal'], ['cacheFor', 'ember-metal'], ['merge', 'ember-metal'], ['instrument', 'ember-metal'], ['Instrumentation.instrument', 'ember-metal', 'instrument'], ['Instrumentation.subscribe', 'ember-metal', 'instrumentationSubscribe'], ['Instrumentation.unsubscribe', 'ember-metal', 'instrumentationUnsubscribe'], ['Instrumentation.reset', 'ember-metal', 'instrumentationReset'], ['testing', 'ember-debug', { get: 'isTesting', set: 'setTesting' }], ['onerror', 'ember-metal', { get: 'getOnerror', set: 'setOnerror' }],
   // ['create'], TODO: figure out what to do here
   // ['keys'], TODO: figure out what to do here
-  ['FEATURES', 'ember/features'], ['FEATURES.isEnabled', 'ember-debug', 'isFeatureEnabled'], ['Error', 'ember-debug'], ['meta', 'ember-metal'], ['get', 'ember-metal'], ['set', 'ember-metal'], ['_getPath', 'ember-metal'], ['getWithDefault', 'ember-metal'], ['trySet', 'ember-metal'], ['_Cache', 'ember-metal', 'Cache'], ['on', 'ember-metal'], ['addListener', 'ember-metal'], ['removeListener', 'ember-metal'], ['_suspendListener', 'ember-metal', 'suspendListener'], ['_suspendListeners', 'ember-metal', 'suspendListeners'], ['sendEvent', 'ember-metal'], ['hasListeners', 'ember-metal'], ['watchedEvents', 'ember-metal'], ['listenersFor', 'ember-metal'], ['isNone', 'ember-metal'], ['isEmpty', 'ember-metal'], ['isBlank', 'ember-metal'], ['isPresent', 'ember-metal'], ['_Backburner', 'backburner', 'default'], ['run', 'ember-metal'], ['_ObserverSet', 'ember-metal', 'ObserverSet'], ['propertyWillChange', 'ember-metal'], ['propertyDidChange', 'ember-metal'], ['overrideChains', 'ember-metal'], ['beginPropertyChanges', 'ember-metal'], ['beginPropertyChanges', 'ember-metal'], ['endPropertyChanges', 'ember-metal'], ['changeProperties', 'ember-metal'], ['defineProperty', 'ember-metal'], ['watchKey', 'ember-metal'], ['unwatchKey', 'ember-metal'], ['removeChainWatcher', 'ember-metal'], ['_ChainNode', 'ember-metal', 'ChainNode'], ['finishChains', 'ember-metal'], ['watchPath', 'ember-metal'], ['unwatchPath', 'ember-metal'], ['watch', 'ember-metal'], ['isWatching', 'ember-metal'], ['unwatch', 'ember-metal'], ['destroy', 'ember-metal', 'deleteMeta'], ['libraries', 'ember-metal'], ['OrderedSet', 'ember-metal'], ['Map', 'ember-metal'], ['MapWithDefault', 'ember-metal'], ['getProperties', 'ember-metal'], ['setProperties', 'ember-metal'], ['expandProperties', 'ember-metal'], ['NAME_KEY', 'ember-utils'], ['addObserver', 'ember-metal'], ['observersFor', 'ember-metal'], ['removeObserver', 'ember-metal'], ['_suspendObserver', 'ember-metal'], ['_suspendObservers', 'ember-metal'], ['required', 'ember-metal'], ['aliasMethod', 'ember-metal'], ['observer', 'ember-metal'], ['mixin', 'ember-metal'], ['Mixin', 'ember-metal'], ['bind', 'ember-metal'], ['Binding', 'ember-metal'], ['isGlobalPath', 'ember-metal'],
+  ['FEATURES', 'ember/features'], ['FEATURES.isEnabled', 'ember-debug', 'isFeatureEnabled'], ['Error', 'ember-debug'], ['meta', 'ember-metal'], ['get', 'ember-metal'], ['set', 'ember-metal'], ['_getPath', 'ember-metal'], ['getWithDefault', 'ember-metal'], ['trySet', 'ember-metal'], ['_Cache', 'ember-metal', 'Cache'], ['on', 'ember-metal'], ['addListener', 'ember-metal'], ['removeListener', 'ember-metal'], ['_suspendListener', 'ember-metal', 'suspendListener'], ['_suspendListeners', 'ember-metal', 'suspendListeners'], ['sendEvent', 'ember-metal'], ['hasListeners', 'ember-metal'], ['watchedEvents', 'ember-metal'], ['listenersFor', 'ember-metal'], ['isNone', 'ember-metal'], ['isEmpty', 'ember-metal'], ['isBlank', 'ember-metal'], ['isPresent', 'ember-metal'], ['_Backburner', 'backburner', 'default'], ['run', 'ember-metal'], ['_ObserverSet', 'ember-metal', 'ObserverSet'], ['propertyWillChange', 'ember-metal'], ['propertyDidChange', 'ember-metal'], ['overrideChains', 'ember-metal'], ['beginPropertyChanges', 'ember-metal'], ['beginPropertyChanges', 'ember-metal'], ['endPropertyChanges', 'ember-metal'], ['changeProperties', 'ember-metal'], ['defineProperty', 'ember-metal'], ['watchKey', 'ember-metal'], ['unwatchKey', 'ember-metal'], ['removeChainWatcher', 'ember-metal'], ['_ChainNode', 'ember-metal', 'ChainNode'], ['finishChains', 'ember-metal'], ['watchPath', 'ember-metal'], ['unwatchPath', 'ember-metal'], ['watch', 'ember-metal'], ['isWatching', 'ember-metal'], ['unwatch', 'ember-metal'], ['destroy', 'ember-metal', 'deleteMeta'], ['libraries', 'ember-metal'], ['OrderedSet', 'ember-metal'], ['Map', 'ember-metal'], ['MapWithDefault', 'ember-metal'], ['getProperties', 'ember-metal'], ['setProperties', 'ember-metal'], ['expandProperties', 'ember-metal'], ['NAME_KEY', 'ember-utils'], ['addObserver', 'ember-metal'], ['observersFor', 'ember-metal'], ['removeObserver', 'ember-metal'], ['_suspendObserver', 'ember-metal'], ['_suspendObservers', 'ember-metal'], ['aliasMethod', 'ember-metal'], ['observer', 'ember-metal'], ['mixin', 'ember-metal'], ['Mixin', 'ember-metal'], ['bind', 'ember-metal'], ['Binding', 'ember-metal'], ['isGlobalPath', 'ember-metal'],
 
   // ember-views
   ['$', 'ember-views', 'jQuery'], ['ViewUtils.isSimpleClick', 'ember-views', 'isSimpleClick'], ['ViewUtils.getViewElement', 'ember-views', 'getViewElement'], ['ViewUtils.getViewBounds', 'ember-views', 'getViewBounds'], ['ViewUtils.getViewClientRects', 'ember-views', 'getViewClientRects'], ['ViewUtils.getViewBoundingClientRect', 'ember-views', 'getViewBoundingClientRect'], ['ViewUtils.getRootViews', 'ember-views', 'getRootViews'], ['ViewUtils.getChildViews', 'ember-views', 'getChildViews'], ['TextSupport', 'ember-views'], ['ComponentLookup', 'ember-views'], ['EventDispatcher', 'ember-views'],
@@ -67854,7 +67857,13 @@ enifed('ember/tests/reexports_test', ['ember/index', 'internal-test-helpers'], f
   ['Application', 'ember-application'], ['ApplicationInstance', 'ember-application'], ['Engine', 'ember-application'], ['EngineInstance', 'ember-application'], ['Resolver', 'ember-application'], ['DefaultResolver', 'ember-application', 'Resolver'],
 
   // ember-extension-support
-  ['DataAdapter', 'ember-extension-support'], ['ContainerDebugAdapter', 'ember-extension-support']].forEach(function (reexport) {
+  ['DataAdapter', 'ember-extension-support'], ['ContainerDebugAdapter', 'ember-extension-support']];
+
+  if (_emberEnvironment.ENV._ENABLE_PROPERTY_REQUIRED_SUPPORT) {
+    allExports.push(['required', 'ember-metal']);
+  }
+
+  allExports.forEach(function (reexport) {
     var path = reexport[0],
         moduleId = reexport[1],
         exportName = reexport[2];
