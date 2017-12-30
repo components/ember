@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.0.0-alpha.1-null+213d4366
+ * @version   3.0.0-alpha.1-null+d52eb871
  */
 
 /*globals process */
@@ -82526,14 +82526,23 @@ enifed('internal-test-helpers/test-resolver', ['exports', 'ember-babel', 'ember-
 
   exports.ModuleBasedResolver = ModuleBasedResolver;
 });
-enifed('internal-test-helpers/tests/index-test', [], function () {
+enifed('internal-test-helpers/tests/index-test', ['ember-babel', 'internal-test-helpers'], function (_emberBabel, _internalTestHelpers) {
   'use strict';
 
-  QUnit.module('internal-test-helpers');
+  (0, _internalTestHelpers.moduleFor)('internal-test-helpers', function (_AbstractTestCase) {
+    (0, _emberBabel.inherits)(_class, _AbstractTestCase);
 
-  QUnit.test('module present', function (assert) {
-    assert.ok(true, 'each package needs at least one test to be able to run through `npm test`');
-  });
+    function _class() {
+      (0, _emberBabel.classCallCheck)(this, _class);
+      return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase.apply(this, arguments));
+    }
+
+    _class.prototype['@test module present'] = function testModulePresent(assert) {
+      assert.ok(true, 'each package needs at least one test to be able to run through `npm test`');
+    };
+
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
 });
 QUnit.module('ESLint | internal-test-helpers/tests/index-test.js');
 QUnit.test('should pass ESLint', function(assert) {
