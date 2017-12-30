@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.0.0-alpha.1-null+d52eb871
+ * @version   3.0.0-alpha.1-null+16f30b81
  */
 
 /*globals process */
@@ -38610,12 +38610,19 @@ QUnit.test('should pass ESLint', function(assert) {
   assert.ok(true, 'ember-metal/lib/watching.js should pass ESLint\n\n');
 });
 
-enifed('ember-metal/tests/accessors/get_path_test', ['ember-metal'], function (_emberMetal) {
+enifed('ember-metal/tests/accessors/get_path_test', ['ember-babel', 'ember-metal', 'internal-test-helpers'], function (_emberBabel, _emberMetal, _internalTestHelpers) {
   'use strict';
 
   var obj = void 0;
-  var moduleOpts = {
-    setup: function () {
+
+  (0, _internalTestHelpers.moduleFor)('Ember.get with path', function (_AbstractTestCase) {
+    (0, _emberBabel.inherits)(_class, _AbstractTestCase);
+
+    function _class() {
+      (0, _emberBabel.classCallCheck)(this, _class);
+
+      var _this = (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase.call(this));
+
       obj = {
         foo: {
           bar: {
@@ -38634,61 +38641,55 @@ enifed('ember-metal/tests/accessors/get_path_test', ['ember-metal'], function (_
         },
         nullValue: null
       };
-    },
-    teardown: function () {
-      obj = undefined;
+      return _this;
     }
-  };
 
-  QUnit.module('Ember.get with path', moduleOpts);
+    _class.prototype.teardown = function teardown() {
+      obj = undefined;
+    };
 
-  // ..........................................................
-  // LOCAL PATHS
-  //
+    _class.prototype['@test [obj, foo] -> obj.foo'] = function testObjFooObjFoo(assert) {
+      assert.deepEqual((0, _emberMetal.get)(obj, 'foo'), obj.foo);
+    };
 
-  QUnit.test('[obj, foo] -> obj.foo', function () {
-    deepEqual((0, _emberMetal.get)(obj, 'foo'), obj.foo);
-  });
+    _class.prototype['@test [obj, foo.bar] -> obj.foo.bar'] = function testObjFooBarObjFooBar(assert) {
+      assert.deepEqual((0, _emberMetal.get)(obj, 'foo.bar'), obj.foo.bar);
+    };
 
-  QUnit.test('[obj, foo.bar] -> obj.foo.bar', function () {
-    deepEqual((0, _emberMetal.get)(obj, 'foo.bar'), obj.foo.bar);
-  });
+    _class.prototype['@test [obj, foothis.bar] -> obj.foothis.bar'] = function testObjFoothisBarObjFoothisBar(assert) {
+      assert.deepEqual((0, _emberMetal.get)(obj, 'foothis.bar'), obj.foothis.bar);
+    };
 
-  QUnit.test('[obj, foothis.bar] -> obj.foothis.bar', function () {
-    deepEqual((0, _emberMetal.get)(obj, 'foothis.bar'), obj.foothis.bar);
-  });
+    _class.prototype['@test [obj, falseValue.notDefined] -> (undefined)'] = function testObjFalseValueNotDefinedUndefined(assert) {
+      assert.strictEqual((0, _emberMetal.get)(obj, 'falseValue.notDefined'), undefined);
+    };
 
-  QUnit.test('[obj, falseValue.notDefined] -> (undefined)', function () {
-    strictEqual((0, _emberMetal.get)(obj, 'falseValue.notDefined'), undefined);
-  });
+    _class.prototype['@test [obj, emptyString.length] -> 0'] = function testObjEmptyStringLength0(assert) {
+      assert.strictEqual((0, _emberMetal.get)(obj, 'emptyString.length'), 0);
+    };
 
-  QUnit.test('[obj, emptyString.length] -> 0', function () {
-    strictEqual((0, _emberMetal.get)(obj, 'emptyString.length'), 0);
-  });
+    _class.prototype['@test [obj, nullValue.notDefined] -> (undefined)'] = function testObjNullValueNotDefinedUndefined(assert) {
+      assert.strictEqual((0, _emberMetal.get)(obj, 'nullValue.notDefined'), undefined);
+    };
 
-  QUnit.test('[obj, nullValue.notDefined] -> (undefined)', function () {
-    strictEqual((0, _emberMetal.get)(obj, 'nullValue.notDefined'), undefined);
-  });
+    _class.prototype['@test [obj, Wuz] -> obj.Wuz'] = function testObjWuzObjWuz(assert) {
+      assert.deepEqual((0, _emberMetal.get)(obj, 'Wuz'), obj.Wuz);
+    };
 
-  // ..........................................................
-  // GLOBAL PATHS TREATED LOCAL WITH GET
-  //
+    _class.prototype['@test [obj, Wuz.nar] -> obj.Wuz.nar'] = function testObjWuzNarObjWuzNar(assert) {
+      assert.deepEqual((0, _emberMetal.get)(obj, 'Wuz.nar'), obj.Wuz.nar);
+    };
 
-  QUnit.test('[obj, Wuz] -> obj.Wuz', function () {
-    deepEqual((0, _emberMetal.get)(obj, 'Wuz'), obj.Wuz);
-  });
+    _class.prototype['@test [obj, Foo] -> (undefined)'] = function testObjFooUndefined(assert) {
+      assert.strictEqual((0, _emberMetal.get)(obj, 'Foo'), undefined);
+    };
 
-  QUnit.test('[obj, Wuz.nar] -> obj.Wuz.nar', function () {
-    deepEqual((0, _emberMetal.get)(obj, 'Wuz.nar'), obj.Wuz.nar);
-  });
+    _class.prototype['@test [obj, Foo.bar] -> (undefined)'] = function testObjFooBarUndefined(assert) {
+      assert.strictEqual((0, _emberMetal.get)(obj, 'Foo.bar'), undefined);
+    };
 
-  QUnit.test('[obj, Foo] -> (undefined)', function () {
-    strictEqual((0, _emberMetal.get)(obj, 'Foo'), undefined);
-  });
-
-  QUnit.test('[obj, Foo.bar] -> (undefined)', function () {
-    strictEqual((0, _emberMetal.get)(obj, 'Foo.bar'), undefined);
-  });
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
 });
 QUnit.module('ESLint | ember-metal/tests/accessors/get_path_test.js');
 QUnit.test('should pass ESLint', function(assert) {
@@ -38696,26 +38697,35 @@ QUnit.test('should pass ESLint', function(assert) {
   assert.ok(true, 'ember-metal/tests/accessors/get_path_test.js should pass ESLint\n\n');
 });
 
-enifed('ember-metal/tests/accessors/get_properties_test', ['ember-metal'], function (_emberMetal) {
+enifed('ember-metal/tests/accessors/get_properties_test', ['ember-babel', 'ember-metal', 'internal-test-helpers'], function (_emberBabel, _emberMetal, _internalTestHelpers) {
   'use strict';
 
-  QUnit.module('Ember.getProperties');
+  (0, _internalTestHelpers.moduleFor)('Ember.getProperties', function (_AbstractTestCase) {
+    (0, _emberBabel.inherits)(_class, _AbstractTestCase);
 
-  QUnit.test('can retrieve a hash of properties from an object via an argument list or array of property names', function () {
-    var obj = {
-      firstName: 'Steve',
-      lastName: 'Jobs',
-      companyName: 'Apple, Inc.'
+    function _class() {
+      (0, _emberBabel.classCallCheck)(this, _class);
+      return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase.apply(this, arguments));
+    }
+
+    _class.prototype['@test can retrieve a hash of properties from an object via an argument list or array of property names'] = function testCanRetrieveAHashOfPropertiesFromAnObjectViaAnArgumentListOrArrayOfPropertyNames(assert) {
+      var obj = {
+        firstName: 'Steve',
+        lastName: 'Jobs',
+        companyName: 'Apple, Inc.'
+      };
+
+      assert.deepEqual((0, _emberMetal.getProperties)(obj, 'firstName', 'lastName'), { firstName: 'Steve', lastName: 'Jobs' });
+      assert.deepEqual((0, _emberMetal.getProperties)(obj, 'firstName', 'lastName'), { firstName: 'Steve', lastName: 'Jobs' });
+      assert.deepEqual((0, _emberMetal.getProperties)(obj, 'lastName'), { lastName: 'Jobs' });
+      assert.deepEqual((0, _emberMetal.getProperties)(obj), {});
+      assert.deepEqual((0, _emberMetal.getProperties)(obj, ['firstName', 'lastName']), { firstName: 'Steve', lastName: 'Jobs' });
+      assert.deepEqual((0, _emberMetal.getProperties)(obj, ['firstName']), { firstName: 'Steve' });
+      assert.deepEqual((0, _emberMetal.getProperties)(obj, []), {});
     };
 
-    deepEqual((0, _emberMetal.getProperties)(obj, 'firstName', 'lastName'), { firstName: 'Steve', lastName: 'Jobs' });
-    deepEqual((0, _emberMetal.getProperties)(obj, 'firstName', 'lastName'), { firstName: 'Steve', lastName: 'Jobs' });
-    deepEqual((0, _emberMetal.getProperties)(obj, 'lastName'), { lastName: 'Jobs' });
-    deepEqual((0, _emberMetal.getProperties)(obj), {});
-    deepEqual((0, _emberMetal.getProperties)(obj, ['firstName', 'lastName']), { firstName: 'Steve', lastName: 'Jobs' });
-    deepEqual((0, _emberMetal.getProperties)(obj, ['firstName']), { firstName: 'Steve' });
-    deepEqual((0, _emberMetal.getProperties)(obj, []), {});
-  });
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
 });
 QUnit.module('ESLint | ember-metal/tests/accessors/get_properties_test.js');
 QUnit.test('should pass ESLint', function(assert) {
@@ -38723,199 +38733,244 @@ QUnit.test('should pass ESLint', function(assert) {
   assert.ok(true, 'ember-metal/tests/accessors/get_properties_test.js should pass ESLint\n\n');
 });
 
-enifed('ember-metal/tests/accessors/get_test', ['internal-test-helpers', 'ember-metal'], function (_internalTestHelpers, _emberMetal) {
+enifed('ember-metal/tests/accessors/get_test', ['ember-babel', 'ember-environment', 'ember-metal', 'internal-test-helpers'], function (_emberBabel, _emberEnvironment, _emberMetal, _internalTestHelpers) {
   'use strict';
 
-  QUnit.module('Ember.get');
+  function aget(x, y) {
+    return x[y];
+  }
 
-  QUnit.test('should get arbitrary properties on an object', function () {
-    var obj = {
-      string: 'string',
-      number: 23,
-      boolTrue: true,
-      boolFalse: false,
-      nullValue: null
-    };
+  (0, _internalTestHelpers.moduleFor)('Ember.get', function (_AbstractTestCase) {
+    (0, _emberBabel.inherits)(_class, _AbstractTestCase);
 
-    for (var key in obj) {
-      if (!obj.hasOwnProperty(key)) {
-        continue;
-      }
-      equal((0, _emberMetal.get)(obj, key), obj[key], key);
-    }
-  });
-
-  QUnit.test('should not access a property more than once', function () {
-    var count = 0;
-    var obj = {
-      get id() {
-        return ++count;
-      }
-    };
-
-    (0, _emberMetal.get)(obj, 'id');
-
-    equal(count, 1);
-  });
-
-  (0, _internalTestHelpers.testBoth)('should call unknownProperty on watched values if the value is undefined', function (get) {
-    var obj = {
-      unknownProperty: function (key) {
-        equal(key, 'foo', 'should pass key');
-        return 'FOO';
-      }
-    };
-    equal(get(obj, 'foo'), 'FOO', 'should return value from unknown');
-  });
-
-  QUnit.test('warn on attempts to call get with no arguments', function () {
-    expectAssertion(function () {
-      (0, _emberMetal.get)('aProperty');
-    }, /Get must be called with two arguments;/i);
-  });
-
-  QUnit.test('warn on attempts to call get with only one argument', function () {
-    expectAssertion(function () {
-      (0, _emberMetal.get)('aProperty');
-    }, /Get must be called with two arguments;/i);
-  });
-
-  QUnit.test('warn on attempts to call get with more then two arguments', function () {
-    expectAssertion(function () {
-      (0, _emberMetal.get)({}, 'aProperty', true);
-    }, /Get must be called with two arguments;/i);
-  });
-
-  QUnit.test('warn on attempts to get a property of undefined', function () {
-    expectAssertion(function () {
-      (0, _emberMetal.get)(undefined, 'aProperty');
-    }, /Cannot call get with 'aProperty' on an undefined object/i);
-  });
-
-  QUnit.test('warn on attempts to get a property path of undefined', function () {
-    expectAssertion(function () {
-      (0, _emberMetal.get)(undefined, 'aProperty.on.aPath');
-    }, /Cannot call get with 'aProperty.on.aPath' on an undefined object/);
-  });
-
-  QUnit.test('warn on attempts to get a property of null', function () {
-    expectAssertion(function () {
-      (0, _emberMetal.get)(null, 'aProperty');
-    }, /Cannot call get with 'aProperty' on an undefined object/);
-  });
-
-  QUnit.test('warn on attempts to get a property path of null', function () {
-    expectAssertion(function () {
-      (0, _emberMetal.get)(null, 'aProperty.on.aPath');
-    }, /Cannot call get with 'aProperty.on.aPath' on an undefined object/);
-  });
-
-  QUnit.test('warn on attempts to use get with an unsupported property path', function () {
-    var obj = {};
-    expectAssertion(function () {
-      return (0, _emberMetal.get)(obj, null);
-    }, /The key provided to get must be a string, you passed null/);
-    expectAssertion(function () {
-      return (0, _emberMetal.get)(obj, NaN);
-    }, /The key provided to get must be a string, you passed NaN/);
-    expectAssertion(function () {
-      return (0, _emberMetal.get)(obj, undefined);
-    }, /The key provided to get must be a string, you passed undefined/);
-    expectAssertion(function () {
-      return (0, _emberMetal.get)(obj, false);
-    }, /The key provided to get must be a string, you passed false/);
-    expectAssertion(function () {
-      return (0, _emberMetal.get)(obj, 42);
-    }, /The key provided to get must be a string, you passed 42/);
-    expectAssertion(function () {
-      return (0, _emberMetal.get)(obj, '');
-    }, /Cannot call `Ember.get` with an empty string/);
-  });
-
-  // ..........................................................
-  // BUGS
-  //
-
-  QUnit.test('(regression) watched properties on unmodified inherited objects should still return their original value', function () {
-    var MyMixin = _emberMetal.Mixin.create({
-      someProperty: 'foo',
-      propertyDidChange: (0, _emberMetal.observer)('someProperty', function () {})
-    });
-
-    var baseObject = MyMixin.apply({});
-    var theRealObject = Object.create(baseObject);
-
-    equal((0, _emberMetal.get)(theRealObject, 'someProperty'), 'foo', 'should return the set value, not false');
-  });
-
-  QUnit.module('Ember.getWithDefault');
-
-  QUnit.test('should get arbitrary properties on an object', function () {
-    var obj = {
-      string: 'string',
-      number: 23,
-      boolTrue: true,
-      boolFalse: false,
-      nullValue: null
-    };
-
-    for (var key in obj) {
-      if (!obj.hasOwnProperty(key)) {
-        continue;
-      }
-      equal((0, _emberMetal.getWithDefault)(obj, key, 'fail'), obj[key], key);
+    function _class() {
+      (0, _emberBabel.classCallCheck)(this, _class);
+      return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase.apply(this, arguments));
     }
 
-    obj = {
-      undef: undefined
-    };
+    _class.prototype['@test should get arbitrary properties on an object'] = function testShouldGetArbitraryPropertiesOnAnObject(assert) {
+      var obj = {
+        string: 'string',
+        number: 23,
+        boolTrue: true,
+        boolFalse: false,
+        nullValue: null
+      };
 
-    equal((0, _emberMetal.getWithDefault)(obj, 'undef', 'default'), 'default', 'explicit undefined retrieves the default');
-    equal((0, _emberMetal.getWithDefault)(obj, 'not-present', 'default'), 'default', 'non-present key retrieves the default');
-  });
-
-  QUnit.test('should call unknownProperty if defined and value is undefined', function () {
-    var obj = {
-      count: 0,
-      unknownProperty: function (key) {
-        equal(key, 'foo', 'should pass key');
-        this.count++;
-        return 'FOO';
+      for (var key in obj) {
+        if (!obj.hasOwnProperty(key)) {
+          continue;
+        }
+        assert.equal((0, _emberMetal.get)(obj, key), obj[key], key);
       }
     };
 
-    equal((0, _emberMetal.get)(obj, 'foo'), 'FOO', 'should return value from unknown');
-    equal(obj.count, 1, 'should have invoked');
-  });
+    _class.prototype['@test should not access a property more than once'] = function testShouldNotAccessAPropertyMoreThanOnce(assert) {
+      var count = 0;
+      var obj = {
+        get id() {
+          return ++count;
+        }
+      };
 
-  (0, _internalTestHelpers.testBoth)('if unknownProperty is present, it is called', function () {
-    var obj = {
-      unknownProperty: function (key) {
-        if (key === 'foo') {
-          equal(key, 'foo', 'should pass key');
+      (0, _emberMetal.get)(obj, 'id');
+
+      assert.equal(count, 1);
+    };
+
+    _class.prototype['@test should call unknownProperty on watched values if the value is undefined using getFromEmberMetal()/Ember.set()'] = function testShouldCallUnknownPropertyOnWatchedValuesIfTheValueIsUndefinedUsingGetFromEmberMetalEmberSet(assert) {
+      var obj = {
+        unknownProperty: function (key) {
+          assert.equal(key, 'foo', 'should pass key');
           return 'FOO';
         }
+      };
+      assert.equal((0, _emberMetal.get)(obj, 'foo'), 'FOO', 'should return value from unknown');
+    };
+
+    _class.prototype['@test should call unknownProperty on watched values if the value is undefined using accessors'] = function testShouldCallUnknownPropertyOnWatchedValuesIfTheValueIsUndefinedUsingAccessors(assert) {
+      if (_emberEnvironment.ENV.USES_ACCESSORS) {
+        var obj = {
+          unknownProperty: function (key) {
+            assert.equal(key, 'foo', 'should pass key');
+            return 'FOO';
+          }
+        };
+        assert.equal(aget(obj, 'foo'), 'FOO', 'should return value from unknown');
+      } else {
+        assert.ok('SKIPPING ACCESSORS');
       }
     };
-    equal((0, _emberMetal.getWithDefault)(obj, 'foo', 'fail'), 'FOO', 'should return value from unknownProperty');
-    equal((0, _emberMetal.getWithDefault)(obj, 'bar', 'default'), 'default', 'should convert undefined from unknownProperty into default');
-  });
 
-  // ..........................................................
-  // BUGS
-  //
+    _class.prototype['@test warn on attempts to call get with no arguments'] = function testWarnOnAttemptsToCallGetWithNoArguments() {
+      expectAssertion(function () {
+        (0, _emberMetal.get)('aProperty');
+      }, /Get must be called with two arguments;/i);
+    };
 
-  QUnit.test('(regression) watched properties on unmodified inherited objects should still return their original value', function () {
-    var MyMixin = _emberMetal.Mixin.create({
-      someProperty: 'foo',
-      propertyDidChange: (0, _emberMetal.observer)('someProperty', function () {/* nothing to do */})
-    });
+    _class.prototype['@test warn on attempts to call get with only one argument'] = function testWarnOnAttemptsToCallGetWithOnlyOneArgument() {
+      expectAssertion(function () {
+        (0, _emberMetal.get)('aProperty');
+      }, /Get must be called with two arguments;/i);
+    };
 
-    var baseObject = MyMixin.apply({});
-    var theRealObject = Object.create(baseObject);
+    _class.prototype['@test warn on attempts to call get with more then two arguments'] = function testWarnOnAttemptsToCallGetWithMoreThenTwoArguments() {
+      expectAssertion(function () {
+        (0, _emberMetal.get)({}, 'aProperty', true);
+      }, /Get must be called with two arguments;/i);
+    };
 
-    equal((0, _emberMetal.getWithDefault)(theRealObject, 'someProperty', 'fail'), 'foo', 'should return the set value, not false');
-  });
+    _class.prototype['@test warn on attempts to get a property of undefined'] = function testWarnOnAttemptsToGetAPropertyOfUndefined() {
+      expectAssertion(function () {
+        (0, _emberMetal.get)(undefined, 'aProperty');
+      }, /Cannot call get with 'aProperty' on an undefined object/i);
+    };
+
+    _class.prototype['@test warn on attempts to get a property path of undefined'] = function testWarnOnAttemptsToGetAPropertyPathOfUndefined() {
+      expectAssertion(function () {
+        (0, _emberMetal.get)(undefined, 'aProperty.on.aPath');
+      }, /Cannot call get with 'aProperty.on.aPath' on an undefined object/);
+    };
+
+    _class.prototype['@test warn on attempts to get a property of null'] = function testWarnOnAttemptsToGetAPropertyOfNull() {
+      expectAssertion(function () {
+        (0, _emberMetal.get)(null, 'aProperty');
+      }, /Cannot call get with 'aProperty' on an undefined object/);
+    };
+
+    _class.prototype['@test warn on attempts to get a property path of null'] = function testWarnOnAttemptsToGetAPropertyPathOfNull() {
+      expectAssertion(function () {
+        (0, _emberMetal.get)(null, 'aProperty.on.aPath');
+      }, /Cannot call get with 'aProperty.on.aPath' on an undefined object/);
+    };
+
+    _class.prototype['@test warn on attempts to use get with an unsupported property path'] = function testWarnOnAttemptsToUseGetWithAnUnsupportedPropertyPath() {
+      var obj = {};
+      expectAssertion(function () {
+        return (0, _emberMetal.get)(obj, null);
+      }, /The key provided to get must be a string, you passed null/);
+      expectAssertion(function () {
+        return (0, _emberMetal.get)(obj, NaN);
+      }, /The key provided to get must be a string, you passed NaN/);
+      expectAssertion(function () {
+        return (0, _emberMetal.get)(obj, undefined);
+      }, /The key provided to get must be a string, you passed undefined/);
+      expectAssertion(function () {
+        return (0, _emberMetal.get)(obj, false);
+      }, /The key provided to get must be a string, you passed false/);
+      expectAssertion(function () {
+        return (0, _emberMetal.get)(obj, 42);
+      }, /The key provided to get must be a string, you passed 42/);
+      expectAssertion(function () {
+        return (0, _emberMetal.get)(obj, '');
+      }, /Cannot call `Ember.get` with an empty string/);
+    };
+
+    _class.prototype['@test (regression) watched properties on unmodified inherited objects should still return their original value'] = function testRegressionWatchedPropertiesOnUnmodifiedInheritedObjectsShouldStillReturnTheirOriginalValue() {
+      var MyMixin = _emberMetal.Mixin.create({
+        someProperty: 'foo',
+        propertyDidChange: (0, _emberMetal.observer)('someProperty', function () {})
+      });
+
+      var baseObject = MyMixin.apply({});
+      var theRealObject = Object.create(baseObject);
+
+      equal((0, _emberMetal.get)(theRealObject, 'someProperty'), 'foo', 'should return the set value, not false');
+    };
+
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
+
+  (0, _internalTestHelpers.moduleFor)('Ember.getWithDefault', function (_AbstractTestCase2) {
+    (0, _emberBabel.inherits)(_class2, _AbstractTestCase2);
+
+    function _class2() {
+      (0, _emberBabel.classCallCheck)(this, _class2);
+      return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase2.apply(this, arguments));
+    }
+
+    _class2.prototype['@test should get arbitrary properties on an object'] = function testShouldGetArbitraryPropertiesOnAnObject(assert) {
+      var obj = {
+        string: 'string',
+        number: 23,
+        boolTrue: true,
+        boolFalse: false,
+        nullValue: null
+      };
+
+      for (var key in obj) {
+        if (!obj.hasOwnProperty(key)) {
+          continue;
+        }
+        assert.equal((0, _emberMetal.getWithDefault)(obj, key, 'fail'), obj[key], key);
+      }
+
+      obj = {
+        undef: undefined
+      };
+
+      assert.equal((0, _emberMetal.getWithDefault)(obj, 'undef', 'default'), 'default', 'explicit undefined retrieves the default');
+      assert.equal((0, _emberMetal.getWithDefault)(obj, 'not-present', 'default'), 'default', 'non-present key retrieves the default');
+    };
+
+    _class2.prototype['@test should call unknownProperty if defined and value is undefined'] = function testShouldCallUnknownPropertyIfDefinedAndValueIsUndefined(assert) {
+      var obj = {
+        count: 0,
+        unknownProperty: function (key) {
+          equal(key, 'foo', 'should pass key');
+          this.count++;
+          return 'FOO';
+        }
+      };
+
+      assert.equal((0, _emberMetal.get)(obj, 'foo'), 'FOO', 'should return value from unknown');
+      assert.equal(obj.count, 1, 'should have invoked');
+    };
+
+    _class2.prototype['@test if unknownProperty is present, it is called using getFromEmberMetal()/Ember.set()'] = function testIfUnknownPropertyIsPresentItIsCalledUsingGetFromEmberMetalEmberSet(assert) {
+      var obj = {
+        unknownProperty: function (key) {
+          if (key === 'foo') {
+            equal(key, 'foo', 'should pass key');
+            return 'FOO';
+          }
+        }
+      };
+      assert.equal((0, _emberMetal.getWithDefault)(obj, 'foo', 'fail'), 'FOO', 'should return value from unknownProperty');
+      assert.equal((0, _emberMetal.getWithDefault)(obj, 'bar', 'default'), 'default', 'should convert undefined from unknownProperty into default');
+    };
+
+    _class2.prototype['@test if unknownProperty is present, it is called using accessors'] = function testIfUnknownPropertyIsPresentItIsCalledUsingAccessors(assert) {
+      if (_emberEnvironment.ENV.USES_ACCESSORS) {
+        var obj = {
+          unknownProperty: function (key) {
+            if (key === 'foo') {
+              assert.equal(key, 'foo', 'should pass key');
+              return 'FOO';
+            }
+          }
+        };
+        assert.equal(aget(obj, 'foo', 'fail'), 'FOO', 'should return value from unknownProperty');
+        assert.equal(aget(obj, 'bar', 'default'), 'default', 'should convert undefined from unknownProperty into default');
+      } else {
+        assert.ok('SKIPPING ACCESSORS');
+      }
+    };
+
+    _class2.prototype['@test (regression) watched properties on unmodified inherited objects should still return their original value'] = function testRegressionWatchedPropertiesOnUnmodifiedInheritedObjectsShouldStillReturnTheirOriginalValue(assert) {
+      var MyMixin = _emberMetal.Mixin.create({
+        someProperty: 'foo',
+        propertyDidChange: (0, _emberMetal.observer)('someProperty', function () {/* nothing to do */})
+      });
+
+      var baseObject = MyMixin.apply({});
+      var theRealObject = Object.create(baseObject);
+
+      assert.equal((0, _emberMetal.getWithDefault)(theRealObject, 'someProperty', 'fail'), 'foo', 'should return the set value, not false');
+    };
+
+    return _class2;
+  }(_internalTestHelpers.AbstractTestCase));
 });
 QUnit.module('ESLint | ember-metal/tests/accessors/get_test.js');
 QUnit.test('should pass ESLint', function(assert) {
@@ -38923,25 +38978,34 @@ QUnit.test('should pass ESLint', function(assert) {
   assert.ok(true, 'ember-metal/tests/accessors/get_test.js should pass ESLint\n\n');
 });
 
-enifed('ember-metal/tests/accessors/is_global_path_test', ['ember-metal'], function (_emberMetal) {
+enifed('ember-metal/tests/accessors/is_global_path_test', ['ember-babel', 'ember-metal', 'internal-test-helpers'], function (_emberBabel, _emberMetal, _internalTestHelpers) {
   'use strict';
 
-  QUnit.module('Ember.isGlobalPath');
+  (0, _internalTestHelpers.moduleFor)('Ember.isGlobalPath', function (_AbstractTestCase) {
+    (0, _emberBabel.inherits)(_class, _AbstractTestCase);
 
-  QUnit.test('global path\'s are recognized', function () {
-    ok((0, _emberMetal.isGlobalPath)('App.myProperty'));
-    ok((0, _emberMetal.isGlobalPath)('App.myProperty.subProperty'));
-  });
+    function _class() {
+      (0, _emberBabel.classCallCheck)(this, _class);
+      return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase.apply(this, arguments));
+    }
 
-  QUnit.test('if there is a \'this\' in the path, it\'s not a global path', function () {
-    ok(!(0, _emberMetal.isGlobalPath)('this.myProperty'));
-    ok(!(0, _emberMetal.isGlobalPath)('this'));
-  });
+    _class.prototype['@test global path\'s are recognized'] = function testGlobalPathSAreRecognized(assert) {
+      assert.ok((0, _emberMetal.isGlobalPath)('App.myProperty'));
+      assert.ok((0, _emberMetal.isGlobalPath)('App.myProperty.subProperty'));
+    };
 
-  QUnit.test('if the path starts with a lowercase character, it is not a global path', function () {
-    ok(!(0, _emberMetal.isGlobalPath)('myObj'));
-    ok(!(0, _emberMetal.isGlobalPath)('myObj.SecondProperty'));
-  });
+    _class.prototype['@test if there is a \'this\' in the path, it\'s not a global path'] = function testIfThereIsAThisInThePathItSNotAGlobalPath(assert) {
+      assert.ok(!(0, _emberMetal.isGlobalPath)('this.myProperty'));
+      assert.ok(!(0, _emberMetal.isGlobalPath)('this'));
+    };
+
+    _class.prototype['@test if the path starts with a lowercase character, it is not a global path'] = function testIfThePathStartsWithALowercaseCharacterItIsNotAGlobalPath(assert) {
+      assert.ok(!(0, _emberMetal.isGlobalPath)('myObj'));
+      assert.ok(!(0, _emberMetal.isGlobalPath)('myObj.SecondProperty'));
+    };
+
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
 });
 QUnit.module('ESLint | ember-metal/tests/accessors/is_global_path_test.js');
 QUnit.test('should pass ESLint', function(assert) {
@@ -38949,10 +39013,8 @@ QUnit.test('should pass ESLint', function(assert) {
   assert.ok(true, 'ember-metal/tests/accessors/is_global_path_test.js should pass ESLint\n\n');
 });
 
-enifed('ember-metal/tests/accessors/mandatory_setters_test', ['ember/features', 'ember-metal'], function (_features, _emberMetal) {
+enifed('ember-metal/tests/accessors/mandatory_setters_test', ['ember-babel', 'ember/features', 'ember-metal', 'internal-test-helpers'], function (_emberBabel, _features, _emberMetal, _internalTestHelpers) {
   'use strict';
-
-  QUnit.module('mandatory-setters');
 
   function hasMandatorySetter(object, property) {
     try {
@@ -38967,417 +39029,428 @@ enifed('ember-metal/tests/accessors/mandatory_setters_test', ['ember/features', 
   }
 
   if (_features.MANDATORY_SETTER) {
-    QUnit.test('does not assert if property is not being watched', function () {
-      var obj = {
-        someProp: null,
-        toString: function () {
-          return 'custom-object';
-        }
-      };
-
-      obj.someProp = 'blastix';
-      equal((0, _emberMetal.get)(obj, 'someProp'), 'blastix');
-    });
-
-    QUnit.test('should not setup mandatory-setter if property is not writable', function () {
-      expect(6);
-
-      var obj = {};
-
-      Object.defineProperty(obj, 'a', { value: true });
-      Object.defineProperty(obj, 'b', { value: false });
-      Object.defineProperty(obj, 'c', { value: undefined });
-      Object.defineProperty(obj, 'd', { value: undefined, writable: false });
-      Object.defineProperty(obj, 'e', { value: undefined, configurable: false });
-      Object.defineProperty(obj, 'f', { value: undefined, configurable: true });
-
-      (0, _emberMetal.watch)(obj, 'a');
-      (0, _emberMetal.watch)(obj, 'b');
-      (0, _emberMetal.watch)(obj, 'c');
-      (0, _emberMetal.watch)(obj, 'd');
-      (0, _emberMetal.watch)(obj, 'e');
-      (0, _emberMetal.watch)(obj, 'f');
-
-      ok(!hasMandatorySetter(obj, 'a'), 'mandatory-setter should not be installed');
-      ok(!hasMandatorySetter(obj, 'b'), 'mandatory-setter should not be installed');
-      ok(!hasMandatorySetter(obj, 'c'), 'mandatory-setter should not be installed');
-      ok(!hasMandatorySetter(obj, 'd'), 'mandatory-setter should not be installed');
-      ok(!hasMandatorySetter(obj, 'e'), 'mandatory-setter should not be installed');
-      ok(!hasMandatorySetter(obj, 'f'), 'mandatory-setter should not be installed');
-    });
-
-    QUnit.test('should not teardown non mandatory-setter descriptor', function () {
-      expect(1);
-
-      var obj = { get a() {
-          return 'hi';
-        } };
-
-      (0, _emberMetal.watch)(obj, 'a');
-      (0, _emberMetal.unwatch)(obj, 'a');
-
-      equal(obj.a, 'hi');
-    });
-
-    QUnit.test('should not confuse non descriptor watched gets', function () {
-      expect(2);
-
-      var obj = { get a() {
-          return 'hi';
-        } };
-
-      (0, _emberMetal.watch)(obj, 'a');
-      equal((0, _emberMetal.get)(obj, 'a'), 'hi');
-      equal(obj.a, 'hi');
-    });
-
-    QUnit.test('should not setup mandatory-setter if setter is already setup on property', function () {
-      expect(2);
-
-      var obj = { someProp: null };
-
-      Object.defineProperty(obj, 'someProp', {
-        get: function () {
-          return null;
-        },
-        set: function (value) {
-          equal(value, 'foo-bar', 'custom setter was called');
-        }
-      });
-
-      (0, _emberMetal.watch)(obj, 'someProp');
-      ok(!hasMandatorySetter(obj, 'someProp'), 'mandatory-setter should not be installed');
-
-      obj.someProp = 'foo-bar';
-    });
-
-    QUnit.test('watched ES5 setter should not be smashed by mandatory setter', function () {
-      var value = void 0;
-      var obj = {
-        get foo() {},
-        set foo(_value) {
-          value = _value;
-        }
-      };
-
-      (0, _emberMetal.watch)(obj, 'foo');
-
-      (0, _emberMetal.set)(obj, 'foo', 2);
-      equal(value, 2);
-    });
-
-    QUnit.test('should not setup mandatory-setter if setter is already setup on property in parent prototype', function () {
-      expect(2);
-
-      function Foo() {}
-
-      Object.defineProperty(Foo.prototype, 'someProp', {
-        get: function () {
-          return null;
-        },
-        set: function (value) {
-          equal(value, 'foo-bar', 'custom setter was called');
-        }
-      });
-
-      var obj = new Foo();
-
-      (0, _emberMetal.watch)(obj, 'someProp');
-      ok(!hasMandatorySetter(obj, 'someProp'), 'mandatory-setter should not be installed');
-
-      obj.someProp = 'foo-bar';
-    });
-
-    QUnit.test('should not setup mandatory-setter if setter is already setup on property in grandparent prototype', function () {
-      expect(2);
-
-      function Foo() {}
-
-      Object.defineProperty(Foo.prototype, 'someProp', {
-        get: function () {
-          return null;
-        },
-        set: function (value) {
-          equal(value, 'foo-bar', 'custom setter was called');
-        }
-      });
-
-      function Bar() {}
-      Bar.prototype = Object.create(Foo.prototype);
-      Bar.prototype.constructor = Bar;
-
-      var obj = new Bar();
-
-      (0, _emberMetal.watch)(obj, 'someProp');
-      ok(!hasMandatorySetter(obj, 'someProp'), 'mandatory-setter should not be installed');
-
-      obj.someProp = 'foo-bar';
-    });
-
-    QUnit.test('should not setup mandatory-setter if setter is already setup on property in great grandparent prototype', function () {
-      expect(2);
-
-      function Foo() {}
-
-      Object.defineProperty(Foo.prototype, 'someProp', {
-        get: function () {
-          return null;
-        },
-        set: function (value) {
-          equal(value, 'foo-bar', 'custom setter was called');
-        }
-      });
-
-      function Bar() {}
-      Bar.prototype = Object.create(Foo.prototype);
-      Bar.prototype.constructor = Bar;
-
-      function Qux() {}
-      Qux.prototype = Object.create(Bar.prototype);
-      Qux.prototype.constructor = Qux;
-
-      var obj = new Qux();
-
-      (0, _emberMetal.watch)(obj, 'someProp');
-      ok(!hasMandatorySetter(obj, 'someProp'), 'mandatory-setter should not be installed');
-
-      obj.someProp = 'foo-bar';
-    });
-
-    QUnit.test('should assert if set without set when property is being watched', function () {
-      var obj = {
-        someProp: null,
-        toString: function () {
-          return 'custom-object';
-        }
-      };
-
-      (0, _emberMetal.watch)(obj, 'someProp');
-
-      expectAssertion(function () {
-        obj.someProp = 'foo-bar';
-      }, 'You must use set() to set the `someProp` property (of custom-object) to `foo-bar`.');
-    });
-
-    QUnit.test('should not assert if set with set when property is being watched', function () {
-      var obj = {
-        someProp: null,
-        toString: function () {
-          return 'custom-object';
-        }
-      };
-
-      (0, _emberMetal.watch)(obj, 'someProp');
-      (0, _emberMetal.set)(obj, 'someProp', 'foo-bar');
-
-      equal((0, _emberMetal.get)(obj, 'someProp'), 'foo-bar');
-    });
-
-    QUnit.test('does not setup mandatory-setter if non-configurable', function () {
-      var obj = {
-        someProp: null,
-        toString: function () {
-          return 'custom-object';
-        }
-      };
-
-      Object.defineProperty(obj, 'someProp', {
-        configurable: false,
-        enumerable: true,
-        value: 'blastix'
-      });
-
-      (0, _emberMetal.watch)(obj, 'someProp');
-      ok(!hasMandatorySetter(obj, 'someProp'), 'blastix');
-    });
-
-    QUnit.test('ensure after watch the property is restored (and the value is no-longer stored in meta) [non-enumerable]', function () {
-      var obj = {
-        someProp: null,
-        toString: function () {
-          return 'custom-object';
-        }
-      };
-
-      Object.defineProperty(obj, 'someProp', {
-        configurable: true,
-        enumerable: false,
-        value: 'blastix'
-      });
-
-      (0, _emberMetal.watch)(obj, 'someProp');
-      equal(hasMandatorySetter(obj, 'someProp'), true, 'should have a mandatory setter');
-
-      var descriptor = Object.getOwnPropertyDescriptor(obj, 'someProp');
-
-      equal(descriptor.enumerable, false, 'property should remain non-enumerable');
-      equal(descriptor.configurable, true, 'property should remain configurable');
-      equal(obj.someProp, 'blastix', 'expected value to be the getter');
-
-      equal(descriptor.value, undefined, 'expected existing value to NOT remain');
-
-      ok(hasMetaValue(obj, 'someProp'), 'someProp is stored in meta.values');
-
-      (0, _emberMetal.unwatch)(obj, 'someProp');
-
-      ok(!hasMetaValue(obj, 'someProp'), 'someProp is no longer stored in meta.values');
-
-      descriptor = Object.getOwnPropertyDescriptor(obj, 'someProp');
-
-      equal(hasMandatorySetter(obj, 'someProp'), false, 'should no longer have a mandatory setter');
-
-      equal(descriptor.enumerable, false, 'property should remain non-enumerable');
-      equal(descriptor.configurable, true, 'property should remain configurable');
-      equal(obj.someProp, 'blastix', 'expected value to be the getter');
-      equal(descriptor.value, 'blastix', 'expected existing value to remain');
-
-      obj.someProp = 'new value';
-
-      // make sure the descriptor remains correct (nothing funky, like a redefined, happened in the setter);
-      descriptor = Object.getOwnPropertyDescriptor(obj, 'someProp');
-
-      equal(descriptor.enumerable, false, 'property should remain non-enumerable');
-      equal(descriptor.configurable, true, 'property should remain configurable');
-      equal(descriptor.value, 'new value', 'expected existing value to NOT remain');
-      equal(obj.someProp, 'new value', 'expected value to be the getter');
-      equal(obj.someProp, 'new value');
-    });
-
-    QUnit.test('ensure after watch the property is restored (and the value is no-longer stored in meta) [enumerable]', function () {
-      var obj = {
-        someProp: null,
-        toString: function () {
-          return 'custom-object';
-        }
-      };
-
-      Object.defineProperty(obj, 'someProp', {
-        configurable: true,
-        enumerable: true,
-        value: 'blastix'
-      });
-
-      (0, _emberMetal.watch)(obj, 'someProp');
-      equal(hasMandatorySetter(obj, 'someProp'), true, 'should have a mandatory setter');
-
-      var descriptor = Object.getOwnPropertyDescriptor(obj, 'someProp');
-
-      equal(descriptor.enumerable, true, 'property should remain enumerable');
-      equal(descriptor.configurable, true, 'property should remain configurable');
-      equal(obj.someProp, 'blastix', 'expected value to be the getter');
-
-      equal(descriptor.value, undefined, 'expected existing value to NOT remain');
-
-      ok(hasMetaValue(obj, 'someProp'), 'someProp is stored in meta.values');
-
-      (0, _emberMetal.unwatch)(obj, 'someProp');
-
-      ok(!hasMetaValue(obj, 'someProp'), 'someProp is no longer stored in meta.values');
-
-      descriptor = Object.getOwnPropertyDescriptor(obj, 'someProp');
-
-      equal(hasMandatorySetter(obj, 'someProp'), false, 'should no longer have a mandatory setter');
-
-      equal(descriptor.enumerable, true, 'property should remain enumerable');
-      equal(descriptor.configurable, true, 'property should remain configurable');
-      equal(obj.someProp, 'blastix', 'expected value to be the getter');
-      equal(descriptor.value, 'blastix', 'expected existing value to remain');
-
-      obj.someProp = 'new value';
-
-      // make sure the descriptor remains correct (nothing funky, like a redefined, happened in the setter);
-      descriptor = Object.getOwnPropertyDescriptor(obj, 'someProp');
-
-      equal(descriptor.enumerable, true, 'property should remain enumerable');
-      equal(descriptor.configurable, true, 'property should remain configurable');
-      equal(descriptor.value, 'new value', 'expected existing value to NOT remain');
-      equal(obj.someProp, 'new value');
-    });
-
-    QUnit.test('sets up mandatory-setter if property comes from prototype', function () {
-      expect(2);
-
-      var obj = {
-        someProp: null,
-        toString: function () {
-          return 'custom-object';
-        }
-      };
-
-      var obj2 = Object.create(obj);
-
-      (0, _emberMetal.watch)(obj2, 'someProp');
-
-      ok(hasMandatorySetter(obj2, 'someProp'), 'mandatory setter has been setup');
-
-      expectAssertion(function () {
-        obj2.someProp = 'foo-bar';
-      }, 'You must use set() to set the `someProp` property (of custom-object) to `foo-bar`.');
-    });
-
-    QUnit.test('inheritance remains live', function () {
-      function Parent() {}
-      Parent.prototype.food = 'chips';
-
-      var child = new Parent();
-
-      equal(child.food, 'chips');
-
-      (0, _emberMetal.watch)(child, 'food');
-
-      equal(child.food, 'chips');
-
-      Parent.prototype.food = 'icecreame';
-
-      equal(child.food, 'icecreame');
-
-      (0, _emberMetal.unwatch)(child, 'food');
-
-      equal(child.food, 'icecreame');
-
-      Parent.prototype.food = 'chips';
-
-      equal(child.food, 'chips');
-    });
-
-    QUnit.test('inheritance remains live and preserves this', function () {
-      function Parent(food) {
-        this._food = food;
+    (0, _internalTestHelpers.moduleFor)('mandory-setters', function (_AbstractTestCase) {
+      (0, _emberBabel.inherits)(_class, _AbstractTestCase);
+
+      function _class() {
+        (0, _emberBabel.classCallCheck)(this, _class);
+        return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase.apply(this, arguments));
       }
 
-      Object.defineProperty(Parent.prototype, 'food', {
-        get: function () {
-          return this._food;
+      _class.prototype['@test does not assert if property is not being watched'] = function testDoesNotAssertIfPropertyIsNotBeingWatched(assert) {
+        var obj = {
+          someProp: null,
+          toString: function () {
+            return 'custom-object';
+          }
+        };
+
+        obj.someProp = 'blastix';
+        assert.equal((0, _emberMetal.get)(obj, 'someProp'), 'blastix');
+      };
+
+      _class.prototype['@test should not setup mandatory-setter if property is not writable'] = function testShouldNotSetupMandatorySetterIfPropertyIsNotWritable(assert) {
+        expect(6);
+
+        var obj = {};
+
+        Object.defineProperty(obj, 'a', { value: true });
+        Object.defineProperty(obj, 'b', { value: false });
+        Object.defineProperty(obj, 'c', { value: undefined });
+        Object.defineProperty(obj, 'd', { value: undefined, writable: false });
+        Object.defineProperty(obj, 'e', { value: undefined, configurable: false });
+        Object.defineProperty(obj, 'f', { value: undefined, configurable: true });
+
+        (0, _emberMetal.watch)(obj, 'a');
+        (0, _emberMetal.watch)(obj, 'b');
+        (0, _emberMetal.watch)(obj, 'c');
+        (0, _emberMetal.watch)(obj, 'd');
+        (0, _emberMetal.watch)(obj, 'e');
+        (0, _emberMetal.watch)(obj, 'f');
+
+        assert.ok(!hasMandatorySetter(obj, 'a'), 'mandatory-setter should not be installed');
+        assert.ok(!hasMandatorySetter(obj, 'b'), 'mandatory-setter should not be installed');
+        assert.ok(!hasMandatorySetter(obj, 'c'), 'mandatory-setter should not be installed');
+        assert.ok(!hasMandatorySetter(obj, 'd'), 'mandatory-setter should not be installed');
+        assert.ok(!hasMandatorySetter(obj, 'e'), 'mandatory-setter should not be installed');
+        assert.ok(!hasMandatorySetter(obj, 'f'), 'mandatory-setter should not be installed');
+      };
+
+      _class.prototype['@test should not teardown non mandatory-setter descriptor'] = function testShouldNotTeardownNonMandatorySetterDescriptor(assert) {
+        expect(1);
+
+        var obj = { get a() {
+            return 'hi';
+          } };
+
+        (0, _emberMetal.watch)(obj, 'a');
+        (0, _emberMetal.unwatch)(obj, 'a');
+
+        assert.equal(obj.a, 'hi');
+      };
+
+      _class.prototype['@test should not confuse non descriptor watched gets'] = function testShouldNotConfuseNonDescriptorWatchedGets(assert) {
+        expect(2);
+
+        var obj = { get a() {
+            return 'hi';
+          } };
+
+        (0, _emberMetal.watch)(obj, 'a');
+        assert.equal((0, _emberMetal.get)(obj, 'a'), 'hi');
+        assert.equal(obj.a, 'hi');
+      };
+
+      _class.prototype['@test should not setup mandatory-setter if setter is already setup on property'] = function testShouldNotSetupMandatorySetterIfSetterIsAlreadySetupOnProperty(assert) {
+        expect(2);
+
+        var obj = { someProp: null };
+
+        Object.defineProperty(obj, 'someProp', {
+          get: function () {
+            return null;
+          },
+          set: function (value) {
+            assert.equal(value, 'foo-bar', 'custom setter was called');
+          }
+        });
+
+        (0, _emberMetal.watch)(obj, 'someProp');
+        assert.ok(!hasMandatorySetter(obj, 'someProp'), 'mandatory-setter should not be installed');
+
+        obj.someProp = 'foo-bar';
+      };
+
+      _class.prototype['@test watched ES5 setter should not be smashed by mandatory setter'] = function testWatchedES5SetterShouldNotBeSmashedByMandatorySetter(assert) {
+        var value = void 0;
+        var obj = {
+          get foo() {},
+          set foo(_value) {
+            value = _value;
+          }
+        };
+
+        (0, _emberMetal.watch)(obj, 'foo');
+
+        (0, _emberMetal.set)(obj, 'foo', 2);
+        assert.equal(value, 2);
+      };
+
+      _class.prototype['@test should not setup mandatory-setter if setter is already setup on property in parent prototype'] = function testShouldNotSetupMandatorySetterIfSetterIsAlreadySetupOnPropertyInParentPrototype(assert) {
+        expect(2);
+
+        function Foo() {}
+
+        Object.defineProperty(Foo.prototype, 'someProp', {
+          get: function () {
+            return null;
+          },
+          set: function (value) {
+            assert.equal(value, 'foo-bar', 'custom setter was called');
+          }
+        });
+
+        var obj = new Foo();
+
+        (0, _emberMetal.watch)(obj, 'someProp');
+        assert.ok(!hasMandatorySetter(obj, 'someProp'), 'mandatory-setter should not be installed');
+
+        obj.someProp = 'foo-bar';
+      };
+
+      _class.prototype['@test should not setup mandatory-setter if setter is already setup on property in grandparent prototype'] = function testShouldNotSetupMandatorySetterIfSetterIsAlreadySetupOnPropertyInGrandparentPrototype(assert) {
+        expect(2);
+
+        function Foo() {}
+
+        Object.defineProperty(Foo.prototype, 'someProp', {
+          get: function () {
+            return null;
+          },
+          set: function (value) {
+            assert.equal(value, 'foo-bar', 'custom setter was called');
+          }
+        });
+
+        function Bar() {}
+        Bar.prototype = Object.create(Foo.prototype);
+        Bar.prototype.constructor = Bar;
+
+        var obj = new Bar();
+
+        (0, _emberMetal.watch)(obj, 'someProp');
+        assert.ok(!hasMandatorySetter(obj, 'someProp'), 'mandatory-setter should not be installed');
+
+        obj.someProp = 'foo-bar';
+      };
+
+      _class.prototype['@test should not setup mandatory-setter if setter is already setup on property in great grandparent prototype'] = function testShouldNotSetupMandatorySetterIfSetterIsAlreadySetupOnPropertyInGreatGrandparentPrototype(assert) {
+        expect(2);
+
+        function Foo() {}
+
+        Object.defineProperty(Foo.prototype, 'someProp', {
+          get: function () {
+            return null;
+          },
+          set: function (value) {
+            assert.equal(value, 'foo-bar', 'custom setter was called');
+          }
+        });
+
+        function Bar() {}
+        Bar.prototype = Object.create(Foo.prototype);
+        Bar.prototype.constructor = Bar;
+
+        function Qux() {}
+        Qux.prototype = Object.create(Bar.prototype);
+        Qux.prototype.constructor = Qux;
+
+        var obj = new Qux();
+
+        (0, _emberMetal.watch)(obj, 'someProp');
+        assert.ok(!hasMandatorySetter(obj, 'someProp'), 'mandatory-setter should not be installed');
+
+        obj.someProp = 'foo-bar';
+      };
+
+      _class.prototype['@test should assert if set without set when property is being watched'] = function testShouldAssertIfSetWithoutSetWhenPropertyIsBeingWatched() {
+        var obj = {
+          someProp: null,
+          toString: function () {
+            return 'custom-object';
+          }
+        };
+
+        (0, _emberMetal.watch)(obj, 'someProp');
+
+        expectAssertion(function () {
+          obj.someProp = 'foo-bar';
+        }, 'You must use set() to set the `someProp` property (of custom-object) to `foo-bar`.');
+      };
+
+      _class.prototype['@test should not assert if set with set when property is being watched'] = function testShouldNotAssertIfSetWithSetWhenPropertyIsBeingWatched(assert) {
+        var obj = {
+          someProp: null,
+          toString: function () {
+            return 'custom-object';
+          }
+        };
+
+        (0, _emberMetal.watch)(obj, 'someProp');
+        (0, _emberMetal.set)(obj, 'someProp', 'foo-bar');
+
+        assert.equal((0, _emberMetal.get)(obj, 'someProp'), 'foo-bar');
+      };
+
+      _class.prototype['@test does not setup mandatory-setter if non-configurable'] = function testDoesNotSetupMandatorySetterIfNonConfigurable(assert) {
+        var obj = {
+          someProp: null,
+          toString: function () {
+            return 'custom-object';
+          }
+        };
+
+        Object.defineProperty(obj, 'someProp', {
+          configurable: false,
+          enumerable: true,
+          value: 'blastix'
+        });
+
+        (0, _emberMetal.watch)(obj, 'someProp');
+        assert.ok(!hasMandatorySetter(obj, 'someProp'), 'blastix');
+      };
+
+      _class.prototype['@test ensure after watch the property is restored (and the value is no-longer stored in meta) [non-enumerable]'] = function testEnsureAfterWatchThePropertyIsRestoredAndTheValueIsNoLongerStoredInMetaNonEnumerable(assert) {
+        var obj = {
+          someProp: null,
+          toString: function () {
+            return 'custom-object';
+          }
+        };
+
+        Object.defineProperty(obj, 'someProp', {
+          configurable: true,
+          enumerable: false,
+          value: 'blastix'
+        });
+
+        (0, _emberMetal.watch)(obj, 'someProp');
+        assert.equal(hasMandatorySetter(obj, 'someProp'), true, 'should have a mandatory setter');
+
+        var descriptor = Object.getOwnPropertyDescriptor(obj, 'someProp');
+
+        assert.equal(descriptor.enumerable, false, 'property should remain non-enumerable');
+        assert.equal(descriptor.configurable, true, 'property should remain configurable');
+        assert.equal(obj.someProp, 'blastix', 'expected value to be the getter');
+
+        assert.equal(descriptor.value, undefined, 'expected existing value to NOT remain');
+
+        assert.ok(hasMetaValue(obj, 'someProp'), 'someProp is stored in meta.values');
+
+        (0, _emberMetal.unwatch)(obj, 'someProp');
+
+        assert.ok(!hasMetaValue(obj, 'someProp'), 'someProp is no longer stored in meta.values');
+
+        descriptor = Object.getOwnPropertyDescriptor(obj, 'someProp');
+
+        assert.equal(hasMandatorySetter(obj, 'someProp'), false, 'should no longer have a mandatory setter');
+
+        assert.equal(descriptor.enumerable, false, 'property should remain non-enumerable');
+        assert.equal(descriptor.configurable, true, 'property should remain configurable');
+        assert.equal(obj.someProp, 'blastix', 'expected value to be the getter');
+        assert.equal(descriptor.value, 'blastix', 'expected existing value to remain');
+
+        obj.someProp = 'new value';
+
+        // make sure the descriptor remains correct (nothing funky, like a redefined, happened in the setter);
+        descriptor = Object.getOwnPropertyDescriptor(obj, 'someProp');
+
+        assert.equal(descriptor.enumerable, false, 'property should remain non-enumerable');
+        assert.equal(descriptor.configurable, true, 'property should remain configurable');
+        assert.equal(descriptor.value, 'new value', 'expected existing value to NOT remain');
+        assert.equal(obj.someProp, 'new value', 'expected value to be the getter');
+        assert.equal(obj.someProp, 'new value');
+      };
+
+      _class.prototype['@test ensure after watch the property is restored (and the value is no-longer stored in meta) [enumerable]'] = function testEnsureAfterWatchThePropertyIsRestoredAndTheValueIsNoLongerStoredInMetaEnumerable(assert) {
+        var obj = {
+          someProp: null,
+          toString: function () {
+            return 'custom-object';
+          }
+        };
+
+        Object.defineProperty(obj, 'someProp', {
+          configurable: true,
+          enumerable: true,
+          value: 'blastix'
+        });
+
+        (0, _emberMetal.watch)(obj, 'someProp');
+        assert.equal(hasMandatorySetter(obj, 'someProp'), true, 'should have a mandatory setter');
+
+        var descriptor = Object.getOwnPropertyDescriptor(obj, 'someProp');
+
+        assert.equal(descriptor.enumerable, true, 'property should remain enumerable');
+        assert.equal(descriptor.configurable, true, 'property should remain configurable');
+        assert.equal(obj.someProp, 'blastix', 'expected value to be the getter');
+
+        assert.equal(descriptor.value, undefined, 'expected existing value to NOT remain');
+
+        assert.ok(hasMetaValue(obj, 'someProp'), 'someProp is stored in meta.values');
+
+        (0, _emberMetal.unwatch)(obj, 'someProp');
+
+        assert.ok(!hasMetaValue(obj, 'someProp'), 'someProp is no longer stored in meta.values');
+
+        descriptor = Object.getOwnPropertyDescriptor(obj, 'someProp');
+
+        assert.equal(hasMandatorySetter(obj, 'someProp'), false, 'should no longer have a mandatory setter');
+
+        assert.equal(descriptor.enumerable, true, 'property should remain enumerable');
+        assert.equal(descriptor.configurable, true, 'property should remain configurable');
+        assert.equal(obj.someProp, 'blastix', 'expected value to be the getter');
+        assert.equal(descriptor.value, 'blastix', 'expected existing value to remain');
+
+        obj.someProp = 'new value';
+
+        // make sure the descriptor remains correct (nothing funky, like a redefined, happened in the setter);
+        descriptor = Object.getOwnPropertyDescriptor(obj, 'someProp');
+
+        assert.equal(descriptor.enumerable, true, 'property should remain enumerable');
+        assert.equal(descriptor.configurable, true, 'property should remain configurable');
+        assert.equal(descriptor.value, 'new value', 'expected existing value to NOT remain');
+        assert.equal(obj.someProp, 'new value');
+      };
+
+      _class.prototype['@test sets up mandatory-setter if property comes from prototype'] = function testSetsUpMandatorySetterIfPropertyComesFromPrototype(assert) {
+        expect(2);
+
+        var obj = {
+          someProp: null,
+          toString: function () {
+            return 'custom-object';
+          }
+        };
+
+        var obj2 = Object.create(obj);
+
+        (0, _emberMetal.watch)(obj2, 'someProp');
+
+        assert.ok(hasMandatorySetter(obj2, 'someProp'), 'mandatory setter has been setup');
+
+        expectAssertion(function () {
+          obj2.someProp = 'foo-bar';
+        }, 'You must use set() to set the `someProp` property (of custom-object) to `foo-bar`.');
+      };
+
+      _class.prototype['@test inheritance remains live'] = function testInheritanceRemainsLive(assert) {
+        function Parent() {}
+        Parent.prototype.food = 'chips';
+
+        var child = new Parent();
+
+        assert.equal(child.food, 'chips');
+
+        (0, _emberMetal.watch)(child, 'food');
+
+        assert.equal(child.food, 'chips');
+
+        Parent.prototype.food = 'icecreame';
+
+        assert.equal(child.food, 'icecreame');
+
+        (0, _emberMetal.unwatch)(child, 'food');
+
+        assert.equal(child.food, 'icecreame');
+
+        Parent.prototype.food = 'chips';
+
+        assert.equal(child.food, 'chips');
+      };
+
+      _class.prototype['@test inheritance remains live and preserves this'] = function testInheritanceRemainsLiveAndPreservesThis(assert) {
+        function Parent(food) {
+          this._food = food;
         }
-      });
 
-      var child = new Parent('chips');
+        Object.defineProperty(Parent.prototype, 'food', {
+          get: function () {
+            return this._food;
+          }
+        });
 
-      equal(child.food, 'chips');
+        var child = new Parent('chips');
 
-      (0, _emberMetal.watch)(child, 'food');
+        assert.equal(child.food, 'chips');
 
-      equal(child.food, 'chips');
+        (0, _emberMetal.watch)(child, 'food');
 
-      child._food = 'icecreame';
+        assert.equal(child.food, 'chips');
 
-      equal(child.food, 'icecreame');
+        child._food = 'icecreame';
 
-      (0, _emberMetal.unwatch)(child, 'food');
+        assert.equal(child.food, 'icecreame');
 
-      equal(child.food, 'icecreame');
+        (0, _emberMetal.unwatch)(child, 'food');
 
-      var foodDesc = Object.getOwnPropertyDescriptor(Parent.prototype, 'food');
-      ok(!foodDesc.configurable, 'Parent.prototype.food desc should be non configable');
-      ok(!foodDesc.enumerable, 'Parent.prototype.food desc should be non enumerable');
+        assert.equal(child.food, 'icecreame');
 
-      equal(foodDesc.get.call({
-        _food: 'hi'
-      }), 'hi');
-      equal(foodDesc.set, undefined);
+        var foodDesc = Object.getOwnPropertyDescriptor(Parent.prototype, 'food');
+        assert.ok(!foodDesc.configurable, 'Parent.prototype.food desc should be non configable');
+        assert.ok(!foodDesc.enumerable, 'Parent.prototype.food desc should be non enumerable');
 
-      equal(child.food, 'icecreame');
-    });
+        assert.equal(foodDesc.get.call({
+          _food: 'hi'
+        }), 'hi');
+        assert.equal(foodDesc.set, undefined);
+
+        assert.equal(child.food, 'icecreame');
+      };
+
+      return _class;
+    }(_internalTestHelpers.AbstractTestCase));
   }
 });
 QUnit.module('ESLint | ember-metal/tests/accessors/mandatory_setters_test.js');
@@ -39386,7 +39459,7 @@ QUnit.test('should pass ESLint', function(assert) {
   assert.ok(true, 'ember-metal/tests/accessors/mandatory_setters_test.js should pass ESLint\n\n');
 });
 
-enifed('ember-metal/tests/accessors/set_path_test', ['ember-environment', 'ember-metal'], function (_emberEnvironment, _emberMetal) {
+enifed('ember-metal/tests/accessors/set_path_test', ['ember-babel', 'ember-environment', 'ember-metal', 'internal-test-helpers'], function (_emberBabel, _emberEnvironment, _emberMetal, _internalTestHelpers) {
   'use strict';
 
   var originalLookup = _emberEnvironment.context.lookup;
@@ -39409,64 +39482,84 @@ enifed('ember-metal/tests/accessors/set_path_test', ['ember-environment', 'ember
     obj = null;
   }
 
-  QUnit.module('set with path', {
-    setup: commonSetup,
-    teardown: commonTeardown
-  });
+  (0, _internalTestHelpers.moduleFor)('set with path', function (_AbstractTestCase) {
+    (0, _emberBabel.inherits)(_class, _AbstractTestCase);
 
-  QUnit.test('[Foo, bar] -> Foo.bar', function () {
-    lookup.Foo = {
-      toString: function () {
-        return 'Foo';
-      }
-    }; // Behave like an Ember.Namespace
+    function _class() {
+      (0, _emberBabel.classCallCheck)(this, _class);
 
-    (0, _emberMetal.set)(lookup.Foo, 'bar', 'baz');
-    equal((0, _emberMetal.get)(lookup.Foo, 'bar'), 'baz');
-  });
+      var _this = (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase.call(this));
 
-  // ..........................................................
-  //
-  // LOCAL PATHS
-
-  QUnit.test('[obj, foo] -> obj.foo', function () {
-    (0, _emberMetal.set)(obj, 'foo', 'BAM');
-    equal((0, _emberMetal.get)(obj, 'foo'), 'BAM');
-  });
-
-  QUnit.test('[obj, foo.bar] -> obj.foo.bar', function () {
-    (0, _emberMetal.set)(obj, 'foo.bar', 'BAM');
-    equal((0, _emberMetal.get)(obj, 'foo.bar'), 'BAM');
-  });
-
-  // ..........................................................
-  // DEPRECATED
-  //
-
-  QUnit.module('set with path - deprecated', {
-    setup: commonSetup,
-    teardown: commonTeardown
-  });
-
-  QUnit.test('[obj, bla.bla] gives a proper exception message', function () {
-    var exceptionMessage = 'Property set failed: object in path \"bla\" could not be found or was destroyed.';
-    try {
-      (0, _emberMetal.set)(obj, 'bla.bla', 'BAM');
-    } catch (ex) {
-      equal(ex.message, exceptionMessage);
+      commonSetup();
+      return _this;
     }
-  });
 
-  QUnit.test('[obj, foo.baz.bat] -> EXCEPTION', function () {
-    throws(function () {
-      return (0, _emberMetal.set)(obj, 'foo.baz.bat', 'BAM');
-    });
-  });
+    _class.prototype.teardown = function teardown() {
+      commonTeardown();
+    };
 
-  QUnit.test('[obj, foo.baz.bat] -> EXCEPTION', function () {
-    (0, _emberMetal.trySet)(obj, 'foo.baz.bat', 'BAM');
-    ok(true, 'does not raise');
-  });
+    _class.prototype['@test [Foo, bar] -> Foo.bar'] = function testFooBarFooBar(assert) {
+      lookup.Foo = {
+        toString: function () {
+          return 'Foo';
+        }
+      }; // Behave like an Ember.Namespace
+
+      (0, _emberMetal.set)(lookup.Foo, 'bar', 'baz');
+      assert.equal((0, _emberMetal.get)(lookup.Foo, 'bar'), 'baz');
+    };
+
+    _class.prototype['@test [obj, foo] -> obj.foo'] = function testObjFooObjFoo(assert) {
+      (0, _emberMetal.set)(obj, 'foo', 'BAM');
+      assert.equal((0, _emberMetal.get)(obj, 'foo'), 'BAM');
+    };
+
+    _class.prototype['@test [obj, foo.bar] -> obj.foo.bar'] = function testObjFooBarObjFooBar(assert) {
+      (0, _emberMetal.set)(obj, 'foo.bar', 'BAM');
+      assert.equal((0, _emberMetal.get)(obj, 'foo.bar'), 'BAM');
+    };
+
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
+
+  (0, _internalTestHelpers.moduleFor)('set with path - deprecated', function (_AbstractTestCase2) {
+    (0, _emberBabel.inherits)(_class2, _AbstractTestCase2);
+
+    function _class2() {
+      (0, _emberBabel.classCallCheck)(this, _class2);
+
+      var _this2 = (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase2.call(this));
+
+      commonSetup();
+      return _this2;
+    }
+
+    _class2.prototype.teardown = function teardown() {
+      commonTeardown();
+    };
+
+    _class2.prototype['@test [obj, bla.bla] gives a proper exception message'] = function testObjBlaBlaGivesAProperExceptionMessage(assert) {
+      var exceptionMessage = 'Property set failed: object in path \"bla\" could not be found or was destroyed.';
+      try {
+        (0, _emberMetal.set)(obj, 'bla.bla', 'BAM');
+      } catch (ex) {
+        assert.equal(ex.message, exceptionMessage);
+      }
+    };
+
+    _class2.prototype['@test [obj, foo.baz.bat] -> EXCEPTION'] = function testObjFooBazBatEXCEPTION(assert) {
+      assert.throws(function () {
+        return (0, _emberMetal.set)(obj, 'foo.baz.bat', 'BAM');
+      });
+    };
+
+    _class2.prototype['@test [obj, foo.baz.bat] -> EXCEPTION'] = function testObjFooBazBatEXCEPTION(assert) {
+      (0, _emberMetal.trySet)(obj, 'foo.baz.bat', 'BAM');
+      assert.ok(true, 'does not raise');
+    };
+
+    return _class2;
+  }(_internalTestHelpers.AbstractTestCase));
 });
 QUnit.module('ESLint | ember-metal/tests/accessors/set_path_test.js');
 QUnit.test('should pass ESLint', function(assert) {
@@ -39474,109 +39567,118 @@ QUnit.test('should pass ESLint', function(assert) {
   assert.ok(true, 'ember-metal/tests/accessors/set_path_test.js should pass ESLint\n\n');
 });
 
-enifed('ember-metal/tests/accessors/set_test', ['ember-metal'], function (_emberMetal) {
+enifed('ember-metal/tests/accessors/set_test', ['ember-babel', 'ember-metal', 'internal-test-helpers'], function (_emberBabel, _emberMetal, _internalTestHelpers) {
   'use strict';
 
-  QUnit.module('set', {
-    teardown: function () {
+  (0, _internalTestHelpers.moduleFor)('set', function (_AbstractTestCase) {
+    (0, _emberBabel.inherits)(_class, _AbstractTestCase);
+
+    function _class() {
+      (0, _emberBabel.classCallCheck)(this, _class);
+      return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase.apply(this, arguments));
+    }
+
+    _class.prototype.teardown = function teardown() {
       (0, _emberMetal.setHasViews)(function () {
         return false;
       });
-    }
-  });
-
-  QUnit.test('should set arbitrary properties on an object', function () {
-    var obj = {
-      string: 'string',
-      number: 23,
-      boolTrue: true,
-      boolFalse: false,
-      nullValue: null,
-      undefinedValue: undefined
     };
 
-    var newObj = {
-      undefinedValue: 'emberjs'
-    };
+    _class.prototype['@test should set arbitrary properties on an object'] = function testShouldSetArbitraryPropertiesOnAnObject(assert) {
+      var obj = {
+        string: 'string',
+        number: 23,
+        boolTrue: true,
+        boolFalse: false,
+        nullValue: null,
+        undefinedValue: undefined
+      };
 
-    for (var key in obj) {
-      if (!obj.hasOwnProperty(key)) {
-        continue;
-      }
+      var newObj = {
+        undefinedValue: 'emberjs'
+      };
 
-      equal((0, _emberMetal.set)(newObj, key, obj[key]), obj[key], 'should return value');
-      equal((0, _emberMetal.get)(newObj, key), obj[key], 'should set value');
-    }
-  });
+      for (var key in obj) {
+        if (!obj.hasOwnProperty(key)) {
+          continue;
+        }
 
-  QUnit.test('should call setUnknownProperty if defined and value is undefined', function () {
-    var obj = {
-      count: 0,
-
-      unknownProperty: function () {
-        ok(false, 'should not invoke unknownProperty if setUnknownProperty is defined');
-      },
-      setUnknownProperty: function (key, value) {
-        equal(key, 'foo', 'should pass key');
-        equal(value, 'BAR', 'should pass key');
-        this.count++;
-        return 'FOO';
+        assert.equal((0, _emberMetal.set)(newObj, key, obj[key]), obj[key], 'should return value');
+        assert.equal((0, _emberMetal.get)(newObj, key), obj[key], 'should set value');
       }
     };
 
-    equal((0, _emberMetal.set)(obj, 'foo', 'BAR'), 'BAR', 'should return set value');
-    equal(obj.count, 1, 'should have invoked');
-  });
+    _class.prototype['@test should call setUnknownProperty if defined and value is undefined'] = function testShouldCallSetUnknownPropertyIfDefinedAndValueIsUndefined(assert) {
+      var obj = {
+        count: 0,
 
-  QUnit.test('warn on attempts to call set with undefined as object', function () {
-    expectAssertion(function () {
-      return (0, _emberMetal.set)(undefined, 'aProperty', 'BAM');
-    }, /Cannot call set with 'aProperty' on an undefined object./);
-  });
+        unknownProperty: function () {
+          assert.ok(false, 'should not invoke unknownProperty if setUnknownProperty is defined');
+        },
+        setUnknownProperty: function (key, value) {
+          assert.equal(key, 'foo', 'should pass key');
+          assert.equal(value, 'BAR', 'should pass key');
+          this.count++;
+          return 'FOO';
+        }
+      };
 
-  QUnit.test('warn on attempts to call set with null as object', function () {
-    expectAssertion(function () {
-      return (0, _emberMetal.set)(null, 'aProperty', 'BAM');
-    }, /Cannot call set with 'aProperty' on an undefined object./);
-  });
+      assert.equal((0, _emberMetal.set)(obj, 'foo', 'BAR'), 'BAR', 'should return set value');
+      assert.equal(obj.count, 1, 'should have invoked');
+    };
 
-  QUnit.test('warn on attempts to use set with an unsupported property path', function () {
-    var obj = {};
-    expectAssertion(function () {
-      return (0, _emberMetal.set)(obj, null, 42);
-    }, /The key provided to set must be a string, you passed null/);
-    expectAssertion(function () {
-      return (0, _emberMetal.set)(obj, NaN, 42);
-    }, /The key provided to set must be a string, you passed NaN/);
-    expectAssertion(function () {
-      return (0, _emberMetal.set)(obj, undefined, 42);
-    }, /The key provided to set must be a string, you passed undefined/);
-    expectAssertion(function () {
-      return (0, _emberMetal.set)(obj, false, 42);
-    }, /The key provided to set must be a string, you passed false/);
-    expectAssertion(function () {
-      return (0, _emberMetal.set)(obj, 42, 42);
-    }, /The key provided to set must be a string, you passed 42/);
-  });
+    _class.prototype['@test warn on attempts to call set with undefined as object'] = function testWarnOnAttemptsToCallSetWithUndefinedAsObject() {
+      expectAssertion(function () {
+        return (0, _emberMetal.set)(undefined, 'aProperty', 'BAM');
+      }, /Cannot call set with 'aProperty' on an undefined object./);
+    };
 
-  QUnit.test('warn on attempts of calling set on a destroyed object', function () {
-    var obj = { isDestroyed: true };
+    _class.prototype['@test warn on attempts to call set with null as object'] = function testWarnOnAttemptsToCallSetWithNullAsObject() {
+      expectAssertion(function () {
+        return (0, _emberMetal.set)(null, 'aProperty', 'BAM');
+      }, /Cannot call set with 'aProperty' on an undefined object./);
+    };
 
-    expectAssertion(function () {
-      return (0, _emberMetal.set)(obj, 'favoriteFood', 'hot dogs');
-    }, 'calling set on destroyed object: [object Object].favoriteFood = hot dogs');
-  });
+    _class.prototype['@test warn on attempts to use set with an unsupported property path'] = function testWarnOnAttemptsToUseSetWithAnUnsupportedPropertyPath() {
+      var obj = {};
+      expectAssertion(function () {
+        return (0, _emberMetal.set)(obj, null, 42);
+      }, /The key provided to set must be a string, you passed null/);
+      expectAssertion(function () {
+        return (0, _emberMetal.set)(obj, NaN, 42);
+      }, /The key provided to set must be a string, you passed NaN/);
+      expectAssertion(function () {
+        return (0, _emberMetal.set)(obj, undefined, 42);
+      }, /The key provided to set must be a string, you passed undefined/);
+      expectAssertion(function () {
+        return (0, _emberMetal.set)(obj, false, 42);
+      }, /The key provided to set must be a string, you passed false/);
+      expectAssertion(function () {
+        return (0, _emberMetal.set)(obj, 42, 42);
+      }, /The key provided to set must be a string, you passed 42/);
+    };
 
-  QUnit.test('does not trigger auto-run assertion for objects that have not been tagged', function (assert) {
-    (0, _emberMetal.setHasViews)(function () {
-      return true;
-    });
-    var obj = {};
+    _class.prototype['@test warn on attempts of calling set on a destroyed object'] = function testWarnOnAttemptsOfCallingSetOnADestroyedObject() {
+      var obj = { isDestroyed: true };
 
-    (0, _emberMetal.set)(obj, 'foo', 'bar');
+      expectAssertion(function () {
+        return (0, _emberMetal.set)(obj, 'favoriteFood', 'hot dogs');
+      }, 'calling set on destroyed object: [object Object].favoriteFood = hot dogs');
+    };
 
-    assert.equal(obj.foo, 'bar');
-  });
+    _class.prototype['@test does not trigger auto-run assertion for objects that have not been tagged'] = function testDoesNotTriggerAutoRunAssertionForObjectsThatHaveNotBeenTagged(assert) {
+      (0, _emberMetal.setHasViews)(function () {
+        return true;
+      });
+      var obj = {};
+
+      (0, _emberMetal.set)(obj, 'foo', 'bar');
+
+      assert.equal(obj.foo, 'bar');
+    };
+
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
 });
 QUnit.module('ESLint | ember-metal/tests/accessors/set_test.js');
 QUnit.test('should pass ESLint', function(assert) {
@@ -42957,175 +43059,184 @@ QUnit.test('should pass ESLint', function(assert) {
   assert.ok(true, 'ember-metal/tests/map_test.js should pass ESLint\n\n');
 });
 
-enifed('ember-metal/tests/meta_test', ['ember-metal'], function (_emberMetal) {
+enifed('ember-metal/tests/meta_test', ['ember-babel', 'ember-metal', 'internal-test-helpers'], function (_emberBabel, _emberMetal, _internalTestHelpers) {
   'use strict';
 
-  QUnit.module('Ember.meta');
+  (0, _internalTestHelpers.moduleFor)('Ember.meta', function (_AbstractTestCase) {
+    (0, _emberBabel.inherits)(_class, _AbstractTestCase);
 
-  QUnit.test('should return the same hash for an object', function () {
-    var obj = {};
-
-    (0, _emberMetal.meta)(obj).foo = 'bar';
-
-    equal((0, _emberMetal.meta)(obj).foo, 'bar', 'returns same hash with multiple calls to Ember.meta()');
-  });
-
-  QUnit.test('meta is not enumerable', function () {
-    var proto = void 0,
-        obj = void 0,
-        props = void 0,
-        prop = void 0;
-    proto = { foo: 'bar' };
-    (0, _emberMetal.meta)(proto);
-    obj = Object.create(proto);
-    (0, _emberMetal.meta)(obj);
-    obj.bar = 'baz';
-    props = [];
-    for (prop in obj) {
-      props.push(prop);
+    function _class() {
+      (0, _emberBabel.classCallCheck)(this, _class);
+      return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase.apply(this, arguments));
     }
-    deepEqual(props.sort(), ['bar', 'foo']);
-    if (typeof JSON !== 'undefined' && 'stringify' in JSON) {
-      try {
-        JSON.stringify(obj);
-      } catch (e) {
-        ok(false, 'meta should not fail JSON.stringify');
+
+    _class.prototype['@test should return the same hash for an object'] = function testShouldReturnTheSameHashForAnObject(assert) {
+      var obj = {};
+
+      (0, _emberMetal.meta)(obj).foo = 'bar';
+
+      assert.equal((0, _emberMetal.meta)(obj).foo, 'bar', 'returns same hash with multiple calls to Ember.meta()');
+    };
+
+    _class.prototype['@test meta is not enumerable'] = function testMetaIsNotEnumerable(assert) {
+      var proto = void 0,
+          obj = void 0,
+          props = void 0,
+          prop = void 0;
+      proto = { foo: 'bar' };
+      (0, _emberMetal.meta)(proto);
+      obj = Object.create(proto);
+      (0, _emberMetal.meta)(obj);
+      obj.bar = 'baz';
+      props = [];
+      for (prop in obj) {
+        props.push(prop);
       }
-    }
-  });
-
-  QUnit.test('meta.listeners basics', function (assert) {
-    var t = {};
-    var m = (0, _emberMetal.meta)({});
-    m.addToListeners('hello', t, 'm', 0);
-    var matching = m.matchingListeners('hello');
-    assert.equal(matching.length, 3);
-    assert.equal(matching[0], t);
-    m.removeFromListeners('hello', t, 'm');
-    matching = m.matchingListeners('hello');
-    assert.equal(matching, undefined);
-  });
-
-  QUnit.test('meta.listeners inheritance', function (assert) {
-    var target = {};
-    var parent = {};
-    var parentMeta = (0, _emberMetal.meta)(parent);
-    parentMeta.addToListeners('hello', target, 'm', 0);
-
-    var child = Object.create(parent);
-    var m = (0, _emberMetal.meta)(child);
-
-    var matching = m.matchingListeners('hello');
-    assert.equal(matching.length, 3);
-    assert.equal(matching[0], target);
-    assert.equal(matching[1], 'm');
-    assert.equal(matching[2], 0);
-    m.removeFromListeners('hello', target, 'm');
-    matching = m.matchingListeners('hello');
-    assert.equal(matching, undefined);
-    matching = parentMeta.matchingListeners('hello');
-    assert.equal(matching.length, 3);
-  });
-
-  QUnit.test('meta.listeners deduplication', function (assert) {
-    var t = {};
-    var m = (0, _emberMetal.meta)({});
-    m.addToListeners('hello', t, 'm', 0);
-    m.addToListeners('hello', t, 'm', 0);
-    var matching = m.matchingListeners('hello');
-    assert.equal(matching.length, 3);
-    assert.equal(matching[0], t);
-  });
-
-  QUnit.test('meta.writeWatching issues useful error after destroy', function () {
-    var target = {
-      toString: function () {
-        return '<special-sauce:123>';
+      assert.deepEqual(props.sort(), ['bar', 'foo']);
+      if (typeof JSON !== 'undefined' && 'stringify' in JSON) {
+        try {
+          JSON.stringify(obj);
+        } catch (e) {
+          assert.ok(false, 'meta should not fail JSON.stringify');
+        }
       }
     };
-    var targetMeta = (0, _emberMetal.meta)(target);
 
-    targetMeta.destroy();
-
-    expectAssertion(function () {
-      targetMeta.writeWatching('hello', 1);
-    }, 'Cannot update watchers for `hello` on `<special-sauce:123>` after it has been destroyed.');
-  });
-
-  QUnit.test('meta.writableTag issues useful error after destroy', function () {
-    var target = {
-      toString: function () {
-        return '<special-sauce:123>';
-      }
+    _class.prototype['@test meta.listeners basics'] = function testMetaListenersBasics(assert) {
+      var t = {};
+      var m = (0, _emberMetal.meta)({});
+      m.addToListeners('hello', t, 'm', 0);
+      var matching = m.matchingListeners('hello');
+      assert.equal(matching.length, 3);
+      assert.equal(matching[0], t);
+      m.removeFromListeners('hello', t, 'm');
+      matching = m.matchingListeners('hello');
+      assert.equal(matching, undefined);
     };
-    var targetMeta = (0, _emberMetal.meta)(target);
 
-    targetMeta.destroy();
+    _class.prototype['@test meta.listeners inheritance'] = function testMetaListenersInheritance(assert) {
+      var target = {};
+      var parent = {};
+      var parentMeta = (0, _emberMetal.meta)(parent);
+      parentMeta.addToListeners('hello', target, 'm', 0);
 
-    expectAssertion(function () {
-      targetMeta.writableTag(function () {});
-    }, 'Cannot create a new tag for `<special-sauce:123>` after it has been destroyed.');
-  });
+      var child = Object.create(parent);
+      var m = (0, _emberMetal.meta)(child);
 
-  QUnit.test('meta.writableChainWatchers issues useful error after destroy', function () {
-    var target = {
-      toString: function () {
-        return '<special-sauce:123>';
-      }
+      var matching = m.matchingListeners('hello');
+      assert.equal(matching.length, 3);
+      assert.equal(matching[0], target);
+      assert.equal(matching[1], 'm');
+      assert.equal(matching[2], 0);
+      m.removeFromListeners('hello', target, 'm');
+      matching = m.matchingListeners('hello');
+      assert.equal(matching, undefined);
+      matching = parentMeta.matchingListeners('hello');
+      assert.equal(matching.length, 3);
     };
-    var targetMeta = (0, _emberMetal.meta)(target);
 
-    targetMeta.destroy();
-
-    expectAssertion(function () {
-      targetMeta.writableChainWatchers(function () {});
-    }, 'Cannot create a new chain watcher for `<special-sauce:123>` after it has been destroyed.');
-  });
-
-  QUnit.test('meta.writableChains issues useful error after destroy', function () {
-    var target = {
-      toString: function () {
-        return '<special-sauce:123>';
-      }
+    _class.prototype['@test meta.listeners deduplication'] = function testMetaListenersDeduplication(assert) {
+      var t = {};
+      var m = (0, _emberMetal.meta)({});
+      m.addToListeners('hello', t, 'm', 0);
+      m.addToListeners('hello', t, 'm', 0);
+      var matching = m.matchingListeners('hello');
+      assert.equal(matching.length, 3);
+      assert.equal(matching[0], t);
     };
-    var targetMeta = (0, _emberMetal.meta)(target);
 
-    targetMeta.destroy();
+    _class.prototype['@test meta.writeWatching issues useful error after destroy'] = function testMetaWriteWatchingIssuesUsefulErrorAfterDestroy() {
+      var target = {
+        toString: function () {
+          return '<special-sauce:123>';
+        }
+      };
+      var targetMeta = (0, _emberMetal.meta)(target);
 
-    expectAssertion(function () {
-      targetMeta.writableChains(function () {});
-    }, 'Cannot create a new chains for `<special-sauce:123>` after it has been destroyed.');
-  });
+      targetMeta.destroy();
 
-  QUnit.test('meta.writeValues issues useful error after destroy', function () {
-    var target = {
-      toString: function () {
-        return '<special-sauce:123>';
-      }
+      expectAssertion(function () {
+        targetMeta.writeWatching('hello', 1);
+      }, 'Cannot update watchers for `hello` on `<special-sauce:123>` after it has been destroyed.');
     };
-    var targetMeta = (0, _emberMetal.meta)(target);
 
-    targetMeta.destroy();
+    _class.prototype['@test meta.writableTag issues useful error after destroy'] = function testMetaWritableTagIssuesUsefulErrorAfterDestroy() {
+      var target = {
+        toString: function () {
+          return '<special-sauce:123>';
+        }
+      };
+      var targetMeta = (0, _emberMetal.meta)(target);
 
-    expectAssertion(function () {
-      targetMeta.writeValues('derp', 'ohai');
-    }, 'Cannot set the value of `derp` on `<special-sauce:123>` after it has been destroyed.');
-  });
+      targetMeta.destroy();
 
-  QUnit.test('meta.writeDeps issues useful error after destroy', function () {
-    var target = {
-      toString: function () {
-        return '<special-sauce:123>';
-      }
+      expectAssertion(function () {
+        targetMeta.writableTag(function () {});
+      }, 'Cannot create a new tag for `<special-sauce:123>` after it has been destroyed.');
     };
-    var targetMeta = (0, _emberMetal.meta)(target);
 
-    targetMeta.destroy();
+    _class.prototype['@test meta.writableChainWatchers issues useful error after destroy'] = function testMetaWritableChainWatchersIssuesUsefulErrorAfterDestroy() {
+      var target = {
+        toString: function () {
+          return '<special-sauce:123>';
+        }
+      };
+      var targetMeta = (0, _emberMetal.meta)(target);
 
-    expectAssertion(function () {
-      targetMeta.writeDeps('derp', 'ohai', 1);
-    }, 'Cannot modify dependent keys for `ohai` on `<special-sauce:123>` after it has been destroyed.');
-  });
+      targetMeta.destroy();
+
+      expectAssertion(function () {
+        targetMeta.writableChainWatchers(function () {});
+      }, 'Cannot create a new chain watcher for `<special-sauce:123>` after it has been destroyed.');
+    };
+
+    _class.prototype['@test meta.writableChains issues useful error after destroy'] = function testMetaWritableChainsIssuesUsefulErrorAfterDestroy() {
+      var target = {
+        toString: function () {
+          return '<special-sauce:123>';
+        }
+      };
+      var targetMeta = (0, _emberMetal.meta)(target);
+
+      targetMeta.destroy();
+
+      expectAssertion(function () {
+        targetMeta.writableChains(function () {});
+      }, 'Cannot create a new chains for `<special-sauce:123>` after it has been destroyed.');
+    };
+
+    _class.prototype['@test meta.writeValues issues useful error after destroy'] = function testMetaWriteValuesIssuesUsefulErrorAfterDestroy() {
+      var target = {
+        toString: function () {
+          return '<special-sauce:123>';
+        }
+      };
+      var targetMeta = (0, _emberMetal.meta)(target);
+
+      targetMeta.destroy();
+
+      expectAssertion(function () {
+        targetMeta.writeValues('derp', 'ohai');
+      }, 'Cannot set the value of `derp` on `<special-sauce:123>` after it has been destroyed.');
+    };
+
+    _class.prototype['@test meta.writeDeps issues useful error after destroy'] = function testMetaWriteDepsIssuesUsefulErrorAfterDestroy() {
+      var target = {
+        toString: function () {
+          return '<special-sauce:123>';
+        }
+      };
+      var targetMeta = (0, _emberMetal.meta)(target);
+
+      targetMeta.destroy();
+
+      expectAssertion(function () {
+        targetMeta.writeDeps('derp', 'ohai', 1);
+      }, 'Cannot modify dependent keys for `ohai` on `<special-sauce:123>` after it has been destroyed.');
+    };
+
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
 });
 QUnit.module('ESLint | ember-metal/tests/meta_test.js');
 QUnit.test('should pass ESLint', function(assert) {
@@ -45638,7 +45749,7 @@ QUnit.test('should pass ESLint', function(assert) {
   assert.ok(true, 'ember-metal/tests/observer_test.js should pass ESLint\n\n');
 });
 
-enifed('ember-metal/tests/performance_test', ['ember-metal'], function (_emberMetal) {
+enifed('ember-metal/tests/performance_test', ['ember-babel', 'ember-metal', 'internal-test-helpers'], function (_emberBabel, _emberMetal, _internalTestHelpers) {
   'use strict';
 
   /*
@@ -45648,53 +45759,62 @@ enifed('ember-metal/tests/performance_test', ['ember-metal'], function (_emberMe
     bugs that cause them to get evaluated more than necessary should be put here.
   */
 
-  QUnit.module('Computed Properties - Number of times evaluated');
+  (0, _internalTestHelpers.moduleFor)('Computed Properties - Number of times evaluated', function (_AbstractTestCase) {
+    (0, _emberBabel.inherits)(_class, _AbstractTestCase);
 
-  QUnit.test('computed properties that depend on multiple properties should run only once per run loop', function () {
-    var obj = { a: 'a', b: 'b', c: 'c' };
-    var cpCount = 0;
-    var obsCount = 0;
+    function _class() {
+      (0, _emberBabel.classCallCheck)(this, _class);
+      return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase.apply(this, arguments));
+    }
 
-    (0, _emberMetal.defineProperty)(obj, 'abc', (0, _emberMetal.computed)(function (key) {
-      cpCount++;
-      return 'computed ' + key;
-    }).property('a', 'b', 'c'));
+    _class.prototype['@test computed properties that depend on multiple properties should run only once per run loop'] = function testComputedPropertiesThatDependOnMultiplePropertiesShouldRunOnlyOncePerRunLoop(assert) {
+      var obj = { a: 'a', b: 'b', c: 'c' };
+      var cpCount = 0;
+      var obsCount = 0;
 
-    (0, _emberMetal.get)(obj, 'abc');
+      (0, _emberMetal.defineProperty)(obj, 'abc', (0, _emberMetal.computed)(function (key) {
+        cpCount++;
+        return 'computed ' + key;
+      }).property('a', 'b', 'c'));
 
-    cpCount = 0;
+      (0, _emberMetal.get)(obj, 'abc');
 
-    (0, _emberMetal.addObserver)(obj, 'abc', function () {
-      obsCount++;
-    });
+      cpCount = 0;
 
-    (0, _emberMetal.beginPropertyChanges)();
-    (0, _emberMetal.set)(obj, 'a', 'aa');
-    (0, _emberMetal.set)(obj, 'b', 'bb');
-    (0, _emberMetal.set)(obj, 'c', 'cc');
-    (0, _emberMetal.endPropertyChanges)();
+      (0, _emberMetal.addObserver)(obj, 'abc', function () {
+        obsCount++;
+      });
 
-    (0, _emberMetal.get)(obj, 'abc');
+      (0, _emberMetal.beginPropertyChanges)();
+      (0, _emberMetal.set)(obj, 'a', 'aa');
+      (0, _emberMetal.set)(obj, 'b', 'bb');
+      (0, _emberMetal.set)(obj, 'c', 'cc');
+      (0, _emberMetal.endPropertyChanges)();
 
-    equal(cpCount, 1, 'The computed property is only invoked once');
-    equal(obsCount, 1, 'The observer is only invoked once');
-  });
+      (0, _emberMetal.get)(obj, 'abc');
 
-  QUnit.test('computed properties are not executed if they are the last segment of an observer chain pain', function () {
-    var foo = { bar: { baz: {} } };
+      assert.equal(cpCount, 1, 'The computed property is only invoked once');
+      assert.equal(obsCount, 1, 'The observer is only invoked once');
+    };
 
-    var count = 0;
+    _class.prototype['@test computed properties are not executed if they are the last segment of an observer chain pain'] = function testComputedPropertiesAreNotExecutedIfTheyAreTheLastSegmentOfAnObserverChainPain(assert) {
+      var foo = { bar: { baz: {} } };
 
-    (0, _emberMetal.defineProperty)(foo.bar.baz, 'bam', (0, _emberMetal.computed)(function () {
-      count++;
-    }));
+      var count = 0;
 
-    (0, _emberMetal.addObserver)(foo, 'bar.baz.bam', function () {});
+      (0, _emberMetal.defineProperty)(foo.bar.baz, 'bam', (0, _emberMetal.computed)(function () {
+        count++;
+      }));
 
-    (0, _emberMetal.propertyDidChange)((0, _emberMetal.get)(foo, 'bar.baz'), 'bam');
+      (0, _emberMetal.addObserver)(foo, 'bar.baz.bam', function () {});
 
-    equal(count, 0, 'should not have recomputed property');
-  });
+      (0, _emberMetal.propertyDidChange)((0, _emberMetal.get)(foo, 'bar.baz'), 'bam');
+
+      assert.equal(count, 0, 'should not have recomputed property');
+    };
+
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
 });
 QUnit.module('ESLint | ember-metal/tests/performance_test.js');
 QUnit.test('should pass ESLint', function(assert) {
@@ -45702,108 +45822,126 @@ QUnit.test('should pass ESLint', function(assert) {
   assert.ok(true, 'ember-metal/tests/performance_test.js should pass ESLint\n\n');
 });
 
-enifed('ember-metal/tests/properties_test', ['ember-metal'], function (_emberMetal) {
+enifed('ember-metal/tests/properties_test', ['ember-babel', 'ember-metal', 'internal-test-helpers'], function (_emberBabel, _emberMetal, _internalTestHelpers) {
   'use strict';
 
-  QUnit.module('Ember.defineProperty');
+  (0, _internalTestHelpers.moduleFor)('Ember.defineProperty', function (_AbstractTestCase) {
+    (0, _emberBabel.inherits)(_class, _AbstractTestCase);
 
-  QUnit.test('toString', function () {
-    var obj = {};
-    (0, _emberMetal.defineProperty)(obj, 'toString', undefined, function () {
-      return 'FOO';
-    });
-    equal(obj.toString(), 'FOO', 'should replace toString');
-  });
-
-  QUnit.test('for data properties, didDefineProperty hook should be called if implemented', function () {
-    expect(2);
-
-    var obj = {
-      didDefineProperty: function (obj, keyName, value) {
-        equal(keyName, 'foo', 'key name should be foo');
-        equal(value, 'bar', 'value should be bar');
-      }
-    };
-
-    (0, _emberMetal.defineProperty)(obj, 'foo', undefined, 'bar');
-  });
-
-  QUnit.test('for computed properties, didDefineProperty hook should be called if implemented', function () {
-    expect(2);
-
-    var computedProperty = (0, _emberMetal.computed)(function () {
-      return this;
-    });
-
-    var obj = {
-      didDefineProperty: function (obj, keyName, value) {
-        equal(keyName, 'foo', 'key name should be foo');
-        strictEqual(value, computedProperty, 'value should be passed as computed property');
-      }
-    };
-
-    (0, _emberMetal.defineProperty)(obj, 'foo', computedProperty);
-  });
-
-  QUnit.test('for descriptor properties, didDefineProperty hook should be called if implemented', function () {
-    expect(2);
-
-    var descriptor = {
-      writable: true,
-      configurable: false,
-      enumerable: true,
-      value: 42
-    };
-
-    var obj = {
-      didDefineProperty: function (obj, keyName, value) {
-        equal(keyName, 'answer', 'key name should be answer');
-        strictEqual(value, descriptor, 'value should be passed as descriptor');
-      }
-    };
-
-    (0, _emberMetal.defineProperty)(obj, 'answer', descriptor);
-  });
-
-  QUnit.module('Ember.deprecateProperty');
-
-  QUnit.test('enables access to deprecated property and returns the value of the new property', function () {
-    expect(3);
-    var obj = { foo: 'bar' };
-
-    (0, _emberMetal.deprecateProperty)(obj, 'baz', 'foo');
-
-    expectDeprecation();
-    equal(obj.baz, obj.foo, 'baz and foo are equal');
-
-    obj.foo = 'blammo';
-    equal(obj.baz, obj.foo, 'baz and foo are equal');
-  });
-
-  QUnit.test('deprecatedKey is not enumerable', function () {
-    expect(2);
-    var obj = { foo: 'bar', blammo: 'whammy' };
-
-    (0, _emberMetal.deprecateProperty)(obj, 'baz', 'foo');
-
-    for (var prop in obj) {
-      if (obj.hasOwnProperty(prop)) {
-        notEqual(prop, 'baz');
-      }
+    function _class() {
+      (0, _emberBabel.classCallCheck)(this, _class);
+      return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase.apply(this, arguments));
     }
-  });
 
-  QUnit.test('enables setter to deprecated property and updates the value of the new property', function () {
-    expect(3);
-    var obj = { foo: 'bar' };
+    _class.prototype['@test toString'] = function testToString(assert) {
+      var obj = {};
+      (0, _emberMetal.defineProperty)(obj, 'toString', undefined, function () {
+        return 'FOO';
+      });
+      assert.equal(obj.toString(), 'FOO', 'should replace toString');
+    };
 
-    (0, _emberMetal.deprecateProperty)(obj, 'baz', 'foo');
+    _class.prototype['@test for data properties, didDefineProperty hook should be called if implemented'] = function testForDataPropertiesDidDefinePropertyHookShouldBeCalledIfImplemented(assert) {
+      assert.expect(2);
 
-    expectDeprecation();
-    obj.baz = 'bloop';
-    equal(obj.foo, 'bloop', 'updating baz updates foo');
-    equal(obj.baz, obj.foo, 'baz and foo are equal');
-  });
+      var obj = {
+        didDefineProperty: function (obj, keyName, value) {
+          assert.equal(keyName, 'foo', 'key name should be foo');
+          assert.equal(value, 'bar', 'value should be bar');
+        }
+      };
+
+      (0, _emberMetal.defineProperty)(obj, 'foo', undefined, 'bar');
+    };
+
+    _class.prototype['@test for computed properties, didDefineProperty hook should be called if implemented'] = function testForComputedPropertiesDidDefinePropertyHookShouldBeCalledIfImplemented(assert) {
+      assert.expect(2);
+
+      var computedProperty = (0, _emberMetal.computed)(function () {
+        return this;
+      });
+
+      var obj = {
+        didDefineProperty: function (obj, keyName, value) {
+          assert.equal(keyName, 'foo', 'key name should be foo');
+          assert.strictEqual(value, computedProperty, 'value should be passed as computed property');
+        }
+      };
+
+      (0, _emberMetal.defineProperty)(obj, 'foo', computedProperty);
+    };
+
+    _class.prototype['@test for descriptor properties, didDefineProperty hook should be called if implemented'] = function testForDescriptorPropertiesDidDefinePropertyHookShouldBeCalledIfImplemented(assert) {
+      assert.expect(2);
+
+      var descriptor = {
+        writable: true,
+        configurable: false,
+        enumerable: true,
+        value: 42
+      };
+
+      var obj = {
+        didDefineProperty: function (obj, keyName, value) {
+          assert.equal(keyName, 'answer', 'key name should be answer');
+          assert.strictEqual(value, descriptor, 'value should be passed as descriptor');
+        }
+      };
+
+      (0, _emberMetal.defineProperty)(obj, 'answer', descriptor);
+    };
+
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
+
+  (0, _internalTestHelpers.moduleFor)('Ember.deprecateProperty', function (_AbstractTestCase2) {
+    (0, _emberBabel.inherits)(_class2, _AbstractTestCase2);
+
+    function _class2() {
+      (0, _emberBabel.classCallCheck)(this, _class2);
+      return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase2.apply(this, arguments));
+    }
+
+    _class2.prototype['@test enables access to deprecated property and returns the value of the new property'] = function testEnablesAccessToDeprecatedPropertyAndReturnsTheValueOfTheNewProperty(assert) {
+      assert.expect(3);
+      var obj = { foo: 'bar' };
+
+      (0, _emberMetal.deprecateProperty)(obj, 'baz', 'foo');
+
+      expectDeprecation();
+      assert.equal(obj.baz, obj.foo, 'baz and foo are equal');
+
+      obj.foo = 'blammo';
+      assert.equal(obj.baz, obj.foo, 'baz and foo are equal');
+    };
+
+    _class2.prototype['@test deprecatedKey is not enumerable'] = function testDeprecatedKeyIsNotEnumerable(assert) {
+      assert.expect(2);
+      var obj = { foo: 'bar', blammo: 'whammy' };
+
+      (0, _emberMetal.deprecateProperty)(obj, 'baz', 'foo');
+
+      for (var prop in obj) {
+        if (obj.hasOwnProperty(prop)) {
+          assert.notEqual(prop, 'baz');
+        }
+      }
+    };
+
+    _class2.prototype['@test enables setter to deprecated property and updates the value of the new property'] = function testEnablesSetterToDeprecatedPropertyAndUpdatesTheValueOfTheNewProperty(assert) {
+      assert.expect(3);
+      var obj = { foo: 'bar' };
+
+      (0, _emberMetal.deprecateProperty)(obj, 'baz', 'foo');
+
+      expectDeprecation();
+      obj.baz = 'bloop';
+      assert.equal(obj.foo, 'bloop', 'updating baz updates foo');
+      assert.equal(obj.baz, obj.foo, 'baz and foo are equal');
+    };
+
+    return _class2;
+  }(_internalTestHelpers.AbstractTestCase));
 });
 QUnit.module('ESLint | ember-metal/tests/properties_test.js');
 QUnit.test('should pass ESLint', function(assert) {
@@ -46646,31 +46784,40 @@ QUnit.test('should pass ESLint', function(assert) {
   assert.ok(true, 'ember-metal/tests/run_loop/unwind_test.js should pass ESLint\n\n');
 });
 
-enifed('ember-metal/tests/set_properties_test', ['ember-metal'], function (_emberMetal) {
+enifed('ember-metal/tests/set_properties_test', ['ember-babel', 'ember-metal', 'internal-test-helpers'], function (_emberBabel, _emberMetal, _internalTestHelpers) {
   'use strict';
 
-  QUnit.module('Ember.setProperties');
+  (0, _internalTestHelpers.moduleFor)('Ember.setProperties', function (_AbstractTestCase) {
+    (0, _emberBabel.inherits)(_class, _AbstractTestCase);
 
-  QUnit.test('supports setting multiple attributes at once', function () {
-    deepEqual((0, _emberMetal.setProperties)(null, null), null, 'noop for null properties and null object');
-    deepEqual((0, _emberMetal.setProperties)(undefined, undefined), undefined, 'noop for undefined properties and undefined object');
+    function _class() {
+      (0, _emberBabel.classCallCheck)(this, _class);
+      return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase.apply(this, arguments));
+    }
 
-    deepEqual((0, _emberMetal.setProperties)({}), undefined, 'noop for no properties');
-    deepEqual((0, _emberMetal.setProperties)({}, undefined), undefined, 'noop for undefined');
-    deepEqual((0, _emberMetal.setProperties)({}, null), null, 'noop for null');
-    deepEqual((0, _emberMetal.setProperties)({}, NaN), NaN, 'noop for NaN');
-    deepEqual((0, _emberMetal.setProperties)({}, {}), {}, 'meh');
+    _class.prototype['@test supports setting multiple attributes at once'] = function testSupportsSettingMultipleAttributesAtOnce(assert) {
+      assert.deepEqual((0, _emberMetal.setProperties)(null, null), null, 'noop for null properties and null object');
+      assert.deepEqual((0, _emberMetal.setProperties)(undefined, undefined), undefined, 'noop for undefined properties and undefined object');
 
-    deepEqual((0, _emberMetal.setProperties)({}, { foo: 1 }), { foo: 1 }, 'Set a single property');
+      assert.deepEqual((0, _emberMetal.setProperties)({}), undefined, 'noop for no properties');
+      assert.deepEqual((0, _emberMetal.setProperties)({}, undefined), undefined, 'noop for undefined');
+      assert.deepEqual((0, _emberMetal.setProperties)({}, null), null, 'noop for null');
+      assert.deepEqual((0, _emberMetal.setProperties)({}, NaN), NaN, 'noop for NaN');
+      assert.deepEqual((0, _emberMetal.setProperties)({}, {}), {}, 'meh');
 
-    deepEqual((0, _emberMetal.setProperties)({}, { foo: 1, bar: 1 }), { foo: 1, bar: 1 }, 'Set multiple properties');
+      assert.deepEqual((0, _emberMetal.setProperties)({}, { foo: 1 }), { foo: 1 }, 'Set a single property');
 
-    deepEqual((0, _emberMetal.setProperties)({ foo: 2, baz: 2 }, { foo: 1 }), { foo: 1 }, 'Set one of multiple properties');
+      assert.deepEqual((0, _emberMetal.setProperties)({}, { foo: 1, bar: 1 }), { foo: 1, bar: 1 }, 'Set multiple properties');
 
-    deepEqual((0, _emberMetal.setProperties)({ foo: 2, baz: 2 }, { bar: 2 }), {
-      bar: 2
-    }, 'Set an additional, previously unset property');
-  });
+      assert.deepEqual((0, _emberMetal.setProperties)({ foo: 2, baz: 2 }, { foo: 1 }), { foo: 1 }, 'Set one of multiple properties');
+
+      assert.deepEqual((0, _emberMetal.setProperties)({ foo: 2, baz: 2 }, { bar: 2 }), {
+        bar: 2
+      }, 'Set an additional, previously unset property');
+    };
+
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
 });
 QUnit.module('ESLint | ember-metal/tests/set_properties_test.js');
 QUnit.test('should pass ESLint', function(assert) {
