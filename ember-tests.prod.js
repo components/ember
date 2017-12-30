@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.0.0-alpha.1-null+16f30b81
+ * @version   3.0.0-alpha.1-null+85e10845
  */
 
 /*globals process */
@@ -62358,95 +62358,122 @@ enifed('ember-testing/tests/acceptance_test', ['ember-babel', 'internal-test-hel
     return _class2;
   }(_internalTestHelpers.AutobootApplicationTestCase));
 });
-enifed('ember-testing/tests/adapters/adapter_test', ['ember-metal', 'ember-testing/adapters/adapter'], function (_emberMetal, _adapter) {
+enifed('ember-testing/tests/adapters/adapter_test', ['ember-babel', 'ember-metal', 'ember-testing/adapters/adapter', 'internal-test-helpers'], function (_emberBabel, _emberMetal, _adapter, _internalTestHelpers) {
   'use strict';
 
   var adapter;
 
-  QUnit.module('ember-testing Adapter', {
-    setup: function () {
+  (0, _internalTestHelpers.moduleFor)('ember-testing Adapter', function (_AbstractTestCase) {
+    (0, _emberBabel.inherits)(_class, _AbstractTestCase);
+
+    function _class() {
+
+      var _this = (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase.call(this));
+
       adapter = new _adapter.default();
-    },
-    teardown: function () {
+      return _this;
+    }
+
+    _class.prototype.teardown = function () {
       (0, _emberMetal.run)(adapter, adapter.destroy);
-    }
-  });
+    };
 
-  QUnit.test('exception throws', function () {
-    var error = 'Hai';
-    var thrown;
+    _class.prototype['@test exception throws'] = function (assert) {
+      var error = 'Hai';
+      var thrown;
 
-    try {
-      adapter.exception(error);
-    } catch (e) {
-      thrown = e;
-    }
-    equal(thrown, error);
-  });
+      try {
+        adapter.exception(error);
+      } catch (e) {
+        thrown = e;
+      }
+      assert.equal(thrown, error);
+    };
+
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
 });
-enifed('ember-testing/tests/adapters/qunit_test', ['ember-metal', 'ember-testing/adapters/qunit'], function (_emberMetal, _qunit) {
+enifed('ember-testing/tests/adapters/qunit_test', ['ember-babel', 'ember-metal', 'ember-testing/adapters/qunit', 'internal-test-helpers'], function (_emberBabel, _emberMetal, _qunit, _internalTestHelpers) {
   'use strict';
 
   var adapter;
 
-  QUnit.module('ember-testing QUnitAdapter', {
-    setup: function () {
+  (0, _internalTestHelpers.moduleFor)('ember-testing QUnitAdapter', function (_AbstractTestCase) {
+    (0, _emberBabel.inherits)(_class, _AbstractTestCase);
+
+    function _class() {
+
+      var _this = (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase.call(this));
+
       adapter = new _qunit.default();
-    },
-    teardown: function () {
+      return _this;
+    }
+
+    _class.prototype.teardown = function () {
       (0, _emberMetal.run)(adapter, adapter.destroy);
-    }
-  });
+    };
 
-  QUnit.test('asyncStart calls stop', function () {
-    var originalStop = QUnit.stop;
-    try {
-      QUnit.stop = function () {
-        ok(true, 'stop called');
-      };
-      adapter.asyncStart();
-    } finally {
-      QUnit.stop = originalStop;
-    }
-  });
+    _class.prototype['@test asyncStart calls stop'] = function (assert) {
+      var originalStop = QUnit.stop;
+      try {
+        QUnit.stop = function () {
+          assert.ok(true, 'stop called');
+        };
+        adapter.asyncStart();
+      } finally {
+        QUnit.stop = originalStop;
+      }
+    };
 
-  QUnit.test('asyncEnd calls start', function () {
-    var originalStart = QUnit.start;
-    try {
-      QUnit.start = function () {
-        ok(true, 'start called');
-      };
-      adapter.asyncEnd();
-    } finally {
-      QUnit.start = originalStart;
-    }
-  });
+    _class.prototype['@test asyncEnd calls start'] = function (assert) {
+      var originalStart = QUnit.start;
+      try {
+        QUnit.start = function () {
+          assert.ok(true, 'start called');
+        };
+        adapter.asyncEnd();
+      } finally {
+        QUnit.start = originalStart;
+      }
+    };
 
-  QUnit.test('exception causes a failing assertion', function () {
-    var originalOk = window.ok;
-    try {
-      window.ok = function (val, msg) {
-        originalOk(!val, 'ok is called with false');
-        originalOk(msg, '{err: "hai"}');
-      };
-      adapter.exception({ err: 'hai' });
-    } finally {
-      window.ok = originalOk;
-    }
-  });
+    _class.prototype['@test exception causes a failing assertion'] = function (assert) {
+      var originalPushResult = assert.pushResult;
+      try {
+        assert.pushResult = function (resultInfo) {
+          // Inverts the result so we can test failing assertions
+          resultInfo.result = !resultInfo.result;
+          resultInfo.message = 'Failed: ' + resultInfo.message;
+          originalPushResult(resultInfo);
+        };
+        adapter.exception({ err: 'hai' });
+      } finally {
+        assert.pushResult = originalPushResult;
+      }
+    };
+
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
 });
-enifed('ember-testing/tests/adapters_test', ['ember-metal', 'ember-testing/test', 'ember-testing/adapters/adapter', 'ember-testing/adapters/qunit', 'ember-application'], function (_emberMetal, _test, _adapter, _qunit, _emberApplication) {
+enifed('ember-testing/tests/adapters_test', ['ember-babel', 'ember-metal', 'ember-testing/test', 'ember-testing/adapters/adapter', 'ember-testing/adapters/qunit', 'ember-application', 'internal-test-helpers'], function (_emberBabel, _emberMetal, _test, _adapter, _qunit, _emberApplication, _internalTestHelpers) {
   'use strict';
 
   var App, originalAdapter, originalQUnit, originalWindowOnerror;
 
-  QUnit.module('ember-testing Adapters', {
-    setup: function () {
+  (0, _internalTestHelpers.moduleFor)('ember-testing Adapters', function (_AbstractTestCase) {
+    (0, _emberBabel.inherits)(_class, _AbstractTestCase);
+
+    function _class() {
+
+      var _this = (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase.call(this));
+
       originalAdapter = _test.default.adapter;
       originalQUnit = window.QUnit;
       originalWindowOnerror = window.onerror;
-    },
-    teardown: function () {
+      return _this;
+    }
+
+    _class.prototype.teardown = function () {
       if (App) {
         (0, _emberMetal.run)(App, App.destroy);
         App.removeTestHelpers();
@@ -62456,79 +62483,81 @@ enifed('ember-testing/tests/adapters_test', ['ember-metal', 'ember-testing/test'
       _test.default.adapter = originalAdapter;
       window.QUnit = originalQUnit;
       window.onerror = originalWindowOnerror;
-    }
-  });
+    };
 
-  QUnit.test('Setting a test adapter manually', function () {
-    expect(1);
-    var CustomAdapter = _adapter.default.extend({
-      asyncStart: function () {
-        ok(true, 'Correct adapter was used');
-      }
-    });
-
-    (0, _emberMetal.run)(function () {
-      App = _emberApplication.Application.create();
-      _test.default.adapter = CustomAdapter.create();
-      App.setupForTesting();
-    });
-
-    _test.default.adapter.asyncStart();
-  });
-
-  QUnit.test('QUnitAdapter is used by default (if QUnit is available)', function () {
-    expect(1);
-
-    _test.default.adapter = null;
-
-    (0, _emberMetal.run)(function () {
-      App = _emberApplication.Application.create();
-      App.setupForTesting();
-    });
-
-    ok(_test.default.adapter instanceof _qunit.default);
-  });
-
-  QUnit.test('Adapter is used by default (if QUnit is not available)', function () {
-    expect(2);
-
-    delete window.QUnit;
-
-    _test.default.adapter = null;
-
-    (0, _emberMetal.run)(function () {
-      App = _emberApplication.Application.create();
-      App.setupForTesting();
-    });
-
-    ok(_test.default.adapter instanceof _adapter.default);
-    ok(!(_test.default.adapter instanceof _qunit.default));
-  });
-
-  QUnit.test('With Ember.Test.adapter set, errors in synchronous Ember.run are bubbled out', function (assert) {
-    var thrown = new Error('Boom!');
-
-    var caughtInAdapter = void 0,
-        caughtInCatch = void 0;
-    _test.default.adapter = _qunit.default.create({
-      exception: function (error) {
-        caughtInAdapter = error;
-      }
-    });
-
-    try {
-      (0, _emberMetal.run)(function () {
-        throw thrown;
+    _class.prototype['@test Setting a test adapter manually'] = function (assert) {
+      assert.expect(1);
+      var CustomAdapter = _adapter.default.extend({
+        asyncStart: function () {
+          assert.ok(true, 'Correct adapter was used');
+        }
       });
-    } catch (e) {
-      caughtInCatch = e;
-    }
 
-    assert.equal(caughtInAdapter, undefined, 'test adapter should never receive synchronous errors');
-    assert.equal(caughtInCatch, thrown, 'a "normal" try/catch should catch errors in sync run');
-  });
+      (0, _emberMetal.run)(function () {
+        App = _emberApplication.Application.create();
+        _test.default.adapter = CustomAdapter.create();
+        App.setupForTesting();
+      });
+
+      _test.default.adapter.asyncStart();
+    };
+
+    _class.prototype['@test QUnitAdapter is used by default (if QUnit is available)'] = function (assert) {
+      assert.expect(1);
+
+      _test.default.adapter = null;
+
+      (0, _emberMetal.run)(function () {
+        App = _emberApplication.Application.create();
+        App.setupForTesting();
+      });
+
+      assert.ok(_test.default.adapter instanceof _qunit.default);
+    };
+
+    _class.prototype['@test Adapter is used by default (if QUnit is not available)'] = function (assert) {
+      assert.expect(2);
+
+      delete window.QUnit;
+
+      _test.default.adapter = null;
+
+      (0, _emberMetal.run)(function () {
+        App = _emberApplication.Application.create();
+        App.setupForTesting();
+      });
+
+      assert.ok(_test.default.adapter instanceof _adapter.default);
+      assert.ok(!(_test.default.adapter instanceof _qunit.default));
+    };
+
+    _class.prototype['@test With Ember.Test.adapter set, errors in synchronous Ember.run are bubbled out'] = function (assert) {
+      var thrown = new Error('Boom!');
+
+      var caughtInAdapter = void 0,
+          caughtInCatch = void 0;
+      _test.default.adapter = _qunit.default.create({
+        exception: function (error) {
+          caughtInAdapter = error;
+        }
+      });
+
+      try {
+        (0, _emberMetal.run)(function () {
+          throw thrown;
+        });
+      } catch (e) {
+        caughtInCatch = e;
+      }
+
+      assert.equal(caughtInAdapter, undefined, 'test adapter should never receive synchronous errors');
+      assert.equal(caughtInCatch, thrown, 'a "normal" try/catch should catch errors in sync run');
+    };
+
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
 });
-enifed('ember-testing/tests/ext/rsvp_test', ['ember-testing/ext/rsvp', 'ember-testing/test/adapter', 'ember-testing/test/promise', 'ember-metal', 'ember-debug'], function (_rsvp, _adapter, _promise, _emberMetal, _emberDebug) {
+enifed('ember-testing/tests/ext/rsvp_test', ['ember-babel', 'ember-testing/ext/rsvp', 'ember-testing/test/adapter', 'ember-testing/test/promise', 'ember-metal', 'ember-debug', 'internal-test-helpers'], function (_emberBabel, _rsvp, _adapter, _promise, _emberMetal, _emberDebug, _internalTestHelpers) {
   'use strict';
 
   var originalTestAdapter = (0, _adapter.getAdapter)();
@@ -62537,111 +62566,121 @@ enifed('ember-testing/tests/ext/rsvp_test', ['ember-testing/ext/rsvp', 'ember-te
   var asyncStarted = 0;
   var asyncEnded = 0;
 
-  QUnit.module('ember-testing RSVP', {
-    setup: function () {
+  (0, _internalTestHelpers.moduleFor)('ember-testing RSVP', function (_AbstractTestCase) {
+    (0, _emberBabel.inherits)(_class, _AbstractTestCase);
+
+    function _class() {
+
+      var _this = (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase.call(this));
+
       (0, _emberDebug.setTesting)(true);
       (0, _adapter.setAdapter)({
         asyncStart: function () {
           asyncStarted++;
-          QUnit.stop();
         },
         asyncEnd: function () {
           asyncEnded++;
-          QUnit.start();
         }
       });
-    },
-    teardown: function () {
+      return _this;
+    }
+
+    _class.prototype.teardown = function () {
       asyncStarted = 0;
       asyncEnded = 0;
       (0, _adapter.setAdapter)(originalTestAdapter);
       (0, _emberDebug.setTesting)(originalTestingFlag);
+    };
+
+    _class.prototype['@test given `Ember.testing = true`, correctly informs the test suite about async steps'] = function (assert) {
+      var done = assert.async();
+      assert.expect(19);
+
+      assert.ok(!_emberMetal.run.currentRunLoop, 'expect no run-loop');
+
+      (0, _emberDebug.setTesting)(true);
+
+      assert.equal(asyncStarted, 0);
+      assert.equal(asyncEnded, 0);
+
+      var user = _rsvp.default.Promise.resolve({ name: 'tomster' });
+
+      assert.equal(asyncStarted, 0);
+      assert.equal(asyncEnded, 0);
+
+      user.then(function (user) {
+        assert.equal(asyncStarted, 1);
+        assert.equal(asyncEnded, 1);
+
+        assert.equal(user.name, 'tomster');
+
+        return _rsvp.default.Promise.resolve(1).then(function () {
+          assert.equal(asyncStarted, 1);
+          assert.equal(asyncEnded, 1);
+        });
+      }).then(function () {
+        assert.equal(asyncStarted, 1);
+        assert.equal(asyncEnded, 1);
+
+        return new _rsvp.default.Promise(function (resolve) {
+          setTimeout(function () {
+            assert.equal(asyncStarted, 1);
+            assert.equal(asyncEnded, 1);
+
+            resolve({ name: 'async tomster' });
+
+            assert.equal(asyncStarted, 2);
+            assert.equal(asyncEnded, 1);
+          }, 0);
+        });
+      }).then(function (user) {
+        assert.equal(user.name, 'async tomster');
+        assert.equal(asyncStarted, 2);
+        assert.equal(asyncEnded, 2);
+        done();
+      });
+    };
+
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
+
+  (0, _internalTestHelpers.moduleFor)('TestPromise', function (_AbstractTestCase2) {
+    (0, _emberBabel.inherits)(_class2, _AbstractTestCase2);
+
+    function _class2() {
+      return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase2.apply(this, arguments));
     }
-  });
 
-  QUnit.test('given `Ember.testing = true`, correctly informs the test suite about async steps', function () {
-    expect(19);
-
-    ok(!_emberMetal.run.currentRunLoop, 'expect no run-loop');
-
-    (0, _emberDebug.setTesting)(true);
-
-    equal(asyncStarted, 0);
-    equal(asyncEnded, 0);
-
-    var user = _rsvp.default.Promise.resolve({
-      name: 'tomster'
-    });
-
-    equal(asyncStarted, 0);
-    equal(asyncEnded, 0);
-
-    user.then(function (user) {
-      equal(asyncStarted, 1);
-      equal(asyncEnded, 1);
-
-      equal(user.name, 'tomster');
-
-      return _rsvp.default.Promise.resolve(1).then(function () {
-        equal(asyncStarted, 1);
-        equal(asyncEnded, 1);
+    _class2.prototype['does not throw error when falsy value passed to then'] = function (assert) {
+      assert.expect(1);
+      return new _promise.default(function (resolve) {
+        resolve();
+      }).then(null).then(function () {
+        assert.ok(true);
       });
-    }).then(function () {
-      equal(asyncStarted, 1);
-      equal(asyncEnded, 1);
+    };
 
-      return new _rsvp.default.Promise(function (resolve) {
-        QUnit.stop(); // raw async, we must inform the test framework manually
-        setTimeout(function () {
-          QUnit.start(); // raw async, we must inform the test framework manually
+    _class2.prototype['able to get last Promise'] = function (assert) {
+      assert.expect(2);
 
-          equal(asyncStarted, 1);
-          equal(asyncEnded, 1);
-
-          resolve({
-            name: 'async tomster'
-          });
-
-          equal(asyncStarted, 2);
-          equal(asyncEnded, 1);
-        }, 0);
+      var p1 = new _promise.default(function (resolve) {
+        resolve();
+      }).then(function () {
+        assert.ok(true);
       });
-    }).then(function (user) {
-      equal(user.name, 'async tomster');
-      equal(asyncStarted, 2);
-      equal(asyncEnded, 2);
-    });
-  });
 
-  QUnit.module('TestPromise');
+      var p2 = new _promise.default(function (resolve) {
+        resolve();
+      });
 
-  QUnit.test('does not throw error when falsy value passed to then', function () {
-    expect(1);
-    return new _promise.default(function (resolve) {
-      resolve();
-    }).then(null).then(function () {
-      ok(true);
-    });
-  });
+      assert.deepEqual((0, _promise.getLastPromise)(), p2);
+      return p1;
+    };
 
-  QUnit.test('able to get last Promise', function () {
-    expect(2);
-
-    var p1 = new _promise.default(function (resolve) {
-      resolve();
-    }).then(function () {
-      ok(true);
-    });
-
-    var p2 = new _promise.default(function (resolve) {
-      resolve();
-    });
-
-    deepEqual((0, _promise.getLastPromise)(), p2);
-    return p1;
-  });
+    return _class2;
+  }(_internalTestHelpers.AbstractTestCase));
 });
-enifed('ember-testing/tests/helper_registration_test', ['ember-metal', 'ember-testing/test', 'ember-application'], function (_emberMetal, _test, _emberApplication) {
+enifed('ember-testing/tests/helper_registration_test', ['ember-babel', 'ember-metal', 'ember-testing/test', 'ember-application', 'internal-test-helpers'], function (_emberBabel, _emberMetal, _test, _emberApplication, _internalTestHelpers) {
   'use strict';
 
   var App, appBooted, helperContainer;
@@ -62678,51 +62717,59 @@ enifed('ember-testing/tests/helper_registration_test', ['ember-metal', 'ember-te
     }
   }
 
-  QUnit.module('Test - registerHelper/unregisterHelper', {
-    teardown: function () {
+  (0, _internalTestHelpers.moduleFor)('Test - registerHelper/unregisterHelper', function (_AbstractTestCase) {
+    (0, _emberBabel.inherits)(_class, _AbstractTestCase);
+
+    function _class() {
+      return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase.apply(this, arguments));
+    }
+
+    _class.prototype.teardown = function () {
       _test.default.adapter = originalAdapter;
       destroyApp();
-    }
-  });
+    };
 
-  QUnit.test('Helper gets registered', function () {
-    expect(2);
+    _class.prototype['@test Helper gets registered'] = function (assert) {
+      assert.expect(2);
 
-    registerHelper();
-    setupApp();
+      registerHelper();
+      setupApp();
 
-    ok(App.testHelpers.boot);
-    ok(helperContainer.boot);
-  });
+      assert.ok(App.testHelpers.boot);
+      assert.ok(helperContainer.boot);
+    };
 
-  QUnit.test('Helper is ran when called', function (assert) {
-    var done = assert.async();
-    assert.expect(1);
+    _class.prototype['@test Helper is ran when called'] = function (assert) {
+      var done = assert.async();
+      assert.expect(1);
 
-    registerHelper();
-    setupApp();
+      registerHelper();
+      setupApp();
 
-    App.testHelpers.boot().then(function () {
-      assert.ok(appBooted);
-    }).finally(done);
-  });
+      App.testHelpers.boot().then(function () {
+        assert.ok(appBooted);
+      }).finally(done);
+    };
 
-  QUnit.test('Helper can be unregistered', function () {
-    expect(4);
+    _class.prototype['@test Helper can be unregistered'] = function (assert) {
+      assert.expect(4);
 
-    registerHelper();
-    setupApp();
+      registerHelper();
+      setupApp();
 
-    ok(App.testHelpers.boot);
-    ok(helperContainer.boot);
+      assert.ok(App.testHelpers.boot);
+      assert.ok(helperContainer.boot);
 
-    unregisterHelper();
+      unregisterHelper();
 
-    setupApp();
+      setupApp();
 
-    ok(!App.testHelpers.boot, 'once unregistered the helper is not added to App.testHelpers');
-    ok(!helperContainer.boot, 'once unregistered the helper is not added to the helperContainer');
-  });
+      assert.ok(!App.testHelpers.boot, 'once unregistered the helper is not added to App.testHelpers');
+      assert.ok(!helperContainer.boot, 'once unregistered the helper is not added to the helperContainer');
+    };
+
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
 });
 enifed('ember-testing/tests/helpers_test', ['ember-babel', 'internal-test-helpers', 'ember-routing', 'ember-runtime', 'ember-metal', 'ember-views', 'ember-glimmer', 'ember-testing/test', 'ember-testing/setup_for_testing', 'ember-testing/test/pending_requests', 'ember-testing/test/adapter', 'ember-testing/test/waiters'], function (_emberBabel, _internalTestHelpers, _emberRouting, _emberRuntime, _emberMetal, _emberViews, _emberGlimmer, _test, _setup_for_testing, _pending_requests, _adapter, _waiters) {
   'use strict';
@@ -63933,10 +63980,18 @@ enifed('ember-testing/tests/integration_test', ['ember-babel', 'internal-test-he
     return _class;
   }(_internalTestHelpers.AutobootApplicationTestCase));
 });
-enifed('ember-testing/tests/reexports_test', ['ember', 'internal-test-helpers'], function (_ember, _internalTestHelpers) {
+enifed('ember-testing/tests/reexports_test', ['ember-babel', 'ember', 'internal-test-helpers'], function (_emberBabel, _ember, _internalTestHelpers) {
   'use strict';
 
-  QUnit.module('ember-testing reexports');
+  var ReexportsTestCase = function (_AbstractTestCase) {
+    (0, _emberBabel.inherits)(ReexportsTestCase, _AbstractTestCase);
+
+    function ReexportsTestCase() {
+      return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase.apply(this, arguments));
+    }
+
+    return ReexportsTestCase;
+  }(_internalTestHelpers.AbstractTestCase);
 
   [
   // ember-testing
@@ -63950,28 +64005,14 @@ enifed('ember-testing/tests/reexports_test', ['ember', 'internal-test-helpers'],
       exportName = path;
     }
 
-    QUnit.test('Ember.' + path + ' exports correctly', function (assert) {
+    ReexportsTestCase.prototype['@test Ember.' + path + ' exports correctly'] = function (assert) {
       (0, _internalTestHelpers.confirmExport)(_ember.default, assert, path, moduleId, exportName);
-    });
+    };
   });
-});
-enifed('ember-testing/tests/simple_setup', ['ember-metal', 'ember-views'], function (_emberMetal, _emberViews) {
-  'use strict';
 
-  var App;
-
-  QUnit.module('Simple Testing Setup', {
-    teardown: function () {
-      if (App) {
-        App.removeTestHelpers();
-        (0, _emberViews.jQuery)('#ember-testing-container, #ember-testing').remove();
-        (0, _emberMetal.run)(App, 'destroy');
-        App = null;
-      }
-    }
-  });
+  (0, _internalTestHelpers.moduleFor)('ember-testing reexports', ReexportsTestCase);
 });
-enifed('ember-testing/tests/test/waiters-test', ['ember-testing/test/waiters'], function (_waiters) {
+enifed('ember-testing/tests/test/waiters-test', ['ember-babel', 'ember-testing/test/waiters', 'internal-test-helpers'], function (_emberBabel, _waiters, _internalTestHelpers) {
   'use strict';
 
   var Waiters = function () {
@@ -64018,101 +64059,110 @@ enifed('ember-testing/tests/test/waiters-test', ['ember-testing/test/waiters'], 
     return Waiters;
   }();
 
-  QUnit.module('ember-testing: waiters', {
-    setup: function () {
-      this.waiters = new Waiters();
-    },
-    teardown: function () {
-      this.waiters.unregister();
+  (0, _internalTestHelpers.moduleFor)('ember-testing: waiters', function (_AbstractTestCase) {
+    (0, _emberBabel.inherits)(_class, _AbstractTestCase);
+
+    function _class() {
+
+      var _this = (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase.call(this));
+
+      _this.waiters = new Waiters();
+      return _this;
     }
-  });
 
-  QUnit.test('registering a waiter', function (assert) {
-    assert.expect(2);
+    _class.prototype.teardown = function () {
+      this.waiters.unregister();
+    };
 
-    this.waiters.add({ foo: true }, function () {
-      assert.ok(this.foo, 'has proper `this` context');
-      return true;
-    });
+    _class.prototype['@test registering a waiter'] = function (assert) {
+      assert.expect(2);
 
-    this.waiters.add(function () {
-      assert.ok(true, 'is called');
-      return true;
-    });
+      this.waiters.add({ foo: true }, function () {
+        assert.ok(this.foo, 'has proper `this` context');
+        return true;
+      });
 
-    this.waiters.check();
-  });
+      this.waiters.add(function () {
+        assert.ok(true, 'is called');
+        return true;
+      });
 
-  QUnit.test('unregistering a waiter', function (assert) {
-    assert.expect(2);
+      this.waiters.check();
+    };
 
-    this.waiters.add({ foo: true }, function () {
-      assert.ok(true, 'precond - waiter with context is registered');
-      return true;
-    });
+    _class.prototype['@test unregistering a waiter'] = function (assert) {
+      assert.expect(2);
 
-    this.waiters.add(function () {
-      assert.ok(true, 'precond - waiter without context is registered');
-      return true;
-    });
+      this.waiters.add({ foo: true }, function () {
+        assert.ok(true, 'precond - waiter with context is registered');
+        return true;
+      });
 
-    this.waiters.check();
-    this.waiters.unregister();
+      this.waiters.add(function () {
+        assert.ok(true, 'precond - waiter without context is registered');
+        return true;
+      });
 
-    (0, _waiters.checkWaiters)();
-  });
+      this.waiters.check();
+      this.waiters.unregister();
 
-  QUnit.test('checkWaiters returns false if all waiters return true', function (assert) {
-    assert.expect(3);
+      (0, _waiters.checkWaiters)();
+    };
 
-    this.waiters.add(function () {
-      assert.ok(true, 'precond - waiter is registered');
+    _class.prototype['@test checkWaiters returns false if all waiters return true'] = function (assert) {
+      assert.expect(3);
 
-      return true;
-    });
+      this.waiters.add(function () {
+        assert.ok(true, 'precond - waiter is registered');
 
-    this.waiters.add(function () {
-      assert.ok(true, 'precond - waiter is registered');
+        return true;
+      });
 
-      return true;
-    });
+      this.waiters.add(function () {
+        assert.ok(true, 'precond - waiter is registered');
 
-    assert.notOk(this.waiters.check(), 'checkWaiters returns true if all waiters return true');
-  });
+        return true;
+      });
 
-  QUnit.test('checkWaiters returns true if any waiters return false', function (assert) {
-    assert.expect(3);
+      assert.notOk(this.waiters.check(), 'checkWaiters returns true if all waiters return true');
+    };
 
-    this.waiters.add(function () {
-      assert.ok(true, 'precond - waiter is registered');
+    _class.prototype['@test checkWaiters returns true if any waiters return false'] = function (assert) {
+      assert.expect(3);
 
-      return true;
-    });
+      this.waiters.add(function () {
+        assert.ok(true, 'precond - waiter is registered');
 
-    this.waiters.add(function () {
-      assert.ok(true, 'precond - waiter is registered');
+        return true;
+      });
 
-      return false;
-    });
+      this.waiters.add(function () {
+        assert.ok(true, 'precond - waiter is registered');
 
-    assert.ok(this.waiters.check(), 'checkWaiters returns false if any waiters return false');
-  });
+        return false;
+      });
 
-  QUnit.test('checkWaiters short circuits after first falsey waiter', function (assert) {
-    assert.expect(2);
+      assert.ok(this.waiters.check(), 'checkWaiters returns false if any waiters return false');
+    };
 
-    this.waiters.add(function () {
-      assert.ok(true, 'precond - waiter is registered');
+    _class.prototype['@test checkWaiters short circuits after first falsey waiter'] = function (assert) {
+      assert.expect(2);
 
-      return false;
-    });
+      this.waiters.add(function () {
+        assert.ok(true, 'precond - waiter is registered');
 
-    this.waiters.add(function () {
-      assert.notOk(true, 'waiter should not be called');
-    });
+        return false;
+      });
 
-    assert.ok(this.waiters.check(), 'checkWaiters returns false if any waiters return false');
-  });
+      this.waiters.add(function () {
+        assert.notOk(true, 'waiter should not be called');
+      });
+
+      assert.ok(this.waiters.check(), 'checkWaiters returns false if any waiters return false');
+    };
+
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
 });
 enifed('ember-utils/tests/assign_test', ['ember-babel', 'ember-utils', 'internal-test-helpers'], function (_emberBabel, _emberUtils, _internalTestHelpers) {
   'use strict';
