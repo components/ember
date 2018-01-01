@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.0.0-alpha.1-null+85e10845
+ * @version   3.0.0-alpha.1-null+2569225d
  */
 
 /*globals process */
@@ -34944,24 +34944,6 @@ enifed('ember-runtime/ext/string', ['ember-environment', 'ember-runtime/system/s
 
   if (_emberEnvironment.ENV.EXTEND_PROTOTYPES.String) {
     /**
-      See [Ember.String.fmt](/api/classes/Ember.String.html#method_fmt).
-       @method fmt
-      @for @ember/string
-      @static
-      @private
-      @deprecated
-    */
-    StringPrototype.fmt = function () {
-      var _len, args, _key;
-
-      for (_len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
-        args[_key] = arguments[_key];
-      }
-
-      return (0, _string.fmt)(this, args);
-    };
-
-    /**
       See [Ember.String.w](/api/classes/Ember.String.html#method_w).
        @method w
       @for @ember/string
@@ -34980,10 +34962,10 @@ enifed('ember-runtime/ext/string', ['ember-environment', 'ember-runtime/system/s
       @private
     */
     StringPrototype.loc = function () {
-      var _len2, args, _key2;
+      var _len, args, _key;
 
-      for (_len2 = arguments.length, args = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
-        args[_key2] = arguments[_key2];
+      for (_len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+        args[_key] = arguments[_key];
       }
 
       return (0, _string.loc)(this, args);
@@ -39780,14 +39762,14 @@ enifed('ember-runtime/system/service', ['exports', 'ember-runtime/system/object'
 
   exports.default = Service;
 });
-enifed('ember-runtime/system/string', ['exports', 'ember-metal', 'ember-debug', 'ember-utils', 'ember-runtime/utils', 'ember-runtime/string_registry'], function (exports, _emberMetal, _emberDebug, _emberUtils, _utils, _string_registry) {
+enifed('ember-runtime/system/string', ['exports', 'ember-metal', 'ember-utils', 'ember-runtime/utils', 'ember-runtime/string_registry'], function (exports, _emberMetal, _emberUtils, _utils, _string_registry) {
   'use strict';
 
-  exports.capitalize = exports.underscore = exports.classify = exports.camelize = exports.dasherize = exports.decamelize = exports.w = exports.loc = exports.fmt = undefined;
-
-  var STRING_DASHERIZE_REGEXP = /[ _]/g; /**
-                                         @module @ember/string
-                                         */
+  exports.capitalize = exports.underscore = exports.classify = exports.camelize = exports.dasherize = exports.decamelize = exports.w = exports.loc = undefined;
+  /**
+  @module @ember/string
+  */
+  var STRING_DASHERIZE_REGEXP = /[ _]/g;
 
   var STRING_DASHERIZE_CACHE = new _emberMetal.Cache(1000, function (key) {
     return decamelize(key).replace(STRING_DASHERIZE_REGEXP, '-');
@@ -39867,12 +39849,6 @@ enifed('ember-runtime/system/string', ['exports', 'ember-metal', 'ember-debug', 
     });
   }
 
-  function fmt() /* str, formats */{
-    false && !false && (0, _emberDebug.deprecate)('Ember.String.fmt is deprecated, use ES6 template strings instead.', false, { id: 'ember-string-utils.fmt', until: '3.0.0', url: 'http://babeljs.io/docs/learn-es2015/#template-strings' });
-
-    return _fmt.apply(undefined, arguments);
-  }
-
   function loc(str, formats) {
     if (!(0, _utils.isArray)(formats) || arguments.length > 2) {
       formats = Array.prototype.slice.call(arguments, 1);
@@ -39920,30 +39896,8 @@ enifed('ember-runtime/system/string', ['exports', 'ember-metal', 'ember-debug', 
   */
   exports.default = {
     /**
-      Apply formatting options to the string. This will look for occurrences
-      of "%@" in your string and substitute them with the arguments you pass into
-      this method. If you want to control the specific order of replacement,
-      you can add a number after the key as well to indicate which argument
-      you want to insert.
-       Ordered insertions are most useful when building loc strings where values
-      you need to insert may appear in different orders.
-       ```javascript
-      "Hello %@ %@".fmt('John', 'Doe');     // "Hello John Doe"
-      "Hello %@2, %@1".fmt('John', 'Doe');  // "Hello Doe, John"
-      ```
-       @method fmt
-      @param {String} str The string to format
-      @param {Array} formats An array of parameters to interpolate into string.
-      @return {String} formatted string
-      @public
-      @deprecated Use ES6 template strings instead: http://babeljs.io/docs/learn-es2015/#template-strings
-    */
-    fmt: fmt,
-
-    /**
       Formats the passed string, but first looks up the string in the localized
-      strings hash. This is a convenient way to localize text. See
-      `Ember.String.fmt()` for more information on formatting.
+      strings hash. This is a convenient way to localize text.
        Note that it is traditional but not required to prefix localized string
       keys with an underscore or other character so you can easily identify
       localized strings.
@@ -40079,7 +40033,6 @@ enifed('ember-runtime/system/string', ['exports', 'ember-metal', 'ember-debug', 
     */
     capitalize: capitalize
   };
-  exports.fmt = fmt;
   exports.loc = loc;
   exports.w = w;
   exports.decamelize = decamelize;
@@ -43410,7 +43363,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "3.0.0-alpha.1-null+85e10845";
+  exports.default = "3.0.0-alpha.1-null+2569225d";
 });
 /*global enifed */
 enifed('node-module', ['exports'], function(_exports) {

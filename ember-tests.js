@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.0.0-alpha.1-null+85e10845
+ * @version   3.0.0-alpha.1-null+2569225d
  */
 
 /*globals process */
@@ -63443,44 +63443,6 @@ QUnit.module('ESLint | ember-runtime/tests/system/string/decamelize_test.js');
 QUnit.test('should pass ESLint', function(assert) {
   assert.expect(1);
   assert.ok(true, 'ember-runtime/tests/system/string/decamelize_test.js should pass ESLint\n\n');
-});
-
-enifed('ember-runtime/tests/system/string/fmt_string_test', ['ember-environment', 'ember-runtime/system/string'], function (_emberEnvironment, _string) {
-  'use strict';
-
-  QUnit.module('EmberStringUtils.fmt');
-
-  if (!_emberEnvironment.ENV.EXTEND_PROTOTYPES.String) {
-    QUnit.test('String.prototype.fmt is not modified without EXTEND_PROTOTYPES', function () {
-      ok('undefined' === typeof String.prototype.fmt, 'String.prototype helper disabled');
-    });
-  }
-
-  function test(given, args, expected, description) {
-    QUnit.test(description, function () {
-      expectDeprecation('Ember.String.fmt is deprecated, use ES6 template strings instead.');
-      equal((0, _string.fmt)(given, args), expected);
-      if (_emberEnvironment.ENV.EXTEND_PROTOTYPES.String) {
-        equal(given.fmt.apply(given, args), expected);
-      }
-    });
-  }
-
-  test('Hello %@ %@', ['John', 'Doe'], 'Hello John Doe', 'fmt(\'Hello %@ %@\', [\'John\', \'Doe\']) => \'Hello John Doe\'');
-  test('Hello %@2 %@1', ['John', 'Doe'], 'Hello Doe John', 'fmt(\'Hello %@2 %@1\', [\'John\', \'Doe\']) => \'Hello Doe John\'');
-  test('%@08 %@07 %@06 %@05 %@04 %@03 %@02 %@01', ['One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight'], 'Eight Seven Six Five Four Three Two One', 'fmt(\'%@08 %@07 %@06 %@05 %@04 %@03 %@02 %@01\', [\'One\', \'Two\', \'Three\', \'Four\', \'Five\', \'Six\', \'Seven\', \'Eight\']) => \'Eight Seven Six Five Four Three Two One\'');
-  test('data: %@', [{ id: 3 }], 'data: {id: 3}', 'fmt(\'data: %@\', [{ id: 3 }]) => \'data: {id: 3}\'');
-
-  QUnit.test('works with argument form', function () {
-    expectDeprecation('Ember.String.fmt is deprecated, use ES6 template strings instead.');
-    equal((0, _string.fmt)('%@', 'John'), 'John');
-    equal((0, _string.fmt)('%@ %@', ['John'], 'Doe'), '[John] Doe');
-  });
-});
-QUnit.module('ESLint | ember-runtime/tests/system/string/fmt_string_test.js');
-QUnit.test('should pass ESLint', function(assert) {
-  assert.expect(1);
-  assert.ok(true, 'ember-runtime/tests/system/string/fmt_string_test.js should pass ESLint\n\n');
 });
 
 enifed('ember-runtime/tests/system/string/loc_test', ['ember-metal', 'ember-environment', 'ember-runtime/system/string'], function (_emberMetal, _emberEnvironment, _string) {
