@@ -1,12 +1,12 @@
 (function() {
 /*!
  * @overview  Ember - JavaScript Application Framework
- * @copyright Copyright 2011-2017 Tilde Inc. and contributors
+ * @copyright Copyright 2011-2018 Tilde Inc. and contributors
  *            Portions Copyright 2006-2011 Strobe Inc.
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.0.0-alpha.1-null+2569225d
+ * @version   3.0.0-alpha.1-null+08b883ef
  */
 
 /*globals process */
@@ -47238,7 +47238,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "3.0.0-alpha.1-null+2569225d";
+  exports.default = "3.0.0-alpha.1-null+08b883ef";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";
