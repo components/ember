@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.0.0-alpha.1-null+08b883ef
+ * @version   3.0.0-alpha.1-null+8a5c9ada
  */
 
 /*globals process */
@@ -29637,21 +29637,6 @@ enifed('ember-routing/system/dsl', ['exports', 'ember-utils', 'ember-debug'], fu
       this.matches.push(url, name, callback);
     };
 
-    DSL.prototype.resource = function (name) {
-      var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-      var callback = arguments[2];
-
-      if (arguments.length === 2 && typeof options === 'function') {
-        callback = options;
-        options = {};
-      }
-
-      options.resetNamespace = true;
-      false && !false && (0, _emberDebug.deprecate)('this.resource() is deprecated. Use this.route(\'name\', { resetNamespace: true }, function () {}) instead.', false, { id: 'ember-routing.router-resource', until: '3.0.0' });
-
-      this.route(name, options, callback);
-    };
-
     DSL.prototype.generate = function () {
       var dslMatches = this.matches;
 
@@ -43363,7 +43348,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "3.0.0-alpha.1-null+08b883ef";
+  exports.default = "3.0.0-alpha.1-null+8a5c9ada";
 });
 /*global enifed */
 enifed('node-module', ['exports'], function(_exports) {

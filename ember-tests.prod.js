@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.0.0-alpha.1-null+08b883ef
+ * @version   3.0.0-alpha.1-null+8a5c9ada
  */
 
 /*globals process */
@@ -46121,10 +46121,9 @@ enifed('ember-routing/tests/system/dsl_test', ['ember-babel', 'ember-utils', 'em
     };
 
     _class.prototype['@test should fail when using a reserved route name'] = function (assert) {
-      expectDeprecation('this.resource() is deprecated. Use this.route(\'name\', { resetNamespace: true }, function () {}) instead.');
       var reservedNames = ['array', 'basic', 'object', 'application'];
 
-      assert.expect(reservedNames.length * 2 + 1);
+      assert.expect(reservedNames.length);
 
       reservedNames.forEach(function (reservedName) {
         expectAssertion(function () {
@@ -46137,37 +46136,7 @@ enifed('ember-routing/tests/system/dsl_test', ['ember-babel', 'ember-utils', 'em
           var router = Router.create();
           router._initRouterJs();
         }, '\'' + reservedName + '\' cannot be used as a route name.');
-
-        expectAssertion(function () {
-          Router = _router.default.extend();
-
-          Router.map(function () {
-            this.resource(reservedName);
-          });
-
-          var router = Router.create();
-          router._initRouterJs();
-        }, '\'' + reservedName + '\' cannot be used as a route name.');
       });
-    };
-
-    _class.prototype['@test should reset namespace if nested with resource'] = function (assert) {
-      expectDeprecation('this.resource() is deprecated. Use this.route(\'name\', { resetNamespace: true }, function () {}) instead.');
-
-      Router = Router.map(function () {
-        this.resource('bleep', function () {
-          this.resource('bloop', function () {
-            this.resource('blork');
-          });
-        });
-      });
-
-      var router = Router.create();
-      router._initRouterJs();
-
-      assert.ok(router._routerMicrolib.recognizer.names['bleep'], 'nested resources do not contain parent name');
-      assert.ok(router._routerMicrolib.recognizer.names['bloop'], 'nested resources do not contain parent name');
-      assert.ok(router._routerMicrolib.recognizer.names['blork'], 'nested resources do not contain parent name');
     };
 
     _class.prototype['@test should retain resource namespace if nested with routes'] = function (assert) {
