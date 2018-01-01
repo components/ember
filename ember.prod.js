@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.18.0-beta.5
+ * @version   2.18.0
  */
 
 /*global process */
@@ -9595,20 +9595,18 @@ enifed('backburner', ['exports'], function (exports) {
             var queue = this._queue;
             var guid = this.guidForTarget(target);
             var targetQueue = guid ? this.targetQueues[guid] : undefined;
-            var index = void 0;
             if (targetQueue !== undefined) {
                 t = void 0;
 
                 for (i = 0, l = targetQueue.length; i < l; i += 2) {
                     t = targetQueue[i];
                     if (t === method) {
-                        index = targetQueue.splice(i, 2)[1];
+                        targetQueue.splice(i, 2);
+                        break;
                     }
                 }
             }
-            if (index === undefined) {
-                index = findItem(target, method, queue);
-            }
+            var index = findItem(target, method, queue);
             if (index > -1) {
                 queue.splice(index, 4);
                 return true;
@@ -43861,7 +43859,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.18.0-beta.5";
+  exports.default = "2.18.0";
 });
 /*global enifed */
 enifed('node-module', ['exports'], function(_exports) {
