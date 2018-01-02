@@ -6,51 +6,14 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.16.2-null+0f102c8b
+ * @version   2.18.0-release+dee84b06
  */
 
+/*global process */
 var enifed, requireModule, Ember;
 var mainContext = this; // Used in ember-environment/lib/global.js
 
 (function() {
-  var isNode = typeof window === 'undefined' &&
-    typeof process !== 'undefined' && {}.toString.call(process) === '[object process]';
-
-  if (!isNode) {
-    Ember = this.Ember = this.Ember || {};
-  }
-
-  if (typeof Ember === 'undefined') { Ember = {}; }
-
-  if (typeof Ember.__loader === 'undefined') {
-    var registry = {};
-    var seen = {};
-
-    enifed = function(name, deps, callback) {
-      var value = { };
-
-      if (!callback) {
-        value.deps = [];
-        value.callback = deps;
-      } else {
-        value.deps = deps;
-        value.callback = callback;
-      }
-
-      registry[name] = value;
-    };
-
-    requireModule = function(name) {
-      return internalRequire(name, null);
-    };
-
-    // setup `require` module
-    requireModule['default'] = requireModule;
-
-    requireModule.has = function registryHas(moduleName) {
-      return !!registry[moduleName] || !!registry[moduleName + '/index'];
-    };
-
     function missingModule(name, referrerName) {
       if (referrerName) {
         throw new Error('Could not find module ' + name + ' required by: ' + referrerName);
@@ -99,6 +62,44 @@ var mainContext = this; // Used in ember-environment/lib/global.js
       return exports;
     }
 
+  var isNode = typeof window === 'undefined' &&
+    typeof process !== 'undefined' && {}.toString.call(process) === '[object process]';
+
+  if (!isNode) {
+    Ember = this.Ember = this.Ember || {};
+  }
+
+  if (typeof Ember === 'undefined') { Ember = {}; }
+
+  if (typeof Ember.__loader === 'undefined') {
+    var registry = {};
+    var seen = {};
+
+    enifed = function(name, deps, callback) {
+      var value = { };
+
+      if (!callback) {
+        value.deps = [];
+        value.callback = deps;
+      } else {
+        value.deps = deps;
+        value.callback = callback;
+      }
+
+      registry[name] = value;
+    };
+
+    requireModule = function(name) {
+      return internalRequire(name, null);
+    };
+
+    // setup `require` module
+    requireModule['default'] = requireModule;
+
+    requireModule.has = function registryHas(moduleName) {
+      return !!registry[moduleName] || !!registry[moduleName + '/index'];
+    };
+
     requireModule._eak_seen = registry;
 
     Ember.__loader = {
@@ -146,6 +147,24 @@ QUnit.module('ESLint | container.js');
 QUnit.test('should pass ESLint', function(assert) {
   assert.expect(1);
   assert.ok(true, 'container.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | container/lib/container.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'container/lib/container.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | container/lib/index.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'container/lib/index.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | container/lib/registry.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'container/lib/registry.js should pass ESLint\n\n');
 });
 
 enifed('container/tests/container_test', ['ember-babel', 'ember-utils', 'ember-metal', 'ember/features', 'container', 'internal-test-helpers'], function (_emberBabel, _emberUtils, _emberMetal, _features, _container, _internalTestHelpers) {
@@ -625,9 +644,9 @@ enifed('container/tests/container_test', ['ember-babel', 'ember-utils', 'ember-m
   QUnit.test('#factoryFor must supply a fullname', function (assert) {
     var registry = new _container.Registry();
     var container = registry.container();
-    assert.throws(function () {
+    expectAssertion(function () {
       container.factoryFor('chad-bar');
-    }, /Invalid Fullname, expected: 'type:name' got: chad-bar/);
+    }, /fullName must be a proper full name/);
   });
 
   QUnit.test('#factoryFor returns a factory manager', function (assert) {
@@ -682,6 +701,31 @@ enifed('container/tests/container_test', ['ember-babel', 'ember-utils', 'ember-m
     var instance2 = factoryManager2.create({ bar: 'bar' });
 
     assert.deepEqual(instance1.constructor, instance2.constructor);
+  });
+
+  QUnit.test('can properly reset cache', function (assert) {
+    var registry = new _container.Registry();
+    var container = registry.container();
+
+    var Component = (0, _internalTestHelpers.factory)();
+    registry.register('component:foo-bar', Component);
+
+    var factory1 = container.factoryFor('component:foo-bar');
+    var factory2 = container.factoryFor('component:foo-bar');
+
+    var instance1 = container.lookup('component:foo-bar');
+    var instance2 = container.lookup('component:foo-bar');
+
+    assert.equal(instance1, instance2);
+    assert.equal(factory1, factory2);
+
+    container.reset();
+
+    var factory3 = container.factoryFor('component:foo-bar');
+    var instance3 = container.lookup('component:foo-bar');
+
+    assert.notEqual(instance1, instance3);
+    assert.notEqual(factory1, factory3);
   });
 
   QUnit.test('#factoryFor created instances come with instance injections', function (assert) {
@@ -926,7 +970,7 @@ enifed('container/tests/registry_test', ['container', 'internal-test-helpers', '
 
     registry.register('controller:post', PostController);
 
-    throws(function () {
+    expectAssertion(function () {
       registry.typeInjection('controller', 'injected', 'controller:post');
     }, /Cannot inject a 'controller:post' on other controller\(s\)\./);
   });
@@ -987,26 +1031,6 @@ enifed('container/tests/registry_test', ['container', 'internal-test-helpers', '
     equal(isPresent, true, 'Normalizes the name when checking if the factory or instance is present');
   });
 
-  QUnit.test('validateFullName throws an error if name is incorrect', function () {
-    expect(2);
-
-    var registry = new _container.Registry();
-    var PostController = (0, _internalTestHelpers.factory)();
-
-    registry.normalize = function (fullName) {
-      return 'controller:post';
-    };
-
-    registry.register('controller:post', PostController);
-    throws(function () {
-      registry.validateFullName('post');
-    }, /TypeError: Invalid Fullname, expected: 'type:name' got: post/);
-
-    throws(function () {
-      registry.validateFullName('route:http://foo.bar.com/baz');
-    }, /TypeError: Invalid Fullname, expected: 'type:name' got: route:http:\/\/foo.bar.com\/baz/);
-  });
-
   QUnit.test('The registry normalizes names when injecting', function () {
     var registry = new _container.Registry();
     var PostController = (0, _internalTestHelpers.factory)();
@@ -1050,7 +1074,7 @@ enifed('container/tests/registry_test', ['container', 'internal-test-helpers', '
     registry.register('controller:apple', FirstApple);
     strictEqual(registry.resolve('controller:apple'), FirstApple);
 
-    throws(function () {
+    expectAssertion(function () {
       registry.register('controller:apple', SecondApple);
     }, /Cannot re-register: 'controller:apple', as it has already been resolved\./);
 
@@ -1662,52 +1686,58 @@ QUnit.test('should pass ESLint', function(assert) {
   assert.ok(true, 'descriptor.js should pass ESLint\n\n');
 });
 
-QUnit.module('ESLint | ember-application/index.js');
+QUnit.module('ESLint | ember-application/lib/index.js');
 QUnit.test('should pass ESLint', function(assert) {
   assert.expect(1);
-  assert.ok(true, 'ember-application/index.js should pass ESLint\n\n');
+  assert.ok(true, 'ember-application/lib/index.js should pass ESLint\n\n');
 });
 
-QUnit.module('ESLint | ember-application/initializers/dom-templates.js');
+QUnit.module('ESLint | ember-application/lib/initializers/dom-templates.js');
 QUnit.test('should pass ESLint', function(assert) {
   assert.expect(1);
-  assert.ok(true, 'ember-application/initializers/dom-templates.js should pass ESLint\n\n');
+  assert.ok(true, 'ember-application/lib/initializers/dom-templates.js should pass ESLint\n\n');
 });
 
-QUnit.module('ESLint | ember-application/system/application-instance.js');
+QUnit.module('ESLint | ember-application/lib/system/application-instance.js');
 QUnit.test('should pass ESLint', function(assert) {
   assert.expect(1);
-  assert.ok(true, 'ember-application/system/application-instance.js should pass ESLint\n\n');
+  assert.ok(true, 'ember-application/lib/system/application-instance.js should pass ESLint\n\n');
 });
 
-QUnit.module('ESLint | ember-application/system/application.js');
+QUnit.module('ESLint | ember-application/lib/system/application.js');
 QUnit.test('should pass ESLint', function(assert) {
   assert.expect(1);
-  assert.ok(true, 'ember-application/system/application.js should pass ESLint\n\n');
+  assert.ok(true, 'ember-application/lib/system/application.js should pass ESLint\n\n');
 });
 
-QUnit.module('ESLint | ember-application/system/engine-instance.js');
+QUnit.module('ESLint | ember-application/lib/system/engine-instance.js');
 QUnit.test('should pass ESLint', function(assert) {
   assert.expect(1);
-  assert.ok(true, 'ember-application/system/engine-instance.js should pass ESLint\n\n');
+  assert.ok(true, 'ember-application/lib/system/engine-instance.js should pass ESLint\n\n');
 });
 
-QUnit.module('ESLint | ember-application/system/engine-parent.js');
+QUnit.module('ESLint | ember-application/lib/system/engine-parent.js');
 QUnit.test('should pass ESLint', function(assert) {
   assert.expect(1);
-  assert.ok(true, 'ember-application/system/engine-parent.js should pass ESLint\n\n');
+  assert.ok(true, 'ember-application/lib/system/engine-parent.js should pass ESLint\n\n');
 });
 
-QUnit.module('ESLint | ember-application/system/engine.js');
+QUnit.module('ESLint | ember-application/lib/system/engine.js');
 QUnit.test('should pass ESLint', function(assert) {
   assert.expect(1);
-  assert.ok(true, 'ember-application/system/engine.js should pass ESLint\n\n');
+  assert.ok(true, 'ember-application/lib/system/engine.js should pass ESLint\n\n');
 });
 
-QUnit.module('ESLint | ember-application/system/resolver.js');
+QUnit.module('ESLint | ember-application/lib/system/resolver.js');
 QUnit.test('should pass ESLint', function(assert) {
   assert.expect(1);
-  assert.ok(true, 'ember-application/system/resolver.js should pass ESLint\n\n');
+  assert.ok(true, 'ember-application/lib/system/resolver.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | ember-application/lib/utils/validate-type.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'ember-application/lib/utils/validate-type.js should pass ESLint\n\n');
 });
 
 enifed('ember-application/tests/system/application_instance_test', ['ember-babel', 'ember-application/system/engine', 'ember-application/system/application', 'ember-application/system/application-instance', 'ember-metal', 'ember-views', 'container', 'internal-test-helpers', 'ember-runtime'], function (_emberBabel, _engine, _application, _applicationInstance, _emberMetal, _emberViews, _container, _internalTestHelpers, _emberRuntime) {
@@ -2547,7 +2577,7 @@ enifed('ember-application/tests/system/dependency_injection/default_resolver_tes
 
       var lookedUpShorthandHelper = this.applicationInstance.factoryFor('helper:shorthand').class;
 
-      assert.ok(lookedUpShorthandHelper.isHelperInstance, 'shorthand helper isHelper');
+      assert.ok(lookedUpShorthandHelper.isHelperFactory, 'shorthand helper isHelper');
 
       var lookedUpHelper = this.applicationInstance.factoryFor('helper:complete').class;
 
@@ -2564,7 +2594,7 @@ enifed('ember-application/tests/system/dependency_injection/default_resolver_tes
 
       var lookedUpShorthandHelper = this.applicationInstance.factoryFor('helper:shorthand').class;
 
-      assert.ok(lookedUpShorthandHelper.isHelperInstance, 'shorthand helper isHelper');
+      assert.ok(lookedUpShorthandHelper.isHelperFactory, 'shorthand helper isHelper');
 
       var lookedUpHelper = this.applicationInstance.factoryFor('helper:complete').class;
 
@@ -2595,30 +2625,30 @@ enifed('ember-application/tests/system/dependency_injection/default_resolver_tes
     _class.prototype['@test the default resolver throws an error if the fullName to resolve is invalid'] = function (assert) {
       var _this3 = this;
 
-      assert.throws(function () {
+      expectAssertion(function () {
         _this3.applicationInstance.resolveRegistration(undefined);
-      }, TypeError, /Invalid fullName/);
-      assert.throws(function () {
+      }, /fullName must be a proper full name/);
+      expectAssertion(function () {
         _this3.applicationInstance.resolveRegistration(null);
-      }, TypeError, /Invalid fullName/);
-      assert.throws(function () {
+      }, /fullName must be a proper full name/);
+      expectAssertion(function () {
         _this3.applicationInstance.resolveRegistration('');
-      }, TypeError, /Invalid fullName/);
-      assert.throws(function () {
+      }, /fullName must be a proper full name/);
+      expectAssertion(function () {
         _this3.applicationInstance.resolveRegistration('');
-      }, TypeError, /Invalid fullName/);
-      assert.throws(function () {
+      }, /fullName must be a proper full name/);
+      expectAssertion(function () {
         _this3.applicationInstance.resolveRegistration(':');
-      }, TypeError, /Invalid fullName/);
-      assert.throws(function () {
+      }, /fullName must be a proper full name/);
+      expectAssertion(function () {
         _this3.applicationInstance.resolveRegistration('model');
-      }, TypeError, /Invalid fullName/);
-      assert.throws(function () {
+      }, /fullName must be a proper full name/);
+      expectAssertion(function () {
         _this3.applicationInstance.resolveRegistration('model:');
-      }, TypeError, /Invalid fullName/);
-      assert.throws(function () {
+      }, /fullName must be a proper full name/);
+      expectAssertion(function () {
         _this3.applicationInstance.resolveRegistration(':type');
-      }, TypeError, /Invalid fullName/);
+      }, /fullName must be a proper full name/);
     };
 
     _class.prototype['@test lookup description'] = function (assert) {
@@ -6059,12 +6089,6 @@ QUnit.test('should pass ESLint', function(assert) {
   assert.ok(true, 'ember-application/tests/test-helpers/registry-check.js should pass ESLint\n\n');
 });
 
-QUnit.module('ESLint | ember-application/utils/validate-type.js');
-QUnit.test('should pass ESLint', function(assert) {
-  assert.expect(1);
-  assert.ok(true, 'ember-application/utils/validate-type.js should pass ESLint\n\n');
-});
-
 enifed('ember-babel', ['exports'], function (exports) {
   'use strict';
 
@@ -6144,6 +6168,12 @@ QUnit.test('should pass ESLint', function(assert) {
   assert.ok(true, 'ember-console.js should pass ESLint\n\n');
 });
 
+QUnit.module('ESLint | ember-console/lib/index.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'ember-console/lib/index.js should pass ESLint\n\n');
+});
+
 QUnit.module('ESLint | ember-debug/deprecate.js');
 QUnit.test('should pass ESLint', function(assert) {
   assert.expect(1);
@@ -6172,6 +6202,48 @@ QUnit.module('ESLint | ember-debug/index.js');
 QUnit.test('should pass ESLint', function(assert) {
   assert.expect(1);
   assert.ok(true, 'ember-debug/index.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | ember-debug/lib/deprecate.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'ember-debug/lib/deprecate.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | ember-debug/lib/error.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'ember-debug/lib/error.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | ember-debug/lib/features.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'ember-debug/lib/features.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | ember-debug/lib/handlers.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'ember-debug/lib/handlers.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | ember-debug/lib/index.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'ember-debug/lib/index.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | ember-debug/lib/testing.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'ember-debug/lib/testing.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | ember-debug/lib/warn.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'ember-debug/lib/warn.js should pass ESLint\n\n');
 });
 
 QUnit.module('ESLint | ember-debug/testing.js');
@@ -7533,22 +7605,40 @@ QUnit.test('should pass ESLint', function(assert) {
   assert.ok(true, 'ember-environment.js should pass ESLint\n\n');
 });
 
-QUnit.module('ESLint | ember-extension-support/container_debug_adapter.js');
+QUnit.module('ESLint | ember-environment/lib/global.js');
 QUnit.test('should pass ESLint', function(assert) {
   assert.expect(1);
-  assert.ok(true, 'ember-extension-support/container_debug_adapter.js should pass ESLint\n\n');
+  assert.ok(true, 'ember-environment/lib/global.js should pass ESLint\n\n');
 });
 
-QUnit.module('ESLint | ember-extension-support/data_adapter.js');
+QUnit.module('ESLint | ember-environment/lib/index.js');
 QUnit.test('should pass ESLint', function(assert) {
   assert.expect(1);
-  assert.ok(true, 'ember-extension-support/data_adapter.js should pass ESLint\n\n');
+  assert.ok(true, 'ember-environment/lib/index.js should pass ESLint\n\n');
 });
 
-QUnit.module('ESLint | ember-extension-support/index.js');
+QUnit.module('ESLint | ember-environment/lib/utils.js');
 QUnit.test('should pass ESLint', function(assert) {
   assert.expect(1);
-  assert.ok(true, 'ember-extension-support/index.js should pass ESLint\n\n');
+  assert.ok(true, 'ember-environment/lib/utils.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | ember-extension-support/lib/container_debug_adapter.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'ember-extension-support/lib/container_debug_adapter.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | ember-extension-support/lib/data_adapter.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'ember-extension-support/lib/data_adapter.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | ember-extension-support/lib/index.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'ember-extension-support/lib/index.js should pass ESLint\n\n');
 });
 
 enifed('ember-extension-support/tests/container_debug_adapter_test', ['ember-babel', 'internal-test-helpers', 'ember-utils', 'ember-metal', 'ember-runtime', 'ember-extension-support/index'], function (_emberBabel, _internalTestHelpers, _emberUtils, _emberMetal, _emberRuntime) {
@@ -7900,312 +7990,6 @@ QUnit.test('should pass ESLint', function(assert) {
   assert.ok(true, 'ember-extension-support/tests/data_adapter_test.js should pass ESLint\n\n');
 });
 
-QUnit.module('ESLint | ember-glimmer/component-managers/abstract.js');
-QUnit.test('should pass ESLint', function(assert) {
-  assert.expect(1);
-  assert.ok(true, 'ember-glimmer/component-managers/abstract.js should pass ESLint\n\n');
-});
-
-QUnit.module('ESLint | ember-glimmer/component-managers/curly.js');
-QUnit.test('should pass ESLint', function(assert) {
-  assert.expect(1);
-  assert.ok(true, 'ember-glimmer/component-managers/curly.js should pass ESLint\n\n');
-});
-
-QUnit.module('ESLint | ember-glimmer/component-managers/mount.js');
-QUnit.test('should pass ESLint', function(assert) {
-  assert.expect(1);
-  assert.ok(true, 'ember-glimmer/component-managers/mount.js should pass ESLint\n\n');
-});
-
-QUnit.module('ESLint | ember-glimmer/component-managers/outlet.js');
-QUnit.test('should pass ESLint', function(assert) {
-  assert.expect(1);
-  assert.ok(true, 'ember-glimmer/component-managers/outlet.js should pass ESLint\n\n');
-});
-
-QUnit.module('ESLint | ember-glimmer/component-managers/render.js');
-QUnit.test('should pass ESLint', function(assert) {
-  assert.expect(1);
-  assert.ok(true, 'ember-glimmer/component-managers/render.js should pass ESLint\n\n');
-});
-
-QUnit.module('ESLint | ember-glimmer/component-managers/root.js');
-QUnit.test('should pass ESLint', function(assert) {
-  assert.expect(1);
-  assert.ok(true, 'ember-glimmer/component-managers/root.js should pass ESLint\n\n');
-});
-
-QUnit.module('ESLint | ember-glimmer/component.js');
-QUnit.test('should pass ESLint', function(assert) {
-  assert.expect(1);
-  assert.ok(true, 'ember-glimmer/component.js should pass ESLint\n\n');
-});
-
-QUnit.module('ESLint | ember-glimmer/components/checkbox.js');
-QUnit.test('should pass ESLint', function(assert) {
-  assert.expect(1);
-  assert.ok(true, 'ember-glimmer/components/checkbox.js should pass ESLint\n\n');
-});
-
-QUnit.module('ESLint | ember-glimmer/components/link-to.js');
-QUnit.test('should pass ESLint', function(assert) {
-  assert.expect(1);
-  assert.ok(true, 'ember-glimmer/components/link-to.js should pass ESLint\n\n');
-});
-
-QUnit.module('ESLint | ember-glimmer/components/text_area.js');
-QUnit.test('should pass ESLint', function(assert) {
-  assert.expect(1);
-  assert.ok(true, 'ember-glimmer/components/text_area.js should pass ESLint\n\n');
-});
-
-QUnit.module('ESLint | ember-glimmer/components/text_field.js');
-QUnit.test('should pass ESLint', function(assert) {
-  assert.expect(1);
-  assert.ok(true, 'ember-glimmer/components/text_field.js should pass ESLint\n\n');
-});
-
-QUnit.module('ESLint | ember-glimmer/dom.js');
-QUnit.test('should pass ESLint', function(assert) {
-  assert.expect(1);
-  assert.ok(true, 'ember-glimmer/dom.js should pass ESLint\n\n');
-});
-
-QUnit.module('ESLint | ember-glimmer/environment.js');
-QUnit.test('should pass ESLint', function(assert) {
-  assert.expect(1);
-  assert.ok(true, 'ember-glimmer/environment.js should pass ESLint\n\n');
-});
-
-QUnit.module('ESLint | ember-glimmer/helper.js');
-QUnit.test('should pass ESLint', function(assert) {
-  assert.expect(1);
-  assert.ok(true, 'ember-glimmer/helper.js should pass ESLint\n\n');
-});
-
-QUnit.module('ESLint | ember-glimmer/helpers/-class.js');
-QUnit.test('should pass ESLint', function(assert) {
-  assert.expect(1);
-  assert.ok(true, 'ember-glimmer/helpers/-class.js should pass ESLint\n\n');
-});
-
-QUnit.module('ESLint | ember-glimmer/helpers/-html-safe.js');
-QUnit.test('should pass ESLint', function(assert) {
-  assert.expect(1);
-  assert.ok(true, 'ember-glimmer/helpers/-html-safe.js should pass ESLint\n\n');
-});
-
-QUnit.module('ESLint | ember-glimmer/helpers/-input-type.js');
-QUnit.test('should pass ESLint', function(assert) {
-  assert.expect(1);
-  assert.ok(true, 'ember-glimmer/helpers/-input-type.js should pass ESLint\n\n');
-});
-
-QUnit.module('ESLint | ember-glimmer/helpers/-normalize-class.js');
-QUnit.test('should pass ESLint', function(assert) {
-  assert.expect(1);
-  assert.ok(true, 'ember-glimmer/helpers/-normalize-class.js should pass ESLint\n\n');
-});
-
-QUnit.module('ESLint | ember-glimmer/helpers/action.js');
-QUnit.test('should pass ESLint', function(assert) {
-  assert.expect(1);
-  assert.ok(true, 'ember-glimmer/helpers/action.js should pass ESLint\n\n');
-});
-
-QUnit.module('ESLint | ember-glimmer/helpers/component.js');
-QUnit.test('should pass ESLint', function(assert) {
-  assert.expect(1);
-  assert.ok(true, 'ember-glimmer/helpers/component.js should pass ESLint\n\n');
-});
-
-QUnit.module('ESLint | ember-glimmer/helpers/concat.js');
-QUnit.test('should pass ESLint', function(assert) {
-  assert.expect(1);
-  assert.ok(true, 'ember-glimmer/helpers/concat.js should pass ESLint\n\n');
-});
-
-QUnit.module('ESLint | ember-glimmer/helpers/each-in.js');
-QUnit.test('should pass ESLint', function(assert) {
-  assert.expect(1);
-  assert.ok(true, 'ember-glimmer/helpers/each-in.js should pass ESLint\n\n');
-});
-
-QUnit.module('ESLint | ember-glimmer/helpers/get.js');
-QUnit.test('should pass ESLint', function(assert) {
-  assert.expect(1);
-  assert.ok(true, 'ember-glimmer/helpers/get.js should pass ESLint\n\n');
-});
-
-QUnit.module('ESLint | ember-glimmer/helpers/hash.js');
-QUnit.test('should pass ESLint', function(assert) {
-  assert.expect(1);
-  assert.ok(true, 'ember-glimmer/helpers/hash.js should pass ESLint\n\n');
-});
-
-QUnit.module('ESLint | ember-glimmer/helpers/if-unless.js');
-QUnit.test('should pass ESLint', function(assert) {
-  assert.expect(1);
-  assert.ok(true, 'ember-glimmer/helpers/if-unless.js should pass ESLint\n\n');
-});
-
-QUnit.module('ESLint | ember-glimmer/helpers/loc.js');
-QUnit.test('should pass ESLint', function(assert) {
-  assert.expect(1);
-  assert.ok(true, 'ember-glimmer/helpers/loc.js should pass ESLint\n\n');
-});
-
-QUnit.module('ESLint | ember-glimmer/helpers/log.js');
-QUnit.test('should pass ESLint', function(assert) {
-  assert.expect(1);
-  assert.ok(true, 'ember-glimmer/helpers/log.js should pass ESLint\n\n');
-});
-
-QUnit.module('ESLint | ember-glimmer/helpers/mut.js');
-QUnit.test('should pass ESLint', function(assert) {
-  assert.expect(1);
-  assert.ok(true, 'ember-glimmer/helpers/mut.js should pass ESLint\n\n');
-});
-
-QUnit.module('ESLint | ember-glimmer/helpers/query-param.js');
-QUnit.test('should pass ESLint', function(assert) {
-  assert.expect(1);
-  assert.ok(true, 'ember-glimmer/helpers/query-param.js should pass ESLint\n\n');
-});
-
-QUnit.module('ESLint | ember-glimmer/helpers/readonly.js');
-QUnit.test('should pass ESLint', function(assert) {
-  assert.expect(1);
-  assert.ok(true, 'ember-glimmer/helpers/readonly.js should pass ESLint\n\n');
-});
-
-QUnit.module('ESLint | ember-glimmer/helpers/unbound.js');
-QUnit.test('should pass ESLint', function(assert) {
-  assert.expect(1);
-  assert.ok(true, 'ember-glimmer/helpers/unbound.js should pass ESLint\n\n');
-});
-
-QUnit.module('ESLint | ember-glimmer/index.js');
-QUnit.test('should pass ESLint', function(assert) {
-  assert.expect(1);
-  assert.ok(true, 'ember-glimmer/index.js should pass ESLint\n\n');
-});
-
-QUnit.module('ESLint | ember-glimmer/modifiers/action.js');
-QUnit.test('should pass ESLint', function(assert) {
-  assert.expect(1);
-  assert.ok(true, 'ember-glimmer/modifiers/action.js should pass ESLint\n\n');
-});
-
-QUnit.module('ESLint | ember-glimmer/protocol-for-url.js');
-QUnit.test('should pass ESLint', function(assert) {
-  assert.expect(1);
-  assert.ok(true, 'ember-glimmer/protocol-for-url.js should pass ESLint\n\n');
-});
-
-QUnit.module('ESLint | ember-glimmer/renderer.js');
-QUnit.test('should pass ESLint', function(assert) {
-  assert.expect(1);
-  assert.ok(true, 'ember-glimmer/renderer.js should pass ESLint\n\n');
-});
-
-QUnit.module('ESLint | ember-glimmer/setup-registry.js');
-QUnit.test('should pass ESLint', function(assert) {
-  assert.expect(1);
-  assert.ok(true, 'ember-glimmer/setup-registry.js should pass ESLint\n\n');
-});
-
-QUnit.module('ESLint | ember-glimmer/syntax.js');
-QUnit.test('should pass ESLint', function(assert) {
-  assert.expect(1);
-  assert.ok(true, 'ember-glimmer/syntax.js should pass ESLint\n\n');
-});
-
-QUnit.module('ESLint | ember-glimmer/syntax/-text-area.js');
-QUnit.test('should pass ESLint', function(assert) {
-  assert.expect(1);
-  assert.ok(true, 'ember-glimmer/syntax/-text-area.js should pass ESLint\n\n');
-});
-
-QUnit.module('ESLint | ember-glimmer/syntax/dynamic-component.js');
-QUnit.test('should pass ESLint', function(assert) {
-  assert.expect(1);
-  assert.ok(true, 'ember-glimmer/syntax/dynamic-component.js should pass ESLint\n\n');
-});
-
-QUnit.module('ESLint | ember-glimmer/syntax/input.js');
-QUnit.test('should pass ESLint', function(assert) {
-  assert.expect(1);
-  assert.ok(true, 'ember-glimmer/syntax/input.js should pass ESLint\n\n');
-});
-
-QUnit.module('ESLint | ember-glimmer/syntax/mount.js');
-QUnit.test('should pass ESLint', function(assert) {
-  assert.expect(1);
-  assert.ok(true, 'ember-glimmer/syntax/mount.js should pass ESLint\n\n');
-});
-
-QUnit.module('ESLint | ember-glimmer/syntax/outlet.js');
-QUnit.test('should pass ESLint', function(assert) {
-  assert.expect(1);
-  assert.ok(true, 'ember-glimmer/syntax/outlet.js should pass ESLint\n\n');
-});
-
-QUnit.module('ESLint | ember-glimmer/syntax/render.js');
-QUnit.test('should pass ESLint', function(assert) {
-  assert.expect(1);
-  assert.ok(true, 'ember-glimmer/syntax/render.js should pass ESLint\n\n');
-});
-
-QUnit.module('ESLint | ember-glimmer/syntax/utils.js');
-QUnit.test('should pass ESLint', function(assert) {
-  assert.expect(1);
-  assert.ok(true, 'ember-glimmer/syntax/utils.js should pass ESLint\n\n');
-});
-
-QUnit.module('ESLint | ember-glimmer/template.js');
-QUnit.test('should pass ESLint', function(assert) {
-  assert.expect(1);
-  assert.ok(true, 'ember-glimmer/template.js should pass ESLint\n\n');
-});
-
-QUnit.module('ESLint | ember-glimmer/template_registry.js');
-QUnit.test('should pass ESLint', function(assert) {
-  assert.expect(1);
-  assert.ok(true, 'ember-glimmer/template_registry.js should pass ESLint\n\n');
-});
-
-QUnit.module('ESLint | ember-glimmer/templates/component.js');
-QUnit.test('should pass ESLint', function(assert) {
-  assert.expect(1);
-  assert.ok(true, 'ember-glimmer/templates/component.js should pass ESLint\n\n');
-});
-
-QUnit.module('ESLint | ember-glimmer/templates/empty.js');
-QUnit.test('should pass ESLint', function(assert) {
-  assert.expect(1);
-  assert.ok(true, 'ember-glimmer/templates/empty.js should pass ESLint\n\n');
-});
-
-QUnit.module('ESLint | ember-glimmer/templates/link-to.js');
-QUnit.test('should pass ESLint', function(assert) {
-  assert.expect(1);
-  assert.ok(true, 'ember-glimmer/templates/link-to.js should pass ESLint\n\n');
-});
-
-QUnit.module('ESLint | ember-glimmer/templates/outlet.js');
-QUnit.test('should pass ESLint', function(assert) {
-  assert.expect(1);
-  assert.ok(true, 'ember-glimmer/templates/outlet.js should pass ESLint\n\n');
-});
-
-QUnit.module('ESLint | ember-glimmer/templates/root.js');
-QUnit.test('should pass ESLint', function(assert) {
-  assert.expect(1);
-  assert.ok(true, 'ember-glimmer/templates/root.js should pass ESLint\n\n');
-});
-
 enifed('ember-glimmer/tests/integration/application/actions-test', ['ember-babel', 'ember-runtime', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/helpers'], function (_emberBabel, _emberRuntime, _testCase, _helpers) {
   'use strict';
 
@@ -8312,7 +8096,7 @@ QUnit.test('should pass ESLint', function(assert) {
   assert.ok(true, 'ember-glimmer/tests/integration/application/actions-test.js should pass ESLint\n\n');
 });
 
-enifed('ember-glimmer/tests/integration/application/engine-test', ['ember-babel', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-glimmer/tests/utils/helpers', 'ember-runtime', 'ember-glimmer', 'ember-application', 'ember-routing'], function (_emberBabel, _testCase, _abstractTestCase, _helpers, _emberRuntime, _emberGlimmer, _emberApplication, _emberRouting) {
+enifed('ember-glimmer/tests/integration/application/engine-test', ['ember-babel', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-glimmer/tests/utils/helpers', 'ember-runtime', 'ember-glimmer', 'ember-application', 'ember-routing', 'ember-metal'], function (_emberBabel, _testCase, _abstractTestCase, _helpers, _emberRuntime, _emberGlimmer, _emberApplication, _emberRouting, _emberMetal) {
   'use strict';
 
   var _templateObject = (0, _emberBabel.taggedTemplateLiteralLoose)(['\n      <h1>{{contextType}}</h1>\n      {{ambiguous-curlies}}\n\n      {{outlet}}\n    '], ['\n      <h1>{{contextType}}</h1>\n      {{ambiguous-curlies}}\n\n      {{outlet}}\n    ']),
@@ -8678,8 +8462,15 @@ enifed('ember-glimmer/tests/integration/application/engine-test', ['ember-babel'
 
       assert.expect(2);
 
+      var errorEntered = _emberRuntime.RSVP.defer();
+
       this.setupAppAndRoutableEngine();
       this.additionalEngineRegistrations(function () {
+        this.register('route:application_error', _emberRouting.Route.extend({
+          activate: function () {
+            _emberMetal.run.next(errorEntered.resolve);
+          }
+        }));
         this.register('template:application_error', (0, _helpers.compile)('Error! {{model.message}}'));
         this.register('route:post', _emberRouting.Route.extend({
           model: function () {
@@ -8692,6 +8483,8 @@ enifed('ember-glimmer/tests/integration/application/engine-test', ['ember-babel'
         _this12.assertText('Application');
         return _this12.transitionTo('blog.post');
       }).then(function () {
+        return errorEntered.promise;
+      }).then(function () {
         _this12.assertText('ApplicationError! Oh, noes!');
       });
     };
@@ -8701,8 +8494,15 @@ enifed('ember-glimmer/tests/integration/application/engine-test', ['ember-babel'
 
       assert.expect(2);
 
+      var errorEntered = _emberRuntime.RSVP.defer();
+
       this.setupAppAndRoutableEngine();
       this.additionalEngineRegistrations(function () {
+        this.register('route:error', _emberRouting.Route.extend({
+          activate: function () {
+            _emberMetal.run.next(errorEntered.resolve);
+          }
+        }));
         this.register('template:error', (0, _helpers.compile)('Error! {{model.message}}'));
         this.register('route:post', _emberRouting.Route.extend({
           model: function () {
@@ -8715,6 +8515,8 @@ enifed('ember-glimmer/tests/integration/application/engine-test', ['ember-babel'
         _this13.assertText('Application');
         return _this13.transitionTo('blog.post');
       }).then(function () {
+        return errorEntered.promise;
+      }).then(function () {
         _this13.assertText('ApplicationEngineError! Oh, noes!');
       });
     };
@@ -8724,8 +8526,15 @@ enifed('ember-glimmer/tests/integration/application/engine-test', ['ember-babel'
 
       assert.expect(2);
 
+      var errorEntered = _emberRuntime.RSVP.defer();
+
       this.setupAppAndRoutableEngine();
       this.additionalEngineRegistrations(function () {
+        this.register('route:post_error', _emberRouting.Route.extend({
+          activate: function () {
+            _emberMetal.run.next(errorEntered.resolve);
+          }
+        }));
         this.register('template:post_error', (0, _helpers.compile)('Error! {{model.message}}'));
         this.register('route:post', _emberRouting.Route.extend({
           model: function () {
@@ -8738,6 +8547,8 @@ enifed('ember-glimmer/tests/integration/application/engine-test', ['ember-babel'
         _this14.assertText('Application');
         return _this14.transitionTo('blog.post');
       }).then(function () {
+        return errorEntered.promise;
+      }).then(function () {
         _this14.assertText('ApplicationEngineError! Oh, noes!');
       });
     };
@@ -8747,8 +8558,15 @@ enifed('ember-glimmer/tests/integration/application/engine-test', ['ember-babel'
 
       assert.expect(2);
 
+      var errorEntered = _emberRuntime.RSVP.defer();
+
       this.setupAppAndRoutableEngine();
       this.additionalEngineRegistrations(function () {
+        this.register('route:post.error', _emberRouting.Route.extend({
+          activate: function () {
+            _emberMetal.run.next(errorEntered.resolve);
+          }
+        }));
         this.register('template:post.error', (0, _helpers.compile)('Error! {{model.message}}'));
         this.register('route:post.comments', _emberRouting.Route.extend({
           model: function () {
@@ -8761,6 +8579,8 @@ enifed('ember-glimmer/tests/integration/application/engine-test', ['ember-babel'
         _this15.assertText('Application');
         return _this15.transitionTo('blog.post.comments');
       }).then(function () {
+        return errorEntered.promise;
+      }).then(function () {
         _this15.assertText('ApplicationEngineError! Oh, noes!');
       });
     };
@@ -8769,18 +8589,23 @@ enifed('ember-glimmer/tests/integration/application/engine-test', ['ember-babel'
       var _this16 = this;
 
       assert.expect(3);
+      var done = assert.async();
 
-      var resolveLoading = void 0;
+      var loadingEntered = _emberRuntime.RSVP.defer();
+      var resolveLoading = _emberRuntime.RSVP.defer();
 
       this.setupAppAndRoutableEngine();
       this.additionalEngineRegistrations(function () {
+        this.register('route:application_loading', _emberRouting.Route.extend({
+          activate: function () {
+            _emberMetal.run.next(loadingEntered.resolve);
+          }
+        }));
         this.register('template:application_loading', (0, _helpers.compile)('Loading'));
         this.register('template:post', (0, _helpers.compile)('Post'));
         this.register('route:post', _emberRouting.Route.extend({
           model: function () {
-            return new _emberRuntime.RSVP.Promise(function (resolve) {
-              resolveLoading = resolve;
-            });
+            return resolveLoading.promise;
           }
         }));
       });
@@ -8789,16 +8614,17 @@ enifed('ember-glimmer/tests/integration/application/engine-test', ['ember-babel'
         _this16.assertText('Application');
         var transition = _this16.transitionTo('blog.post');
 
-        _this16.runTaskNext(function () {
+        loadingEntered.promise.then(function () {
           _this16.assertText('ApplicationLoading');
-          resolveLoading();
-        });
+          resolveLoading.resolve();
 
-        return transition.then(function () {
           _this16.runTaskNext(function () {
-            return _this16.assertText('ApplicationEnginePost');
+            _this16.assertText('ApplicationEnginePost');
+            done();
           });
         });
+
+        return transition;
       });
     };
 
@@ -8806,18 +8632,23 @@ enifed('ember-glimmer/tests/integration/application/engine-test', ['ember-babel'
       var _this17 = this;
 
       assert.expect(3);
+      var done = assert.async();
 
-      var resolveLoading = void 0;
+      var loadingEntered = _emberRuntime.RSVP.defer();
+      var resolveLoading = _emberRuntime.RSVP.defer();
 
       this.setupAppAndRoutableEngine();
       this.additionalEngineRegistrations(function () {
+        this.register('route:loading', _emberRouting.Route.extend({
+          activate: function () {
+            _emberMetal.run.next(loadingEntered.resolve);
+          }
+        }));
         this.register('template:loading', (0, _helpers.compile)('Loading'));
         this.register('template:post', (0, _helpers.compile)('Post'));
         this.register('route:post', _emberRouting.Route.extend({
           model: function () {
-            return new _emberRuntime.RSVP.Promise(function (resolve) {
-              resolveLoading = resolve;
-            });
+            return resolveLoading.promise;
           }
         }));
       });
@@ -8826,16 +8657,17 @@ enifed('ember-glimmer/tests/integration/application/engine-test', ['ember-babel'
         _this17.assertText('Application');
         var transition = _this17.transitionTo('blog.post');
 
-        _this17.runTaskNext(function () {
+        loadingEntered.promise.then(function () {
           _this17.assertText('ApplicationEngineLoading');
-          resolveLoading();
-        });
+          resolveLoading.resolve();
 
-        return transition.then(function () {
           _this17.runTaskNext(function () {
-            return _this17.assertText('ApplicationEnginePost');
+            _this17.assertText('ApplicationEnginePost');
+            done();
           });
         });
+
+        return transition;
       });
     };
 
@@ -8882,20 +8714,25 @@ enifed('ember-glimmer/tests/integration/application/engine-test', ['ember-babel'
       var _this19 = this;
 
       assert.expect(3);
+      var done = assert.async();
 
-      var resolveLoading = void 0;
+      var loadingEntered = _emberRuntime.RSVP.defer();
+      var resolveLoading = _emberRuntime.RSVP.defer();
 
       this.setupAppAndRoutableEngine();
       this.additionalEngineRegistrations(function () {
         this.register('template:post', (0, _helpers.compile)('{{outlet}}'));
         this.register('template:post.comments', (0, _helpers.compile)('Comments'));
+        this.register('route:post.loading', _emberRouting.Route.extend({
+          activate: function () {
+            _emberMetal.run.next(loadingEntered.resolve);
+          }
+        }));
         this.register('template:post.loading', (0, _helpers.compile)('Loading'));
         this.register('template:post.likes', (0, _helpers.compile)('Likes'));
         this.register('route:post.likes', _emberRouting.Route.extend({
           model: function () {
-            return new _emberRuntime.RSVP.Promise(function (resolve) {
-              resolveLoading = resolve;
-            });
+            return resolveLoading.promise;
           }
         }));
       });
@@ -8904,16 +8741,17 @@ enifed('ember-glimmer/tests/integration/application/engine-test', ['ember-babel'
         _this19.assertText('ApplicationEngineComments');
         var transition = _this19.transitionTo('blog.post.likes');
 
-        _this19.runTaskNext(function () {
+        loadingEntered.promise.then(function () {
           _this19.assertText('ApplicationEngineLoading');
-          resolveLoading();
-        });
+          resolveLoading.resolve();
 
-        return transition.then(function () {
           _this19.runTaskNext(function () {
-            return _this19.assertText('ApplicationEngineLikes');
+            _this19.assertText('ApplicationEngineLikes');
+            done();
           });
         });
+
+        return transition;
       });
     };
 
@@ -8958,6 +8796,77 @@ enifed('ember-glimmer/tests/integration/application/engine-test', ['ember-babel'
       });
     };
 
+    _class.prototype['@test visit() routable engine which errors on init'] = function testVisitRoutableEngineWhichErrorsOnInit(assert) {
+      var _this22 = this;
+
+      assert.expect(1);
+
+      var hooks = [];
+
+      this.additionalEngineRegistrations(function () {
+        this.register('route:application', _emberRouting.Route.extend({
+          init: function () {
+            throw new Error('Whoops! Something went wrong...');
+          }
+        }));
+      });
+
+      this.setupAppAndRoutableEngine(hooks);
+
+      return this.visit('/', { shouldRender: true }).then(function () {
+        return _this22.visit('/blog');
+      }).catch(function (error) {
+        assert.equal(error.message, 'Whoops! Something went wrong...');
+      });
+    };
+
+    (0, _emberBabel.createClass)(_class, [{
+      key: 'routerOptions',
+      get: function () {
+        var assert = this.assert;
+
+        return {
+          location: 'none',
+
+          _getHandlerFunction: function () {
+            var _this23 = this;
+
+            var syncHandler = this._super.apply(this, arguments);
+            this._enginePromises = Object.create(null);
+            this._resolvedEngines = Object.create(null);
+
+            return function (name) {
+              var engineInfo = _this23._engineInfoByRoute[name];
+              if (!engineInfo) {
+                return syncHandler(name);
+              }
+
+              var engineName = engineInfo.name;
+              if (_this23._resolvedEngines[engineName]) {
+                return syncHandler(name);
+              }
+
+              var enginePromise = _this23._enginePromises[engineName];
+
+              if (!enginePromise) {
+                enginePromise = new _emberRuntime.RSVP.Promise(function (resolve) {
+                  setTimeout(function () {
+                    _this23._resolvedEngines[engineName] = true;
+
+                    resolve();
+                  }, 1);
+                });
+                _this23._enginePromises[engineName] = enginePromise;
+              }
+
+              return enginePromise.then(function () {
+                return syncHandler(name);
+              });
+            };
+          }
+        };
+      }
+    }]);
     return _class;
   }(_testCase.ApplicationTest));
 });
@@ -11440,8 +11349,40 @@ enifed('ember-glimmer/tests/integration/components/class-bindings-test', ['ember
       }, /classNameBindings must not have spaces in them/i);
     };
 
-    _class.prototype['@test it can set class name bindings in the constructor'] = function testItCanSetClassNameBindingsInTheConstructor() {
+    _class.prototype['@test it asserts that items must be strings'] = function testItAssertsThatItemsMustBeStrings() {
       var _this11 = this;
+
+      var FooBarComponent = _helpers.Component.extend({
+        foo: 'foo',
+        bar: 'bar',
+        classNameBindings: ['foo',, 'bar'] // eslint-disable-line no-sparse-arrays
+      });
+
+      this.registerComponent('foo-bar', { ComponentClass: FooBarComponent, template: 'hello' });
+
+      expectAssertion(function () {
+        _this11.render('{{foo-bar}}');
+      }, /classNameBindings must be non-empty strings/);
+    };
+
+    _class.prototype['@test it asserts that items must be non-empty strings'] = function testItAssertsThatItemsMustBeNonEmptyStrings() {
+      var _this12 = this;
+
+      var FooBarComponent = _helpers.Component.extend({
+        foo: 'foo',
+        bar: 'bar',
+        classNameBindings: ['foo', '', 'bar']
+      });
+
+      this.registerComponent('foo-bar', { ComponentClass: FooBarComponent, template: 'hello' });
+
+      expectAssertion(function () {
+        _this12.render('{{foo-bar}}');
+      }, /classNameBindings must be non-empty strings/);
+    };
+
+    _class.prototype['@test it can set class name bindings in the constructor'] = function testItCanSetClassNameBindingsInTheConstructor() {
+      var _this13 = this;
 
       var FooBarComponent = _helpers.Component.extend({
         classNameBindings: ['foo'],
@@ -11471,7 +11412,7 @@ enifed('ember-glimmer/tests/integration/components/class-bindings-test', ['ember
       this.assertComponentElement(this.nthChild(3), { tagName: 'div', attrs: { 'class': (0, _testHelpers.classes)('ember-view foo') }, content: 'hello' });
 
       this.runTask(function () {
-        return _this11.rerender();
+        return _this13.rerender();
       });
 
       this.assertComponentElement(this.nthChild(0), { tagName: 'div', attrs: { 'class': (0, _testHelpers.classes)('ember-view foo enabled') }, content: 'hello' });
@@ -11480,8 +11421,8 @@ enifed('ember-glimmer/tests/integration/components/class-bindings-test', ['ember
       this.assertComponentElement(this.nthChild(3), { tagName: 'div', attrs: { 'class': (0, _testHelpers.classes)('ember-view foo') }, content: 'hello' });
 
       this.runTask(function () {
-        (0, _emberMetal.set)(_this11.context, 'foo', 'FOO');
-        (0, _emberMetal.set)(_this11.context, 'isEnabled', false);
+        (0, _emberMetal.set)(_this13.context, 'foo', 'FOO');
+        (0, _emberMetal.set)(_this13.context, 'isEnabled', false);
       });
 
       this.assertComponentElement(this.nthChild(0), { tagName: 'div', attrs: { 'class': (0, _testHelpers.classes)('ember-view FOO') }, content: 'hello' });
@@ -11490,8 +11431,8 @@ enifed('ember-glimmer/tests/integration/components/class-bindings-test', ['ember
       this.assertComponentElement(this.nthChild(3), { tagName: 'div', attrs: { 'class': (0, _testHelpers.classes)('ember-view FOO') }, content: 'hello' });
 
       this.runTask(function () {
-        (0, _emberMetal.set)(_this11.context, 'foo', undefined);
-        (0, _emberMetal.set)(_this11.context, 'isHappy', true);
+        (0, _emberMetal.set)(_this13.context, 'foo', undefined);
+        (0, _emberMetal.set)(_this13.context, 'isHappy', true);
       });
 
       this.assertComponentElement(this.nthChild(0), { tagName: 'div', attrs: { 'class': (0, _testHelpers.classes)('ember-view') }, content: 'hello' });
@@ -11500,9 +11441,9 @@ enifed('ember-glimmer/tests/integration/components/class-bindings-test', ['ember
       this.assertComponentElement(this.nthChild(3), { tagName: 'div', attrs: { 'class': (0, _testHelpers.classes)('ember-view') }, content: 'hello' });
 
       this.runTask(function () {
-        (0, _emberMetal.set)(_this11.context, 'foo', 'foo');
-        (0, _emberMetal.set)(_this11.context, 'isEnabled', true);
-        (0, _emberMetal.set)(_this11.context, 'isHappy', false);
+        (0, _emberMetal.set)(_this13.context, 'foo', 'foo');
+        (0, _emberMetal.set)(_this13.context, 'isEnabled', true);
+        (0, _emberMetal.set)(_this13.context, 'isHappy', false);
       });
 
       this.assertComponentElement(this.nthChild(0), { tagName: 'div', attrs: { 'class': (0, _testHelpers.classes)('ember-view foo enabled') }, content: 'hello' });
@@ -11512,7 +11453,7 @@ enifed('ember-glimmer/tests/integration/components/class-bindings-test', ['ember
     };
 
     _class.prototype['@test using a computed property for classNameBindings triggers an assertion'] = function testUsingAComputedPropertyForClassNameBindingsTriggersAnAssertion() {
-      var _this12 = this;
+      var _this14 = this;
 
       var FooBarComponent = _helpers.Component.extend({
         classNameBindings: (0, _emberMetal.computed)(function () {
@@ -11523,7 +11464,7 @@ enifed('ember-glimmer/tests/integration/components/class-bindings-test', ['ember
       this.registerComponent('foo-bar', { ComponentClass: FooBarComponent, template: 'hello' });
 
       expectAssertion(function () {
-        _this12.render('{{foo-bar}}');
+        _this14.render('{{foo-bar}}');
       }, /Only arrays are allowed/);
     };
 
@@ -11539,7 +11480,7 @@ enifed('ember-glimmer/tests/integration/components/class-bindings-test', ['ember
     }
 
     _class2.prototype['@test it should apply classBinding without condition always'] = function testItShouldApplyClassBindingWithoutConditionAlways() {
-      var _this14 = this;
+      var _this16 = this;
 
       this.registerComponent('foo-bar', { template: 'hello' });
 
@@ -11548,14 +11489,14 @@ enifed('ember-glimmer/tests/integration/components/class-bindings-test', ['ember
       this.assertComponentElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': (0, _testHelpers.classes)('foo  ember-view') } });
 
       this.runTask(function () {
-        return _this14.rerender();
+        return _this16.rerender();
       });
 
       this.assertComponentElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': (0, _testHelpers.classes)('foo  ember-view') } });
     };
 
     _class2.prototype['@test it should merge classBinding with class'] = function testItShouldMergeClassBindingWithClass() {
-      var _this15 = this;
+      var _this17 = this;
 
       this.registerComponent('foo-bar', { template: 'hello' });
 
@@ -11564,14 +11505,14 @@ enifed('ember-glimmer/tests/integration/components/class-bindings-test', ['ember
       this.assertComponentElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': (0, _testHelpers.classes)('respeck myName ember-view') } });
 
       this.runTask(function () {
-        return _this15.rerender();
+        return _this17.rerender();
       });
 
       this.assertComponentElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': (0, _testHelpers.classes)('respeck myName ember-view') } });
     };
 
     _class2.prototype['@test it should apply classBinding with only truthy condition'] = function testItShouldApplyClassBindingWithOnlyTruthyCondition() {
-      var _this16 = this;
+      var _this18 = this;
 
       this.registerComponent('foo-bar', { template: 'hello' });
 
@@ -11580,14 +11521,14 @@ enifed('ember-glimmer/tests/integration/components/class-bindings-test', ['ember
       this.assertComponentElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': (0, _testHelpers.classes)('respeck  ember-view') } });
 
       this.runTask(function () {
-        return _this16.rerender();
+        return _this18.rerender();
       });
 
       this.assertComponentElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': (0, _testHelpers.classes)('respeck  ember-view') } });
     };
 
     _class2.prototype['@test it should apply classBinding with only falsy condition'] = function testItShouldApplyClassBindingWithOnlyFalsyCondition() {
-      var _this17 = this;
+      var _this19 = this;
 
       this.registerComponent('foo-bar', { template: 'hello' });
 
@@ -11596,14 +11537,14 @@ enifed('ember-glimmer/tests/integration/components/class-bindings-test', ['ember
       this.assertComponentElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': (0, _testHelpers.classes)('shade  ember-view') } });
 
       this.runTask(function () {
-        return _this17.rerender();
+        return _this19.rerender();
       });
 
       this.assertComponentElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': (0, _testHelpers.classes)('shade  ember-view') } });
     };
 
     _class2.prototype['@test it should apply nothing when classBinding is falsy but only supplies truthy class'] = function testItShouldApplyNothingWhenClassBindingIsFalsyButOnlySuppliesTruthyClass() {
-      var _this18 = this;
+      var _this20 = this;
 
       this.registerComponent('foo-bar', { template: 'hello' });
 
@@ -11612,14 +11553,14 @@ enifed('ember-glimmer/tests/integration/components/class-bindings-test', ['ember
       this.assertComponentElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': (0, _testHelpers.classes)('ember-view') } });
 
       this.runTask(function () {
-        return _this18.rerender();
+        return _this20.rerender();
       });
 
       this.assertComponentElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': (0, _testHelpers.classes)('ember-view') } });
     };
 
     _class2.prototype['@test it should apply nothing when classBinding is truthy but only supplies falsy class'] = function testItShouldApplyNothingWhenClassBindingIsTruthyButOnlySuppliesFalsyClass() {
-      var _this19 = this;
+      var _this21 = this;
 
       this.registerComponent('foo-bar', { template: 'hello' });
 
@@ -11628,14 +11569,14 @@ enifed('ember-glimmer/tests/integration/components/class-bindings-test', ['ember
       this.assertComponentElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': (0, _testHelpers.classes)('ember-view') } });
 
       this.runTask(function () {
-        return _this19.rerender();
+        return _this21.rerender();
       });
 
       this.assertComponentElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': (0, _testHelpers.classes)('ember-view') } });
     };
 
     _class2.prototype['@test it should apply classBinding with falsy condition'] = function testItShouldApplyClassBindingWithFalsyCondition() {
-      var _this20 = this;
+      var _this22 = this;
 
       this.registerComponent('foo-bar', { template: 'hello' });
 
@@ -11644,14 +11585,14 @@ enifed('ember-glimmer/tests/integration/components/class-bindings-test', ['ember
       this.assertComponentElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': (0, _testHelpers.classes)('scrub  ember-view') } });
 
       this.runTask(function () {
-        return _this20.rerender();
+        return _this22.rerender();
       });
 
       this.assertComponentElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': (0, _testHelpers.classes)('scrub  ember-view') } });
     };
 
     _class2.prototype['@test it should apply classBinding with truthy condition'] = function testItShouldApplyClassBindingWithTruthyCondition() {
-      var _this21 = this;
+      var _this23 = this;
 
       this.registerComponent('foo-bar', { template: 'hello' });
 
@@ -11660,7 +11601,7 @@ enifed('ember-glimmer/tests/integration/components/class-bindings-test', ['ember
       this.assertComponentElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': (0, _testHelpers.classes)('fresh  ember-view') } });
 
       this.runTask(function () {
-        return _this21.rerender();
+        return _this23.rerender();
       });
 
       this.assertComponentElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': (0, _testHelpers.classes)('fresh  ember-view') } });
@@ -19478,6 +19419,29 @@ enifed('ember-glimmer/tests/integration/components/link-to-test', ['ember-babel'
 
     return _class2;
   }(_testCase.ApplicationTest));
+
+  (0, _testCase.moduleFor)('Link-to component', function (_RenderingTest) {
+    (0, _emberBabel.inherits)(_class3, _RenderingTest);
+
+    function _class3() {
+      (0, _emberBabel.classCallCheck)(this, _class3);
+      return (0, _emberBabel.possibleConstructorReturn)(this, _RenderingTest.apply(this, arguments));
+    }
+
+    _class3.prototype['@test should be able to be inserted in DOM when the router is not present - block'] = function testShouldBeAbleToBeInsertedInDOMWhenTheRouterIsNotPresentBlock() {
+      this.render('{{#link-to \'index\'}}Go to Index{{/link-to}}');
+
+      this.assertText('Go to Index');
+    };
+
+    _class3.prototype['@test should be able to be inserted in DOM when the router is not present - inline'] = function testShouldBeAbleToBeInsertedInDOMWhenTheRouterIsNotPresentInline() {
+      this.render('{{link-to \'Go to Index\' \'index\'}}');
+
+      this.assertText('Go to Index');
+    };
+
+    return _class3;
+  }(_testCase.RenderingTest));
 });
 QUnit.module('ESLint | ember-glimmer/tests/integration/components/link-to-test.js');
 QUnit.test('should pass ESLint', function(assert) {
@@ -22810,6 +22774,14 @@ enifed('ember-glimmer/tests/integration/custom-component-manager-test', ['ember-
         return env.getCompiledBlock(TestLayoutCompiler, definition.template);
       };
 
+      TestComponentManager.prototype.getDestructor = function getDestructor(component) {
+        return component;
+      };
+
+      TestComponentManager.prototype.getSelf = function getSelf() {
+        return null;
+      };
+
       return TestComponentManager;
     }(_emberGlimmer.AbstractComponentManager);
 
@@ -25401,6 +25373,32 @@ enifed('ember-glimmer/tests/integration/helpers/custom-helper-test', ['ember-bab
       (0, _internalTestHelpers.runDestroy)(this.component);
 
       equal(destroyCount, 1, 'destroy is called after a view is destroyed');
+    };
+
+    _class.prototype['@test simple helper can be invoked manually via `owner.factoryFor(...).create().compute()'] = function testSimpleHelperCanBeInvokedManuallyViaOwnerFactoryForCreateCompute(assert) {
+      this.registerHelper('some-helper', function () {
+        assert.ok(true, 'some-helper helper invoked');
+        return 'lolol';
+      });
+
+      var instance = this.owner.factoryFor('helper:some-helper').create();
+
+      assert.equal(typeof instance.compute, 'function', 'expected instance.compute to be present');
+      assert.equal(instance.compute(), 'lolol', 'can invoke `.compute`');
+    };
+
+    _class.prototype['@test class-based helper can be invoked manually via `owner.factoryFor(...).create().compute()'] = function testClassBasedHelperCanBeInvokedManuallyViaOwnerFactoryForCreateCompute() {
+      this.registerHelper('some-helper', {
+        compute: function () {
+          assert.ok(true, 'some-helper helper invoked');
+          return 'lolol';
+        }
+      });
+
+      var instance = this.owner.factoryFor('helper:some-helper').create();
+
+      assert.equal(typeof instance.compute, 'function', 'expected instance.compute to be present');
+      assert.equal(instance.compute(), 'lolol', 'can invoke `.compute`');
     };
 
     return _class;
@@ -29266,6 +29264,16 @@ enifed('ember-glimmer/tests/integration/helpers/loc-test', ['ember-babel', 'embe
       this.assertText('Hallo Freund - Hallo, Mr. Pitkin', 'the bound value is correct after replacement');
     };
 
+    _class.prototype['@test it can be overriden'] = function testItCanBeOverriden() {
+      this.registerHelper('loc', function () {
+        return 'Yup';
+      });
+      this.render('{{loc greeting}}', {
+        greeting: 'Hello Friend'
+      });
+      this.assertText('Yup', 'the localized string is correct');
+    };
+
     return _class;
   }(_testCase.RenderingTest));
 });
@@ -33062,7 +33070,6 @@ enifed('ember-glimmer/tests/integration/outlet-test', ['ember-babel', 'ember-gli
           outlet: 'main',
           name: 'application',
           controller: undefined,
-          ViewClass: undefined,
           template: undefined
         },
 
@@ -33088,7 +33095,6 @@ enifed('ember-glimmer/tests/integration/outlet-test', ['ember-babel', 'ember-gli
           outlet: 'main',
           name: 'application',
           controller: undefined,
-          ViewClass: undefined,
           template: undefined
         },
 
@@ -33111,7 +33117,6 @@ enifed('ember-glimmer/tests/integration/outlet-test', ['ember-babel', 'ember-gli
           outlet: 'main',
           name: 'application',
           controller: {},
-          ViewClass: undefined,
           template: this.owner.lookup('template:application')
         },
         outlets: Object.create(null)
@@ -33133,7 +33138,6 @@ enifed('ember-glimmer/tests/integration/outlet-test', ['ember-babel', 'ember-gli
           outlet: 'main',
           name: 'index',
           controller: {},
-          ViewClass: undefined,
           template: this.owner.lookup('template:index')
         },
         outlets: Object.create(null)
@@ -33157,7 +33161,6 @@ enifed('ember-glimmer/tests/integration/outlet-test', ['ember-babel', 'ember-gli
           outlet: 'main',
           name: 'application',
           controller: {},
-          ViewClass: undefined,
           template: this.owner.lookup('template:application')
         },
         outlets: Object.create(null)
@@ -33181,7 +33184,6 @@ enifed('ember-glimmer/tests/integration/outlet-test', ['ember-babel', 'ember-gli
           outlet: 'main',
           name: 'index',
           controller: {},
-          ViewClass: undefined,
           template: this.owner.lookup('template:index')
         },
         outlets: Object.create(null)
@@ -33205,7 +33207,6 @@ enifed('ember-glimmer/tests/integration/outlet-test', ['ember-babel', 'ember-gli
           outlet: 'main',
           name: 'application',
           controller: {},
-          ViewClass: undefined,
           template: this.owner.lookup('template:application')
         },
         outlets: Object.create(null)
@@ -33229,7 +33230,6 @@ enifed('ember-glimmer/tests/integration/outlet-test', ['ember-babel', 'ember-gli
           outlet: 'main',
           name: 'special',
           controller: {},
-          ViewClass: undefined,
           template: this.owner.lookup('template:special')
         },
         outlets: Object.create(null)
@@ -33253,7 +33253,6 @@ enifed('ember-glimmer/tests/integration/outlet-test', ['ember-babel', 'ember-gli
           outlet: 'main',
           name: 'application',
           controller: {},
-          ViewClass: undefined,
           template: this.owner.lookup('template:application')
         },
         outlets: Object.create(null)
@@ -33277,7 +33276,6 @@ enifed('ember-glimmer/tests/integration/outlet-test', ['ember-babel', 'ember-gli
           outlet: 'main',
           name: 'special',
           controller: {},
-          ViewClass: undefined,
           template: this.owner.lookup('template:special')
         },
         outlets: Object.create(null)
@@ -33302,7 +33300,6 @@ enifed('ember-glimmer/tests/integration/outlet-test', ['ember-babel', 'ember-gli
           outlet: 'main',
           name: 'application',
           controller: controller,
-          ViewClass: undefined,
           template: this.owner.lookup('template:application')
         },
         outlets: Object.create(null)
@@ -33326,7 +33323,6 @@ enifed('ember-glimmer/tests/integration/outlet-test', ['ember-babel', 'ember-gli
           outlet: 'main',
           name: 'foo',
           controller: {},
-          ViewClass: undefined,
           template: this.owner.lookup('template:foo')
         },
         outlets: Object.create(null)
@@ -33340,7 +33336,6 @@ enifed('ember-glimmer/tests/integration/outlet-test', ['ember-babel', 'ember-gli
           outlet: 'main',
           name: 'bar',
           controller: {},
-          ViewClass: undefined,
           template: this.owner.lookup('template:bar')
         },
         outlets: Object.create(null)
@@ -33381,7 +33376,6 @@ enifed('ember-glimmer/tests/integration/outlet-test', ['ember-babel', 'ember-gli
           outlet: 'main',
           name: 'outer',
           controller: {},
-          ViewClass: undefined,
           template: this.owner.lookup('template:outer')
         },
         outlets: {
@@ -33392,7 +33386,6 @@ enifed('ember-glimmer/tests/integration/outlet-test', ['ember-babel', 'ember-gli
               outlet: 'main',
               name: 'inner',
               controller: {},
-              ViewClass: undefined,
               template: this.owner.lookup('template:inner')
             },
             outlets: Object.create(null)
@@ -34488,7 +34481,7 @@ enifed('ember-glimmer/tests/integration/syntax/each-test', ['ember-babel', 'embe
       this.assertText('Hello Planet EarthGlobe World');
 
       this.runTask(function () {
-        return _this11.replace(2, 4, { text: 'my' });
+        return _this11.replace(2, 4, [{ text: 'my' }]);
       });
 
       this.assertText('Hello my World');
@@ -35192,7 +35185,7 @@ enifed('ember-glimmer/tests/integration/syntax/each-test', ['ember-babel', 'embe
 
       this.runTask(function () {
         (0, _emberMetal.get)(_this37.context, 'first').pushObject('I');
-        (0, _emberMetal.get)(_this37.context, 'ninth').replace(0, 1, 'K');
+        (0, _emberMetal.get)(_this37.context, 'ninth').replace(0, 1, ['K']);
       });
 
       this.assertText('O-Limbo-D-K-D-Wrath-K-Wrath-Limbo-I-D-K-D-Wrath-K-Wrath-I-O');
@@ -35224,7 +35217,7 @@ enifed('ember-glimmer/tests/integration/syntax/each-test', ['ember-babel', 'embe
 
       this.runTask(function () {
         var name = (0, _emberMetal.get)(_this38.context, 'name');
-        name.objectAt(0).replace(0, 1, 'lady');
+        name.objectAt(0).replace(0, 1, ['lady']);
         name.pushObject(['bird']);
       });
 
@@ -36024,7 +36017,7 @@ enifed('ember-glimmer/tests/integration/syntax/with-test', ['ember-babel', 'embe
 
       this.runTask(function () {
         var array = (0, _emberMetal.get)(_this9.context, 'arrayThing');
-        array.replace(0, 1, 'Goodbye');
+        array.replace(0, 1, ['Goodbye']);
         (0, _emberRuntime.removeAt)(array, 1);
         array.insertAt(1, ', ');
         array.pushObject('!');
@@ -38057,58 +38050,262 @@ QUnit.test('should pass ESLint', function(assert) {
   assert.ok(true, 'ember-glimmer/tests/utils/test-helpers.js should pass ESLint\n\n');
 });
 
-QUnit.module('ESLint | ember-glimmer/utils/bindings.js');
+QUnit.module('ESLint | ember-metal/lib/alias.js');
 QUnit.test('should pass ESLint', function(assert) {
   assert.expect(1);
-  assert.ok(true, 'ember-glimmer/utils/bindings.js should pass ESLint\n\n');
+  assert.ok(true, 'ember-metal/lib/alias.js should pass ESLint\n\n');
 });
 
-QUnit.module('ESLint | ember-glimmer/utils/curly-component-state-bucket.js');
+QUnit.module('ESLint | ember-metal/lib/binding.js');
 QUnit.test('should pass ESLint', function(assert) {
   assert.expect(1);
-  assert.ok(true, 'ember-glimmer/utils/curly-component-state-bucket.js should pass ESLint\n\n');
+  assert.ok(true, 'ember-metal/lib/binding.js should pass ESLint\n\n');
 });
 
-QUnit.module('ESLint | ember-glimmer/utils/debug-stack.js');
+QUnit.module('ESLint | ember-metal/lib/cache.js');
 QUnit.test('should pass ESLint', function(assert) {
   assert.expect(1);
-  assert.ok(true, 'ember-glimmer/utils/debug-stack.js should pass ESLint\n\n');
+  assert.ok(true, 'ember-metal/lib/cache.js should pass ESLint\n\n');
 });
 
-QUnit.module('ESLint | ember-glimmer/utils/iterable.js');
+QUnit.module('ESLint | ember-metal/lib/chains.js');
 QUnit.test('should pass ESLint', function(assert) {
   assert.expect(1);
-  assert.ok(true, 'ember-glimmer/utils/iterable.js should pass ESLint\n\n');
+  assert.ok(true, 'ember-metal/lib/chains.js should pass ESLint\n\n');
 });
 
-QUnit.module('ESLint | ember-glimmer/utils/process-args.js');
+QUnit.module('ESLint | ember-metal/lib/computed.js');
 QUnit.test('should pass ESLint', function(assert) {
   assert.expect(1);
-  assert.ok(true, 'ember-glimmer/utils/process-args.js should pass ESLint\n\n');
+  assert.ok(true, 'ember-metal/lib/computed.js should pass ESLint\n\n');
 });
 
-QUnit.module('ESLint | ember-glimmer/utils/references.js');
+QUnit.module('ESLint | ember-metal/lib/core.js');
 QUnit.test('should pass ESLint', function(assert) {
   assert.expect(1);
-  assert.ok(true, 'ember-glimmer/utils/references.js should pass ESLint\n\n');
+  assert.ok(true, 'ember-metal/lib/core.js should pass ESLint\n\n');
 });
 
-QUnit.module('ESLint | ember-glimmer/utils/string.js');
+QUnit.module('ESLint | ember-metal/lib/dependent_keys.js');
 QUnit.test('should pass ESLint', function(assert) {
   assert.expect(1);
-  assert.ok(true, 'ember-glimmer/utils/string.js should pass ESLint\n\n');
+  assert.ok(true, 'ember-metal/lib/dependent_keys.js should pass ESLint\n\n');
 });
 
-QUnit.module('ESLint | ember-glimmer/utils/to-bool.js');
+QUnit.module('ESLint | ember-metal/lib/deprecate_property.js');
 QUnit.test('should pass ESLint', function(assert) {
   assert.expect(1);
-  assert.ok(true, 'ember-glimmer/utils/to-bool.js should pass ESLint\n\n');
+  assert.ok(true, 'ember-metal/lib/deprecate_property.js should pass ESLint\n\n');
 });
 
-QUnit.module('ESLint | ember-glimmer/views/outlet.js');
+QUnit.module('ESLint | ember-metal/lib/descriptor.js');
 QUnit.test('should pass ESLint', function(assert) {
   assert.expect(1);
-  assert.ok(true, 'ember-glimmer/views/outlet.js should pass ESLint\n\n');
+  assert.ok(true, 'ember-metal/lib/descriptor.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | ember-metal/lib/error_handler.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'ember-metal/lib/error_handler.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | ember-metal/lib/events.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'ember-metal/lib/events.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | ember-metal/lib/expand_properties.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'ember-metal/lib/expand_properties.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | ember-metal/lib/get_properties.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'ember-metal/lib/get_properties.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | ember-metal/lib/index.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'ember-metal/lib/index.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | ember-metal/lib/injected_property.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'ember-metal/lib/injected_property.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | ember-metal/lib/instrumentation.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'ember-metal/lib/instrumentation.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | ember-metal/lib/is_blank.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'ember-metal/lib/is_blank.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | ember-metal/lib/is_empty.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'ember-metal/lib/is_empty.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | ember-metal/lib/is_none.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'ember-metal/lib/is_none.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | ember-metal/lib/is_present.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'ember-metal/lib/is_present.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | ember-metal/lib/is_proxy.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'ember-metal/lib/is_proxy.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | ember-metal/lib/libraries.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'ember-metal/lib/libraries.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | ember-metal/lib/map.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'ember-metal/lib/map.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | ember-metal/lib/merge.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'ember-metal/lib/merge.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | ember-metal/lib/meta.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'ember-metal/lib/meta.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | ember-metal/lib/meta_listeners.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'ember-metal/lib/meta_listeners.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | ember-metal/lib/mixin.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'ember-metal/lib/mixin.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | ember-metal/lib/observer.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'ember-metal/lib/observer.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | ember-metal/lib/observer_set.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'ember-metal/lib/observer_set.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | ember-metal/lib/path_cache.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'ember-metal/lib/path_cache.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | ember-metal/lib/properties.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'ember-metal/lib/properties.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | ember-metal/lib/property_events.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'ember-metal/lib/property_events.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | ember-metal/lib/property_get.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'ember-metal/lib/property_get.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | ember-metal/lib/property_set.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'ember-metal/lib/property_set.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | ember-metal/lib/replace.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'ember-metal/lib/replace.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | ember-metal/lib/run_loop.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'ember-metal/lib/run_loop.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | ember-metal/lib/set_properties.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'ember-metal/lib/set_properties.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | ember-metal/lib/tags.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'ember-metal/lib/tags.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | ember-metal/lib/transaction.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'ember-metal/lib/transaction.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | ember-metal/lib/watch_key.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'ember-metal/lib/watch_key.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | ember-metal/lib/watch_path.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'ember-metal/lib/watch_path.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | ember-metal/lib/watching.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'ember-metal/lib/watching.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | ember-metal/lib/weak_map.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'ember-metal/lib/weak_map.js should pass ESLint\n\n');
 });
 
 enifed('ember-metal/tests/accessors/get_path_test', ['ember-metal'], function (_emberMetal) {
@@ -42199,19 +42396,19 @@ enifed('ember-metal/tests/map_test', ['ember-metal'], function (_emberMetal) {
     });
 
     QUnit.test('forEach without proper callback', function () {
-      QUnit.throws(function () {
+      expectAssertion(function () {
         map.forEach();
       }, '[object Undefined] is not a function');
 
-      QUnit.throws(function () {
+      expectAssertion(function () {
         map.forEach(undefined);
       }, '[object Undefined] is not a function');
 
-      QUnit.throws(function () {
+      expectAssertion(function () {
         map.forEach(1);
       }, '[object Number] is not a function');
 
-      QUnit.throws(function () {
+      expectAssertion(function () {
         map.forEach({});
       }, '[object Object] is not a function');
 
@@ -42220,7 +42417,7 @@ enifed('ember-metal/tests/map_test', ['ember-metal'], function (_emberMetal) {
       });
       // ensure the error happens even if no data is present
       equal(map.size, 0);
-      QUnit.throws(function () {
+      expectAssertion(function () {
         map.forEach({});
       }, '[object Object] is not a function');
     });
@@ -42432,13 +42629,6 @@ enifed('ember-metal/tests/map_test', ['ember-metal'], function (_emberMetal) {
     equal(map.constructor, _emberMetal.Map);
   });
 
-  QUnit.test('Map() without `new`', function () {
-    QUnit.throws(function () {
-      // jshint newcap:false
-      (0, _emberMetal.Map)();
-    }, /Constructor Map requires 'new'/);
-  });
-
   QUnit.test('MapWithDefault.prototype.constructor', function () {
     var map = new _emberMetal.MapWithDefault({
       defaultValue: function (key) {
@@ -42485,13 +42675,6 @@ enifed('ember-metal/tests/map_test', ['ember-metal'], function (_emberMetal) {
 
       map = _emberMetal.OrderedSet.create();
     }
-  });
-
-  QUnit.test('OrderedSet() without `new`', function () {
-    QUnit.throws(function () {
-      // jshint newcap:false
-      (0, _emberMetal.OrderedSet)();
-    }, /Constructor OrderedSet requires 'new'/);
   });
 
   QUnit.test('add returns the set', function () {
@@ -45651,9 +45834,7 @@ enifed('ember-metal/tests/run_loop/later_test', ['ember-utils', 'ember-metal'], 
   // run loop has to flush, it would have considered
   // the timer already expired.
   function pauseUntil(time) {
-    // jscs:disable
-    while (+new Date() < time) {} /* do nothing - sleeping */
-    // jscs:enable
+    while (+new Date() < time) {/* do nothing - sleeping */}
   }
 
   QUnit.module('run.later', {
@@ -46739,7 +46920,7 @@ enifed('ember-metal/tests/watching/watch_test', ['ember-environment', 'ember-met
     equal(meta_objB.peekWatching('foo'), 1, 'should be watching foo');
     equal(meta_objB.readableChainWatchers().has('foo', chainNode), true, 'should have chain watcher');
 
-    (0, _emberMetal.destroy)(objA);
+    (0, _emberMetal.deleteMeta)(objA);
 
     equal(meta_objB.peekWatching('foo'), 0, 'should not be watching foo');
     equal(meta_objB.readableChainWatchers().has('foo', chainNode), false, 'should not have chain watcher');
@@ -46939,118 +47120,124 @@ QUnit.test('should pass ESLint', function(assert) {
   assert.ok(true, 'ember-metal/tests/weak_map_test.js should pass ESLint\n\n');
 });
 
-QUnit.module('ESLint | ember-routing/ext/controller.js');
+QUnit.module('ESLint | ember-routing/lib/ext/controller.js');
 QUnit.test('should pass ESLint', function(assert) {
   assert.expect(1);
-  assert.ok(true, 'ember-routing/ext/controller.js should pass ESLint\n\n');
+  assert.ok(true, 'ember-routing/lib/ext/controller.js should pass ESLint\n\n');
 });
 
-QUnit.module('ESLint | ember-routing/ext/run_loop.js');
+QUnit.module('ESLint | ember-routing/lib/ext/run_loop.js');
 QUnit.test('should pass ESLint', function(assert) {
   assert.expect(1);
-  assert.ok(true, 'ember-routing/ext/run_loop.js should pass ESLint\n\n');
+  assert.ok(true, 'ember-routing/lib/ext/run_loop.js should pass ESLint\n\n');
 });
 
-QUnit.module('ESLint | ember-routing/index.js');
+QUnit.module('ESLint | ember-routing/lib/index.js');
 QUnit.test('should pass ESLint', function(assert) {
   assert.expect(1);
-  assert.ok(true, 'ember-routing/index.js should pass ESLint\n\n');
+  assert.ok(true, 'ember-routing/lib/index.js should pass ESLint\n\n');
 });
 
-QUnit.module('ESLint | ember-routing/location/api.js');
+QUnit.module('ESLint | ember-routing/lib/location/api.js');
 QUnit.test('should pass ESLint', function(assert) {
   assert.expect(1);
-  assert.ok(true, 'ember-routing/location/api.js should pass ESLint\n\n');
+  assert.ok(true, 'ember-routing/lib/location/api.js should pass ESLint\n\n');
 });
 
-QUnit.module('ESLint | ember-routing/location/auto_location.js');
+QUnit.module('ESLint | ember-routing/lib/location/auto_location.js');
 QUnit.test('should pass ESLint', function(assert) {
   assert.expect(1);
-  assert.ok(true, 'ember-routing/location/auto_location.js should pass ESLint\n\n');
+  assert.ok(true, 'ember-routing/lib/location/auto_location.js should pass ESLint\n\n');
 });
 
-QUnit.module('ESLint | ember-routing/location/hash_location.js');
+QUnit.module('ESLint | ember-routing/lib/location/hash_location.js');
 QUnit.test('should pass ESLint', function(assert) {
   assert.expect(1);
-  assert.ok(true, 'ember-routing/location/hash_location.js should pass ESLint\n\n');
+  assert.ok(true, 'ember-routing/lib/location/hash_location.js should pass ESLint\n\n');
 });
 
-QUnit.module('ESLint | ember-routing/location/history_location.js');
+QUnit.module('ESLint | ember-routing/lib/location/history_location.js');
 QUnit.test('should pass ESLint', function(assert) {
   assert.expect(1);
-  assert.ok(true, 'ember-routing/location/history_location.js should pass ESLint\n\n');
+  assert.ok(true, 'ember-routing/lib/location/history_location.js should pass ESLint\n\n');
 });
 
-QUnit.module('ESLint | ember-routing/location/none_location.js');
+QUnit.module('ESLint | ember-routing/lib/location/none_location.js');
 QUnit.test('should pass ESLint', function(assert) {
   assert.expect(1);
-  assert.ok(true, 'ember-routing/location/none_location.js should pass ESLint\n\n');
+  assert.ok(true, 'ember-routing/lib/location/none_location.js should pass ESLint\n\n');
 });
 
-QUnit.module('ESLint | ember-routing/location/util.js');
+QUnit.module('ESLint | ember-routing/lib/location/util.js');
 QUnit.test('should pass ESLint', function(assert) {
   assert.expect(1);
-  assert.ok(true, 'ember-routing/location/util.js should pass ESLint\n\n');
+  assert.ok(true, 'ember-routing/lib/location/util.js should pass ESLint\n\n');
 });
 
-QUnit.module('ESLint | ember-routing/services/router.js');
+QUnit.module('ESLint | ember-routing/lib/services/router.js');
 QUnit.test('should pass ESLint', function(assert) {
   assert.expect(1);
-  assert.ok(true, 'ember-routing/services/router.js should pass ESLint\n\n');
+  assert.ok(true, 'ember-routing/lib/services/router.js should pass ESLint\n\n');
 });
 
-QUnit.module('ESLint | ember-routing/services/routing.js');
+QUnit.module('ESLint | ember-routing/lib/services/routing.js');
 QUnit.test('should pass ESLint', function(assert) {
   assert.expect(1);
-  assert.ok(true, 'ember-routing/services/routing.js should pass ESLint\n\n');
+  assert.ok(true, 'ember-routing/lib/services/routing.js should pass ESLint\n\n');
 });
 
-QUnit.module('ESLint | ember-routing/system/cache.js');
+QUnit.module('ESLint | ember-routing/lib/system/cache.js');
 QUnit.test('should pass ESLint', function(assert) {
   assert.expect(1);
-  assert.ok(true, 'ember-routing/system/cache.js should pass ESLint\n\n');
+  assert.ok(true, 'ember-routing/lib/system/cache.js should pass ESLint\n\n');
 });
 
-QUnit.module('ESLint | ember-routing/system/controller_for.js');
+QUnit.module('ESLint | ember-routing/lib/system/controller_for.js');
 QUnit.test('should pass ESLint', function(assert) {
   assert.expect(1);
-  assert.ok(true, 'ember-routing/system/controller_for.js should pass ESLint\n\n');
+  assert.ok(true, 'ember-routing/lib/system/controller_for.js should pass ESLint\n\n');
 });
 
-QUnit.module('ESLint | ember-routing/system/dsl.js');
+QUnit.module('ESLint | ember-routing/lib/system/dsl.js');
 QUnit.test('should pass ESLint', function(assert) {
   assert.expect(1);
-  assert.ok(true, 'ember-routing/system/dsl.js should pass ESLint\n\n');
+  assert.ok(true, 'ember-routing/lib/system/dsl.js should pass ESLint\n\n');
 });
 
-QUnit.module('ESLint | ember-routing/system/generate_controller.js');
+QUnit.module('ESLint | ember-routing/lib/system/generate_controller.js');
 QUnit.test('should pass ESLint', function(assert) {
   assert.expect(1);
-  assert.ok(true, 'ember-routing/system/generate_controller.js should pass ESLint\n\n');
+  assert.ok(true, 'ember-routing/lib/system/generate_controller.js should pass ESLint\n\n');
 });
 
-QUnit.module('ESLint | ember-routing/system/query_params.js');
+QUnit.module('ESLint | ember-routing/lib/system/query_params.js');
 QUnit.test('should pass ESLint', function(assert) {
   assert.expect(1);
-  assert.ok(true, 'ember-routing/system/query_params.js should pass ESLint\n\n');
+  assert.ok(true, 'ember-routing/lib/system/query_params.js should pass ESLint\n\n');
 });
 
-QUnit.module('ESLint | ember-routing/system/route.js');
+QUnit.module('ESLint | ember-routing/lib/system/route.js');
 QUnit.test('should pass ESLint', function(assert) {
   assert.expect(1);
-  assert.ok(true, 'ember-routing/system/route.js should pass ESLint\n\n');
+  assert.ok(true, 'ember-routing/lib/system/route.js should pass ESLint\n\n');
 });
 
-QUnit.module('ESLint | ember-routing/system/router.js');
+QUnit.module('ESLint | ember-routing/lib/system/router.js');
 QUnit.test('should pass ESLint', function(assert) {
   assert.expect(1);
-  assert.ok(true, 'ember-routing/system/router.js should pass ESLint\n\n');
+  assert.ok(true, 'ember-routing/lib/system/router.js should pass ESLint\n\n');
 });
 
-QUnit.module('ESLint | ember-routing/system/router_state.js');
+QUnit.module('ESLint | ember-routing/lib/system/router_state.js');
 QUnit.test('should pass ESLint', function(assert) {
   assert.expect(1);
-  assert.ok(true, 'ember-routing/system/router_state.js should pass ESLint\n\n');
+  assert.ok(true, 'ember-routing/lib/system/router_state.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | ember-routing/lib/utils.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'ember-routing/lib/utils.js should pass ESLint\n\n');
 });
 
 enifed('ember-routing/tests/ext/controller_test', ['ember-utils', 'internal-test-helpers', 'ember-runtime'], function (_emberUtils, _internalTestHelpers, _emberRuntime) {
@@ -48100,7 +48287,6 @@ enifed('ember-routing/tests/location/util_test', ['ember-utils', 'ember-routing/
     }), true, 'When in IE8+, use onhashchange existence as evidence of the feature');
   });
 
-  // jscs:disable
   QUnit.test("Feature-detecting the history API", function () {
     equal((0, _util.supportsHistory)("", { pushState: true }), true, "returns true if not Android Gingerbread and history.pushState exists");
     equal((0, _util.supportsHistory)("", {}), false, "returns false if history.pushState doesn't exist");
@@ -48117,7 +48303,6 @@ enifed('ember-routing/tests/location/util_test', ['ember-utils', 'ember-routing/
     // Windows Phone UA and History API: https://github.com/Modernizr/Modernizr/issues/1471
     equal((0, _util.supportsHistory)("Mozilla/5.0 (Mobile; Windows Phone 8.1; Android 4.0; ARM; Trident/7.0; Touch; rv:11.0; IEMobile/11.0; Microsoft; Virtual) like iPhone OS 7_0_3 Mac OS X AppleWebKit/537 (KHTML, like Gecko) Mobile Safari/537", { pushState: true }), true, "returns true for Windows Phone 8.1 with misleading user agent string");
   });
-  // jscs:enable
 });
 QUnit.module('ESLint | ember-routing/tests/location/util_test.js');
 QUnit.test('should pass ESLint', function(assert) {
@@ -49381,24 +49566,6 @@ enifed('ember-routing/tests/system/router_test', ['ember-utils', 'ember-routing/
 
     (0, _router.triggerEvent)(handlerInfos, false, ['loading']);
   });
-
-  QUnit.test('Router#router deprecates when called', function (assert) {
-    assert.expect(2);
-
-    var router = createRouter();
-
-    expectDeprecation(function () {
-      assert.equal(router.router, router._routerMicrolib);
-    }, 'Usage of `router` is deprecated, use `_routerMicrolib` instead.');
-  });
-
-  QUnit.test('Router#_routerMicrolib can be used without deprecation', function (assert) {
-    assert.expect(1);
-
-    var router = createRouter();
-
-    assert.ok(router._routerMicrolib, 'Router._routerMicrolib can be used without deprecation');
-  });
 });
 QUnit.module('ESLint | ember-routing/tests/system/router_test.js');
 QUnit.test('should pass ESLint', function(assert) {
@@ -49447,238 +49614,238 @@ QUnit.test('should pass ESLint', function(assert) {
   assert.ok(true, 'ember-routing/tests/utils_test.js should pass ESLint\n\n');
 });
 
-QUnit.module('ESLint | ember-routing/utils.js');
+QUnit.module('ESLint | ember-runtime/lib/compare.js');
 QUnit.test('should pass ESLint', function(assert) {
   assert.expect(1);
-  assert.ok(true, 'ember-routing/utils.js should pass ESLint\n\n');
+  assert.ok(true, 'ember-runtime/lib/compare.js should pass ESLint\n\n');
 });
 
-QUnit.module('ESLint | ember-runtime/compare.js');
+QUnit.module('ESLint | ember-runtime/lib/computed/computed_macros.js');
 QUnit.test('should pass ESLint', function(assert) {
   assert.expect(1);
-  assert.ok(true, 'ember-runtime/compare.js should pass ESLint\n\n');
+  assert.ok(true, 'ember-runtime/lib/computed/computed_macros.js should pass ESLint\n\n');
 });
 
-QUnit.module('ESLint | ember-runtime/computed/computed_macros.js');
+QUnit.module('ESLint | ember-runtime/lib/computed/reduce_computed_macros.js');
 QUnit.test('should pass ESLint', function(assert) {
   assert.expect(1);
-  assert.ok(true, 'ember-runtime/computed/computed_macros.js should pass ESLint\n\n');
+  assert.ok(true, 'ember-runtime/lib/computed/reduce_computed_macros.js should pass ESLint\n\n');
 });
 
-QUnit.module('ESLint | ember-runtime/computed/reduce_computed_macros.js');
+QUnit.module('ESLint | ember-runtime/lib/controllers/controller.js');
 QUnit.test('should pass ESLint', function(assert) {
   assert.expect(1);
-  assert.ok(true, 'ember-runtime/computed/reduce_computed_macros.js should pass ESLint\n\n');
+  assert.ok(true, 'ember-runtime/lib/controllers/controller.js should pass ESLint\n\n');
 });
 
-QUnit.module('ESLint | ember-runtime/controllers/controller.js');
+QUnit.module('ESLint | ember-runtime/lib/copy.js');
 QUnit.test('should pass ESLint', function(assert) {
   assert.expect(1);
-  assert.ok(true, 'ember-runtime/controllers/controller.js should pass ESLint\n\n');
+  assert.ok(true, 'ember-runtime/lib/copy.js should pass ESLint\n\n');
 });
 
-QUnit.module('ESLint | ember-runtime/copy.js');
+QUnit.module('ESLint | ember-runtime/lib/ext/function.js');
 QUnit.test('should pass ESLint', function(assert) {
   assert.expect(1);
-  assert.ok(true, 'ember-runtime/copy.js should pass ESLint\n\n');
+  assert.ok(true, 'ember-runtime/lib/ext/function.js should pass ESLint\n\n');
 });
 
-QUnit.module('ESLint | ember-runtime/ext/function.js');
+QUnit.module('ESLint | ember-runtime/lib/ext/rsvp.js');
 QUnit.test('should pass ESLint', function(assert) {
   assert.expect(1);
-  assert.ok(true, 'ember-runtime/ext/function.js should pass ESLint\n\n');
+  assert.ok(true, 'ember-runtime/lib/ext/rsvp.js should pass ESLint\n\n');
 });
 
-QUnit.module('ESLint | ember-runtime/ext/rsvp.js');
+QUnit.module('ESLint | ember-runtime/lib/ext/string.js');
 QUnit.test('should pass ESLint', function(assert) {
   assert.expect(1);
-  assert.ok(true, 'ember-runtime/ext/rsvp.js should pass ESLint\n\n');
+  assert.ok(true, 'ember-runtime/lib/ext/string.js should pass ESLint\n\n');
 });
 
-QUnit.module('ESLint | ember-runtime/ext/string.js');
+QUnit.module('ESLint | ember-runtime/lib/index.js');
 QUnit.test('should pass ESLint', function(assert) {
   assert.expect(1);
-  assert.ok(true, 'ember-runtime/ext/string.js should pass ESLint\n\n');
+  assert.ok(true, 'ember-runtime/lib/index.js should pass ESLint\n\n');
 });
 
-QUnit.module('ESLint | ember-runtime/index.js');
+QUnit.module('ESLint | ember-runtime/lib/inject.js');
 QUnit.test('should pass ESLint', function(assert) {
   assert.expect(1);
-  assert.ok(true, 'ember-runtime/index.js should pass ESLint\n\n');
+  assert.ok(true, 'ember-runtime/lib/inject.js should pass ESLint\n\n');
 });
 
-QUnit.module('ESLint | ember-runtime/inject.js');
+QUnit.module('ESLint | ember-runtime/lib/is-equal.js');
 QUnit.test('should pass ESLint', function(assert) {
   assert.expect(1);
-  assert.ok(true, 'ember-runtime/inject.js should pass ESLint\n\n');
+  assert.ok(true, 'ember-runtime/lib/is-equal.js should pass ESLint\n\n');
 });
 
-QUnit.module('ESLint | ember-runtime/is-equal.js');
+QUnit.module('ESLint | ember-runtime/lib/mixins/-proxy.js');
 QUnit.test('should pass ESLint', function(assert) {
   assert.expect(1);
-  assert.ok(true, 'ember-runtime/is-equal.js should pass ESLint\n\n');
+  assert.ok(true, 'ember-runtime/lib/mixins/-proxy.js should pass ESLint\n\n');
 });
 
-QUnit.module('ESLint | ember-runtime/mixins/-proxy.js');
+QUnit.module('ESLint | ember-runtime/lib/mixins/action_handler.js');
 QUnit.test('should pass ESLint', function(assert) {
   assert.expect(1);
-  assert.ok(true, 'ember-runtime/mixins/-proxy.js should pass ESLint\n\n');
+  assert.ok(true, 'ember-runtime/lib/mixins/action_handler.js should pass ESLint\n\n');
 });
 
-QUnit.module('ESLint | ember-runtime/mixins/action_handler.js');
+QUnit.module('ESLint | ember-runtime/lib/mixins/array.js');
 QUnit.test('should pass ESLint', function(assert) {
   assert.expect(1);
-  assert.ok(true, 'ember-runtime/mixins/action_handler.js should pass ESLint\n\n');
+  assert.ok(true, 'ember-runtime/lib/mixins/array.js should pass ESLint\n\n');
 });
 
-QUnit.module('ESLint | ember-runtime/mixins/array.js');
+QUnit.module('ESLint | ember-runtime/lib/mixins/comparable.js');
 QUnit.test('should pass ESLint', function(assert) {
   assert.expect(1);
-  assert.ok(true, 'ember-runtime/mixins/array.js should pass ESLint\n\n');
+  assert.ok(true, 'ember-runtime/lib/mixins/comparable.js should pass ESLint\n\n');
 });
 
-QUnit.module('ESLint | ember-runtime/mixins/comparable.js');
+QUnit.module('ESLint | ember-runtime/lib/mixins/container_proxy.js');
 QUnit.test('should pass ESLint', function(assert) {
   assert.expect(1);
-  assert.ok(true, 'ember-runtime/mixins/comparable.js should pass ESLint\n\n');
+  assert.ok(true, 'ember-runtime/lib/mixins/container_proxy.js should pass ESLint\n\n');
 });
 
-QUnit.module('ESLint | ember-runtime/mixins/container_proxy.js');
+QUnit.module('ESLint | ember-runtime/lib/mixins/controller.js');
 QUnit.test('should pass ESLint', function(assert) {
   assert.expect(1);
-  assert.ok(true, 'ember-runtime/mixins/container_proxy.js should pass ESLint\n\n');
+  assert.ok(true, 'ember-runtime/lib/mixins/controller.js should pass ESLint\n\n');
 });
 
-QUnit.module('ESLint | ember-runtime/mixins/controller.js');
+QUnit.module('ESLint | ember-runtime/lib/mixins/copyable.js');
 QUnit.test('should pass ESLint', function(assert) {
   assert.expect(1);
-  assert.ok(true, 'ember-runtime/mixins/controller.js should pass ESLint\n\n');
+  assert.ok(true, 'ember-runtime/lib/mixins/copyable.js should pass ESLint\n\n');
 });
 
-QUnit.module('ESLint | ember-runtime/mixins/copyable.js');
+QUnit.module('ESLint | ember-runtime/lib/mixins/enumerable.js');
 QUnit.test('should pass ESLint', function(assert) {
   assert.expect(1);
-  assert.ok(true, 'ember-runtime/mixins/copyable.js should pass ESLint\n\n');
+  assert.ok(true, 'ember-runtime/lib/mixins/enumerable.js should pass ESLint\n\n');
 });
 
-QUnit.module('ESLint | ember-runtime/mixins/enumerable.js');
+QUnit.module('ESLint | ember-runtime/lib/mixins/evented.js');
 QUnit.test('should pass ESLint', function(assert) {
   assert.expect(1);
-  assert.ok(true, 'ember-runtime/mixins/enumerable.js should pass ESLint\n\n');
+  assert.ok(true, 'ember-runtime/lib/mixins/evented.js should pass ESLint\n\n');
 });
 
-QUnit.module('ESLint | ember-runtime/mixins/evented.js');
+QUnit.module('ESLint | ember-runtime/lib/mixins/freezable.js');
 QUnit.test('should pass ESLint', function(assert) {
   assert.expect(1);
-  assert.ok(true, 'ember-runtime/mixins/evented.js should pass ESLint\n\n');
+  assert.ok(true, 'ember-runtime/lib/mixins/freezable.js should pass ESLint\n\n');
 });
 
-QUnit.module('ESLint | ember-runtime/mixins/freezable.js');
+QUnit.module('ESLint | ember-runtime/lib/mixins/mutable_array.js');
 QUnit.test('should pass ESLint', function(assert) {
   assert.expect(1);
-  assert.ok(true, 'ember-runtime/mixins/freezable.js should pass ESLint\n\n');
+  assert.ok(true, 'ember-runtime/lib/mixins/mutable_array.js should pass ESLint\n\n');
 });
 
-QUnit.module('ESLint | ember-runtime/mixins/mutable_array.js');
+QUnit.module('ESLint | ember-runtime/lib/mixins/mutable_enumerable.js');
 QUnit.test('should pass ESLint', function(assert) {
   assert.expect(1);
-  assert.ok(true, 'ember-runtime/mixins/mutable_array.js should pass ESLint\n\n');
+  assert.ok(true, 'ember-runtime/lib/mixins/mutable_enumerable.js should pass ESLint\n\n');
 });
 
-QUnit.module('ESLint | ember-runtime/mixins/mutable_enumerable.js');
+QUnit.module('ESLint | ember-runtime/lib/mixins/observable.js');
 QUnit.test('should pass ESLint', function(assert) {
   assert.expect(1);
-  assert.ok(true, 'ember-runtime/mixins/mutable_enumerable.js should pass ESLint\n\n');
+  assert.ok(true, 'ember-runtime/lib/mixins/observable.js should pass ESLint\n\n');
 });
 
-QUnit.module('ESLint | ember-runtime/mixins/observable.js');
+QUnit.module('ESLint | ember-runtime/lib/mixins/promise_proxy.js');
 QUnit.test('should pass ESLint', function(assert) {
   assert.expect(1);
-  assert.ok(true, 'ember-runtime/mixins/observable.js should pass ESLint\n\n');
+  assert.ok(true, 'ember-runtime/lib/mixins/promise_proxy.js should pass ESLint\n\n');
 });
 
-QUnit.module('ESLint | ember-runtime/mixins/promise_proxy.js');
+QUnit.module('ESLint | ember-runtime/lib/mixins/registry_proxy.js');
 QUnit.test('should pass ESLint', function(assert) {
   assert.expect(1);
-  assert.ok(true, 'ember-runtime/mixins/promise_proxy.js should pass ESLint\n\n');
+  assert.ok(true, 'ember-runtime/lib/mixins/registry_proxy.js should pass ESLint\n\n');
 });
 
-QUnit.module('ESLint | ember-runtime/mixins/registry_proxy.js');
+QUnit.module('ESLint | ember-runtime/lib/mixins/target_action_support.js');
 QUnit.test('should pass ESLint', function(assert) {
   assert.expect(1);
-  assert.ok(true, 'ember-runtime/mixins/registry_proxy.js should pass ESLint\n\n');
+  assert.ok(true, 'ember-runtime/lib/mixins/target_action_support.js should pass ESLint\n\n');
 });
 
-QUnit.module('ESLint | ember-runtime/mixins/target_action_support.js');
+QUnit.module('ESLint | ember-runtime/lib/string_registry.js');
 QUnit.test('should pass ESLint', function(assert) {
   assert.expect(1);
-  assert.ok(true, 'ember-runtime/mixins/target_action_support.js should pass ESLint\n\n');
+  assert.ok(true, 'ember-runtime/lib/string_registry.js should pass ESLint\n\n');
 });
 
-QUnit.module('ESLint | ember-runtime/string_registry.js');
+QUnit.module('ESLint | ember-runtime/lib/system/application.js');
 QUnit.test('should pass ESLint', function(assert) {
   assert.expect(1);
-  assert.ok(true, 'ember-runtime/string_registry.js should pass ESLint\n\n');
+  assert.ok(true, 'ember-runtime/lib/system/application.js should pass ESLint\n\n');
 });
 
-QUnit.module('ESLint | ember-runtime/system/application.js');
+QUnit.module('ESLint | ember-runtime/lib/system/array_proxy.js');
 QUnit.test('should pass ESLint', function(assert) {
   assert.expect(1);
-  assert.ok(true, 'ember-runtime/system/application.js should pass ESLint\n\n');
+  assert.ok(true, 'ember-runtime/lib/system/array_proxy.js should pass ESLint\n\n');
 });
 
-QUnit.module('ESLint | ember-runtime/system/array_proxy.js');
+QUnit.module('ESLint | ember-runtime/lib/system/core_object.js');
 QUnit.test('should pass ESLint', function(assert) {
   assert.expect(1);
-  assert.ok(true, 'ember-runtime/system/array_proxy.js should pass ESLint\n\n');
+  assert.ok(true, 'ember-runtime/lib/system/core_object.js should pass ESLint\n\n');
 });
 
-QUnit.module('ESLint | ember-runtime/system/core_object.js');
+QUnit.module('ESLint | ember-runtime/lib/system/lazy_load.js');
 QUnit.test('should pass ESLint', function(assert) {
   assert.expect(1);
-  assert.ok(true, 'ember-runtime/system/core_object.js should pass ESLint\n\n');
+  assert.ok(true, 'ember-runtime/lib/system/lazy_load.js should pass ESLint\n\n');
 });
 
-QUnit.module('ESLint | ember-runtime/system/lazy_load.js');
+QUnit.module('ESLint | ember-runtime/lib/system/namespace.js');
 QUnit.test('should pass ESLint', function(assert) {
   assert.expect(1);
-  assert.ok(true, 'ember-runtime/system/lazy_load.js should pass ESLint\n\n');
+  assert.ok(true, 'ember-runtime/lib/system/namespace.js should pass ESLint\n\n');
 });
 
-QUnit.module('ESLint | ember-runtime/system/namespace.js');
+QUnit.module('ESLint | ember-runtime/lib/system/native_array.js');
 QUnit.test('should pass ESLint', function(assert) {
   assert.expect(1);
-  assert.ok(true, 'ember-runtime/system/namespace.js should pass ESLint\n\n');
+  assert.ok(true, 'ember-runtime/lib/system/native_array.js should pass ESLint\n\n');
 });
 
-QUnit.module('ESLint | ember-runtime/system/native_array.js');
+QUnit.module('ESLint | ember-runtime/lib/system/object.js');
 QUnit.test('should pass ESLint', function(assert) {
   assert.expect(1);
-  assert.ok(true, 'ember-runtime/system/native_array.js should pass ESLint\n\n');
+  assert.ok(true, 'ember-runtime/lib/system/object.js should pass ESLint\n\n');
 });
 
-QUnit.module('ESLint | ember-runtime/system/object.js');
+QUnit.module('ESLint | ember-runtime/lib/system/object_proxy.js');
 QUnit.test('should pass ESLint', function(assert) {
   assert.expect(1);
-  assert.ok(true, 'ember-runtime/system/object.js should pass ESLint\n\n');
+  assert.ok(true, 'ember-runtime/lib/system/object_proxy.js should pass ESLint\n\n');
 });
 
-QUnit.module('ESLint | ember-runtime/system/object_proxy.js');
+QUnit.module('ESLint | ember-runtime/lib/system/service.js');
 QUnit.test('should pass ESLint', function(assert) {
   assert.expect(1);
-  assert.ok(true, 'ember-runtime/system/object_proxy.js should pass ESLint\n\n');
+  assert.ok(true, 'ember-runtime/lib/system/service.js should pass ESLint\n\n');
 });
 
-QUnit.module('ESLint | ember-runtime/system/service.js');
+QUnit.module('ESLint | ember-runtime/lib/system/string.js');
 QUnit.test('should pass ESLint', function(assert) {
   assert.expect(1);
-  assert.ok(true, 'ember-runtime/system/service.js should pass ESLint\n\n');
+  assert.ok(true, 'ember-runtime/lib/system/string.js should pass ESLint\n\n');
 });
 
-QUnit.module('ESLint | ember-runtime/system/string.js');
+QUnit.module('ESLint | ember-runtime/lib/utils.js');
 QUnit.test('should pass ESLint', function(assert) {
   assert.expect(1);
-  assert.ok(true, 'ember-runtime/system/string.js should pass ESLint\n\n');
+  assert.ok(true, 'ember-runtime/lib/utils.js should pass ESLint\n\n');
 });
 
 enifed('ember-runtime/tests/computed/computed_macros_test', ['ember-metal', 'ember-runtime/computed/computed_macros', 'internal-test-helpers', 'ember-runtime/system/object', 'ember-runtime/system/native_array'], function (_emberMetal, _computed_macros, _internalTestHelpers, _object, _native_array) {
@@ -50480,6 +50647,24 @@ enifed('ember-runtime/tests/computed/reduce_computed_macros_test', ['ember-metal
     deepEqual(obj.get('filtered'), [20, 22, 24], 'computed array is updated when array is changed');
   });
 
+  QUnit.test('it updates properly on @each with {} dependencies', function () {
+    var item = _object.default.create({ prop: true });
+
+    obj = _object.default.extend({
+      filtered: (0, _reduce_computed_macros.filter)('items.@each.{prop}', function (item, index) {
+        return item.get('prop') === true;
+      })
+    }).create({
+      items: (0, _native_array.A)([item])
+    });
+
+    deepEqual(obj.get('filtered'), [item]);
+
+    item.set('prop', false);
+
+    deepEqual(obj.get('filtered'), []);
+  });
+
   QUnit.module('filterBy', {
     setup: function () {
       obj = _object.default.extend({
@@ -50782,7 +50967,7 @@ enifed('ember-runtime/tests/computed/reduce_computed_macros_test', ['ember-metal
         array: (0, _native_array.A)([1, 2, 3, 4, 5, 6, 7]),
         array2: (0, _native_array.A)([3, 4, 5])
       });
-    }, /Ember\.computed\.setDiff requires exactly two dependent arrays/, 'setDiff requires two dependent arrays');
+    }, /\`Ember\.computed\.setDiff\` requires exactly two dependent arrays/, 'setDiff requires two dependent arrays');
 
     expectAssertion(function () {
       _object.default.extend({
@@ -50792,7 +50977,7 @@ enifed('ember-runtime/tests/computed/reduce_computed_macros_test', ['ember-metal
         array2: (0, _native_array.A)([3, 4, 5]),
         array3: (0, _native_array.A)([7])
       });
-    }, /Ember\.computed\.setDiff requires exactly two dependent arrays/, 'setDiff requires two dependent arrays');
+    }, /\`Ember\.computed\.setDiff\` requires exactly two dependent arrays/, 'setDiff requires two dependent arrays');
   });
 
   QUnit.test('it has set-diff semantics', function () {
@@ -50889,8 +51074,8 @@ enifed('ember-runtime/tests/computed/reduce_computed_macros_test', ['ember-metal
 
       var items = obj.get('items');
 
-      items.replace(0, 1, jaime);
-      items.replace(1, 1, jaimeInDisguise);
+      items.replace(0, 1, [jaime]);
+      items.replace(1, 1, [jaimeInDisguise]);
 
       deepEqual(obj.get('sortedItems').mapBy('fname'), ['Cersei', 'Jaime', 'Bran', 'Robb'], 'precond - array is initially sorted');
 
@@ -52354,12 +52539,10 @@ enifed('ember-runtime/tests/ext/rsvp_test', ['ember-metal', 'ember-runtime/ext/r
     try {
       (0, _emberMetal.run)(_rsvp.default, 'reject', 'foo');
     } catch (e) {
-      ok(false, 'should not throw');
+      equal(e, 'foo', 'should throw with rejection message');
     } finally {
       (0, _emberDebug.setTesting)(wasEmberTesting);
     }
-
-    ok(true);
   });
 
   QUnit.test('Can reject with no arguments', function (assert) {
@@ -52623,14 +52806,16 @@ enifed('ember-runtime/tests/inject_test', ['ember-metal', 'ember-runtime/inject'
     });
   }
 
-  QUnit.test('factories should return a list of lazy injection full names', function () {
-    var AnObject = _object.default.extend({
-      foo: new _emberMetal.InjectedProperty('foo', 'bar'),
-      bar: new _emberMetal.InjectedProperty('quux')
-    });
+  if (true) {
+    QUnit.test('factories should return a list of lazy injection full names', function () {
+      var AnObject = _object.default.extend({
+        foo: new _emberMetal.InjectedProperty('foo', 'bar'),
+        bar: new _emberMetal.InjectedProperty('quux')
+      });
 
-    deepEqual(AnObject._lazyInjections(), { 'foo': 'foo:bar', 'bar': 'quux:bar' }, 'should return injected container keys');
-  });
+      deepEqual(AnObject._lazyInjections(), { 'foo': 'foo:bar', 'bar': 'quux:bar' }, 'should return injected container keys');
+    });
+  }
 });
 QUnit.module('ESLint | ember-runtime/tests/inject_test.js');
 QUnit.test('should pass ESLint', function(assert) {
@@ -53406,7 +53591,7 @@ enifed('ember-runtime/tests/legacy_1x/mixins/observable/observable_test', ['embe
   });
 
   QUnit.test('should notify array observer when array changes', function () {
-    (0, _emberMetal.get)(object, 'normalArray').replace(0, 0, 6);
+    (0, _emberMetal.get)(object, 'normalArray').replace(0, 0, [6]);
     equal(object.abnormal, 'notifiedObserver', 'observer should be notified');
   });
 
@@ -56281,6 +56466,26 @@ enifed('ember-runtime/tests/mixins/target_action_support_test', ['ember-environm
       })
     });
     ok(true === obj.triggerAction(), 'a valid target and action were specified');
+  });
+
+  QUnit.test('it should raise a deprecation warning when targetObject is specified and used', function () {
+    expect(4);
+    var obj = void 0;
+    expectDeprecation(function () {
+      obj = _object.default.extend(_target_action_support.default).create({
+        action: 'anEvent',
+        actionContext: {},
+        targetObject: _object.default.create({
+          anEvent: function (ctx) {
+            ok(obj.actionContext === ctx, 'anEvent method was called with the expected context');
+          }
+        })
+      });
+    }, /Usage of `targetObject` is deprecated. Please use `target` instead./);
+    ok(true === obj.triggerAction(), 'a valid targetObject and action were specified');
+    expectDeprecation(function () {
+      return obj.get('targetObject');
+    }, /Usage of `targetObject` is deprecated. Please use `target` instead./);
   });
 
   QUnit.test('it should find an actionContext specified as a property path', function () {
@@ -61044,6 +61249,27 @@ QUnit.test('should pass ESLint', function(assert) {
   assert.ok(true, 'ember-runtime/tests/system/native_array/copyable_suite_test.js should pass ESLint\n\n');
 });
 
+enifed('ember-runtime/tests/system/native_array/replace_test', ['ember-runtime/system/native_array'], function (_native_array) {
+  'use strict';
+
+  QUnit.module('NativeArray.replace');
+
+  QUnit.test('raises assertion if third argument is not an array', function () {
+    expectAssertion(function () {
+      (0, _native_array.A)([1, 2, 3]).replace(1, 1, '');
+    }, 'The third argument to replace needs to be an array.');
+  });
+
+  QUnit.test('it does not raise an assertion if third parameter is not passed', function () {
+    deepEqual((0, _native_array.A)([1, 2, 3]).replace(1, 2), (0, _native_array.A)([1]), 'no assertion raised');
+  });
+});
+QUnit.module('ESLint | ember-runtime/tests/system/native_array/replace_test.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'ember-runtime/tests/system/native_array/replace_test.js should pass ESLint\n\n');
+});
+
 enifed('ember-runtime/tests/system/native_array/suite_test', ['ember-runtime/system/native_array', 'ember-runtime/tests/suites/mutable_array'], function (_native_array, _mutable_array) {
   'use strict';
 
@@ -61336,6 +61562,19 @@ enifed('ember-runtime/tests/system/object/computed_test', ['ember-metal', 'inter
     });
 
     ok((0, _emberMetal.get)(SubClass.create(), 'foo'), 'FOO', 'super value is fetched');
+  });
+
+  QUnit.test('observing computed.reads prop and overriding it in create() works', function () {
+    var Obj = _object.default.extend({
+      name: _emberMetal.computed.reads('model.name'),
+      nameDidChange: (0, _emberMetal.observer)('name', function () {})
+    });
+
+    var obj1 = Obj.create({ name: '1' });
+    var obj2 = Obj.create({ name: '2' });
+
+    equal(obj1.get('name'), '1');
+    equal(obj2.get('name'), '2');
   });
 });
 QUnit.module('ESLint | ember-runtime/tests/system/object/computed_test.js');
@@ -62946,68 +63185,24 @@ enifed('ember-runtime/tests/system/string/camelize_test', ['ember-environment', 
     });
   }
 
-  QUnit.test('camelize normal string', function () {
-    deepEqual((0, _string.camelize)('my favorite items'), 'myFavoriteItems');
-    if (_emberEnvironment.ENV.EXTEND_PROTOTYPES.String) {
-      deepEqual('my favorite items'.camelize(), 'myFavoriteItems');
-    }
-  });
+  function test(given, expected, description) {
+    QUnit.test(description, function () {
+      deepEqual((0, _string.camelize)(given), expected);
+      if (_emberEnvironment.ENV.EXTEND_PROTOTYPES.String) {
+        deepEqual(given.camelize(), expected);
+      }
+    });
+  }
 
-  QUnit.test('camelize capitalized string', function () {
-    deepEqual((0, _string.camelize)('I Love Ramen'), 'iLoveRamen');
-    if (_emberEnvironment.ENV.EXTEND_PROTOTYPES.String) {
-      deepEqual('I Love Ramen'.camelize(), 'iLoveRamen');
-    }
-  });
-
-  QUnit.test('camelize dasherized string', function () {
-    deepEqual((0, _string.camelize)('css-class-name'), 'cssClassName');
-    if (_emberEnvironment.ENV.EXTEND_PROTOTYPES.String) {
-      deepEqual('css-class-name'.camelize(), 'cssClassName');
-    }
-  });
-
-  QUnit.test('camelize underscored string', function () {
-    deepEqual((0, _string.camelize)('action_name'), 'actionName');
-    if (_emberEnvironment.ENV.EXTEND_PROTOTYPES.String) {
-      deepEqual('action_name'.camelize(), 'actionName');
-    }
-  });
-
-  QUnit.test('camelize dot notation string', function () {
-    deepEqual((0, _string.camelize)('action.name'), 'actionName');
-    if (_emberEnvironment.ENV.EXTEND_PROTOTYPES.String) {
-      deepEqual('action.name'.camelize(), 'actionName');
-    }
-  });
-
-  QUnit.test('does nothing with camelcased string', function () {
-    deepEqual((0, _string.camelize)('innerHTML'), 'innerHTML');
-    if (_emberEnvironment.ENV.EXTEND_PROTOTYPES.String) {
-      deepEqual('innerHTML'.camelize(), 'innerHTML');
-    }
-  });
-
-  QUnit.test('camelize namespaced classified string', function () {
-    deepEqual((0, _string.camelize)('PrivateDocs/OwnerInvoice'), 'privateDocs/ownerInvoice');
-    if (_emberEnvironment.ENV.EXTEND_PROTOTYPES.String) {
-      deepEqual('PrivateDocs/OwnerInvoice'.camelize(), 'privateDocs/ownerInvoice');
-    }
-  });
-
-  QUnit.test('camelize namespaced underscored string', function () {
-    deepEqual((0, _string.camelize)('private_docs/owner_invoice'), 'privateDocs/ownerInvoice');
-    if (_emberEnvironment.ENV.EXTEND_PROTOTYPES.String) {
-      deepEqual('private_docs/owner_invoice'.camelize(), 'privateDocs/ownerInvoice');
-    }
-  });
-
-  QUnit.test('camelize namespaced dasherized string', function () {
-    deepEqual((0, _string.camelize)('private-docs/owner-invoice'), 'privateDocs/ownerInvoice');
-    if (_emberEnvironment.ENV.EXTEND_PROTOTYPES.String) {
-      deepEqual('private-docs/owner-invoice'.camelize(), 'privateDocs/ownerInvoice');
-    }
-  });
+  test('my favorite items', 'myFavoriteItems', 'camelize normal string');
+  test('I Love Ramen', 'iLoveRamen', 'camelize capitalized string');
+  test('css-class-name', 'cssClassName', 'camelize dasherized string');
+  test('action_name', 'actionName', 'camelize underscored string');
+  test('action.name', 'actionName', 'camelize dot notation string');
+  test('innerHTML', 'innerHTML', 'does nothing with camelcased string');
+  test('PrivateDocs/OwnerInvoice', 'privateDocs/ownerInvoice', 'camelize namespaced classified string');
+  test('private_docs/owner_invoice', 'privateDocs/ownerInvoice', 'camelize namespaced underscored string');
+  test('private-docs/owner-invoice', 'privateDocs/ownerInvoice', 'camelize namespaced dasherized string');
 });
 QUnit.module('ESLint | ember-runtime/tests/system/string/camelize_test.js');
 QUnit.test('should pass ESLint', function(assert) {
@@ -63026,68 +63221,24 @@ enifed('ember-runtime/tests/system/string/capitalize_test', ['ember-environment'
     });
   }
 
-  QUnit.test('capitalize normal string', function () {
-    deepEqual((0, _string.capitalize)('my favorite items'), 'My favorite items');
-    if (_emberEnvironment.ENV.EXTEND_PROTOTYPES.String) {
-      deepEqual('my favorite items'.capitalize(), 'My favorite items');
-    }
-  });
+  function test(given, expected, description) {
+    QUnit.test(description, function () {
+      deepEqual((0, _string.capitalize)(given), expected);
+      if (_emberEnvironment.ENV.EXTEND_PROTOTYPES.String) {
+        deepEqual(given.capitalize(), expected);
+      }
+    });
+  }
 
-  QUnit.test('capitalize dasherized string', function () {
-    deepEqual((0, _string.capitalize)('css-class-name'), 'Css-class-name');
-    if (_emberEnvironment.ENV.EXTEND_PROTOTYPES.String) {
-      deepEqual('css-class-name'.capitalize(), 'Css-class-name');
-    }
-  });
-
-  QUnit.test('capitalize underscored string', function () {
-    deepEqual((0, _string.capitalize)('action_name'), 'Action_name');
-    if (_emberEnvironment.ENV.EXTEND_PROTOTYPES.String) {
-      deepEqual('action_name'.capitalize(), 'Action_name');
-    }
-  });
-
-  QUnit.test('capitalize camelcased string', function () {
-    deepEqual((0, _string.capitalize)('innerHTML'), 'InnerHTML');
-    if (_emberEnvironment.ENV.EXTEND_PROTOTYPES.String) {
-      deepEqual('innerHTML'.capitalize(), 'InnerHTML');
-    }
-  });
-
-  QUnit.test('does nothing with capitalized string', function () {
-    deepEqual((0, _string.capitalize)('Capitalized string'), 'Capitalized string');
-    if (_emberEnvironment.ENV.EXTEND_PROTOTYPES.String) {
-      deepEqual('Capitalized string'.capitalize(), 'Capitalized string');
-    }
-  });
-
-  QUnit.test('capitalize namespaced camelized string', function () {
-    deepEqual((0, _string.capitalize)('privateDocs/ownerInvoice'), 'PrivateDocs/OwnerInvoice');
-    if (_emberEnvironment.ENV.EXTEND_PROTOTYPES.String) {
-      deepEqual('privateDocs/ownerInvoice'.capitalize(), 'PrivateDocs/OwnerInvoice');
-    }
-  });
-
-  QUnit.test('capitalize namespaced underscored string', function () {
-    deepEqual((0, _string.capitalize)('private_docs/owner_invoice'), 'Private_docs/Owner_invoice');
-    if (_emberEnvironment.ENV.EXTEND_PROTOTYPES.String) {
-      deepEqual('private_docs/owner_invoice'.capitalize(), 'Private_docs/Owner_invoice');
-    }
-  });
-
-  QUnit.test('capitalize namespaced dasherized string', function () {
-    deepEqual((0, _string.capitalize)('private-docs/owner-invoice'), 'Private-docs/Owner-invoice');
-    if (_emberEnvironment.ENV.EXTEND_PROTOTYPES.String) {
-      deepEqual('private-docs/owner-invoice'.capitalize(), 'Private-docs/Owner-invoice');
-    }
-  });
-
-  QUnit.test('capitalize string with accent character', function () {
-    deepEqual((0, _string.capitalize)('šabc'), 'Šabc');
-    if (_emberEnvironment.ENV.EXTEND_PROTOTYPES.String) {
-      deepEqual('šabc'.capitalize(), 'Šabc');
-    }
-  });
+  test('my favorite items', 'My favorite items', 'capitalize normal string');
+  test('css-class-name', 'Css-class-name', 'capitalize dasherized string');
+  test('action_name', 'Action_name', 'capitalize underscored string');
+  test('innerHTML', 'InnerHTML', 'capitalize camelcased string');
+  test('Capitalized string', 'Capitalized string', 'does nothing with capitalized string');
+  test('privateDocs/ownerInvoice', 'PrivateDocs/OwnerInvoice', 'capitalize namespaced camelized string');
+  test('private_docs/owner_invoice', 'Private_docs/Owner_invoice', 'capitalize namespaced underscored string');
+  test('private-docs/owner-invoice', 'Private-docs/Owner-invoice', 'capitalize namespaced dasherized string');
+  test('šabc', 'Šabc', 'capitalize string with accent character');
 });
 QUnit.module('ESLint | ember-runtime/tests/system/string/capitalize_test.js');
 QUnit.test('should pass ESLint', function(assert) {
@@ -63148,61 +63299,23 @@ enifed('ember-runtime/tests/system/string/dasherize_test', ['ember-environment',
     });
   }
 
-  QUnit.test('dasherize normal string', function () {
-    deepEqual((0, _string.dasherize)('my favorite items'), 'my-favorite-items');
-    if (_emberEnvironment.ENV.EXTEND_PROTOTYPES.String) {
-      deepEqual('my favorite items'.dasherize(), 'my-favorite-items');
-    }
-  });
+  function test(given, expected, description) {
+    QUnit.test(description, function () {
+      deepEqual((0, _string.dasherize)(given), expected);
+      if (_emberEnvironment.ENV.EXTEND_PROTOTYPES.String) {
+        deepEqual(given.dasherize(), expected);
+      }
+    });
+  }
 
-  QUnit.test('does nothing with dasherized string', function () {
-    deepEqual((0, _string.dasherize)('css-class-name'), 'css-class-name');
-    if (_emberEnvironment.ENV.EXTEND_PROTOTYPES.String) {
-      deepEqual('css-class-name'.dasherize(), 'css-class-name');
-    }
-  });
-
-  QUnit.test('dasherize underscored string', function () {
-    deepEqual((0, _string.dasherize)('action_name'), 'action-name');
-    if (_emberEnvironment.ENV.EXTEND_PROTOTYPES.String) {
-      deepEqual('action_name'.dasherize(), 'action-name');
-    }
-  });
-
-  QUnit.test('dasherize camelcased string', function () {
-    deepEqual((0, _string.dasherize)('innerHTML'), 'inner-html');
-    if (_emberEnvironment.ENV.EXTEND_PROTOTYPES.String) {
-      deepEqual('innerHTML'.dasherize(), 'inner-html');
-    }
-  });
-
-  QUnit.test('dasherize string that is the property name of Object.prototype', function () {
-    deepEqual((0, _string.dasherize)('toString'), 'to-string');
-    if (_emberEnvironment.ENV.EXTEND_PROTOTYPES.String) {
-      deepEqual('toString'.dasherize(), 'to-string');
-    }
-  });
-
-  QUnit.test('dasherize namespaced classified string', function () {
-    deepEqual((0, _string.dasherize)('PrivateDocs/OwnerInvoice'), 'private-docs/owner-invoice');
-    if (_emberEnvironment.ENV.EXTEND_PROTOTYPES.String) {
-      deepEqual('PrivateDocs/OwnerInvoice'.dasherize(), 'private-docs/owner-invoice');
-    }
-  });
-
-  QUnit.test('dasherize namespaced camelized string', function () {
-    deepEqual((0, _string.dasherize)('privateDocs/ownerInvoice'), 'private-docs/owner-invoice');
-    if (_emberEnvironment.ENV.EXTEND_PROTOTYPES.String) {
-      deepEqual('privateDocs/ownerInvoice'.dasherize(), 'private-docs/owner-invoice');
-    }
-  });
-
-  QUnit.test('dasherize namespaced underscored string', function () {
-    deepEqual((0, _string.dasherize)('private_docs/owner_invoice'), 'private-docs/owner-invoice');
-    if (_emberEnvironment.ENV.EXTEND_PROTOTYPES.String) {
-      deepEqual('private_docs/owner_invoice'.dasherize(), 'private-docs/owner-invoice');
-    }
-  });
+  test('my favorite items', 'my-favorite-items', 'dasherize normal string');
+  test('css-class-name', 'css-class-name', 'does nothing with dasherized string');
+  test('action_name', 'action-name', 'dasherize underscored string');
+  test('innerHTML', 'inner-html', 'dasherize camelcased string');
+  test('toString', 'to-string', 'dasherize string that is the property name of Object.prototype');
+  test('PrivateDocs/OwnerInvoice', 'private-docs/owner-invoice', 'dasherize namespaced classified string');
+  test('privateDocs/ownerInvoice', 'private-docs/owner-invoice', 'dasherize namespaced camelized string');
+  test('private_docs/owner_invoice', 'private-docs/owner-invoice', 'dasherize namespaced underscored string');
 });
 QUnit.module('ESLint | ember-runtime/tests/system/string/dasherize_test.js');
 QUnit.test('should pass ESLint', function(assert) {
@@ -63221,54 +63334,22 @@ enifed('ember-runtime/tests/system/string/decamelize_test', ['ember-environment'
     });
   }
 
-  QUnit.test('does nothing with normal string', function () {
-    deepEqual((0, _string.decamelize)('my favorite items'), 'my favorite items');
-    if (_emberEnvironment.ENV.EXTEND_PROTOTYPES.String) {
-      deepEqual('my favorite items'.decamelize(), 'my favorite items');
-    }
-  });
+  function test(given, expected, description) {
+    QUnit.test(description, function () {
+      deepEqual((0, _string.decamelize)(given), expected);
+      if (_emberEnvironment.ENV.EXTEND_PROTOTYPES.String) {
+        deepEqual(given.decamelize(), expected);
+      }
+    });
+  }
 
-  QUnit.test('does nothing with dasherized string', function () {
-    deepEqual((0, _string.decamelize)('css-class-name'), 'css-class-name');
-    if (_emberEnvironment.ENV.EXTEND_PROTOTYPES.String) {
-      deepEqual('css-class-name'.decamelize(), 'css-class-name');
-    }
-  });
-
-  QUnit.test('does nothing with underscored string', function () {
-    deepEqual((0, _string.decamelize)('action_name'), 'action_name');
-    if (_emberEnvironment.ENV.EXTEND_PROTOTYPES.String) {
-      deepEqual('action_name'.decamelize(), 'action_name');
-    }
-  });
-
-  QUnit.test('converts a camelized string into all lower case separated by underscores.', function () {
-    deepEqual((0, _string.decamelize)('innerHTML'), 'inner_html');
-    if (_emberEnvironment.ENV.EXTEND_PROTOTYPES.String) {
-      deepEqual('innerHTML'.decamelize(), 'inner_html');
-    }
-  });
-
-  QUnit.test('decamelizes strings with numbers', function () {
-    deepEqual((0, _string.decamelize)('size160Url'), 'size160_url');
-    if (_emberEnvironment.ENV.EXTEND_PROTOTYPES.String) {
-      deepEqual('size160Url'.decamelize(), 'size160_url');
-    }
-  });
-
-  QUnit.test('decamelize namespaced classified string', function () {
-    deepEqual((0, _string.decamelize)('PrivateDocs/OwnerInvoice'), 'private_docs/owner_invoice');
-    if (_emberEnvironment.ENV.EXTEND_PROTOTYPES.String) {
-      deepEqual('PrivateDocs/OwnerInvoice'.decamelize(), 'private_docs/owner_invoice');
-    }
-  });
-
-  QUnit.test('decamelize namespaced camelized string', function () {
-    deepEqual((0, _string.decamelize)('privateDocs/ownerInvoice'), 'private_docs/owner_invoice');
-    if (_emberEnvironment.ENV.EXTEND_PROTOTYPES.String) {
-      deepEqual('privateDocs/ownerInvoice'.decamelize(), 'private_docs/owner_invoice');
-    }
-  });
+  test('my favorite items', 'my favorite items', 'does nothing with normal string');
+  test('css-class-name', 'css-class-name', 'does nothing with dasherized string');
+  test('action_name', 'action_name', 'does nothing with underscored string');
+  test('innerHTML', 'inner_html', 'converts a camelized string into all lower case separated by underscores.');
+  test('size160Url', 'size160_url', 'decamelizes strings with numbers');
+  test('PrivateDocs/OwnerInvoice', 'private_docs/owner_invoice', 'decamelize namespaced classified string');
+  test('privateDocs/ownerInvoice', 'private_docs/owner_invoice', 'decamelize namespaced camelized string');
 });
 QUnit.module('ESLint | ember-runtime/tests/system/string/decamelize_test.js');
 QUnit.test('should pass ESLint', function(assert) {
@@ -63287,38 +63368,20 @@ enifed('ember-runtime/tests/system/string/fmt_string_test', ['ember-environment'
     });
   }
 
-  QUnit.test('\'Hello %@ %@\'.fmt(\'John\', \'Doe\') => \'Hello John Doe\'', function () {
-    expectDeprecation('Ember.String.fmt is deprecated, use ES6 template strings instead.');
-    equal((0, _string.fmt)('Hello %@ %@', ['John', 'Doe']), 'Hello John Doe');
-    if (_emberEnvironment.ENV.EXTEND_PROTOTYPES.String) {
-      equal('Hello %@ %@'.fmt('John', 'Doe'), 'Hello John Doe');
-    }
-  });
+  function test(given, args, expected, description) {
+    QUnit.test(description, function () {
+      expectDeprecation('Ember.String.fmt is deprecated, use ES6 template strings instead.');
+      equal((0, _string.fmt)(given, args), expected);
+      if (_emberEnvironment.ENV.EXTEND_PROTOTYPES.String) {
+        equal(given.fmt.apply(given, args), expected);
+      }
+    });
+  }
 
-  QUnit.test('\'Hello %@2 %@1\'.fmt(\'John\', \'Doe\') => \'Hello Doe John\'', function () {
-    expectDeprecation('Ember.String.fmt is deprecated, use ES6 template strings instead.');
-    equal((0, _string.fmt)('Hello %@2 %@1', ['John', 'Doe']), 'Hello Doe John');
-    if (_emberEnvironment.ENV.EXTEND_PROTOTYPES.String) {
-      equal('Hello %@2 %@1'.fmt('John', 'Doe'), 'Hello Doe John');
-    }
-  });
-
-  QUnit.test('\'%@08 %@07 %@06 %@05 %@04 %@03 %@02 %@01\'.fmt(\'One\', \'Two\', \'Three\', \'Four\', \'Five\', \'Six\', \'Seven\', \'Eight\') => \'Eight Seven Six Five Four Three Two One\'', function () {
-    expectDeprecation('Ember.String.fmt is deprecated, use ES6 template strings instead.');
-    equal((0, _string.fmt)('%@08 %@07 %@06 %@05 %@04 %@03 %@02 %@01', ['One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight']), 'Eight Seven Six Five Four Three Two One');
-
-    if (_emberEnvironment.ENV.EXTEND_PROTOTYPES.String) {
-      equal('%@08 %@07 %@06 %@05 %@04 %@03 %@02 %@01'.fmt('One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight'), 'Eight Seven Six Five Four Three Two One');
-    }
-  });
-
-  QUnit.test('\'data: %@\'.fmt({ id: 3 }) => \'data: {id: 3}\'', function () {
-    expectDeprecation('Ember.String.fmt is deprecated, use ES6 template strings instead.');
-    equal((0, _string.fmt)('data: %@', [{ id: 3 }]), 'data: {id: 3}');
-    if (_emberEnvironment.ENV.EXTEND_PROTOTYPES.String) {
-      equal('data: %@'.fmt({ id: 3 }), 'data: {id: 3}');
-    }
-  });
+  test('Hello %@ %@', ['John', 'Doe'], 'Hello John Doe', 'fmt(\'Hello %@ %@\', [\'John\', \'Doe\']) => \'Hello John Doe\'');
+  test('Hello %@2 %@1', ['John', 'Doe'], 'Hello Doe John', 'fmt(\'Hello %@2 %@1\', [\'John\', \'Doe\']) => \'Hello Doe John\'');
+  test('%@08 %@07 %@06 %@05 %@04 %@03 %@02 %@01', ['One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight'], 'Eight Seven Six Five Four Three Two One', 'fmt(\'%@08 %@07 %@06 %@05 %@04 %@03 %@02 %@01\', [\'One\', \'Two\', \'Three\', \'Four\', \'Five\', \'Six\', \'Seven\', \'Eight\']) => \'Eight Seven Six Five Four Three Two One\'');
+  test('data: %@', [{ id: 3 }], 'data: {id: 3}', 'fmt(\'data: %@\', [{ id: 3 }]) => \'data: {id: 3}\'');
 
   QUnit.test('works with argument form', function () {
     expectDeprecation('Ember.String.fmt is deprecated, use ES6 template strings instead.');
@@ -63359,33 +63422,19 @@ enifed('ember-runtime/tests/system/string/loc_test', ['ember-metal', 'ember-envi
     });
   }
 
-  QUnit.test('\'_Hello World\'.loc() => \'Bonjour le monde\'', function () {
-    equal((0, _string.loc)('_Hello World'), 'Bonjour le monde');
-    if (_emberEnvironment.ENV.EXTEND_PROTOTYPES.String) {
-      equal('_Hello World'.loc(), 'Bonjour le monde');
-    }
-  });
+  function test(given, args, expected, description) {
+    QUnit.test(description, function () {
+      equal((0, _string.loc)(given, args), expected);
+      if (_emberEnvironment.ENV.EXTEND_PROTOTYPES.String) {
+        equal(given.loc.apply(given, args), expected);
+      }
+    });
+  }
 
-  QUnit.test('\'_Hello %@ %@\'.loc(\'John\', \'Doe\') => \'Bonjour John Doe\'', function () {
-    equal((0, _string.loc)('_Hello %@ %@', ['John', 'Doe']), 'Bonjour John Doe');
-    if (_emberEnvironment.ENV.EXTEND_PROTOTYPES.String) {
-      equal('_Hello %@ %@'.loc('John', 'Doe'), 'Bonjour John Doe');
-    }
-  });
-
-  QUnit.test('\'_Hello %@# %@#\'.loc(\'John\', \'Doe\') => \'Bonjour Doe John\'', function () {
-    equal((0, _string.loc)('_Hello %@# %@#', ['John', 'Doe']), 'Bonjour Doe John');
-    if (_emberEnvironment.ENV.EXTEND_PROTOTYPES.String) {
-      equal('_Hello %@# %@#'.loc('John', 'Doe'), 'Bonjour Doe John');
-    }
-  });
-
-  QUnit.test('\'_Not In Strings\'.loc() => \'_Not In Strings\'', function () {
-    equal((0, _string.loc)('_Not In Strings'), '_Not In Strings');
-    if (_emberEnvironment.ENV.EXTEND_PROTOTYPES.String) {
-      equal('_Not In Strings'.loc(), '_Not In Strings');
-    }
-  });
+  test('_Hello World', [], 'Bonjour le monde', 'loc(\'_Hello World\') => \'Bonjour le monde\'');
+  test('_Hello %@ %@', ['John', 'Doe'], 'Bonjour John Doe', 'loc(\'_Hello %@ %@\', [\'John\', \'Doe\']) => \'Bonjour John Doe\'');
+  test('_Hello %@# %@#', ['John', 'Doe'], 'Bonjour Doe John', 'loc(\'_Hello %@# %@#\', [\'John\', \'Doe\']) => \'Bonjour Doe John\'');
+  test('_Not In Strings', [], '_Not In Strings', 'loc(\'_Not In Strings\') => \'_Not In Strings\'');
 
   QUnit.test('works with argument form', function () {
     equal((0, _string.loc)('_Hello %@', 'John'), 'Bonjour John');
@@ -63409,54 +63458,22 @@ enifed('ember-runtime/tests/system/string/underscore_test', ['ember-environment'
     });
   }
 
-  QUnit.test('with normal string', function () {
-    deepEqual((0, _string.underscore)('my favorite items'), 'my_favorite_items');
-    if (_emberEnvironment.ENV.EXTEND_PROTOTYPES.String) {
-      deepEqual('my favorite items'.underscore(), 'my_favorite_items');
-    }
-  });
+  function test(given, expected, description) {
+    QUnit.test(description, function () {
+      deepEqual((0, _string.underscore)(given), expected);
+      if (_emberEnvironment.ENV.EXTEND_PROTOTYPES.String) {
+        deepEqual(given.underscore(), expected);
+      }
+    });
+  }
 
-  QUnit.test('with dasherized string', function () {
-    deepEqual((0, _string.underscore)('css-class-name'), 'css_class_name');
-    if (_emberEnvironment.ENV.EXTEND_PROTOTYPES.String) {
-      deepEqual('css-class-name'.underscore(), 'css_class_name');
-    }
-  });
-
-  QUnit.test('does nothing with underscored string', function () {
-    deepEqual((0, _string.underscore)('action_name'), 'action_name');
-    if (_emberEnvironment.ENV.EXTEND_PROTOTYPES.String) {
-      deepEqual('action_name'.underscore(), 'action_name');
-    }
-  });
-
-  QUnit.test('with camelcased string', function () {
-    deepEqual((0, _string.underscore)('innerHTML'), 'inner_html');
-    if (_emberEnvironment.ENV.EXTEND_PROTOTYPES.String) {
-      deepEqual('innerHTML'.underscore(), 'inner_html');
-    }
-  });
-
-  QUnit.test('underscore namespaced classified string', function () {
-    deepEqual((0, _string.underscore)('PrivateDocs/OwnerInvoice'), 'private_docs/owner_invoice');
-    if (_emberEnvironment.ENV.EXTEND_PROTOTYPES.String) {
-      deepEqual('PrivateDocs/OwnerInvoice'.underscore(), 'private_docs/owner_invoice');
-    }
-  });
-
-  QUnit.test('underscore namespaced camelized string', function () {
-    deepEqual((0, _string.underscore)('privateDocs/ownerInvoice'), 'private_docs/owner_invoice');
-    if (_emberEnvironment.ENV.EXTEND_PROTOTYPES.String) {
-      deepEqual('privateDocs/ownerInvoice'.underscore(), 'private_docs/owner_invoice');
-    }
-  });
-
-  QUnit.test('underscore namespaced dasherized string', function () {
-    deepEqual((0, _string.underscore)('private-docs/owner-invoice'), 'private_docs/owner_invoice');
-    if (_emberEnvironment.ENV.EXTEND_PROTOTYPES.String) {
-      deepEqual('private-docs/owner-invoice'.underscore(), 'private_docs/owner_invoice');
-    }
-  });
+  test('my favorite items', 'my_favorite_items', 'with normal string');
+  test('css-class-name', 'css_class_name', 'with dasherized string');
+  test('action_name', 'action_name', 'does nothing with underscored string');
+  test('innerHTML', 'inner_html', 'with camelcased string');
+  test('PrivateDocs/OwnerInvoice', 'private_docs/owner_invoice', 'underscore namespaced classified string');
+  test('privateDocs/ownerInvoice', 'private_docs/owner_invoice', 'underscore namespaced camelized string');
+  test('private-docs/owner-invoice', 'private_docs/owner_invoice', 'underscore namespaced dasherized string');
 });
 QUnit.module('ESLint | ember-runtime/tests/system/string/underscore_test.js');
 QUnit.test('should pass ESLint', function(assert) {
@@ -63475,37 +63492,23 @@ enifed('ember-runtime/tests/system/string/w_test', ['ember-environment', 'ember-
     });
   }
 
-  QUnit.test('\'one two three\'.w() => [\'one\',\'two\',\'three\']', function () {
-    deepEqual((0, _string.w)('one two three'), ['one', 'two', 'three']);
-    if (_emberEnvironment.ENV.EXTEND_PROTOTYPES.String) {
-      deepEqual('one two three'.w(), ['one', 'two', 'three']);
-    }
-  });
+  function test(given, expected, description) {
+    QUnit.test(description, function () {
+      deepEqual((0, _string.w)(given), expected);
+      if (_emberEnvironment.ENV.EXTEND_PROTOTYPES.String) {
+        deepEqual(given.w(), expected);
+      }
+    });
+  }
 
-  QUnit.test('\'one    two    three\'.w() with extra spaces between words => [\'one\',\'two\',\'three\']', function () {
-    deepEqual((0, _string.w)('one   two  three'), ['one', 'two', 'three']);
-    if (_emberEnvironment.ENV.EXTEND_PROTOTYPES.String) {
-      deepEqual('one   two  three'.w(), ['one', 'two', 'three']);
-    }
-  });
-
-  QUnit.test('\'one two three\'.w() with tabs', function () {
-    deepEqual((0, _string.w)('one\ttwo  three'), ['one', 'two', 'three']);
-    if (_emberEnvironment.ENV.EXTEND_PROTOTYPES.String) {
-      deepEqual('one\ttwo  three'.w(), ['one', 'two', 'three']);
-    }
-  });
+  test('one two three', ['one', 'two', 'three'], 'w(\'one two three\') => [\'one\',\'two\',\'three\']');
+  test('one   two  three', ['one', 'two', 'three'], 'w(\'one    two    three\') with extra spaces between words => [\'one\',\'two\',\'three\']');
+  test('one\ttwo  three', ['one', 'two', 'three'], 'w(\'one two three\') with tabs');
 });
 QUnit.module('ESLint | ember-runtime/tests/system/string/w_test.js');
 QUnit.test('should pass ESLint', function(assert) {
   assert.expect(1);
   assert.ok(true, 'ember-runtime/tests/system/string/w_test.js should pass ESLint\n\n');
-});
-
-QUnit.module('ESLint | ember-runtime/utils.js');
-QUnit.test('should pass ESLint', function(assert) {
-  assert.expect(1);
-  assert.ok(true, 'ember-runtime/utils.js should pass ESLint\n\n');
 });
 
 QUnit.module('ESLint | ember-template-compiler/compat.js');
@@ -63518,6 +63521,162 @@ QUnit.module('ESLint | ember-template-compiler/index.js');
 QUnit.test('should pass ESLint', function(assert) {
   assert.expect(1);
   assert.ok(true, 'ember-template-compiler/index.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | ember-template-compiler/lib/compat.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'ember-template-compiler/lib/compat.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | ember-template-compiler/lib/index.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'ember-template-compiler/lib/index.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | ember-template-compiler/lib/plugins/assert-input-helper-without-block.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'ember-template-compiler/lib/plugins/assert-input-helper-without-block.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | ember-template-compiler/lib/plugins/assert-reserved-named-arguments.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'ember-template-compiler/lib/plugins/assert-reserved-named-arguments.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | ember-template-compiler/lib/plugins/deprecate-render-model.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'ember-template-compiler/lib/plugins/deprecate-render-model.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | ember-template-compiler/lib/plugins/deprecate-render.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'ember-template-compiler/lib/plugins/deprecate-render.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | ember-template-compiler/lib/plugins/extract-pragma-tag.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'ember-template-compiler/lib/plugins/extract-pragma-tag.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | ember-template-compiler/lib/plugins/index.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'ember-template-compiler/lib/plugins/index.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | ember-template-compiler/lib/plugins/transform-action-syntax.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'ember-template-compiler/lib/plugins/transform-action-syntax.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | ember-template-compiler/lib/plugins/transform-angle-bracket-components.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'ember-template-compiler/lib/plugins/transform-angle-bracket-components.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | ember-template-compiler/lib/plugins/transform-attrs-into-args.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'ember-template-compiler/lib/plugins/transform-attrs-into-args.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | ember-template-compiler/lib/plugins/transform-dot-component-invocation.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'ember-template-compiler/lib/plugins/transform-dot-component-invocation.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | ember-template-compiler/lib/plugins/transform-each-in-into-each.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'ember-template-compiler/lib/plugins/transform-each-in-into-each.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | ember-template-compiler/lib/plugins/transform-has-block-syntax.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'ember-template-compiler/lib/plugins/transform-has-block-syntax.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | ember-template-compiler/lib/plugins/transform-inline-link-to.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'ember-template-compiler/lib/plugins/transform-inline-link-to.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | ember-template-compiler/lib/plugins/transform-input-on-to-onEvent.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'ember-template-compiler/lib/plugins/transform-input-on-to-onEvent.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | ember-template-compiler/lib/plugins/transform-input-type-syntax.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'ember-template-compiler/lib/plugins/transform-input-type-syntax.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | ember-template-compiler/lib/plugins/transform-old-binding-syntax.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'ember-template-compiler/lib/plugins/transform-old-binding-syntax.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | ember-template-compiler/lib/plugins/transform-old-class-binding-syntax.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'ember-template-compiler/lib/plugins/transform-old-class-binding-syntax.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | ember-template-compiler/lib/plugins/transform-quoted-bindings-into-just-bindings.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'ember-template-compiler/lib/plugins/transform-quoted-bindings-into-just-bindings.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | ember-template-compiler/lib/plugins/transform-top-level-components.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'ember-template-compiler/lib/plugins/transform-top-level-components.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | ember-template-compiler/lib/system/bootstrap.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'ember-template-compiler/lib/system/bootstrap.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | ember-template-compiler/lib/system/calculate-location-display.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'ember-template-compiler/lib/system/calculate-location-display.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | ember-template-compiler/lib/system/compile-options.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'ember-template-compiler/lib/system/compile-options.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | ember-template-compiler/lib/system/compile.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'ember-template-compiler/lib/system/compile.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | ember-template-compiler/lib/system/precompile.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'ember-template-compiler/lib/system/precompile.js should pass ESLint\n\n');
 });
 
 QUnit.module('ESLint | ember-template-compiler/plugins/assert-input-helper-without-block.js');
@@ -63774,7 +63933,9 @@ enifed('ember-template-compiler/tests/plugins/transform-dot-component-invocation
   QUnit.test('Does not throw a compiler error for path components', function (assert) {
     assert.expect(1);
 
-    ['{{this.modal open}}', '{{this.modal isOpen=true}}', '{{#this.modal}}Woot{{/this.modal}}', '{{c.modal open}}', '{{c.modal isOpen=true}}', '{{#c.modal}}Woot{{/c.modal}}', '{{#my-component as |c|}}{{c.a name="Chad"}}{{/my-component}}', '{{#my-component as |c|}}{{c.a "Chad"}}{{/my-component}}', '{{#my-component as |c|}}{{#c.a}}{{/c.a}}{{/my-component}}'].forEach(function (layout, i) {
+    ['{{this.modal open}}', '{{this.modal isOpen=true}}', '{{#this.modal}}Woot{{/this.modal}}', '{{c.modal open}}', '{{c.modal isOpen=true}}', '{{#c.modal}}Woot{{/c.modal}}', '{{#my-component as |c|}}{{c.a name="Chad"}}{{/my-component}}', '{{#my-component as |c|}}{{c.a "Chad"}}{{/my-component}}', '{{#my-component as |c|}}{{#c.a}}{{/c.a}}{{/my-component}}', '<input disabled={{true}}>', // GH#15740
+    '<td colspan={{3}}></td>' // GH#15217
+    ].forEach(function (layout, i) {
       (0, _index.compile)(layout, { moduleName: 'example-' + i });
     });
 
@@ -64161,6 +64322,192 @@ QUnit.module('ESLint | ember-testing/initializers.js');
 QUnit.test('should pass ESLint', function(assert) {
   assert.expect(1);
   assert.ok(true, 'ember-testing/initializers.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | ember-testing/lib/adapters/adapter.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'ember-testing/lib/adapters/adapter.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | ember-testing/lib/adapters/qunit.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'ember-testing/lib/adapters/qunit.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | ember-testing/lib/events.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'ember-testing/lib/events.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | ember-testing/lib/ext/application.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'ember-testing/lib/ext/application.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | ember-testing/lib/ext/rsvp.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'ember-testing/lib/ext/rsvp.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | ember-testing/lib/helpers.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'ember-testing/lib/helpers.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | ember-testing/lib/helpers/and_then.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'ember-testing/lib/helpers/and_then.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | ember-testing/lib/helpers/click.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'ember-testing/lib/helpers/click.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | ember-testing/lib/helpers/current_path.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'ember-testing/lib/helpers/current_path.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | ember-testing/lib/helpers/current_route_name.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'ember-testing/lib/helpers/current_route_name.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | ember-testing/lib/helpers/current_url.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'ember-testing/lib/helpers/current_url.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | ember-testing/lib/helpers/fill_in.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'ember-testing/lib/helpers/fill_in.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | ember-testing/lib/helpers/find.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'ember-testing/lib/helpers/find.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | ember-testing/lib/helpers/find_with_assert.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'ember-testing/lib/helpers/find_with_assert.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | ember-testing/lib/helpers/key_event.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'ember-testing/lib/helpers/key_event.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | ember-testing/lib/helpers/pause_test.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'ember-testing/lib/helpers/pause_test.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | ember-testing/lib/helpers/trigger_event.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'ember-testing/lib/helpers/trigger_event.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | ember-testing/lib/helpers/visit.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'ember-testing/lib/helpers/visit.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | ember-testing/lib/helpers/wait.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'ember-testing/lib/helpers/wait.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | ember-testing/lib/index.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'ember-testing/lib/index.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | ember-testing/lib/initializers.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'ember-testing/lib/initializers.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | ember-testing/lib/setup_for_testing.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'ember-testing/lib/setup_for_testing.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | ember-testing/lib/support.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'ember-testing/lib/support.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | ember-testing/lib/test.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'ember-testing/lib/test.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | ember-testing/lib/test/adapter.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'ember-testing/lib/test/adapter.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | ember-testing/lib/test/helpers.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'ember-testing/lib/test/helpers.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | ember-testing/lib/test/on_inject_helpers.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'ember-testing/lib/test/on_inject_helpers.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | ember-testing/lib/test/pending_requests.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'ember-testing/lib/test/pending_requests.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | ember-testing/lib/test/promise.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'ember-testing/lib/test/promise.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | ember-testing/lib/test/run.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'ember-testing/lib/test/run.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | ember-testing/lib/test/waiters.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'ember-testing/lib/test/waiters.js should pass ESLint\n\n');
 });
 
 QUnit.module('ESLint | ember-testing/setup_for_testing.js');
@@ -64716,12 +65063,13 @@ QUnit.test('should pass ESLint', function(assert) {
 enifed('ember-testing/tests/adapters_test', ['ember-metal', 'ember-testing/test', 'ember-testing/adapters/adapter', 'ember-testing/adapters/qunit', 'ember-application'], function (_emberMetal, _test, _adapter, _qunit, _emberApplication) {
   'use strict';
 
-  var App, originalAdapter, originalQUnit;
+  var App, originalAdapter, originalQUnit, originalWindowOnerror;
 
   QUnit.module('ember-testing Adapters', {
     setup: function () {
       originalAdapter = _test.default.adapter;
       originalQUnit = window.QUnit;
+      originalWindowOnerror = window.onerror;
     },
     teardown: function () {
       if (App) {
@@ -64732,6 +65080,7 @@ enifed('ember-testing/tests/adapters_test', ['ember-metal', 'ember-testing/test'
 
       _test.default.adapter = originalAdapter;
       window.QUnit = originalQUnit;
+      window.onerror = originalWindowOnerror;
     }
   });
 
@@ -64783,21 +65132,27 @@ enifed('ember-testing/tests/adapters_test', ['ember-metal', 'ember-testing/test'
     ok(!(_test.default.adapter instanceof _qunit.default));
   });
 
-  QUnit.test('With Ember.Test.adapter set, errors in Ember.run are caught', function () {
+  QUnit.test('With Ember.Test.adapter set, errors in synchronous Ember.run are bubbled out', function (assert) {
     var thrown = new Error('Boom!');
 
-    var caught = void 0;
+    var caughtInAdapter = void 0,
+        caughtInCatch = void 0;
     _test.default.adapter = _qunit.default.create({
       exception: function (error) {
-        caught = error;
+        caughtInAdapter = error;
       }
     });
 
-    (0, _emberMetal.run)(function () {
-      throw thrown;
-    });
+    try {
+      (0, _emberMetal.run)(function () {
+        throw thrown;
+      });
+    } catch (e) {
+      caughtInCatch = e;
+    }
 
-    deepEqual(caught, thrown);
+    assert.equal(caughtInAdapter, undefined, 'test adapter should never receive synchronous errors');
+    assert.equal(caughtInCatch, thrown, 'a "normal" try/catch should catch errors in sync run');
   });
 });
 QUnit.module('ESLint | ember-testing/tests/adapters_test.js');
@@ -65899,6 +66254,7 @@ enifed('ember-testing/tests/helpers_test', ['ember-babel', 'internal-test-helper
         _this31.router.map(function () {
           this.route('posts', { resetNamespace: true }, function () {
             this.route('new');
+            this.route('edit', { resetNamespace: true });
           });
         });
       });
@@ -65941,6 +66297,18 @@ enifed('ember-testing/tests/helpers_test', ['ember-babel', 'internal-test-helper
         assert.equal(testHelpers.currentRouteName(), 'posts.new', 'should equal \'posts.new\'.');
         assert.equal(testHelpers.currentPath(), 'posts.new', 'should equal \'posts.new\'.');
         assert.equal(testHelpers.currentURL(), '/posts/new', 'should equal \'/posts/new\'.');
+      });
+    };
+
+    _class4.prototype['@test currentRouteName for \'/posts/edit\''] = function (assert) {
+      assert.expect(3);
+
+      var testHelpers = this.application.testHelpers;
+
+      return testHelpers.visit('/posts/edit').then(function () {
+        assert.equal(testHelpers.currentRouteName(), 'edit', 'should equal \'edit\'.');
+        assert.equal(testHelpers.currentPath(), 'posts.edit', 'should equal \'posts.edit\'.');
+        assert.equal(testHelpers.currentURL(), '/posts/edit', 'should equal \'/posts/edit\'.');
       });
     };
 
@@ -66445,6 +66813,108 @@ QUnit.test('should pass ESLint', function(assert) {
   assert.ok(true, 'ember-utils.js should pass ESLint\n\n');
 });
 
+QUnit.module('ESLint | ember-utils/lib/apply-str.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'ember-utils/lib/apply-str.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | ember-utils/lib/assign.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'ember-utils/lib/assign.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | ember-utils/lib/dictionary.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'ember-utils/lib/dictionary.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | ember-utils/lib/guid.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'ember-utils/lib/guid.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | ember-utils/lib/index.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'ember-utils/lib/index.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | ember-utils/lib/inspect.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'ember-utils/lib/inspect.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | ember-utils/lib/intern.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'ember-utils/lib/intern.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | ember-utils/lib/invoke.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'ember-utils/lib/invoke.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | ember-utils/lib/lookup-descriptor.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'ember-utils/lib/lookup-descriptor.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | ember-utils/lib/make-array.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'ember-utils/lib/make-array.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | ember-utils/lib/name.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'ember-utils/lib/name.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | ember-utils/lib/owner.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'ember-utils/lib/owner.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | ember-utils/lib/proxy-utils.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'ember-utils/lib/proxy-utils.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | ember-utils/lib/super.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'ember-utils/lib/super.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | ember-utils/lib/symbol.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'ember-utils/lib/symbol.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | ember-utils/lib/to-string.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'ember-utils/lib/to-string.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | ember-utils/lib/weak-map-utils.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'ember-utils/lib/weak-map-utils.js should pass ESLint\n\n');
+});
+
 enifed('ember-utils/tests/assign_test', ['ember-utils'], function (_emberUtils) {
   'use strict';
 
@@ -66510,6 +66980,12 @@ enifed('ember-utils/tests/can_invoke_test', ['ember-utils'], function (_emberUti
 
   QUnit.test('should return false if the object doesn\'t exist', function () {
     equal((0, _emberUtils.canInvoke)(undefined, 'aMethodThatDoesNotExist'), false);
+  });
+
+  QUnit.test('should return true for falsy values that have methods', function () {
+    equal((0, _emberUtils.canInvoke)(false, 'valueOf'), true);
+    equal((0, _emberUtils.canInvoke)('', 'charAt'), true);
+    equal((0, _emberUtils.canInvoke)(0, 'toFixed'), true);
   });
 
   QUnit.test('should return true if the method exists on the object', function () {
@@ -66858,154 +67334,154 @@ QUnit.test('should pass ESLint', function(assert) {
   assert.ok(true, 'ember-utils/tests/try_invoke_test.js should pass ESLint\n\n');
 });
 
-QUnit.module('ESLint | ember-views/compat/attrs.js');
+QUnit.module('ESLint | ember-views/lib/compat/attrs.js');
 QUnit.test('should pass ESLint', function(assert) {
   assert.expect(1);
-  assert.ok(true, 'ember-views/compat/attrs.js should pass ESLint\n\n');
+  assert.ok(true, 'ember-views/lib/compat/attrs.js should pass ESLint\n\n');
 });
 
-QUnit.module('ESLint | ember-views/compat/fallback-view-registry.js');
+QUnit.module('ESLint | ember-views/lib/compat/fallback-view-registry.js');
 QUnit.test('should pass ESLint', function(assert) {
   assert.expect(1);
-  assert.ok(true, 'ember-views/compat/fallback-view-registry.js should pass ESLint\n\n');
+  assert.ok(true, 'ember-views/lib/compat/fallback-view-registry.js should pass ESLint\n\n');
 });
 
-QUnit.module('ESLint | ember-views/component_lookup.js');
+QUnit.module('ESLint | ember-views/lib/component_lookup.js');
 QUnit.test('should pass ESLint', function(assert) {
   assert.expect(1);
-  assert.ok(true, 'ember-views/component_lookup.js should pass ESLint\n\n');
+  assert.ok(true, 'ember-views/lib/component_lookup.js should pass ESLint\n\n');
 });
 
-QUnit.module('ESLint | ember-views/index.js');
+QUnit.module('ESLint | ember-views/lib/index.js');
 QUnit.test('should pass ESLint', function(assert) {
   assert.expect(1);
-  assert.ok(true, 'ember-views/index.js should pass ESLint\n\n');
+  assert.ok(true, 'ember-views/lib/index.js should pass ESLint\n\n');
 });
 
-QUnit.module('ESLint | ember-views/mixins/action_support.js');
+QUnit.module('ESLint | ember-views/lib/mixins/action_support.js');
 QUnit.test('should pass ESLint', function(assert) {
   assert.expect(1);
-  assert.ok(true, 'ember-views/mixins/action_support.js should pass ESLint\n\n');
+  assert.ok(true, 'ember-views/lib/mixins/action_support.js should pass ESLint\n\n');
 });
 
-QUnit.module('ESLint | ember-views/mixins/child_views_support.js');
+QUnit.module('ESLint | ember-views/lib/mixins/child_views_support.js');
 QUnit.test('should pass ESLint', function(assert) {
   assert.expect(1);
-  assert.ok(true, 'ember-views/mixins/child_views_support.js should pass ESLint\n\n');
+  assert.ok(true, 'ember-views/lib/mixins/child_views_support.js should pass ESLint\n\n');
 });
 
-QUnit.module('ESLint | ember-views/mixins/class_names_support.js');
+QUnit.module('ESLint | ember-views/lib/mixins/class_names_support.js');
 QUnit.test('should pass ESLint', function(assert) {
   assert.expect(1);
-  assert.ok(true, 'ember-views/mixins/class_names_support.js should pass ESLint\n\n');
+  assert.ok(true, 'ember-views/lib/mixins/class_names_support.js should pass ESLint\n\n');
 });
 
-QUnit.module('ESLint | ember-views/mixins/text_support.js');
+QUnit.module('ESLint | ember-views/lib/mixins/text_support.js');
 QUnit.test('should pass ESLint', function(assert) {
   assert.expect(1);
-  assert.ok(true, 'ember-views/mixins/text_support.js should pass ESLint\n\n');
+  assert.ok(true, 'ember-views/lib/mixins/text_support.js should pass ESLint\n\n');
 });
 
-QUnit.module('ESLint | ember-views/mixins/view_state_support.js');
+QUnit.module('ESLint | ember-views/lib/mixins/view_state_support.js');
 QUnit.test('should pass ESLint', function(assert) {
   assert.expect(1);
-  assert.ok(true, 'ember-views/mixins/view_state_support.js should pass ESLint\n\n');
+  assert.ok(true, 'ember-views/lib/mixins/view_state_support.js should pass ESLint\n\n');
 });
 
-QUnit.module('ESLint | ember-views/mixins/view_support.js');
+QUnit.module('ESLint | ember-views/lib/mixins/view_support.js');
 QUnit.test('should pass ESLint', function(assert) {
   assert.expect(1);
-  assert.ok(true, 'ember-views/mixins/view_support.js should pass ESLint\n\n');
+  assert.ok(true, 'ember-views/lib/mixins/view_support.js should pass ESLint\n\n');
 });
 
-QUnit.module('ESLint | ember-views/system/action_manager.js');
+QUnit.module('ESLint | ember-views/lib/system/action_manager.js');
 QUnit.test('should pass ESLint', function(assert) {
   assert.expect(1);
-  assert.ok(true, 'ember-views/system/action_manager.js should pass ESLint\n\n');
+  assert.ok(true, 'ember-views/lib/system/action_manager.js should pass ESLint\n\n');
 });
 
-QUnit.module('ESLint | ember-views/system/event_dispatcher.js');
+QUnit.module('ESLint | ember-views/lib/system/event_dispatcher.js');
 QUnit.test('should pass ESLint', function(assert) {
   assert.expect(1);
-  assert.ok(true, 'ember-views/system/event_dispatcher.js should pass ESLint\n\n');
+  assert.ok(true, 'ember-views/lib/system/event_dispatcher.js should pass ESLint\n\n');
 });
 
-QUnit.module('ESLint | ember-views/system/ext.js');
+QUnit.module('ESLint | ember-views/lib/system/ext.js');
 QUnit.test('should pass ESLint', function(assert) {
   assert.expect(1);
-  assert.ok(true, 'ember-views/system/ext.js should pass ESLint\n\n');
+  assert.ok(true, 'ember-views/lib/system/ext.js should pass ESLint\n\n');
 });
 
-QUnit.module('ESLint | ember-views/system/jquery.js');
+QUnit.module('ESLint | ember-views/lib/system/jquery.js');
 QUnit.test('should pass ESLint', function(assert) {
   assert.expect(1);
-  assert.ok(true, 'ember-views/system/jquery.js should pass ESLint\n\n');
+  assert.ok(true, 'ember-views/lib/system/jquery.js should pass ESLint\n\n');
 });
 
-QUnit.module('ESLint | ember-views/system/lookup_partial.js');
+QUnit.module('ESLint | ember-views/lib/system/lookup_partial.js');
 QUnit.test('should pass ESLint', function(assert) {
   assert.expect(1);
-  assert.ok(true, 'ember-views/system/lookup_partial.js should pass ESLint\n\n');
+  assert.ok(true, 'ember-views/lib/system/lookup_partial.js should pass ESLint\n\n');
 });
 
-QUnit.module('ESLint | ember-views/system/utils.js');
+QUnit.module('ESLint | ember-views/lib/system/utils.js');
 QUnit.test('should pass ESLint', function(assert) {
   assert.expect(1);
-  assert.ok(true, 'ember-views/system/utils.js should pass ESLint\n\n');
+  assert.ok(true, 'ember-views/lib/system/utils.js should pass ESLint\n\n');
 });
 
-QUnit.module('ESLint | ember-views/utils/lookup-component.js');
+QUnit.module('ESLint | ember-views/lib/utils/lookup-component.js');
 QUnit.test('should pass ESLint', function(assert) {
   assert.expect(1);
-  assert.ok(true, 'ember-views/utils/lookup-component.js should pass ESLint\n\n');
+  assert.ok(true, 'ember-views/lib/utils/lookup-component.js should pass ESLint\n\n');
 });
 
-QUnit.module('ESLint | ember-views/views/core_view.js');
+QUnit.module('ESLint | ember-views/lib/views/core_view.js');
 QUnit.test('should pass ESLint', function(assert) {
   assert.expect(1);
-  assert.ok(true, 'ember-views/views/core_view.js should pass ESLint\n\n');
+  assert.ok(true, 'ember-views/lib/views/core_view.js should pass ESLint\n\n');
 });
 
-QUnit.module('ESLint | ember-views/views/states.js');
+QUnit.module('ESLint | ember-views/lib/views/states.js');
 QUnit.test('should pass ESLint', function(assert) {
   assert.expect(1);
-  assert.ok(true, 'ember-views/views/states.js should pass ESLint\n\n');
+  assert.ok(true, 'ember-views/lib/views/states.js should pass ESLint\n\n');
 });
 
-QUnit.module('ESLint | ember-views/views/states/default.js');
+QUnit.module('ESLint | ember-views/lib/views/states/default.js');
 QUnit.test('should pass ESLint', function(assert) {
   assert.expect(1);
-  assert.ok(true, 'ember-views/views/states/default.js should pass ESLint\n\n');
+  assert.ok(true, 'ember-views/lib/views/states/default.js should pass ESLint\n\n');
 });
 
-QUnit.module('ESLint | ember-views/views/states/destroying.js');
+QUnit.module('ESLint | ember-views/lib/views/states/destroying.js');
 QUnit.test('should pass ESLint', function(assert) {
   assert.expect(1);
-  assert.ok(true, 'ember-views/views/states/destroying.js should pass ESLint\n\n');
+  assert.ok(true, 'ember-views/lib/views/states/destroying.js should pass ESLint\n\n');
 });
 
-QUnit.module('ESLint | ember-views/views/states/has_element.js');
+QUnit.module('ESLint | ember-views/lib/views/states/has_element.js');
 QUnit.test('should pass ESLint', function(assert) {
   assert.expect(1);
-  assert.ok(true, 'ember-views/views/states/has_element.js should pass ESLint\n\n');
+  assert.ok(true, 'ember-views/lib/views/states/has_element.js should pass ESLint\n\n');
 });
 
-QUnit.module('ESLint | ember-views/views/states/in_dom.js');
+QUnit.module('ESLint | ember-views/lib/views/states/in_dom.js');
 QUnit.test('should pass ESLint', function(assert) {
   assert.expect(1);
-  assert.ok(true, 'ember-views/views/states/in_dom.js should pass ESLint\n\n');
+  assert.ok(true, 'ember-views/lib/views/states/in_dom.js should pass ESLint\n\n');
 });
 
-QUnit.module('ESLint | ember-views/views/states/pre_render.js');
+QUnit.module('ESLint | ember-views/lib/views/states/pre_render.js');
 QUnit.test('should pass ESLint', function(assert) {
   assert.expect(1);
-  assert.ok(true, 'ember-views/views/states/pre_render.js should pass ESLint\n\n');
+  assert.ok(true, 'ember-views/lib/views/states/pre_render.js should pass ESLint\n\n');
 });
 
-QUnit.module('ESLint | ember/index.js');
+QUnit.module('ESLint | ember/lib/index.js');
 QUnit.test('should pass ESLint', function(assert) {
   assert.expect(1);
-  assert.ok(true, 'ember/index.js should pass ESLint\n\n');
+  assert.ok(true, 'ember/lib/index.js should pass ESLint\n\n');
 });
 
 enifed('ember/tests/application_lifecycle_test', ['ember-babel', 'internal-test-helpers', 'ember-application', 'ember-routing', 'ember-glimmer'], function (_emberBabel, _internalTestHelpers, _emberApplication, _emberRouting, _emberGlimmer) {
@@ -67685,91 +68161,546 @@ enifed('ember/tests/error_handler_test', ['ember', 'ember-metal'], function (_em
   var ADAPTER = _ember.default.Test && _ember.default.Test.adapter;
   var TESTING = _ember.default.testing;
 
+  var WINDOW_ONERROR = void 0;
+
   QUnit.module('error_handler', {
+    setup: function () {
+      // capturing this outside of module scope to ensure we grab
+      // the test frameworks own window.onerror to reset it
+      WINDOW_ONERROR = window.onerror;
+    },
     teardown: function () {
       _ember.default.onerror = ONERROR;
       _ember.default.testing = TESTING;
+      window.onerror = WINDOW_ONERROR;
       if (_ember.default.Test) {
         _ember.default.Test.adapter = ADAPTER;
       }
     }
   });
 
-  function runThatThrows(message) {
+  function runThatThrowsSync() {
+    var message = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'Error for testing error handling';
+
     return (0, _emberMetal.run)(function () {
       throw new Error(message);
     });
   }
 
-  test('by default there is no onerror', function (assert) {
-    _ember.default.onerror = undefined;
-    assert.throws(runThatThrows, Error);
-    assert.equal(_ember.default.onerror, undefined);
+  function runThatThrowsAsync() {
+    var message = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'Error for testing error handling';
+
+    return _emberMetal.run.next(function () {
+      throw new Error(message);
+    });
+  }
+
+  test('by default there is no onerror - sync run', function (assert) {
+    assert.strictEqual(_ember.default.onerror, undefined, 'precond - there should be no Ember.onerror set by default');
+    assert.throws(runThatThrowsSync, Error, 'errors thrown sync are catchable');
   });
 
-  test('when Ember.onerror is registered', function (assert) {
+  test('when Ember.onerror (which rethrows) is registered - sync run', function (assert) {
     assert.expect(2);
     _ember.default.onerror = function (error) {
       assert.ok(true, 'onerror called');
       throw error;
     };
-    assert.throws(runThatThrows, Error);
-    // Ember.onerror = ONERROR;
+    assert.throws(runThatThrowsSync, Error, 'error is thrown');
+  });
+
+  test('when Ember.onerror (which does not rethrow) is registered - sync run', function (assert) {
+    assert.expect(2);
+    _ember.default.onerror = function (error) {
+      assert.ok(true, 'onerror called');
+    };
+    runThatThrowsSync();
+    assert.ok(true, 'no error was thrown, Ember.onerror can intercept errors');
   });
 
   if (true) {
-    test('when Ember.Test.adapter is registered', function (assert) {
-      assert.expect(2);
+    test('when Ember.Test.adapter is registered and error is thrown - sync run', function (assert) {
+      assert.expect(1);
 
       _ember.default.Test.adapter = {
         exception: function (error) {
-          assert.ok(true, 'adapter called');
-          throw error;
+          assert.notOk(true, 'adapter is not called for errors thrown in sync run loops');
         }
       };
 
-      assert.throws(runThatThrows, Error);
+      assert.throws(runThatThrowsSync, Error);
     });
 
-    test('when both Ember.onerror Ember.Test.adapter are registered', function (assert) {
+    test('when both Ember.onerror (which rethrows) and Ember.Test.adapter are registered - sync run', function (assert) {
       assert.expect(2);
 
-      // takes precedence
       _ember.default.Test.adapter = {
         exception: function (error) {
-          assert.ok(true, 'adapter called');
-          throw error;
+          assert.notOk(true, 'adapter is not called for errors thrown in sync run loops');
         }
       };
 
       _ember.default.onerror = function (error) {
-        assert.ok(false, 'onerror was NEVER called');
+        assert.ok(true, 'onerror is called for sync errors even if Ember.Test.adapter is setup');
         throw error;
       };
 
-      assert.throws(runThatThrows, Error);
+      assert.throws(runThatThrowsSync, Error, 'error is thrown');
+    });
+
+    test('when both Ember.onerror (which does not rethrow) and Ember.Test.adapter are registered - sync run', function (assert) {
+      assert.expect(2);
+
+      _ember.default.Test.adapter = {
+        exception: function (error) {
+          assert.notOk(true, 'adapter is not called for errors thrown in sync run loops');
+        }
+      };
+
+      _ember.default.onerror = function (error) {
+        assert.ok(true, 'onerror is called for sync errors even if Ember.Test.adapter is setup');
+      };
+
+      runThatThrowsSync();
+      assert.ok(true, 'no error was thrown, Ember.onerror can intercept errors');
+    });
+
+    QUnit.test('when Ember.Test.adapter is registered and error is thrown - async run', function (assert) {
+      assert.expect(3);
+      var done = assert.async();
+
+      var caughtInAdapter = void 0,
+          caughtInCatch = void 0,
+          caughtByWindowOnerror = void 0;
+      _ember.default.Test.adapter = {
+        exception: function (error) {
+          caughtInAdapter = error;
+        }
+      };
+
+      window.onerror = function (message) {
+        caughtByWindowOnerror = message;
+        // prevent "bubbling" and therefore failing the test
+        return true;
+      };
+
+      try {
+        runThatThrowsAsync();
+      } catch (e) {
+        caughtInCatch = e;
+      }
+
+      setTimeout(function () {
+        assert.equal(caughtInAdapter, undefined, 'test adapter should never catch errors in run loops');
+        assert.equal(caughtInCatch, undefined, 'a "normal" try/catch should never catch errors in an async run');
+
+        assert.pushResult({
+          result: /Error for testing error handling/.test(caughtByWindowOnerror),
+          actual: caughtByWindowOnerror,
+          expected: 'to include `Error for testing error handling`',
+          message: 'error should bubble out to window.onerror, and therefore fail tests (due to QUnit implementing window.onerror)'
+        });
+
+        done();
+      }, 20);
+    });
+
+    test('when both Ember.onerror and Ember.Test.adapter are registered - async run', function (assert) {
+      assert.expect(1);
+      var done = assert.async();
+
+      _ember.default.Test.adapter = {
+        exception: function (error) {
+          assert.notOk(true, 'Adapter.exception is not called for errors thrown in run.next');
+        }
+      };
+
+      _ember.default.onerror = function (error) {
+        assert.ok(true, 'onerror is invoked for errors thrown in run.next/run.later');
+      };
+
+      runThatThrowsAsync();
+      setTimeout(done, 10);
     });
   }
 
-  QUnit.test('Ember.run does not swallow exceptions by default (Ember.testing = true)', function () {
+  QUnit.test('does not swallow exceptions by default (Ember.testing = true, no Ember.onerror) - sync run', function (assert) {
     _ember.default.testing = true;
+
     var error = new Error('the error');
-    throws(function () {
+    assert.throws(function () {
       _ember.default.run(function () {
         throw error;
       });
     }, error);
   });
 
-  QUnit.test('Ember.run does not swallow exceptions by default (Ember.testing = false)', function () {
+  QUnit.test('does not swallow exceptions by default (Ember.testing = false, no Ember.onerror) - sync run', function (assert) {
     _ember.default.testing = false;
     var error = new Error('the error');
-    throws(function () {
+    assert.throws(function () {
       _ember.default.run(function () {
         throw error;
       });
     }, error);
   });
+
+  QUnit.test('does not swallow exceptions (Ember.testing = false, Ember.onerror which rethrows) - sync run', function (assert) {
+    assert.expect(2);
+    _ember.default.testing = false;
+
+    _ember.default.onerror = function (error) {
+      assert.ok(true, 'Ember.onerror was called');
+      throw error;
+    };
+
+    var error = new Error('the error');
+    assert.throws(function () {
+      _ember.default.run(function () {
+        throw error;
+      });
+    }, error);
+  });
+
+  QUnit.test('Ember.onerror can intercept errors (aka swallow) by not rethrowing (Ember.testing = false) - sync run', function (assert) {
+    assert.expect(1);
+    _ember.default.testing = false;
+
+    _ember.default.onerror = function (error) {
+      assert.ok(true, 'Ember.onerror was called');
+    };
+
+    var error = new Error('the error');
+    try {
+      _ember.default.run(function () {
+        throw error;
+      });
+    } catch (e) {
+      assert.notOk(true, 'Ember.onerror that does not rethrow is intentionally swallowing errors, try / catch wrapping does not see error');
+    }
+  });
+
+  QUnit.test('does not swallow exceptions by default (Ember.testing = true, no Ember.onerror) - async run', function (assert) {
+    var done = assert.async();
+    var caughtByWindowOnerror = void 0;
+
+    _ember.default.testing = true;
+
+    window.onerror = function (message) {
+      caughtByWindowOnerror = message;
+      // prevent "bubbling" and therefore failing the test
+      return true;
+    };
+
+    _ember.default.run.later(function () {
+      throw new Error('the error');
+    }, 10);
+
+    setTimeout(function () {
+      assert.pushResult({
+        result: /the error/.test(caughtByWindowOnerror),
+        actual: caughtByWindowOnerror,
+        expected: 'to include `the error`',
+        message: 'error should bubble out to window.onerror, and therefore fail tests (due to QUnit implementing window.onerror)'
+      });
+
+      done();
+    }, 20);
+  });
+
+  QUnit.test('does not swallow exceptions by default (Ember.testing = false, no Ember.onerror) - async run', function (assert) {
+    var done = assert.async();
+    var caughtByWindowOnerror = void 0;
+
+    _ember.default.testing = false;
+
+    window.onerror = function (message) {
+      caughtByWindowOnerror = message;
+      // prevent "bubbling" and therefore failing the test
+      return true;
+    };
+
+    _ember.default.run.later(function () {
+      throw new Error('the error');
+    }, 10);
+
+    setTimeout(function () {
+      assert.pushResult({
+        result: /the error/.test(caughtByWindowOnerror),
+        actual: caughtByWindowOnerror,
+        expected: 'to include `the error`',
+        message: 'error should bubble out to window.onerror, and therefore fail tests (due to QUnit implementing window.onerror)'
+      });
+
+      done();
+    }, 20);
+  });
+
+  QUnit.test('Ember.onerror can intercept errors (aka swallow) by not rethrowing (Ember.testing = false) - async run', function (assert) {
+    var done = assert.async();
+
+    _ember.default.testing = false;
+
+    window.onerror = function (message) {
+      assert.notOk(true, 'window.onerror is never invoked when Ember.onerror intentionally swallows errors');
+      // prevent "bubbling" and therefore failing the test
+      return true;
+    };
+
+    var thrown = new Error('the error');
+    _ember.default.onerror = function (error) {
+      assert.strictEqual(error, thrown, 'Ember.onerror is called with the error');
+    };
+
+    _ember.default.run.later(function () {
+      throw thrown;
+    }, 10);
+
+    setTimeout(done, 20);
+  });
+
+  function generateRSVPErrorHandlingTests(message, generatePromise) {
+    var timeout = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 10;
+
+    test(message + ' when Ember.onerror which does not rethrow is present - rsvp', function (assert) {
+      assert.expect(1);
+
+      var thrown = new Error('the error');
+      _ember.default.onerror = function (error) {
+        assert.strictEqual(error, thrown, 'Ember.onerror is called for errors thrown in RSVP promises');
+      };
+
+      generatePromise(thrown);
+
+      // RSVP.Promise's are configured to settle within the run loop, this
+      // ensures that run loop has completed
+      return new _ember.default.RSVP.Promise(function (resolve) {
+        return setTimeout(resolve, timeout);
+      });
+    });
+
+    test(message + ' when Ember.onerror which does rethrow is present - rsvp', function (assert) {
+      assert.expect(2);
+
+      var thrown = new Error('the error');
+      _ember.default.onerror = function (error) {
+        assert.strictEqual(error, thrown, 'Ember.onerror is called for errors thrown in RSVP promises');
+        throw error;
+      };
+
+      window.onerror = function (message) {
+        assert.pushResult({
+          result: /the error/.test(message),
+          actual: message,
+          expected: 'to include `the error`',
+          message: 'error should bubble out to window.onerror, and therefore fail tests (due to QUnit implementing window.onerror)'
+        });
+
+        // prevent "bubbling" and therefore failing the test
+        return true;
+      };
+
+      generatePromise(thrown);
+
+      // RSVP.Promise's are configured to settle within the run loop, this
+      // ensures that run loop has completed
+      return new _ember.default.RSVP.Promise(function (resolve) {
+        return setTimeout(resolve, timeout);
+      });
+    });
+
+    test(message + ' when Ember.onerror which does not rethrow is present (Ember.testing = false) - rsvp', function (assert) {
+      assert.expect(1);
+
+      _ember.default.testing = false;
+      var thrown = new Error('the error');
+      _ember.default.onerror = function (error) {
+        assert.strictEqual(error, thrown, 'Ember.onerror is called for errors thrown in RSVP promises');
+      };
+
+      generatePromise(thrown);
+
+      // RSVP.Promise's are configured to settle within the run loop, this
+      // ensures that run loop has completed
+      return new _ember.default.RSVP.Promise(function (resolve) {
+        return setTimeout(resolve, timeout);
+      });
+    });
+
+    test(message + ' when Ember.onerror which does rethrow is present (Ember.testing = false) - rsvp', function (assert) {
+      assert.expect(2);
+
+      _ember.default.testing = false;
+      var thrown = new Error('the error');
+      _ember.default.onerror = function (error) {
+        assert.strictEqual(error, thrown, 'Ember.onerror is called for errors thrown in RSVP promises');
+        throw error;
+      };
+
+      window.onerror = function (message) {
+        assert.pushResult({
+          result: /the error/.test(message),
+          actual: message,
+          expected: 'to include `the error`',
+          message: 'error should bubble out to window.onerror, and therefore fail tests (due to QUnit implementing window.onerror)'
+        });
+
+        // prevent "bubbling" and therefore failing the test
+        return true;
+      };
+
+      generatePromise(thrown);
+
+      // RSVP.Promise's are configured to settle within the run loop, this
+      // ensures that run loop has completed
+      return new _ember.default.RSVP.Promise(function (resolve) {
+        return setTimeout(resolve, timeout);
+      });
+    });
+
+    if (true) {
+      test(message + ' when Ember.Test.adapter without `exception` method is present - rsvp', function (assert) {
+        assert.expect(1);
+
+        var thrown = new Error('the error');
+        _ember.default.Test.adapter = _ember.default.Test.QUnitAdapter.create({
+          exception: undefined
+        });
+
+        window.onerror = function (message) {
+          assert.pushResult({
+            result: /the error/.test(message),
+            actual: message,
+            expected: 'to include `the error`',
+            message: 'error should bubble out to window.onerror, and therefore fail tests (due to QUnit implementing window.onerror)'
+          });
+
+          // prevent "bubbling" and therefore failing the test
+          return true;
+        };
+
+        generatePromise(thrown);
+
+        // RSVP.Promise's are configured to settle within the run loop, this
+        // ensures that run loop has completed
+        return new _ember.default.RSVP.Promise(function (resolve) {
+          return setTimeout(resolve, timeout);
+        });
+      });
+
+      test(message + ' when both Ember.onerror and Ember.Test.adapter without `exception` method are present - rsvp', function (assert) {
+        assert.expect(1);
+
+        var thrown = new Error('the error');
+        _ember.default.Test.adapter = _ember.default.Test.QUnitAdapter.create({
+          exception: undefined
+        });
+
+        _ember.default.onerror = function (error) {
+          assert.pushResult({
+            result: /the error/.test(error.message),
+            actual: error.message,
+            expected: 'to include `the error`',
+            message: 'error should bubble out to window.onerror, and therefore fail tests (due to QUnit implementing window.onerror)'
+          });
+        };
+
+        generatePromise(thrown);
+
+        // RSVP.Promise's are configured to settle within the run loop, this
+        // ensures that run loop has completed
+        return new _ember.default.RSVP.Promise(function (resolve) {
+          return setTimeout(resolve, timeout);
+        });
+      });
+
+      test(message + ' when Ember.Test.adapter is present - rsvp', function (assert) {
+        assert.expect(1);
+
+        var thrown = new Error('the error');
+        _ember.default.Test.adapter = _ember.default.Test.QUnitAdapter.create({
+          exception: function (error) {
+            assert.strictEqual(error, thrown, 'Adapter.exception is called for errors thrown in RSVP promises');
+          }
+        });
+
+        generatePromise(thrown);
+
+        // RSVP.Promise's are configured to settle within the run loop, this
+        // ensures that run loop has completed
+        return new _ember.default.RSVP.Promise(function (resolve) {
+          return setTimeout(resolve, timeout);
+        });
+      });
+
+      test(message + ' when both Ember.onerror and Ember.Test.adapter are present - rsvp', function (assert) {
+        assert.expect(1);
+
+        var thrown = new Error('the error');
+        _ember.default.Test.adapter = _ember.default.Test.QUnitAdapter.create({
+          exception: function (error) {
+            assert.strictEqual(error, thrown, 'Adapter.exception is called for errors thrown in RSVP promises');
+          }
+        });
+
+        _ember.default.onerror = function (error) {
+          assert.notOk(true, 'Ember.onerror is not called if Test.adapter does not rethrow');
+        };
+
+        generatePromise(thrown);
+
+        // RSVP.Promise's are configured to settle within the run loop, this
+        // ensures that run loop has completed
+        return new _ember.default.RSVP.Promise(function (resolve) {
+          return setTimeout(resolve, timeout);
+        });
+      });
+
+      test(message + ' when both Ember.onerror and Ember.Test.adapter are present - rsvp', function (assert) {
+        assert.expect(2);
+
+        var thrown = new Error('the error');
+        _ember.default.Test.adapter = _ember.default.Test.QUnitAdapter.create({
+          exception: function (error) {
+            assert.strictEqual(error, thrown, 'Adapter.exception is called for errors thrown in RSVP promises');
+            throw error;
+          }
+        });
+
+        _ember.default.onerror = function (error) {
+          assert.strictEqual(error, thrown, 'Ember.onerror is called for errors thrown in RSVP promises if Test.adapter rethrows');
+        };
+
+        generatePromise(thrown);
+
+        // RSVP.Promise's are configured to settle within the run loop, this
+        // ensures that run loop has completed
+        return new _ember.default.RSVP.Promise(function (resolve) {
+          return setTimeout(resolve, timeout);
+        });
+      });
+    }
+  }
+
+  generateRSVPErrorHandlingTests('errors in promise constructor', function (error) {
+    new _ember.default.RSVP.Promise(function () {
+      throw error;
+    });
+  });
+
+  generateRSVPErrorHandlingTests('errors in promise .then callback', function (error) {
+    _ember.default.RSVP.resolve().then(function () {
+      throw error;
+    });
+  });
+
+  generateRSVPErrorHandlingTests('errors in async promise .then callback', function (error) {
+    new _ember.default.RSVP.Promise(function (resolve) {
+      return setTimeout(resolve, 10);
+    }).then(function () {
+      throw error;
+    });
+  }, 20);
 });
 QUnit.module('ESLint | ember/tests/error_handler_test.js');
 QUnit.test('should pass ESLint', function(assert) {
@@ -68009,8 +68940,17 @@ enifed('ember/tests/helpers/link_to_test', ['ember-babel', 'ember-console', 'int
       assert.equal(this.$('#about-link.do-not-want').length, 1, 'The link can apply a custom disabled class via bound param');
     };
 
-    _class.prototype['@test the {{link-to}} helper does not respond to clicks when disabled'] = function (assert) {
+    _class.prototype['@test the {{link-to}} helper does not respond to clicks when disabledWhen'] = function (assert) {
       this.addTemplate('index', '\n      {{#link-to "about" id="about-link" disabledWhen=true}}About{{/link-to}}\n    ');
+
+      this.visit('/');
+      this.click('#about-link');
+
+      assert.equal(this.$('h3:contains(About)').length, 0, 'Transitioning did not occur');
+    };
+
+    _class.prototype['@test the {{link-to}} helper does not respond to clicks when disabled'] = function (assert) {
+      this.addTemplate('index', '\n      {{#link-to "about" id="about-link" disabled=true}}About{{/link-to}}\n    ');
 
       this.visit('/');
       this.click('#about-link');
@@ -69137,24 +70077,14 @@ enifed('ember/tests/helpers/link_to_test', ['ember-babel', 'ember-console', 'int
 
     function _class5() {
       (0, _emberBabel.classCallCheck)(this, _class5);
-
-      var _this8 = (0, _emberBabel.possibleConstructorReturn)(this, _ApplicationTestCase6.call(this));
-
-      _this8._oldWarn = _emberConsole.default.warn;
-      _this8.warnCalled = false;
-      _emberConsole.default.warn = function () {
-        return _this8.warnCalled = true;
-      };
-      return _this8;
+      return (0, _emberBabel.possibleConstructorReturn)(this, _ApplicationTestCase6.apply(this, arguments));
     }
 
-    _class5.prototype.teardown = function teardown() {
-      _emberConsole.default.warn = this._oldWarn;
-      _ApplicationTestCase6.prototype.teardown.call(this);
-    };
-
     _class5.prototype['@test link-to with null/undefined dynamic parameters are put in a loading state'] = function (assert) {
+      var _this9 = this;
+
       assert.expect(19);
+      var warningMessage = 'This link-to is in an inactive loading state because at least one of its parameters presently has a null/undefined value, or the provided route name is invalid.';
 
       this.router.map(function () {
         this.route('thing', { path: '/thing/:thing_id' });
@@ -69194,9 +70124,9 @@ enifed('ember/tests/helpers/link_to_test', ['ember-babel', 'ember-console', 'int
       assertLinkStatus(contextLink);
       assertLinkStatus(staticLink);
 
-      this.warnCalled = false;
-      this.click(contextLink);
-      assert.ok(this.warnCalled, 'Logger.warn was called from clicking loading link');
+      expectWarning(function () {
+        _this9.click(contextLink);
+      }, warningMessage);
 
       // Set the destinationRoute (context is still null).
       this.runTask(function () {
@@ -69228,9 +70158,9 @@ enifed('ember/tests/helpers/link_to_test', ['ember-babel', 'ember-console', 'int
       });
       assertLinkStatus(contextLink);
 
-      this.warnCalled = false;
-      this.click(staticLink);
-      assert.ok(this.warnCalled, 'Logger.warn was called from clicking loading link');
+      expectWarning(function () {
+        _this9.click(staticLink);
+      }, warningMessage);
 
       this.runTask(function () {
         return controller.set('secondRoute', 'about');
@@ -69253,23 +70183,23 @@ enifed('ember/tests/helpers/link_to_test', ['ember-babel', 'ember-console', 'int
     }
 
     _class6.prototype['@test the {{link-to}} helper throws a useful error if you invoke it wrong'] = function (assert) {
-      var _this10 = this;
+      var _this11 = this;
 
       assert.expect(1);
 
       assert.throws(function () {
-        _this10.runTask(function () {
-          _this10.createApplication();
+        _this11.runTask(function () {
+          _this11.createApplication();
 
-          _this10.add('router:main', _emberRouting.Router.extend({
+          _this11.add('router:main', _emberRouting.Router.extend({
             location: 'none'
           }));
 
-          _this10.router.map(function () {
+          _this11.router.map(function () {
             this.route('post', { path: 'post/:post_id' });
           });
 
-          _this10.addTemplate('application', '{{#link-to \'post\'}}Post{{/link-to}}');
+          _this11.addTemplate('application', '{{#link-to \'post\'}}Post{{/link-to}}');
         });
       }, /(You attempted to define a `\{\{link-to "post"\}\}` but did not pass the parameters required for generating its dynamic segments.|You must provide param `post_id` to `generate`)/);
     };
@@ -69308,11 +70238,13 @@ enifed('ember/tests/helpers/link_to_test/link_to_transitioning_classes_test', ['
 
       _this2.aboutDefer = _emberRuntime.RSVP.defer();
       _this2.otherDefer = _emberRuntime.RSVP.defer();
+      _this2.newsDefer = _emberRuntime.RSVP.defer();
       var _this = _this2;
 
       _this2.router.map(function () {
         this.route('about');
         this.route('other');
+        this.route('news');
       });
 
       _this2.add('route:about', _emberRouting.Route.extend({
@@ -69327,7 +70259,13 @@ enifed('ember/tests/helpers/link_to_test/link_to_transitioning_classes_test', ['
         }
       }));
 
-      _this2.addTemplate('application', '\n      {{outlet}}\n      {{link-to \'Index\' \'index\' id=\'index-link\'}}\n      {{link-to \'About\' \'about\' id=\'about-link\'}}\n      {{link-to \'Other\' \'other\' id=\'other-link\'}}\n    ');
+      _this2.add('route:news', _emberRouting.Route.extend({
+        model: function () {
+          return _this.newsDefer.promise;
+        }
+      }));
+
+      _this2.addTemplate('application', '\n      {{outlet}}\n      {{link-to \'Index\' \'index\' id=\'index-link\'}}\n      {{link-to \'About\' \'about\' id=\'about-link\'}}\n      {{link-to \'Other\' \'other\' id=\'other-link\'}}\n      {{link-to \'News\' \'news\' activeClass=false id=\'news-link\'}}\n    ');
 
       _this2.visit('/');
       return _this2;
@@ -69337,6 +70275,7 @@ enifed('ember/tests/helpers/link_to_test/link_to_transitioning_classes_test', ['
       _ApplicationTestCase.prototype.teardown.call(this);
       this.aboutDefer = null;
       this.otherDefer = null;
+      this.newsDefer = null;
     };
 
     _class.prototype['@test while a transition is underway'] = function testWhileATransitionIsUnderway(assert) {
@@ -69377,6 +70316,44 @@ enifed('ember/tests/helpers/link_to_test/link_to_transitioning_classes_test', ['
       assertHasNoClass(assert, $other, 'ember-transitioning-out');
     };
 
+    _class.prototype['@test while a transition is underway with activeClass is false'] = function testWhileATransitionIsUnderwayWithActiveClassIsFalse(assert) {
+      var _this4 = this;
+
+      var $index = this.$('#index-link');
+      var $news = this.$('#news-link');
+      var $other = this.$('#other-link');
+
+      $news.click();
+
+      assertHasClass(assert, $index, 'active');
+      assertHasNoClass(assert, $news, 'active');
+      assertHasNoClass(assert, $other, 'active');
+
+      assertHasNoClass(assert, $index, 'ember-transitioning-in');
+      assertHasClass(assert, $news, 'ember-transitioning-in');
+      assertHasNoClass(assert, $other, 'ember-transitioning-in');
+
+      assertHasClass(assert, $index, 'ember-transitioning-out');
+      assertHasNoClass(assert, $news, 'ember-transitioning-out');
+      assertHasNoClass(assert, $other, 'ember-transitioning-out');
+
+      this.runTask(function () {
+        return _this4.newsDefer.resolve();
+      });
+
+      assertHasNoClass(assert, $index, 'active');
+      assertHasNoClass(assert, $news, 'active');
+      assertHasNoClass(assert, $other, 'active');
+
+      assertHasNoClass(assert, $index, 'ember-transitioning-in');
+      assertHasNoClass(assert, $news, 'ember-transitioning-in');
+      assertHasNoClass(assert, $other, 'ember-transitioning-in');
+
+      assertHasNoClass(assert, $index, 'ember-transitioning-out');
+      assertHasNoClass(assert, $news, 'ember-transitioning-out');
+      assertHasNoClass(assert, $other, 'ember-transitioning-out');
+    };
+
     return _class;
   }(_internalTestHelpers.ApplicationTestCase));
 
@@ -69386,51 +70363,51 @@ enifed('ember/tests/helpers/link_to_test/link_to_transitioning_classes_test', ['
     function _class2() {
       (0, _emberBabel.classCallCheck)(this, _class2);
 
-      var _this4 = (0, _emberBabel.possibleConstructorReturn)(this, _ApplicationTestCase2.call(this));
+      var _this5 = (0, _emberBabel.possibleConstructorReturn)(this, _ApplicationTestCase2.call(this));
 
-      _this4.aboutDefer = _emberRuntime.RSVP.defer();
-      _this4.otherDefer = _emberRuntime.RSVP.defer();
-      var _this = _this4;
+      _this5.aboutDefer = _emberRuntime.RSVP.defer();
+      _this5.otherDefer = _emberRuntime.RSVP.defer();
+      var _this = _this5;
 
-      _this4.router.map(function () {
+      _this5.router.map(function () {
         this.route('parent-route', function () {
           this.route('about');
           this.route('other');
         });
       });
-      _this4.add('route:parent-route.about', _emberRouting.Route.extend({
+      _this5.add('route:parent-route.about', _emberRouting.Route.extend({
         model: function () {
           return _this.aboutDefer.promise;
         }
       }));
 
-      _this4.add('route:parent-route.other', _emberRouting.Route.extend({
+      _this5.add('route:parent-route.other', _emberRouting.Route.extend({
         model: function () {
           return _this.otherDefer.promise;
         }
       }));
 
-      _this4.addTemplate('application', '\n      {{outlet}}\n      {{#link-to \'index\' tagName=\'li\'}}\n        {{link-to \'Index\' \'index\' id=\'index-link\'}}\n      {{/link-to}}\n      {{#link-to \'parent-route.about\' tagName=\'li\'}}\n        {{link-to \'About\' \'parent-route.about\' id=\'about-link\'}}\n      {{/link-to}}\n      {{#link-to \'parent-route.other\' tagName=\'li\'}}\n        {{link-to \'Other\' \'parent-route.other\' id=\'other-link\'}}\n      {{/link-to}}\n    ');
+      _this5.addTemplate('application', '\n      {{outlet}}\n      {{#link-to \'index\' tagName=\'li\'}}\n        {{link-to \'Index\' \'index\' id=\'index-link\'}}\n      {{/link-to}}\n      {{#link-to \'parent-route.about\' tagName=\'li\'}}\n        {{link-to \'About\' \'parent-route.about\' id=\'about-link\'}}\n      {{/link-to}}\n      {{#link-to \'parent-route.other\' tagName=\'li\'}}\n        {{link-to \'Other\' \'parent-route.other\' id=\'other-link\'}}\n      {{/link-to}}\n    ');
 
-      _this4.visit('/');
-      return _this4;
+      _this5.visit('/');
+      return _this5;
     }
 
     _class2.prototype.resolveAbout = function resolveAbout() {
-      var _this5 = this;
+      var _this6 = this;
 
       return this.runTask(function () {
-        _this5.aboutDefer.resolve();
-        _this5.aboutDefer = _emberRuntime.RSVP.defer();
+        _this6.aboutDefer.resolve();
+        _this6.aboutDefer = _emberRuntime.RSVP.defer();
       });
     };
 
     _class2.prototype.resolveOther = function resolveOther() {
-      var _this6 = this;
+      var _this7 = this;
 
       return this.runTask(function () {
-        _this6.otherDefer.resolve();
-        _this6.otherDefer = _emberRuntime.RSVP.defer();
+        _this7.otherDefer.resolve();
+        _this7.otherDefer = _emberRuntime.RSVP.defer();
       });
     };
 
@@ -70284,7 +71261,7 @@ enifed('ember/tests/reexports_test', ['ember/index', 'internal-test-helpers', 'e
   ['computed', 'ember-metal'], ['computed.alias', 'ember-metal', 'alias'], ['ComputedProperty', 'ember-metal'], ['cacheFor', 'ember-metal'], ['merge', 'ember-metal'], ['instrument', 'ember-metal'], ['Instrumentation.instrument', 'ember-metal', 'instrument'], ['Instrumentation.subscribe', 'ember-metal', 'instrumentationSubscribe'], ['Instrumentation.unsubscribe', 'ember-metal', 'instrumentationUnsubscribe'], ['Instrumentation.reset', 'ember-metal', 'instrumentationReset'], ['testing', 'ember-debug', { get: 'isTesting', set: 'setTesting' }], ['onerror', 'ember-metal', { get: 'getOnerror', set: 'setOnerror' }],
   // ['create'], TODO: figure out what to do here
   // ['keys'], TODO: figure out what to do here
-  ['FEATURES', 'ember/features'], ['FEATURES.isEnabled', 'ember-debug', 'isFeatureEnabled'], ['Error', 'ember-debug'], ['META_DESC', 'ember-metal'], ['meta', 'ember-metal'], ['get', 'ember-metal'], ['set', 'ember-metal'], ['_getPath', 'ember-metal'], ['getWithDefault', 'ember-metal'], ['trySet', 'ember-metal'], ['_Cache', 'ember-metal', 'Cache'], ['on', 'ember-metal'], ['addListener', 'ember-metal'], ['removeListener', 'ember-metal'], ['_suspendListener', 'ember-metal', 'suspendListener'], ['_suspendListeners', 'ember-metal', 'suspendListeners'], ['sendEvent', 'ember-metal'], ['hasListeners', 'ember-metal'], ['watchedEvents', 'ember-metal'], ['listenersFor', 'ember-metal'], ['isNone', 'ember-metal'], ['isEmpty', 'ember-metal'], ['isBlank', 'ember-metal'], ['isPresent', 'ember-metal'], ['_Backburner', 'backburner', 'default'], ['run', 'ember-metal'], ['_ObserverSet', 'ember-metal', 'ObserverSet'], ['propertyWillChange', 'ember-metal'], ['propertyDidChange', 'ember-metal'], ['overrideChains', 'ember-metal'], ['beginPropertyChanges', 'ember-metal'], ['beginPropertyChanges', 'ember-metal'], ['endPropertyChanges', 'ember-metal'], ['changeProperties', 'ember-metal'], ['defineProperty', 'ember-metal'], ['watchKey', 'ember-metal'], ['unwatchKey', 'ember-metal'], ['removeChainWatcher', 'ember-metal'], ['_ChainNode', 'ember-metal', 'ChainNode'], ['finishChains', 'ember-metal'], ['watchPath', 'ember-metal'], ['unwatchPath', 'ember-metal'], ['watch', 'ember-metal'], ['isWatching', 'ember-metal'], ['unwatch', 'ember-metal'], ['destroy', 'ember-metal'], ['libraries', 'ember-metal'], ['OrderedSet', 'ember-metal'], ['Map', 'ember-metal'], ['MapWithDefault', 'ember-metal'], ['getProperties', 'ember-metal'], ['setProperties', 'ember-metal'], ['expandProperties', 'ember-metal'], ['NAME_KEY', 'ember-utils'], ['addObserver', 'ember-metal'], ['observersFor', 'ember-metal'], ['removeObserver', 'ember-metal'], ['_suspendObserver', 'ember-metal'], ['_suspendObservers', 'ember-metal'], ['required', 'ember-metal'], ['aliasMethod', 'ember-metal'], ['observer', 'ember-metal'], ['immediateObserver', 'ember-metal', '_immediateObserver'], ['mixin', 'ember-metal'], ['Mixin', 'ember-metal'], ['bind', 'ember-metal'], ['Binding', 'ember-metal'], ['isGlobalPath', 'ember-metal'],
+  ['FEATURES', 'ember/features'], ['FEATURES.isEnabled', 'ember-debug', 'isFeatureEnabled'], ['Error', 'ember-debug'], ['META_DESC', 'ember-metal'], ['meta', 'ember-metal'], ['get', 'ember-metal'], ['set', 'ember-metal'], ['_getPath', 'ember-metal'], ['getWithDefault', 'ember-metal'], ['trySet', 'ember-metal'], ['_Cache', 'ember-metal', 'Cache'], ['on', 'ember-metal'], ['addListener', 'ember-metal'], ['removeListener', 'ember-metal'], ['_suspendListener', 'ember-metal', 'suspendListener'], ['_suspendListeners', 'ember-metal', 'suspendListeners'], ['sendEvent', 'ember-metal'], ['hasListeners', 'ember-metal'], ['watchedEvents', 'ember-metal'], ['listenersFor', 'ember-metal'], ['isNone', 'ember-metal'], ['isEmpty', 'ember-metal'], ['isBlank', 'ember-metal'], ['isPresent', 'ember-metal'], ['_Backburner', 'backburner', 'default'], ['run', 'ember-metal'], ['_ObserverSet', 'ember-metal', 'ObserverSet'], ['propertyWillChange', 'ember-metal'], ['propertyDidChange', 'ember-metal'], ['overrideChains', 'ember-metal'], ['beginPropertyChanges', 'ember-metal'], ['beginPropertyChanges', 'ember-metal'], ['endPropertyChanges', 'ember-metal'], ['changeProperties', 'ember-metal'], ['defineProperty', 'ember-metal'], ['watchKey', 'ember-metal'], ['unwatchKey', 'ember-metal'], ['removeChainWatcher', 'ember-metal'], ['_ChainNode', 'ember-metal', 'ChainNode'], ['finishChains', 'ember-metal'], ['watchPath', 'ember-metal'], ['unwatchPath', 'ember-metal'], ['watch', 'ember-metal'], ['isWatching', 'ember-metal'], ['unwatch', 'ember-metal'], ['destroy', 'ember-metal', 'deleteMeta'], ['libraries', 'ember-metal'], ['OrderedSet', 'ember-metal'], ['Map', 'ember-metal'], ['MapWithDefault', 'ember-metal'], ['getProperties', 'ember-metal'], ['setProperties', 'ember-metal'], ['expandProperties', 'ember-metal'], ['NAME_KEY', 'ember-utils'], ['addObserver', 'ember-metal'], ['observersFor', 'ember-metal'], ['removeObserver', 'ember-metal'], ['_suspendObserver', 'ember-metal'], ['_suspendObservers', 'ember-metal'], ['required', 'ember-metal'], ['aliasMethod', 'ember-metal'], ['observer', 'ember-metal'], ['immediateObserver', 'ember-metal', '_immediateObserver'], ['mixin', 'ember-metal'], ['Mixin', 'ember-metal'], ['bind', 'ember-metal'], ['Binding', 'ember-metal'], ['isGlobalPath', 'ember-metal'],
 
   // ember-views
   ['$', 'ember-views', 'jQuery'], ['ViewUtils.isSimpleClick', 'ember-views', 'isSimpleClick'], ['ViewUtils.getViewElement', 'ember-views', 'getViewElement'], ['ViewUtils.getViewBounds', 'ember-views', 'getViewBounds'], ['ViewUtils.getViewClientRects', 'ember-views', 'getViewClientRects'], ['ViewUtils.getViewBoundingClientRect', 'ember-views', 'getViewBoundingClientRect'], ['ViewUtils.getRootViews', 'ember-views', 'getRootViews'], ['ViewUtils.getChildViews', 'ember-views', 'getChildViews'], ['TextSupport', 'ember-views'], ['ComponentLookup', 'ember-views'], ['EventDispatcher', 'ember-views'],
@@ -77865,8 +78842,30 @@ enifed('ember/tests/routing/router_service_test/transitionTo_test', ['ember-babe
         });
       };
 
-      _class.prototype['@test RouterService#transitionTo with unspecified query params'] = function testRouterServiceTransitionToWithUnspecifiedQueryParams(assert) {
+      _class.prototype['@test RouterService#transitionTo passing only queryParams works'] = function testRouterServiceTransitionToPassingOnlyQueryParamsWorks(assert) {
         var _this10 = this;
+
+        assert.expect(2);
+
+        this.add('controller:parent.child', _emberRuntime.Controller.extend({
+          queryParams: ['sort']
+        }));
+
+        var queryParams = this.buildQueryParams({ sort: 'DESC' });
+
+        return this.visit('/').then(function () {
+          return _this10.routerService.transitionTo('parent.child');
+        }).then(function () {
+          assert.equal(_this10.routerService.get('currentURL'), '/child');
+        }).then(function () {
+          return _this10.routerService.transitionTo(queryParams);
+        }).then(function () {
+          assert.equal(_this10.routerService.get('currentURL'), '/child?sort=DESC');
+        });
+      };
+
+      _class.prototype['@test RouterService#transitionTo with unspecified query params'] = function testRouterServiceTransitionToWithUnspecifiedQueryParams(assert) {
+        var _this11 = this;
 
         assert.expect(1);
 
@@ -77880,14 +78879,14 @@ enifed('ember/tests/routing/router_service_test/transitionTo_test', ['ember-babe
         var queryParams = this.buildQueryParams({ sort: 'ASC' });
 
         return this.visit('/').then(function () {
-          return _this10.routerService.transitionTo('parent.child', queryParams);
+          return _this11.routerService.transitionTo('parent.child', queryParams);
         }).then(function () {
-          assert.equal(_this10.routerService.get('currentURL'), '/child?sort=ASC');
+          assert.equal(_this11.routerService.get('currentURL'), '/child?sort=ASC');
         });
       };
 
       _class.prototype['@test RouterService#transitionTo with aliased query params uses the original provided key'] = function testRouterServiceTransitionToWithAliasedQueryParamsUsesTheOriginalProvidedKey(assert) {
-        var _this11 = this;
+        var _this12 = this;
 
         assert.expect(1);
 
@@ -77901,14 +78900,14 @@ enifed('ember/tests/routing/router_service_test/transitionTo_test', ['ember-babe
         var queryParams = this.buildQueryParams({ url_sort: 'ASC' });
 
         return this.visit('/').then(function () {
-          return _this11.routerService.transitionTo('parent.child', queryParams);
+          return _this12.routerService.transitionTo('parent.child', queryParams);
         }).then(function () {
-          assert.equal(_this11.routerService.get('currentURL'), '/child?url_sort=ASC');
+          assert.equal(_this12.routerService.get('currentURL'), '/child?url_sort=ASC');
         });
       };
 
       _class.prototype['@test RouterService#transitionTo with aliased query params uses the original provided key when controller property name'] = function testRouterServiceTransitionToWithAliasedQueryParamsUsesTheOriginalProvidedKeyWhenControllerPropertyName(assert) {
-        var _this12 = this;
+        var _this13 = this;
 
         assert.expect(1);
 
@@ -77923,7 +78922,7 @@ enifed('ember/tests/routing/router_service_test/transitionTo_test', ['ember-babe
 
         return this.visit('/').then(function () {
           expectAssertion(function () {
-            return _this12.routerService.transitionTo('parent.child', queryParams);
+            return _this13.routerService.transitionTo('parent.child', queryParams);
           }, 'You passed the `cont_sort` query parameter during a transition into parent.child, please update to url_sort');
         });
       };
@@ -79330,6 +80329,18 @@ QUnit.test('should pass ESLint', function(assert) {
   assert.ok(true, 'expand_properties.js should pass ESLint\n\n');
 });
 
+QUnit.module('ESLint | external-helpers/lib/external-helpers-dev.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'external-helpers/lib/external-helpers-dev.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | external-helpers/lib/external-helpers-prod.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'external-helpers/lib/external-helpers-prod.js should pass ESLint\n\n');
+});
+
 QUnit.module('ESLint | get_properties.js');
 QUnit.test('should pass ESLint', function(assert) {
   assert.expect(1);
@@ -79389,12 +80400,6 @@ enifed('internal-test-helpers/apply-mixins', ['exports', 'ember-utils'], functio
     return TestClass;
   }
 });
-QUnit.module('ESLint | internal-test-helpers/apply-mixins.js');
-QUnit.test('should pass ESLint', function(assert) {
-  assert.expect(1);
-  assert.ok(true, 'internal-test-helpers/apply-mixins.js should pass ESLint\n\n');
-});
-
 enifed('internal-test-helpers/build-owner', ['exports', 'container', 'ember-routing', 'ember-application', 'ember-runtime'], function (exports, _container, _emberRouting, _emberApplication, _emberRuntime) {
   'use strict';
 
@@ -79436,12 +80441,6 @@ enifed('internal-test-helpers/build-owner', ['exports', 'container', 'ember-rout
     return owner;
   }
 });
-QUnit.module('ESLint | internal-test-helpers/build-owner.js');
-QUnit.test('should pass ESLint', function(assert) {
-  assert.expect(1);
-  assert.ok(true, 'internal-test-helpers/build-owner.js should pass ESLint\n\n');
-});
-
 enifed('internal-test-helpers/confirm-export', ['exports', 'require'], function (exports, _require2) {
   'use strict';
 
@@ -79481,12 +80480,6 @@ enifed('internal-test-helpers/confirm-export', ['exports', 'require'], function 
     }
   }
 });
-QUnit.module('ESLint | internal-test-helpers/confirm-export.js');
-QUnit.test('should pass ESLint', function(assert) {
-  assert.expect(1);
-  assert.ok(true, 'internal-test-helpers/confirm-export.js should pass ESLint\n\n');
-});
-
 enifed('internal-test-helpers/equal-inner-html', ['exports'], function (exports) {
   'use strict';
 
@@ -79521,12 +80514,6 @@ enifed('internal-test-helpers/equal-inner-html', ['exports'], function (exports)
     QUnit.push(actualHTML === html, actualHTML, html);
   }
 });
-QUnit.module('ESLint | internal-test-helpers/equal-inner-html.js');
-QUnit.test('should pass ESLint', function(assert) {
-  assert.expect(1);
-  assert.ok(true, 'internal-test-helpers/equal-inner-html.js should pass ESLint\n\n');
-});
-
 enifed('internal-test-helpers/equal-tokens', ['exports', 'simple-html-tokenizer'], function (exports, _simpleHtmlTokenizer) {
   'use strict';
 
@@ -79581,12 +80568,6 @@ enifed('internal-test-helpers/equal-tokens', ['exports', 'simple-html-tokenizer'
     }
   }
 });
-QUnit.module('ESLint | internal-test-helpers/equal-tokens.js');
-QUnit.test('should pass ESLint', function(assert) {
-  assert.expect(1);
-  assert.ok(true, 'internal-test-helpers/equal-tokens.js should pass ESLint\n\n');
-});
-
 enifed('internal-test-helpers/factory', ['exports'], function (exports) {
   'use strict';
 
@@ -79657,12 +80638,6 @@ enifed('internal-test-helpers/factory', ['exports'], function (exports) {
     }
   }
 });
-QUnit.module('ESLint | internal-test-helpers/factory.js');
-QUnit.test('should pass ESLint', function(assert) {
-  assert.expect(1);
-  assert.ok(true, 'internal-test-helpers/factory.js should pass ESLint\n\n');
-});
-
 enifed('internal-test-helpers/index', ['exports', 'internal-test-helpers/factory', 'internal-test-helpers/build-owner', 'internal-test-helpers/confirm-export', 'internal-test-helpers/equal-inner-html', 'internal-test-helpers/equal-tokens', 'internal-test-helpers/module-for', 'internal-test-helpers/strip', 'internal-test-helpers/apply-mixins', 'internal-test-helpers/matchers', 'internal-test-helpers/run', 'internal-test-helpers/test-groups', 'internal-test-helpers/test-cases/abstract', 'internal-test-helpers/test-cases/abstract-application', 'internal-test-helpers/test-cases/application', 'internal-test-helpers/test-cases/query-param', 'internal-test-helpers/test-cases/abstract-rendering', 'internal-test-helpers/test-cases/rendering', 'internal-test-helpers/test-cases/router', 'internal-test-helpers/test-cases/autoboot-application', 'internal-test-helpers/test-cases/default-resolver-application', 'internal-test-helpers/test-resolver'], function (exports, _factory, _buildOwner, _confirmExport, _equalInnerHtml, _equalTokens, _moduleFor, _strip, _applyMixins, _matchers, _run, _testGroups, _abstract, _abstractApplication, _application, _queryParam, _abstractRendering, _rendering, _router, _autobootApplication, _defaultResolverApplication, _testResolver) {
   'use strict';
 
@@ -79829,10 +80804,142 @@ enifed('internal-test-helpers/index', ['exports', 'internal-test-helpers/factory
     }
   });
 });
-QUnit.module('ESLint | internal-test-helpers/index.js');
+QUnit.module('ESLint | internal-test-helpers/lib/apply-mixins.js');
 QUnit.test('should pass ESLint', function(assert) {
   assert.expect(1);
-  assert.ok(true, 'internal-test-helpers/index.js should pass ESLint\n\n');
+  assert.ok(true, 'internal-test-helpers/lib/apply-mixins.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | internal-test-helpers/lib/build-owner.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'internal-test-helpers/lib/build-owner.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | internal-test-helpers/lib/confirm-export.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'internal-test-helpers/lib/confirm-export.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | internal-test-helpers/lib/equal-inner-html.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'internal-test-helpers/lib/equal-inner-html.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | internal-test-helpers/lib/equal-tokens.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'internal-test-helpers/lib/equal-tokens.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | internal-test-helpers/lib/factory.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'internal-test-helpers/lib/factory.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | internal-test-helpers/lib/index.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'internal-test-helpers/lib/index.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | internal-test-helpers/lib/matchers.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'internal-test-helpers/lib/matchers.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | internal-test-helpers/lib/module-for.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'internal-test-helpers/lib/module-for.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | internal-test-helpers/lib/run.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'internal-test-helpers/lib/run.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | internal-test-helpers/lib/strip.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'internal-test-helpers/lib/strip.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | internal-test-helpers/lib/test-cases/abstract-application.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'internal-test-helpers/lib/test-cases/abstract-application.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | internal-test-helpers/lib/test-cases/abstract-rendering.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'internal-test-helpers/lib/test-cases/abstract-rendering.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | internal-test-helpers/lib/test-cases/abstract.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'internal-test-helpers/lib/test-cases/abstract.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | internal-test-helpers/lib/test-cases/application.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'internal-test-helpers/lib/test-cases/application.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | internal-test-helpers/lib/test-cases/autoboot-application.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'internal-test-helpers/lib/test-cases/autoboot-application.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | internal-test-helpers/lib/test-cases/default-resolver-application.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'internal-test-helpers/lib/test-cases/default-resolver-application.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | internal-test-helpers/lib/test-cases/query-param.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'internal-test-helpers/lib/test-cases/query-param.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | internal-test-helpers/lib/test-cases/rendering.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'internal-test-helpers/lib/test-cases/rendering.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | internal-test-helpers/lib/test-cases/router.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'internal-test-helpers/lib/test-cases/router.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | internal-test-helpers/lib/test-cases/test-resolver-application.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'internal-test-helpers/lib/test-cases/test-resolver-application.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | internal-test-helpers/lib/test-groups.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'internal-test-helpers/lib/test-groups.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | internal-test-helpers/lib/test-resolver.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'internal-test-helpers/lib/test-resolver.js should pass ESLint\n\n');
 });
 
 enifed('internal-test-helpers/matchers', ['exports'], function (exports) {
@@ -79947,12 +81054,6 @@ enifed('internal-test-helpers/matchers', ['exports'], function (exports) {
     }
   }
 });
-QUnit.module('ESLint | internal-test-helpers/matchers.js');
-QUnit.test('should pass ESLint', function(assert) {
-  assert.expect(1);
-  assert.ok(true, 'internal-test-helpers/matchers.js should pass ESLint\n\n');
-});
-
 enifed('internal-test-helpers/module-for', ['exports', 'ember-runtime', 'internal-test-helpers/apply-mixins'], function (exports, _emberRuntime, _applyMixins) {
   'use strict';
 
@@ -79998,12 +81099,6 @@ enifed('internal-test-helpers/module-for', ['exports', 'ember-runtime', 'interna
     }
   }
 });
-QUnit.module('ESLint | internal-test-helpers/module-for.js');
-QUnit.test('should pass ESLint', function(assert) {
-  assert.expect(1);
-  assert.ok(true, 'internal-test-helpers/module-for.js should pass ESLint\n\n');
-});
-
 enifed('internal-test-helpers/run', ['exports', 'ember-metal'], function (exports, _emberMetal) {
   'use strict';
 
@@ -80019,12 +81114,6 @@ enifed('internal-test-helpers/run', ['exports', 'ember-metal'], function (export
     }
   }
 });
-QUnit.module('ESLint | internal-test-helpers/run.js');
-QUnit.test('should pass ESLint', function(assert) {
-  assert.expect(1);
-  assert.ok(true, 'internal-test-helpers/run.js should pass ESLint\n\n');
-});
-
 enifed('internal-test-helpers/strip', ['exports'], function (exports) {
   'use strict';
 
@@ -80045,12 +81134,6 @@ enifed('internal-test-helpers/strip', ['exports'], function (exports) {
     }).join('');
   }
 });
-QUnit.module('ESLint | internal-test-helpers/strip.js');
-QUnit.test('should pass ESLint', function(assert) {
-  assert.expect(1);
-  assert.ok(true, 'internal-test-helpers/strip.js should pass ESLint\n\n');
-});
-
 enifed('internal-test-helpers/test-cases/abstract-application', ['exports', 'ember-babel', 'ember-template-compiler', 'internal-test-helpers/test-cases/abstract', 'ember-views', 'internal-test-helpers/run'], function (exports, _emberBabel, _emberTemplateCompiler, _abstract, _emberViews, _run) {
   'use strict';
 
@@ -80100,12 +81183,6 @@ enifed('internal-test-helpers/test-cases/abstract-application', ['exports', 'emb
 
   exports.default = AbstractApplicationTestCase;
 });
-QUnit.module('ESLint | internal-test-helpers/test-cases/abstract-application.js');
-QUnit.test('should pass ESLint', function(assert) {
-  assert.expect(1);
-  assert.ok(true, 'internal-test-helpers/test-cases/abstract-application.js should pass ESLint\n\n');
-});
-
 enifed('internal-test-helpers/test-cases/abstract-rendering', ['exports', 'ember-babel', 'ember-utils', 'ember-template-compiler', 'ember-views', 'ember-glimmer', 'internal-test-helpers/test-cases/abstract', 'internal-test-helpers/build-owner', 'internal-test-helpers/run'], function (exports, _emberBabel, _emberUtils, _emberTemplateCompiler, _emberViews, _emberGlimmer, _abstract, _buildOwner, _run) {
   'use strict';
 
@@ -80265,12 +81342,6 @@ enifed('internal-test-helpers/test-cases/abstract-rendering', ['exports', 'ember
 
   exports.default = AbstractRenderingTestCase;
 });
-QUnit.module('ESLint | internal-test-helpers/test-cases/abstract-rendering.js');
-QUnit.test('should pass ESLint', function(assert) {
-  assert.expect(1);
-  assert.ok(true, 'internal-test-helpers/test-cases/abstract-rendering.js should pass ESLint\n\n');
-});
-
 enifed('internal-test-helpers/test-cases/abstract', ['exports', 'ember-babel', 'ember-utils', 'ember-metal', 'ember-views', 'internal-test-helpers/equal-inner-html', 'internal-test-helpers/equal-tokens', 'internal-test-helpers/matchers'], function (exports, _emberBabel, _emberUtils, _emberMetal, _emberViews, _equalInnerHtml, _equalTokens, _matchers) {
   'use strict';
 
@@ -80454,12 +81525,6 @@ enifed('internal-test-helpers/test-cases/abstract', ['exports', 'ember-babel', '
 
   exports.default = AbstractTestCase;
 });
-QUnit.module('ESLint | internal-test-helpers/test-cases/abstract.js');
-QUnit.test('should pass ESLint', function(assert) {
-  assert.expect(1);
-  assert.ok(true, 'internal-test-helpers/test-cases/abstract.js should pass ESLint\n\n');
-});
-
 enifed('internal-test-helpers/test-cases/application', ['exports', 'ember-babel', 'internal-test-helpers/test-cases/test-resolver-application', 'ember-application', 'ember-routing', 'ember-utils', 'internal-test-helpers/run'], function (exports, _emberBabel, _testResolverApplication, _emberApplication, _emberRouting, _emberUtils, _run) {
   'use strict';
 
@@ -80546,12 +81611,6 @@ enifed('internal-test-helpers/test-cases/application', ['exports', 'ember-babel'
 
   exports.default = ApplicationTestCase;
 });
-QUnit.module('ESLint | internal-test-helpers/test-cases/application.js');
-QUnit.test('should pass ESLint', function(assert) {
-  assert.expect(1);
-  assert.ok(true, 'internal-test-helpers/test-cases/application.js should pass ESLint\n\n');
-});
-
 enifed('internal-test-helpers/test-cases/autoboot-application', ['exports', 'ember-babel', 'internal-test-helpers/test-cases/test-resolver-application', 'internal-test-helpers/test-resolver', 'ember-application', 'ember-utils', 'ember-routing'], function (exports, _emberBabel, _testResolverApplication, _testResolver, _emberApplication, _emberUtils, _emberRouting) {
   'use strict';
 
@@ -80596,12 +81655,6 @@ enifed('internal-test-helpers/test-cases/autoboot-application', ['exports', 'emb
 
   exports.default = AutobootApplicationTestCase;
 });
-QUnit.module('ESLint | internal-test-helpers/test-cases/autoboot-application.js');
-QUnit.test('should pass ESLint', function(assert) {
-  assert.expect(1);
-  assert.ok(true, 'internal-test-helpers/test-cases/autoboot-application.js should pass ESLint\n\n');
-});
-
 enifed('internal-test-helpers/test-cases/default-resolver-application', ['exports', 'ember-babel', 'internal-test-helpers/test-cases/abstract-application', 'ember-application', 'ember-glimmer', 'ember-utils', 'internal-test-helpers/run', 'ember-routing'], function (exports, _emberBabel, _abstractApplication, _emberApplication, _emberGlimmer, _emberUtils, _run, _emberRouting) {
   'use strict';
 
@@ -80680,12 +81733,6 @@ enifed('internal-test-helpers/test-cases/default-resolver-application', ['export
 
   exports.default = ApplicationTestCase;
 });
-QUnit.module('ESLint | internal-test-helpers/test-cases/default-resolver-application.js');
-QUnit.test('should pass ESLint', function(assert) {
-  assert.expect(1);
-  assert.ok(true, 'internal-test-helpers/test-cases/default-resolver-application.js should pass ESLint\n\n');
-});
-
 enifed('internal-test-helpers/test-cases/query-param', ['exports', 'ember-babel', 'ember-runtime', 'ember-routing', 'ember-metal', 'internal-test-helpers/test-cases/application'], function (exports, _emberBabel, _emberRuntime, _emberRouting, _emberMetal, _application) {
   'use strict';
 
@@ -80795,12 +81842,6 @@ enifed('internal-test-helpers/test-cases/query-param', ['exports', 'ember-babel'
 
   exports.default = QueryParamTestCase;
 });
-QUnit.module('ESLint | internal-test-helpers/test-cases/query-param.js');
-QUnit.test('should pass ESLint', function(assert) {
-  assert.expect(1);
-  assert.ok(true, 'internal-test-helpers/test-cases/query-param.js should pass ESLint\n\n');
-});
-
 enifed('internal-test-helpers/test-cases/rendering', ['exports', 'ember-babel', 'ember-views', 'internal-test-helpers/test-cases/abstract-rendering'], function (exports, _emberBabel, _emberViews, _abstractRendering) {
   'use strict';
 
@@ -80827,12 +81868,6 @@ enifed('internal-test-helpers/test-cases/rendering', ['exports', 'ember-babel', 
 
   exports.default = RenderingTestCase;
 });
-QUnit.module('ESLint | internal-test-helpers/test-cases/rendering.js');
-QUnit.test('should pass ESLint', function(assert) {
-  assert.expect(1);
-  assert.ok(true, 'internal-test-helpers/test-cases/rendering.js should pass ESLint\n\n');
-});
-
 enifed('internal-test-helpers/test-cases/router', ['exports', 'ember-babel', 'internal-test-helpers/test-cases/application'], function (exports, _emberBabel, _application) {
   'use strict';
 
@@ -80872,12 +81907,6 @@ enifed('internal-test-helpers/test-cases/router', ['exports', 'ember-babel', 'in
 
   exports.default = RouterTestCase;
 });
-QUnit.module('ESLint | internal-test-helpers/test-cases/router.js');
-QUnit.test('should pass ESLint', function(assert) {
-  assert.expect(1);
-  assert.ok(true, 'internal-test-helpers/test-cases/router.js should pass ESLint\n\n');
-});
-
 enifed('internal-test-helpers/test-cases/test-resolver-application', ['exports', 'ember-babel', 'internal-test-helpers/test-cases/abstract-application', 'internal-test-helpers/test-resolver', 'ember-utils'], function (exports, _emberBabel, _abstractApplication, _testResolver, _emberUtils) {
   'use strict';
 
@@ -80929,12 +81958,6 @@ enifed('internal-test-helpers/test-cases/test-resolver-application', ['exports',
 
   exports.default = TestResolverApplicationTestCase;
 });
-QUnit.module('ESLint | internal-test-helpers/test-cases/test-resolver-application.js');
-QUnit.test('should pass ESLint', function(assert) {
-  assert.expect(1);
-  assert.ok(true, 'internal-test-helpers/test-cases/test-resolver-application.js should pass ESLint\n\n');
-});
-
 enifed('internal-test-helpers/test-groups', ['exports', 'ember-environment', 'ember-metal'], function (exports, _emberEnvironment, _emberMetal) {
   'use strict';
 
@@ -81015,12 +82038,6 @@ enifed('internal-test-helpers/test-groups', ['exports', 'ember-environment', 'em
     });
   }
 });
-QUnit.module('ESLint | internal-test-helpers/test-groups.js');
-QUnit.test('should pass ESLint', function(assert) {
-  assert.expect(1);
-  assert.ok(true, 'internal-test-helpers/test-groups.js should pass ESLint\n\n');
-});
-
 enifed('internal-test-helpers/test-resolver', ['exports', 'ember-babel', 'ember-template-compiler'], function (exports, _emberBabel, _emberTemplateCompiler) {
   'use strict';
 
@@ -81083,12 +82100,6 @@ enifed('internal-test-helpers/test-resolver', ['exports', 'ember-babel', 'ember-
 
   exports.ModuleBasedResolver = ModuleBasedResolver;
 });
-QUnit.module('ESLint | internal-test-helpers/test-resolver.js');
-QUnit.test('should pass ESLint', function(assert) {
-  assert.expect(1);
-  assert.ok(true, 'internal-test-helpers/test-resolver.js should pass ESLint\n\n');
-});
-
 enifed('internal-test-helpers/tests/index-test', [], function () {
   'use strict';
 
@@ -81140,6 +82151,12 @@ QUnit.test('should pass ESLint', function(assert) {
   assert.ok(true, 'libraries.js should pass ESLint\n\n');
 });
 
+QUnit.module('ESLint | loader/lib/index.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'loader/lib/index.js should pass ESLint\n\n');
+});
+
 QUnit.module('ESLint | map.js');
 QUnit.test('should pass ESLint', function(assert) {
   assert.expect(1);
@@ -81170,18 +82187,25 @@ QUnit.test('should pass ESLint', function(assert) {
   assert.ok(true, 'mixin.js should pass ESLint\n\n');
 });
 
+/*global enifed */
 enifed('node-module', ['exports'], function(_exports) {
   var IS_NODE = typeof module === 'object' && typeof module.require === 'function';
   if (IS_NODE) {
     _exports.require = module.require;
     _exports.module = module;
-    _exports.IS_NODE = IS_NODE
+    _exports.IS_NODE = IS_NODE;
   } else {
     _exports.require = null;
     _exports.module = null;
-    _exports.IS_NODE = IS_NODE
+    _exports.IS_NODE = IS_NODE;
   }
 });
+QUnit.module('ESLint | node-module/lib/node-module.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'node-module/lib/node-module.js should pass ESLint\n\n');
+});
+
 QUnit.module('ESLint | observer.js');
 QUnit.test('should pass ESLint', function(assert) {
   assert.expect(1);
