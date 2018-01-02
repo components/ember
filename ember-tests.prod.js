@@ -1,17 +1,19 @@
 (function() {
 /*!
  * @overview  Ember - JavaScript Application Framework
- * @copyright Copyright 2011-2017 Tilde Inc. and contributors
+ * @copyright Copyright 2011-2018 Tilde Inc. and contributors
  *            Portions Copyright 2006-2011 Strobe Inc.
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.18.0
+ * @version   3.0.0-beta.1
  */
 
-/*global process */
+/*globals process */
 var enifed, requireModule, Ember;
-var mainContext = this; // Used in ember-environment/lib/global.js
+
+// Used in ember-environment/lib/global.js
+mainContext = this; // eslint-disable-line no-undef
 
 (function() {
     function missingModule(name, referrerName) {
@@ -113,1365 +115,1415 @@ var mainContext = this; // Used in ember-environment/lib/global.js
   }
 })();
 
-enifed('container/tests/container_test', ['ember-utils', 'ember-metal', 'container', 'internal-test-helpers'], function (_emberUtils, _emberMetal, _container, _internalTestHelpers) {
+enifed('container/tests/container_test', ['ember-babel', 'ember-utils', 'container', 'internal-test-helpers'], function (_emberBabel, _emberUtils, _container, _internalTestHelpers) {
   'use strict';
 
-  QUnit.module('Container');
+  (0, _internalTestHelpers.moduleFor)('Container', function (_AbstractTestCase) {
+    (0, _emberBabel.inherits)(_class, _AbstractTestCase);
 
-  QUnit.test('A registered factory returns the same instance each time', function () {
-    var registry = new _container.Registry();
-    var container = registry.container();
-    var PostController = (0, _internalTestHelpers.factory)();
+    function _class() {
+      return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase.apply(this, arguments));
+    }
 
-    registry.register('controller:post', PostController);
+    _class.prototype['@test A registered factory returns the same instance each time'] = function (assert) {
+      var registry = new _container.Registry();
+      var container = registry.container();
+      var PostController = (0, _internalTestHelpers.factory)();
 
-    var postController = container.lookup('controller:post');
+      registry.register('controller:post', PostController);
 
-    ok(postController instanceof PostController, 'The lookup is an instance of the factory');
+      var postController = container.lookup('controller:post');
 
-    equal(postController, container.lookup('controller:post'));
-  });
+      assert.ok(postController instanceof PostController, 'The lookup is an instance of the factory');
 
-  QUnit.test('uses create time injections if factory has no extend', function () {
-    var registry = new _container.Registry();
-    var container = registry.container();
-    var AppleController = (0, _internalTestHelpers.factory)();
-    var PostController = (0, _internalTestHelpers.factory)();
-
-    PostController.extend = undefined; // remove extend
-
-    registry.register('controller:apple', AppleController);
-    registry.register('controller:post', PostController);
-    registry.injection('controller:post', 'apple', 'controller:apple');
-
-    var postController = container.lookup('controller:post');
-
-    ok(postController.apple instanceof AppleController, 'instance receives an apple of instance AppleController');
-  });
-
-  QUnit.test('A registered factory returns a fresh instance if singleton: false is passed as an option', function () {
-    var registry = new _container.Registry();
-    var container = registry.container();
-    var PostController = (0, _internalTestHelpers.factory)();
-
-    registry.register('controller:post', PostController);
-
-    var postController1 = container.lookup('controller:post');
-    var postController2 = container.lookup('controller:post', { singleton: false });
-    var postController3 = container.lookup('controller:post', { singleton: false });
-    var postController4 = container.lookup('controller:post');
-
-    equal(postController1.toString(), postController4.toString(), 'Singleton factories looked up normally return the same value');
-    notEqual(postController1.toString(), postController2.toString(), 'Singleton factories are not equal to factories looked up with singleton: false');
-    notEqual(postController2.toString(), postController3.toString(), 'Two factories looked up with singleton: false are not equal');
-    notEqual(postController3.toString(), postController4.toString(), 'A singleton factory looked up after a factory called with singleton: false is not equal');
-
-    ok(postController1 instanceof PostController, 'All instances are instances of the registered factory');
-    ok(postController2 instanceof PostController, 'All instances are instances of the registered factory');
-    ok(postController3 instanceof PostController, 'All instances are instances of the registered factory');
-    ok(postController4 instanceof PostController, 'All instances are instances of the registered factory');
-  });
-
-  QUnit.test('A factory type with a registered injection\'s instances receive that injection', function () {
-    var registry = new _container.Registry();
-    var container = registry.container();
-    var PostController = (0, _internalTestHelpers.factory)();
-    var Store = (0, _internalTestHelpers.factory)();
-
-    registry.register('controller:post', PostController);
-    registry.register('store:main', Store);
-
-    registry.typeInjection('controller', 'store', 'store:main');
-
-    var postController = container.lookup('controller:post');
-    var store = container.lookup('store:main');
-
-    equal(postController.store, store);
-  });
-
-  QUnit.test('An individual factory with a registered injection receives the injection', function () {
-    var registry = new _container.Registry();
-    var container = registry.container();
-    var PostController = (0, _internalTestHelpers.factory)();
-    var Store = (0, _internalTestHelpers.factory)();
-
-    registry.register('controller:post', PostController);
-    registry.register('store:main', Store);
-
-    registry.injection('controller:post', 'store', 'store:main');
-
-    var postController = container.lookup('controller:post');
-    var store = container.lookup('store:main');
-
-    equal(postController.store, store, 'has the correct store injected');
-  });
-
-  QUnit.test('A factory with both type and individual injections', function () {
-    var registry = new _container.Registry();
-    var container = registry.container();
-    var PostController = (0, _internalTestHelpers.factory)();
-    var Store = (0, _internalTestHelpers.factory)();
-    var Router = (0, _internalTestHelpers.factory)();
-
-    registry.register('controller:post', PostController);
-    registry.register('store:main', Store);
-    registry.register('router:main', Router);
-
-    registry.injection('controller:post', 'store', 'store:main');
-    registry.typeInjection('controller', 'router', 'router:main');
-
-    var postController = container.lookup('controller:post');
-    var store = container.lookup('store:main');
-    var router = container.lookup('router:main');
-
-    equal(postController.store, store);
-    equal(postController.router, router);
-  });
-
-  QUnit.test('A non-singleton instance is never cached', function () {
-    var registry = new _container.Registry();
-    var container = registry.container();
-    var PostView = (0, _internalTestHelpers.factory)();
-
-    registry.register('view:post', PostView, { singleton: false });
-
-    var postView1 = container.lookup('view:post');
-    var postView2 = container.lookup('view:post');
-
-    ok(postView1 !== postView2, 'Non-singletons are not cached');
-  });
-
-  QUnit.test('A non-instantiated property is not instantiated', function () {
-    var registry = new _container.Registry();
-    var container = registry.container();
-
-    var template = function () {};
-    registry.register('template:foo', template, { instantiate: false });
-    equal(container.lookup('template:foo'), template);
-  });
-
-  QUnit.test('A failed lookup returns undefined', function () {
-    var registry = new _container.Registry();
-    var container = registry.container();
-
-    equal(container.lookup('doesnot:exist'), undefined);
-  });
-
-  QUnit.test('An invalid factory throws an error', function () {
-    var registry = new _container.Registry();
-    var container = registry.container();
-
-    registry.register('controller:foo', {});
-
-    throws(function () {
-      container.lookup('controller:foo');
-    }, /Failed to create an instance of \'controller:foo\'/);
-  });
-
-  QUnit.test('Injecting a failed lookup raises an error', function () {
-    var registry = new _container.Registry();
-    var container = registry.container();
-
-    var fooInstance = {};
-    var fooFactory = {};
-
-    registry.register('model:foo', {
-      create: function () {
-        return fooInstance;
-      },
-      extend: function () {
-        return fooFactory;
-      }
-    });
-    registry.injection('model:foo', 'store', 'store:main');
-
-    throws(function () {
-      container.lookup('model:foo');
-    });
-  });
-
-  QUnit.test('Injecting a falsy value does not raise an error', function () {
-    var registry = new _container.Registry();
-    var container = registry.container();
-    var ApplicationController = (0, _internalTestHelpers.factory)();
-
-    registry.register('controller:application', ApplicationController);
-    registry.register('user:current', null, { instantiate: false });
-    registry.injection('controller:application', 'currentUser', 'user:current');
-
-    strictEqual(container.lookup('controller:application').currentUser, null);
-  });
-
-  QUnit.test('The container returns same value each time even if the value is falsy', function () {
-    var registry = new _container.Registry();
-    var container = registry.container();
-
-    registry.register('falsy:value', null, { instantiate: false });
-
-    strictEqual(container.lookup('falsy:value'), container.lookup('falsy:value'));
-  });
-
-  QUnit.test('Destroying the container destroys any cached singletons', function () {
-    var registry = new _container.Registry();
-    var container = registry.container();
-    var PostController = (0, _internalTestHelpers.factory)();
-    var PostView = (0, _internalTestHelpers.factory)();
-
-
-    registry.register('controller:post', PostController);
-    registry.register('view:post', PostView, { singleton: false });
-    registry.register('template:post', function () {}, { instantiate: false });
-
-    registry.injection('controller:post', 'postView', 'view:post');
-
-    var postController = container.lookup('controller:post');
-    var postView = postController.postView;
-
-    ok(postView instanceof PostView, 'The non-singleton was injected');
-
-    container.destroy();
-
-    ok(postController.isDestroyed, 'Singletons are destroyed');
-    ok(!postView.isDestroyed, 'Non-singletons are not destroyed');
-  });
-
-  QUnit.test('The container can use a registry hook to resolve factories lazily', function () {
-    var registry = new _container.Registry();
-    var container = registry.container();
-    var PostController = (0, _internalTestHelpers.factory)();
-
-    registry.resolver = {
-      resolve: function (fullName) {
-        if (fullName === 'controller:post') {
-          return PostController;
-        }
-      }
+      assert.equal(postController, container.lookup('controller:post'));
     };
 
-    var postController = container.lookup('controller:post');
+    _class.prototype['@test uses create time injections if factory has no extend'] = function (assert) {
+      var registry = new _container.Registry();
+      var container = registry.container();
+      var AppleController = (0, _internalTestHelpers.factory)();
+      var PostController = (0, _internalTestHelpers.factory)();
 
-    ok(postController instanceof PostController, 'The correct factory was provided');
-  });
+      PostController.extend = undefined; // remove extend
 
-  QUnit.test('The container normalizes names before resolving', function () {
-    var registry = new _container.Registry();
-    var container = registry.container();
-    var PostController = (0, _internalTestHelpers.factory)();
+      registry.register('controller:apple', AppleController);
+      registry.register('controller:post', PostController);
+      registry.injection('controller:post', 'apple', 'controller:apple');
 
-    registry.normalizeFullName = function () {
-      return 'controller:post';
+      var postController = container.lookup('controller:post');
+
+      assert.ok(postController.apple instanceof AppleController, 'instance receives an apple of instance AppleController');
     };
 
-    registry.register('controller:post', PostController);
-    var postController = container.lookup('controller:normalized');
+    _class.prototype['@test A registered factory returns a fresh instance if singleton: false is passed as an option'] = function (assert) {
+      var registry = new _container.Registry();
+      var container = registry.container();
+      var PostController = (0, _internalTestHelpers.factory)();
 
-    ok(postController instanceof PostController, 'Normalizes the name before resolving');
-  });
+      registry.register('controller:post', PostController);
 
-  QUnit.test('The container normalizes names when looking factory up', function () {
-    var registry = new _container.Registry();
-    var container = registry.container();
-    var PostController = (0, _internalTestHelpers.factory)();
+      var postController1 = container.lookup('controller:post');
+      var postController2 = container.lookup('controller:post', { singleton: false });
+      var postController3 = container.lookup('controller:post', { singleton: false });
+      var postController4 = container.lookup('controller:post');
 
-    registry.normalizeFullName = function () {
-      return 'controller:post';
+      assert.equal(postController1.toString(), postController4.toString(), 'Singleton factories looked up normally return the same value');
+      assert.notEqual(postController1.toString(), postController2.toString(), 'Singleton factories are not equal to factories looked up with singleton: false');
+      assert.notEqual(postController2.toString(), postController3.toString(), 'Two factories looked up with singleton: false are not equal');
+      assert.notEqual(postController3.toString(), postController4.toString(), 'A singleton factory looked up after a factory called with singleton: false is not equal');
+
+      assert.ok(postController1 instanceof PostController, 'All instances are instances of the registered factory');
+      assert.ok(postController2 instanceof PostController, 'All instances are instances of the registered factory');
+      assert.ok(postController3 instanceof PostController, 'All instances are instances of the registered factory');
+      assert.ok(postController4 instanceof PostController, 'All instances are instances of the registered factory');
     };
 
-    registry.register('controller:post', PostController);
-    var fact = container.factoryFor('controller:normalized');
+    _class.prototype['@test A factory type with a registered injection\'s instances receive that injection'] = function (assert) {
+      var registry = new _container.Registry();
+      var container = registry.container();
+      var PostController = (0, _internalTestHelpers.factory)();
+      var Store = (0, _internalTestHelpers.factory)();
 
-    var factInstance = fact.create();
-    ok(factInstance instanceof PostController, 'Normalizes the name');
-  });
+      registry.register('controller:post', PostController);
+      registry.register('store:main', Store);
 
-  QUnit.test('Options can be registered that should be applied to a given factory', function () {
-    var registry = new _container.Registry();
-    var container = registry.container();
-    var PostView = (0, _internalTestHelpers.factory)();
+      registry.typeInjection('controller', 'store', 'store:main');
 
-    registry.resolver = {
-      resolve: function (fullName) {
-        if (fullName === 'view:post') {
-          return PostView;
-        }
-      }
+      var postController = container.lookup('controller:post');
+      var store = container.lookup('store:main');
+
+      assert.equal(postController.store, store);
     };
 
-    registry.options('view:post', { instantiate: true, singleton: false });
+    _class.prototype['@test An individual factory with a registered injection receives the injection'] = function (assert) {
+      var registry = new _container.Registry();
+      var container = registry.container();
+      var PostController = (0, _internalTestHelpers.factory)();
+      var Store = (0, _internalTestHelpers.factory)();
 
-    var postView1 = container.lookup('view:post');
-    var postView2 = container.lookup('view:post');
+      registry.register('controller:post', PostController);
+      registry.register('store:main', Store);
 
-    ok(postView1 instanceof PostView, 'The correct factory was provided');
-    ok(postView2 instanceof PostView, 'The correct factory was provided');
+      registry.injection('controller:post', 'store', 'store:main');
 
-    ok(postView1 !== postView2, 'The two lookups are different');
-  });
+      var postController = container.lookup('controller:post');
+      var store = container.lookup('store:main');
 
-  QUnit.test('Options can be registered that should be applied to all factories for a given type', function () {
-    var registry = new _container.Registry();
-    var container = registry.container();
-    var PostView = (0, _internalTestHelpers.factory)();
-
-    registry.resolver = {
-      resolve: function (fullName) {
-        if (fullName === 'view:post') {
-          return PostView;
-        }
-      }
+      assert.equal(postController.store, store, 'has the correct store injected');
     };
 
-    registry.optionsForType('view', { singleton: false });
+    _class.prototype['@test A factory with both type and individual injections'] = function (assert) {
+      var registry = new _container.Registry();
+      var container = registry.container();
+      var PostController = (0, _internalTestHelpers.factory)();
+      var Store = (0, _internalTestHelpers.factory)();
+      var Router = (0, _internalTestHelpers.factory)();
 
-    var postView1 = container.lookup('view:post');
-    var postView2 = container.lookup('view:post');
+      registry.register('controller:post', PostController);
+      registry.register('store:main', Store);
+      registry.register('router:main', Router);
 
-    ok(postView1 instanceof PostView, 'The correct factory was provided');
-    ok(postView2 instanceof PostView, 'The correct factory was provided');
+      registry.injection('controller:post', 'store', 'store:main');
+      registry.typeInjection('controller', 'router', 'router:main');
 
-    ok(postView1 !== postView2, 'The two lookups are different');
-  });
+      var postController = container.lookup('controller:post');
+      var store = container.lookup('store:main');
+      var router = container.lookup('router:main');
 
-  QUnit.test('An injected non-singleton instance is never cached', function () {
-    var registry = new _container.Registry();
-    var container = registry.container();
-    var PostView = (0, _internalTestHelpers.factory)();
-    var PostViewHelper = (0, _internalTestHelpers.factory)();
-
-    registry.register('view:post', PostView, { singleton: false });
-    registry.register('view_helper:post', PostViewHelper, { singleton: false });
-    registry.injection('view:post', 'viewHelper', 'view_helper:post');
-
-    var postView1 = container.lookup('view:post');
-    var postView2 = container.lookup('view:post');
-
-    ok(postView1.viewHelper !== postView2.viewHelper, 'Injected non-singletons are not cached');
-  });
-
-  QUnit.test('Factory resolves are cached', function () {
-    var registry = new _container.Registry();
-    var container = registry.container();
-    var PostController = (0, _internalTestHelpers.factory)();
-    var resolveWasCalled = [];
-    registry.resolve = function (fullName) {
-      resolveWasCalled.push(fullName);
-      return PostController;
+      assert.equal(postController.store, store);
+      assert.equal(postController.router, router);
     };
 
-    deepEqual(resolveWasCalled, []);
-    container.factoryFor('controller:post');
-    deepEqual(resolveWasCalled, ['controller:post']);
+    _class.prototype['@test A non-singleton instance is never cached'] = function (assert) {
+      var registry = new _container.Registry();
+      var container = registry.container();
+      var PostView = (0, _internalTestHelpers.factory)();
 
-    container.factoryFor('controller:post');
-    deepEqual(resolveWasCalled, ['controller:post']);
-  });
+      registry.register('view:post', PostView, { singleton: false });
 
-  QUnit.test('factory for non extendables (MODEL) resolves are cached', function () {
-    var registry = new _container.Registry();
-    var container = registry.container();
-    var PostController = (0, _internalTestHelpers.factory)();
-    var resolveWasCalled = [];
-    registry.resolve = function (fullName) {
-      resolveWasCalled.push(fullName);
-      return PostController;
+      var postView1 = container.lookup('view:post');
+      var postView2 = container.lookup('view:post');
+
+      assert.ok(postView1 !== postView2, 'Non-singletons are not cached');
     };
 
-    deepEqual(resolveWasCalled, []);
-    container.factoryFor('model:post');
-    deepEqual(resolveWasCalled, ['model:post']);
+    _class.prototype['@test A non-instantiated property is not instantiated'] = function (assert) {
+      var registry = new _container.Registry();
+      var container = registry.container();
 
-    container.factoryFor('model:post');
-    deepEqual(resolveWasCalled, ['model:post']);
-  });
-
-  QUnit.test('factory for non extendables resolves are cached', function () {
-    var registry = new _container.Registry();
-    var container = registry.container();
-    var PostController = {};
-    var resolveWasCalled = [];
-
-    registry.resolve = function (fullName) {
-      resolveWasCalled.push(fullName);
-      return PostController;
+      var template = function () {};
+      registry.register('template:foo', template, { instantiate: false });
+      assert.equal(container.lookup('template:foo'), template);
     };
 
-    deepEqual(resolveWasCalled, []);
-    container.factoryFor('foo:post');
-    deepEqual(resolveWasCalled, ['foo:post']);
+    _class.prototype['@test A failed lookup returns undefined'] = function () {
+      var registry = new _container.Registry();
+      var container = registry.container();
 
-    container.factoryFor('foo:post');
-    deepEqual(resolveWasCalled, ['foo:post']);
-  });
-
-  QUnit.test('A factory\'s lazy injections are validated when first instantiated', function () {
-    var registry = new _container.Registry();
-    var container = registry.container();
-    var Apple = (0, _internalTestHelpers.factory)();
-    var Orange = (0, _internalTestHelpers.factory)();
-
-    Apple.reopenClass({
-      _lazyInjections: function () {
-        return ['orange:main', 'banana:main'];
-      }
-    });
-
-    registry.register('apple:main', Apple);
-    registry.register('orange:main', Orange);
-
-    throws(function () {
-      container.lookup('apple:main');
-    }, /Attempting to inject an unknown injection: 'banana:main'/);
-  });
-
-  QUnit.test('Lazy injection validations are cached', function () {
-    expect(1);
-
-    var registry = new _container.Registry();
-    var container = registry.container();
-    var Apple = (0, _internalTestHelpers.factory)();
-    var Orange = (0, _internalTestHelpers.factory)();
-
-    Apple.reopenClass({
-      _lazyInjections: function () {
-        ok(true, 'should call lazy injection method');
-        return ['orange:main'];
-      }
-    });
-
-    registry.register('apple:main', Apple);
-    registry.register('orange:main', Orange);
-
-    container.lookup('apple:main');
-    container.lookup('apple:main');
-  });
-
-  QUnit.test('An object with its owner pre-set should be returned from ownerInjection', function () {
-    var owner = {};
-    var registry = new _container.Registry();
-    var container = registry.container({ owner: owner });
-
-    var result = container.ownerInjection();
-
-    equal(result[_emberUtils.OWNER], owner, 'owner is properly included');
-  });
-
-  QUnit.test('lookup passes options through to expandlocallookup', function (assert) {
-    var registry = new _container.Registry();
-    var container = registry.container();
-    var PostController = (0, _internalTestHelpers.factory)();
-
-    registry.register('controller:post', PostController);
-    registry.expandLocalLookup = function (fullName, options) {
-      assert.ok(true, 'expandLocalLookup was called');
-      assert.equal(fullName, 'foo:bar');
-      assert.deepEqual(options, { source: 'baz:qux' });
-
-      return 'controller:post';
+      equal(container.lookup('doesnot:exist'), undefined);
     };
 
-    var PostControllerLookupResult = container.lookup('foo:bar', { source: 'baz:qux' });
-
-    assert.ok(PostControllerLookupResult instanceof PostController);
-  });
-
-  QUnit.test('#factoryFor class is registered class', function (assert) {
-    var registry = new _container.Registry();
-    var container = registry.container();
-
-    var Component = (0, _internalTestHelpers.factory)();
-    registry.register('component:foo-bar', Component);
-
-    var factoryManager = container.factoryFor('component:foo-bar');
-    assert.deepEqual(factoryManager.class, Component, 'No double extend');
-  });
-
-  QUnit.test('#factoryFor must supply a fullname', function () {
-    var registry = new _container.Registry();
-    var container = registry.container();
-    expectAssertion(function () {
-      container.factoryFor('chad-bar');
-    }, /fullName must be a proper full name/);
-  });
-
-  QUnit.test('#factoryFor returns a factory manager', function (assert) {
-    var registry = new _container.Registry();
-    var container = registry.container();
-
-    var Component = (0, _internalTestHelpers.factory)();
-    registry.register('component:foo-bar', Component);
-
-    var factoryManager = container.factoryFor('component:foo-bar');
-    assert.ok(factoryManager.create);
-    assert.ok(factoryManager.class);
-  });
-
-  QUnit.test('#factoryFor returns a cached factory manager for the same type', function (assert) {
-    var registry = new _container.Registry();
-    var container = registry.container();
-
-    var Component = (0, _internalTestHelpers.factory)();
-    registry.register('component:foo-bar', Component);
-    registry.register('component:baz-bar', Component);
-
-    var factoryManager1 = container.factoryFor('component:foo-bar');
-    var factoryManager2 = container.factoryFor('component:foo-bar');
-    var factoryManager3 = container.factoryFor('component:baz-bar');
-
-    assert.equal(factoryManager1, factoryManager2, 'cache hit');
-    assert.notEqual(factoryManager1, factoryManager3, 'cache miss');
-  });
-
-  QUnit.test('#factoryFor class returns the factory function', function (assert) {
-    var registry = new _container.Registry();
-    var container = registry.container();
-
-    var Component = (0, _internalTestHelpers.factory)();
-    registry.register('component:foo-bar', Component);
-
-    var factoryManager = container.factoryFor('component:foo-bar');
-    assert.deepEqual(factoryManager.class, Component, 'No double extend');
-  });
-
-  QUnit.test('#factoryFor instance have a common parent', function (assert) {
-    var registry = new _container.Registry();
-    var container = registry.container();
-
-    var Component = (0, _internalTestHelpers.factory)();
-    registry.register('component:foo-bar', Component);
-
-    var factoryManager1 = container.factoryFor('component:foo-bar');
-    var factoryManager2 = container.factoryFor('component:foo-bar');
-    var instance1 = factoryManager1.create({ foo: 'foo' });
-    var instance2 = factoryManager2.create({ bar: 'bar' });
-
-    assert.deepEqual(instance1.constructor, instance2.constructor);
-  });
-
-  QUnit.test('can properly reset cache', function (assert) {
-    var registry = new _container.Registry();
-    var container = registry.container();
-
-    var Component = (0, _internalTestHelpers.factory)();
-    registry.register('component:foo-bar', Component);
-
-    var factory1 = container.factoryFor('component:foo-bar');
-    var factory2 = container.factoryFor('component:foo-bar');
-
-    var instance1 = container.lookup('component:foo-bar');
-    var instance2 = container.lookup('component:foo-bar');
-
-    assert.equal(instance1, instance2);
-    assert.equal(factory1, factory2);
-
-    container.reset();
-
-    var factory3 = container.factoryFor('component:foo-bar');
-    var instance3 = container.lookup('component:foo-bar');
-
-    assert.notEqual(instance1, instance3);
-    assert.notEqual(factory1, factory3);
-  });
-
-  QUnit.test('#factoryFor created instances come with instance injections', function (assert) {
-    var registry = new _container.Registry();
-    var container = registry.container();
-
-    var Component = (0, _internalTestHelpers.factory)();
-    var Ajax = (0, _internalTestHelpers.factory)();
-    registry.register('component:foo-bar', Component);
-    registry.register('util:ajax', Ajax);
-    registry.injection('component:foo-bar', 'ajax', 'util:ajax');
-
-    var componentFactory = container.factoryFor('component:foo-bar');
-    var component = componentFactory.create();
-
-    assert.ok(component.ajax);
-    assert.ok(component.ajax instanceof Ajax);
-  });
-
-  QUnit.test('#factoryFor options passed to create clobber injections', function (assert) {
-    var registry = new _container.Registry();
-    var container = registry.container();
-
-    var Component = (0, _internalTestHelpers.factory)();
-    var Ajax = (0, _internalTestHelpers.factory)();
-    registry.register('component:foo-bar', Component);
-    registry.register('util:ajax', Ajax);
-    registry.injection('component:foo-bar', 'ajax', 'util:ajax');
-
-    var componentFactory = container.factoryFor('component:foo-bar');
-
-    var instrance = componentFactory.create({ ajax: 'fetch' });
-
-    assert.equal(instrance.ajax, 'fetch');
-  });
-
-  QUnit.test('#factoryFor does not add properties to the object being instantiated when _initFactory is present', function (assert) {
-    var registry = new _container.Registry();
-    var container = registry.container();
-
-    var Component = function () {
-      function Component() {}
-
-      Component._initFactory = function (_factory) {};
-
-      Component.create = function (options) {
-        var instance = new this();
-        (0, _emberUtils.assign)(instance, options);
-        return instance;
-      };
-
-      return Component;
-    }();
-
-    registry.register('component:foo-bar', Component);
-
-    var componentFactory = container.factoryFor('component:foo-bar');
-    var instance = componentFactory.create();
-
-    // note: _guid and isDestroyed are being set in the `factory` constructor
-    // not via registry/container shenanigans
-    assert.deepEqual(Object.keys(instance), []);
-  });
-
-  // this is skipped until templates and the glimmer environment do not require `OWNER` to be
-  // passed in as constructor args
-  QUnit.skip('#factoryFor does not add properties to the object being instantiated', function (assert) {
-    var registry = new _container.Registry();
-    var container = registry.container();
-
-    var Component = function () {
-      function Component() {}
-
-      Component.create = function (options) {
-        var instance = new this();
-        (0, _emberUtils.assign)(instance, options);
-        return instance;
-      };
-
-      return Component;
-    }();
-
-    registry.register('component:foo-bar', Component);
-
-    var componentFactory = container.factoryFor('component:foo-bar');
-    var instance = componentFactory.create();
-
-    // note: _guid and isDestroyed are being set in the `factory` constructor
-    // not via registry/container shenanigans
-    assert.deepEqual(Object.keys(instance), []);
-  });
-});
-enifed('container/tests/owner_test', ['ember-utils'], function (_emberUtils) {
-  'use strict';
-
-  QUnit.module('Owner', {});
-
-  QUnit.test('An owner can be set with `setOwner` and retrieved with `getOwner`', function () {
-    var owner = {};
-    var obj = {};
-
-    strictEqual((0, _emberUtils.getOwner)(obj), undefined, 'owner has not been set');
-
-    (0, _emberUtils.setOwner)(obj, owner);
-
-    strictEqual((0, _emberUtils.getOwner)(obj), owner, 'owner has been set');
-
-    strictEqual(obj[_emberUtils.OWNER], owner, 'owner has been set to the OWNER symbol');
-  });
-});
-enifed('container/tests/registry_test', ['container', 'internal-test-helpers'], function (_container, _internalTestHelpers) {
-  'use strict';
-
-  QUnit.module('Registry');
-
-  QUnit.test('A registered factory is returned from resolve', function () {
-    var registry = new _container.Registry();
-    var PostController = (0, _internalTestHelpers.factory)();
-
-    registry.register('controller:post', PostController);
-
-    var PostControllerFactory = registry.resolve('controller:post');
-
-    ok(PostControllerFactory, 'factory is returned');
-    ok(PostControllerFactory.create() instanceof PostController, 'The return of factory.create is an instance of PostController');
-  });
-
-  QUnit.test('The registered factory returned from resolve is the same factory each time', function () {
-    var registry = new _container.Registry();
-    var PostController = (0, _internalTestHelpers.factory)();
-
-    registry.register('controller:post', PostController);
-
-    deepEqual(registry.resolve('controller:post'), registry.resolve('controller:post'), 'The return of resolve is always the same');
-  });
-
-  QUnit.test('The registered value returned from resolve is the same value each time even if the value is falsy', function () {
-    var registry = new _container.Registry();
-
-    registry.register('falsy:value', null, { instantiate: false });
-
-    strictEqual(registry.resolve('falsy:value'), registry.resolve('falsy:value'), 'The return of resolve is always the same');
-  });
-
-  QUnit.test('The value returned from resolver is the same value as the original value even if the value is falsy', function () {
-    var registry = new _container.Registry({ resolver: {
-        resolve: function (fullName) {
-          if (fullName === 'falsy:value') {
-            return null;
-          }
-        }
-      } });
-
-    strictEqual(registry.resolve('falsy:value'), null);
-  });
-
-  QUnit.test('A registered factory returns true for `has` if an item is registered', function () {
-    var registry = new _container.Registry();
-    var PostController = (0, _internalTestHelpers.factory)();
-
-    registry.register('controller:post', PostController);
-
-    equal(registry.has('controller:post'), true, 'The `has` method returned true for registered factories');
-    equal(registry.has('controller:posts'), false, 'The `has` method returned false for unregistered factories');
-  });
-
-  QUnit.test('Throw exception when trying to inject `type:thing` on all type(s)', function () {
-    var registry = new _container.Registry();
-    var PostController = (0, _internalTestHelpers.factory)();
-
-    registry.register('controller:post', PostController);
-
-    expectAssertion(function () {
-      registry.typeInjection('controller', 'injected', 'controller:post');
-    }, /Cannot inject a 'controller:post' on other controller\(s\)\./);
-  });
-
-  QUnit.test('The registry can take a hook to resolve factories lazily', function () {
-    var PostController = (0, _internalTestHelpers.factory)();
-
-    var registry = new _container.Registry({ resolver: {
-        resolve: function (fullName) {
-          if (fullName === 'controller:post') {
-            return PostController;
-          }
-        }
-      } });
-
-    strictEqual(registry.resolve('controller:post'), PostController, 'The correct factory was provided');
-  });
-
-  QUnit.test('The registry respects the resolver hook for `has`', function () {
-    var PostController = (0, _internalTestHelpers.factory)();
-
-    var registry = new _container.Registry({ resolver: {
-        resolve: function (fullName) {
-          if (fullName === 'controller:post') {
-            return PostController;
-          }
-        }
-      } });
-
-    ok(registry.has('controller:post'), 'the `has` method uses the resolver hook');
-  });
-
-  QUnit.test('The registry normalizes names when resolving', function () {
-    var registry = new _container.Registry();
-    var PostController = (0, _internalTestHelpers.factory)();
-
-    registry.normalizeFullName = function () {
-      return 'controller:post';
+    _class.prototype['@test An invalid factory throws an error'] = function (assert) {
+      var registry = new _container.Registry();
+      var container = registry.container();
+
+      registry.register('controller:foo', {});
+
+      assert.throws(function () {
+        container.lookup('controller:foo');
+      }, /Failed to create an instance of \'controller:foo\'/);
     };
 
-    registry.register('controller:post', PostController);
-    var type = registry.resolve('controller:normalized');
-
-    strictEqual(type, PostController, 'Normalizes the name when resolving');
-  });
-
-  QUnit.test('The registry normalizes names when checking if the factory is registered', function () {
-    var registry = new _container.Registry();
-    var PostController = (0, _internalTestHelpers.factory)();
-
-    registry.normalizeFullName = function (fullName) {
-      return fullName === 'controller:normalized' ? 'controller:post' : fullName;
-    };
-
-    registry.register('controller:post', PostController);
-    var isPresent = registry.has('controller:normalized');
-
-    equal(isPresent, true, 'Normalizes the name when checking if the factory or instance is present');
-  });
-
-  QUnit.test('The registry normalizes names when injecting', function () {
-    var registry = new _container.Registry();
-    var PostController = (0, _internalTestHelpers.factory)();
-    var user = { name: 'Stef' };
-
-    registry.normalize = function () {
-      return 'controller:post';
-    };
-
-    registry.register('controller:post', PostController);
-    registry.register('user:post', user, { instantiate: false });
-    registry.injection('controller:post', 'user', 'controller:normalized');
-
-    deepEqual(registry.resolve('controller:post'), user, 'Normalizes the name when injecting');
-  });
-
-  QUnit.test('cannot register an `undefined` factory', function () {
-    var registry = new _container.Registry();
-
-    throws(function () {
-      registry.register('controller:apple', undefined);
-    }, '');
-  });
-
-  QUnit.test('can re-register a factory', function () {
-    var registry = new _container.Registry();
-    var FirstApple = (0, _internalTestHelpers.factory)('first');
-    var SecondApple = (0, _internalTestHelpers.factory)('second');
-
-    registry.register('controller:apple', FirstApple);
-    registry.register('controller:apple', SecondApple);
-
-    ok(registry.resolve('controller:apple').create() instanceof SecondApple);
-  });
-
-  QUnit.test('cannot re-register a factory if it has been resolved', function () {
-    var registry = new _container.Registry();
-    var FirstApple = (0, _internalTestHelpers.factory)('first');
-    var SecondApple = (0, _internalTestHelpers.factory)('second');
-
-    registry.register('controller:apple', FirstApple);
-    strictEqual(registry.resolve('controller:apple'), FirstApple);
-
-    expectAssertion(function () {
-      registry.register('controller:apple', SecondApple);
-    }, /Cannot re-register: 'controller:apple', as it has already been resolved\./);
-
-    strictEqual(registry.resolve('controller:apple'), FirstApple);
-  });
-
-  QUnit.test('registry.has should not accidentally cause injections on that factory to be run. (Mitigate merely on observing)', function () {
-    expect(1);
-
-    var registry = new _container.Registry();
-    var FirstApple = (0, _internalTestHelpers.factory)('first');
-    var SecondApple = (0, _internalTestHelpers.factory)('second');
-
-    SecondApple.extend = function () {
-      ok(false, 'should not extend or touch the injected model, merely to inspect existence of another');
-    };
-
-    registry.register('controller:apple', FirstApple);
-    registry.register('controller:second-apple', SecondApple);
-    registry.injection('controller:apple', 'badApple', 'controller:second-apple');
-
-    ok(registry.has('controller:apple'));
-  });
-
-  QUnit.test('registry.has should not error for invalid fullNames)', function () {
-    expect(1);
-
-    var registry = new _container.Registry();
-
-    ok(!registry.has('foo:bar:baz'));
-  });
-
-  QUnit.test('once resolved, always return the same result', function () {
-    expect(1);
-
-    var registry = new _container.Registry();
-
-    registry.resolver = {
-      resolve: function () {
-        return 'bar';
-      }
-    };
-
-    var Bar = registry.resolve('models:bar');
-
-    registry.resolver = {
-      resolve: function () {
-        return 'not bar';
-      }
-    };
-
-    equal(registry.resolve('models:bar'), Bar);
-  });
-
-  QUnit.test('factory resolves are cached', function () {
-    var registry = new _container.Registry();
-    var PostController = (0, _internalTestHelpers.factory)();
-    var resolveWasCalled = [];
-
-    registry.resolver = {
-      resolve: function (fullName) {
-        resolveWasCalled.push(fullName);
-        return PostController;
-      }
-    };
-
-    deepEqual(resolveWasCalled, []);
-    registry.resolve('controller:post');
-    deepEqual(resolveWasCalled, ['controller:post']);
-
-    registry.resolve('controller:post');
-    deepEqual(resolveWasCalled, ['controller:post']);
-  });
-
-  QUnit.test('factory for non extendables (MODEL) resolves are cached', function () {
-    var registry = new _container.Registry();
-    var PostController = (0, _internalTestHelpers.factory)();
-    var resolveWasCalled = [];
-
-    registry.resolver = {
-      resolve: function (fullName) {
-        resolveWasCalled.push(fullName);
-        return PostController;
-      }
-    };
-
-    deepEqual(resolveWasCalled, []);
-    registry.resolve('model:post');
-    deepEqual(resolveWasCalled, ['model:post']);
-
-    registry.resolve('model:post');
-    deepEqual(resolveWasCalled, ['model:post']);
-  });
-
-  QUnit.test('factory for non extendables resolves are cached', function () {
-    var registry = new _container.Registry();
-    var PostController = {};
-    var resolveWasCalled = [];
-
-    registry.resolver = {
-      resolve: function (fullName) {
-        resolveWasCalled.push(fullName);
-        return PostController;
-      }
-    };
-
-    deepEqual(resolveWasCalled, []);
-    registry.resolve('foo:post');
-    deepEqual(resolveWasCalled, ['foo:post']);
-
-    registry.resolve('foo:post');
-    deepEqual(resolveWasCalled, ['foo:post']);
-  });
-
-  QUnit.test('registry.container creates a container', function () {
-    var registry = new _container.Registry();
-    var PostController = (0, _internalTestHelpers.factory)();
-    registry.register('controller:post', PostController);
-
-    var container = registry.container();
-    var postController = container.lookup('controller:post');
-
-    ok(postController instanceof PostController, 'The lookup is an instance of the registered factory');
-  });
-
-  QUnit.test('`describe` will be handled by the resolver, then by the fallback registry, if available', function () {
-
-    var registry = new _container.Registry({ fallback: {
-        describe: function (fullName) {
-          return fullName + '-fallback';
-        }
-      }, resolver: {
-        lookupDescription: function (fullName) {
-          return fullName + '-resolver';
-        }
-      } });
-
-    equal(registry.describe('controller:post'), 'controller:post-resolver', '`describe` handled by the resolver first.');
-
-    registry.resolver = null;
-
-    equal(registry.describe('controller:post'), 'controller:post-fallback', '`describe` handled by fallback registry next.');
-
-    registry.fallback = null;
-
-    equal(registry.describe('controller:post'), 'controller:post', '`describe` by default returns argument.');
-  });
-
-  QUnit.test('`normalizeFullName` will be handled by the resolver, then by the fallback registry, if available', function () {
-
-    var registry = new _container.Registry({ fallback: {
-        normalizeFullName: function (fullName) {
-          return fullName + '-fallback';
-        }
-      }, resolver: {
-        normalize: function (fullName) {
-          return fullName + '-resolver';
-        }
-      } });
-
-    equal(registry.normalizeFullName('controller:post'), 'controller:post-resolver', '`normalizeFullName` handled by the resolver first.');
-
-    registry.resolver = null;
-
-    equal(registry.normalizeFullName('controller:post'), 'controller:post-fallback', '`normalizeFullName` handled by fallback registry next.');
-
-    registry.fallback = null;
-
-    equal(registry.normalizeFullName('controller:post'), 'controller:post', '`normalizeFullName` by default returns argument.');
-  });
-
-  QUnit.test('`makeToString` will be handled by the resolver, then by the fallback registry, if available', function () {
-
-    var registry = new _container.Registry({ fallback: {
-        makeToString: function (fullName) {
-          return fullName + '-fallback';
-        }
-      }, resolver: {
-        makeToString: function (fullName) {
-          return fullName + '-resolver';
-        }
-      } });
-
-    equal(registry.makeToString('controller:post'), 'controller:post-resolver', '`makeToString` handled by the resolver first.');
-
-    registry.resolver = null;
-
-    equal(registry.makeToString('controller:post'), 'controller:post-fallback', '`makeToString` handled by fallback registry next.');
-
-    registry.fallback = null;
-
-    equal(registry.makeToString('controller:post'), 'controller:post', '`makeToString` by default returns argument.');
-  });
-
-  QUnit.test('`resolve` can be handled by a fallback registry', function () {
-    var fallback = new _container.Registry();
-
-    var registry = new _container.Registry({ fallback: fallback });
-    var PostController = (0, _internalTestHelpers.factory)();
-
-    fallback.register('controller:post', PostController);
-
-    var PostControllerFactory = registry.resolve('controller:post');
-
-    ok(PostControllerFactory, 'factory is returned');
-    ok(PostControllerFactory.create() instanceof PostController, 'The return of factory.create is an instance of PostController');
-  });
-
-  QUnit.test('`has` can be handled by a fallback registry', function () {
-    var fallback = new _container.Registry();
-
-    var registry = new _container.Registry({ fallback: fallback });
-    var PostController = (0, _internalTestHelpers.factory)();
-
-    fallback.register('controller:post', PostController);
-
-    equal(registry.has('controller:post'), true, 'Fallback registry is checked for registration');
-  });
-
-  QUnit.test('`getInjections` includes injections from a fallback registry', function () {
-    var fallback = new _container.Registry();
-    var registry = new _container.Registry({ fallback: fallback });
-
-    equal(registry.getInjections('model:user').length, 0, 'No injections in the primary registry');
-
-    fallback.injection('model:user', 'post', 'model:post');
-
-    equal(registry.getInjections('model:user').length, 1, 'Injections from the fallback registry are merged');
-  });
-
-  QUnit.test('`getTypeInjections` includes type injections from a fallback registry', function () {
-    var fallback = new _container.Registry();
-    var registry = new _container.Registry({ fallback: fallback });
-
-    equal(registry.getTypeInjections('model').length, 0, 'No injections in the primary registry');
-
-    fallback.injection('model', 'source', 'source:main');
-
-    equal(registry.getTypeInjections('model').length, 1, 'Injections from the fallback registry are merged');
-  });
-
-  QUnit.test('`knownForType` contains keys for each item of a given type', function () {
-    var registry = new _container.Registry();
-
-    registry.register('foo:bar-baz', 'baz');
-    registry.register('foo:qux-fez', 'fez');
-
-    var found = registry.knownForType('foo');
-
-    deepEqual(found, {
-      'foo:bar-baz': true,
-      'foo:qux-fez': true
-    });
-  });
-
-  QUnit.test('`knownForType` includes fallback registry results', function () {
-    var fallback = new _container.Registry();
-    var registry = new _container.Registry({ fallback: fallback });
-
-    registry.register('foo:bar-baz', 'baz');
-    registry.register('foo:qux-fez', 'fez');
-    fallback.register('foo:zurp-zorp', 'zorp');
-
-    var found = registry.knownForType('foo');
-
-    deepEqual(found, {
-      'foo:bar-baz': true,
-      'foo:qux-fez': true,
-      'foo:zurp-zorp': true
-    });
-  });
-
-  QUnit.test('`knownForType` is called on the resolver if present', function () {
-    expect(3);
-
-    var registry = new _container.Registry({
-      resolver: {
-        knownForType: function (type) {
-          ok(true, 'knownForType called on the resolver');
-          equal(type, 'foo', 'the type was passed through');
-
-          return { 'foo:yorp': true };
-        }
-      }
-    });
-    registry.register('foo:bar-baz', 'baz');
-
-    var found = registry.knownForType('foo');
-
-    deepEqual(found, {
-      'foo:yorp': true,
-      'foo:bar-baz': true
-    });
-  });
-
-  QUnit.test('A registry can be created with a deprecated `resolver` function instead of an object', function () {
-    expect(2);
-
-    var registry = void 0;
-
-    expectDeprecation(function () {
-      registry = new _container.Registry({
-        resolver: function (fullName) {
-          return fullName + '-resolved';
+    _class.prototype['@test Injecting a failed lookup raises an error'] = function (assert) {
+      var registry = new _container.Registry();
+      var container = registry.container();
+
+      var fooInstance = {};
+      var fooFactory = {};
+
+      registry.register('model:foo', {
+        create: function () {
+          return fooInstance;
+        },
+        extend: function () {
+          return fooFactory;
         }
       });
-    }, 'Passing a `resolver` function into a Registry is deprecated. Please pass in a Resolver object with a `resolve` method.');
+      registry.injection('model:foo', 'store', 'store:main');
 
-    equal(registry.resolve('foo:bar'), 'foo:bar-resolved', '`resolve` still calls the deprecated function');
-  });
+      assert.throws(function () {
+        container.lookup('model:foo');
+      });
+    };
 
-  QUnit.test('resolver.expandLocalLookup is not required', function (assert) {
-    assert.expect(1);
+    _class.prototype['@test Injecting a falsy value does not raise an error'] = function (assert) {
+      var registry = new _container.Registry();
+      var container = registry.container();
+      var ApplicationController = (0, _internalTestHelpers.factory)();
 
-    var registry = new _container.Registry({
-      resolver: {}
-    });
+      registry.register('controller:application', ApplicationController);
+      registry.register('user:current', null, { instantiate: false });
+      registry.injection('controller:application', 'currentUser', 'user:current');
 
-    var result = registry.expandLocalLookup('foo:bar', {
-      source: 'baz:qux'
-    });
+      assert.strictEqual(container.lookup('controller:application').currentUser, null);
+    };
 
-    assert.equal(result, null);
-  });
+    _class.prototype['@test The container returns same value each time even if the value is falsy'] = function (assert) {
+      var registry = new _container.Registry();
+      var container = registry.container();
 
-  QUnit.test('expandLocalLookup is called on the resolver if present', function (assert) {
-    assert.expect(4);
+      registry.register('falsy:value', null, { instantiate: false });
 
-    var registry = new _container.Registry({
-      resolver: {
-        expandLocalLookup: function (targetFullName, sourceFullName) {
-          assert.ok(true, 'expandLocalLookup is called on the resolver');
-          assert.equal(targetFullName, 'foo:bar', 'the targetFullName was passed through');
-          assert.equal(sourceFullName, 'baz:qux', 'the sourceFullName was passed through');
+      assert.strictEqual(container.lookup('falsy:value'), container.lookup('falsy:value'));
+    };
 
-          return 'foo:qux/bar';
-        }
-      }
-    });
+    _class.prototype['@test Destroying the container destroys any cached singletons'] = function (assert) {
+      var registry = new _container.Registry();
+      var container = registry.container();
+      var PostController = (0, _internalTestHelpers.factory)();
+      var PostView = (0, _internalTestHelpers.factory)();
 
-    var result = registry.expandLocalLookup('foo:bar', {
-      source: 'baz:qux'
-    });
 
-    assert.equal(result, 'foo:qux/bar');
-  });
+      registry.register('controller:post', PostController);
+      registry.register('view:post', PostView, { singleton: false });
+      registry.register('template:post', function () {}, { instantiate: false });
 
-  QUnit.test('`expandLocalLookup` is handled by the resolver, then by the fallback registry, if available', function (assert) {
-    assert.expect(9);
+      registry.injection('controller:post', 'postView', 'view:post');
 
-    var fallbackRegistry = new _container.Registry({
-      resolver: {
-        expandLocalLookup: function (targetFullName, sourceFullName) {
-          assert.ok(true, 'expandLocalLookup is called on the fallback resolver');
-          assert.equal(targetFullName, 'foo:bar', 'the targetFullName was passed through');
-          assert.equal(sourceFullName, 'baz:qux', 'the sourceFullName was passed through');
+      var postController = container.lookup('controller:post');
+      var postView = postController.postView;
 
-          return 'foo:qux/bar-fallback';
-        }
-      }
-    });
+      assert.ok(postView instanceof PostView, 'The non-singleton was injected');
 
-    var registry = new _container.Registry({
-      fallback: fallbackRegistry,
-      resolver: {
-        expandLocalLookup: function (targetFullName, sourceFullName) {
-          assert.ok(true, 'expandLocalLookup is called on the resolver');
-          assert.equal(targetFullName, 'foo:bar', 'the targetFullName was passed through');
-          assert.equal(sourceFullName, 'baz:qux', 'the sourceFullName was passed through');
+      container.destroy();
 
-          return 'foo:qux/bar-resolver';
-        }
-      }
-    });
+      assert.ok(postController.isDestroyed, 'Singletons are destroyed');
+      assert.ok(!postView.isDestroyed, 'Non-singletons are not destroyed');
+    };
 
-    var result = registry.expandLocalLookup('foo:bar', {
-      source: 'baz:qux'
-    });
+    _class.prototype['@test The container can use a registry hook to resolve factories lazily'] = function (assert) {
+      var registry = new _container.Registry();
+      var container = registry.container();
+      var PostController = (0, _internalTestHelpers.factory)();
 
-    assert.equal(result, 'foo:qux/bar-resolver', 'handled by the resolver');
-
-    registry.resolver = null;
-
-    result = registry.expandLocalLookup('foo:bar', {
-      source: 'baz:qux'
-    });
-
-    assert.equal(result, 'foo:qux/bar-fallback', 'handled by the fallback registry');
-
-    registry.fallback = null;
-
-    result = registry.expandLocalLookup('foo:bar', {
-      source: 'baz:qux'
-    });
-
-    assert.equal(result, null, 'null is returned by default when no resolver or fallback registry is present');
-  });
-
-  QUnit.test('resolver.expandLocalLookup result is cached', function (assert) {
-    assert.expect(3);
-    var result = void 0;
-
-    var registry = new _container.Registry({
-      resolver: {
-        expandLocalLookup: function () {
-          assert.ok(true, 'expandLocalLookup is called on the resolver');
-
-          return 'foo:qux/bar';
-        }
-      }
-    });
-
-    result = registry.expandLocalLookup('foo:bar', {
-      source: 'baz:qux'
-    });
-
-    assert.equal(result, 'foo:qux/bar');
-
-    result = registry.expandLocalLookup('foo:bar', {
-      source: 'baz:qux'
-    });
-
-    assert.equal(result, 'foo:qux/bar');
-  });
-
-  QUnit.test('resolver.expandLocalLookup cache is busted when any unregister is called', function (assert) {
-    assert.expect(4);
-    var result = void 0;
-
-    var registry = new _container.Registry({
-      resolver: {
-        expandLocalLookup: function () {
-          assert.ok(true, 'expandLocalLookup is called on the resolver');
-
-          return 'foo:qux/bar';
-        }
-      }
-    });
-
-    result = registry.expandLocalLookup('foo:bar', {
-      source: 'baz:qux'
-    });
-
-    assert.equal(result, 'foo:qux/bar');
-
-    registry.unregister('foo:bar');
-
-    result = registry.expandLocalLookup('foo:bar', {
-      source: 'baz:qux'
-    });
-
-    assert.equal(result, 'foo:qux/bar');
-  });
-
-  QUnit.test('resolve calls expandLocallookup when it receives options.source', function (assert) {
-    assert.expect(3);
-
-    var registry = new _container.Registry({
-      resolver: {
-        resolve: function () {},
-        expandLocalLookup: function (targetFullName, sourceFullName) {
-          assert.ok(true, 'expandLocalLookup is called on the resolver');
-          assert.equal(targetFullName, 'foo:bar', 'the targetFullName was passed through');
-          assert.equal(sourceFullName, 'baz:qux', 'the sourceFullName was passed through');
-
-          return 'foo:qux/bar';
-        }
-      }
-    });
-
-    registry.resolve('foo:bar', {
-      source: 'baz:qux'
-    });
-  });
-
-  QUnit.test('has uses expandLocalLookup', function (assert) {
-    assert.expect(5);
-    var resolvedFullNames = [];
-    var result = void 0;
-
-    var registry = new _container.Registry({
-      resolver: {
-        resolve: function (name) {
-          resolvedFullNames.push(name);
-
-          return 'yippie!';
-        },
-        expandLocalLookup: function (targetFullName) {
-          assert.ok(true, 'expandLocalLookup is called on the resolver');
-
-          if (targetFullName === 'foo:bar') {
-            return 'foo:qux/bar';
-          } else {
-            return null;
+      registry.resolver = {
+        resolve: function (fullName) {
+          if (fullName === 'controller:post') {
+            return PostController;
           }
         }
-      }
-    });
+      };
 
-    result = registry.has('foo:bar', {
-      source: 'baz:qux'
-    });
+      var postController = container.lookup('controller:post');
 
-    assert.ok(result, 'found foo:bar/qux');
+      assert.ok(postController instanceof PostController, 'The correct factory was provided');
+    };
 
-    result = registry.has('foo:baz', {
-      source: 'baz:qux'
-    });
+    _class.prototype['@test The container normalizes names before resolving'] = function (assert) {
+      var registry = new _container.Registry();
+      var container = registry.container();
+      var PostController = (0, _internalTestHelpers.factory)();
 
-    assert.ok(!result, 'foo:baz/qux not found');
+      registry.normalizeFullName = function () {
+        return 'controller:post';
+      };
 
-    assert.deepEqual(['foo:qux/bar'], resolvedFullNames);
-  });
+      registry.register('controller:post', PostController);
+      var postController = container.lookup('controller:normalized');
 
-  QUnit.module('Registry privatize');
+      assert.ok(postController instanceof PostController, 'Normalizes the name before resolving');
+    };
 
-  QUnit.test('valid format', function (assert) {
-    var privatized = (0, _container.privatize)(['secret:factory']);
-    var matched = privatized.match(/^([^:]+):([^:]+)-(\d+)$/);
+    _class.prototype['@test The container normalizes names when looking factory up'] = function (assert) {
+      var registry = new _container.Registry();
+      var container = registry.container();
+      var PostController = (0, _internalTestHelpers.factory)();
 
-    assert.ok(matched, 'privatized format was recognized');
-    assert.equal(matched[1], 'secret');
-    assert.equal(matched[2], 'factory');
-    assert.ok(/^\d+$/.test(matched[3]));
-  });
+      registry.normalizeFullName = function () {
+        return 'controller:post';
+      };
+
+      registry.register('controller:post', PostController);
+      var fact = container.factoryFor('controller:normalized');
+
+      var factInstance = fact.create();
+      assert.ok(factInstance instanceof PostController, 'Normalizes the name');
+    };
+
+    _class.prototype['@test Options can be registered that should be applied to a given factory'] = function (assert) {
+      var registry = new _container.Registry();
+      var container = registry.container();
+      var PostView = (0, _internalTestHelpers.factory)();
+
+      registry.resolver = {
+        resolve: function (fullName) {
+          if (fullName === 'view:post') {
+            return PostView;
+          }
+        }
+      };
+
+      registry.options('view:post', { instantiate: true, singleton: false });
+
+      var postView1 = container.lookup('view:post');
+      var postView2 = container.lookup('view:post');
+
+      assert.ok(postView1 instanceof PostView, 'The correct factory was provided');
+      assert.ok(postView2 instanceof PostView, 'The correct factory was provided');
+
+      assert.ok(postView1 !== postView2, 'The two lookups are different');
+    };
+
+    _class.prototype['@test Options can be registered that should be applied to all factories for a given type'] = function (assert) {
+      var registry = new _container.Registry();
+      var container = registry.container();
+      var PostView = (0, _internalTestHelpers.factory)();
+
+      registry.resolver = {
+        resolve: function (fullName) {
+          if (fullName === 'view:post') {
+            return PostView;
+          }
+        }
+      };
+
+      registry.optionsForType('view', { singleton: false });
+
+      var postView1 = container.lookup('view:post');
+      var postView2 = container.lookup('view:post');
+
+      assert.ok(postView1 instanceof PostView, 'The correct factory was provided');
+      assert.ok(postView2 instanceof PostView, 'The correct factory was provided');
+
+      assert.ok(postView1 !== postView2, 'The two lookups are different');
+    };
+
+    _class.prototype['@test An injected non-singleton instance is never cached'] = function (assert) {
+      var registry = new _container.Registry();
+      var container = registry.container();
+      var PostView = (0, _internalTestHelpers.factory)();
+      var PostViewHelper = (0, _internalTestHelpers.factory)();
+
+      registry.register('view:post', PostView, { singleton: false });
+      registry.register('view_helper:post', PostViewHelper, { singleton: false });
+      registry.injection('view:post', 'viewHelper', 'view_helper:post');
+
+      var postView1 = container.lookup('view:post');
+      var postView2 = container.lookup('view:post');
+
+      assert.ok(postView1.viewHelper !== postView2.viewHelper, 'Injected non-singletons are not cached');
+    };
+
+    _class.prototype['@test Factory resolves are cached'] = function (assert) {
+      var registry = new _container.Registry();
+      var container = registry.container();
+      var PostController = (0, _internalTestHelpers.factory)();
+      var resolveWasCalled = [];
+      registry.resolve = function (fullName) {
+        resolveWasCalled.push(fullName);
+        return PostController;
+      };
+
+      assert.deepEqual(resolveWasCalled, []);
+      container.factoryFor('controller:post');
+      assert.deepEqual(resolveWasCalled, ['controller:post']);
+
+      container.factoryFor('controller:post');
+      assert.deepEqual(resolveWasCalled, ['controller:post']);
+    };
+
+    _class.prototype['@test factory for non extendables (MODEL) resolves are cached'] = function (assert) {
+      var registry = new _container.Registry();
+      var container = registry.container();
+      var PostController = (0, _internalTestHelpers.factory)();
+      var resolveWasCalled = [];
+      registry.resolve = function (fullName) {
+        resolveWasCalled.push(fullName);
+        return PostController;
+      };
+
+      assert.deepEqual(resolveWasCalled, []);
+      container.factoryFor('model:post');
+      assert.deepEqual(resolveWasCalled, ['model:post']);
+
+      container.factoryFor('model:post');
+      assert.deepEqual(resolveWasCalled, ['model:post']);
+    };
+
+    _class.prototype['@test factory for non extendables resolves are cached'] = function (assert) {
+      var registry = new _container.Registry();
+      var container = registry.container();
+      var PostController = {};
+      var resolveWasCalled = [];
+
+      registry.resolve = function (fullName) {
+        resolveWasCalled.push(fullName);
+        return PostController;
+      };
+
+      assert.deepEqual(resolveWasCalled, []);
+      container.factoryFor('foo:post');
+      assert.deepEqual(resolveWasCalled, ['foo:post']);
+
+      container.factoryFor('foo:post');
+      assert.deepEqual(resolveWasCalled, ['foo:post']);
+    };
+
+    _class.prototype['@test A factory\'s lazy injections are validated when first instantiated'] = function (assert) {
+      var registry = new _container.Registry();
+      var container = registry.container();
+      var Apple = (0, _internalTestHelpers.factory)();
+      var Orange = (0, _internalTestHelpers.factory)();
+
+      Apple.reopenClass({
+        _lazyInjections: function () {
+          return ['orange:main', 'banana:main'];
+        }
+      });
+
+      registry.register('apple:main', Apple);
+      registry.register('orange:main', Orange);
+
+      assert.throws(function () {
+        container.lookup('apple:main');
+      }, /Attempting to inject an unknown injection: 'banana:main'/);
+    };
+
+    _class.prototype['@test Lazy injection validations are cached'] = function (assert) {
+      assert.expect(1);
+
+      var registry = new _container.Registry();
+      var container = registry.container();
+      var Apple = (0, _internalTestHelpers.factory)();
+      var Orange = (0, _internalTestHelpers.factory)();
+
+      Apple.reopenClass({
+        _lazyInjections: function () {
+          assert.ok(true, 'should call lazy injection method');
+          return ['orange:main'];
+        }
+      });
+
+      registry.register('apple:main', Apple);
+      registry.register('orange:main', Orange);
+
+      container.lookup('apple:main');
+      container.lookup('apple:main');
+    };
+
+    _class.prototype['@test An object with its owner pre-set should be returned from ownerInjection'] = function (assert) {
+      var owner = {};
+      var registry = new _container.Registry();
+      var container = registry.container({ owner: owner });
+
+      var result = container.ownerInjection();
+
+      assert.equal(result[_emberUtils.OWNER], owner, 'owner is properly included');
+    };
+
+    _class.prototype['@test lookup passes options through to expandlocallookup'] = function (assert) {
+      var registry = new _container.Registry();
+      var container = registry.container();
+      var PostController = (0, _internalTestHelpers.factory)();
+
+      registry.register('controller:post', PostController);
+      registry.expandLocalLookup = function (fullName, options) {
+        assert.ok(true, 'expandLocalLookup was called');
+        assert.equal(fullName, 'foo:bar');
+        assert.deepEqual(options, { source: 'baz:qux' });
+
+        return 'controller:post';
+      };
+
+      var PostControllerLookupResult = container.lookup('foo:bar', { source: 'baz:qux' });
+
+      assert.ok(PostControllerLookupResult instanceof PostController);
+    };
+
+    _class.prototype['@test #factoryFor class is registered class'] = function (assert) {
+      var registry = new _container.Registry();
+      var container = registry.container();
+
+      var Component = (0, _internalTestHelpers.factory)();
+      registry.register('component:foo-bar', Component);
+
+      var factoryManager = container.factoryFor('component:foo-bar');
+      assert.deepEqual(factoryManager.class, Component, 'No double extend');
+    };
+
+    _class.prototype['@test #factoryFor must supply a fullname'] = function () {
+      var registry = new _container.Registry();
+      var container = registry.container();
+      expectAssertion(function () {
+        container.factoryFor('chad-bar');
+      }, /fullName must be a proper full name/);
+    };
+
+    _class.prototype['@test #factoryFor returns a factory manager'] = function (assert) {
+      var registry = new _container.Registry();
+      var container = registry.container();
+
+      var Component = (0, _internalTestHelpers.factory)();
+      registry.register('component:foo-bar', Component);
+
+      var factoryManager = container.factoryFor('component:foo-bar');
+      assert.ok(factoryManager.create);
+      assert.ok(factoryManager.class);
+    };
+
+    _class.prototype['@test #factoryFor returns a cached factory manager for the same type'] = function (assert) {
+      var registry = new _container.Registry();
+      var container = registry.container();
+
+      var Component = (0, _internalTestHelpers.factory)();
+      registry.register('component:foo-bar', Component);
+      registry.register('component:baz-bar', Component);
+
+      var factoryManager1 = container.factoryFor('component:foo-bar');
+      var factoryManager2 = container.factoryFor('component:foo-bar');
+      var factoryManager3 = container.factoryFor('component:baz-bar');
+
+      assert.equal(factoryManager1, factoryManager2, 'cache hit');
+      assert.notEqual(factoryManager1, factoryManager3, 'cache miss');
+    };
+
+    _class.prototype['@test #factoryFor class returns the factory function'] = function (assert) {
+      var registry = new _container.Registry();
+      var container = registry.container();
+
+      var Component = (0, _internalTestHelpers.factory)();
+      registry.register('component:foo-bar', Component);
+
+      var factoryManager = container.factoryFor('component:foo-bar');
+      assert.deepEqual(factoryManager.class, Component, 'No double extend');
+    };
+
+    _class.prototype['@test #factoryFor instance have a common parent'] = function (assert) {
+      var registry = new _container.Registry();
+      var container = registry.container();
+
+      var Component = (0, _internalTestHelpers.factory)();
+      registry.register('component:foo-bar', Component);
+
+      var factoryManager1 = container.factoryFor('component:foo-bar');
+      var factoryManager2 = container.factoryFor('component:foo-bar');
+      var instance1 = factoryManager1.create({ foo: 'foo' });
+      var instance2 = factoryManager2.create({ bar: 'bar' });
+
+      assert.deepEqual(instance1.constructor, instance2.constructor);
+    };
+
+    _class.prototype['@test can properly reset cache'] = function (assert) {
+      var registry = new _container.Registry();
+      var container = registry.container();
+
+      var Component = (0, _internalTestHelpers.factory)();
+      registry.register('component:foo-bar', Component);
+
+      var factory1 = container.factoryFor('component:foo-bar');
+      var factory2 = container.factoryFor('component:foo-bar');
+
+      var instance1 = container.lookup('component:foo-bar');
+      var instance2 = container.lookup('component:foo-bar');
+
+      assert.equal(instance1, instance2);
+      assert.equal(factory1, factory2);
+
+      container.reset();
+
+      var factory3 = container.factoryFor('component:foo-bar');
+      var instance3 = container.lookup('component:foo-bar');
+
+      assert.notEqual(instance1, instance3);
+      assert.notEqual(factory1, factory3);
+    };
+
+    _class.prototype['@test #factoryFor created instances come with instance injections'] = function (assert) {
+      var registry = new _container.Registry();
+      var container = registry.container();
+
+      var Component = (0, _internalTestHelpers.factory)();
+      var Ajax = (0, _internalTestHelpers.factory)();
+      registry.register('component:foo-bar', Component);
+      registry.register('util:ajax', Ajax);
+      registry.injection('component:foo-bar', 'ajax', 'util:ajax');
+
+      var componentFactory = container.factoryFor('component:foo-bar');
+      var component = componentFactory.create();
+
+      assert.ok(component.ajax);
+      assert.ok(component.ajax instanceof Ajax);
+    };
+
+    _class.prototype['@test #factoryFor options passed to create clobber injections'] = function (assert) {
+      var registry = new _container.Registry();
+      var container = registry.container();
+
+      var Component = (0, _internalTestHelpers.factory)();
+      var Ajax = (0, _internalTestHelpers.factory)();
+      registry.register('component:foo-bar', Component);
+      registry.register('util:ajax', Ajax);
+      registry.injection('component:foo-bar', 'ajax', 'util:ajax');
+
+      var componentFactory = container.factoryFor('component:foo-bar');
+      var instrance = componentFactory.create({ ajax: 'fetch' });
+
+      assert.equal(instrance.ajax, 'fetch');
+    };
+
+    _class.prototype['@test #factoryFor does not add properties to the object being instantiated when _initFactory is present'] = function (assert) {
+      var registry = new _container.Registry();
+      var container = registry.container();
+
+      var Component = function () {
+        function Component() {}
+
+        Component._initFactory = function () {};
+
+        Component.create = function (options) {
+          var instance = new this();
+          (0, _emberUtils.assign)(instance, options);
+          return instance;
+        };
+
+        return Component;
+      }();
+
+      registry.register('component:foo-bar', Component);
+
+      var componentFactory = container.factoryFor('component:foo-bar');
+      var instance = componentFactory.create();
+
+      // note: _guid and isDestroyed are being set in the `factory` constructor
+      // not via registry/container shenanigans
+      assert.deepEqual(Object.keys(instance), []);
+    };
+
+    _class.prototype['@skip #factoryFor does not add properties to the object being instantiated'] = function (assert) {
+      var registry = new _container.Registry();
+      var container = registry.container();
+
+      var Component = function () {
+        function Component() {}
+
+        Component.create = function (options) {
+          var instance = new this();
+          (0, _emberUtils.assign)(instance, options);
+          return instance;
+        };
+
+        return Component;
+      }();
+
+      registry.register('component:foo-bar', Component);
+
+      var componentFactory = container.factoryFor('component:foo-bar');
+      var instance = componentFactory.create();
+
+      // note: _guid and isDestroyed are being set in the `factory` constructor
+      // not via registry/container shenanigans
+      assert.deepEqual(Object.keys(instance), []);
+    };
+
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
+});
+enifed('container/tests/owner_test', ['ember-babel', 'ember-utils', 'internal-test-helpers'], function (_emberBabel, _emberUtils, _internalTestHelpers) {
+  'use strict';
+
+  (0, _internalTestHelpers.moduleFor)('Owner', function (_AbstractTestCase) {
+    (0, _emberBabel.inherits)(_class, _AbstractTestCase);
+
+    function _class() {
+      return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase.apply(this, arguments));
+    }
+
+    _class.prototype['@test An owner can be set with `setOwner` and retrieved with `getOwner`'] = function (assert) {
+      var owner = {};
+      var obj = {};
+
+      assert.strictEqual((0, _emberUtils.getOwner)(obj), undefined, 'owner has not been set');
+
+      (0, _emberUtils.setOwner)(obj, owner);
+
+      assert.strictEqual((0, _emberUtils.getOwner)(obj), owner, 'owner has been set');
+
+      assert.strictEqual(obj[_emberUtils.OWNER], owner, 'owner has been set to the OWNER symbol');
+    };
+
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
+});
+enifed('container/tests/registry_test', ['ember-babel', 'container', 'internal-test-helpers', 'ember-environment'], function (_emberBabel, _container, _internalTestHelpers, _emberEnvironment) {
+  'use strict';
+
+  (0, _internalTestHelpers.moduleFor)('Registry', function (_AbstractTestCase) {
+    (0, _emberBabel.inherits)(_class, _AbstractTestCase);
+
+    function _class() {
+
+      var _this = (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase.call(this));
+
+      _this.originalResolverFunctionSupport = _emberEnvironment.ENV._ENABLE_RESOLVER_FUNCTION_SUPPORT;
+      _emberEnvironment.ENV._ENABLE_RESOLVER_FUNCTION_SUPPORT = true;
+      return _this;
+    }
+
+    _class.prototype.teardown = function () {
+      _emberEnvironment.ENV._ENABLE_RESOLVER_FUNCTION_SUPPORT = this.originalResolverFunctionSupport;
+    };
+
+    _class.prototype['@test A registered factory is returned from resolve'] = function (assert) {
+      var registry = new _container.Registry();
+      var PostController = (0, _internalTestHelpers.factory)();
+
+      registry.register('controller:post', PostController);
+
+      var PostControllerFactory = registry.resolve('controller:post');
+
+      assert.ok(PostControllerFactory, 'factory is returned');
+      assert.ok(PostControllerFactory.create() instanceof PostController, 'The return of factory.create is an instance of PostController');
+    };
+
+    _class.prototype['@test The registered factory returned from resolve is the same factory each time'] = function (assert) {
+      var registry = new _container.Registry();
+      var PostController = (0, _internalTestHelpers.factory)();
+
+      registry.register('controller:post', PostController);
+
+      assert.deepEqual(registry.resolve('controller:post'), registry.resolve('controller:post'), 'The return of resolve is always the same');
+    };
+
+    _class.prototype['@test The registered value returned from resolve is the same value each time even if the value is falsy'] = function (assert) {
+      var registry = new _container.Registry();
+
+      registry.register('falsy:value', null, { instantiate: false });
+
+      assert.strictEqual(registry.resolve('falsy:value'), registry.resolve('falsy:value'), 'The return of resolve is always the same');
+    };
+
+    _class.prototype['@test The value returned from resolver is the same value as the original value even if the value is falsy'] = function (assert) {
+      var registry = new _container.Registry({ resolver: {
+          resolve: function (fullName) {
+            if (fullName === 'falsy:value') {
+              return null;
+            }
+          }
+        } });
+
+      assert.strictEqual(registry.resolve('falsy:value'), null);
+    };
+
+    _class.prototype['@test A registered factory returns true for `has` if an item is registered'] = function (assert) {
+      var registry = new _container.Registry();
+      var PostController = (0, _internalTestHelpers.factory)();
+
+      registry.register('controller:post', PostController);
+
+      assert.equal(registry.has('controller:post'), true, 'The `has` method returned true for registered factories');
+      assert.equal(registry.has('controller:posts'), false, 'The `has` method returned false for unregistered factories');
+    };
+
+    _class.prototype['@test Throw exception when trying to inject `type:thing` on all type(s)'] = function () {
+      var registry = new _container.Registry();
+      var PostController = (0, _internalTestHelpers.factory)();
+
+      registry.register('controller:post', PostController);
+
+      expectAssertion(function () {
+        registry.typeInjection('controller', 'injected', 'controller:post');
+      }, /Cannot inject a 'controller:post' on other controller\(s\)\./);
+    };
+
+    _class.prototype['@test The registry can take a hook to resolve factories lazily'] = function (assert) {
+      var PostController = (0, _internalTestHelpers.factory)();
+
+      var registry = new _container.Registry({ resolver: {
+          resolve: function (fullName) {
+            if (fullName === 'controller:post') {
+              return PostController;
+            }
+          }
+        } });
+
+      assert.strictEqual(registry.resolve('controller:post'), PostController, 'The correct factory was provided');
+    };
+
+    _class.prototype['@test The registry respects the resolver hook for `has`'] = function (assert) {
+      var PostController = (0, _internalTestHelpers.factory)();
+
+      var registry = new _container.Registry({ resolver: {
+          resolve: function (fullName) {
+            if (fullName === 'controller:post') {
+              return PostController;
+            }
+          }
+        } });
+
+      assert.ok(registry.has('controller:post'), 'the `has` method uses the resolver hook');
+    };
+
+    _class.prototype['@test The registry normalizes names when resolving'] = function (assert) {
+      var registry = new _container.Registry();
+      var PostController = (0, _internalTestHelpers.factory)();
+
+      registry.normalizeFullName = function () {
+        return 'controller:post';
+      };
+
+      registry.register('controller:post', PostController);
+      var type = registry.resolve('controller:normalized');
+
+      assert.strictEqual(type, PostController, 'Normalizes the name when resolving');
+    };
+
+    _class.prototype['@test The registry normalizes names when checking if the factory is registered'] = function (assert) {
+      var registry = new _container.Registry();
+      var PostController = (0, _internalTestHelpers.factory)();
+
+      registry.normalizeFullName = function (fullName) {
+        return fullName === 'controller:normalized' ? 'controller:post' : fullName;
+      };
+
+      registry.register('controller:post', PostController);
+      var isPresent = registry.has('controller:normalized');
+
+      assert.equal(isPresent, true, 'Normalizes the name when checking if the factory or instance is present');
+    };
+
+    _class.prototype['@test The registry normalizes names when injecting'] = function (assert) {
+      var registry = new _container.Registry();
+      var PostController = (0, _internalTestHelpers.factory)();
+      var user = { name: 'Stef' };
+
+      registry.normalize = function () {
+        return 'controller:post';
+      };
+
+      registry.register('controller:post', PostController);
+      registry.register('user:post', user, { instantiate: false });
+      registry.injection('controller:post', 'user', 'controller:normalized');
+
+      assert.deepEqual(registry.resolve('controller:post'), user, 'Normalizes the name when injecting');
+    };
+
+    _class.prototype['@test cannot register an `undefined` factory'] = function (assert) {
+      var registry = new _container.Registry();
+
+      assert.throws(function () {
+        registry.register('controller:apple', undefined);
+      }, '');
+    };
+
+    _class.prototype['@test can re-register a factory'] = function (assert) {
+      var registry = new _container.Registry();
+      var FirstApple = (0, _internalTestHelpers.factory)('first');
+      var SecondApple = (0, _internalTestHelpers.factory)('second');
+
+      registry.register('controller:apple', FirstApple);
+      registry.register('controller:apple', SecondApple);
+
+      assert.ok(registry.resolve('controller:apple').create() instanceof SecondApple);
+    };
+
+    _class.prototype['@test cannot re-register a factory if it has been resolved'] = function (assert) {
+      var registry = new _container.Registry();
+      var FirstApple = (0, _internalTestHelpers.factory)('first');
+      var SecondApple = (0, _internalTestHelpers.factory)('second');
+
+      registry.register('controller:apple', FirstApple);
+      assert.strictEqual(registry.resolve('controller:apple'), FirstApple);
+
+      expectAssertion(function () {
+        registry.register('controller:apple', SecondApple);
+      }, /Cannot re-register: 'controller:apple', as it has already been resolved\./);
+
+      assert.strictEqual(registry.resolve('controller:apple'), FirstApple);
+    };
+
+    _class.prototype['@test registry.has should not accidentally cause injections on that factory to be run. (Mitigate merely on observing)'] = function (assert) {
+      assert.expect(1);
+
+      var registry = new _container.Registry();
+      var FirstApple = (0, _internalTestHelpers.factory)('first');
+      var SecondApple = (0, _internalTestHelpers.factory)('second');
+
+      SecondApple.extend = function () {
+        assert.ok(false, 'should not extend or touch the injected model, merely to inspect existence of another');
+      };
+
+      registry.register('controller:apple', FirstApple);
+      registry.register('controller:second-apple', SecondApple);
+      registry.injection('controller:apple', 'badApple', 'controller:second-apple');
+
+      assert.ok(registry.has('controller:apple'));
+    };
+
+    _class.prototype['@test registry.has should not error for invalid fullNames'] = function (assert) {
+      var registry = new _container.Registry();
+
+      assert.ok(!registry.has('foo:bar:baz'));
+    };
+
+    _class.prototype['@test once resolved, always return the same result'] = function (assert) {
+      var registry = new _container.Registry();
+
+      registry.resolver = {
+        resolve: function () {
+          return 'bar';
+        }
+      };
+
+      var Bar = registry.resolve('models:bar');
+
+      registry.resolver = {
+        resolve: function () {
+          return 'not bar';
+        }
+      };
+
+      assert.equal(registry.resolve('models:bar'), Bar);
+    };
+
+    _class.prototype['@test factory resolves are cached'] = function (assert) {
+      var registry = new _container.Registry();
+      var PostController = (0, _internalTestHelpers.factory)();
+      var resolveWasCalled = [];
+
+      registry.resolver = {
+        resolve: function (fullName) {
+          resolveWasCalled.push(fullName);
+          return PostController;
+        }
+      };
+
+      assert.deepEqual(resolveWasCalled, []);
+      registry.resolve('controller:post');
+      assert.deepEqual(resolveWasCalled, ['controller:post']);
+
+      registry.resolve('controller:post');
+      assert.deepEqual(resolveWasCalled, ['controller:post']);
+    };
+
+    _class.prototype['@test factory for non extendables (MODEL) resolves are cached'] = function (assert) {
+      var registry = new _container.Registry();
+      var PostController = (0, _internalTestHelpers.factory)();
+      var resolveWasCalled = [];
+
+      registry.resolver = {
+        resolve: function (fullName) {
+          resolveWasCalled.push(fullName);
+          return PostController;
+        }
+      };
+
+      assert.deepEqual(resolveWasCalled, []);
+      registry.resolve('model:post');
+      assert.deepEqual(resolveWasCalled, ['model:post']);
+
+      registry.resolve('model:post');
+      assert.deepEqual(resolveWasCalled, ['model:post']);
+    };
+
+    _class.prototype['@test factory for non extendables resolves are cached'] = function (assert) {
+      var registry = new _container.Registry();
+      var PostController = {};
+      var resolveWasCalled = [];
+
+      registry.resolver = {
+        resolve: function (fullName) {
+          resolveWasCalled.push(fullName);
+          return PostController;
+        }
+      };
+
+      assert.deepEqual(resolveWasCalled, []);
+      registry.resolve('foo:post');
+      assert.deepEqual(resolveWasCalled, ['foo:post']);
+
+      registry.resolve('foo:post');
+      assert.deepEqual(resolveWasCalled, ['foo:post']);
+    };
+
+    _class.prototype['@test registry.container creates a container'] = function (assert) {
+      var registry = new _container.Registry();
+      var PostController = (0, _internalTestHelpers.factory)();
+      registry.register('controller:post', PostController);
+
+      var container = registry.container();
+      var postController = container.lookup('controller:post');
+
+      assert.ok(postController instanceof PostController, 'The lookup is an instance of the registered factory');
+    };
+
+    _class.prototype['@test `describe` will be handled by the resolver, then by the fallback registry, if available'] = function (assert) {
+
+      var registry = new _container.Registry({ fallback: {
+          describe: function (fullName) {
+            return fullName + '-fallback';
+          }
+        }, resolver: {
+          lookupDescription: function (fullName) {
+            return fullName + '-resolver';
+          }
+        } });
+
+      assert.equal(registry.describe('controller:post'), 'controller:post-resolver', '`describe` handled by the resolver first.');
+
+      registry.resolver = null;
+
+      assert.equal(registry.describe('controller:post'), 'controller:post-fallback', '`describe` handled by fallback registry next.');
+
+      registry.fallback = null;
+
+      assert.equal(registry.describe('controller:post'), 'controller:post', '`describe` by default returns argument.');
+    };
+
+    _class.prototype['@test `normalizeFullName` will be handled by the resolver, then by the fallback registry, if available'] = function (assert) {
+
+      var registry = new _container.Registry({ fallback: {
+          normalizeFullName: function (fullName) {
+            return fullName + '-fallback';
+          }
+        }, resolver: {
+          normalize: function (fullName) {
+            return fullName + '-resolver';
+          }
+        } });
+
+      assert.equal(registry.normalizeFullName('controller:post'), 'controller:post-resolver', '`normalizeFullName` handled by the resolver first.');
+
+      registry.resolver = null;
+
+      assert.equal(registry.normalizeFullName('controller:post'), 'controller:post-fallback', '`normalizeFullName` handled by fallback registry next.');
+
+      registry.fallback = null;
+
+      assert.equal(registry.normalizeFullName('controller:post'), 'controller:post', '`normalizeFullName` by default returns argument.');
+    };
+
+    _class.prototype['@test `makeToString` will be handled by the resolver, then by the fallback registry, if available'] = function (assert) {
+
+      var registry = new _container.Registry({ fallback: {
+          makeToString: function (fullName) {
+            return fullName + '-fallback';
+          }
+        }, resolver: {
+          makeToString: function (fullName) {
+            return fullName + '-resolver';
+          }
+        } });
+
+      assert.equal(registry.makeToString('controller:post'), 'controller:post-resolver', '`makeToString` handled by the resolver first.');
+
+      registry.resolver = null;
+
+      assert.equal(registry.makeToString('controller:post'), 'controller:post-fallback', '`makeToString` handled by fallback registry next.');
+
+      registry.fallback = null;
+
+      assert.equal(registry.makeToString('controller:post'), 'controller:post', '`makeToString` by default returns argument.');
+    };
+
+    _class.prototype['@test `resolve` can be handled by a fallback registry'] = function (assert) {
+      var fallback = new _container.Registry();
+
+      var registry = new _container.Registry({ fallback: fallback });
+      var PostController = (0, _internalTestHelpers.factory)();
+
+      fallback.register('controller:post', PostController);
+
+      var PostControllerFactory = registry.resolve('controller:post');
+
+      assert.ok(PostControllerFactory, 'factory is returned');
+      assert.ok(PostControllerFactory.create() instanceof PostController, 'The return of factory.create is an instance of PostController');
+    };
+
+    _class.prototype['@test `has` can be handled by a fallback registry'] = function (assert) {
+      var fallback = new _container.Registry();
+
+      var registry = new _container.Registry({ fallback: fallback });
+      var PostController = (0, _internalTestHelpers.factory)();
+
+      fallback.register('controller:post', PostController);
+
+      assert.equal(registry.has('controller:post'), true, 'Fallback registry is checked for registration');
+    };
+
+    _class.prototype['@test `getInjections` includes injections from a fallback registry'] = function (assert) {
+      var fallback = new _container.Registry();
+      var registry = new _container.Registry({ fallback: fallback });
+
+      assert.equal(registry.getInjections('model:user').length, 0, 'No injections in the primary registry');
+
+      fallback.injection('model:user', 'post', 'model:post');
+
+      assert.equal(registry.getInjections('model:user').length, 1, 'Injections from the fallback registry are merged');
+    };
+
+    _class.prototype['@test `getTypeInjections` includes type injections from a fallback registry'] = function (assert) {
+      var fallback = new _container.Registry();
+      var registry = new _container.Registry({ fallback: fallback });
+
+      assert.equal(registry.getTypeInjections('model').length, 0, 'No injections in the primary registry');
+
+      fallback.injection('model', 'source', 'source:main');
+
+      assert.equal(registry.getTypeInjections('model').length, 1, 'Injections from the fallback registry are merged');
+    };
+
+    _class.prototype['@test `knownForType` contains keys for each item of a given type'] = function (assert) {
+      var registry = new _container.Registry();
+
+      registry.register('foo:bar-baz', 'baz');
+      registry.register('foo:qux-fez', 'fez');
+
+      var found = registry.knownForType('foo');
+
+      assert.deepEqual(found, {
+        'foo:bar-baz': true,
+        'foo:qux-fez': true
+      });
+    };
+
+    _class.prototype['@test `knownForType` includes fallback registry results'] = function (assert) {
+      var fallback = new _container.Registry();
+      var registry = new _container.Registry({ fallback: fallback });
+
+      registry.register('foo:bar-baz', 'baz');
+      registry.register('foo:qux-fez', 'fez');
+      fallback.register('foo:zurp-zorp', 'zorp');
+
+      var found = registry.knownForType('foo');
+
+      assert.deepEqual(found, {
+        'foo:bar-baz': true,
+        'foo:qux-fez': true,
+        'foo:zurp-zorp': true
+      });
+    };
+
+    _class.prototype['@test `knownForType` is called on the resolver if present'] = function (assert) {
+      assert.expect(3);
+
+      var registry = new _container.Registry({
+        resolver: {
+          knownForType: function (type) {
+            ok(true, 'knownForType called on the resolver');
+            equal(type, 'foo', 'the type was passed through');
+
+            return { 'foo:yorp': true };
+          }
+        }
+      });
+      registry.register('foo:bar-baz', 'baz');
+
+      var found = registry.knownForType('foo');
+
+      assert.deepEqual(found, {
+        'foo:yorp': true,
+        'foo:bar-baz': true
+      });
+    };
+
+    _class.prototype['@test A registry created with `resolver` function instead of an object throws deprecation'] = function (assert) {
+      assert.expect(2);
+
+      _emberEnvironment.ENV._ENABLE_RESOLVER_FUNCTION_SUPPORT = true;
+
+      var registry = void 0;
+
+      expectDeprecation(function () {
+        registry = new _container.Registry({
+          resolver: function (fullName) {
+            return fullName + '-resolved';
+          }
+        });
+      }, 'Passing a `resolver` function into a Registry is deprecated. Please pass in a Resolver object with a `resolve` method.');
+
+      assert.equal(registry.resolve('foo:bar'), 'foo:bar-resolved', '`resolve` still calls the deprecated function');
+    };
+
+    _class.prototype['@test A registry created with `resolver` function instead of an object throws assertion'] = function (assert) {
+      assert.expect(1);
+
+      _emberEnvironment.ENV._ENABLE_RESOLVER_FUNCTION_SUPPORT = false;
+
+      expectAssertion(function () {
+        new _container.Registry({
+          resolver: function (fullName) {
+            return fullName + '-resolved';
+          }
+        });
+      }, /Passing a \`resolver\` function into a Registry is deprecated\. Please pass in a Resolver object with a \`resolve\` method\./);
+    };
+
+    _class.prototype['@test resolver.expandLocalLookup is not required'] = function (assert) {
+      var registry = new _container.Registry({
+        resolver: {}
+      });
+
+      var result = registry.expandLocalLookup('foo:bar', {
+        source: 'baz:qux'
+      });
+
+      assert.equal(result, null);
+    };
+
+    _class.prototype['@test expandLocalLookup is called on the resolver if present'] = function (assert) {
+      assert.expect(4);
+
+      var registry = new _container.Registry({
+        resolver: {
+          expandLocalLookup: function (targetFullName, sourceFullName) {
+            assert.ok(true, 'expandLocalLookup is called on the resolver');
+            assert.equal(targetFullName, 'foo:bar', 'the targetFullName was passed through');
+            assert.equal(sourceFullName, 'baz:qux', 'the sourceFullName was passed through');
+
+            return 'foo:qux/bar';
+          }
+        }
+      });
+
+      var result = registry.expandLocalLookup('foo:bar', {
+        source: 'baz:qux'
+      });
+
+      assert.equal(result, 'foo:qux/bar');
+    };
+
+    _class.prototype['@test `expandLocalLookup` is handled by the resolver, then by the fallback registry, if available'] = function (assert) {
+      assert.expect(9);
+
+      var fallbackRegistry = new _container.Registry({
+        resolver: {
+          expandLocalLookup: function (targetFullName, sourceFullName) {
+            assert.ok(true, 'expandLocalLookup is called on the fallback resolver');
+            assert.equal(targetFullName, 'foo:bar', 'the targetFullName was passed through');
+            assert.equal(sourceFullName, 'baz:qux', 'the sourceFullName was passed through');
+
+            return 'foo:qux/bar-fallback';
+          }
+        }
+      });
+
+      var registry = new _container.Registry({
+        fallback: fallbackRegistry,
+        resolver: {
+          expandLocalLookup: function (targetFullName, sourceFullName) {
+            assert.ok(true, 'expandLocalLookup is called on the resolver');
+            assert.equal(targetFullName, 'foo:bar', 'the targetFullName was passed through');
+            assert.equal(sourceFullName, 'baz:qux', 'the sourceFullName was passed through');
+
+            return 'foo:qux/bar-resolver';
+          }
+        }
+      });
+
+      var result = registry.expandLocalLookup('foo:bar', {
+        source: 'baz:qux'
+      });
+
+      assert.equal(result, 'foo:qux/bar-resolver', 'handled by the resolver');
+
+      registry.resolver = null;
+
+      result = registry.expandLocalLookup('foo:bar', {
+        source: 'baz:qux'
+      });
+
+      assert.equal(result, 'foo:qux/bar-fallback', 'handled by the fallback registry');
+
+      registry.fallback = null;
+
+      result = registry.expandLocalLookup('foo:bar', {
+        source: 'baz:qux'
+      });
+
+      assert.equal(result, null, 'null is returned by default when no resolver or fallback registry is present');
+    };
+
+    _class.prototype['@test resolver.expandLocalLookup result is cached'] = function (assert) {
+      assert.expect(3);
+      var result = void 0;
+
+      var registry = new _container.Registry({
+        resolver: {
+          expandLocalLookup: function () {
+            assert.ok(true, 'expandLocalLookup is called on the resolver');
+
+            return 'foo:qux/bar';
+          }
+        }
+      });
+
+      result = registry.expandLocalLookup('foo:bar', {
+        source: 'baz:qux'
+      });
+
+      assert.equal(result, 'foo:qux/bar');
+
+      result = registry.expandLocalLookup('foo:bar', {
+        source: 'baz:qux'
+      });
+
+      assert.equal(result, 'foo:qux/bar');
+    };
+
+    _class.prototype['@test resolver.expandLocalLookup cache is busted when any unregister is called'] = function (assert) {
+      assert.expect(4);
+      var result = void 0;
+
+      var registry = new _container.Registry({
+        resolver: {
+          expandLocalLookup: function () {
+            assert.ok(true, 'expandLocalLookup is called on the resolver');
+
+            return 'foo:qux/bar';
+          }
+        }
+      });
+
+      result = registry.expandLocalLookup('foo:bar', {
+        source: 'baz:qux'
+      });
+
+      assert.equal(result, 'foo:qux/bar');
+
+      registry.unregister('foo:bar');
+
+      result = registry.expandLocalLookup('foo:bar', {
+        source: 'baz:qux'
+      });
+
+      assert.equal(result, 'foo:qux/bar');
+    };
+
+    _class.prototype['@test resolve calls expandLocallookup when it receives options.source'] = function (assert) {
+      assert.expect(3);
+
+      var registry = new _container.Registry({
+        resolver: {
+          resolve: function () {},
+
+          expandLocalLookup: function (targetFullName, sourceFullName) {
+            assert.ok(true, 'expandLocalLookup is called on the resolver');
+            assert.equal(targetFullName, 'foo:bar', 'the targetFullName was passed through');
+            assert.equal(sourceFullName, 'baz:qux', 'the sourceFullName was passed through');
+
+            return 'foo:qux/bar';
+          }
+        }
+      });
+
+      registry.resolve('foo:bar', {
+        source: 'baz:qux'
+      });
+    };
+
+    _class.prototype['@test has uses expandLocalLookup'] = function (assert) {
+      assert.expect(5);
+      var resolvedFullNames = [];
+      var result = void 0;
+
+      var registry = new _container.Registry({
+        resolver: {
+          resolve: function (name) {
+            resolvedFullNames.push(name);
+
+            return 'yippie!';
+          },
+
+          expandLocalLookup: function (targetFullName) {
+            assert.ok(true, 'expandLocalLookup is called on the resolver');
+
+            if (targetFullName === 'foo:bar') {
+              return 'foo:qux/bar';
+            } else {
+              return null;
+            }
+          }
+        }
+      });
+
+      result = registry.has('foo:bar', {
+        source: 'baz:qux'
+      });
+
+      assert.ok(result, 'found foo:bar/qux');
+
+      result = registry.has('foo:baz', {
+        source: 'baz:qux'
+      });
+
+      assert.ok(!result, 'foo:baz/qux not found');
+
+      assert.deepEqual(['foo:qux/bar'], resolvedFullNames);
+    };
+
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
+
+  (0, _internalTestHelpers.moduleFor)('Registry privatize', function (_AbstractTestCase2) {
+    (0, _emberBabel.inherits)(_class2, _AbstractTestCase2);
+
+    function _class2() {
+      return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase2.apply(this, arguments));
+    }
+
+    _class2.prototype['@test valid format'] = function (assert) {
+      var privatized = (0, _container.privatize)(['secret:factory']);
+      var matched = privatized.match(/^([^:]+):([^:]+)-(\d+)$/);
+
+      assert.ok(matched, 'privatized format was recognized');
+      assert.equal(matched[1], 'secret');
+      assert.equal(matched[2], 'factory');
+      assert.ok(/^\d+$/.test(matched[3]));
+    };
+
+    return _class2;
+  }(_internalTestHelpers.AbstractTestCase));
 });
 enifed('ember-application/tests/system/application_instance_test', ['ember-babel', 'ember-application/system/engine', 'ember-application/system/application', 'ember-application/system/application-instance', 'ember-metal', 'ember-views', 'container', 'internal-test-helpers', 'ember-runtime'], function (_emberBabel, _engine, _application, _applicationInstance, _emberMetal, _emberViews, _container, _internalTestHelpers, _emberRuntime) {
   'use strict';
@@ -1481,14 +1533,21 @@ enifed('ember-application/tests/system/application_instance_test', ['ember-babel
   var application = void 0,
       appInstance = void 0;
 
-  QUnit.module('Ember.ApplicationInstance', {
-    setup: function () {
+  (0, _internalTestHelpers.moduleFor)('Ember.ApplicationInstance', function (_TestCase) {
+    (0, _emberBabel.inherits)(_class, _TestCase);
+
+    function _class() {
+
+      var _this = (0, _emberBabel.possibleConstructorReturn)(this, _TestCase.call(this));
+
       (0, _emberViews.jQuery)('#qunit-fixture').html('<div id=\'one\'><div id=\'one-child\'>HI</div></div><div id=\'two\'>HI</div>');
       application = (0, _emberMetal.run)(function () {
         return _application.default.create({ rootElement: '#one', router: null });
       });
-    },
-    teardown: function () {
+      return _this;
+    }
+
+    _class.prototype.teardown = function () {
       (0, _emberViews.jQuery)('#qunit-fixture').empty();
 
       if (appInstance) {
@@ -1498,177 +1557,153 @@ enifed('ember-application/tests/system/application_instance_test', ['ember-babel
       if (application) {
         (0, _emberMetal.run)(application, 'destroy');
       }
-    }
-  });
-
-  QUnit.test('an application instance can be created based upon an application', function () {
-    appInstance = (0, _emberMetal.run)(function () {
-      return appInstance = _applicationInstance.default.create({ application: application });
-    });
-
-    ok(appInstance, 'instance should be created');
-    equal(appInstance.application, application, 'application should be set to parent');
-  });
-
-  QUnit.test('properties (and aliases) are correctly assigned for accessing the container and registry', function () {
-    expect(6);
-
-    appInstance = (0, _emberMetal.run)(function () {
-      return _applicationInstance.default.create({ application: application });
-    });
-
-    ok(appInstance, 'instance should be created');
-    ok(appInstance.__container__, '#__container__ is accessible');
-    ok(appInstance.__registry__, '#__registry__ is accessible');
-
-    // stub with a no-op to keep deprecation test simple
-    appInstance.__container__.lookup = function () {
-      ok(true, '#loookup alias is called correctly');
     };
 
-    ok(typeof appInstance.registry.register === 'function', '#registry.register is available as a function');
-    appInstance.__registry__.register = function () {
-      ok(true, '#register alias is called correctly');
+    _class.prototype['an application instance can be created based upon an application'] = function (assert) {
+      appInstance = (0, _emberMetal.run)(function () {
+        return appInstance = _applicationInstance.default.create({ application: application });
+      });
+
+      assert.ok(appInstance, 'instance should be created');
+      assert.equal(appInstance.application, application, 'application should be set to parent');
     };
 
-    expectDeprecation(function () {
-      appInstance.registry.register();
-    }, /Using `ApplicationInstance.registry.register` is deprecated. Please use `ApplicationInstance.register` instead./);
-  });
+    _class.prototype['customEvents added to the application before setupEventDispatcher'] = function (assert) {
+      assert.expect(1);
 
-  QUnit.test('customEvents added to the application before setupEventDispatcher', function (assert) {
-    assert.expect(1);
-
-    appInstance = (0, _emberMetal.run)(function () {
-      return _applicationInstance.default.create({ application: application });
-    });
-    appInstance.setupRegistry();
-
-    application.customEvents = {
-      awesome: 'sauce'
-    };
-
-    var eventDispatcher = appInstance.lookup('event_dispatcher:main');
-    eventDispatcher.setup = function (events) {
-      assert.equal(events.awesome, 'sauce');
-    };
-
-    appInstance.setupEventDispatcher();
-  });
-
-  QUnit.test('customEvents added to the application before setupEventDispatcher', function (assert) {
-    assert.expect(1);
-
-    (0, _emberMetal.run)(function () {
-      return appInstance = _applicationInstance.default.create({ application: application });
-    });
-    appInstance.setupRegistry();
-
-    application.customEvents = {
-      awesome: 'sauce'
-    };
-
-    var eventDispatcher = appInstance.lookup('event_dispatcher:main');
-    eventDispatcher.setup = function (events) {
-      assert.equal(events.awesome, 'sauce');
-    };
-
-    appInstance.setupEventDispatcher();
-  });
-
-  QUnit.test('customEvents added to the application instance before setupEventDispatcher', function (assert) {
-    assert.expect(1);
-
-    appInstance = (0, _emberMetal.run)(function () {
-      return _applicationInstance.default.create({ application: application });
-    });
-    appInstance.setupRegistry();
-
-    appInstance.customEvents = {
-      awesome: 'sauce'
-    };
-
-    var eventDispatcher = appInstance.lookup('event_dispatcher:main');
-    eventDispatcher.setup = function (events) {
-      assert.equal(events.awesome, 'sauce');
-    };
-
-    appInstance.setupEventDispatcher();
-  });
-
-  QUnit.test('unregistering a factory clears all cached instances of that factory', function (assert) {
-    assert.expect(5);
-
-    appInstance = (0, _emberMetal.run)(function () {
-      return _applicationInstance.default.create({ application: application });
-    });
-
-    var PostController1 = (0, _internalTestHelpers.factory)();
-    var PostController2 = (0, _internalTestHelpers.factory)();
-
-    appInstance.register('controller:post', PostController1);
-
-    var postController1 = appInstance.lookup('controller:post');
-    var postController1Factory = appInstance.factoryFor('controller:post');
-    assert.ok(postController1 instanceof PostController1, 'precond - lookup creates instance');
-    assert.equal(PostController1, postController1Factory.class, 'precond - factoryFor().class matches');
-
-    appInstance.unregister('controller:post');
-    appInstance.register('controller:post', PostController2);
-
-    var postController2 = appInstance.lookup('controller:post');
-    var postController2Factory = appInstance.factoryFor('controller:post');
-    assert.ok(postController2 instanceof PostController2, 'lookup creates instance');
-    assert.equal(PostController2, postController2Factory.class, 'factoryFor().class matches');
-
-    assert.notStrictEqual(postController1, postController2, 'lookup creates a brand new instance, because the previous one was reset');
-  });
-
-  QUnit.test('can build and boot a registered engine', function (assert) {
-    assert.expect(11);
-
-    var ChatEngine = _engine.default.extend();
-    var chatEngineInstance = void 0;
-
-    application.register('engine:chat', ChatEngine);
-
-    (0, _emberMetal.run)(function () {
-      appInstance = _applicationInstance.default.create({ application: application });
+      appInstance = (0, _emberMetal.run)(function () {
+        return _applicationInstance.default.create({ application: application });
+      });
       appInstance.setupRegistry();
-      chatEngineInstance = appInstance.buildChildEngineInstance('chat');
-    });
 
-    return chatEngineInstance.boot().then(function () {
-      assert.ok(true, 'boot successful');
+      application.customEvents = {
+        awesome: 'sauce'
+      };
 
-      ['route:basic', 'service:-routing', 'service:-glimmer-environment'].forEach(function (key) {
-        assert.strictEqual(chatEngineInstance.resolveRegistration(key), appInstance.resolveRegistration(key), 'Engine and parent app share registrations for \'' + key + '\'');
+      var eventDispatcher = appInstance.lookup('event_dispatcher:main');
+      eventDispatcher.setup = function (events) {
+        assert.equal(events.awesome, 'sauce');
+      };
+
+      appInstance.setupEventDispatcher();
+    };
+
+    _class.prototype['customEvents added to the application before setupEventDispatcher'] = function (assert) {
+      assert.expect(1);
+
+      (0, _emberMetal.run)(function () {
+        return appInstance = _applicationInstance.default.create({ application: application });
+      });
+      appInstance.setupRegistry();
+
+      application.customEvents = {
+        awesome: 'sauce'
+      };
+
+      var eventDispatcher = appInstance.lookup('event_dispatcher:main');
+      eventDispatcher.setup = function (events) {
+        assert.equal(events.awesome, 'sauce');
+      };
+
+      appInstance.setupEventDispatcher();
+    };
+
+    _class.prototype['customEvents added to the application instance before setupEventDispatcher'] = function (assert) {
+      assert.expect(1);
+
+      appInstance = (0, _emberMetal.run)(function () {
+        return _applicationInstance.default.create({ application: application });
+      });
+      appInstance.setupRegistry();
+
+      appInstance.customEvents = {
+        awesome: 'sauce'
+      };
+
+      var eventDispatcher = appInstance.lookup('event_dispatcher:main');
+      eventDispatcher.setup = function (events) {
+        assert.equal(events.awesome, 'sauce');
+      };
+
+      appInstance.setupEventDispatcher();
+    };
+
+    _class.prototype['unregistering a factory clears all cached instances of that factory'] = function (assert) {
+      assert.expect(5);
+
+      appInstance = (0, _emberMetal.run)(function () {
+        return _applicationInstance.default.create({ application: application });
       });
 
-      var singletons = ['router:main', (0, _container.privatize)(_templateObject), '-view-registry:main', '-environment:main', 'service:-document', 'event_dispatcher:main'];
+      var PostController1 = (0, _internalTestHelpers.factory)();
+      var PostController2 = (0, _internalTestHelpers.factory)();
 
-      var env = appInstance.lookup('-environment:main');
-      singletons.push(env.isInteractive ? 'renderer:-dom' : 'renderer:-inert');
+      appInstance.register('controller:post', PostController1);
 
-      singletons.forEach(function (key) {
-        assert.strictEqual(chatEngineInstance.lookup(key), appInstance.lookup(key), 'Engine and parent app share singleton \'' + key + '\'');
+      var postController1 = appInstance.lookup('controller:post');
+      var postController1Factory = appInstance.factoryFor('controller:post');
+      assert.ok(postController1 instanceof PostController1, 'precond - lookup creates instance');
+      assert.equal(PostController1, postController1Factory.class, 'precond - factoryFor().class matches');
+
+      appInstance.unregister('controller:post');
+      appInstance.register('controller:post', PostController2);
+
+      var postController2 = appInstance.lookup('controller:post');
+      var postController2Factory = appInstance.factoryFor('controller:post');
+      assert.ok(postController2 instanceof PostController2, 'lookup creates instance');
+      assert.equal(PostController2, postController2Factory.class, 'factoryFor().class matches');
+
+      assert.notStrictEqual(postController1, postController2, 'lookup creates a brand new instance, because the previous one was reset');
+    };
+
+    _class.prototype['can build and boot a registered engine'] = function (assert) {
+      assert.expect(11);
+
+      var ChatEngine = _engine.default.extend();
+      var chatEngineInstance = void 0;
+
+      application.register('engine:chat', ChatEngine);
+
+      (0, _emberMetal.run)(function () {
+        appInstance = _applicationInstance.default.create({ application: application });
+        appInstance.setupRegistry();
+        chatEngineInstance = appInstance.buildChildEngineInstance('chat');
       });
-    });
-  });
 
-  QUnit.test('can build a registry via Ember.ApplicationInstance.setupRegistry() -- simulates ember-test-helpers', function (assert) {
-    var namespace = _emberRuntime.Object.create({
-      Resolver: { create: function () {} }
-    });
+      return chatEngineInstance.boot().then(function () {
+        assert.ok(true, 'boot successful');
 
-    var registry = _application.default.buildRegistry(namespace);
+        ['route:basic', 'service:-routing', 'service:-glimmer-environment'].forEach(function (key) {
+          assert.strictEqual(chatEngineInstance.resolveRegistration(key), appInstance.resolveRegistration(key), 'Engine and parent app share registrations for \'' + key + '\'');
+        });
 
-    _applicationInstance.default.setupRegistry(registry);
+        var singletons = ['router:main', (0, _container.privatize)(_templateObject), '-view-registry:main', '-environment:main', 'service:-document', 'event_dispatcher:main'];
 
-    assert.equal(registry.resolve('service:-document'), document);
-  });
+        var env = appInstance.lookup('-environment:main');
+        singletons.push(env.isInteractive ? 'renderer:-dom' : 'renderer:-inert');
+
+        singletons.forEach(function (key) {
+          assert.strictEqual(chatEngineInstance.lookup(key), appInstance.lookup(key), 'Engine and parent app share singleton \'' + key + '\'');
+        });
+      });
+    };
+
+    _class.prototype['can build a registry via Ember.ApplicationInstance.setupRegistry() -- simulates ember-test-helpers'] = function (assert) {
+      var namespace = _emberRuntime.Object.create({
+        Resolver: { create: function () {} }
+      });
+
+      var registry = _application.default.buildRegistry(namespace);
+
+      _applicationInstance.default.setupRegistry(registry);
+
+      assert.equal(registry.resolve('service:-document'), document);
+    };
+
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
 });
-enifed('ember-application/tests/system/application_test', ['ember-babel', 'ember', 'ember-environment', 'ember-metal', 'ember-debug', 'ember-application/system/application', 'ember-routing', 'ember-views', 'ember-runtime', 'ember-template-compiler', 'ember-glimmer', 'container', 'ember-application/tests/test-helpers/registry-check', 'ember-utils', 'internal-test-helpers'], function (_emberBabel, _ember, _emberEnvironment, _emberMetal, _emberDebug, _application, _emberRouting, _emberViews, _emberRuntime, _emberTemplateCompiler, _emberGlimmer, _container, _registryCheck, _emberUtils, _internalTestHelpers) {
+enifed('ember-application/tests/system/application_test', ['ember-babel', 'ember', 'ember-environment', 'ember-metal', 'ember-debug', 'ember-application/system/application', 'ember-routing', 'ember-views', 'ember-runtime', 'ember-glimmer', 'container', 'ember-application/tests/test-helpers/registry-check', 'ember-utils', 'internal-test-helpers'], function (_emberBabel, _ember, _emberEnvironment, _emberMetal, _emberDebug, _application, _emberRouting, _emberViews, _emberRuntime, _emberGlimmer, _container, _registryCheck, _emberUtils, _internalTestHelpers) {
   'use strict';
 
   var _templateObject = (0, _emberBabel.taggedTemplateLiteralLoose)(['-bucket-cache:main'], ['-bucket-cache:main']),
@@ -1678,9 +1713,7 @@ enifed('ember-application/tests/system/application_test', ['ember-babel', 'ember
     (0, _emberBabel.inherits)(_class, _ApplicationTestCase);
 
     function _class() {
-
-      (0, _emberViews.jQuery)('#qunit-fixture').html('\n      <div id="one">\n        <div id="one-child">HI</div>\n      </div>\n      <div id="two">HI</div>\n    ');
-      return (0, _emberBabel.possibleConstructorReturn)(this, _ApplicationTestCase.call(this));
+      return (0, _emberBabel.possibleConstructorReturn)(this, _ApplicationTestCase.apply(this, arguments));
     }
 
     _class.prototype.createSecondApplication = function (options) {
@@ -1762,6 +1795,11 @@ enifed('ember-application/tests/system/application_test', ['ember-babel', 'ember
     };
 
     (0, _emberBabel.createClass)(_class, [{
+      key: 'fixture',
+      get: function () {
+        return '\n      <div id="one">\n        <div id="one-child">HI</div>\n      </div>\n      <div id="two">HI</div>\n    ';
+      }
+    }, {
       key: 'applicationOptions',
       get: function () {
         return (0, _emberUtils.assign)(_ApplicationTestCase.prototype.applicationOptions, {
@@ -1780,22 +1818,6 @@ enifed('ember-application/tests/system/application_test', ['ember-babel', 'ember
     function _class2() {
       return (0, _emberBabel.possibleConstructorReturn)(this, _ApplicationTestCase2.apply(this, arguments));
     }
-
-    _class2.prototype['@test includes deprecated access to `application.registry`'] = function (assert) {
-      var _this9 = this;
-
-      assert.expect(3);
-
-      assert.ok(typeof this.application.registry.register === 'function', '#registry.register is available as a function');
-
-      this.application.__registry__.register = function () {
-        assert.ok(true, '#register alias is called correctly');
-      };
-
-      expectDeprecation(function () {
-        _this9.application.registry.register();
-      }, /Using `Application.registry.register` is deprecated. Please use `Application.register` instead./);
-    };
 
     _class2.prototype['@test builds a registry'] = function (assert) {
       var application = this.application;
@@ -1865,10 +1887,10 @@ enifed('ember-application/tests/system/application_test', ['ember-babel', 'ember
 
     function _class3() {
 
-      var _this10 = (0, _emberBabel.possibleConstructorReturn)(this, _DefaultResolverAppli.call(this));
+      var _this9 = (0, _emberBabel.possibleConstructorReturn)(this, _DefaultResolverAppli.call(this));
 
-      _this10.originalLookup = _emberEnvironment.context.lookup;
-      return _this10;
+      _this9.originalLookup = _emberEnvironment.context.lookup;
+      return _this9;
     }
 
     _class3.prototype.teardown = function () {
@@ -1878,12 +1900,12 @@ enifed('ember-application/tests/system/application_test', ['ember-babel', 'ember
     };
 
     _class3.prototype['@test acts like a namespace'] = function (assert) {
-      var _this11 = this;
+      var _this10 = this;
 
       var lookup = _emberEnvironment.context.lookup = {};
 
       lookup.TestApp = this.runTask(function () {
-        return _this11.createApplication();
+        return _this10.createApplication();
       });
 
       (0, _emberRuntime.setNamespaceSearchDisabled)(false);
@@ -1892,26 +1914,25 @@ enifed('ember-application/tests/system/application_test', ['ember-babel', 'ember
     };
 
     _class3.prototype['@test can specify custom router'] = function (assert) {
-      var _this12 = this;
+      var _this11 = this;
 
       var MyRouter = _emberRouting.Router.extend();
       this.runTask(function () {
-        _this12.createApplication();
-        _this12.application.Router = MyRouter;
+        _this11.createApplication();
+        _this11.application.Router = MyRouter;
       });
 
       assert.ok(this.application.__deprecatedInstance__.lookup('router:main') instanceof MyRouter, 'application resolved the correct router');
     };
 
-    _class3.prototype['@test Minimal Application initialized with just an application template'] = function (assert) {
-      var _this13 = this;
+    _class3.prototype['@test Minimal Application initialized with just an application template'] = function () {
+      var _this12 = this;
 
-      this.$().html('<script type="text/x-handlebars">Hello World</script>');
+      this.setupFixture('<script type="text/x-handlebars">Hello World</script>');
       this.runTask(function () {
-        return _this13.createApplication();
+        return _this12.createApplication();
       });
-
-      assert.equal(this.$().text().trim(), 'Hello World');
+      this.assertInnerHTML('Hello World');
     };
 
     (0, _emberBabel.createClass)(_class3, [{
@@ -1930,12 +1951,12 @@ enifed('ember-application/tests/system/application_test', ['ember-babel', 'ember
 
     function _class4() {
 
-      var _this14 = (0, _emberBabel.possibleConstructorReturn)(this, _AutobootApplicationT.call(this));
+      var _this13 = (0, _emberBabel.possibleConstructorReturn)(this, _AutobootApplicationT.call(this));
 
-      _this14.originalLogVersion = _emberEnvironment.ENV.LOG_VERSION;
-      _this14.originalDebug = (0, _emberDebug.getDebugFunction)('debug');
-      _this14.originalWarn = (0, _emberDebug.getDebugFunction)('warn');
-      return _this14;
+      _this13.originalLogVersion = _emberEnvironment.ENV.LOG_VERSION;
+      _this13.originalDebug = (0, _emberDebug.getDebugFunction)('debug');
+      _this13.originalWarn = (0, _emberDebug.getDebugFunction)('warn');
+      return _this13;
     }
 
     _class4.prototype.teardown = function () {
@@ -1945,20 +1966,20 @@ enifed('ember-application/tests/system/application_test', ['ember-babel', 'ember
       _AutobootApplicationT.prototype.teardown.call(this);
     };
 
-    _class4.prototype['@test initialized application goes to initial route'] = function (assert) {
-      var _this15 = this;
+    _class4.prototype['@test initialized application goes to initial route'] = function () {
+      var _this14 = this;
 
       this.runTask(function () {
-        _this15.createApplication();
-        _this15.addTemplate('application', '{{outlet}}');
-        _this15.addTemplate('index', '<h1>Hi from index</h1>');
+        _this14.createApplication();
+        _this14.addTemplate('application', '{{outlet}}');
+        _this14.addTemplate('index', '<h1>Hi from index</h1>');
       });
 
-      assert.equal(this.$('h1').text(), 'Hi from index');
+      this.assertText('Hi from index');
     };
 
     _class4.prototype['@test ready hook is called before routing begins'] = function (assert) {
-      var _this16 = this;
+      var _this15 = this;
 
       assert.expect(2);
 
@@ -1979,7 +2000,7 @@ enifed('ember-application/tests/system/application_test', ['ember-babel', 'ember
           }
         });
 
-        var app = _this16.createApplication({}, MyApplication);
+        var app = _this15.createApplication({}, MyApplication);
 
         registerRoute(app, 'application', function () {
           return ok(true, 'normal route is activated');
@@ -1988,10 +2009,10 @@ enifed('ember-application/tests/system/application_test', ['ember-babel', 'ember
     };
 
     _class4.prototype['@test initialize application via initialize call'] = function (assert) {
-      var _this17 = this;
+      var _this16 = this;
 
       this.runTask(function () {
-        return _this17.createApplication();
+        return _this16.createApplication();
       });
       // This is not a public way to access the container; we just
       // need to make some assertions about the created router
@@ -2001,34 +2022,34 @@ enifed('ember-application/tests/system/application_test', ['ember-babel', 'ember
     };
 
     _class4.prototype['@test initialize application with stateManager via initialize call from Router class'] = function (assert) {
-      var _this18 = this;
+      var _this17 = this;
 
       this.runTask(function () {
-        _this18.createApplication();
-        _this18.addTemplate('application', '<h1>Hello!</h1>');
+        _this17.createApplication();
+        _this17.addTemplate('application', '<h1>Hello!</h1>');
       });
       // This is not a public way to access the container; we just
       // need to make some assertions about the created router
       var router = this.application.__deprecatedInstance__.lookup('router:main');
       assert.equal(router instanceof _emberRouting.Router, true, 'Router was set from initialize call');
-      assert.equal(this.$('h1').text(), 'Hello!');
+      this.assertText('Hello!');
     };
 
-    _class4.prototype['@test Application Controller backs the appplication template'] = function (assert) {
-      var _this19 = this;
+    _class4.prototype['@test Application Controller backs the appplication template'] = function () {
+      var _this18 = this;
 
       this.runTask(function () {
-        _this19.createApplication();
-        _this19.addTemplate('application', '<h1>{{greeting}}</h1>');
-        _this19.add('controller:application', _emberRuntime.Controller.extend({
+        _this18.createApplication();
+        _this18.addTemplate('application', '<h1>{{greeting}}</h1>');
+        _this18.add('controller:application', _emberRuntime.Controller.extend({
           greeting: 'Hello!'
         }));
       });
-      assert.equal(this.$('h1').text(), 'Hello!');
+      this.assertText('Hello!');
     };
 
     _class4.prototype['@test enable log of libraries with an ENV var'] = function (assert) {
-      var _this20 = this;
+      var _this19 = this;
 
       if (EmberDev && EmberDev.runningProdBuild) {
         assert.ok(true, 'Logging does not occur in production builds');
@@ -2046,18 +2067,22 @@ enifed('ember-application/tests/system/application_test', ['ember-babel', 'ember
       _emberMetal.libraries.register('my-lib', '2.0.0a');
 
       this.runTask(function () {
-        return _this20.createApplication();
+        return _this19.createApplication();
       });
 
       assert.equal(messages[1], 'Ember  : ' + _ember.VERSION);
-      assert.equal(messages[2], 'jQuery : ' + (0, _emberViews.jQuery)().jquery);
-      assert.equal(messages[3], 'my-lib : ' + '2.0.0a');
+      if (_emberViews.jQuery) {
+        assert.equal(messages[2], 'jQuery : ' + (0, _emberViews.jQuery)().jquery);
+        assert.equal(messages[3], 'my-lib : ' + '2.0.0a');
+      } else {
+        assert.equal(messages[2], 'my-lib : ' + '2.0.0a');
+      }
 
       _emberMetal.libraries.deRegister('my-lib');
     };
 
     _class4.prototype['@test disable log of version of libraries with an ENV var'] = function (assert) {
-      var _this21 = this;
+      var _this20 = this;
 
       var logged = false;
 
@@ -2068,35 +2093,35 @@ enifed('ember-application/tests/system/application_test', ['ember-babel', 'ember
       });
 
       this.runTask(function () {
-        return _this21.createApplication();
+        return _this20.createApplication();
       });
 
       assert.ok(!logged, 'library version logging skipped');
     };
 
     _class4.prototype['@test can resolve custom router'] = function (assert) {
-      var _this22 = this;
+      var _this21 = this;
 
       var CustomRouter = _emberRouting.Router.extend();
 
       this.runTask(function () {
-        _this22.createApplication();
-        _this22.add('router:main', CustomRouter);
+        _this21.createApplication();
+        _this21.add('router:main', CustomRouter);
       });
 
       assert.ok(this.application.__deprecatedInstance__.lookup('router:main') instanceof CustomRouter, 'application resolved the correct router');
     };
 
     _class4.prototype['@test does not leak itself in onLoad._loaded'] = function (assert) {
-      var _this23 = this;
+      var _this22 = this;
 
       assert.equal(_emberRuntime._loaded.application, undefined);
       this.runTask(function () {
-        return _this23.createApplication();
+        return _this22.createApplication();
       });
       assert.equal(_emberRuntime._loaded.application, this.application);
       this.runTask(function () {
-        return _this23.application.destroy();
+        return _this22.application.destroy();
       });
       assert.equal(_emberRuntime._loaded.application, undefined);
     };
@@ -2136,16 +2161,14 @@ enifed('ember-application/tests/system/application_test', ['ember-babel', 'ember
     return _class5;
   }(_internalTestHelpers.AbstractTestCase));
 });
-enifed('ember-application/tests/system/bootstrap-test', ['ember-babel', 'ember-utils', 'ember-views', 'internal-test-helpers'], function (_emberBabel, _emberUtils, _emberViews, _internalTestHelpers) {
+enifed('ember-application/tests/system/bootstrap-test', ['ember-babel', 'ember-utils', 'internal-test-helpers'], function (_emberBabel, _emberUtils, _internalTestHelpers) {
   'use strict';
 
   (0, _internalTestHelpers.moduleFor)('Ember.Application with default resolver and autoboot', function (_DefaultResolverAppli) {
     (0, _emberBabel.inherits)(_class, _DefaultResolverAppli);
 
     function _class() {
-
-      (0, _emberViews.jQuery)('#qunit-fixture').html('\n      <div id="app"></div>\n\n      <script type="text/x-handlebars">Hello {{outlet}}</script>\n      <script type="text/x-handlebars" id="index">World!</script>\n    ');
-      return (0, _emberBabel.possibleConstructorReturn)(this, _DefaultResolverAppli.call(this));
+      return (0, _emberBabel.possibleConstructorReturn)(this, _DefaultResolverAppli.apply(this, arguments));
     }
 
     _class.prototype['@test templates in script tags are extracted at application creation'] = function (assert) {
@@ -2154,10 +2177,15 @@ enifed('ember-application/tests/system/bootstrap-test', ['ember-babel', 'ember-u
       this.runTask(function () {
         return _this2.createApplication();
       });
-      assert.equal(this.$('#app').text(), 'Hello World!');
+      assert.equal(document.getElementById('app').textContent, 'Hello World!');
     };
 
     (0, _emberBabel.createClass)(_class, [{
+      key: 'fixture',
+      get: function () {
+        return '\n      <div id="app"></div>\n\n      <script type="text/x-handlebars">Hello {{outlet}}</script>\n      <script type="text/x-handlebars" id="index">World!</script>\n    ';
+      }
+    }, {
       key: 'applicationOptions',
       get: function () {
         return (0, _emberUtils.assign)(_DefaultResolverAppli.prototype.applicationOptions, {
@@ -2179,13 +2207,13 @@ enifed('ember-application/tests/system/dependency_injection/custom_resolver_test
       return (0, _emberBabel.possibleConstructorReturn)(this, _DefaultResolverAppli.apply(this, arguments));
     }
 
-    _class.prototype['@test a resolver can be supplied to application'] = function (assert) {
+    _class.prototype['@test a resolver can be supplied to application'] = function () {
       var _this2 = this;
 
       this.runTask(function () {
         return _this2.createApplication();
       });
-      assert.equal(this.$('h1').text(), 'Fallback');
+      this.assertText('Fallback');
     };
 
     (0, _emberBabel.createClass)(_class, [{
@@ -2566,54 +2594,63 @@ enifed('ember-application/tests/system/dependency_injection/default_resolver_tes
     return _class3;
   }(_internalTestHelpers.DefaultResolverApplicationTestCase));
 });
-enifed('ember-application/tests/system/dependency_injection/normalization_test', ['ember-metal', 'ember-application/system/application'], function (_emberMetal, _application) {
+enifed('ember-application/tests/system/dependency_injection/normalization_test', ['ember-babel', 'ember-metal', 'ember-application/system/application', 'internal-test-helpers'], function (_emberBabel, _emberMetal, _application, _internalTestHelpers) {
   'use strict';
 
   var application = void 0,
       registry = void 0;
 
-  QUnit.module('Ember.Application Dependency Injection – normalization', {
-    setup: function () {
+  (0, _internalTestHelpers.moduleFor)('Ember.Application Dependency Injection - normalize', function (_TestCase) {
+    (0, _emberBabel.inherits)(_class, _TestCase);
+
+    function _class() {
+
+      var _this = (0, _emberBabel.possibleConstructorReturn)(this, _TestCase.call(this));
+
       application = (0, _emberMetal.run)(_application.default, 'create');
       registry = application.__registry__;
-    },
-    teardown: function () {
-      (0, _emberMetal.run)(application, 'destroy');
+      return _this;
     }
-  });
 
-  QUnit.test('normalization', function () {
-    ok(registry.normalize, 'registry#normalize is present');
+    _class.prototype.teardown = function () {
+      (0, _emberMetal.run)(application, 'destroy');
+    };
 
-    equal(registry.normalize('foo:bar'), 'foo:bar');
+    _class.prototype['@test normalization'] = function (assert) {
+      assert.ok(registry.normalize, 'registry#normalize is present');
 
-    equal(registry.normalize('controller:posts'), 'controller:posts');
-    equal(registry.normalize('controller:posts_index'), 'controller:postsIndex');
-    equal(registry.normalize('controller:posts.index'), 'controller:postsIndex');
-    equal(registry.normalize('controller:posts-index'), 'controller:postsIndex');
-    equal(registry.normalize('controller:posts.post.index'), 'controller:postsPostIndex');
-    equal(registry.normalize('controller:posts_post.index'), 'controller:postsPostIndex');
-    equal(registry.normalize('controller:posts.post_index'), 'controller:postsPostIndex');
-    equal(registry.normalize('controller:posts.post-index'), 'controller:postsPostIndex');
-    equal(registry.normalize('controller:postsIndex'), 'controller:postsIndex');
-    equal(registry.normalize('controller:blogPosts.index'), 'controller:blogPostsIndex');
-    equal(registry.normalize('controller:blog/posts.index'), 'controller:blog/postsIndex');
-    equal(registry.normalize('controller:blog/posts-index'), 'controller:blog/postsIndex');
-    equal(registry.normalize('controller:blog/posts.post.index'), 'controller:blog/postsPostIndex');
-    equal(registry.normalize('controller:blog/posts_post.index'), 'controller:blog/postsPostIndex');
-    equal(registry.normalize('controller:blog/posts_post-index'), 'controller:blog/postsPostIndex');
+      assert.equal(registry.normalize('foo:bar'), 'foo:bar');
 
-    equal(registry.normalize('template:blog/posts_index'), 'template:blog/posts_index');
-  });
+      assert.equal(registry.normalize('controller:posts'), 'controller:posts');
+      assert.equal(registry.normalize('controller:posts_index'), 'controller:postsIndex');
+      assert.equal(registry.normalize('controller:posts.index'), 'controller:postsIndex');
+      assert.equal(registry.normalize('controller:posts-index'), 'controller:postsIndex');
+      assert.equal(registry.normalize('controller:posts.post.index'), 'controller:postsPostIndex');
+      assert.equal(registry.normalize('controller:posts_post.index'), 'controller:postsPostIndex');
+      assert.equal(registry.normalize('controller:posts.post_index'), 'controller:postsPostIndex');
+      assert.equal(registry.normalize('controller:posts.post-index'), 'controller:postsPostIndex');
+      assert.equal(registry.normalize('controller:postsIndex'), 'controller:postsIndex');
+      assert.equal(registry.normalize('controller:blogPosts.index'), 'controller:blogPostsIndex');
+      assert.equal(registry.normalize('controller:blog/posts.index'), 'controller:blog/postsIndex');
+      assert.equal(registry.normalize('controller:blog/posts-index'), 'controller:blog/postsIndex');
+      assert.equal(registry.normalize('controller:blog/posts.post.index'), 'controller:blog/postsPostIndex');
+      assert.equal(registry.normalize('controller:blog/posts_post.index'), 'controller:blog/postsPostIndex');
+      assert.equal(registry.normalize('controller:blog/posts_post-index'), 'controller:blog/postsPostIndex');
 
-  QUnit.test('normalization is indempotent', function () {
+      assert.equal(registry.normalize('template:blog/posts_index'), 'template:blog/posts_index');
+    };
 
-    ['controller:posts', 'controller:posts.post.index', 'controller:blog/posts.post_index', 'template:foo_bar'].forEach(function (example) {
-      equal(registry.normalize(registry.normalize(example)), registry.normalize(example));
-    });
-  });
+    _class.prototype['@test normalization is indempotent'] = function (assert) {
+
+      ['controller:posts', 'controller:posts.post.index', 'controller:blog/posts.post_index', 'template:foo_bar'].forEach(function (example) {
+        assert.equal(registry.normalize(registry.normalize(example)), registry.normalize(example));
+      });
+    };
+
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
 });
-enifed('ember-application/tests/system/dependency_injection/to_string_test', ['ember-babel', 'ember-utils', 'ember-runtime', 'ember-application', 'internal-test-helpers'], function (_emberBabel, _emberUtils, _emberRuntime, _emberApplication, _internalTestHelpers) {
+enifed('ember-application/tests/system/dependency_injection/to_string_test', ['ember-babel', 'ember-utils', 'ember-runtime', 'internal-test-helpers'], function (_emberBabel, _emberUtils, _emberRuntime, _internalTestHelpers) {
   'use strict';
 
   (0, _internalTestHelpers.moduleFor)('Ember.Application Dependency Injection - DefaultResolver#toString', function (_DefaultResolverAppli) {
@@ -2691,7 +2728,7 @@ enifed('ember-application/tests/system/dependency_injection/to_string_test', ['e
     return _class2;
   }(_internalTestHelpers.ApplicationTestCase));
 });
-enifed('ember-application/tests/system/dependency_injection_test', ['ember-environment', 'ember-metal', 'ember-runtime', 'ember-application/system/application'], function (_emberEnvironment, _emberMetal, _emberRuntime, _application) {
+enifed('ember-application/tests/system/dependency_injection_test', ['ember-babel', 'ember-environment', 'ember-metal', 'ember-runtime', 'ember-application/system/application', 'internal-test-helpers'], function (_emberBabel, _emberEnvironment, _emberMetal, _emberRuntime, _application, _internalTestHelpers) {
   'use strict';
 
   var EmberApplication = _application.default;
@@ -2701,8 +2738,13 @@ enifed('ember-application/tests/system/dependency_injection_test', ['ember-envir
       locator = void 0,
       application = void 0;
 
-  QUnit.module('Ember.Application Dependency Injection', {
-    setup: function () {
+  (0, _internalTestHelpers.moduleFor)('Ember.Application Dependency Injection', function (_TestCase) {
+    (0, _emberBabel.inherits)(_class, _TestCase);
+
+    function _class() {
+
+      var _this = (0, _emberBabel.possibleConstructorReturn)(this, _TestCase.call(this));
+
       application = (0, _emberMetal.run)(EmberApplication, 'create');
 
       application.Person = _emberRuntime.Object.extend({});
@@ -2721,59 +2763,68 @@ enifed('ember-application/tests/system/dependency_injection_test', ['ember-envir
       locator = application.__container__;
 
       _emberEnvironment.context.lookup = {};
-    },
-    teardown: function () {
+      return _this;
+    }
+
+    _class.prototype.teardown = function () {
       (0, _emberMetal.run)(application, 'destroy');
       application = locator = null;
       _emberEnvironment.context.lookup = originalLookup;
-    }
-  });
+    };
 
-  QUnit.test('container lookup is normalized', function () {
-    var dotNotationController = locator.lookup('controller:post.index');
-    var camelCaseController = locator.lookup('controller:postIndex');
+    _class.prototype['@test container lookup is normalized'] = function (assert) {
+      var dotNotationController = locator.lookup('controller:post.index');
+      var camelCaseController = locator.lookup('controller:postIndex');
 
-    ok(dotNotationController instanceof application.PostIndexController);
-    ok(camelCaseController instanceof application.PostIndexController);
+      assert.ok(dotNotationController instanceof application.PostIndexController);
+      assert.ok(camelCaseController instanceof application.PostIndexController);
 
-    equal(dotNotationController, camelCaseController);
-  });
+      assert.equal(dotNotationController, camelCaseController);
+    };
 
-  QUnit.test('registered entities can be looked up later', function () {
-    equal(registry.resolve('model:person'), application.Person);
-    equal(registry.resolve('model:user'), application.User);
-    equal(registry.resolve('fruit:favorite'), application.Orange);
-    equal(registry.resolve('communication:main'), application.Email);
-    equal(registry.resolve('controller:postIndex'), application.PostIndexController);
+    _class.prototype['@test registered entities can be looked up later'] = function (assert) {
+      assert.equal(registry.resolve('model:person'), application.Person);
+      assert.equal(registry.resolve('model:user'), application.User);
+      assert.equal(registry.resolve('fruit:favorite'), application.Orange);
+      assert.equal(registry.resolve('communication:main'), application.Email);
+      assert.equal(registry.resolve('controller:postIndex'), application.PostIndexController);
 
-    equal(locator.lookup('fruit:favorite'), locator.lookup('fruit:favorite'), 'singleton lookup worked');
-    ok(locator.lookup('model:user') !== locator.lookup('model:user'), 'non-singleton lookup worked');
-  });
+      assert.equal(locator.lookup('fruit:favorite'), locator.lookup('fruit:favorite'), 'singleton lookup worked');
+      assert.ok(locator.lookup('model:user') !== locator.lookup('model:user'), 'non-singleton lookup worked');
+    };
 
-  QUnit.test('injections', function () {
-    application.inject('model', 'fruit', 'fruit:favorite');
-    application.inject('model:user', 'communication', 'communication:main');
+    _class.prototype['@test injections'] = function (assert) {
+      application.inject('model', 'fruit', 'fruit:favorite');
+      application.inject('model:user', 'communication', 'communication:main');
 
-    var user = locator.lookup('model:user');
-    var person = locator.lookup('model:person');
-    var fruit = locator.lookup('fruit:favorite');
+      var user = locator.lookup('model:user');
+      var person = locator.lookup('model:person');
+      var fruit = locator.lookup('fruit:favorite');
 
-    equal(user.get('fruit'), fruit);
-    equal(person.get('fruit'), fruit);
+      assert.equal(user.get('fruit'), fruit);
+      assert.equal(person.get('fruit'), fruit);
 
-    ok(application.Email.detectInstance(user.get('communication')));
-  });
+      assert.ok(application.Email.detectInstance(user.get('communication')));
+    };
+
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
 });
-enifed('ember-application/tests/system/engine_initializers_test', ['ember-metal', 'ember-application/system/engine'], function (_emberMetal, _engine) {
+enifed('ember-application/tests/system/engine_initializers_test', ['ember-babel', 'ember-metal', 'ember-application/system/engine', 'internal-test-helpers'], function (_emberBabel, _emberMetal, _engine, _internalTestHelpers) {
   'use strict';
 
   var MyEngine = void 0,
       myEngine = void 0,
       myEngineInstance = void 0;
 
-  QUnit.module('Ember.Engine initializers', {
-    setup: function () {},
-    teardown: function () {
+  (0, _internalTestHelpers.moduleFor)('Ember.Engine initializers', function (_TestCase) {
+    (0, _emberBabel.inherits)(_class, _TestCase);
+
+    function _class() {
+      return (0, _emberBabel.possibleConstructorReturn)(this, _TestCase.apply(this, arguments));
+    }
+
+    _class.prototype.teardown = function () {
       (0, _emberMetal.run)(function () {
         if (myEngineInstance) {
           myEngineInstance.destroy();
@@ -2783,342 +2834,344 @@ enifed('ember-application/tests/system/engine_initializers_test', ['ember-metal'
           myEngine.destroy();
         }
       });
-    }
-  });
+    };
 
-  QUnit.test('initializers require proper \'name\' and \'initialize\' properties', function () {
-    MyEngine = _engine.default.extend();
+    _class.prototype['initializers require proper \'name\' and \'initialize\' properties'] = function () {
+      MyEngine = _engine.default.extend();
 
-    expectAssertion(function () {
-      (0, _emberMetal.run)(function () {
-        MyEngine.initializer({ name: 'initializer' });
-      });
-    });
-
-    expectAssertion(function () {
-      (0, _emberMetal.run)(function () {
-        MyEngine.initializer({
-          initialize: function () {}
+      expectAssertion(function () {
+        (0, _emberMetal.run)(function () {
+          MyEngine.initializer({ name: 'initializer' });
         });
       });
-    });
-  });
 
-  QUnit.test('initializers are passed an Engine', function () {
-    MyEngine = _engine.default.extend();
-
-    MyEngine.initializer({
-      name: 'initializer',
-      initialize: function (engine) {
-        ok(engine instanceof _engine.default, 'initialize is passed an Engine');
-      }
-    });
-
-    myEngine = MyEngine.create();
-    myEngineInstance = myEngine.buildInstance();
-  });
-
-  QUnit.test('initializers can be registered in a specified order', function () {
-    var order = [];
-
-    MyEngine = _engine.default.extend();
-    MyEngine.initializer({
-      name: 'fourth',
-      after: 'third',
-      initialize: function () {
-        order.push('fourth');
-      }
-    });
-
-    MyEngine.initializer({
-      name: 'second',
-      after: 'first',
-      before: 'third',
-      initialize: function () {
-        order.push('second');
-      }
-    });
-
-    MyEngine.initializer({
-      name: 'fifth',
-      after: 'fourth',
-      before: 'sixth',
-      initialize: function () {
-        order.push('fifth');
-      }
-    });
-
-    MyEngine.initializer({
-      name: 'first',
-      before: 'second',
-      initialize: function () {
-        order.push('first');
-      }
-    });
-
-    MyEngine.initializer({
-      name: 'third',
-      initialize: function () {
-        order.push('third');
-      }
-    });
-
-    MyEngine.initializer({
-      name: 'sixth',
-      initialize: function () {
-        order.push('sixth');
-      }
-    });
-
-    myEngine = MyEngine.create();
-    myEngineInstance = myEngine.buildInstance();
-
-    deepEqual(order, ['first', 'second', 'third', 'fourth', 'fifth', 'sixth']);
-  });
-
-  QUnit.test('initializers can be registered in a specified order as an array', function () {
-    var order = [];
-
-    MyEngine = _engine.default.extend();
-
-    MyEngine.initializer({
-      name: 'third',
-      initialize: function () {
-        order.push('third');
-      }
-    });
-
-    MyEngine.initializer({
-      name: 'second',
-      after: 'first',
-      before: ['third', 'fourth'],
-      initialize: function () {
-        order.push('second');
-      }
-    });
-
-    MyEngine.initializer({
-      name: 'fourth',
-      after: ['second', 'third'],
-      initialize: function () {
-        order.push('fourth');
-      }
-    });
-
-    MyEngine.initializer({
-      name: 'fifth',
-      after: 'fourth',
-      before: 'sixth',
-      initialize: function () {
-        order.push('fifth');
-      }
-    });
-
-    MyEngine.initializer({
-      name: 'first',
-      before: ['second'],
-      initialize: function () {
-        order.push('first');
-      }
-    });
-
-    MyEngine.initializer({
-      name: 'sixth',
-      initialize: function () {
-        order.push('sixth');
-      }
-    });
-
-    myEngine = MyEngine.create();
-    myEngineInstance = myEngine.buildInstance();
-
-    deepEqual(order, ['first', 'second', 'third', 'fourth', 'fifth', 'sixth']);
-  });
-
-  QUnit.test('initializers can have multiple dependencies', function () {
-    var order = [];
-
-    MyEngine = _engine.default.extend();
-
-    var a = {
-      name: 'a',
-      before: 'b',
-      initialize: function () {
-        order.push('a');
-      }
-    };
-    var b = {
-      name: 'b',
-      initialize: function () {
-        order.push('b');
-      }
-    };
-    var c = {
-      name: 'c',
-      after: 'b',
-      initialize: function () {
-        order.push('c');
-      }
-    };
-    var afterB = {
-      name: 'after b',
-      after: 'b',
-      initialize: function () {
-        order.push('after b');
-      }
-    };
-    var afterC = {
-      name: 'after c',
-      after: 'c',
-      initialize: function () {
-        order.push('after c');
-      }
+      expectAssertion(function () {
+        (0, _emberMetal.run)(function () {
+          MyEngine.initializer({
+            initialize: function () {}
+          });
+        });
+      });
     };
 
-    MyEngine.initializer(b);
-    MyEngine.initializer(a);
-    MyEngine.initializer(afterC);
-    MyEngine.initializer(afterB);
-    MyEngine.initializer(c);
+    _class.prototype['initializers are passed an Engine'] = function (assert) {
+      MyEngine = _engine.default.extend();
 
-    myEngine = MyEngine.create();
-    myEngineInstance = myEngine.buildInstance();
+      MyEngine.initializer({
+        name: 'initializer',
+        initialize: function (engine) {
+          assert.ok(engine instanceof _engine.default, 'initialize is passed an Engine');
+        }
+      });
 
-    ok(order.indexOf(a.name) < order.indexOf(b.name), 'a < b');
-    ok(order.indexOf(b.name) < order.indexOf(c.name), 'b < c');
-    ok(order.indexOf(b.name) < order.indexOf(afterB.name), 'b < afterB');
-    ok(order.indexOf(c.name) < order.indexOf(afterC.name), 'c < afterC');
-  });
+      myEngine = MyEngine.create();
+      myEngineInstance = myEngine.buildInstance();
+    };
 
-  QUnit.test('initializers set on Engine subclasses are not shared between engines', function () {
-    var firstInitializerRunCount = 0;
-    var secondInitializerRunCount = 0;
-    var FirstEngine = _engine.default.extend();
+    _class.prototype['initializers can be registered in a specified order'] = function (assert) {
+      var order = [];
 
-    FirstEngine.initializer({
-      name: 'first',
-      initialize: function () {
-        firstInitializerRunCount++;
-      }
-    });
+      MyEngine = _engine.default.extend();
+      MyEngine.initializer({
+        name: 'fourth',
+        after: 'third',
+        initialize: function () {
+          order.push('fourth');
+        }
+      });
 
-    var SecondEngine = _engine.default.extend();
+      MyEngine.initializer({
+        name: 'second',
+        after: 'first',
+        before: 'third',
+        initialize: function () {
+          order.push('second');
+        }
+      });
 
-    SecondEngine.initializer({
-      name: 'second',
-      initialize: function () {
-        secondInitializerRunCount++;
-      }
-    });
+      MyEngine.initializer({
+        name: 'fifth',
+        after: 'fourth',
+        before: 'sixth',
+        initialize: function () {
+          order.push('fifth');
+        }
+      });
 
-    var firstEngine = FirstEngine.create();
-    var firstEngineInstance = firstEngine.buildInstance();
+      MyEngine.initializer({
+        name: 'first',
+        before: 'second',
+        initialize: function () {
+          order.push('first');
+        }
+      });
 
-    equal(firstInitializerRunCount, 1, 'first initializer only was run');
-    equal(secondInitializerRunCount, 0, 'first initializer only was run');
+      MyEngine.initializer({
+        name: 'third',
+        initialize: function () {
+          order.push('third');
+        }
+      });
 
-    var secondEngine = SecondEngine.create();
-    var secondEngineInstance = secondEngine.buildInstance();
+      MyEngine.initializer({
+        name: 'sixth',
+        initialize: function () {
+          order.push('sixth');
+        }
+      });
 
-    equal(firstInitializerRunCount, 1, 'second initializer only was run');
-    equal(secondInitializerRunCount, 1, 'second initializer only was run');
+      myEngine = MyEngine.create();
+      myEngineInstance = myEngine.buildInstance();
 
-    (0, _emberMetal.run)(function () {
-      firstEngineInstance.destroy();
-      secondEngineInstance.destroy();
+      assert.deepEqual(order, ['first', 'second', 'third', 'fourth', 'fifth', 'sixth']);
+    };
 
-      firstEngine.destroy();
-      secondEngine.destroy();
-    });
-  });
+    _class.prototype['initializers can be registered in a specified order as an array'] = function (assert) {
+      var order = [];
 
-  QUnit.test('initializers are concatenated', function () {
-    var firstInitializerRunCount = 0;
-    var secondInitializerRunCount = 0;
-    var FirstEngine = _engine.default.extend();
+      MyEngine = _engine.default.extend();
 
-    FirstEngine.initializer({
-      name: 'first',
-      initialize: function () {
-        firstInitializerRunCount++;
-      }
-    });
+      MyEngine.initializer({
+        name: 'third',
+        initialize: function () {
+          order.push('third');
+        }
+      });
 
-    var SecondEngine = FirstEngine.extend();
+      MyEngine.initializer({
+        name: 'second',
+        after: 'first',
+        before: ['third', 'fourth'],
+        initialize: function () {
+          order.push('second');
+        }
+      });
 
-    SecondEngine.initializer({
-      name: 'second',
-      initialize: function () {
-        secondInitializerRunCount++;
-      }
-    });
+      MyEngine.initializer({
+        name: 'fourth',
+        after: ['second', 'third'],
+        initialize: function () {
+          order.push('fourth');
+        }
+      });
 
-    var firstEngine = FirstEngine.create();
-    var firstEngineInstance = firstEngine.buildInstance();
+      MyEngine.initializer({
+        name: 'fifth',
+        after: 'fourth',
+        before: 'sixth',
+        initialize: function () {
+          order.push('fifth');
+        }
+      });
 
-    equal(firstInitializerRunCount, 1, 'first initializer only was run when base class created');
-    equal(secondInitializerRunCount, 0, 'second initializer was not run when first base class created');
-    firstInitializerRunCount = 0;
+      MyEngine.initializer({
+        name: 'first',
+        before: ['second'],
+        initialize: function () {
+          order.push('first');
+        }
+      });
 
-    var secondEngine = SecondEngine.create();
-    var secondEngineInstance = secondEngine.buildInstance();
+      MyEngine.initializer({
+        name: 'sixth',
+        initialize: function () {
+          order.push('sixth');
+        }
+      });
 
-    equal(firstInitializerRunCount, 1, 'first initializer was run when subclass created');
-    equal(secondInitializerRunCount, 1, 'second initializers was run when subclass created');
+      myEngine = MyEngine.create();
+      myEngineInstance = myEngine.buildInstance();
 
-    (0, _emberMetal.run)(function () {
-      firstEngineInstance.destroy();
-      secondEngineInstance.destroy();
+      assert.deepEqual(order, ['first', 'second', 'third', 'fourth', 'fifth', 'sixth']);
+    };
 
-      firstEngine.destroy();
-      secondEngine.destroy();
-    });
-  });
+    _class.prototype['initializers can have multiple dependencies'] = function (assert) {
+      var order = [];
 
-  QUnit.test('initializers are per-engine', function () {
-    expect(2);
+      MyEngine = _engine.default.extend();
 
-    var FirstEngine = _engine.default.extend();
+      var a = {
+        name: 'a',
+        before: 'b',
+        initialize: function () {
+          order.push('a');
+        }
+      };
+      var b = {
+        name: 'b',
+        initialize: function () {
+          order.push('b');
+        }
+      };
+      var c = {
+        name: 'c',
+        after: 'b',
+        initialize: function () {
+          order.push('c');
+        }
+      };
+      var afterB = {
+        name: 'after b',
+        after: 'b',
+        initialize: function () {
+          order.push('after b');
+        }
+      };
+      var afterC = {
+        name: 'after c',
+        after: 'c',
+        initialize: function () {
+          order.push('after c');
+        }
+      };
 
-    FirstEngine.initializer({
-      name: 'abc',
-      initialize: function () {}
-    });
+      MyEngine.initializer(b);
+      MyEngine.initializer(a);
+      MyEngine.initializer(afterC);
+      MyEngine.initializer(afterB);
+      MyEngine.initializer(c);
 
-    expectAssertion(function () {
+      myEngine = MyEngine.create();
+      myEngineInstance = myEngine.buildInstance();
+
+      assert.ok(order.indexOf(a.name) < order.indexOf(b.name), 'a < b');
+      assert.ok(order.indexOf(b.name) < order.indexOf(c.name), 'b < c');
+      assert.ok(order.indexOf(b.name) < order.indexOf(afterB.name), 'b < afterB');
+      assert.ok(order.indexOf(c.name) < order.indexOf(afterC.name), 'c < afterC');
+    };
+
+    _class.prototype['initializers set on Engine subclasses are not shared between engines'] = function (assert) {
+      var firstInitializerRunCount = 0;
+      var secondInitializerRunCount = 0;
+      var FirstEngine = _engine.default.extend();
+
+      FirstEngine.initializer({
+        name: 'first',
+        initialize: function () {
+          firstInitializerRunCount++;
+        }
+      });
+
+      var SecondEngine = _engine.default.extend();
+
+      SecondEngine.initializer({
+        name: 'second',
+        initialize: function () {
+          secondInitializerRunCount++;
+        }
+      });
+
+      var firstEngine = FirstEngine.create();
+      var firstEngineInstance = firstEngine.buildInstance();
+
+      assert.equal(firstInitializerRunCount, 1, 'first initializer only was run');
+      assert.equal(secondInitializerRunCount, 0, 'first initializer only was run');
+
+      var secondEngine = SecondEngine.create();
+      var secondEngineInstance = secondEngine.buildInstance();
+
+      assert.equal(firstInitializerRunCount, 1, 'second initializer only was run');
+      assert.equal(secondInitializerRunCount, 1, 'second initializer only was run');
+
+      (0, _emberMetal.run)(function () {
+        firstEngineInstance.destroy();
+        secondEngineInstance.destroy();
+
+        firstEngine.destroy();
+        secondEngine.destroy();
+      });
+    };
+
+    _class.prototype['initializers are concatenated'] = function (assert) {
+      var firstInitializerRunCount = 0;
+      var secondInitializerRunCount = 0;
+      var FirstEngine = _engine.default.extend();
+
+      FirstEngine.initializer({
+        name: 'first',
+        initialize: function () {
+          firstInitializerRunCount++;
+        }
+      });
+
+      var SecondEngine = FirstEngine.extend();
+
+      SecondEngine.initializer({
+        name: 'second',
+        initialize: function () {
+          secondInitializerRunCount++;
+        }
+      });
+
+      var firstEngine = FirstEngine.create();
+      var firstEngineInstance = firstEngine.buildInstance();
+
+      assert.equal(firstInitializerRunCount, 1, 'first initializer only was run when base class created');
+      assert.equal(secondInitializerRunCount, 0, 'second initializer was not run when first base class created');
+      firstInitializerRunCount = 0;
+
+      var secondEngine = SecondEngine.create();
+      var secondEngineInstance = secondEngine.buildInstance();
+
+      assert.equal(firstInitializerRunCount, 1, 'first initializer was run when subclass created');
+      assert.equal(secondInitializerRunCount, 1, 'second initializers was run when subclass created');
+
+      (0, _emberMetal.run)(function () {
+        firstEngineInstance.destroy();
+        secondEngineInstance.destroy();
+
+        firstEngine.destroy();
+        secondEngine.destroy();
+      });
+    };
+
+    _class.prototype['initializers are per-engine'] = function (assert) {
+      assert.expect(2);
+
+      var FirstEngine = _engine.default.extend();
+
       FirstEngine.initializer({
         name: 'abc',
         initialize: function () {}
       });
-    });
 
-    var SecondEngine = _engine.default.extend();
-    SecondEngine.instanceInitializer({
-      name: 'abc',
-      initialize: function () {}
-    });
+      expectAssertion(function () {
+        FirstEngine.initializer({
+          name: 'abc',
+          initialize: function () {}
+        });
+      });
 
-    ok(true, 'Two engines can have initializers named the same.');
-  });
+      var SecondEngine = _engine.default.extend();
+      SecondEngine.instanceInitializer({
+        name: 'abc',
+        initialize: function () {}
+      });
 
-  QUnit.test('initializers are executed in their own context', function () {
-    expect(1);
+      assert.ok(true, 'Two engines can have initializers named the same.');
+    };
 
-    MyEngine = _engine.default.extend();
+    _class.prototype['initializers are executed in their own context'] = function (assert) {
+      assert.expect(1);
 
-    MyEngine.initializer({
-      name: 'coolInitializer',
-      myProperty: 'cool',
-      initialize: function () {
-        equal(this.myProperty, 'cool', 'should have access to its own context');
-      }
-    });
+      MyEngine = _engine.default.extend();
 
-    myEngine = MyEngine.create();
-    myEngineInstance = myEngine.buildInstance();
-  });
+      MyEngine.initializer({
+        name: 'coolInitializer',
+        myProperty: 'cool',
+        initialize: function () {
+          assert.equal(this.myProperty, 'cool', 'should have access to its own context');
+        }
+      });
+
+      myEngine = MyEngine.create();
+      myEngineInstance = myEngine.buildInstance();
+    };
+
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
 });
-enifed('ember-application/tests/system/engine_instance_initializers_test', ['ember-metal', 'ember-application/system/engine', 'ember-application/system/engine-instance', 'ember-application/system/engine-parent'], function (_emberMetal, _engine, _engineInstance, _engineParent) {
+enifed('ember-application/tests/system/engine_instance_initializers_test', ['ember-babel', 'ember-metal', 'ember-application/system/engine', 'ember-application/system/engine-instance', 'ember-application/system/engine-parent', 'internal-test-helpers'], function (_emberBabel, _emberMetal, _engine, _engineInstance, _engineParent, _internalTestHelpers) {
   'use strict';
 
   var MyEngine = void 0,
@@ -3138,9 +3191,14 @@ enifed('ember-application/tests/system/engine_instance_initializers_test', ['emb
     return engineInstance;
   }
 
-  QUnit.module('Ember.Engine instance initializers', {
-    setup: function () {},
-    teardown: function () {
+  (0, _internalTestHelpers.moduleFor)('Ember.Engine instance initializers', function (_TestCase) {
+    (0, _emberBabel.inherits)(_class, _TestCase);
+
+    function _class() {
+      return (0, _emberBabel.possibleConstructorReturn)(this, _TestCase.apply(this, arguments));
+    }
+
+    _class.prototype.teardown = function () {
       (0, _emberMetal.run)(function () {
         if (myEngineInstance) {
           myEngineInstance.destroy();
@@ -3150,376 +3208,385 @@ enifed('ember-application/tests/system/engine_instance_initializers_test', ['emb
           myEngine.destroy();
         }
       });
-    }
-  });
+    };
 
-  QUnit.test('initializers require proper \'name\' and \'initialize\' properties', function () {
-    MyEngine = _engine.default.extend();
+    _class.prototype['@test initializers require proper \'name\' and \'initialize\' properties'] = function () {
+      MyEngine = _engine.default.extend();
 
-    expectAssertion(function () {
-      (0, _emberMetal.run)(function () {
-        MyEngine.instanceInitializer({ name: 'initializer' });
-      });
-    });
-
-    expectAssertion(function () {
-      (0, _emberMetal.run)(function () {
-        MyEngine.instanceInitializer({
-          initialize: function () {}
+      expectAssertion(function () {
+        (0, _emberMetal.run)(function () {
+          MyEngine.instanceInitializer({ name: 'initializer' });
         });
       });
-    });
-  });
 
-  QUnit.test('initializers are passed an engine instance', function () {
-    MyEngine = _engine.default.extend();
-
-    MyEngine.instanceInitializer({
-      name: 'initializer',
-      initialize: function (instance) {
-        ok(instance instanceof _engineInstance.default, 'initialize is passed an engine instance');
-      }
-    });
-
-    myEngine = MyEngine.create();
-    myEngineInstance = buildEngineInstance(myEngine);
-    return myEngineInstance.boot();
-  });
-
-  QUnit.test('initializers can be registered in a specified order', function () {
-    var order = [];
-
-    MyEngine = _engine.default.extend();
-
-    MyEngine.instanceInitializer({
-      name: 'fourth',
-      after: 'third',
-      initialize: function () {
-        order.push('fourth');
-      }
-    });
-
-    MyEngine.instanceInitializer({
-      name: 'second',
-      after: 'first',
-      before: 'third',
-      initialize: function () {
-        order.push('second');
-      }
-    });
-
-    MyEngine.instanceInitializer({
-      name: 'fifth',
-      after: 'fourth',
-      before: 'sixth',
-      initialize: function () {
-        order.push('fifth');
-      }
-    });
-
-    MyEngine.instanceInitializer({
-      name: 'first',
-      before: 'second',
-      initialize: function () {
-        order.push('first');
-      }
-    });
-
-    MyEngine.instanceInitializer({
-      name: 'third',
-      initialize: function () {
-        order.push('third');
-      }
-    });
-
-    MyEngine.instanceInitializer({
-      name: 'sixth',
-      initialize: function () {
-        order.push('sixth');
-      }
-    });
-
-    myEngine = MyEngine.create();
-    myEngineInstance = buildEngineInstance(myEngine);
-
-    return myEngineInstance.boot().then(function () {
-      deepEqual(order, ['first', 'second', 'third', 'fourth', 'fifth', 'sixth']);
-    });
-  });
-
-  QUnit.test('initializers can be registered in a specified order as an array', function () {
-    var order = [];
-    MyEngine = _engine.default.extend();
-
-    MyEngine.instanceInitializer({
-      name: 'third',
-      initialize: function () {
-        order.push('third');
-      }
-    });
-
-    MyEngine.instanceInitializer({
-      name: 'second',
-      after: 'first',
-      before: ['third', 'fourth'],
-      initialize: function () {
-        order.push('second');
-      }
-    });
-
-    MyEngine.instanceInitializer({
-      name: 'fourth',
-      after: ['second', 'third'],
-      initialize: function () {
-        order.push('fourth');
-      }
-    });
-
-    MyEngine.instanceInitializer({
-      name: 'fifth',
-      after: 'fourth',
-      before: 'sixth',
-      initialize: function () {
-        order.push('fifth');
-      }
-    });
-
-    MyEngine.instanceInitializer({
-      name: 'first',
-      before: ['second'],
-      initialize: function () {
-        order.push('first');
-      }
-    });
-
-    MyEngine.instanceInitializer({
-      name: 'sixth',
-      initialize: function () {
-        order.push('sixth');
-      }
-    });
-
-    myEngine = MyEngine.create();
-    myEngineInstance = buildEngineInstance(myEngine);
-
-    return myEngineInstance.boot().then(function () {
-      deepEqual(order, ['first', 'second', 'third', 'fourth', 'fifth', 'sixth']);
-    });
-  });
-
-  QUnit.test('initializers can have multiple dependencies', function () {
-    var order = [];
-
-    MyEngine = _engine.default.extend();
-
-    var a = {
-      name: 'a',
-      before: 'b',
-      initialize: function () {
-        order.push('a');
-      }
-    };
-    var b = {
-      name: 'b',
-      initialize: function () {
-        order.push('b');
-      }
-    };
-    var c = {
-      name: 'c',
-      after: 'b',
-      initialize: function () {
-        order.push('c');
-      }
-    };
-    var afterB = {
-      name: 'after b',
-      after: 'b',
-      initialize: function () {
-        order.push('after b');
-      }
-    };
-    var afterC = {
-      name: 'after c',
-      after: 'c',
-      initialize: function () {
-        order.push('after c');
-      }
-    };
-
-    MyEngine.instanceInitializer(b);
-    MyEngine.instanceInitializer(a);
-    MyEngine.instanceInitializer(afterC);
-    MyEngine.instanceInitializer(afterB);
-    MyEngine.instanceInitializer(c);
-
-    myEngine = MyEngine.create();
-    myEngineInstance = buildEngineInstance(myEngine);
-
-    return myEngineInstance.boot().then(function () {
-      ok(order.indexOf(a.name) < order.indexOf(b.name), 'a < b');
-      ok(order.indexOf(b.name) < order.indexOf(c.name), 'b < c');
-      ok(order.indexOf(b.name) < order.indexOf(afterB.name), 'b < afterB');
-      ok(order.indexOf(c.name) < order.indexOf(afterC.name), 'c < afterC');
-    });
-  });
-
-  QUnit.test('initializers set on Engine subclasses should not be shared between engines', function () {
-    var firstInitializerRunCount = 0;
-    var secondInitializerRunCount = 0;
-    var FirstEngine = _engine.default.extend();
-    var firstEngine = void 0,
-        firstEngineInstance = void 0;
-
-    FirstEngine.instanceInitializer({
-      name: 'first',
-      initialize: function () {
-        firstInitializerRunCount++;
-      }
-    });
-
-    var SecondEngine = _engine.default.extend();
-    var secondEngine = void 0,
-        secondEngineInstance = void 0;
-
-    SecondEngine.instanceInitializer({
-      name: 'second',
-      initialize: function () {
-        secondInitializerRunCount++;
-      }
-    });
-
-    firstEngine = FirstEngine.create();
-    firstEngineInstance = buildEngineInstance(firstEngine);
-
-    return firstEngineInstance.boot().then(function () {
-      equal(firstInitializerRunCount, 1, 'first initializer only was run');
-      equal(secondInitializerRunCount, 0, 'first initializer only was run');
-
-      secondEngine = SecondEngine.create();
-      secondEngineInstance = buildEngineInstance(secondEngine);
-      return secondEngineInstance.boot();
-    }).then(function () {
-      equal(firstInitializerRunCount, 1, 'second initializer only was run');
-      equal(secondInitializerRunCount, 1, 'second initializer only was run');
-
-      (0, _emberMetal.run)(function () {
-        firstEngineInstance.destroy();
-        secondEngineInstance.destroy();
-
-        firstEngine.destroy();
-        secondEngine.destroy();
+      expectAssertion(function () {
+        (0, _emberMetal.run)(function () {
+          MyEngine.instanceInitializer({
+            initialize: function () {}
+          });
+        });
       });
-    });
-  });
+    };
 
-  QUnit.test('initializers are concatenated', function () {
-    var firstInitializerRunCount = 0;
-    var secondInitializerRunCount = 0;
-    var FirstEngine = _engine.default.extend();
+    _class.prototype['@test initializers are passed an engine instance'] = function () {
+      MyEngine = _engine.default.extend();
 
-    FirstEngine.instanceInitializer({
-      name: 'first',
-      initialize: function () {
-        firstInitializerRunCount++;
-      }
-    });
-
-    var SecondEngine = FirstEngine.extend();
-
-    SecondEngine.instanceInitializer({
-      name: 'second',
-      initialize: function () {
-        secondInitializerRunCount++;
-      }
-    });
-
-    var firstEngine = FirstEngine.create();
-    var firstEngineInstance = buildEngineInstance(firstEngine);
-
-    var secondEngine = void 0,
-        secondEngineInstance = void 0;
-
-    return firstEngineInstance.boot().then(function () {
-      equal(firstInitializerRunCount, 1, 'first initializer only was run when base class created');
-      equal(secondInitializerRunCount, 0, 'second initializer was not run when first base class created');
-      firstInitializerRunCount = 0;
-
-      secondEngine = SecondEngine.create();
-      secondEngineInstance = buildEngineInstance(secondEngine);
-      return secondEngineInstance.boot();
-    }).then(function () {
-      equal(firstInitializerRunCount, 1, 'first initializer was run when subclass created');
-      equal(secondInitializerRunCount, 1, 'second initializers was run when subclass created');
-
-      (0, _emberMetal.run)(function () {
-        firstEngineInstance.destroy();
-        secondEngineInstance.destroy();
-
-        firstEngine.destroy();
-        secondEngine.destroy();
+      MyEngine.instanceInitializer({
+        name: 'initializer',
+        initialize: function (instance) {
+          ok(instance instanceof _engineInstance.default, 'initialize is passed an engine instance');
+        }
       });
-    });
-  });
 
-  QUnit.test('initializers are per-engine', function () {
-    expect(2);
+      myEngine = MyEngine.create();
+      myEngineInstance = buildEngineInstance(myEngine);
+      return myEngineInstance.boot();
+    };
 
-    var FirstEngine = _engine.default.extend();
+    _class.prototype['@test initializers can be registered in a specified order'] = function () {
+      var order = [];
 
-    FirstEngine.instanceInitializer({
-      name: 'abc',
-      initialize: function () {}
-    });
+      MyEngine = _engine.default.extend();
 
-    expectAssertion(function () {
+      MyEngine.instanceInitializer({
+        name: 'fourth',
+        after: 'third',
+        initialize: function () {
+          order.push('fourth');
+        }
+      });
+
+      MyEngine.instanceInitializer({
+        name: 'second',
+        after: 'first',
+        before: 'third',
+        initialize: function () {
+          order.push('second');
+        }
+      });
+
+      MyEngine.instanceInitializer({
+        name: 'fifth',
+        after: 'fourth',
+        before: 'sixth',
+        initialize: function () {
+          order.push('fifth');
+        }
+      });
+
+      MyEngine.instanceInitializer({
+        name: 'first',
+        before: 'second',
+        initialize: function () {
+          order.push('first');
+        }
+      });
+
+      MyEngine.instanceInitializer({
+        name: 'third',
+        initialize: function () {
+          order.push('third');
+        }
+      });
+
+      MyEngine.instanceInitializer({
+        name: 'sixth',
+        initialize: function () {
+          order.push('sixth');
+        }
+      });
+
+      myEngine = MyEngine.create();
+      myEngineInstance = buildEngineInstance(myEngine);
+
+      return myEngineInstance.boot().then(function () {
+        deepEqual(order, ['first', 'second', 'third', 'fourth', 'fifth', 'sixth']);
+      });
+    };
+
+    _class.prototype['@test initializers can be registered in a specified order as an array'] = function () {
+      var order = [];
+      MyEngine = _engine.default.extend();
+
+      MyEngine.instanceInitializer({
+        name: 'third',
+        initialize: function () {
+          order.push('third');
+        }
+      });
+
+      MyEngine.instanceInitializer({
+        name: 'second',
+        after: 'first',
+        before: ['third', 'fourth'],
+        initialize: function () {
+          order.push('second');
+        }
+      });
+
+      MyEngine.instanceInitializer({
+        name: 'fourth',
+        after: ['second', 'third'],
+        initialize: function () {
+          order.push('fourth');
+        }
+      });
+
+      MyEngine.instanceInitializer({
+        name: 'fifth',
+        after: 'fourth',
+        before: 'sixth',
+        initialize: function () {
+          order.push('fifth');
+        }
+      });
+
+      MyEngine.instanceInitializer({
+        name: 'first',
+        before: ['second'],
+        initialize: function () {
+          order.push('first');
+        }
+      });
+
+      MyEngine.instanceInitializer({
+        name: 'sixth',
+        initialize: function () {
+          order.push('sixth');
+        }
+      });
+
+      myEngine = MyEngine.create();
+      myEngineInstance = buildEngineInstance(myEngine);
+
+      return myEngineInstance.boot().then(function () {
+        deepEqual(order, ['first', 'second', 'third', 'fourth', 'fifth', 'sixth']);
+      });
+    };
+
+    _class.prototype['@test initializers can have multiple dependencies'] = function () {
+      var order = [];
+
+      MyEngine = _engine.default.extend();
+
+      var a = {
+        name: 'a',
+        before: 'b',
+        initialize: function () {
+          order.push('a');
+        }
+      };
+      var b = {
+        name: 'b',
+        initialize: function () {
+          order.push('b');
+        }
+      };
+      var c = {
+        name: 'c',
+        after: 'b',
+        initialize: function () {
+          order.push('c');
+        }
+      };
+      var afterB = {
+        name: 'after b',
+        after: 'b',
+        initialize: function () {
+          order.push('after b');
+        }
+      };
+      var afterC = {
+        name: 'after c',
+        after: 'c',
+        initialize: function () {
+          order.push('after c');
+        }
+      };
+
+      MyEngine.instanceInitializer(b);
+      MyEngine.instanceInitializer(a);
+      MyEngine.instanceInitializer(afterC);
+      MyEngine.instanceInitializer(afterB);
+      MyEngine.instanceInitializer(c);
+
+      myEngine = MyEngine.create();
+      myEngineInstance = buildEngineInstance(myEngine);
+
+      return myEngineInstance.boot().then(function () {
+        ok(order.indexOf(a.name) < order.indexOf(b.name), 'a < b');
+        ok(order.indexOf(b.name) < order.indexOf(c.name), 'b < c');
+        ok(order.indexOf(b.name) < order.indexOf(afterB.name), 'b < afterB');
+        ok(order.indexOf(c.name) < order.indexOf(afterC.name), 'c < afterC');
+      });
+    };
+
+    _class.prototype['@test initializers set on Engine subclasses should not be shared between engines'] = function () {
+      var firstInitializerRunCount = 0;
+      var secondInitializerRunCount = 0;
+      var FirstEngine = _engine.default.extend();
+      var firstEngine = void 0,
+          firstEngineInstance = void 0;
+
+      FirstEngine.instanceInitializer({
+        name: 'first',
+        initialize: function () {
+          firstInitializerRunCount++;
+        }
+      });
+
+      var SecondEngine = _engine.default.extend();
+      var secondEngine = void 0,
+          secondEngineInstance = void 0;
+
+      SecondEngine.instanceInitializer({
+        name: 'second',
+        initialize: function () {
+          secondInitializerRunCount++;
+        }
+      });
+
+      firstEngine = FirstEngine.create();
+      firstEngineInstance = buildEngineInstance(firstEngine);
+
+      return firstEngineInstance.boot().then(function () {
+        equal(firstInitializerRunCount, 1, 'first initializer only was run');
+        equal(secondInitializerRunCount, 0, 'first initializer only was run');
+
+        secondEngine = SecondEngine.create();
+        secondEngineInstance = buildEngineInstance(secondEngine);
+        return secondEngineInstance.boot();
+      }).then(function () {
+        equal(firstInitializerRunCount, 1, 'second initializer only was run');
+        equal(secondInitializerRunCount, 1, 'second initializer only was run');
+
+        (0, _emberMetal.run)(function () {
+          firstEngineInstance.destroy();
+          secondEngineInstance.destroy();
+
+          firstEngine.destroy();
+          secondEngine.destroy();
+        });
+      });
+    };
+
+    _class.prototype['@test initializers are concatenated'] = function () {
+      var firstInitializerRunCount = 0;
+      var secondInitializerRunCount = 0;
+      var FirstEngine = _engine.default.extend();
+
+      FirstEngine.instanceInitializer({
+        name: 'first',
+        initialize: function () {
+          firstInitializerRunCount++;
+        }
+      });
+
+      var SecondEngine = FirstEngine.extend();
+
+      SecondEngine.instanceInitializer({
+        name: 'second',
+        initialize: function () {
+          secondInitializerRunCount++;
+        }
+      });
+
+      var firstEngine = FirstEngine.create();
+      var firstEngineInstance = buildEngineInstance(firstEngine);
+
+      var secondEngine = void 0,
+          secondEngineInstance = void 0;
+
+      return firstEngineInstance.boot().then(function () {
+        equal(firstInitializerRunCount, 1, 'first initializer only was run when base class created');
+        equal(secondInitializerRunCount, 0, 'second initializer was not run when first base class created');
+        firstInitializerRunCount = 0;
+
+        secondEngine = SecondEngine.create();
+        secondEngineInstance = buildEngineInstance(secondEngine);
+        return secondEngineInstance.boot();
+      }).then(function () {
+        equal(firstInitializerRunCount, 1, 'first initializer was run when subclass created');
+        equal(secondInitializerRunCount, 1, 'second initializers was run when subclass created');
+
+        (0, _emberMetal.run)(function () {
+          firstEngineInstance.destroy();
+          secondEngineInstance.destroy();
+
+          firstEngine.destroy();
+          secondEngine.destroy();
+        });
+      });
+    };
+
+    _class.prototype['@test initializers are per-engine'] = function () {
+      expect(2);
+
+      var FirstEngine = _engine.default.extend();
+
       FirstEngine.instanceInitializer({
         name: 'abc',
         initialize: function () {}
       });
-    });
 
-    var SecondEngine = _engine.default.extend();
-    SecondEngine.instanceInitializer({
-      name: 'abc',
-      initialize: function () {}
-    });
+      expectAssertion(function () {
+        FirstEngine.instanceInitializer({
+          name: 'abc',
+          initialize: function () {}
+        });
+      });
 
-    ok(true, 'Two engines can have initializers named the same.');
-  });
+      var SecondEngine = _engine.default.extend();
+      SecondEngine.instanceInitializer({
+        name: 'abc',
+        initialize: function () {}
+      });
 
-  QUnit.test('initializers are executed in their own context', function () {
-    expect(1);
+      ok(true, 'Two engines can have initializers named the same.');
+    };
 
-    var MyEngine = _engine.default.extend();
+    _class.prototype['@test initializers are executed in their own context'] = function () {
+      expect(1);
 
-    MyEngine.instanceInitializer({
-      name: 'coolInitializer',
-      myProperty: 'cool',
-      initialize: function () {
-        equal(this.myProperty, 'cool', 'should have access to its own context');
-      }
-    });
+      var MyEngine = _engine.default.extend();
 
-    myEngine = MyEngine.create();
-    myEngineInstance = buildEngineInstance(myEngine);
+      MyEngine.instanceInitializer({
+        name: 'coolInitializer',
+        myProperty: 'cool',
+        initialize: function () {
+          equal(this.myProperty, 'cool', 'should have access to its own context');
+        }
+      });
 
-    return myEngineInstance.boot();
-  });
+      myEngine = MyEngine.create();
+      myEngineInstance = buildEngineInstance(myEngine);
+
+      return myEngineInstance.boot();
+    };
+
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
 });
-enifed('ember-application/tests/system/engine_instance_test', ['ember-application/system/engine', 'ember-application/system/engine-instance', 'ember-application/system/engine-parent', 'ember-metal', 'internal-test-helpers'], function (_engine, _engineInstance, _engineParent, _emberMetal, _internalTestHelpers) {
+enifed('ember-application/tests/system/engine_instance_test', ['ember-babel', 'ember-application/system/engine', 'ember-application/system/engine-instance', 'ember-application/system/engine-parent', 'ember-metal', 'internal-test-helpers'], function (_emberBabel, _engine, _engineInstance, _engineParent, _emberMetal, _internalTestHelpers) {
   'use strict';
 
   var engine = void 0,
       engineInstance = void 0;
 
-  QUnit.module('Ember.EngineInstance', {
-    setup: function () {
+  (0, _internalTestHelpers.moduleFor)('Ember.EngineInstance', function (_TestCase) {
+    (0, _emberBabel.inherits)(_class, _TestCase);
+
+    function _class() {
+
+      var _this = (0, _emberBabel.possibleConstructorReturn)(this, _TestCase.call(this));
+
       (0, _emberMetal.run)(function () {
         engine = _engine.default.create({ router: null });
       });
-    },
-    teardown: function () {
+      return _this;
+    }
+
+    _class.prototype.teardown = function () {
       if (engineInstance) {
         (0, _emberMetal.run)(engineInstance, 'destroy');
       }
@@ -3527,107 +3594,116 @@ enifed('ember-application/tests/system/engine_instance_test', ['ember-applicatio
       if (engine) {
         (0, _emberMetal.run)(engine, 'destroy');
       }
-    }
-  });
-
-  QUnit.test('an engine instance can be created based upon a base engine', function () {
-    (0, _emberMetal.run)(function () {
-      engineInstance = _engineInstance.default.create({ base: engine });
-    });
-
-    ok(engineInstance, 'instance should be created');
-    equal(engineInstance.base, engine, 'base should be set to engine');
-  });
-
-  QUnit.test('unregistering a factory clears all cached instances of that factory', function (assert) {
-    assert.expect(3);
-
-    engineInstance = (0, _emberMetal.run)(function () {
-      return _engineInstance.default.create({ base: engine });
-    });
-
-    var PostComponent = (0, _internalTestHelpers.factory)();
-
-    engineInstance.register('component:post', PostComponent);
-
-    var postComponent1 = engineInstance.lookup('component:post');
-    assert.ok(postComponent1, 'lookup creates instance');
-
-    engineInstance.unregister('component:post');
-    engineInstance.register('component:post', PostComponent);
-
-    var postComponent2 = engineInstance.lookup('component:post');
-    assert.ok(postComponent2, 'lookup creates instance');
-
-    assert.notStrictEqual(postComponent1, postComponent2, 'lookup creates a brand new instance because previous one was reset');
-  });
-
-  QUnit.test('can be booted when its parent has been set', function (assert) {
-    assert.expect(3);
-
-    engineInstance = (0, _emberMetal.run)(function () {
-      return _engineInstance.default.create({ base: engine });
-    });
-
-    expectAssertion(function () {
-      engineInstance._bootSync();
-    }, 'An engine instance\'s parent must be set via `setEngineParent(engine, parent)` prior to calling `engine.boot()`.');
-
-    (0, _engineParent.setEngineParent)(engineInstance, {});
-
-    // Stub `cloneParentDependencies`, the internals of which are tested along
-    // with application instances.
-    engineInstance.cloneParentDependencies = function () {
-      assert.ok(true, 'parent dependencies are cloned');
     };
 
-    return engineInstance.boot().then(function () {
-      assert.ok(true, 'boot successful');
-    });
-  });
+    _class.prototype['@test an engine instance can be created based upon a base engine'] = function (assert) {
+      (0, _emberMetal.run)(function () {
+        engineInstance = _engineInstance.default.create({ base: engine });
+      });
 
-  QUnit.test('can build a child instance of a registered engine', function (assert) {
-    var ChatEngine = _engine.default.extend();
-    var chatEngineInstance = void 0;
+      assert.ok(engineInstance, 'instance should be created');
+      assert.equal(engineInstance.base, engine, 'base should be set to engine');
+    };
 
-    engine.register('engine:chat', ChatEngine);
+    _class.prototype['@test unregistering a factory clears all cached instances of that factory'] = function (assert) {
+      assert.expect(3);
 
-    (0, _emberMetal.run)(function () {
-      engineInstance = _engineInstance.default.create({ base: engine });
+      engineInstance = (0, _emberMetal.run)(function () {
+        return _engineInstance.default.create({ base: engine });
+      });
 
-      // Try to build an unregistered engine.
-      throws(function () {
-        engineInstance.buildChildEngineInstance('fake');
-      }, 'You attempted to mount the engine \'fake\', but it is not registered with its parent.');
+      var PostComponent = (0, _internalTestHelpers.factory)();
 
-      // Build the `chat` engine, registered above.
-      chatEngineInstance = engineInstance.buildChildEngineInstance('chat');
-    });
+      engineInstance.register('component:post', PostComponent);
 
-    assert.ok(chatEngineInstance, 'child engine instance successfully created');
+      var postComponent1 = engineInstance.lookup('component:post');
+      assert.ok(postComponent1, 'lookup creates instance');
 
-    assert.strictEqual((0, _engineParent.getEngineParent)(chatEngineInstance), engineInstance, 'child engine instance is assigned the correct parent');
-  });
+      engineInstance.unregister('component:post');
+      engineInstance.register('component:post', PostComponent);
+
+      var postComponent2 = engineInstance.lookup('component:post');
+      assert.ok(postComponent2, 'lookup creates instance');
+
+      assert.notStrictEqual(postComponent1, postComponent2, 'lookup creates a brand new instance because previous one was reset');
+    };
+
+    _class.prototype['@test can be booted when its parent has been set'] = function (assert) {
+      assert.expect(3);
+
+      engineInstance = (0, _emberMetal.run)(function () {
+        return _engineInstance.default.create({ base: engine });
+      });
+
+      expectAssertion(function () {
+        engineInstance._bootSync();
+      }, 'An engine instance\'s parent must be set via `setEngineParent(engine, parent)` prior to calling `engine.boot()`.');
+
+      (0, _engineParent.setEngineParent)(engineInstance, {});
+
+      // Stub `cloneParentDependencies`, the internals of which are tested along
+      // with application instances.
+      engineInstance.cloneParentDependencies = function () {
+        assert.ok(true, 'parent dependencies are cloned');
+      };
+
+      return engineInstance.boot().then(function () {
+        assert.ok(true, 'boot successful');
+      });
+    };
+
+    _class.prototype['@test can build a child instance of a registered engine'] = function (assert) {
+      var ChatEngine = _engine.default.extend();
+      var chatEngineInstance = void 0;
+
+      engine.register('engine:chat', ChatEngine);
+
+      (0, _emberMetal.run)(function () {
+        engineInstance = _engineInstance.default.create({ base: engine });
+
+        // Try to build an unregistered engine.
+        assert.throws(function () {
+          engineInstance.buildChildEngineInstance('fake');
+        }, 'You attempted to mount the engine \'fake\', but it is not registered with its parent.');
+
+        // Build the `chat` engine, registered above.
+        chatEngineInstance = engineInstance.buildChildEngineInstance('chat');
+      });
+
+      assert.ok(chatEngineInstance, 'child engine instance successfully created');
+
+      assert.strictEqual((0, _engineParent.getEngineParent)(chatEngineInstance), engineInstance, 'child engine instance is assigned the correct parent');
+    };
+
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
 });
-enifed('ember-application/tests/system/engine_parent_test', ['ember-application/system/engine-parent'], function (_engineParent) {
+enifed('ember-application/tests/system/engine_parent_test', ['ember-babel', 'ember-application/system/engine-parent', 'internal-test-helpers'], function (_emberBabel, _engineParent, _internalTestHelpers) {
   'use strict';
 
-  QUnit.module('EngineParent', {});
+  (0, _internalTestHelpers.moduleFor)('EngineParent', function (_TestCase) {
+    (0, _emberBabel.inherits)(_class, _TestCase);
 
-  QUnit.test('An engine\'s parent can be set with `setEngineParent` and retrieved with `getEngineParent`', function () {
-    var engine = {};
-    var parent = {};
+    function _class() {
+      return (0, _emberBabel.possibleConstructorReturn)(this, _TestCase.apply(this, arguments));
+    }
 
-    strictEqual((0, _engineParent.getEngineParent)(engine), undefined, 'parent has not been set');
+    _class.prototype['@test An engine\'s parent can be set with `setEngineParent` and retrieved with `getEngineParent`'] = function (assert) {
+      var engine = {};
+      var parent = {};
 
-    (0, _engineParent.setEngineParent)(engine, parent);
+      assert.strictEqual((0, _engineParent.getEngineParent)(engine), undefined, 'parent has not been set');
 
-    strictEqual((0, _engineParent.getEngineParent)(engine), parent, 'parent has been set');
+      (0, _engineParent.setEngineParent)(engine, parent);
 
-    strictEqual(engine[_engineParent.ENGINE_PARENT], parent, 'parent has been set to the ENGINE_PARENT symbol');
-  });
+      assert.strictEqual((0, _engineParent.getEngineParent)(engine), parent, 'parent has been set');
+      assert.strictEqual(engine[_engineParent.ENGINE_PARENT], parent, 'parent has been set to the ENGINE_PARENT symbol');
+    };
+
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
 });
-enifed('ember-application/tests/system/engine_test', ['ember-babel', 'ember-environment', 'ember-metal', 'ember-application/system/engine', 'ember-runtime', 'container', 'ember-application/tests/test-helpers/registry-check'], function (_emberBabel, _emberEnvironment, _emberMetal, _engine, _emberRuntime, _container, _registryCheck) {
+enifed('ember-application/tests/system/engine_test', ['ember-babel', 'ember-environment', 'ember-metal', 'ember-application/system/engine', 'ember-runtime', 'container', 'ember-application/tests/test-helpers/registry-check', 'internal-test-helpers'], function (_emberBabel, _emberEnvironment, _emberMetal, _engine, _emberRuntime, _container, _registryCheck, _internalTestHelpers) {
   'use strict';
 
   var _templateObject = (0, _emberBabel.taggedTemplateLiteralLoose)(['-bucket-cache:main'], ['-bucket-cache:main']),
@@ -3637,82 +3713,89 @@ enifed('ember-application/tests/system/engine_test', ['ember-babel', 'ember-envi
   var originalLookup = _emberEnvironment.context.lookup;
   var lookup = void 0;
 
-  QUnit.module('Ember.Engine', {
-    setup: function () {
+  (0, _internalTestHelpers.moduleFor)('Ember.Engine', function (_TestCase) {
+    (0, _emberBabel.inherits)(_class, _TestCase);
+
+    function _class() {
+
+      var _this = (0, _emberBabel.possibleConstructorReturn)(this, _TestCase.call(this));
+
       lookup = _emberEnvironment.context.lookup = {};
       engine = (0, _emberMetal.run)(function () {
         return _engine.default.create();
       });
-    },
-    teardown: function () {
+      return _this;
+    }
+
+    _class.prototype.teardown = function () {
       _emberEnvironment.context.lookup = originalLookup;
       if (engine) {
         (0, _emberMetal.run)(engine, 'destroy');
       }
-    }
-  });
+    };
 
-  QUnit.test('acts like a namespace', function () {
-    engine = (0, _emberMetal.run)(function () {
-      return lookup.TestEngine = _engine.default.create();
-    });
+    _class.prototype['@test acts like a namespace'] = function (assert) {
+      engine = (0, _emberMetal.run)(function () {
+        return lookup.TestEngine = _engine.default.create();
+      });
 
-    engine.Foo = _emberRuntime.Object.extend();
-    equal(engine.Foo.toString(), 'TestEngine.Foo', 'Classes pick up their parent namespace');
-  });
+      engine.Foo = _emberRuntime.Object.extend();
+      assert.equal(engine.Foo.toString(), 'TestEngine.Foo', 'Classes pick up their parent namespace');
+    };
 
-  QUnit.test('builds a registry', function () {
-    strictEqual(engine.resolveRegistration('application:main'), engine, 'application:main is registered');
-    deepEqual(engine.registeredOptionsForType('component'), { singleton: false }, 'optionsForType \'component\'');
-    deepEqual(engine.registeredOptionsForType('view'), { singleton: false }, 'optionsForType \'view\'');
-    (0, _registryCheck.verifyRegistration)(engine, 'controller:basic');
-    (0, _registryCheck.verifyInjection)(engine, 'view', '_viewRegistry', '-view-registry:main');
-    (0, _registryCheck.verifyInjection)(engine, 'route', '_topLevelViewTemplate', 'template:-outlet');
-    (0, _registryCheck.verifyInjection)(engine, 'view:-outlet', 'namespace', 'application:main');
+    _class.prototype['@test builds a registry'] = function (assert) {
+      assert.strictEqual(engine.resolveRegistration('application:main'), engine, 'application:main is registered');
+      assert.deepEqual(engine.registeredOptionsForType('component'), { singleton: false }, 'optionsForType \'component\'');
+      assert.deepEqual(engine.registeredOptionsForType('view'), { singleton: false }, 'optionsForType \'view\'');
+      (0, _registryCheck.verifyRegistration)(engine, 'controller:basic');
+      (0, _registryCheck.verifyInjection)(engine, 'view', '_viewRegistry', '-view-registry:main');
+      (0, _registryCheck.verifyInjection)(engine, 'route', '_topLevelViewTemplate', 'template:-outlet');
+      (0, _registryCheck.verifyInjection)(engine, 'view:-outlet', 'namespace', 'application:main');
 
-    (0, _registryCheck.verifyInjection)(engine, 'controller', 'target', 'router:main');
-    (0, _registryCheck.verifyInjection)(engine, 'controller', 'namespace', 'application:main');
+      (0, _registryCheck.verifyInjection)(engine, 'controller', 'target', 'router:main');
+      (0, _registryCheck.verifyInjection)(engine, 'controller', 'namespace', 'application:main');
 
-    (0, _registryCheck.verifyInjection)(engine, 'router', '_bucketCache', (0, _container.privatize)(_templateObject));
-    (0, _registryCheck.verifyInjection)(engine, 'route', '_bucketCache', (0, _container.privatize)(_templateObject));
+      (0, _registryCheck.verifyInjection)(engine, 'router', '_bucketCache', (0, _container.privatize)(_templateObject));
+      (0, _registryCheck.verifyInjection)(engine, 'route', '_bucketCache', (0, _container.privatize)(_templateObject));
 
-    (0, _registryCheck.verifyInjection)(engine, 'route', 'router', 'router:main');
+      (0, _registryCheck.verifyInjection)(engine, 'route', 'router', 'router:main');
 
-    (0, _registryCheck.verifyRegistration)(engine, 'component:-text-field');
-    (0, _registryCheck.verifyRegistration)(engine, 'component:-text-area');
-    (0, _registryCheck.verifyRegistration)(engine, 'component:-checkbox');
-    (0, _registryCheck.verifyRegistration)(engine, 'component:link-to');
+      (0, _registryCheck.verifyRegistration)(engine, 'component:-text-field');
+      (0, _registryCheck.verifyRegistration)(engine, 'component:-text-area');
+      (0, _registryCheck.verifyRegistration)(engine, 'component:-checkbox');
+      (0, _registryCheck.verifyRegistration)(engine, 'component:link-to');
 
-    (0, _registryCheck.verifyRegistration)(engine, 'service:-routing');
-    (0, _registryCheck.verifyInjection)(engine, 'service:-routing', 'router', 'router:main');
+      (0, _registryCheck.verifyRegistration)(engine, 'service:-routing');
+      (0, _registryCheck.verifyInjection)(engine, 'service:-routing', 'router', 'router:main');
 
-    // DEBUGGING
-    (0, _registryCheck.verifyRegistration)(engine, 'resolver-for-debugging:main');
-    (0, _registryCheck.verifyInjection)(engine, 'container-debug-adapter:main', 'resolver', 'resolver-for-debugging:main');
-    (0, _registryCheck.verifyInjection)(engine, 'data-adapter:main', 'containerDebugAdapter', 'container-debug-adapter:main');
-    (0, _registryCheck.verifyRegistration)(engine, 'container-debug-adapter:main');
-    (0, _registryCheck.verifyRegistration)(engine, 'component-lookup:main');
+      // DEBUGGING
+      (0, _registryCheck.verifyRegistration)(engine, 'resolver-for-debugging:main');
+      (0, _registryCheck.verifyInjection)(engine, 'container-debug-adapter:main', 'resolver', 'resolver-for-debugging:main');
+      (0, _registryCheck.verifyInjection)(engine, 'data-adapter:main', 'containerDebugAdapter', 'container-debug-adapter:main');
+      (0, _registryCheck.verifyRegistration)(engine, 'container-debug-adapter:main');
+      (0, _registryCheck.verifyRegistration)(engine, 'component-lookup:main');
 
-    (0, _registryCheck.verifyInjection)(engine, 'service:-dom-changes', 'document', 'service:-document');
-    (0, _registryCheck.verifyInjection)(engine, 'service:-dom-tree-construction', 'document', 'service:-document');
-    (0, _registryCheck.verifyRegistration)(engine, 'view:-outlet');
-    (0, _registryCheck.verifyRegistration)(engine, (0, _container.privatize)(_templateObject2));
-    (0, _registryCheck.verifyRegistration)(engine, 'template:-outlet');
-    (0, _registryCheck.verifyInjection)(engine, 'view:-outlet', 'template', 'template:-outlet');
-    (0, _registryCheck.verifyInjection)(engine, 'template', 'env', 'service:-glimmer-environment');
-    deepEqual(engine.registeredOptionsForType('helper'), { instantiate: false }, 'optionsForType \'helper\'');
-  });
+      (0, _registryCheck.verifyInjection)(engine, 'service:-dom-changes', 'document', 'service:-document');
+      (0, _registryCheck.verifyInjection)(engine, 'service:-dom-tree-construction', 'document', 'service:-document');
+      (0, _registryCheck.verifyRegistration)(engine, 'view:-outlet');
+      (0, _registryCheck.verifyRegistration)(engine, (0, _container.privatize)(_templateObject2));
+      (0, _registryCheck.verifyRegistration)(engine, 'template:-outlet');
+      (0, _registryCheck.verifyInjection)(engine, 'view:-outlet', 'template', 'template:-outlet');
+      (0, _registryCheck.verifyInjection)(engine, 'template', 'env', 'service:-glimmer-environment');
+      assert.deepEqual(engine.registeredOptionsForType('helper'), { instantiate: false }, 'optionsForType \'helper\'');
+    };
+
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
 });
-enifed('ember-application/tests/system/initializers_test', ['ember-babel', 'ember-utils', 'internal-test-helpers', 'ember-application', 'ember-views'], function (_emberBabel, _emberUtils, _internalTestHelpers, _emberApplication, _emberViews) {
+enifed('ember-application/tests/system/initializers_test', ['ember-babel', 'ember-utils', 'internal-test-helpers', 'ember-application'], function (_emberBabel, _emberUtils, _internalTestHelpers, _emberApplication) {
   'use strict';
 
   (0, _internalTestHelpers.moduleFor)('Ember.Application initializers', function (_AutobootApplicationT) {
     (0, _emberBabel.inherits)(_class, _AutobootApplicationT);
 
     function _class() {
-
-      (0, _emberViews.jQuery)('#qunit-fixture').html('\n      <div id="one">ONE</div>\n      <div id="two">TWO</div>\n    ');
-      return (0, _emberBabel.possibleConstructorReturn)(this, _AutobootApplicationT.call(this));
+      return (0, _emberBabel.possibleConstructorReturn)(this, _AutobootApplicationT.apply(this, arguments));
     }
 
     _class.prototype.createSecondApplication = function (options) {
@@ -4104,26 +4187,12 @@ enifed('ember-application/tests/system/initializers_test', ['ember-babel', 'embe
       });
     };
 
-    _class.prototype['@test initializers throw a deprecation warning when receiving a second argument'] = function (assert) {
-      var _this11 = this;
-
-      assert.expect(1);
-
-      var MyApplication = _emberApplication.Application.extend();
-
-      MyApplication.initializer({
-        name: 'deprecated',
-        initialize: function () {}
-      });
-
-      expectDeprecation(function () {
-        _this11.runTask(function () {
-          return _this11.createApplication({}, MyApplication);
-        });
-      }, /The `initialize` method for Application initializer 'deprecated' should take only one argument - `App`, an instance of an `Application`./);
-    };
-
     (0, _emberBabel.createClass)(_class, [{
+      key: 'fixture',
+      get: function () {
+        return '<div id="one">ONE</div>\n      <div id="two">TWO</div>\n    ';
+      }
+    }, {
       key: 'applicationOptions',
       get: function () {
         return (0, _emberUtils.assign)(_AutobootApplicationT.prototype.applicationOptions, {
@@ -4134,16 +4203,14 @@ enifed('ember-application/tests/system/initializers_test', ['ember-babel', 'embe
     return _class;
   }(_internalTestHelpers.AutobootApplicationTestCase));
 });
-enifed('ember-application/tests/system/instance_initializers_test', ['ember-babel', 'ember-utils', 'internal-test-helpers', 'ember-application', 'ember-views'], function (_emberBabel, _emberUtils, _internalTestHelpers, _emberApplication, _emberViews) {
+enifed('ember-application/tests/system/instance_initializers_test', ['ember-babel', 'ember-utils', 'internal-test-helpers', 'ember-application'], function (_emberBabel, _emberUtils, _internalTestHelpers, _emberApplication) {
   'use strict';
 
   (0, _internalTestHelpers.moduleFor)('Ember.Application instance initializers', function (_AutobootApplicationT) {
     (0, _emberBabel.inherits)(_class, _AutobootApplicationT);
 
     function _class() {
-
-      (0, _emberViews.jQuery)('#qunit-fixture').html('\n      <div id="one">ONE</div>\n      <div id="two">TWO</div>\n    ');
-      return (0, _emberBabel.possibleConstructorReturn)(this, _AutobootApplicationT.call(this));
+      return (0, _emberBabel.possibleConstructorReturn)(this, _AutobootApplicationT.apply(this, arguments));
     }
 
     _class.prototype.createSecondApplication = function (options) {
@@ -4562,6 +4629,11 @@ enifed('ember-application/tests/system/instance_initializers_test', ['ember-babe
     };
 
     (0, _emberBabel.createClass)(_class, [{
+      key: 'fixture',
+      get: function () {
+        return '<div id="one">ONE</div>\n      <div id="two">TWO</div>\n    ';
+      }
+    }, {
       key: 'applicationOptions',
       get: function () {
         return (0, _emberUtils.assign)(_AutobootApplicationT.prototype.applicationOptions, {
@@ -4751,7 +4823,7 @@ enifed('ember-application/tests/system/logging_test', ['ember-babel', 'internal-
     return _class4;
   }(LoggingApplicationTestCase));
 });
-enifed('ember-application/tests/system/readiness_test', ['ember-metal', 'ember-application/system/application'], function (_emberMetal, _application) {
+enifed('ember-application/tests/system/readiness_test', ['ember-babel', 'internal-test-helpers', 'ember-metal', 'ember-application/system/application'], function (_emberBabel, _internalTestHelpers, _emberMetal, _application) {
   'use strict';
 
   var jQuery = void 0,
@@ -4765,9 +4837,13 @@ enifed('ember-application/tests/system/readiness_test', ['ember-metal', 'ember-a
   // very well-defined semantics, and we want to confirm that a jQuery stub run
   // in a more minimal server environment that implements this behavior will be
   // sufficient for Ember's requirements.
+  (0, _internalTestHelpers.moduleFor)('Application readiness', function (_ApplicationTestCase) {
+    (0, _emberBabel.inherits)(_class, _ApplicationTestCase);
 
-  QUnit.module('Application readiness', {
-    setup: function () {
+    function _class() {
+
+      var _this = (0, _emberBabel.possibleConstructorReturn)(this, _ApplicationTestCase.call(this));
+
       readyWasCalled = 0;
       readyCallbacks = [];
 
@@ -4805,91 +4881,91 @@ enifed('ember-application/tests/system/readiness_test', ['ember-metal', 'ember-a
           readyWasCalled++;
         }
       });
-    },
-    teardown: function () {
+      return _this;
+    }
+
+    _class.prototype.teardown = function () {
       if (application) {
         (0, _emberMetal.run)(function () {
           return application.destroy();
         });
       }
-    }
-  });
+    };
 
-  // These tests are confirming that if the callbacks passed into jQuery's ready hook is called
-  // synchronously during the application's initialization, we get the same behavior as if
-  // it was triggered after initialization.
+    _class.prototype['@test Ember.Application\'s ready event is called right away if jQuery is already ready'] = function (assert) {
+      jQuery.isReady = true;
 
-  QUnit.test('Ember.Application\'s ready event is called right away if jQuery is already ready', function () {
-    jQuery.isReady = true;
+      (0, _emberMetal.run)(function () {
+        application = Application.create({ router: false });
 
-    (0, _emberMetal.run)(function () {
-      application = Application.create({ router: false });
+        assert.equal(readyWasCalled, 0, 'ready is not called until later');
+      });
 
-      equal(readyWasCalled, 0, 'ready is not called until later');
-    });
+      assert.equal(readyWasCalled, 1, 'ready was called');
 
-    equal(readyWasCalled, 1, 'ready was called');
+      domReady();
 
-    domReady();
+      assert.equal(readyWasCalled, 1, 'application\'s ready was not called again');
+    };
 
-    equal(readyWasCalled, 1, 'application\'s ready was not called again');
-  });
+    _class.prototype['@test Ember.Application\'s ready event is called after the document becomes ready'] = function (assert) {
+      (0, _emberMetal.run)(function () {
+        application = Application.create({ router: false });
+      });
 
-  QUnit.test('Ember.Application\'s ready event is called after the document becomes ready', function () {
-    (0, _emberMetal.run)(function () {
-      application = Application.create({ router: false });
-    });
+      assert.equal(readyWasCalled, 0, 'ready wasn\'t called yet');
 
-    equal(readyWasCalled, 0, 'ready wasn\'t called yet');
+      domReady();
 
-    domReady();
+      assert.equal(readyWasCalled, 1, 'ready was called now that DOM is ready');
+    };
 
-    equal(readyWasCalled, 1, 'ready was called now that DOM is ready');
-  });
+    _class.prototype['@test Ember.Application\'s ready event can be deferred by other components'] = function (assert) {
+      (0, _emberMetal.run)(function () {
+        application = Application.create({ router: false });
+        application.deferReadiness();
+      });
 
-  QUnit.test('Ember.Application\'s ready event can be deferred by other components', function () {
-    (0, _emberMetal.run)(function () {
-      application = Application.create({ router: false });
-      application.deferReadiness();
-    });
+      assert.equal(readyWasCalled, 0, 'ready wasn\'t called yet');
 
-    equal(readyWasCalled, 0, 'ready wasn\'t called yet');
+      domReady();
 
-    domReady();
+      assert.equal(readyWasCalled, 0, 'ready wasn\'t called yet');
 
-    equal(readyWasCalled, 0, 'ready wasn\'t called yet');
+      (0, _emberMetal.run)(function () {
+        application.advanceReadiness();
+        assert.equal(readyWasCalled, 0);
+      });
 
-    (0, _emberMetal.run)(function () {
-      application.advanceReadiness();
-      equal(readyWasCalled, 0);
-    });
+      assert.equal(readyWasCalled, 1, 'ready was called now all readiness deferrals are advanced');
+    };
 
-    equal(readyWasCalled, 1, 'ready was called now all readiness deferrals are advanced');
-  });
+    _class.prototype['@test Ember.Application\'s ready event can be deferred by other components'] = function (assert) {
+      jQuery.isReady = false;
 
-  QUnit.test('Ember.Application\'s ready event can be deferred by other components', function () {
-    jQuery.isReady = false;
+      (0, _emberMetal.run)(function () {
+        application = Application.create({ router: false });
+        application.deferReadiness();
+        assert.equal(readyWasCalled, 0, 'ready wasn\'t called yet');
+      });
 
-    (0, _emberMetal.run)(function () {
-      application = Application.create({ router: false });
-      application.deferReadiness();
-      equal(readyWasCalled, 0, 'ready wasn\'t called yet');
-    });
+      domReady();
 
-    domReady();
+      assert.equal(readyWasCalled, 0, 'ready wasn\'t called yet');
 
-    equal(readyWasCalled, 0, 'ready wasn\'t called yet');
+      (0, _emberMetal.run)(function () {
+        application.advanceReadiness();
+      });
 
-    (0, _emberMetal.run)(function () {
-      application.advanceReadiness();
-    });
+      assert.equal(readyWasCalled, 1, 'ready was called now all readiness deferrals are advanced');
 
-    equal(readyWasCalled, 1, 'ready was called now all readiness deferrals are advanced');
+      expectAssertion(function () {
+        application.deferReadiness();
+      });
+    };
 
-    expectAssertion(function () {
-      application.deferReadiness();
-    });
-  });
+    return _class;
+  }(_internalTestHelpers.ApplicationTestCase));
 });
 enifed('ember-application/tests/system/reset_test', ['ember-babel', 'ember-metal', 'ember-runtime', 'ember-routing', 'internal-test-helpers'], function (_emberBabel, _emberMetal, _emberRuntime, _emberRouting, _internalTestHelpers) {
   'use strict';
@@ -5054,7 +5130,7 @@ enifed('ember-application/tests/system/reset_test', ['ember-babel', 'ember-metal
     return _class;
   }(_internalTestHelpers.AutobootApplicationTestCase));
 });
-enifed('ember-application/tests/system/visit_test', ['ember-babel', 'internal-test-helpers', 'ember-runtime', 'ember-metal', 'ember-application/system/application', 'ember-application/system/application-instance', 'ember-application/system/engine', 'ember-routing', 'ember-glimmer', 'ember-template-compiler', 'ember-views'], function (_emberBabel, _internalTestHelpers, _emberRuntime, _emberMetal, _application, _applicationInstance, _engine, _emberRouting, _emberGlimmer, _emberTemplateCompiler, _emberViews) {
+enifed('ember-application/tests/system/visit_test', ['ember-babel', 'internal-test-helpers', 'ember-runtime', 'ember-metal', 'ember-application/system/application', 'ember-application/system/application-instance', 'ember-application/system/engine', 'ember-routing', 'ember-glimmer', 'ember-template-compiler'], function (_emberBabel, _internalTestHelpers, _emberRuntime, _emberMetal, _application, _applicationInstance, _engine, _emberRouting, _emberGlimmer, _emberTemplateCompiler) {
   'use strict';
 
   function expectAsyncError() {
@@ -5075,6 +5151,10 @@ enifed('ember-application/tests/system/visit_test', ['ember-babel', 'internal-te
 
     _class.prototype.createApplication = function (options) {
       return _ApplicationTestCase.prototype.createApplication.call(this, options, _application.default.extend());
+    };
+
+    _class.prototype.assertEmptyFixture = function (message) {
+      this.assert.strictEqual(document.getElementById('qunit-fixture').children.length, 0, 'there are no elements in the fixture element ' + (message ? message : ''));
     };
 
     _class.prototype['@test Applications with autoboot set to false do not autoboot'] = function (assert) {
@@ -5326,11 +5406,11 @@ enifed('ember-application/tests/system/visit_test', ['ember-babel', 'internal-te
 
       this.addTemplate('application', '<h1>Hello world</h1>');
 
-      assert.strictEqual(this.$().children().length, 0, 'there are no elements in the fixture element');
+      this.assertEmptyFixture();
 
       return this.visit('/').then(function (instance) {
         assert.ok(instance instanceof _applicationInstance.default, 'promise is resolved with an ApplicationInstance');
-        assert.equal(_this4.$('.ember-view h1').text(), 'Hello world', 'the application was rendered once the promise resolves');
+        assert.equal(_this4.element.textContent, 'Hello world', 'the application was rendered once the promise resolves');
       });
     };
 
@@ -5341,31 +5421,30 @@ enifed('ember-application/tests/system/visit_test', ['ember-babel', 'internal-te
 
       this.addTemplate('application', '<h1>Hello world</h1>');
 
-      assert.strictEqual(this.$().children().length, 0, 'there are no elements in the fixture element');
+      this.assertEmptyFixture();
 
       return this.visit('/', { shouldRender: false }).then(function (instance) {
         assert.ok(instance instanceof _applicationInstance.default, 'promise is resolved with an ApplicationInstance');
-        assert.strictEqual(_this5.$().children().length, 0, 'there are still no elements in the fixture element after visit');
+
+        _this5.assertEmptyFixture('after visit');
       });
     };
 
     _class.prototype['@test visit() renders a template when shouldRender is set to true'] = function (assert) {
-      var _this6 = this;
-
       assert.expect(3);
 
       this.addTemplate('application', '<h1>Hello world</h1>');
 
-      assert.strictEqual(this.$('#qunit-fixture').children().length, 0, 'there are no elements in the fixture element');
+      this.assertEmptyFixture();
 
       return this.visit('/', { shouldRender: true }).then(function (instance) {
         assert.ok(instance instanceof _applicationInstance.default, 'promise is resolved with an ApplicationInstance');
-        assert.strictEqual(_this6.$().children().length, 1, 'there is 1 element in the fixture element after visit');
+        assert.strictEqual(document.querySelector('#qunit-fixture').children.length, 1, 'there is 1 element in the fixture element after visit');
       });
     };
 
     _class.prototype['@test visit() returns a promise that resolves without rendering when shouldRender is set to false with Engines'] = function (assert) {
-      var _this7 = this;
+      var _this6 = this;
 
       assert.expect(3);
 
@@ -5383,16 +5462,17 @@ enifed('ember-application/tests/system/visit_test', ['ember-babel', 'internal-te
 
       this.add('route-map:blog', function () {});
 
-      assert.strictEqual(this.$('#qunit-fixture').children().length, 0, 'there are no elements in the fixture element');
+      this.assertEmptyFixture();
 
       return this.visit('/blog', { shouldRender: false }).then(function (instance) {
         assert.ok(instance instanceof _applicationInstance.default, 'promise is resolved with an ApplicationInstance');
-        assert.strictEqual(_this7.$().children().length, 0, 'there are still no elements in the fixture element after visit');
+
+        _this6.assertEmptyFixture('after visit');
       });
     };
 
     _class.prototype['@test visit() does not setup the event_dispatcher:main if isInteractive is false (with Engines) GH#15615'] = function (assert) {
-      var _this8 = this;
+      var _this7 = this;
 
       assert.expect(3);
 
@@ -5428,16 +5508,16 @@ enifed('ember-application/tests/system/visit_test', ['ember-babel', 'internal-te
 
       this.add('route-map:blog', function () {});
 
-      assert.strictEqual(this.$('#qunit-fixture').children().length, 0, 'there are no elements in the fixture element');
+      this.assertEmptyFixture();
 
       return this.visit('/blog', { isInteractive: false }).then(function (instance) {
         assert.ok(instance instanceof _applicationInstance.default, 'promise is resolved with an ApplicationInstance');
-        assert.strictEqual(_this8.$().find('p').text(), 'Dis cache money', 'Engine component is resolved');
+        assert.strictEqual(_this7.element.querySelector('p').textContent, 'Dis cache money', 'Engine component is resolved');
       });
     };
 
     _class.prototype['@test visit() on engine resolves engine component'] = function (assert) {
-      var _this9 = this;
+      var _this8 = this;
 
       assert.expect(2);
 
@@ -5466,15 +5546,15 @@ enifed('ember-application/tests/system/visit_test', ['ember-babel', 'internal-te
 
       this.add('route-map:blog', function () {});
 
-      assert.strictEqual(this.$().children().length, 0, 'there are no elements in the fixture element');
+      this.assertEmptyFixture();
 
       return this.visit('/blog', { shouldRender: true }).then(function () {
-        assert.strictEqual(_this9.$().find('p').text(), 'Dis cache money', 'Engine component is resolved');
+        assert.strictEqual(_this8.element.querySelector('p').textContent, 'Dis cache money', 'Engine component is resolved');
       });
     };
 
     _class.prototype['@test visit() on engine resolves engine helper'] = function (assert) {
-      var _this10 = this;
+      var _this9 = this;
 
       assert.expect(2);
 
@@ -5504,15 +5584,15 @@ enifed('ember-application/tests/system/visit_test', ['ember-babel', 'internal-te
 
       this.add('route-map:blog', function () {});
 
-      assert.strictEqual(this.$().children().length, 0, 'there are no elements in the fixture element');
+      this.assertEmptyFixture();
 
       return this.visit('/blog', { shouldRender: true }).then(function () {
-        assert.strictEqual(_this10.$().text(), 'turnt up', 'Engine component is resolved');
+        assert.strictEqual(_this9.element.textContent, 'turnt up', 'Engine component is resolved');
       });
     };
 
     _class.prototype['@test Ember Islands-style setup'] = function (assert) {
-      var _this11 = this;
+      var _this10 = this;
 
       var xFooInitCalled = false;
       var xFooDidInsertElementCalled = false;
@@ -5592,16 +5672,19 @@ enifed('ember-application/tests/system/visit_test', ['ember-babel', 'internal-te
         }
       }));
 
-      var $foo = (0, _emberViews.jQuery)('<div />').appendTo(this.$());
-      var $bar = (0, _emberViews.jQuery)('<div />').appendTo(this.$());
+      var fixtureElement = document.querySelector('#qunit-fixture');
+      var foo = document.createElement('div');
+      var bar = document.createElement('div');
+      fixtureElement.appendChild(foo);
+      fixtureElement.appendChild(bar);
 
       var data = encodeURIComponent(JSON.stringify({ name: 'Godfrey' }));
       var instances = [];
 
       return _emberRuntime.RSVP.all([this.runTask(function () {
-        return _this11.application.visit('/x-foo?data=' + data, { rootElement: $foo[0] });
+        return _this10.application.visit('/x-foo?data=' + data, { rootElement: foo });
       }), this.runTask(function () {
-        return _this11.application.visit('/x-bar', { rootElement: $bar[0] });
+        return _this10.application.visit('/x-bar', { rootElement: bar });
       })]).then(function (_instances) {
         instances = _instances;
 
@@ -5611,30 +5694,30 @@ enifed('ember-application/tests/system/visit_test', ['ember-babel', 'internal-te
         assert.ok(xBarInitCalled);
         assert.ok(xBarDidInsertElementCalled);
 
-        assert.equal($foo.find('h1').text(), 'X-Foo');
-        assert.equal($foo.find('p').text(), 'Hello Godfrey, I have been clicked 0 times (0 times combined)!');
-        assert.ok($foo.text().indexOf('X-Bar') === -1);
+        assert.equal(foo.querySelector('h1').textContent, 'X-Foo');
+        assert.equal(foo.querySelector('p').textContent, 'Hello Godfrey, I have been clicked 0 times (0 times combined)!');
+        assert.ok(foo.textContent.indexOf('X-Bar') === -1);
 
-        assert.equal($bar.find('h1').text(), 'X-Bar');
-        assert.equal($bar.find('button').text(), 'Join 0 others in clicking me!');
-        assert.ok($bar.text().indexOf('X-Foo') === -1);
+        assert.equal(bar.querySelector('h1').textContent, 'X-Bar');
+        assert.equal(bar.querySelector('button').textContent, 'Join 0 others in clicking me!');
+        assert.ok(bar.textContent.indexOf('X-Foo') === -1);
 
-        _this11.runTask(function () {
-          $foo.find('x-foo').click();
+        _this10.runTask(function () {
+          _this10.click(foo.querySelector('x-foo'));
         });
 
-        assert.equal($foo.find('p').text(), 'Hello Godfrey, I have been clicked 1 times (1 times combined)!');
-        assert.equal($bar.find('button').text(), 'Join 1 others in clicking me!');
+        assert.equal(foo.querySelector('p').textContent, 'Hello Godfrey, I have been clicked 1 times (1 times combined)!');
+        assert.equal(bar.querySelector('button').textContent, 'Join 1 others in clicking me!');
 
-        _this11.runTask(function () {
-          $bar.find('button').click();
-          $bar.find('button').click();
+        _this10.runTask(function () {
+          _this10.click(bar.querySelector('button'));
+          _this10.click(bar.querySelector('button'));
         });
 
-        assert.equal($foo.find('p').text(), 'Hello Godfrey, I have been clicked 1 times (3 times combined)!');
-        assert.equal($bar.find('button').text(), 'Join 3 others in clicking me!');
+        assert.equal(foo.querySelector('p').textContent, 'Hello Godfrey, I have been clicked 1 times (3 times combined)!');
+        assert.equal(bar.querySelector('button').textContent, 'Join 3 others in clicking me!');
       }).finally(function () {
-        _this11.runTask(function () {
+        _this10.runTask(function () {
           instances.forEach(function (instance) {
             instance.destroy();
           });
@@ -5737,440 +5820,545 @@ enifed('ember-babel', ['exports'], function (exports) {
 
   var slice = exports.slice = Array.prototype.slice;
 });
-enifed('ember-debug/tests/error_test', ['ember-debug/error'], function (_error) {
+enifed('ember-debug/tests/error_test', ['ember-babel', 'ember-debug/error', 'internal-test-helpers'], function (_emberBabel, _error, _internalTestHelpers) {
   'use strict';
 
-  QUnit.module('Ember Error Throwing');
+  (0, _internalTestHelpers.moduleFor)('Ember Error Throwing', function (_TestCase) {
+    (0, _emberBabel.inherits)(_class, _TestCase);
 
-  QUnit.test('new Ember.Error displays provided message', function () {
-    throws(function () {
-      throw new _error.default('A Message');
-    }, function (e) {
-      return e.message === 'A Message';
-    }, 'the assigned message was displayed');
-  });
-});
-enifed('ember-debug/tests/handlers-test', ['ember-debug/handlers'], function (_handlers) {
-  'use strict';
-
-  QUnit.module('ember-debug/handlers', {
-    teardown: function () {
-      delete _handlers.HANDLERS.blarz;
+    function _class() {
+      return (0, _emberBabel.possibleConstructorReturn)(this, _TestCase.apply(this, arguments));
     }
-  });
 
-  QUnit.test('calls handler on `invoke` when `falsey`', function (assert) {
-    assert.expect(2);
+    _class.prototype['@test new Ember.Error displays provided message'] = function (assert) {
+      assert.throws(function () {
+        throw new _error.default('A Message');
+      }, function (e) {
+        return e.message === 'A Message';
+      }, 'the assigned message was displayed');
+    };
 
-    (0, _handlers.registerHandler)('blarz', function (message) {
-      assert.ok(true, 'called handler');
-      assert.equal(message, 'Foo bar');
-    });
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
+});
+enifed('ember-debug/tests/handlers-test', ['ember-babel', 'ember-debug/handlers', 'internal-test-helpers'], function (_emberBabel, _handlers, _internalTestHelpers) {
+  'use strict';
 
-    (0, _handlers.invoke)('blarz', 'Foo bar', false);
-  });
+  (0, _internalTestHelpers.moduleFor)('Ember Error Throwing', function (_TestCase) {
+    (0, _emberBabel.inherits)(_class, _TestCase);
 
-  QUnit.test('does not call handler on `invoke` when `truthy`', function (assert) {
-    assert.expect(0);
+    function _class() {
+      return (0, _emberBabel.possibleConstructorReturn)(this, _TestCase.apply(this, arguments));
+    }
 
-    (0, _handlers.registerHandler)('blarz', function () {
-      assert.ok(false, 'called handler');
-    });
+    _class.prototype.teardown = function () {
+      delete _handlers.HANDLERS.blarz;
+    };
 
-    (0, _handlers.invoke)('blarz', 'Foo bar', true);
-  });
+    _class.prototype['@test calls handler on `invoke` when `falsey`'] = function (assert) {
+      assert.expect(2);
 
-  QUnit.test('calling `invoke` without handlers does not throw an error', function (assert) {
-    assert.expect(0);
+      (0, _handlers.registerHandler)('blarz', function (message) {
+        assert.ok(true, 'called handler');
+        assert.equal(message, 'Foo bar');
+      });
 
-    (0, _handlers.invoke)('blarz', 'Foo bar', false);
-  });
+      (0, _handlers.invoke)('blarz', 'Foo bar', false);
+    };
 
-  QUnit.test('invoking `next` argument calls the next handler', function (assert) {
-    assert.expect(2);
+    _class.prototype['@test does not call handler on `invoke` when `truthy`'] = function (assert) {
+      assert.expect(0);
 
-    (0, _handlers.registerHandler)('blarz', function () {
-      assert.ok(true, 'called handler1');
-    });
-    (0, _handlers.registerHandler)('blarz', function (message, options, next) {
-      assert.ok(true, 'called handler2');
-      next(message, options);
-    });
+      (0, _handlers.registerHandler)('blarz', function () {
+        assert.ok(false, 'called handler');
+      });
 
-    (0, _handlers.invoke)('blarz', 'Foo', false);
-  });
+      (0, _handlers.invoke)('blarz', 'Foo bar', true);
+    };
 
-  QUnit.test('invoking `next` when no other handlers exists does not error', function (assert) {
-    assert.expect(1);
+    _class.prototype['@test calling `invoke` without handlers does not throw an error'] = function (assert) {
+      assert.expect(0);
 
-    (0, _handlers.registerHandler)('blarz', function (message, options, next) {
-      assert.ok(true, 'called handler1');
+      (0, _handlers.invoke)('blarz', 'Foo bar', false);
+    };
 
-      next(message, options);
-    });
+    _class.prototype['@test invoking `next` argument calls the next handler'] = function (assert) {
+      assert.expect(2);
 
-    (0, _handlers.invoke)('blarz', 'Foo', false);
-  });
+      (0, _handlers.registerHandler)('blarz', function () {
+        assert.ok(true, 'called handler1');
+      });
+      (0, _handlers.registerHandler)('blarz', function (message, options, next) {
+        assert.ok(true, 'called handler2');
+        next(message, options);
+      });
 
-  QUnit.test('handlers are called in the proper order', function (assert) {
-    assert.expect(11);
+      (0, _handlers.invoke)('blarz', 'Foo', false);
+    };
 
-    var expectedMessage = 'This is the message';
-    var expectedOptions = { id: 'foo-bar' };
-    var expected = ['first', 'second', 'third', 'fourth', 'fifth'];
-    var actualCalls = [];
+    _class.prototype['@test invoking `next` when no other handlers exists does not error'] = function (assert) {
+      assert.expect(1);
 
-    function generateHandler(item) {
-      return function (message, options, next) {
-        assert.equal(message, expectedMessage, 'message supplied to ' + item + ' handler is correct');
-        assert.equal(options, expectedOptions, 'options supplied to ' + item + ' handler is correct');
-
-        actualCalls.push(item);
+      (0, _handlers.registerHandler)('blarz', function (message, options, next) {
+        assert.ok(true, 'called handler1');
 
         next(message, options);
-      };
-    }
+      });
 
-    expected.forEach(function (item) {
-      return (0, _handlers.registerHandler)('blarz', generateHandler(item));
-    });
+      (0, _handlers.invoke)('blarz', 'Foo', false);
+    };
 
-    (0, _handlers.invoke)('blarz', expectedMessage, false, expectedOptions);
+    _class.prototype['@test handlers are called in the proper order'] = function (assert) {
+      assert.expect(11);
 
-    assert.deepEqual(actualCalls, expected.reverse(), 'handlers were called in proper order');
-  });
+      var expectedMessage = 'This is the message';
+      var expectedOptions = { id: 'foo-bar' };
+      var expected = ['first', 'second', 'third', 'fourth', 'fifth'];
+      var actualCalls = [];
 
-  QUnit.test('not invoking `next` prevents further handlers from being called', function (assert) {
-    assert.expect(1);
+      function generateHandler(item) {
+        return function (message, options, next) {
+          assert.equal(message, expectedMessage, 'message supplied to ' + item + ' handler is correct');
+          assert.equal(options, expectedOptions, 'options supplied to ' + item + ' handler is correct');
 
-    (0, _handlers.registerHandler)('blarz', function () {
-      assert.ok(false, 'called handler1');
-    });
-    (0, _handlers.registerHandler)('blarz', function () {
-      assert.ok(true, 'called handler2');
-    });
+          actualCalls.push(item);
 
-    (0, _handlers.invoke)('blarz', 'Foo', false);
-  });
+          next(message, options);
+        };
+      }
 
-  QUnit.test('handlers can call `next` with custom message and/or options', function (assert) {
-    assert.expect(4);
+      expected.forEach(function (item) {
+        return (0, _handlers.registerHandler)('blarz', generateHandler(item));
+      });
 
-    var initialMessage = 'initial message';
-    var initialOptions = { id: 'initial-options' };
+      (0, _handlers.invoke)('blarz', expectedMessage, false, expectedOptions);
 
-    var handler2Message = 'Handler2 Message';
-    var handler2Options = { id: 'handler-2' };
+      assert.deepEqual(actualCalls, expected.reverse(), 'handlers were called in proper order');
+    };
 
-    (0, _handlers.registerHandler)('blarz', function (message, options) {
-      assert.equal(message, handler2Message, 'handler2 message provided to handler1');
-      assert.equal(options, handler2Options, 'handler2 options provided to handler1');
-    });
-    (0, _handlers.registerHandler)('blarz', function (message, options, next) {
-      assert.equal(message, initialMessage, 'initial message provided to handler2');
-      assert.equal(options, initialOptions, 'initial options proivided to handler2');
+    _class.prototype['@test not invoking `next` prevents further handlers from being called'] = function (assert) {
+      assert.expect(1);
 
-      next(handler2Message, handler2Options);
-    });
+      (0, _handlers.registerHandler)('blarz', function () {
+        assert.ok(false, 'called handler1');
+      });
+      (0, _handlers.registerHandler)('blarz', function () {
+        assert.ok(true, 'called handler2');
+      });
 
-    (0, _handlers.invoke)('blarz', initialMessage, false, initialOptions);
-  });
+      (0, _handlers.invoke)('blarz', 'Foo', false);
+    };
+
+    _class.prototype['@test handlers can call `next` with custom message and/or options'] = function (assert) {
+      assert.expect(4);
+
+      var initialMessage = 'initial message';
+      var initialOptions = { id: 'initial-options' };
+
+      var handler2Message = 'Handler2 Message';
+      var handler2Options = { id: 'handler-2' };
+
+      (0, _handlers.registerHandler)('blarz', function (message, options) {
+        assert.equal(message, handler2Message, 'handler2 message provided to handler1');
+        assert.equal(options, handler2Options, 'handler2 options provided to handler1');
+      });
+      (0, _handlers.registerHandler)('blarz', function (message, options, next) {
+        assert.equal(message, initialMessage, 'initial message provided to handler2');
+        assert.equal(options, initialOptions, 'initial options proivided to handler2');
+
+        next(handler2Message, handler2Options);
+      });
+
+      (0, _handlers.invoke)('blarz', initialMessage, false, initialOptions);
+    };
+
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
 });
-enifed('ember-debug/tests/main_test', ['ember-environment', 'ember-runtime', 'ember-debug/handlers', 'ember-debug/deprecate', 'ember-debug/warn', 'ember-debug/index'], function (_emberEnvironment, _emberRuntime, _handlers, _deprecate, _warn, _index) {
+enifed('ember-debug/tests/main_test', ['ember-babel', 'ember-environment', 'ember-runtime', 'ember-debug/handlers', 'ember-debug/deprecate', 'ember-debug/warn', 'ember-debug/index', 'internal-test-helpers'], function (_emberBabel, _emberEnvironment, _emberRuntime, _handlers, _deprecate, _warn, _index, _internalTestHelpers) {
   'use strict';
 
   var originalEnvValue = void 0;
   var originalDeprecateHandler = void 0;
+  var originalWarnOptions = void 0;
+  var originalDeprecationOptions = void 0;
 
-  QUnit.module('ember-debug', {
-    setup: function () {
+  (0, _internalTestHelpers.moduleFor)('ember-debug', function (_TestCase) {
+    (0, _emberBabel.inherits)(_class, _TestCase);
+
+    function _class() {
+
+      var _this = (0, _emberBabel.possibleConstructorReturn)(this, _TestCase.call(this));
+
       originalEnvValue = _emberEnvironment.ENV.RAISE_ON_DEPRECATION;
       originalDeprecateHandler = _handlers.HANDLERS.deprecate;
+      originalWarnOptions = _emberEnvironment.ENV._ENABLE_WARN_OPTIONS_SUPPORT;
+      originalDeprecationOptions = _emberEnvironment.ENV._ENABLE_DEPRECATION_OPTIONS_SUPPORT;
 
       _emberEnvironment.ENV.RAISE_ON_DEPRECATION = true;
-    },
-    teardown: function () {
+      _emberEnvironment.ENV._ENABLE_DEPRECATION_OPTIONS_SUPPORT = true;
+      return _this;
+    }
+
+    _class.prototype.teardown = function () {
       _handlers.HANDLERS.deprecate = originalDeprecateHandler;
 
       _emberEnvironment.ENV.RAISE_ON_DEPRECATION = originalEnvValue;
-    }
-  });
+      _emberEnvironment.ENV._ENABLE_WARN_OPTIONS_SUPPORT = originalWarnOptions;
+      _emberEnvironment.ENV._ENABLE_DEPRECATION_OPTIONS_SUPPORT = originalDeprecationOptions;
+    };
 
-  QUnit.test('Ember.deprecate does not throw if RAISE_ON_DEPRECATION is false', function (assert) {
-    assert.expect(1);
+    _class.prototype['@test Ember.deprecate does not throw if RAISE_ON_DEPRECATION is false'] = function (assert) {
+      assert.expect(1);
 
-    _emberEnvironment.ENV.RAISE_ON_DEPRECATION = false;
+      _emberEnvironment.ENV.RAISE_ON_DEPRECATION = false;
 
-    try {
-      (0, _index.deprecate)('Should not throw', false, { id: 'test', until: 'forever' });
-      assert.ok(true, 'Ember.deprecate did not throw');
-    } catch (e) {
-      assert.ok(false, 'Expected deprecate not to throw but it did: ' + e.message);
-    }
-  });
-
-  QUnit.test('Ember.deprecate resets deprecation level to RAISE if ENV.RAISE_ON_DEPRECATION is set', function (assert) {
-    assert.expect(2);
-
-    _emberEnvironment.ENV.RAISE_ON_DEPRECATION = false;
-
-    try {
-      (0, _index.deprecate)('Should not throw', false, { id: 'test', until: 'forever' });
-      assert.ok(true, 'Ember.deprecate did not throw');
-    } catch (e) {
-      assert.ok(false, 'Expected deprecate not to throw but it did: ' + e.message);
-    }
-
-    _emberEnvironment.ENV.RAISE_ON_DEPRECATION = true;
-
-    assert.throws(function () {
-      (0, _index.deprecate)('Should throw', false, { id: 'test', until: 'forever' });
-    }, /Should throw/);
-  });
-
-  QUnit.test('When ENV.RAISE_ON_DEPRECATION is true, it is still possible to silence a deprecation by id', function (assert) {
-    assert.expect(3);
-
-    _emberEnvironment.ENV.RAISE_ON_DEPRECATION = true;
-    (0, _deprecate.registerHandler)(function (message, options, next) {
-      if (!options || options.id !== 'my-deprecation') {
-        next.apply(undefined, arguments);
+      try {
+        (0, _index.deprecate)('Should not throw', false, { id: 'test', until: 'forever' });
+        assert.ok(true, 'Ember.deprecate did not throw');
+      } catch (e) {
+        assert.ok(false, 'Expected deprecate not to throw but it did: ' + e.message);
       }
-    });
+    };
 
-    try {
-      (0, _index.deprecate)('should be silenced with matching id', false, { id: 'my-deprecation', until: 'forever' });
-      assert.ok(true, 'Did not throw when level is set by id');
-    } catch (e) {
-      assert.ok(false, 'Expected deprecate not to throw but it did: ' + e.message);
-    }
+    _class.prototype['@test Ember.deprecate resets deprecation level to RAISE if ENV.RAISE_ON_DEPRECATION is set'] = function (assert) {
+      assert.expect(2);
 
-    assert.throws(function () {
-      (0, _index.deprecate)('Should throw with no matching id', false, { id: 'test', until: 'forever' });
-    }, /Should throw with no matching id/);
+      _emberEnvironment.ENV.RAISE_ON_DEPRECATION = false;
 
-    assert.throws(function () {
-      (0, _index.deprecate)('Should throw with non-matching id', false, { id: 'other-id', until: 'forever' });
-    }, /Should throw with non-matching id/);
-  });
+      try {
+        (0, _index.deprecate)('Should not throw', false, { id: 'test', until: 'forever' });
+        assert.ok(true, 'Ember.deprecate did not throw');
+      } catch (e) {
+        assert.ok(false, 'Expected deprecate not to throw but it did: ' + e.message);
+      }
 
-  QUnit.test('Ember.deprecate throws deprecation if second argument is falsy', function () {
-    expect(3);
+      _emberEnvironment.ENV.RAISE_ON_DEPRECATION = true;
 
-    throws(function () {
-      return (0, _index.deprecate)('Deprecation is thrown', false, { id: 'test', until: 'forever' });
-    });
-    throws(function () {
-      return (0, _index.deprecate)('Deprecation is thrown', '', { id: 'test', until: 'forever' });
-    });
-    throws(function () {
-      return (0, _index.deprecate)('Deprecation is thrown', 0, { id: 'test', until: 'forever' });
-    });
-  });
+      assert.throws(function () {
+        (0, _index.deprecate)('Should throw', false, { id: 'test', until: 'forever' });
+      }, /Should throw/);
+    };
 
-  QUnit.test('Ember.deprecate does not invoke a function as the second argument', function () {
-    expect(1);
+    _class.prototype['@test When ENV.RAISE_ON_DEPRECATION is true, it is still possible to silence a deprecation by id'] = function (assert) {
+      assert.expect(3);
 
-    (0, _index.deprecate)('Deprecation is thrown', function () {
-      ok(false, 'this function should not be invoked');
-    }, { id: 'test', until: 'forever' });
-
-    ok(true, 'deprecations were not thrown');
-  });
-
-  QUnit.test('Ember.deprecate does not throw deprecations if second argument is truthy', function () {
-    expect(1);
-
-    (0, _index.deprecate)('Deprecation is thrown', true, { id: 'test', until: 'forever' });
-    (0, _index.deprecate)('Deprecation is thrown', '1', { id: 'test', until: 'forever' });
-    (0, _index.deprecate)('Deprecation is thrown', 1, { id: 'test', until: 'forever' });
-
-    ok(true, 'deprecations were not thrown');
-  });
-
-  QUnit.test('Ember.assert throws if second argument is falsy', function () {
-    expect(3);
-
-    throws(function () {
-      return (0, _index.assert)('Assertion is thrown', false);
-    });
-    throws(function () {
-      return (0, _index.assert)('Assertion is thrown', '');
-    });
-    throws(function () {
-      return (0, _index.assert)('Assertion is thrown', 0);
-    });
-  });
-
-  QUnit.test('Ember.assert does not throw if second argument is a function', function (assert) {
-    assert.expect(1);
-
-    (0, _index.assert)('Assertion is thrown', function () {
-      return true;
-    });
-
-    ok(true, 'assertions were not thrown');
-  });
-
-  QUnit.test('Ember.assert does not throw if second argument is truthy', function () {
-    expect(1);
-
-    (0, _index.assert)('Assertion is thrown', true);
-    (0, _index.assert)('Assertion is thrown', '1');
-    (0, _index.assert)('Assertion is thrown', 1);
-
-    ok(true, 'assertions were not thrown');
-  });
-
-  QUnit.test('Ember.assert does not throw if second argument is an object', function () {
-    expect(1);
-    var Igor = _emberRuntime.Object.extend();
-
-    (0, _index.assert)('is truthy', Igor);
-    (0, _index.assert)('is truthy', Igor.create());
-
-    ok(true, 'assertions were not thrown');
-  });
-
-  QUnit.test('Ember.deprecate does not throw a deprecation at log and silence levels', function () {
-    expect(4);
-    var id = 'ABC';
-    var until = 'forever';
-    var shouldThrow = false;
-
-    (0, _deprecate.registerHandler)(function (message, options) {
-      if (options && options.id === id) {
-        if (shouldThrow) {
-          throw new Error(message);
+      _emberEnvironment.ENV.RAISE_ON_DEPRECATION = true;
+      (0, _deprecate.registerHandler)(function (message, options, next) {
+        if (!options || options.id !== 'my-deprecation') {
+          next.apply(undefined, arguments);
         }
+      });
+
+      try {
+        (0, _index.deprecate)('should be silenced with matching id', false, { id: 'my-deprecation', until: 'forever' });
+        assert.ok(true, 'Did not throw when level is set by id');
+      } catch (e) {
+        assert.ok(false, 'Expected deprecate not to throw but it did: ' + e.message);
       }
-    });
 
-    try {
-      (0, _index.deprecate)('Deprecation for testing purposes', false, { id: id, until: until });
-      ok(true, 'Deprecation did not throw');
-    } catch (e) {
-      ok(false, 'Deprecation was thrown despite being added to blacklist');
-    }
+      assert.throws(function () {
+        (0, _index.deprecate)('Should throw with no matching id', false, { id: 'test', until: 'forever' });
+      }, /Should throw with no matching id/);
 
-    try {
-      (0, _index.deprecate)('Deprecation for testing purposes', false, { id: id, until: until });
-      ok(true, 'Deprecation did not throw');
-    } catch (e) {
-      ok(false, 'Deprecation was thrown despite being added to blacklist');
-    }
+      assert.throws(function () {
+        (0, _index.deprecate)('Should throw with non-matching id', false, { id: 'other-id', until: 'forever' });
+      }, /Should throw with non-matching id/);
+    };
 
-    shouldThrow = true;
+    _class.prototype['@test Ember.deprecate throws deprecation if second argument is falsy'] = function (assert) {
+      assert.expect(3);
 
-    throws(function () {
-      (0, _index.deprecate)('Deprecation is thrown', false, { id: id, until: until });
-    });
+      assert.throws(function () {
+        return (0, _index.deprecate)('Deprecation is thrown', false, { id: 'test', until: 'forever' });
+      });
+      assert.throws(function () {
+        return (0, _index.deprecate)('Deprecation is thrown', '', { id: 'test', until: 'forever' });
+      });
+      assert.throws(function () {
+        return (0, _index.deprecate)('Deprecation is thrown', 0, { id: 'test', until: 'forever' });
+      });
+    };
 
-    throws(function () {
-      (0, _index.deprecate)('Deprecation is thrown', false, { id: id, until: until });
-    });
-  });
+    _class.prototype['@test Ember.deprecate does not invoke a function as the second argument'] = function (assert) {
+      assert.expect(1);
 
-  QUnit.test('Ember.deprecate without options triggers a deprecation', function (assert) {
-    assert.expect(4);
+      (0, _index.deprecate)('Deprecation is thrown', function () {
+        assert.ok(false, 'this function should not be invoked');
+      }, { id: 'test', until: 'forever' });
 
-    (0, _deprecate.registerHandler)(function (message) {
-      if (message === _deprecate.missingOptionsDeprecation) {
-        assert.ok(true, 'proper deprecation is triggered when options is missing');
-      } else if (message === 'foo') {
-        assert.ok(true, 'original deprecation is still triggered');
+      assert.ok(true, 'deprecations were not thrown');
+    };
+
+    _class.prototype['@test Ember.deprecate does not throw deprecations if second argument is truthy'] = function (assert) {
+      assert.expect(1);
+
+      (0, _index.deprecate)('Deprecation is thrown', true, { id: 'test', until: 'forever' });
+      (0, _index.deprecate)('Deprecation is thrown', '1', { id: 'test', until: 'forever' });
+      (0, _index.deprecate)('Deprecation is thrown', 1, { id: 'test', until: 'forever' });
+
+      assert.ok(true, 'deprecations were not thrown');
+    };
+
+    _class.prototype['@test Ember.assert throws if second argument is falsy'] = function (assert) {
+      assert.expect(3);
+
+      assert.throws(function () {
+        return (0, _index.assert)('Assertion is thrown', false);
+      });
+      assert.throws(function () {
+        return (0, _index.assert)('Assertion is thrown', '');
+      });
+      assert.throws(function () {
+        return (0, _index.assert)('Assertion is thrown', 0);
+      });
+    };
+
+    _class.prototype['@test Ember.assert does not throw if second argument is a function'] = function (assert) {
+      assert.expect(1);
+
+      (0, _index.assert)('Assertion is thrown', function () {
+        return true;
+      });
+
+      ok(true, 'assertions were not thrown');
+    };
+
+    _class.prototype['@test Ember.assert does not throw if second argument is falsy'] = function (assert) {
+      assert.expect(1);
+
+      (0, _index.assert)('Assertion is thrown', true);
+      (0, _index.assert)('Assertion is thrown', '1');
+      (0, _index.assert)('Assertion is thrown', 1);
+
+      assert.ok(true, 'assertions were not thrown');
+    };
+
+    _class.prototype['@test Ember.assert does not throw if second argument is an object'] = function (assert) {
+      assert.expect(1);
+      var Igor = _emberRuntime.Object.extend();
+
+      (0, _index.assert)('is truthy', Igor);
+      (0, _index.assert)('is truthy', Igor.create());
+
+      assert.ok(true, 'assertions were not thrown');
+    };
+
+    _class.prototype['@test Ember.deprecate does not throw a deprecation at log and silence'] = function (assert) {
+      expect(4);
+      var id = 'ABC';
+      var until = 'forever';
+      var shouldThrow = false;
+
+      (0, _deprecate.registerHandler)(function (message, options) {
+        if (options && options.id === id) {
+          if (shouldThrow) {
+            throw new Error(message);
+          }
+        }
+      });
+
+      try {
+        (0, _index.deprecate)('Deprecation for testing purposes', false, { id: id, until: until });
+        assert.ok(true, 'Deprecation did not throw');
+      } catch (e) {
+        assert.ok(false, 'Deprecation was thrown despite being added to blacklist');
       }
-    });
 
-    (0, _index.deprecate)('foo');
-    (0, _index.deprecate)('foo', false, {});
-  });
-
-  QUnit.test('Ember.deprecate without options.id triggers a deprecation', function (assert) {
-    assert.expect(2);
-
-    (0, _deprecate.registerHandler)(function (message) {
-      if (message === _deprecate.missingOptionsIdDeprecation) {
-        assert.ok(true, 'proper deprecation is triggered when options.id is missing');
-      } else if (message === 'foo') {
-        assert.ok(true, 'original deprecation is still triggered');
+      try {
+        (0, _index.deprecate)('Deprecation for testing purposes', false, { id: id, until: until });
+        assert.ok(true, 'Deprecation did not throw');
+      } catch (e) {
+        assert.ok(false, 'Deprecation was thrown despite being added to blacklist');
       }
-    });
 
-    (0, _index.deprecate)('foo', false, { until: 'forever' });
-  });
+      shouldThrow = true;
 
-  QUnit.test('Ember.deprecate without options.until triggers a deprecation', function (assert) {
-    assert.expect(2);
+      assert.throws(function () {
+        (0, _index.deprecate)('Deprecation is thrown', false, { id: id, until: until });
+      });
 
-    (0, _deprecate.registerHandler)(function (message) {
-      if (message === _deprecate.missingOptionsUntilDeprecation) {
-        assert.ok(true, 'proper deprecation is triggered when options.until is missing');
-      } else if (message === 'foo') {
-        assert.ok(true, 'original deprecation is still triggered');
-      }
-    });
+      assert.throws(function () {
+        (0, _index.deprecate)('Deprecation is thrown', false, { id: id, until: until });
+      });
+    };
 
-    (0, _index.deprecate)('foo', false, { id: 'test' });
-  });
+    _class.prototype['@test Ember.deprecate without options triggers a deprecation'] = function (assert) {
+      assert.expect(4);
 
-  QUnit.test('warn without options triggers a deprecation', function (assert) {
-    assert.expect(2);
+      (0, _deprecate.registerHandler)(function (message) {
+        if (message === _deprecate.missingOptionsDeprecation) {
+          assert.ok(true, 'proper deprecation is triggered when options is missing');
+        } else if (message === 'foo') {
+          assert.ok(true, 'original deprecation is still triggered');
+        }
+      });
 
-    (0, _deprecate.registerHandler)(function (message) {
-      assert.equal(message, _warn.missingOptionsDeprecation, 'deprecation is triggered when options is missing');
-    });
+      (0, _index.deprecate)('foo');
+      (0, _index.deprecate)('foo', false, {});
+    };
 
-    (0, _warn.registerHandler)(function (message) {
-      assert.equal(message, 'foo', 'original warning is triggered');
-    });
+    _class.prototype['@test Ember.deprecate without options triggers an assertion'] = function (assert) {
+      expect(2);
+      _emberEnvironment.ENV._ENABLE_DEPRECATION_OPTIONS_SUPPORT = false;
 
-    (0, _index.warn)('foo');
-  });
+      assert.throws(function () {
+        return (0, _index.deprecate)('foo');
+      }, new RegExp(_deprecate.missingOptionsDeprecation), 'proper assertion is triggered when options is missing');
 
-  QUnit.test('warn without options.id triggers a deprecation', function (assert) {
-    assert.expect(2);
+      assert.throws(function () {
+        return (0, _index.deprecate)('foo', false, {});
+      }, new RegExp(_deprecate.missingOptionsDeprecation), 'proper assertion is triggered when options is missing');
+    };
 
-    (0, _deprecate.registerHandler)(function (message) {
-      assert.equal(message, _warn.missingOptionsIdDeprecation, 'deprecation is triggered when options is missing');
-    });
+    _class.prototype['@test Ember.deprecate without options.id triggers a deprecation'] = function (assert) {
+      assert.expect(2);
 
-    (0, _warn.registerHandler)(function (message) {
-      assert.equal(message, 'foo', 'original warning is triggered');
-    });
+      (0, _deprecate.registerHandler)(function (message) {
+        if (message === _deprecate.missingOptionsIdDeprecation) {
+          assert.ok(true, 'proper deprecation is triggered when options.id is missing');
+        } else if (message === 'foo') {
+          assert.ok(true, 'original deprecation is still triggered');
+        }
+      });
 
-    (0, _index.warn)('foo', false, {});
-  });
+      (0, _index.deprecate)('foo', false, { until: 'forever' });
+    };
 
-  QUnit.test('warn without options.id nor test triggers a deprecation', function (assert) {
-    assert.expect(2);
+    _class.prototype['@test Ember.deprecate without options.id triggers an assertion'] = function (assert) {
+      expect(1);
+      _emberEnvironment.ENV._ENABLE_DEPRECATION_OPTIONS_SUPPORT = false;
 
-    (0, _deprecate.registerHandler)(function (message) {
-      assert.equal(message, _warn.missingOptionsIdDeprecation, 'deprecation is triggered when options is missing');
-    });
+      assert.throws(function () {
+        return (0, _index.deprecate)('foo', false, { until: 'forever' });
+      }, new RegExp(_deprecate.missingOptionsIdDeprecation), 'proper assertion is triggered when options.id is missing');
+    };
 
-    (0, _warn.registerHandler)(function (message) {
-      assert.equal(message, 'foo', 'original warning is triggered');
-    });
+    _class.prototype['@test Ember.deprecate without options.until triggers a deprecation'] = function (assert) {
+      assert.expect(2);
 
-    (0, _index.warn)('foo', {});
-  });
+      (0, _deprecate.registerHandler)(function (message) {
+        if (message === _deprecate.missingOptionsUntilDeprecation) {
+          assert.ok(true, 'proper deprecation is triggered when options.until is missing');
+        } else if (message === 'foo') {
+          assert.ok(true, 'original deprecation is still triggered');
+        }
+      });
 
-  QUnit.test('warn without test but with options does not trigger a deprecation', function (assert) {
-    assert.expect(1);
+      (0, _index.deprecate)('foo', false, { id: 'test' });
+    };
 
-    (0, _deprecate.registerHandler)(function (message) {
-      assert.ok(false, 'there should be no deprecation ' + message);
-    });
+    _class.prototype['@test Ember.deprecate without options.until triggers an assertion'] = function (assert) {
+      expect(1);
+      _emberEnvironment.ENV._ENABLE_DEPRECATION_OPTIONS_SUPPORT = false;
 
-    (0, _warn.registerHandler)(function (message) {
-      assert.equal(message, 'foo', 'warning was triggered');
-    });
+      assert.throws(function () {
+        return (0, _index.deprecate)('foo', false, { id: 'test' });
+      }, new RegExp(_deprecate.missingOptionsUntilDeprecation), 'proper assertion is triggered when options.until is missing');
+    };
 
-    (0, _index.warn)('foo', { id: 'ember-debug.do-not-raise' });
-  });
+    _class.prototype['@test warn without options triggers a deprecation'] = function (assert) {
+      assert.expect(2);
+
+      _emberEnvironment.ENV._ENABLE_WARN_OPTIONS_SUPPORT = true;
+
+      (0, _deprecate.registerHandler)(function (message) {
+        assert.equal(message, _warn.missingOptionsDeprecation, 'deprecation is triggered when options is missing');
+      });
+
+      (0, _warn.registerHandler)(function (message) {
+        assert.equal(message, 'foo', 'original warning is triggered');
+      });
+
+      (0, _index.warn)('foo');
+    };
+
+    _class.prototype['@test warn without options triggers an assert'] = function (assert) {
+      assert.expect(1);
+
+      assert.throws(function () {
+        return (0, _index.warn)('foo');
+      }, new RegExp(_warn.missingOptionsDeprecation), 'deprecation is triggered when options is missing');
+    };
+
+    _class.prototype['@test warn without options.id triggers a deprecation'] = function (assert) {
+      assert.expect(2);
+
+      _emberEnvironment.ENV._ENABLE_WARN_OPTIONS_SUPPORT = true;
+
+      (0, _deprecate.registerHandler)(function (message) {
+        assert.equal(message, _warn.missingOptionsIdDeprecation, 'deprecation is triggered when options is missing');
+      });
+
+      (0, _warn.registerHandler)(function (message) {
+        assert.equal(message, 'foo', 'original warning is triggered');
+      });
+
+      (0, _index.warn)('foo', false, {});
+    };
+
+    _class.prototype['@test warn without options.id triggers an assertion'] = function (assert) {
+      assert.expect(1);
+
+      assert.throws(function () {
+        return (0, _index.warn)('foo', false, {});
+      }, new RegExp(_warn.missingOptionsIdDeprecation), 'deprecation is triggered when options is missing');
+    };
+
+    _class.prototype['@test warn without options.id nor test triggers a deprecation'] = function (assert) {
+      assert.expect(2);
+
+      _emberEnvironment.ENV._ENABLE_WARN_OPTIONS_SUPPORT = true;
+
+      (0, _deprecate.registerHandler)(function (message) {
+        assert.equal(message, _warn.missingOptionsIdDeprecation, 'deprecation is triggered when options is missing');
+      });
+
+      (0, _warn.registerHandler)(function (message) {
+        assert.equal(message, 'foo', 'original warning is triggered');
+      });
+
+      (0, _index.warn)('foo', {});
+    };
+
+    _class.prototype['@test warn without options.id nor test triggers an assertion'] = function (assert) {
+      assert.expect(1);
+
+      assert.throws(function () {
+        return (0, _index.warn)('foo', {});
+      }, new RegExp(_warn.missingOptionsIdDeprecation), 'deprecation is triggered when options is missing');
+    };
+
+    _class.prototype['@test warn without test but with options does not trigger a deprecation'] = function (assert) {
+      assert.expect(1);
+
+      _emberEnvironment.ENV._ENABLE_WARN_OPTIONS_SUPPORT = true;
+
+      (0, _deprecate.registerHandler)(function (message) {
+        assert.ok(false, 'there should be no deprecation ' + message);
+      });
+
+      (0, _warn.registerHandler)(function (message) {
+        assert.equal(message, 'foo', 'warning was triggered');
+      });
+
+      (0, _index.warn)('foo', { id: 'ember-debug.do-not-raise' });
+    };
+
+    _class.prototype['@test warn without test but with options does not trigger an assertion'] = function (assert) {
+      assert.expect(1);
+
+      (0, _warn.registerHandler)(function (message) {
+        assert.equal(message, 'foo', 'warning was triggered');
+      });
+
+      (0, _index.warn)('foo', { id: 'ember-debug.do-not-raise' });
+    };
+
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
 });
-enifed('ember-debug/tests/warn_if_using_stripped_feature_flags_test', ['ember-environment', 'ember-debug', 'ember-debug/index'], function (_emberEnvironment, _emberDebug, _index) {
+enifed('ember-debug/tests/warn_if_using_stripped_feature_flags_test', ['ember-babel', 'ember-environment', 'ember-debug', 'ember-debug/index', 'internal-test-helpers'], function (_emberBabel, _emberEnvironment, _emberDebug, _index, _internalTestHelpers) {
   'use strict';
 
   var oldWarn = void 0,
@@ -6180,12 +6368,12 @@ enifed('ember-debug/tests/warn_if_using_stripped_feature_flags_test', ['ember-en
       features = void 0,
       knownFeatures = void 0;
 
-  function confirmWarns(expectedMsg) {
+  function confirmWarns(assert, expectedMsg) {
     var featuresWereStripped = true;
 
     (0, _emberDebug.setDebugFunction)('warn', function (msg, test) {
       if (!test) {
-        equal(msg, expectedMsg);
+        assert.equal(msg, expectedMsg);
       }
     });
 
@@ -6201,8 +6389,13 @@ enifed('ember-debug/tests/warn_if_using_stripped_feature_flags_test', ['ember-en
     (0, _index._warnIfUsingStrippedFeatureFlags)(features, knownFeatures, featuresWereStripped);
   }
 
-  QUnit.module('ember-debug - _warnIfUsingStrippedFeatureFlags', {
-    setup: function () {
+  (0, _internalTestHelpers.moduleFor)('ember-debug - _warnIfUsingStrippedFeatureFlags', function (_TestCase) {
+    (0, _emberBabel.inherits)(_class, _TestCase);
+
+    function _class() {
+
+      var _this = (0, _emberBabel.possibleConstructorReturn)(this, _TestCase.call(this));
+
       oldWarn = (0, _emberDebug.getDebugFunction)('warn');
       oldRunInDebug = (0, _emberDebug.getDebugFunction)('runInDebug');
       origEnvFeatures = _emberEnvironment.ENV.FEATURES;
@@ -6213,56 +6406,60 @@ enifed('ember-debug/tests/warn_if_using_stripped_feature_flags_test', ['ember-en
         'barney': null,
         'wilma': null
       };
-    },
-    teardown: function () {
+      return _this;
+    }
+
+    _class.prototype.teardown = function () {
       (0, _emberDebug.setDebugFunction)('warn', oldWarn);
       (0, _emberDebug.setDebugFunction)('runInDebug', oldRunInDebug);
       _emberEnvironment.ENV.FEATURES = origEnvFeatures;
       _emberEnvironment.ENV.ENABLE_OPTIONAL_FEATURES = origEnableOptional;
-    }
-  });
-
-  QUnit.test('Setting Ember.ENV.ENABLE_OPTIONAL_FEATURES truthy in non-canary, debug build causes a warning', function () {
-    expect(1);
-
-    _emberEnvironment.ENV.ENABLE_OPTIONAL_FEATURES = true;
-    features = {};
-
-    confirmWarns('Ember.ENV.ENABLE_OPTIONAL_FEATURES is only available in canary builds.');
-  });
-
-  QUnit.test('Enabling a known FEATURE flag in non-canary, debug build causes a warning', function () {
-    expect(1);
-
-    _emberEnvironment.ENV.ENABLE_OPTIONAL_FEATURES = false;
-    features = {
-      'fred': true,
-      'barney': false,
-      'wilma': null
     };
 
-    confirmWarns('FEATURE["fred"] is set as enabled, but FEATURE flags are only available in canary builds.');
-  });
+    _class.prototype['@test Setting Ember.ENV.ENABLE_OPTIONAL_FEATURES truthy in non-canary, debug build causes a warning'] = function (assert) {
+      assert.expect(1);
 
-  QUnit.test('Enabling an unknown FEATURE flag in non-canary debug build does not cause a warning', function () {
-    expect(0);
+      _emberEnvironment.ENV.ENABLE_OPTIONAL_FEATURES = true;
+      features = {};
 
-    _emberEnvironment.ENV.ENABLE_OPTIONAL_FEATURES = false;
-    features = {
-      'some-ember-data-feature-flag': true
+      confirmWarns(assert, 'Ember.ENV.ENABLE_OPTIONAL_FEATURES is only available in canary builds.');
     };
 
-    confirmWarns('FEATURE["fred"] is set as enabled, but FEATURE flags are only available in canary builds.');
-  });
+    _class.prototype['@test Enabling a known FEATURE flag in non-canary, debug build causes a warning'] = function (assert) {
+      assert.expect(1);
 
-  QUnit.test('`ENV.FEATURES` being undefined does not cause an error', function () {
-    expect(0);
+      _emberEnvironment.ENV.ENABLE_OPTIONAL_FEATURES = false;
+      features = {
+        'fred': true,
+        'barney': false,
+        'wilma': null
+      };
 
-    _emberEnvironment.ENV.ENABLE_OPTIONAL_FEATURES = false;
-    features = undefined;
+      confirmWarns(assert, 'FEATURE["fred"] is set as enabled, but FEATURE flags are only available in canary builds.');
+    };
 
-    confirmWarns();
-  });
+    _class.prototype['@test Enabling an unknown FEATURE flag in non-canary debug build does not cause a warning'] = function (assert) {
+      assert.expect(0);
+
+      _emberEnvironment.ENV.ENABLE_OPTIONAL_FEATURES = false;
+      features = {
+        'some-ember-data-feature-flag': true
+      };
+
+      confirmWarns(assert, 'FEATURE["fred"] is set as enabled, but FEATURE flags are only available in canary builds.');
+    };
+
+    _class.prototype['@test `ENV.FEATURES` being undefined does not cause an error'] = function (assert) {
+      assert.expect(0);
+
+      _emberEnvironment.ENV.ENABLE_OPTIONAL_FEATURES = false;
+      features = undefined;
+
+      confirmWarns(assert);
+    };
+
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
 });
 enifed('ember-dev/test-helper/assertion', ['exports', 'ember-dev/test-helper/utils'], function (exports, _utils) {
   'use strict';
@@ -7739,7 +7936,7 @@ enifed('ember-glimmer/tests/integration/application/engine-test', ['ember-babel'
       this.setupAppAndRoutableEngine(hooks);
 
       return this.visit('/blog', { shouldRender: false }).then(function () {
-        _this6.assertText('');
+        assert.strictEqual(document.getElementById('qunit-fixture').children.length, 0, 'there are no elements in the qunit-fixture element');
 
         _this6.assert.deepEqual(hooks, ['application - application', 'engine - application'], 'the expected model hooks were fired');
       });
@@ -8190,9 +8387,6 @@ enifed('ember-glimmer/tests/integration/application/engine-test', ['ember-babel'
     (0, _emberBabel.createClass)(_class, [{
       key: 'routerOptions',
       get: function () {
-        this.assert;
-
-
         return {
           location: 'none',
 
@@ -8242,10 +8436,10 @@ enifed('ember-glimmer/tests/integration/application/rendering-test', ['ember-bab
   'use strict';
 
   var _templateObject = (0, _emberBabel.taggedTemplateLiteralLoose)(['\n      <ul>\n        {{#each model as |item|}}\n          <li>{{item}}</li>\n        {{/each}}\n      </ul>\n    '], ['\n      <ul>\n        {{#each model as |item|}}\n          <li>{{item}}</li>\n        {{/each}}\n      </ul>\n    ']),
-      _templateObject2 = (0, _emberBabel.taggedTemplateLiteralLoose)(['\n          <ul>\n            <li>red</li>\n            <li>yellow</li>\n            <li>blue</li>\n          </ul>\n        '], ['\n          <ul>\n            <li>red</li>\n            <li>yellow</li>\n            <li>blue</li>\n          </ul>\n        ']),
+      _templateObject2 = (0, _emberBabel.taggedTemplateLiteralLoose)(['\n        <ul>\n          <li>red</li>\n          <li>yellow</li>\n          <li>blue</li>\n        </ul>\n      '], ['\n        <ul>\n          <li>red</li>\n          <li>yellow</li>\n          <li>blue</li>\n        </ul>\n      ']),
       _templateObject3 = (0, _emberBabel.taggedTemplateLiteralLoose)(['\n      <nav>{{outlet "nav"}}</nav>\n      <main>{{outlet}}</main>\n    '], ['\n      <nav>{{outlet "nav"}}</nav>\n      <main>{{outlet}}</main>\n    ']),
       _templateObject4 = (0, _emberBabel.taggedTemplateLiteralLoose)(['\n      <a href="https://emberjs.com/">Ember</a>\n    '], ['\n      <a href="https://emberjs.com/">Ember</a>\n    ']),
-      _templateObject5 = (0, _emberBabel.taggedTemplateLiteralLoose)(['\n          <nav>\n            <a href="https://emberjs.com/">Ember</a>\n          </nav>\n          <main>\n            <ul>\n              <li>red</li>\n              <li>yellow</li>\n              <li>blue</li>\n            </ul>\n          </main>\n        '], ['\n          <nav>\n            <a href="https://emberjs.com/">Ember</a>\n          </nav>\n          <main>\n            <ul>\n              <li>red</li>\n              <li>yellow</li>\n              <li>blue</li>\n            </ul>\n          </main>\n        ']);
+      _templateObject5 = (0, _emberBabel.taggedTemplateLiteralLoose)(['\n        <nav>\n          <a href="https://emberjs.com/">Ember</a>\n        </nav>\n        <main>\n          <ul>\n            <li>red</li>\n            <li>yellow</li>\n            <li>blue</li>\n          </ul>\n        </main>\n      '], ['\n        <nav>\n          <a href="https://emberjs.com/">Ember</a>\n        </nav>\n        <main>\n          <ul>\n            <li>red</li>\n            <li>yellow</li>\n            <li>blue</li>\n          </ul>\n        </main>\n      ']);
 
   (0, _testCase.moduleFor)('Application test: rendering', function (_ApplicationTest) {
     (0, _emberBabel.inherits)(_class, _ApplicationTest);
@@ -8254,18 +8448,28 @@ enifed('ember-glimmer/tests/integration/application/rendering-test', ['ember-bab
       return (0, _emberBabel.possibleConstructorReturn)(this, _ApplicationTest.apply(this, arguments));
     }
 
-    _class.prototype['@test it can render the application template'] = function () {
+    _class.prototype['@feature(!ember-glimmer-remove-application-template-wrapper) it can render the application template'] = function () {
       var _this2 = this;
 
       this.addTemplate('application', 'Hello world!');
 
       return this.visit('/').then(function () {
-        _this2.assertText('Hello world!');
+        _this2.assertComponentElement(_this2.element, { content: 'Hello world!' });
+      });
+    };
+
+    _class.prototype['@feature(ember-glimmer-remove-application-template-wrapper) it can render the application template'] = function () {
+      var _this3 = this;
+
+      this.addTemplate('application', 'Hello world!');
+
+      return this.visit('/').then(function () {
+        _this3.assertInnerHTML('Hello world!');
       });
     };
 
     _class.prototype['@test it can access the model provided by the route'] = function () {
-      var _this3 = this;
+      var _this4 = this;
 
       this.add('route:application', _emberRouting.Route.extend({
         model: function () {
@@ -8276,14 +8480,12 @@ enifed('ember-glimmer/tests/integration/application/rendering-test', ['ember-bab
       this.addTemplate('application', (0, _abstractTestCase.strip)(_templateObject));
 
       return this.visit('/').then(function () {
-        _this3.assertComponentElement(_this3.firstChild, {
-          content: (0, _abstractTestCase.strip)(_templateObject2)
-        });
+        _this4.assertInnerHTML((0, _abstractTestCase.strip)(_templateObject2));
       });
     };
 
     _class.prototype['@test it can render a nested route'] = function () {
-      var _this4 = this;
+      var _this5 = this;
 
       this.router.map(function () {
         this.route('lists', function () {
@@ -8303,45 +8505,7 @@ enifed('ember-glimmer/tests/integration/application/rendering-test', ['ember-bab
       this.addTemplate('lists.colors.favorite', (0, _abstractTestCase.strip)(_templateObject));
 
       return this.visit('/lists/colors/favorite').then(function () {
-        _this4.assertComponentElement(_this4.firstChild, {
-          content: (0, _abstractTestCase.strip)(_templateObject2)
-        });
-      });
-    };
-
-    _class.prototype['@test it can render into named outlets'] = function () {
-      var _this5 = this;
-
-      this.router.map(function () {
-        this.route('colors');
-      });
-
-      this.addTemplate('application', (0, _abstractTestCase.strip)(_templateObject3));
-
-      this.addTemplate('nav', (0, _abstractTestCase.strip)(_templateObject4));
-
-      this.add('route:application', _emberRouting.Route.extend({
-        renderTemplate: function () {
-          this.render();
-          this.render('nav', {
-            into: 'application',
-            outlet: 'nav'
-          });
-        }
-      }));
-
-      this.add('route:colors', _emberRouting.Route.extend({
-        model: function () {
-          return ['red', 'yellow', 'blue'];
-        }
-      }));
-
-      this.addTemplate('colors', (0, _abstractTestCase.strip)(_templateObject));
-
-      return this.visit('/colors').then(function () {
-        _this5.assertComponentElement(_this5.firstChild, {
-          content: (0, _abstractTestCase.strip)(_templateObject5)
-        });
+        _this5.assertInnerHTML((0, _abstractTestCase.strip)(_templateObject2));
       });
     };
 
@@ -8375,14 +8539,46 @@ enifed('ember-glimmer/tests/integration/application/rendering-test', ['ember-bab
       this.addTemplate('colors', (0, _abstractTestCase.strip)(_templateObject));
 
       return this.visit('/colors').then(function () {
-        _this6.assertComponentElement(_this6.firstChild, {
-          content: (0, _abstractTestCase.strip)(_templateObject5)
-        });
+        _this6.assertInnerHTML((0, _abstractTestCase.strip)(_templateObject5));
+      });
+    };
+
+    _class.prototype['@test it can render into named outlets'] = function () {
+      var _this7 = this;
+
+      this.router.map(function () {
+        this.route('colors');
+      });
+
+      this.addTemplate('application', (0, _abstractTestCase.strip)(_templateObject3));
+
+      this.addTemplate('nav', (0, _abstractTestCase.strip)(_templateObject4));
+
+      this.add('route:application', _emberRouting.Route.extend({
+        renderTemplate: function () {
+          this.render();
+          this.render('nav', {
+            into: 'application',
+            outlet: 'nav'
+          });
+        }
+      }));
+
+      this.add('route:colors', _emberRouting.Route.extend({
+        model: function () {
+          return ['red', 'yellow', 'blue'];
+        }
+      }));
+
+      this.addTemplate('colors', (0, _abstractTestCase.strip)(_templateObject));
+
+      return this.visit('/colors').then(function () {
+        _this7.assertInnerHTML((0, _abstractTestCase.strip)(_templateObject5));
       });
     };
 
     _class.prototype['@test it should update the outlets when switching between routes'] = function () {
-      var _this7 = this;
+      var _this8 = this;
 
       this.router.map(function () {
         this.route('a');
@@ -8399,20 +8595,20 @@ enifed('ember-glimmer/tests/integration/application/rendering-test', ['ember-bab
 
       return this.visit('/b/c').then(function () {
         // this.assertComponentElement(this.firstChild, { content: 'BC' });
-        _this7.assertText('BC');
-        return _this7.visit('/a');
+        _this8.assertText('BC');
+        return _this8.visit('/a');
       }).then(function () {
         // this.assertComponentElement(this.firstChild, { content: 'A' });
-        _this7.assertText('A');
-        return _this7.visit('/b/d');
+        _this8.assertText('A');
+        return _this8.visit('/b/d');
       }).then(function () {
-        _this7.assertText('BD');
+        _this8.assertText('BD');
         // this.assertComponentElement(this.firstChild, { content: 'BD' });
       });
     };
 
     _class.prototype['@test it should produce a stable DOM when the model changes'] = function () {
-      var _this8 = this;
+      var _this9 = this;
 
       this.router.map(function () {
         this.route('color', { path: '/colors/:color' });
@@ -8427,17 +8623,17 @@ enifed('ember-glimmer/tests/integration/application/rendering-test', ['ember-bab
       this.addTemplate('color', 'color: {{model}}');
 
       return this.visit('/colors/red').then(function () {
-        _this8.assertComponentElement(_this8.firstChild, { content: 'color: red' });
-        _this8.takeSnapshot();
-        return _this8.visit('/colors/green');
+        _this9.assertInnerHTML('color: red');
+        _this9.takeSnapshot();
+        return _this9.visit('/colors/green');
       }).then(function () {
-        _this8.assertComponentElement(_this8.firstChild, { content: 'color: green' });
-        _this8.assertInvariants();
+        _this9.assertInnerHTML('color: green');
+        _this9.assertInvariants();
       });
     };
 
     _class.prototype['@test it should have the right controller in scope for the route template'] = function () {
-      var _this9 = this;
+      var _this10 = this;
 
       this.router.map(function () {
         this.route('a');
@@ -8456,15 +8652,15 @@ enifed('ember-glimmer/tests/integration/application/rendering-test', ['ember-bab
       this.addTemplate('b', '{{value}}');
 
       return this.visit('/a').then(function () {
-        _this9.assertText('a');
-        return _this9.visit('/b');
+        _this10.assertText('a');
+        return _this10.visit('/b');
       }).then(function () {
-        return _this9.assertText('b');
+        return _this10.assertText('b');
       });
     };
 
     _class.prototype['@test it should update correctly when the controller changes'] = function () {
-      var _this10 = this;
+      var _this11 = this;
 
       this.router.map(function () {
         this.route('color', { path: '/colors/:color' });
@@ -8490,17 +8686,15 @@ enifed('ember-glimmer/tests/integration/application/rendering-test', ['ember-bab
       this.addTemplate('color', 'model color: {{model.color}}, controller color: {{color}}');
 
       return this.visit('/colors/red').then(function () {
-        _this10.assertComponentElement(_this10.firstChild, { content: 'model color: red, controller color: red' });
-        _this10.takeSnapshot();
-        return _this10.visit('/colors/green');
+        _this11.assertInnerHTML('model color: red, controller color: red');
+        return _this11.visit('/colors/green');
       }).then(function () {
-        _this10.assertComponentElement(_this10.firstChild, { content: 'model color: green, controller color: green' });
-        _this10.assertInvariants();
+        _this11.assertInnerHTML('model color: green, controller color: green');
       });
     };
 
     _class.prototype['@test it should produce a stable DOM when two routes render the same template'] = function () {
-      var _this11 = this;
+      var _this12 = this;
 
       this.router.map(function () {
         this.route('a');
@@ -8532,27 +8726,27 @@ enifed('ember-glimmer/tests/integration/application/rendering-test', ['ember-bab
       this.addTemplate('common', '{{prefix}} {{model}}');
 
       return this.visit('/a').then(function () {
-        _this11.assertComponentElement(_this11.firstChild, { content: 'common A' });
-        _this11.takeSnapshot();
-        return _this11.visit('/b');
+        _this12.assertInnerHTML('common A');
+        _this12.takeSnapshot();
+        return _this12.visit('/b');
       }).then(function () {
-        _this11.assertComponentElement(_this11.firstChild, { content: 'common B' });
-        _this11.assertInvariants();
+        _this12.assertInnerHTML('common B');
+        _this12.assertInvariants();
       });
     };
 
     _class.prototype['@test a child outlet is always a fragment'] = function () {
-      var _this12 = this;
+      var _this13 = this;
 
       this.addTemplate('application', '{{outlet}}');
       this.addTemplate('index', '{{#if true}}1{{/if}}<div>2</div>');
       return this.visit('/').then(function () {
-        _this12.assertComponentElement(_this12.firstChild, { content: '1<div>2</div>' });
+        _this13.assertInnerHTML('1<div>2</div>');
       });
     };
 
     _class.prototype['@test it allows a transition during route activate'] = function () {
-      var _this13 = this;
+      var _this14 = this;
 
       this.router.map(function () {
         this.route('a');
@@ -8567,14 +8761,12 @@ enifed('ember-glimmer/tests/integration/application/rendering-test', ['ember-bab
       this.addTemplate('a', 'Hello from A!');
 
       return this.visit('/').then(function () {
-        _this13.assertComponentElement(_this13.firstChild, {
-          content: 'Hello from A!'
-        });
+        _this14.assertInnerHTML('Hello from A!');
       });
     };
 
     _class.prototype['@test it emits a useful backtracking re-render assertion message'] = function () {
-      var _this14 = this;
+      var _this15 = this;
 
       this.router.map(function () {
         this.route('routeWithError');
@@ -8602,7 +8794,7 @@ enifed('ember-glimmer/tests/integration/application/rendering-test', ['ember-bab
 
       return this.visit('/').then(function () {
         expectAssertion(function () {
-          _this14.visit('/routeWithError');
+          _this15.visit('/routeWithError');
         }, expectedBacktrackingMessage);
       });
     };
@@ -8720,7 +8912,7 @@ enifed('ember-glimmer/tests/integration/components/append-test', ['ember-babel',
     };
 
     AbstractAppendTest.prototype['@test lifecycle hooks during component append'] = function (assert) {
-      var _this4 = this;
+      var _this3 = this;
 
       var hooks = [];
 
@@ -8736,12 +8928,7 @@ enifed('ember-glimmer/tests/integration/components/append-test', ['ember-babel',
         var options = {
           ComponentClass: _options.ComponentClass.extend({
             init: function () {
-              var _this3 = this,
-                  _arguments = arguments;
-
-              expectDeprecation(function () {
-                _this3._super.apply(_this3, _arguments);
-              }, /didInitAttrs called/);
+              this._super.apply(this, arguments);
               if (name in componentsByName) {
                 throw new TypeError('Component named: ` ' + name + ' ` already registered');
               }
@@ -8750,9 +8937,6 @@ enifed('ember-glimmer/tests/integration/components/append-test', ['ember-babel',
               this.on('init', function () {
                 return pushHook('on(init)');
               });
-            },
-            didInitAttrs: function (options) {
-              pushHook('didInitAttrs', options);
             },
             didReceiveAttrs: function () {
               pushHook('didReceiveAttrs');
@@ -8820,13 +9004,13 @@ enifed('ember-glimmer/tests/integration/components/append-test', ['ember-babel',
 
       this.component = XParent.create({ foo: 'zomg' });
 
-      assert.deepEqual(hooks, [['x-parent', 'init'], ['x-parent', 'didInitAttrs'], ['x-parent', 'didReceiveAttrs'], ['x-parent', 'on(init)']], 'creation of x-parent');
+      assert.deepEqual(hooks, [['x-parent', 'init'], ['x-parent', 'didReceiveAttrs'], ['x-parent', 'on(init)']], 'creation of x-parent');
 
       hooks.length = 0;
 
       this.element = this.append(this.component);
 
-      assert.deepEqual(hooks, [['x-parent', 'willInsertElement'], ['x-child', 'init'], ['x-child', 'didInitAttrs'], ['x-child', 'didReceiveAttrs'], ['x-child', 'on(init)'], ['x-child', 'willRender'], ['x-child', 'willInsertElement'], ['x-child', 'didInsertElement'], ['x-child', 'didRender'], ['x-parent', 'didInsertElement'], ['x-parent', 'didRender']], 'appending of x-parent');
+      assert.deepEqual(hooks, [['x-parent', 'willInsertElement'], ['x-child', 'init'], ['x-child', 'didReceiveAttrs'], ['x-child', 'on(init)'], ['x-child', 'willRender'], ['x-child', 'willInsertElement'], ['x-child', 'didInsertElement'], ['x-child', 'didRender'], ['x-parent', 'didInsertElement'], ['x-parent', 'didRender']], 'appending of x-parent');
 
       hooks.length = 0;
 
@@ -8847,7 +9031,7 @@ enifed('ember-glimmer/tests/integration/components/append-test', ['ember-babel',
       hooks.length = 0;
 
       this.runTask(function () {
-        return (0, _emberMetal.set)(_this4.component, 'foo', 'wow');
+        return (0, _emberMetal.set)(_this3.component, 'foo', 'wow');
       });
 
       assert.deepEqual(hooks, [['x-parent', 'willUpdate'], ['x-parent', 'willRender'], ['x-child', 'didUpdateAttrs'], ['x-child', 'didReceiveAttrs'], ['x-child', 'willUpdate'], ['x-child', 'willRender'], ['x-child', 'didUpdate'], ['x-child', 'didRender'], ['x-parent', 'didUpdate'], ['x-parent', 'didRender']], 'set foo = wow');
@@ -8855,7 +9039,7 @@ enifed('ember-glimmer/tests/integration/components/append-test', ['ember-babel',
       hooks.length = 0;
 
       this.runTask(function () {
-        return (0, _emberMetal.set)(_this4.component, 'foo', 'zomg');
+        return (0, _emberMetal.set)(_this3.component, 'foo', 'zomg');
       });
 
       assert.deepEqual(hooks, [['x-parent', 'willUpdate'], ['x-parent', 'willRender'], ['x-child', 'didUpdateAttrs'], ['x-child', 'didReceiveAttrs'], ['x-child', 'willUpdate'], ['x-child', 'willRender'], ['x-child', 'didUpdate'], ['x-child', 'didRender'], ['x-parent', 'didUpdate'], ['x-parent', 'didRender']], 'set foo = zomg');
@@ -8863,14 +9047,14 @@ enifed('ember-glimmer/tests/integration/components/append-test', ['ember-babel',
       hooks.length = 0;
 
       this.runTask(function () {
-        return _this4.component.destroy();
+        return _this3.component.destroy();
       });
 
       assert.deepEqual(hooks, [['x-parent', 'willDestroyElement'], ['x-parent', 'willClearRender'], ['x-child', 'willDestroyElement'], ['x-child', 'willClearRender'], ['x-child', 'didDestroyElement'], ['x-parent', 'didDestroyElement'], ['x-parent', 'willDestroy'], ['x-child', 'willDestroy']], 'destroy');
     };
 
     AbstractAppendTest.prototype['@test appending, updating and destroying a single component'] = function (assert) {
-      var _this5 = this;
+      var _this4 = this;
 
       var willDestroyCalled = 0;
 
@@ -8910,7 +9094,7 @@ enifed('ember-glimmer/tests/integration/components/append-test', ['ember-babel',
       assert.equal(componentElement.parentElement, this.element, 'It should be attached to the target');
 
       this.runTask(function () {
-        return _this5.rerender();
+        return _this4.rerender();
       });
 
       this.assertComponentElement(componentElement, { content: '[parent: zomg][child: zomg][yielded: zomg]' });
@@ -8918,7 +9102,7 @@ enifed('ember-glimmer/tests/integration/components/append-test', ['ember-babel',
       assert.equal(componentElement.parentElement, this.element, 'It should be attached to the target');
 
       this.runTask(function () {
-        return (0, _emberMetal.set)(_this5.component, 'foo', 'wow');
+        return (0, _emberMetal.set)(_this4.component, 'foo', 'wow');
       });
 
       this.assertComponentElement(componentElement, { content: '[parent: wow][child: wow][yielded: wow]' });
@@ -8926,7 +9110,7 @@ enifed('ember-glimmer/tests/integration/components/append-test', ['ember-babel',
       assert.equal(componentElement.parentElement, this.element, 'It should be attached to the target');
 
       this.runTask(function () {
-        return (0, _emberMetal.set)(_this5.component, 'foo', 'zomg');
+        return (0, _emberMetal.set)(_this4.component, 'foo', 'zomg');
       });
 
       this.assertComponentElement(componentElement, { content: '[parent: zomg][child: zomg][yielded: zomg]' });
@@ -8934,7 +9118,7 @@ enifed('ember-glimmer/tests/integration/components/append-test', ['ember-babel',
       assert.equal(componentElement.parentElement, this.element, 'It should be attached to the target');
 
       this.runTask(function () {
-        return _this5.component.destroy();
+        return _this4.component.destroy();
       });
 
       assert.ok(!this.component.element, 'It should not have an element');
@@ -8944,7 +9128,7 @@ enifed('ember-glimmer/tests/integration/components/append-test', ['ember-babel',
     };
 
     AbstractAppendTest.prototype['@test releasing a root component after it has been destroy'] = function (assert) {
-      var _this6 = this;
+      var _this5 = this;
 
       var renderer = this.owner.lookup('renderer:-dom');
 
@@ -8958,14 +9142,14 @@ enifed('ember-glimmer/tests/integration/components/append-test', ['ember-babel',
       assert.equal(renderer._roots.length, 1, 'added a root component');
 
       this.runTask(function () {
-        return _this6.component.destroy();
+        return _this5.component.destroy();
       });
 
       assert.equal(renderer._roots.length, 0, 'released the root component');
     };
 
     AbstractAppendTest.prototype['@test appending, updating and destroying multiple components'] = function (assert) {
-      var _this7 = this;
+      var _this6 = this;
 
       var willDestroyCalled = 0;
 
@@ -9009,10 +9193,10 @@ enifed('ember-glimmer/tests/integration/components/append-test', ['ember-babel',
           wrapper2 = void 0;
 
       this.runTask(function () {
-        return wrapper1 = _this7.append(first);
+        return wrapper1 = _this6.append(first);
       });
       this.runTask(function () {
-        return wrapper2 = _this7.append(second);
+        return wrapper2 = _this6.append(second);
       });
 
       var componentElement1 = first.element;
@@ -9070,12 +9254,12 @@ enifed('ember-glimmer/tests/integration/components/append-test', ['ember-babel',
     };
 
     AbstractAppendTest.prototype['@test can appendTo while rendering'] = function () {
-      var _this8 = this;
+      var _this7 = this;
 
       var owner = this.owner;
 
       var append = function (component) {
-        return _this8.append(component);
+        return _this7.append(component);
       };
 
       var element1 = void 0,
@@ -9115,12 +9299,12 @@ enifed('ember-glimmer/tests/integration/components/append-test', ['ember-babel',
     };
 
     AbstractAppendTest.prototype['@test can appendTo and remove while rendering'] = function (assert) {
-      var _this9 = this;
+      var _this8 = this;
 
       var owner = this.owner;
 
       var append = function (component) {
-        return _this9.append(component);
+        return _this8.append(component);
       };
 
       var element1 = void 0,
@@ -9208,7 +9392,7 @@ enifed('ember-glimmer/tests/integration/components/append-test', ['ember-babel',
       this.assertStableRerender();
 
       this.runTask(function () {
-        return (0, _emberMetal.set)(_this9.context, 'showFooBar', false);
+        return (0, _emberMetal.set)(_this8.context, 'showFooBar', false);
       });
 
       assert.equal(instantiatedRoots, 2);
@@ -9263,7 +9447,7 @@ enifed('ember-glimmer/tests/integration/components/append-test', ['ember-babel',
     };
 
     _class2.prototype['@test raises an assertion when the target does not exist in the DOM'] = function (assert) {
-      var _this12 = this;
+      var _this11 = this;
 
       this.registerComponent('foo-bar', {
         ComponentClass: _helpers.Component.extend({
@@ -9280,7 +9464,7 @@ enifed('ember-glimmer/tests/integration/components/append-test', ['ember-babel',
 
       this.runTask(function () {
         expectAssertion(function () {
-          _this12.component.appendTo('#does-not-exist-in-dom');
+          _this11.component.appendTo('#does-not-exist-in-dom');
         }, /You tried to append to \(#does-not-exist-in-dom\) but that isn't in the DOM/);
       });
 
@@ -12341,7 +12525,7 @@ enifed('ember-glimmer/tests/integration/components/contextual-components-test', 
 
   (0, _testCase.moduleFor)('Components test: contextual components -- mutable params', ContextualComponentMutableParamsTest);
 });
-enifed('ember-glimmer/tests/integration/components/curly-components-test', ['ember-babel', 'ember-metal', 'ember-runtime', 'ember-glimmer/tests/utils/helpers', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/test-helpers'], function (_emberBabel, _emberMetal, _emberRuntime, _helpers, _abstractTestCase, _testCase, _testHelpers) {
+enifed('ember-glimmer/tests/integration/components/curly-components-test', ['ember-babel', 'ember-metal', 'ember-runtime', 'ember-environment', 'ember-glimmer/tests/utils/helpers', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/test-helpers'], function (_emberBabel, _emberMetal, _emberRuntime, _emberEnvironment, _helpers, _abstractTestCase, _testCase, _testHelpers) {
   'use strict';
 
   var _templateObject = (0, _emberBabel.taggedTemplateLiteralLoose)(['\n      {{foo-bar class="bar baz"}}\n      {{foo-bar classNames="bar baz"}}\n      {{foo-bar}}\n    '], ['\n      {{foo-bar class="bar baz"}}\n      {{foo-bar classNames="bar baz"}}\n      {{foo-bar}}\n    ']),
@@ -12349,51 +12533,62 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
       _templateObject3 = (0, _emberBabel.taggedTemplateLiteralLoose)(['\n        {{#if isStream}}\n          true\n        {{else}}\n          false\n        {{/if}}\n      '], ['\n        {{#if isStream}}\n          true\n        {{else}}\n          false\n        {{/if}}\n      ']),
       _templateObject4 = (0, _emberBabel.taggedTemplateLiteralLoose)(['\n        Args: {{this.attrs.value}} | {{attrs.value}} | {{value}}\n        {{#each this.attrs.items as |item|}}\n          {{item}}\n        {{/each}}\n        {{#each attrs.items as |item|}}\n          {{item}}\n        {{/each}}\n        {{#each items as |item|}}\n          {{item}}\n        {{/each}}\n      '], ['\n        Args: {{this.attrs.value}} | {{attrs.value}} | {{value}}\n        {{#each this.attrs.items as |item|}}\n          {{item}}\n        {{/each}}\n        {{#each attrs.items as |item|}}\n          {{item}}\n        {{/each}}\n        {{#each items as |item|}}\n          {{item}}\n        {{/each}}\n      ']),
       _templateObject5 = (0, _emberBabel.taggedTemplateLiteralLoose)(['Args: lul | lul | lul111'], ['Args: lul | lul | lul111']),
-      _templateObject6 = (0, _emberBabel.taggedTemplateLiteralLoose)(['\n      {{#with-block someProp=prop}}\n        In template\n      {{/with-block}}'], ['\n      {{#with-block someProp=prop}}\n        In template\n      {{/with-block}}']),
-      _templateObject7 = (0, _emberBabel.taggedTemplateLiteralLoose)(['\n        {{#each names as |name|}}\n          {{name}}\n        {{/each}}'], ['\n        {{#each names as |name|}}\n          {{name}}\n        {{/each}}']),
-      _templateObject8 = (0, _emberBabel.taggedTemplateLiteralLoose)(['\n      {{sample-component "Foo" 4 "Bar" elementId="args-3"}}\n      {{sample-component "Foo" 4 "Bar" 5 "Baz" elementId="args-5"}}'], ['\n      {{sample-component "Foo" 4 "Bar" elementId="args-3"}}\n      {{sample-component "Foo" 4 "Bar" 5 "Baz" elementId="args-5"}}']),
-      _templateObject9 = (0, _emberBabel.taggedTemplateLiteralLoose)(['\n      {{sample-component "one" "two" elementId="two-positional"}}\n      {{sample-component "one" second="two" elementId="one-positional"}}\n      {{sample-component first="one" second="two" elementId="no-positional"}}'], ['\n      {{sample-component "one" "two" elementId="two-positional"}}\n      {{sample-component "one" second="two" elementId="one-positional"}}\n      {{sample-component first="one" second="two" elementId="no-positional"}}']),
-      _templateObject10 = (0, _emberBabel.taggedTemplateLiteralLoose)(['\n        {{#each n as |name|}}\n          {{name}}\n        {{/each}}'], ['\n        {{#each n as |name|}}\n          {{name}}\n        {{/each}}']),
-      _templateObject11 = (0, _emberBabel.taggedTemplateLiteralLoose)(['\n      {{#with-template name="with-block"}}\n        [In block - {{name}}]\n      {{/with-template}}\n      {{with-template name="without-block"}}'], ['\n      {{#with-template name="with-block"}}\n        [In block - {{name}}]\n      {{/with-template}}\n      {{with-template name="without-block"}}']),
-      _templateObject12 = (0, _emberBabel.taggedTemplateLiteralLoose)(['\n        {{#if hasBlock}}\n          {{yield}}\n        {{else}}\n          No Block!\n        {{/if}}'], ['\n        {{#if hasBlock}}\n          {{yield}}\n        {{else}}\n          No Block!\n        {{/if}}']),
-      _templateObject13 = (0, _emberBabel.taggedTemplateLiteralLoose)(['\n      {{#with-block}}\n        In template\n      {{/with-block}}'], ['\n      {{#with-block}}\n        In template\n      {{/with-block}}']),
-      _templateObject14 = (0, _emberBabel.taggedTemplateLiteralLoose)(['\n        {{#if hasBlockParams}}\n          {{yield this}} - In Component\n        {{else}}\n          {{yield}} No Block!\n        {{/if}}'], ['\n        {{#if hasBlockParams}}\n          {{yield this}} - In Component\n        {{else}}\n          {{yield}} No Block!\n        {{/if}}']),
-      _templateObject15 = (0, _emberBabel.taggedTemplateLiteralLoose)(['\n      {{#with-block as |something|}}\n        In template\n      {{/with-block}}'], ['\n      {{#with-block as |something|}}\n        In template\n      {{/with-block}}']),
-      _templateObject16 = (0, _emberBabel.taggedTemplateLiteralLoose)(['\n        {{#if hasBlockParams}}\n          {{yield this}}\n        {{else}}\n          {{yield}} No Block Param!\n        {{/if}}'], ['\n        {{#if hasBlockParams}}\n          {{yield this}}\n        {{else}}\n          {{yield}} No Block Param!\n        {{/if}}']),
-      _templateObject17 = (0, _emberBabel.taggedTemplateLiteralLoose)(['\n      {{#with-block}}\n        In block\n      {{/with-block}}'], ['\n      {{#with-block}}\n        In block\n      {{/with-block}}']),
-      _templateObject18 = (0, _emberBabel.taggedTemplateLiteralLoose)(['\n        {{#if predicate}}\n          Yes:{{yield someValue}}\n        {{else}}\n          No:{{yield to="inverse"}}\n        {{/if}}'], ['\n        {{#if predicate}}\n          Yes:{{yield someValue}}\n        {{else}}\n          No:{{yield to="inverse"}}\n        {{/if}}']),
-      _templateObject19 = (0, _emberBabel.taggedTemplateLiteralLoose)(['\n      {{#my-if predicate=activated someValue=42 as |result|}}\n        Hello{{result}}\n      {{else}}\n        Goodbye\n      {{/my-if}}'], ['\n      {{#my-if predicate=activated someValue=42 as |result|}}\n        Hello{{result}}\n      {{else}}\n        Goodbye\n      {{/my-if}}']),
-      _templateObject20 = (0, _emberBabel.taggedTemplateLiteralLoose)(['\n        {{#if (hasBlock "inverse")}}\n          Yes\n        {{else}}\n          No\n        {{/if}}'], ['\n        {{#if (hasBlock "inverse")}}\n          Yes\n        {{else}}\n          No\n        {{/if}}']),
-      _templateObject21 = (0, _emberBabel.taggedTemplateLiteralLoose)(['\n      {{#check-inverse}}{{/check-inverse}}\n      {{#check-inverse}}{{else}}{{/check-inverse}}'], ['\n      {{#check-inverse}}{{/check-inverse}}\n      {{#check-inverse}}{{else}}{{/check-inverse}}']),
-      _templateObject22 = (0, _emberBabel.taggedTemplateLiteralLoose)(['\n        {{#if (hasBlock)}}\n          Yes\n        {{else}}\n          No\n        {{/if}}'], ['\n        {{#if (hasBlock)}}\n          Yes\n        {{else}}\n          No\n        {{/if}}']),
-      _templateObject23 = (0, _emberBabel.taggedTemplateLiteralLoose)(['\n      {{check-block}}\n      {{#check-block}}{{/check-block}}'], ['\n      {{check-block}}\n      {{#check-block}}{{/check-block}}']),
-      _templateObject24 = (0, _emberBabel.taggedTemplateLiteralLoose)(['\n        {{#if (hasBlockParams "inverse")}}\n          Yes\n        {{else}}\n          No\n        {{/if}}'], ['\n        {{#if (hasBlockParams "inverse")}}\n          Yes\n        {{else}}\n          No\n        {{/if}}']),
-      _templateObject25 = (0, _emberBabel.taggedTemplateLiteralLoose)(['\n      {{#check-inverse}}{{/check-inverse}}\n      {{#check-inverse as |something|}}{{/check-inverse}}'], ['\n      {{#check-inverse}}{{/check-inverse}}\n      {{#check-inverse as |something|}}{{/check-inverse}}']),
-      _templateObject26 = (0, _emberBabel.taggedTemplateLiteralLoose)(['\n        {{#if (hasBlockParams)}}\n          Yes\n        {{else}}\n          No\n        {{/if}}'], ['\n        {{#if (hasBlockParams)}}\n          Yes\n        {{else}}\n          No\n        {{/if}}']),
-      _templateObject27 = (0, _emberBabel.taggedTemplateLiteralLoose)(['\n      {{#check-block}}{{/check-block}}\n      {{#check-block as |something|}}{{/check-block}}'], ['\n      {{#check-block}}{{/check-block}}\n      {{#check-block as |something|}}{{/check-block}}']),
-      _templateObject28 = (0, _emberBabel.taggedTemplateLiteralLoose)(['\n        {{#if hasBlock}}\n          Yes\n        {{else}}\n          No\n        {{/if}}'], ['\n        {{#if hasBlock}}\n          Yes\n        {{else}}\n          No\n        {{/if}}']),
-      _templateObject29 = (0, _emberBabel.taggedTemplateLiteralLoose)(['\n      {{#check-params}}{{/check-params}}\n      {{#check-params as |foo|}}{{/check-params}}'], ['\n      {{#check-params}}{{/check-params}}\n      {{#check-params as |foo|}}{{/check-params}}']),
-      _templateObject30 = (0, _emberBabel.taggedTemplateLiteralLoose)(['\n        {{#if hasBlockParams}}\n          Yes\n        {{else}}\n          No\n        {{/if}}'], ['\n        {{#if hasBlockParams}}\n          Yes\n        {{else}}\n          No\n        {{/if}}']),
-      _templateObject31 = (0, _emberBabel.taggedTemplateLiteralLoose)(['\n      {{check-attr}}\n      {{#check-attr}}{{/check-attr}}'], ['\n      {{check-attr}}\n      {{#check-attr}}{{/check-attr}}']),
-      _templateObject32 = (0, _emberBabel.taggedTemplateLiteralLoose)(['\n      {{#check-attr}}{{/check-attr}}\n      {{#check-attr}}{{else}}{{/check-attr}}'], ['\n      {{#check-attr}}{{/check-attr}}\n      {{#check-attr}}{{else}}{{/check-attr}}']),
-      _templateObject33 = (0, _emberBabel.taggedTemplateLiteralLoose)(['\n      {{#check-attr}}{{/check-attr}}\n      {{#check-attr as |something|}}{{/check-attr}}'], ['\n      {{#check-attr}}{{/check-attr}}\n      {{#check-attr as |something|}}{{/check-attr}}']),
-      _templateObject34 = (0, _emberBabel.taggedTemplateLiteralLoose)(['\n      {{check-helper}}\n      {{#check-helper}}{{/check-helper}}'], ['\n      {{check-helper}}\n      {{#check-helper}}{{/check-helper}}']),
-      _templateObject35 = (0, _emberBabel.taggedTemplateLiteralLoose)(['\n      {{#check-helper}}{{/check-helper}}\n      {{#check-helper}}{{else}}{{/check-helper}}'], ['\n      {{#check-helper}}{{/check-helper}}\n      {{#check-helper}}{{else}}{{/check-helper}}']),
-      _templateObject36 = (0, _emberBabel.taggedTemplateLiteralLoose)(['\n      {{#check-helper}}{{/check-helper}}\n      {{#check-helper as |something|}}{{/check-helper}}'], ['\n      {{#check-helper}}{{/check-helper}}\n      {{#check-helper as |something|}}{{/check-helper}}']),
-      _templateObject37 = (0, _emberBabel.taggedTemplateLiteralLoose)(['\n      {{#x-outer}}\n        {{#if showInner}}\n          {{x-inner}}\n        {{/if}}\n      {{/x-outer}}'], ['\n      {{#x-outer}}\n        {{#if showInner}}\n          {{x-inner}}\n        {{/if}}\n      {{/x-outer}}']),
-      _templateObject38 = (0, _emberBabel.taggedTemplateLiteralLoose)(['\n        In layout. {{#each items as |item|}}\n          [{{child-non-block item=item}}]\n        {{/each}}'], ['\n        In layout. {{#each items as |item|}}\n          [{{child-non-block item=item}}]\n        {{/each}}']),
-      _templateObject39 = (0, _emberBabel.taggedTemplateLiteralLoose)(['\n      {{#some-clicky-thing classNames="baz"}}\n        Click Me\n      {{/some-clicky-thing}}'], ['\n      {{#some-clicky-thing classNames="baz"}}\n        Click Me\n      {{/some-clicky-thing}}']),
-      _templateObject40 = (0, _emberBabel.taggedTemplateLiteralLoose)(['\n        {{#each blahzz as |p|}}\n          {{p}}\n        {{/each}}\n        - {{yield}}'], ['\n        {{#each blahzz as |p|}}\n          {{p}}\n        {{/each}}\n        - {{yield}}']),
-      _templateObject41 = (0, _emberBabel.taggedTemplateLiteralLoose)(['\n      {{#some-clicky-thing blahzz="baz"}}\n        Click Me\n      {{/some-clicky-thing}}'], ['\n      {{#some-clicky-thing blahzz="baz"}}\n        Click Me\n      {{/some-clicky-thing}}']),
-      _templateObject42 = (0, _emberBabel.taggedTemplateLiteralLoose)(['\n      {{#x-select value=value as |select|}}\n        {{#x-option value="1" select=select}}1{{/x-option}}\n        {{#x-option value="2" select=select}}2{{/x-option}}\n      {{/x-select}}\n    '], ['\n      {{#x-select value=value as |select|}}\n        {{#x-option value="1" select=select}}1{{/x-option}}\n        {{#x-option value="2" select=select}}2{{/x-option}}\n      {{/x-select}}\n    ']),
-      _templateObject43 = (0, _emberBabel.taggedTemplateLiteralLoose)(['\n      {{#list-items items=items as |thing|}}\n        |{{thing}}|\n\n        {{#if editMode}}\n          Remove {{thing}}\n        {{/if}}\n      {{/list-items}}\n    '], ['\n      {{#list-items items=items as |thing|}}\n        |{{thing}}|\n\n        {{#if editMode}}\n          Remove {{thing}}\n        {{/if}}\n      {{/list-items}}\n    ']);
+      _templateObject6 = (0, _emberBabel.taggedTemplateLiteralLoose)(['\n        Args: {{this.attrs.value}} | {{attrs.value}} | {{@value}} | {{value}}\n        {{#each this.attrs.items as |item|}}\n          {{item}}\n        {{/each}}\n        {{#each attrs.items as |item|}}\n          {{item}}\n        {{/each}}\n        {{#each @items as |item|}}\n          {{item}}\n        {{/each}}\n        {{#each items as |item|}}\n          {{item}}\n        {{/each}}\n      '], ['\n        Args: {{this.attrs.value}} | {{attrs.value}} | {{@value}} | {{value}}\n        {{#each this.attrs.items as |item|}}\n          {{item}}\n        {{/each}}\n        {{#each attrs.items as |item|}}\n          {{item}}\n        {{/each}}\n        {{#each @items as |item|}}\n          {{item}}\n        {{/each}}\n        {{#each items as |item|}}\n          {{item}}\n        {{/each}}\n      ']),
+      _templateObject7 = (0, _emberBabel.taggedTemplateLiteralLoose)(['Args: lul | lul | lul | lul1111'], ['Args: lul | lul | lul | lul1111']),
+      _templateObject8 = (0, _emberBabel.taggedTemplateLiteralLoose)(['\n      {{#with-block someProp=prop}}\n        In template\n      {{/with-block}}'], ['\n      {{#with-block someProp=prop}}\n        In template\n      {{/with-block}}']),
+      _templateObject9 = (0, _emberBabel.taggedTemplateLiteralLoose)(['\n        {{#each names as |name|}}\n          {{name}}\n        {{/each}}'], ['\n        {{#each names as |name|}}\n          {{name}}\n        {{/each}}']),
+      _templateObject10 = (0, _emberBabel.taggedTemplateLiteralLoose)(['\n      {{sample-component "Foo" 4 "Bar" elementId="args-3"}}\n      {{sample-component "Foo" 4 "Bar" 5 "Baz" elementId="args-5"}}'], ['\n      {{sample-component "Foo" 4 "Bar" elementId="args-3"}}\n      {{sample-component "Foo" 4 "Bar" 5 "Baz" elementId="args-5"}}']),
+      _templateObject11 = (0, _emberBabel.taggedTemplateLiteralLoose)(['\n      {{sample-component "one" "two" elementId="two-positional"}}\n      {{sample-component "one" second="two" elementId="one-positional"}}\n      {{sample-component first="one" second="two" elementId="no-positional"}}'], ['\n      {{sample-component "one" "two" elementId="two-positional"}}\n      {{sample-component "one" second="two" elementId="one-positional"}}\n      {{sample-component first="one" second="two" elementId="no-positional"}}']),
+      _templateObject12 = (0, _emberBabel.taggedTemplateLiteralLoose)(['\n        {{#each n as |name|}}\n          {{name}}\n        {{/each}}'], ['\n        {{#each n as |name|}}\n          {{name}}\n        {{/each}}']),
+      _templateObject13 = (0, _emberBabel.taggedTemplateLiteralLoose)(['\n      {{#with-template name="with-block"}}\n        [In block - {{name}}]\n      {{/with-template}}\n      {{with-template name="without-block"}}'], ['\n      {{#with-template name="with-block"}}\n        [In block - {{name}}]\n      {{/with-template}}\n      {{with-template name="without-block"}}']),
+      _templateObject14 = (0, _emberBabel.taggedTemplateLiteralLoose)(['\n        {{#if hasBlock}}\n          {{yield}}\n        {{else}}\n          No Block!\n        {{/if}}'], ['\n        {{#if hasBlock}}\n          {{yield}}\n        {{else}}\n          No Block!\n        {{/if}}']),
+      _templateObject15 = (0, _emberBabel.taggedTemplateLiteralLoose)(['\n      {{#with-block}}\n        In template\n      {{/with-block}}'], ['\n      {{#with-block}}\n        In template\n      {{/with-block}}']),
+      _templateObject16 = (0, _emberBabel.taggedTemplateLiteralLoose)(['\n        {{#if hasBlockParams}}\n          {{yield this}} - In Component\n        {{else}}\n          {{yield}} No Block!\n        {{/if}}'], ['\n        {{#if hasBlockParams}}\n          {{yield this}} - In Component\n        {{else}}\n          {{yield}} No Block!\n        {{/if}}']),
+      _templateObject17 = (0, _emberBabel.taggedTemplateLiteralLoose)(['\n      {{#with-block as |something|}}\n        In template\n      {{/with-block}}'], ['\n      {{#with-block as |something|}}\n        In template\n      {{/with-block}}']),
+      _templateObject18 = (0, _emberBabel.taggedTemplateLiteralLoose)(['\n        {{#if hasBlockParams}}\n          {{yield this}}\n        {{else}}\n          {{yield}} No Block Param!\n        {{/if}}'], ['\n        {{#if hasBlockParams}}\n          {{yield this}}\n        {{else}}\n          {{yield}} No Block Param!\n        {{/if}}']),
+      _templateObject19 = (0, _emberBabel.taggedTemplateLiteralLoose)(['\n      {{#with-block}}\n        In block\n      {{/with-block}}'], ['\n      {{#with-block}}\n        In block\n      {{/with-block}}']),
+      _templateObject20 = (0, _emberBabel.taggedTemplateLiteralLoose)(['\n        {{#if predicate}}\n          Yes:{{yield someValue}}\n        {{else}}\n          No:{{yield to="inverse"}}\n        {{/if}}'], ['\n        {{#if predicate}}\n          Yes:{{yield someValue}}\n        {{else}}\n          No:{{yield to="inverse"}}\n        {{/if}}']),
+      _templateObject21 = (0, _emberBabel.taggedTemplateLiteralLoose)(['\n      {{#my-if predicate=activated someValue=42 as |result|}}\n        Hello{{result}}\n      {{else}}\n        Goodbye\n      {{/my-if}}'], ['\n      {{#my-if predicate=activated someValue=42 as |result|}}\n        Hello{{result}}\n      {{else}}\n        Goodbye\n      {{/my-if}}']),
+      _templateObject22 = (0, _emberBabel.taggedTemplateLiteralLoose)(['\n        {{#if (hasBlock "inverse")}}\n          Yes\n        {{else}}\n          No\n        {{/if}}'], ['\n        {{#if (hasBlock "inverse")}}\n          Yes\n        {{else}}\n          No\n        {{/if}}']),
+      _templateObject23 = (0, _emberBabel.taggedTemplateLiteralLoose)(['\n      {{#check-inverse}}{{/check-inverse}}\n      {{#check-inverse}}{{else}}{{/check-inverse}}'], ['\n      {{#check-inverse}}{{/check-inverse}}\n      {{#check-inverse}}{{else}}{{/check-inverse}}']),
+      _templateObject24 = (0, _emberBabel.taggedTemplateLiteralLoose)(['\n        {{#if (hasBlock)}}\n          Yes\n        {{else}}\n          No\n        {{/if}}'], ['\n        {{#if (hasBlock)}}\n          Yes\n        {{else}}\n          No\n        {{/if}}']),
+      _templateObject25 = (0, _emberBabel.taggedTemplateLiteralLoose)(['\n      {{check-block}}\n      {{#check-block}}{{/check-block}}'], ['\n      {{check-block}}\n      {{#check-block}}{{/check-block}}']),
+      _templateObject26 = (0, _emberBabel.taggedTemplateLiteralLoose)(['\n        {{#if (hasBlockParams "inverse")}}\n          Yes\n        {{else}}\n          No\n        {{/if}}'], ['\n        {{#if (hasBlockParams "inverse")}}\n          Yes\n        {{else}}\n          No\n        {{/if}}']),
+      _templateObject27 = (0, _emberBabel.taggedTemplateLiteralLoose)(['\n      {{#check-inverse}}{{/check-inverse}}\n      {{#check-inverse as |something|}}{{/check-inverse}}'], ['\n      {{#check-inverse}}{{/check-inverse}}\n      {{#check-inverse as |something|}}{{/check-inverse}}']),
+      _templateObject28 = (0, _emberBabel.taggedTemplateLiteralLoose)(['\n        {{#if (hasBlockParams)}}\n          Yes\n        {{else}}\n          No\n        {{/if}}'], ['\n        {{#if (hasBlockParams)}}\n          Yes\n        {{else}}\n          No\n        {{/if}}']),
+      _templateObject29 = (0, _emberBabel.taggedTemplateLiteralLoose)(['\n      {{#check-block}}{{/check-block}}\n      {{#check-block as |something|}}{{/check-block}}'], ['\n      {{#check-block}}{{/check-block}}\n      {{#check-block as |something|}}{{/check-block}}']),
+      _templateObject30 = (0, _emberBabel.taggedTemplateLiteralLoose)(['\n        {{#if hasBlock}}\n          Yes\n        {{else}}\n          No\n        {{/if}}'], ['\n        {{#if hasBlock}}\n          Yes\n        {{else}}\n          No\n        {{/if}}']),
+      _templateObject31 = (0, _emberBabel.taggedTemplateLiteralLoose)(['\n      {{#check-params}}{{/check-params}}\n      {{#check-params as |foo|}}{{/check-params}}'], ['\n      {{#check-params}}{{/check-params}}\n      {{#check-params as |foo|}}{{/check-params}}']),
+      _templateObject32 = (0, _emberBabel.taggedTemplateLiteralLoose)(['\n        {{#if hasBlockParams}}\n          Yes\n        {{else}}\n          No\n        {{/if}}'], ['\n        {{#if hasBlockParams}}\n          Yes\n        {{else}}\n          No\n        {{/if}}']),
+      _templateObject33 = (0, _emberBabel.taggedTemplateLiteralLoose)(['\n      {{check-attr}}\n      {{#check-attr}}{{/check-attr}}'], ['\n      {{check-attr}}\n      {{#check-attr}}{{/check-attr}}']),
+      _templateObject34 = (0, _emberBabel.taggedTemplateLiteralLoose)(['\n      {{#check-attr}}{{/check-attr}}\n      {{#check-attr}}{{else}}{{/check-attr}}'], ['\n      {{#check-attr}}{{/check-attr}}\n      {{#check-attr}}{{else}}{{/check-attr}}']),
+      _templateObject35 = (0, _emberBabel.taggedTemplateLiteralLoose)(['\n      {{#check-attr}}{{/check-attr}}\n      {{#check-attr as |something|}}{{/check-attr}}'], ['\n      {{#check-attr}}{{/check-attr}}\n      {{#check-attr as |something|}}{{/check-attr}}']),
+      _templateObject36 = (0, _emberBabel.taggedTemplateLiteralLoose)(['\n      {{check-helper}}\n      {{#check-helper}}{{/check-helper}}'], ['\n      {{check-helper}}\n      {{#check-helper}}{{/check-helper}}']),
+      _templateObject37 = (0, _emberBabel.taggedTemplateLiteralLoose)(['\n      {{#check-helper}}{{/check-helper}}\n      {{#check-helper}}{{else}}{{/check-helper}}'], ['\n      {{#check-helper}}{{/check-helper}}\n      {{#check-helper}}{{else}}{{/check-helper}}']),
+      _templateObject38 = (0, _emberBabel.taggedTemplateLiteralLoose)(['\n      {{#check-helper}}{{/check-helper}}\n      {{#check-helper as |something|}}{{/check-helper}}'], ['\n      {{#check-helper}}{{/check-helper}}\n      {{#check-helper as |something|}}{{/check-helper}}']),
+      _templateObject39 = (0, _emberBabel.taggedTemplateLiteralLoose)(['\n      {{#x-outer}}\n        {{#if showInner}}\n          {{x-inner}}\n        {{/if}}\n      {{/x-outer}}'], ['\n      {{#x-outer}}\n        {{#if showInner}}\n          {{x-inner}}\n        {{/if}}\n      {{/x-outer}}']),
+      _templateObject40 = (0, _emberBabel.taggedTemplateLiteralLoose)(['\n        In layout. {{#each items as |item|}}\n          [{{child-non-block item=item}}]\n        {{/each}}'], ['\n        In layout. {{#each items as |item|}}\n          [{{child-non-block item=item}}]\n        {{/each}}']),
+      _templateObject41 = (0, _emberBabel.taggedTemplateLiteralLoose)(['\n      {{#some-clicky-thing classNames="baz"}}\n        Click Me\n      {{/some-clicky-thing}}'], ['\n      {{#some-clicky-thing classNames="baz"}}\n        Click Me\n      {{/some-clicky-thing}}']),
+      _templateObject42 = (0, _emberBabel.taggedTemplateLiteralLoose)(['\n        {{#each blahzz as |p|}}\n          {{p}}\n        {{/each}}\n        - {{yield}}'], ['\n        {{#each blahzz as |p|}}\n          {{p}}\n        {{/each}}\n        - {{yield}}']),
+      _templateObject43 = (0, _emberBabel.taggedTemplateLiteralLoose)(['\n      {{#some-clicky-thing blahzz="baz"}}\n        Click Me\n      {{/some-clicky-thing}}'], ['\n      {{#some-clicky-thing blahzz="baz"}}\n        Click Me\n      {{/some-clicky-thing}}']),
+      _templateObject44 = (0, _emberBabel.taggedTemplateLiteralLoose)(['\n      {{#x-select value=value as |select|}}\n        {{#x-option value="1" select=select}}1{{/x-option}}\n        {{#x-option value="2" select=select}}2{{/x-option}}\n      {{/x-select}}\n    '], ['\n      {{#x-select value=value as |select|}}\n        {{#x-option value="1" select=select}}1{{/x-option}}\n        {{#x-option value="2" select=select}}2{{/x-option}}\n      {{/x-select}}\n    ']),
+      _templateObject45 = (0, _emberBabel.taggedTemplateLiteralLoose)(['\n      {{#list-items items=items as |thing|}}\n        |{{thing}}|\n\n        {{#if editMode}}\n          Remove {{thing}}\n        {{/if}}\n      {{/list-items}}\n    '], ['\n      {{#list-items items=items as |thing|}}\n        |{{thing}}|\n\n        {{#if editMode}}\n          Remove {{thing}}\n        {{/if}}\n      {{/list-items}}\n    ']);
 
   (0, _testCase.moduleFor)('Components test: curly components', function (_RenderingTest) {
     (0, _emberBabel.inherits)(_class, _RenderingTest);
 
     function _class() {
-      return (0, _emberBabel.possibleConstructorReturn)(this, _RenderingTest.apply(this, arguments));
+
+      var _this = (0, _emberBabel.possibleConstructorReturn)(this, _RenderingTest.call(this));
+
+      _this.originalDidInitAttrsSupport = _emberEnvironment.ENV._ENABLE_DID_INIT_ATTRS_SUPPORT;
+      return _this;
     }
+
+    _class.prototype.teardown = function () {
+      _emberEnvironment.ENV._ENABLE_DID_INIT_ATTRS_SUPPORT = this.originalDidInitAttrsSupport;
+      _RenderingTest.prototype.teardown.call(this);
+    };
 
     _class.prototype['@test it can render a basic component'] = function () {
       var _this2 = this;
@@ -12411,24 +12606,8 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
       this.assertComponentElement(this.firstChild, { content: 'hello' });
     };
 
-    _class.prototype['@test it can render a template only component'] = function () {
-      var _this3 = this;
-
-      this.registerComponent('foo-bar', { template: 'hello' });
-
-      this.render('{{foo-bar}}');
-
-      this.assertComponentElement(this.firstChild, { content: 'hello' });
-
-      this.runTask(function () {
-        return _this3.rerender();
-      });
-
-      this.assertComponentElement(this.firstChild, { content: 'hello' });
-    };
-
     _class.prototype['@test it can have a custom id and it is not bound'] = function () {
-      var _this4 = this;
+      var _this3 = this;
 
       this.registerComponent('foo-bar', { template: '{{id}} {{elementId}}' });
 
@@ -12439,19 +12618,19 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
       this.assertComponentElement(this.firstChild, { tagName: 'div', attrs: { id: 'bizz' }, content: 'bizz bizz' });
 
       this.runTask(function () {
-        return _this4.rerender();
+        return _this3.rerender();
       });
 
       this.assertComponentElement(this.firstChild, { tagName: 'div', attrs: { id: 'bizz' }, content: 'bizz bizz' });
 
       this.runTask(function () {
-        return (0, _emberMetal.set)(_this4.context, 'customId', 'bar');
+        return (0, _emberMetal.set)(_this3.context, 'customId', 'bar');
       });
 
       this.assertComponentElement(this.firstChild, { tagName: 'div', attrs: { id: 'bizz' }, content: 'bar bizz' });
 
       this.runTask(function () {
-        return (0, _emberMetal.set)(_this4.context, 'customId', 'bizz');
+        return (0, _emberMetal.set)(_this3.context, 'customId', 'bizz');
       });
 
       this.assertComponentElement(this.firstChild, { tagName: 'div', attrs: { id: 'bizz' }, content: 'bizz bizz' });
@@ -12505,42 +12684,6 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
       this.assertText('FIZZ BAR hey');
     };
 
-    _class.prototype['@test can specify template with `defaultLayout` property [DEPRECATED]'] = function () {
-      expectDeprecation(/Specifying `defaultLayout` to .* is deprecated. Please use `layout` instead/);
-      var FooBarComponent = _helpers.Component.extend({
-        elementId: 'blahzorz',
-        defaultLayout: (0, _helpers.compile)('much wat {{lulz}}'),
-        init: function () {
-          this._super.apply(this, arguments);
-          this.lulz = 'hey';
-        }
-      });
-
-      this.registerComponent('foo-bar', { ComponentClass: FooBarComponent });
-
-      this.render('{{foo-bar}}');
-
-      this.assertText('much wat hey');
-    };
-
-    _class.prototype['@test layout takes precedence over defaultLayout'] = function () {
-      var FooBarComponent = _helpers.Component.extend({
-        elementId: 'blahzorz',
-        layout: (0, _helpers.compile)('so much layout wat {{lulz}}'),
-        defaultLayout: (0, _helpers.compile)('much wat {{lulz}}'),
-        init: function () {
-          this._super.apply(this, arguments);
-          this.lulz = 'hey';
-        }
-      });
-
-      this.registerComponent('foo-bar', { ComponentClass: FooBarComponent });
-
-      this.render('{{foo-bar}}');
-
-      this.assertText('so much layout wat hey');
-    };
-
     _class.prototype['@test layout supports computed property'] = function () {
       var FooBarComponent = _helpers.Component.extend({
         elementId: 'blahzorz',
@@ -12561,7 +12704,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
     };
 
     _class.prototype['@test passing undefined elementId results in a default elementId'] = function (assert) {
-      var _this5 = this;
+      var _this4 = this;
 
       var FooBarComponent = _helpers.Component.extend({
         tagName: 'h1'
@@ -12575,7 +12718,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
       assert.ok(/^ember/.test(foundId), 'Has a reasonable id attribute (found id=' + foundId + ').');
 
       this.runTask(function () {
-        return _this5.rerender();
+        return _this4.rerender();
       });
 
       var newFoundId = this.$('h1').attr('id');
@@ -12585,7 +12728,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
     };
 
     _class.prototype['@test id is an alias for elementId'] = function (assert) {
-      var _this6 = this;
+      var _this5 = this;
 
       var FooBarComponent = _helpers.Component.extend({
         tagName: 'h1'
@@ -12599,7 +12742,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
       assert.equal(foundId, 'custom-id');
 
       this.runTask(function () {
-        return _this6.rerender();
+        return _this5.rerender();
       });
 
       var newFoundId = this.$('h1').attr('id');
@@ -12609,17 +12752,17 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
     };
 
     _class.prototype['@test cannot pass both id and elementId at the same time'] = function () {
-      var _this7 = this;
+      var _this6 = this;
 
       this.registerComponent('foo-bar', { template: '' });
 
       expectAssertion(function () {
-        _this7.render('{{foo-bar id="zomg" elementId="lol"}}');
+        _this6.render('{{foo-bar id="zomg" elementId="lol"}}');
       }, /You cannot invoke a component with both 'id' and 'elementId' at the same time./);
     };
 
     _class.prototype['@test it can have a custom tagName'] = function () {
-      var _this8 = this;
+      var _this7 = this;
 
       var FooBarComponent = _helpers.Component.extend({
         tagName: 'foo-bar'
@@ -12632,14 +12775,14 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
       this.assertComponentElement(this.firstChild, { tagName: 'foo-bar', content: 'hello' });
 
       this.runTask(function () {
-        return _this8.rerender();
+        return _this7.rerender();
       });
 
       this.assertComponentElement(this.firstChild, { tagName: 'foo-bar', content: 'hello' });
     };
 
     _class.prototype['@test it can have a custom tagName set in the constructor'] = function () {
-      var _this9 = this;
+      var _this8 = this;
 
       var FooBarComponent = _helpers.Component.extend({
         init: function () {
@@ -12655,14 +12798,14 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
       this.assertComponentElement(this.firstChild, { tagName: 'foo-bar', content: 'hello' });
 
       this.runTask(function () {
-        return _this9.rerender();
+        return _this8.rerender();
       });
 
       this.assertComponentElement(this.firstChild, { tagName: 'foo-bar', content: 'hello' });
     };
 
     _class.prototype['@test it can have a custom tagName from the invocation'] = function () {
-      var _this10 = this;
+      var _this9 = this;
 
       this.registerComponent('foo-bar', { template: 'hello' });
 
@@ -12671,14 +12814,14 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
       this.assertComponentElement(this.firstChild, { tagName: 'foo-bar', content: 'hello' });
 
       this.runTask(function () {
-        return _this10.rerender();
+        return _this9.rerender();
       });
 
       this.assertComponentElement(this.firstChild, { tagName: 'foo-bar', content: 'hello' });
     };
 
     _class.prototype['@test tagName can not be a computed property'] = function () {
-      var _this11 = this;
+      var _this10 = this;
 
       var FooBarComponent = _helpers.Component.extend({
         tagName: (0, _emberMetal.computed)(function () {
@@ -12689,7 +12832,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
       this.registerComponent('foo-bar', { ComponentClass: FooBarComponent, template: 'hello' });
 
       expectAssertion(function () {
-        _this11.render('{{foo-bar}}');
+        _this10.render('{{foo-bar}}');
       }, /You cannot use a computed property for the component's `tagName` \(<\(.+>\)\./);
     };
 
@@ -12709,7 +12852,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
     };
 
     _class.prototype['@test it can have custom classNames'] = function () {
-      var _this12 = this;
+      var _this11 = this;
 
       var FooBarComponent = _helpers.Component.extend({
         classNames: ['foo', 'bar']
@@ -12722,14 +12865,14 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
       this.assertComponentElement(this.firstChild, { tagName: 'div', attrs: { 'class': (0, _testHelpers.classes)('ember-view foo bar') }, content: 'hello' });
 
       this.runTask(function () {
-        return _this12.rerender();
+        return _this11.rerender();
       });
 
       this.assertComponentElement(this.firstChild, { tagName: 'div', attrs: { 'class': (0, _testHelpers.classes)('ember-view foo bar') }, content: 'hello' });
     };
 
     _class.prototype['@test should not apply falsy class name'] = function () {
-      var _this13 = this;
+      var _this12 = this;
 
       this.registerComponent('foo-bar', { template: 'hello' });
 
@@ -12740,14 +12883,14 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
       this.assertComponentElement(this.firstChild, { tagName: 'div', attrs: { class: 'ember-view' }, content: 'hello' });
 
       this.runTask(function () {
-        return _this13.rerender();
+        return _this12.rerender();
       });
 
       this.assertComponentElement(this.firstChild, { tagName: 'div', attrs: { class: 'ember-view' }, content: 'hello' });
     };
 
     _class.prototype['@test should apply classes of the dasherized property name when bound property specified is true'] = function () {
-      var _this14 = this;
+      var _this13 = this;
 
       this.registerComponent('foo-bar', { template: 'hello' });
 
@@ -12758,26 +12901,26 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
       this.assertComponentElement(this.firstChild, { tagName: 'div', attrs: { class: (0, _testHelpers.classes)('ember-view some-truth') }, content: 'hello' });
 
       this.runTask(function () {
-        return _this14.rerender();
+        return _this13.rerender();
       });
 
       this.assertComponentElement(this.firstChild, { tagName: 'div', attrs: { class: (0, _testHelpers.classes)('ember-view some-truth') }, content: 'hello' });
 
       this.runTask(function () {
-        return (0, _emberMetal.set)(_this14.context, 'model.someTruth', false);
+        return (0, _emberMetal.set)(_this13.context, 'model.someTruth', false);
       });
 
       this.assertComponentElement(this.firstChild, { tagName: 'div', attrs: { class: (0, _testHelpers.classes)('ember-view') }, content: 'hello' });
 
       this.runTask(function () {
-        return (0, _emberMetal.set)(_this14.context, 'model', { someTruth: true });
+        return (0, _emberMetal.set)(_this13.context, 'model', { someTruth: true });
       });
 
       this.assertComponentElement(this.firstChild, { tagName: 'div', attrs: { class: (0, _testHelpers.classes)('ember-view some-truth') }, content: 'hello' });
     };
 
     _class.prototype['@test class property on components can be dynamic'] = function () {
-      var _this15 = this;
+      var _this14 = this;
 
       this.registerComponent('foo-bar', { template: 'hello' });
 
@@ -12788,26 +12931,26 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
       this.assertComponentElement(this.firstChild, { content: 'hello', attrs: { 'class': (0, _testHelpers.classes)('ember-view foo-bar') } });
 
       this.runTask(function () {
-        return _this15.rerender();
+        return _this14.rerender();
       });
 
       this.assertComponentElement(this.firstChild, { content: 'hello', attrs: { 'class': (0, _testHelpers.classes)('ember-view foo-bar') } });
 
       this.runTask(function () {
-        return (0, _emberMetal.set)(_this15.context, 'fooBar', false);
+        return (0, _emberMetal.set)(_this14.context, 'fooBar', false);
       });
 
       this.assertComponentElement(this.firstChild, { content: 'hello', attrs: { 'class': (0, _testHelpers.classes)('ember-view') } });
 
       this.runTask(function () {
-        return (0, _emberMetal.set)(_this15.context, 'fooBar', true);
+        return (0, _emberMetal.set)(_this14.context, 'fooBar', true);
       });
 
       this.assertComponentElement(this.firstChild, { content: 'hello', attrs: { 'class': (0, _testHelpers.classes)('ember-view foo-bar') } });
     };
 
     _class.prototype['@test it can have custom classNames from constructor'] = function () {
-      var _this16 = this;
+      var _this15 = this;
 
       var FooBarComponent = _helpers.Component.extend({
         init: function () {
@@ -12824,14 +12967,14 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
       this.assertComponentElement(this.firstChild, { tagName: 'div', attrs: { 'class': (0, _testHelpers.classes)('ember-view foo bar outside-baz') }, content: 'hello' });
 
       this.runTask(function () {
-        return _this16.rerender();
+        return _this15.rerender();
       });
 
       this.assertComponentElement(this.firstChild, { tagName: 'div', attrs: { 'class': (0, _testHelpers.classes)('ember-view foo bar outside-baz') }, content: 'hello' });
     };
 
     _class.prototype['@test it can set custom classNames from the invocation'] = function () {
-      var _this17 = this;
+      var _this16 = this;
 
       var FooBarComponent = _helpers.Component.extend({
         classNames: ['foo']
@@ -12846,7 +12989,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
       this.assertComponentElement(this.nthChild(2), { tagName: 'div', attrs: { 'class': (0, _testHelpers.classes)('ember-view foo') }, content: 'hello' });
 
       this.runTask(function () {
-        return _this17.rerender();
+        return _this16.rerender();
       });
 
       this.assertComponentElement(this.nthChild(0), { tagName: 'div', attrs: { 'class': (0, _testHelpers.classes)('ember-view foo bar baz') }, content: 'hello' });
@@ -12855,7 +12998,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
     };
 
     _class.prototype['@test it has an element'] = function () {
-      var _this18 = this;
+      var _this17 = this;
 
       var instance = void 0;
 
@@ -12875,7 +13018,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
       this.assertComponentElement(element1, { content: 'hello' });
 
       this.runTask(function () {
-        return _this18.rerender();
+        return _this17.rerender();
       });
 
       var element2 = instance.element;
@@ -12886,7 +13029,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
     };
 
     _class.prototype['@test it has a jQuery proxy to the element'] = function () {
-      var _this19 = this;
+      var _this18 = this;
 
       var instance = void 0;
 
@@ -12906,7 +13049,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
       this.assertComponentElement(element1, { content: 'hello' });
 
       this.runTask(function () {
-        return _this19.rerender();
+        return _this18.rerender();
       });
 
       var element2 = instance.$()[0];
@@ -12917,7 +13060,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
     };
 
     _class.prototype['@test it scopes the jQuery proxy to the component element'] = function (assert) {
-      var _this20 = this;
+      var _this19 = this;
 
       var instance = void 0;
 
@@ -12938,7 +13081,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
       assert.equal($span.attr('class'), 'inner');
 
       this.runTask(function () {
-        return _this20.rerender();
+        return _this19.rerender();
       });
 
       $span = instance.$('span');
@@ -12948,7 +13091,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
     };
 
     _class.prototype['@test an empty component does not have childNodes'] = function (assert) {
-      var _this21 = this;
+      var _this20 = this;
 
       var fooBarInstance = void 0;
       var FooBarComponent = _helpers.Component.extend({
@@ -12968,7 +13111,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
       assert.strictEqual(fooBarInstance.element.childNodes.length, 0);
 
       this.runTask(function () {
-        return _this21.rerender();
+        return _this20.rerender();
       });
 
       this.assertComponentElement(this.firstChild, { tagName: 'input' });
@@ -12977,7 +13120,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
     };
 
     _class.prototype['@test it has the right parentView and childViews'] = function (assert) {
-      var _this22 = this;
+      var _this21 = this;
 
       var fooBarInstance = void 0,
           fooBarBazInstance = void 0;
@@ -13009,7 +13152,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
       assert.deepEqual(fooBarInstance.childViews, [fooBarBazInstance]);
 
       this.runTask(function () {
-        return _this22.rerender();
+        return _this21.rerender();
       });
       this.assertText('foo-bar foo-bar-baz');
 
@@ -13020,7 +13163,41 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
       assert.deepEqual(fooBarInstance.childViews, [fooBarBazInstance]);
     };
 
-    _class.prototype['@test it renders passed named arguments'] = function () {
+    _class.prototype['@feature(ember-glimmer-named-arguments) it renders passed named arguments'] = function () {
+      var _this22 = this;
+
+      this.registerComponent('foo-bar', {
+        template: '{{@foo}}'
+      });
+
+      this.render('{{foo-bar foo=model.bar}}', {
+        model: {
+          bar: 'Hola'
+        }
+      });
+
+      this.assertText('Hola');
+
+      this.runTask(function () {
+        return _this22.rerender();
+      });
+
+      this.assertText('Hola');
+
+      this.runTask(function () {
+        return _this22.context.set('model.bar', 'Hello');
+      });
+
+      this.assertText('Hello');
+
+      this.runTask(function () {
+        return _this22.context.set('model', { bar: 'Hola' });
+      });
+
+      this.assertText('Hola');
+    };
+
+    _class.prototype['@test it reflects named arguments as properties'] = function () {
       var _this23 = this;
 
       this.registerComponent('foo-bar', {
@@ -13638,8 +13815,40 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
       this.assertText('In layout - someProp: something here');
     };
 
-    _class.prototype['@test non-block with properties overridden in init'] = function () {
+    _class.prototype['@feature(ember-glimmer-named-arguments) non-block with named argument'] = function () {
       var _this39 = this;
+
+      this.registerComponent('non-block', {
+        template: 'In layout - someProp: {{@someProp}}'
+      });
+
+      this.render('{{non-block someProp=prop}}', {
+        prop: 'something here'
+      });
+
+      this.assertText('In layout - someProp: something here');
+
+      this.runTask(function () {
+        return _this39.rerender();
+      });
+
+      this.assertText('In layout - someProp: something here');
+
+      this.runTask(function () {
+        return _this39.context.set('prop', 'other thing there');
+      });
+
+      this.assertText('In layout - someProp: other thing there');
+
+      this.runTask(function () {
+        return _this39.context.set('prop', 'something here');
+      });
+
+      this.assertText('In layout - someProp: something here');
+    };
+
+    _class.prototype['@test non-block with properties overridden in init'] = function () {
+      var _this40 = this;
 
       var instance = void 0;
       this.registerComponent('non-block', {
@@ -13660,13 +13869,13 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
       this.assertText('In layout - someProp: value set in instance');
 
       this.runTask(function () {
-        return _this39.rerender();
+        return _this40.rerender();
       });
 
       this.assertText('In layout - someProp: value set in instance');
 
       this.runTask(function () {
-        return _this39.context.set('prop', 'updated something passed when invoked');
+        return _this40.context.set('prop', 'updated something passed when invoked');
       });
 
       this.assertText('In layout - someProp: updated something passed when invoked');
@@ -13678,7 +13887,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
       this.assertText('In layout - someProp: update value set in instance');
 
       this.runTask(function () {
-        return _this39.context.set('prop', 'something passed when invoked');
+        return _this40.context.set('prop', 'something passed when invoked');
       });
       this.runTask(function () {
         return instance.set('someProp', 'value set in instance');
@@ -13688,7 +13897,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
     };
 
     _class.prototype['@test rerendering component with attrs from parent'] = function (assert) {
-      var _this40 = this;
+      var _this41 = this;
 
       var willUpdateCount = 0;
       var didReceiveAttrsCount = 0;
@@ -13728,7 +13937,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
       });
 
       expectHooks({ willUpdate: false, didReceiveAttrs: true }, function () {
-        _this40.render('{{non-block someProp=someProp}}', {
+        _this41.render('{{non-block someProp=someProp}}', {
           someProp: 'wycats'
         });
       });
@@ -13737,16 +13946,16 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
 
       // Note: Hooks are not fired in Glimmer for idempotent re-renders
       expectHooks({ willUpdate: false, didReceiveAttrs: false }, function () {
-        _this40.runTask(function () {
-          return _this40.rerender();
+        _this41.runTask(function () {
+          return _this41.rerender();
         });
       });
 
       this.assertText('In layout - someProp: wycats');
 
       expectHooks({ willUpdate: true, didReceiveAttrs: true }, function () {
-        _this40.runTask(function () {
-          return _this40.context.set('someProp', 'tomdale');
+        _this41.runTask(function () {
+          return _this41.context.set('someProp', 'tomdale');
         });
       });
 
@@ -13754,24 +13963,24 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
 
       // Note: Hooks are not fired in Glimmer for idempotent re-renders
       expectHooks({ willUpdate: false, didReceiveAttrs: false }, function () {
-        _this40.runTask(function () {
-          return _this40.rerender();
+        _this41.runTask(function () {
+          return _this41.rerender();
         });
       });
 
       this.assertText('In layout - someProp: tomdale');
 
       expectHooks({ willUpdate: true, didReceiveAttrs: true }, function () {
-        _this40.runTask(function () {
-          return _this40.context.set('someProp', 'wycats');
+        _this41.runTask(function () {
+          return _this41.context.set('someProp', 'wycats');
         });
       });
 
       this.assertText('In layout - someProp: wycats');
     };
 
-    _class.prototype['@test this.attrs.foo === attrs.foo === foo'] = function () {
-      var _this41 = this;
+    _class.prototype['@feature(!ember-glimmer-named-arguments) this.attrs.foo === attrs.foo === foo'] = function () {
+      var _this42 = this;
 
       this.registerComponent('foo-bar', {
         template: (0, _abstractTestCase.strip)(_templateObject4)
@@ -13787,21 +13996,51 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
       this.assertStableRerender();
 
       this.runTask(function () {
-        _this41.context.set('model.value', 'lul');
-        _this41.context.set('model.items', [1]);
+        _this42.context.set('model.value', 'lul');
+        _this42.context.set('model.items', [1]);
       });
 
       this.assertText((0, _abstractTestCase.strip)(_templateObject5));
 
       this.runTask(function () {
-        return _this41.context.set('model', { value: 'wat', items: [1, 2, 3] });
+        return _this42.context.set('model', { value: 'wat', items: [1, 2, 3] });
       });
 
       this.assertText('Args: wat | wat | wat123123123');
     };
 
+    _class.prototype['@feature(ember-glimmer-named-arguments) this.attrs.foo === attrs.foo === @foo === foo'] = function () {
+      var _this43 = this;
+
+      this.registerComponent('foo-bar', {
+        template: (0, _abstractTestCase.strip)(_templateObject6)
+      });
+
+      this.render('{{foo-bar value=model.value items=model.items}}', {
+        model: {
+          value: 'wat',
+          items: [1, 2, 3]
+        }
+      });
+
+      this.assertStableRerender();
+
+      this.runTask(function () {
+        _this43.context.set('model.value', 'lul');
+        _this43.context.set('model.items', [1]);
+      });
+
+      this.assertText((0, _abstractTestCase.strip)(_templateObject7));
+
+      this.runTask(function () {
+        return _this43.context.set('model', { value: 'wat', items: [1, 2, 3] });
+      });
+
+      this.assertText('Args: wat | wat | wat | wat123123123123');
+    };
+
     _class.prototype['@test non-block with properties on self'] = function () {
-      var _this42 = this;
+      var _this44 = this;
 
       this.registerComponent('non-block', {
         template: 'In layout - someProp: {{someProp}}'
@@ -13814,105 +14053,137 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
       this.assertText('In layout - someProp: something here');
 
       this.runTask(function () {
-        return _this42.rerender();
+        return _this44.rerender();
       });
 
       this.assertText('In layout - someProp: something here');
 
       this.runTask(function () {
-        return _this42.context.set('prop', 'something else');
+        return _this44.context.set('prop', 'something else');
       });
 
       this.assertText('In layout - someProp: something else');
 
       this.runTask(function () {
-        return _this42.context.set('prop', 'something here');
+        return _this44.context.set('prop', 'something here');
       });
 
       this.assertText('In layout - someProp: something here');
     };
 
     _class.prototype['@test block with properties on self'] = function () {
-      var _this43 = this;
+      var _this45 = this;
 
       this.registerComponent('with-block', {
         template: 'In layout - someProp: {{someProp}} - {{yield}}'
       });
 
-      this.render((0, _abstractTestCase.strip)(_templateObject6), {
+      this.render((0, _abstractTestCase.strip)(_templateObject8), {
         prop: 'something here'
       });
 
       this.assertText('In layout - someProp: something here - In template');
 
       this.runTask(function () {
-        return _this43.rerender();
+        return _this45.rerender();
       });
 
       this.assertText('In layout - someProp: something here - In template');
 
       this.runTask(function () {
-        return _this43.context.set('prop', 'something else');
+        return _this45.context.set('prop', 'something else');
       });
 
       this.assertText('In layout - someProp: something else - In template');
 
       this.runTask(function () {
-        return _this43.context.set('prop', 'something here');
+        return _this45.context.set('prop', 'something here');
       });
 
       this.assertText('In layout - someProp: something here - In template');
     };
 
     _class.prototype['@test block with properties on attrs'] = function () {
-      var _this44 = this;
+      var _this46 = this;
 
       this.registerComponent('with-block', {
         template: 'In layout - someProp: {{attrs.someProp}} - {{yield}}'
       });
 
-      this.render((0, _abstractTestCase.strip)(_templateObject6), {
+      this.render((0, _abstractTestCase.strip)(_templateObject8), {
         prop: 'something here'
       });
 
       this.assertText('In layout - someProp: something here - In template');
 
       this.runTask(function () {
-        return _this44.rerender();
+        return _this46.rerender();
       });
 
       this.assertText('In layout - someProp: something here - In template');
 
       this.runTask(function () {
-        return _this44.context.set('prop', 'something else');
+        return _this46.context.set('prop', 'something else');
       });
 
       this.assertText('In layout - someProp: something else - In template');
 
       this.runTask(function () {
-        return _this44.context.set('prop', 'something here');
+        return _this46.context.set('prop', 'something here');
+      });
+
+      this.assertText('In layout - someProp: something here - In template');
+    };
+
+    _class.prototype['@feature(ember-glimmer-named-arguments) block with named argument'] = function () {
+      var _this47 = this;
+
+      this.registerComponent('with-block', {
+        template: 'In layout - someProp: {{@someProp}} - {{yield}}'
+      });
+
+      this.render((0, _abstractTestCase.strip)(_templateObject8), {
+        prop: 'something here'
+      });
+
+      this.assertText('In layout - someProp: something here - In template');
+
+      this.runTask(function () {
+        return _this47.rerender();
+      });
+
+      this.assertText('In layout - someProp: something here - In template');
+
+      this.runTask(function () {
+        return _this47.context.set('prop', 'something else');
+      });
+
+      this.assertText('In layout - someProp: something else - In template');
+
+      this.runTask(function () {
+        return _this47.context.set('prop', 'something here');
       });
 
       this.assertText('In layout - someProp: something here - In template');
     };
 
     _class.prototype['@test static arbitrary number of positional parameters'] = function (assert) {
-      var _this45 = this;
+      var _this48 = this;
 
       this.registerComponent('sample-component', {
         ComponentClass: _helpers.Component.extend().reopenClass({
           positionalParams: 'names'
         }),
-        template: (0, _abstractTestCase.strip)(_templateObject7)
+        template: (0, _abstractTestCase.strip)(_templateObject9)
       });
 
-      this.render((0, _abstractTestCase.strip)(_templateObject8));
+      this.render((0, _abstractTestCase.strip)(_templateObject10));
 
       assert.equal(this.$('#args-3').text(), 'Foo4Bar');
       assert.equal(this.$('#args-5').text(), 'Foo4Bar5Baz');
 
       this.runTask(function () {
-        return _this45.rerender();
+        return _this48.rerender();
       });
 
       assert.equal(this.$('#args-3').text(), 'Foo4Bar');
@@ -13920,30 +14191,30 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
     };
 
     _class.prototype['@test arbitrary positional parameter conflict with hash parameter is reported'] = function () {
-      var _this46 = this;
+      var _this49 = this;
 
       this.registerComponent('sample-component', {
         ComponentClass: _helpers.Component.extend().reopenClass({
           positionalParams: 'names'
         }),
-        template: (0, _abstractTestCase.strip)(_templateObject7)
+        template: (0, _abstractTestCase.strip)(_templateObject9)
       });
 
       expectAssertion(function () {
-        _this46.render('{{sample-component "Foo" 4 "Bar" names=numbers id="args-3"}}', {
+        _this49.render('{{sample-component "Foo" 4 "Bar" names=numbers id="args-3"}}', {
           numbers: [1, 2, 3]
         });
       }, 'You cannot specify positional parameters and the hash argument `names`.');
     };
 
     _class.prototype['@test can use hash parameter instead of arbitrary positional param [GH #12444]'] = function () {
-      var _this47 = this;
+      var _this50 = this;
 
       this.registerComponent('sample-component', {
         ComponentClass: _helpers.Component.extend().reopenClass({
           positionalParams: 'names'
         }),
-        template: (0, _abstractTestCase.strip)(_templateObject7)
+        template: (0, _abstractTestCase.strip)(_templateObject9)
       });
 
       this.render('{{sample-component names=things}}', {
@@ -13953,38 +14224,38 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
       this.assertText('Foo4Bar');
 
       this.runTask(function () {
-        return _this47.rerender();
+        return _this50.rerender();
       });
 
       this.assertText('Foo4Bar');
 
       this.runTask(function () {
-        return _this47.context.get('things').pushObject(5);
+        return _this50.context.get('things').pushObject(5);
       });
 
       this.assertText('Foo4Bar5');
 
       this.runTask(function () {
-        return _this47.context.get('things').shiftObject();
+        return _this50.context.get('things').shiftObject();
       });
 
       this.assertText('4Bar5');
 
       this.runTask(function () {
-        return _this47.context.get('things').clear();
+        return _this50.context.get('things').clear();
       });
 
       this.assertText('');
 
       this.runTask(function () {
-        return _this47.context.set('things', (0, _emberRuntime.A)(['Foo', 4, 'Bar']));
+        return _this50.context.set('things', (0, _emberRuntime.A)(['Foo', 4, 'Bar']));
       });
 
       this.assertText('Foo4Bar');
     };
 
     _class.prototype['@test can use hash parameter instead of positional param'] = function (assert) {
-      var _this48 = this;
+      var _this51 = this;
 
       this.registerComponent('sample-component', {
         ComponentClass: _helpers.Component.extend().reopenClass({
@@ -13994,14 +14265,14 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
       });
 
       // TODO: Fix when id is implemented
-      this.render((0, _abstractTestCase.strip)(_templateObject9));
+      this.render((0, _abstractTestCase.strip)(_templateObject11));
 
       assert.equal(this.$('#two-positional').text(), 'one - two');
       assert.equal(this.$('#one-positional').text(), 'one - two');
       assert.equal(this.$('#no-positional').text(), 'one - two');
 
       this.runTask(function () {
-        return _this48.rerender();
+        return _this51.rerender();
       });
 
       assert.equal(this.$('#two-positional').text(), 'one - two');
@@ -14010,13 +14281,13 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
     };
 
     _class.prototype['@test dynamic arbitrary number of positional parameters'] = function () {
-      var _this49 = this;
+      var _this52 = this;
 
       this.registerComponent('sample-component', {
         ComponentClass: _helpers.Component.extend().reopenClass({
           positionalParams: 'n'
         }),
-        template: (0, _abstractTestCase.strip)(_templateObject10)
+        template: (0, _abstractTestCase.strip)(_templateObject12)
       });
 
       this.render('{{sample-component user1 user2}}', {
@@ -14027,33 +14298,33 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
       this.assertText('Foo4');
 
       this.runTask(function () {
-        return _this49.rerender();
+        return _this52.rerender();
       });
 
       this.assertText('Foo4');
 
       this.runTask(function () {
-        return _this49.context.set('user1', 'Bar');
+        return _this52.context.set('user1', 'Bar');
       });
 
       this.assertText('Bar4');
 
       this.runTask(function () {
-        return _this49.context.set('user2', '5');
+        return _this52.context.set('user2', '5');
       });
 
       this.assertText('Bar5');
 
       this.runTask(function () {
-        _this49.context.set('user1', 'Foo');
-        _this49.context.set('user2', 4);
+        _this52.context.set('user1', 'Foo');
+        _this52.context.set('user2', 4);
       });
 
       this.assertText('Foo4');
     };
 
     _class.prototype['@test with ariaRole specified'] = function () {
-      var _this50 = this;
+      var _this53 = this;
 
       this.registerComponent('aria-test', {
         template: 'Here!'
@@ -14066,26 +14337,26 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
       this.assertComponentElement(this.firstChild, { attrs: { role: 'main' } });
 
       this.runTask(function () {
-        return _this50.rerender();
+        return _this53.rerender();
       });
 
       this.assertComponentElement(this.firstChild, { attrs: { role: 'main' } });
 
       this.runTask(function () {
-        return _this50.context.set('role', 'input');
+        return _this53.context.set('role', 'input');
       });
 
       this.assertComponentElement(this.firstChild, { attrs: { role: 'input' } });
 
       this.runTask(function () {
-        return _this50.context.set('role', 'main');
+        return _this53.context.set('role', 'main');
       });
 
       this.assertComponentElement(this.firstChild, { attrs: { role: 'main' } });
     };
 
     _class.prototype['@test `template` specified in component is overridden by block'] = function () {
-      var _this51 = this;
+      var _this54 = this;
 
       this.registerComponent('with-template', {
         ComponentClass: _helpers.Component.extend({
@@ -14094,69 +14365,33 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
         template: '[In layout - {{name}}] {{yield}}'
       });
 
-      this.render((0, _abstractTestCase.strip)(_templateObject11), {
+      this.render((0, _abstractTestCase.strip)(_templateObject13), {
         name: 'Whoop, whoop!'
       });
 
       this.assertText('[In layout - with-block] [In block - Whoop, whoop!][In layout - without-block] ');
 
       this.runTask(function () {
-        return _this51.rerender();
+        return _this54.rerender();
       });
 
       this.assertText('[In layout - with-block] [In block - Whoop, whoop!][In layout - without-block] ');
 
       this.runTask(function () {
-        return _this51.context.set('name', 'Ole, ole');
+        return _this54.context.set('name', 'Ole, ole');
       });
 
       this.assertText('[In layout - with-block] [In block - Ole, ole][In layout - without-block] ');
 
       this.runTask(function () {
-        return _this51.context.set('name', 'Whoop, whoop!');
+        return _this54.context.set('name', 'Whoop, whoop!');
       });
 
       this.assertText('[In layout - with-block] [In block - Whoop, whoop!][In layout - without-block] ');
     };
 
     _class.prototype['@test hasBlock is true when block supplied'] = function () {
-      var _this52 = this;
-
-      this.registerComponent('with-block', {
-        template: (0, _abstractTestCase.strip)(_templateObject12)
-      });
-
-      this.render((0, _abstractTestCase.strip)(_templateObject13));
-
-      this.assertText('In template');
-
-      this.runTask(function () {
-        return _this52.rerender();
-      });
-
-      this.assertText('In template');
-    };
-
-    _class.prototype['@test hasBlock is false when no block supplied'] = function () {
-      var _this53 = this;
-
-      this.registerComponent('with-block', {
-        template: (0, _abstractTestCase.strip)(_templateObject12)
-      });
-
-      this.render('{{with-block}}');
-
-      this.assertText('No Block!');
-
-      this.runTask(function () {
-        return _this53.rerender();
-      });
-
-      this.assertText('No Block!');
-    };
-
-    _class.prototype['@test hasBlockParams is true when block param supplied'] = function () {
-      var _this54 = this;
+      var _this55 = this;
 
       this.registerComponent('with-block', {
         template: (0, _abstractTestCase.strip)(_templateObject14)
@@ -14164,17 +14399,35 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
 
       this.render((0, _abstractTestCase.strip)(_templateObject15));
 
-      this.assertText('In template - In Component');
+      this.assertText('In template');
 
       this.runTask(function () {
-        return _this54.rerender();
+        return _this55.rerender();
       });
 
-      this.assertText('In template - In Component');
+      this.assertText('In template');
     };
 
-    _class.prototype['@test hasBlockParams is false when no block param supplied'] = function () {
-      var _this55 = this;
+    _class.prototype['@test hasBlock is false when no block supplied'] = function () {
+      var _this56 = this;
+
+      this.registerComponent('with-block', {
+        template: (0, _abstractTestCase.strip)(_templateObject14)
+      });
+
+      this.render('{{with-block}}');
+
+      this.assertText('No Block!');
+
+      this.runTask(function () {
+        return _this56.rerender();
+      });
+
+      this.assertText('No Block!');
+    };
+
+    _class.prototype['@test hasBlockParams is true when block param supplied'] = function () {
+      var _this57 = this;
 
       this.registerComponent('with-block', {
         template: (0, _abstractTestCase.strip)(_templateObject16)
@@ -14182,17 +14435,35 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
 
       this.render((0, _abstractTestCase.strip)(_templateObject17));
 
+      this.assertText('In template - In Component');
+
+      this.runTask(function () {
+        return _this57.rerender();
+      });
+
+      this.assertText('In template - In Component');
+    };
+
+    _class.prototype['@test hasBlockParams is false when no block param supplied'] = function () {
+      var _this58 = this;
+
+      this.registerComponent('with-block', {
+        template: (0, _abstractTestCase.strip)(_templateObject18)
+      });
+
+      this.render((0, _abstractTestCase.strip)(_templateObject19));
+
       this.assertText('In block No Block Param!');
 
       this.runTask(function () {
-        return _this55.rerender();
+        return _this58.rerender();
       });
 
       this.assertText('In block No Block Param!');
     };
 
     _class.prototype['@test static named positional parameters'] = function () {
-      var _this56 = this;
+      var _this59 = this;
 
       this.registerComponent('sample-component', {
         ComponentClass: _helpers.Component.extend().reopenClass({
@@ -14206,14 +14477,14 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
       this.assertText('Quint4');
 
       this.runTask(function () {
-        return _this56.rerender();
+        return _this59.rerender();
       });
 
       this.assertText('Quint4');
     };
 
     _class.prototype['@test dynamic named positional parameters'] = function () {
-      var _this57 = this;
+      var _this60 = this;
 
       this.registerComponent('sample-component', {
         ComponentClass: _helpers.Component.extend().reopenClass({
@@ -14230,33 +14501,33 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
       this.assertText('Quint4');
 
       this.runTask(function () {
-        return _this57.rerender();
+        return _this60.rerender();
       });
 
       this.assertText('Quint4');
 
       this.runTask(function () {
-        return _this57.context.set('myName', 'Sergio');
+        return _this60.context.set('myName', 'Sergio');
       });
 
       this.assertText('Sergio4');
 
       this.runTask(function () {
-        return _this57.context.set('myAge', 2);
+        return _this60.context.set('myAge', 2);
       });
 
       this.assertText('Sergio2');
 
       this.runTask(function () {
-        _this57.context.set('myName', 'Quint');
-        _this57.context.set('myAge', 4);
+        _this60.context.set('myName', 'Quint');
+        _this60.context.set('myAge', 4);
       });
 
       this.assertText('Quint4');
     };
 
     _class.prototype['@test if a value is passed as a non-positional parameter, it raises an assertion'] = function () {
-      var _this58 = this;
+      var _this61 = this;
 
       this.registerComponent('sample-component', {
         ComponentClass: _helpers.Component.extend().reopenClass({
@@ -14266,7 +14537,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
       });
 
       expectAssertion(function () {
-        _this58.render('{{sample-component notMyName name=myName}}', {
+        _this61.render('{{sample-component notMyName name=myName}}', {
           myName: 'Quint',
           notMyName: 'Sergio'
         });
@@ -14274,32 +14545,32 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
     };
 
     _class.prototype['@test yield to inverse'] = function () {
-      var _this59 = this;
+      var _this62 = this;
 
       this.registerComponent('my-if', {
-        template: (0, _abstractTestCase.strip)(_templateObject18)
+        template: (0, _abstractTestCase.strip)(_templateObject20)
       });
 
-      this.render((0, _abstractTestCase.strip)(_templateObject19), {
+      this.render((0, _abstractTestCase.strip)(_templateObject21), {
         activated: true
       });
 
       this.assertText('Yes:Hello42');
 
       this.runTask(function () {
-        return _this59.rerender();
+        return _this62.rerender();
       });
 
       this.assertText('Yes:Hello42');
 
       this.runTask(function () {
-        return _this59.context.set('activated', false);
+        return _this62.context.set('activated', false);
       });
 
       this.assertText('No:Goodbye');
 
       this.runTask(function () {
-        return _this59.context.set('activated', true);
+        return _this62.context.set('activated', true);
       });
 
       this.assertText('Yes:Hello42');
@@ -14307,19 +14578,6 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
 
     _class.prototype['@test expression hasBlock inverse'] = function () {
       this.registerComponent('check-inverse', {
-        template: (0, _abstractTestCase.strip)(_templateObject20)
-      });
-
-      this.render((0, _abstractTestCase.strip)(_templateObject21));
-
-      this.assertComponentElement(this.firstChild, { content: 'No' });
-      this.assertComponentElement(this.nthChild(1), { content: 'Yes' });
-
-      this.assertStableRerender();
-    };
-
-    _class.prototype['@test expression hasBlock default'] = function () {
-      this.registerComponent('check-block', {
         template: (0, _abstractTestCase.strip)(_templateObject22)
       });
 
@@ -14331,12 +14589,25 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
       this.assertStableRerender();
     };
 
-    _class.prototype['@test expression hasBlockParams inverse'] = function () {
-      this.registerComponent('check-inverse', {
+    _class.prototype['@test expression hasBlock default'] = function () {
+      this.registerComponent('check-block', {
         template: (0, _abstractTestCase.strip)(_templateObject24)
       });
 
       this.render((0, _abstractTestCase.strip)(_templateObject25));
+
+      this.assertComponentElement(this.firstChild, { content: 'No' });
+      this.assertComponentElement(this.nthChild(1), { content: 'Yes' });
+
+      this.assertStableRerender();
+    };
+
+    _class.prototype['@test expression hasBlockParams inverse'] = function () {
+      this.registerComponent('check-inverse', {
+        template: (0, _abstractTestCase.strip)(_templateObject26)
+      });
+
+      this.render((0, _abstractTestCase.strip)(_templateObject27));
 
       this.assertComponentElement(this.firstChild, { content: 'No' });
       this.assertComponentElement(this.nthChild(1), { content: 'No' });
@@ -14346,10 +14617,10 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
 
     _class.prototype['@test expression hasBlockParams default'] = function () {
       this.registerComponent('check-block', {
-        template: (0, _abstractTestCase.strip)(_templateObject26)
+        template: (0, _abstractTestCase.strip)(_templateObject28)
       });
 
-      this.render((0, _abstractTestCase.strip)(_templateObject27));
+      this.render((0, _abstractTestCase.strip)(_templateObject29));
 
       this.assertComponentElement(this.firstChild, { content: 'No' });
       this.assertComponentElement(this.nthChild(1), { content: 'Yes' });
@@ -14359,10 +14630,10 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
 
     _class.prototype['@test non-expression hasBlock'] = function () {
       this.registerComponent('check-block', {
-        template: (0, _abstractTestCase.strip)(_templateObject28)
+        template: (0, _abstractTestCase.strip)(_templateObject30)
       });
 
-      this.render((0, _abstractTestCase.strip)(_templateObject23));
+      this.render((0, _abstractTestCase.strip)(_templateObject25));
 
       this.assertComponentElement(this.firstChild, { content: 'No' });
       this.assertComponentElement(this.nthChild(1), { content: 'Yes' });
@@ -14372,10 +14643,10 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
 
     _class.prototype['@test expression hasBlockParams'] = function () {
       this.registerComponent('check-params', {
-        template: (0, _abstractTestCase.strip)(_templateObject26)
+        template: (0, _abstractTestCase.strip)(_templateObject28)
       });
 
-      this.render((0, _abstractTestCase.strip)(_templateObject29));
+      this.render((0, _abstractTestCase.strip)(_templateObject31));
 
       this.assertComponentElement(this.firstChild, { content: 'No' });
       this.assertComponentElement(this.nthChild(1), { content: 'Yes' });
@@ -14385,10 +14656,10 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
 
     _class.prototype['@test non-expression hasBlockParams'] = function () {
       this.registerComponent('check-params', {
-        template: (0, _abstractTestCase.strip)(_templateObject30)
+        template: (0, _abstractTestCase.strip)(_templateObject32)
       });
 
-      this.render((0, _abstractTestCase.strip)(_templateObject29));
+      this.render((0, _abstractTestCase.strip)(_templateObject31));
 
       this.assertComponentElement(this.firstChild, { content: 'No' });
       this.assertComponentElement(this.nthChild(1), { content: 'Yes' });
@@ -14401,7 +14672,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
         template: '<button name={{hasBlock}}></button>'
       });
 
-      this.render((0, _abstractTestCase.strip)(_templateObject31));
+      this.render((0, _abstractTestCase.strip)(_templateObject33));
 
       (0, _testHelpers.equalsElement)(this.$('button')[0], 'button', { name: 'false' }, '');
       (0, _testHelpers.equalsElement)(this.$('button')[1], 'button', { name: 'true' }, '');
@@ -14414,7 +14685,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
         template: '<button name={{hasBlock "inverse"}}></button>'
       }, '');
 
-      this.render((0, _abstractTestCase.strip)(_templateObject32));
+      this.render((0, _abstractTestCase.strip)(_templateObject34));
 
       (0, _testHelpers.equalsElement)(this.$('button')[0], 'button', { name: 'false' }, '');
       (0, _testHelpers.equalsElement)(this.$('button')[1], 'button', { name: 'true' }, '');
@@ -14427,7 +14698,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
         template: '<button name={{hasBlockParams}}></button>'
       });
 
-      this.render((0, _abstractTestCase.strip)(_templateObject33));
+      this.render((0, _abstractTestCase.strip)(_templateObject35));
 
       (0, _testHelpers.equalsElement)(this.$('button')[0], 'button', { name: 'false' }, '');
       (0, _testHelpers.equalsElement)(this.$('button')[1], 'button', { name: 'true' }, '');
@@ -14440,7 +14711,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
         template: '<button name={{hasBlockParams "inverse"}}></button>'
       }, '');
 
-      this.render((0, _abstractTestCase.strip)(_templateObject33));
+      this.render((0, _abstractTestCase.strip)(_templateObject35));
 
       (0, _testHelpers.equalsElement)(this.$('button')[0], 'button', { name: 'false' }, '');
       (0, _testHelpers.equalsElement)(this.$('button')[1], 'button', { name: 'false' }, '');
@@ -14453,7 +14724,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
         template: '{{if hasBlock "true" "false"}}'
       });
 
-      this.render((0, _abstractTestCase.strip)(_templateObject34));
+      this.render((0, _abstractTestCase.strip)(_templateObject36));
 
       this.assertComponentElement(this.firstChild, { content: 'false' });
       this.assertComponentElement(this.nthChild(1), { content: 'true' });
@@ -14466,7 +14737,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
         template: '{{if (hasBlock) "true" "false"}}'
       });
 
-      this.render((0, _abstractTestCase.strip)(_templateObject34));
+      this.render((0, _abstractTestCase.strip)(_templateObject36));
 
       this.assertComponentElement(this.firstChild, { content: 'false' });
       this.assertComponentElement(this.nthChild(1), { content: 'true' });
@@ -14479,7 +14750,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
         template: '{{if (hasBlock "inverse") "true" "false"}}'
       });
 
-      this.render((0, _abstractTestCase.strip)(_templateObject35));
+      this.render((0, _abstractTestCase.strip)(_templateObject37));
 
       this.assertComponentElement(this.firstChild, { content: 'false' });
       this.assertComponentElement(this.nthChild(1), { content: 'true' });
@@ -14492,7 +14763,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
         template: '{{if hasBlockParams "true" "false"}}'
       });
 
-      this.render((0, _abstractTestCase.strip)(_templateObject36));
+      this.render((0, _abstractTestCase.strip)(_templateObject38));
 
       this.assertComponentElement(this.firstChild, { content: 'false' });
       this.assertComponentElement(this.nthChild(1), { content: 'true' });
@@ -14505,7 +14776,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
         template: '{{if (hasBlockParams) "true" "false"}}'
       });
 
-      this.render((0, _abstractTestCase.strip)(_templateObject36));
+      this.render((0, _abstractTestCase.strip)(_templateObject38));
 
       this.assertComponentElement(this.firstChild, { content: 'false' });
       this.assertComponentElement(this.nthChild(1), { content: 'true' });
@@ -14518,7 +14789,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
         template: '{{if (hasBlockParams "inverse") "true" "false"}}'
       });
 
-      this.render((0, _abstractTestCase.strip)(_templateObject36));
+      this.render((0, _abstractTestCase.strip)(_templateObject38));
 
       this.assertComponentElement(this.firstChild, { content: 'false' });
       this.assertComponentElement(this.nthChild(1), { content: 'false' });
@@ -14527,7 +14798,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
     };
 
     _class.prototype['@test component in template of a yielding component should have the proper parentView'] = function (assert) {
-      var _this60 = this;
+      var _this63 = this;
 
       var outer = void 0,
           innerTemplate = void 0,
@@ -14568,7 +14839,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
       assert.equal(outer.parentView, this.context, 'x-outer receives the ambient scope as its parentView');
 
       this.runTask(function () {
-        return _this60.rerender();
+        return _this63.rerender();
       });
 
       assert.equal(innerTemplate.parentView, outer, 'receives the wrapping component as its parentView in template blocks');
@@ -14577,7 +14848,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
     };
 
     _class.prototype['@test newly-added sub-components get correct parentView'] = function (assert) {
-      var _this61 = this;
+      var _this64 = this;
 
       var outer = void 0,
           inner = void 0;
@@ -14600,34 +14871,34 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
         })
       });
 
-      this.render((0, _abstractTestCase.strip)(_templateObject37), {
+      this.render((0, _abstractTestCase.strip)(_templateObject39), {
         showInner: false
       });
 
       assert.equal(outer.parentView, this.context, 'x-outer receives the ambient scope as its parentView');
 
       this.runTask(function () {
-        return _this61.rerender();
+        return _this64.rerender();
       });
 
       assert.equal(outer.parentView, this.context, 'x-outer receives the ambient scope as its parentView (after rerender)');
 
       this.runTask(function () {
-        return _this61.context.set('showInner', true);
+        return _this64.context.set('showInner', true);
       });
 
       assert.equal(outer.parentView, this.context, 'x-outer receives the ambient scope as its parentView');
       assert.equal(inner.parentView, outer, 'receives the wrapping component as its parentView in template blocks');
 
       this.runTask(function () {
-        return _this61.context.set('showInner', false);
+        return _this64.context.set('showInner', false);
       });
 
       assert.equal(outer.parentView, this.context, 'x-outer receives the ambient scope as its parentView');
     };
 
     _class.prototype['@test when a property is changed during children\'s rendering'] = function (assert) {
-      var _this62 = this;
+      var _this65 = this;
 
       var outer = void 0,
           middle = void 0;
@@ -14672,7 +14943,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
       assert.equal(this.$('#middle-value').text(), '', 'initial render of middle (observers do not run during init)');
 
       this.runTask(function () {
-        return _this62.rerender();
+        return _this65.rerender();
       });
 
       assert.equal(this.$('#inner-value').text(), '1', 'initial render of inner');
@@ -14681,24 +14952,17 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
       var expectedBacktrackingMessage = /modified "value" twice on <\(.+> in a single render\. It was rendered in "component:x-middle" and modified in "component:x-inner"/;
 
       expectAssertion(function () {
-        _this62.runTask(function () {
+        _this65.runTask(function () {
           return outer.set('value', 2);
         });
       }, expectedBacktrackingMessage);
     };
 
-    _class.prototype['@test when a shared dependency is changed during children\'s rendering'] = function (assert) {
-      var _this63 = this;
-
-      var outer = void 0;
+    _class.prototype['@test when a shared dependency is changed during children\'s rendering'] = function () {
+      var _this66 = this;
 
       this.registerComponent('x-outer', {
         ComponentClass: _helpers.Component.extend({
-          init: function () {
-            this._super.apply(this, arguments);
-            outer = this;
-          },
-
           value: 1,
           wrapper: _emberRuntime.Object.create({ content: null })
         }),
@@ -14719,15 +14983,15 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
       var expectedBacktrackingMessage = /modified "wrapper\.content" twice on <Ember\.Object.+> in a single render\. It was rendered in "component:x-outer" and modified in "component:x-inner"/;
 
       expectAssertion(function () {
-        _this63.render('{{x-outer}}');
+        _this66.render('{{x-outer}}');
       }, expectedBacktrackingMessage);
     };
 
     _class.prototype['@test non-block with each rendering child components'] = function () {
-      var _this64 = this;
+      var _this67 = this;
 
       this.registerComponent('non-block', {
-        template: (0, _abstractTestCase.strip)(_templateObject38)
+        template: (0, _abstractTestCase.strip)(_templateObject40)
       });
 
       this.registerComponent('child-non-block', {
@@ -14741,32 +15005,32 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
       this.assertText('In layout. [Child: Tom.][Child: Dick.][Child: Harry.]');
 
       this.runTask(function () {
-        return _this64.rerender();
+        return _this67.rerender();
       });
 
       this.assertText('In layout. [Child: Tom.][Child: Dick.][Child: Harry.]');
 
       this.runTask(function () {
-        return _this64.context.get('items').pushObject('Sergio');
+        return _this67.context.get('items').pushObject('Sergio');
       });
 
       this.assertText('In layout. [Child: Tom.][Child: Dick.][Child: Harry.][Child: Sergio.]');
 
       this.runTask(function () {
-        return _this64.context.get('items').shiftObject();
+        return _this67.context.get('items').shiftObject();
       });
 
       this.assertText('In layout. [Child: Dick.][Child: Harry.][Child: Sergio.]');
 
       this.runTask(function () {
-        return _this64.context.set('items', (0, _emberRuntime.A)(['Tom', 'Dick', 'Harry']));
+        return _this67.context.set('items', (0, _emberRuntime.A)(['Tom', 'Dick', 'Harry']));
       });
 
       this.assertText('In layout. [Child: Tom.][Child: Dick.][Child: Harry.]');
     };
 
     _class.prototype['@test specifying classNames results in correct class'] = function (assert) {
-      var _this65 = this;
+      var _this68 = this;
 
       this.registerComponent('some-clicky-thing', {
         ComponentClass: _helpers.Component.extend({
@@ -14775,7 +15039,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
         })
       });
 
-      this.render((0, _abstractTestCase.strip)(_templateObject39));
+      this.render((0, _abstractTestCase.strip)(_templateObject41));
 
       // TODO: ember-view is no longer viewable in the classNames array. Bug or
       // feature?
@@ -14787,7 +15051,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
       this.assertComponentElement(this.firstChild, { tagName: 'button', attrs: { 'class': (0, _testHelpers.classes)(expectedClassNames.join(' ')) } });
 
       this.runTask(function () {
-        return _this65.rerender();
+        return _this68.rerender();
       });
 
       assert.ok(this.$('button').is('.foo.bar.baz.ember-view'), 'the element has the correct classes: ' + this.$('button').attr('class') + ' (rerender)');
@@ -14797,29 +15061,29 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
     };
 
     _class.prototype['@test specifying custom concatenatedProperties avoids clobbering'] = function () {
-      var _this66 = this;
+      var _this69 = this;
 
       this.registerComponent('some-clicky-thing', {
         ComponentClass: _helpers.Component.extend({
           concatenatedProperties: ['blahzz'],
           blahzz: ['blark', 'pory']
         }),
-        template: (0, _abstractTestCase.strip)(_templateObject40)
+        template: (0, _abstractTestCase.strip)(_templateObject42)
       });
 
-      this.render((0, _abstractTestCase.strip)(_templateObject41));
+      this.render((0, _abstractTestCase.strip)(_templateObject43));
 
       this.assertText('blarkporybaz- Click Me');
 
       this.runTask(function () {
-        return _this66.rerender();
+        return _this69.rerender();
       });
 
       this.assertText('blarkporybaz- Click Me');
     };
 
     _class.prototype['@test a two way binding flows upstream when consumed in the template'] = function () {
-      var _this67 = this;
+      var _this70 = this;
 
       var component = void 0;
       var FooBarComponent = _helpers.Component.extend({
@@ -14842,7 +15106,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
       this.assertText('initial value - initial value');
 
       this.runTask(function () {
-        return _this67.rerender();
+        return _this70.rerender();
       });
 
       this.assertText('initial value - initial value');
@@ -14860,14 +15124,14 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
       this.assertText(' - ');
 
       this.runTask(function () {
-        _this67.component.set('localBar', 'initial value');
+        _this70.component.set('localBar', 'initial value');
       });
 
       this.assertText('initial value - initial value');
     };
 
     _class.prototype['@test a two way binding flows upstream through a CP when consumed in the template'] = function () {
-      var _this68 = this;
+      var _this71 = this;
 
       var component = void 0;
       var FooBarComponent = _helpers.Component.extend({
@@ -14900,7 +15164,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
       this.assertText('initial value - initial value');
 
       this.runTask(function () {
-        return _this68.rerender();
+        return _this71.rerender();
       });
 
       this.assertText('initial value - initial value');
@@ -14912,14 +15176,14 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
       this.assertText('updated value - updated value');
 
       this.runTask(function () {
-        _this68.component.set('localBar', 'initial value');
+        _this71.component.set('localBar', 'initial value');
       });
 
       this.assertText('initial value - initial value');
     };
 
     _class.prototype['@test a two way binding flows upstream through a CP without template consumption'] = function () {
-      var _this69 = this;
+      var _this72 = this;
 
       var component = void 0;
       var FooBarComponent = _helpers.Component.extend({
@@ -14951,7 +15215,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
       this.assertText('initial value');
 
       this.runTask(function () {
-        return _this69.rerender();
+        return _this72.rerender();
       });
 
       this.assertText('initial value');
@@ -14963,14 +15227,14 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
       this.assertText('updated value');
 
       this.runTask(function () {
-        _this69.component.set('localBar', 'initial value');
+        _this72.component.set('localBar', 'initial value');
       });
 
       this.assertText('initial value');
     };
 
     _class.prototype['@test services can be injected into components'] = function () {
-      var _this70 = this;
+      var _this73 = this;
 
       var service = void 0;
       this.registerService('name', _emberRuntime.Service.extend({
@@ -14994,7 +15258,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
       this.assertText('Jackson');
 
       this.runTask(function () {
-        return _this70.rerender();
+        return _this73.rerender();
       });
 
       this.assertText('Jackson');
@@ -15013,7 +15277,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
     };
 
     _class.prototype['@test injecting an unknown service raises an exception'] = function () {
-      var _this71 = this;
+      var _this74 = this;
 
       this.registerComponent('foo-bar', {
         ComponentClass: _helpers.Component.extend({
@@ -15022,41 +15286,12 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
       });
 
       expectAssertion(function () {
-        _this71.render('{{foo-bar}}');
+        _this74.render('{{foo-bar}}');
       }, 'Attempting to inject an unknown injection: \'service:missingService\'');
     };
 
-    _class.prototype['@test can access `actions` hash via `_actions` [DEPRECATED]'] = function () {
-      var _this72 = this;
-
-      var component = void 0;
-
-      function derp() {}
-
-      this.registerComponent('foo-bar', {
-        ComponentClass: _helpers.Component.extend({
-          init: function () {
-            this._super.apply(this, arguments);
-            component = this;
-          },
-
-          actions: {
-            derp: derp
-          }
-        })
-      });
-
-      this.render('{{foo-bar}}');
-
-      this.assert.strictEqual(component.actions.derp, derp);
-
-      expectDeprecation(function () {
-        _this72.assert.strictEqual(component._actions.derp, derp);
-      }, 'Usage of `_actions` is deprecated, use `actions` instead.');
-    };
-
     _class.prototype['@test throws if `this._super` is not called from `init`'] = function () {
-      var _this73 = this;
+      var _this75 = this;
 
       this.registerComponent('foo-bar', {
         ComponentClass: _helpers.Component.extend({
@@ -15065,16 +15300,16 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
       });
 
       expectAssertion(function () {
-        _this73.render('{{foo-bar}}');
+        _this75.render('{{foo-bar}}');
       }, /You must call `this._super\(...arguments\);` when overriding `init` on a framework object. Please update .* to call `this._super\(...arguments\);` from `init`./);
     };
 
     _class.prototype['@test should toggle visibility with isVisible'] = function (assert) {
-      var _this74 = this;
+      var _this76 = this;
 
       var assertStyle = function (expected) {
         var matcher = (0, _testHelpers.styles)(expected);
-        var actual = _this74.firstChild.getAttribute('style');
+        var actual = _this76.firstChild.getAttribute('style');
 
         assert.pushResult({
           result: matcher.match(actual),
@@ -15097,18 +15332,18 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
       this.assertStableRerender();
 
       this.runTask(function () {
-        (0, _emberMetal.set)(_this74.context, 'visible', true);
+        (0, _emberMetal.set)(_this76.context, 'visible', true);
       });
       assertStyle('');
 
       this.runTask(function () {
-        (0, _emberMetal.set)(_this74.context, 'visible', false);
+        (0, _emberMetal.set)(_this76.context, 'visible', false);
       });
       assertStyle('display: none;');
     };
 
     _class.prototype['@test isVisible does not overwrite component style'] = function () {
-      var _this75 = this;
+      var _this77 = this;
 
       this.registerComponent('foo-bar', {
         ComponentClass: _helpers.Component.extend({
@@ -15131,7 +15366,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
       this.assertStableRerender();
 
       this.runTask(function () {
-        (0, _emberMetal.set)(_this75.context, 'visible', true);
+        (0, _emberMetal.set)(_this77.context, 'visible', true);
       });
 
       this.assertComponentElement(this.firstChild, {
@@ -15140,7 +15375,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
       });
 
       this.runTask(function () {
-        (0, _emberMetal.set)(_this75.context, 'visible', false);
+        (0, _emberMetal.set)(_this77.context, 'visible', false);
       });
 
       this.assertComponentElement(this.firstChild, {
@@ -15150,11 +15385,11 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
     };
 
     _class.prototype['@test adds isVisible binding when style binding is missing and other bindings exist'] = function (assert) {
-      var _this76 = this;
+      var _this78 = this;
 
       var assertStyle = function (expected) {
         var matcher = (0, _testHelpers.styles)(expected);
-        var actual = _this76.firstChild.getAttribute('style');
+        var actual = _this78.firstChild.getAttribute('style');
 
         assert.pushResult({
           result: matcher.match(actual),
@@ -15182,14 +15417,14 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
       this.assertStableRerender();
 
       this.runTask(function () {
-        (0, _emberMetal.set)(_this76.context, 'visible', true);
+        (0, _emberMetal.set)(_this78.context, 'visible', true);
       });
 
       assertStyle('');
 
       this.runTask(function () {
-        (0, _emberMetal.set)(_this76.context, 'visible', false);
-        (0, _emberMetal.set)(_this76.context, 'foo', 'woo');
+        (0, _emberMetal.set)(_this78.context, 'visible', false);
+        (0, _emberMetal.set)(_this78.context, 'foo', 'woo');
       });
 
       assertStyle('display: none;');
@@ -15197,14 +15432,14 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
     };
 
     _class.prototype['@test it can use readDOMAttr to read input value'] = function () {
-      var _this77 = this;
+      var _this79 = this;
 
       var component = void 0;
       var assertElement = function (expectedValue) {
         // value is a property, not an attribute
-        _this77.assertHTML('<input class="ember-view" id="' + component.elementId + '">');
-        _this77.assert.equal(_this77.firstChild.value, expectedValue, 'value property is correct');
-        _this77.assert.equal((0, _emberMetal.get)(component, 'value'), expectedValue, 'component.get("value") is correct');
+        _this79.assertHTML('<input class="ember-view" id="' + component.elementId + '">');
+        _this79.assert.equal(_this79.firstChild.value, expectedValue, 'value property is correct');
+        _this79.assert.equal((0, _emberMetal.get)(component, 'value'), expectedValue, 'component.get("value") is correct');
       };
 
       this.registerComponent('one-way-input', {
@@ -15232,15 +15467,15 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
       this.assertStableRerender();
 
       this.runTask(function () {
-        _this77.firstChild.value = 'bar';
-        _this77.$('input').trigger('change');
+        _this79.firstChild.value = 'bar';
+        _this79.$('input').trigger('change');
       });
 
       assertElement('bar');
 
       this.runTask(function () {
-        _this77.firstChild.value = 'foo';
-        _this77.$('input').trigger('change');
+        _this79.firstChild.value = 'foo';
+        _this79.$('input').trigger('change');
       });
 
       assertElement('foo');
@@ -15252,8 +15487,8 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
       assertElement('bar');
 
       this.runTask(function () {
-        _this77.firstChild.value = 'foo';
-        _this77.$('input').trigger('change');
+        _this79.firstChild.value = 'foo';
+        _this79.$('input').trigger('change');
       });
 
       assertElement('foo');
@@ -15309,7 +15544,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
         })
       });
 
-      this.render((0, _abstractTestCase.strip)(_templateObject42));
+      this.render((0, _abstractTestCase.strip)(_templateObject44));
 
       this.teardown();
 
@@ -15341,7 +15576,9 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
     };
 
     _class.prototype['@test using didInitAttrs as an event is deprecated'] = function (assert) {
-      var _this78 = this;
+      var _this80 = this;
+
+      _emberEnvironment.ENV._ENABLE_DID_INIT_ATTRS_SUPPORT = true;
 
       this.registerComponent('foo-bar', {
         ComponentClass: _helpers.Component.extend({
@@ -15352,16 +15589,29 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
       });
 
       expectDeprecation(function () {
-        _this78.render('{{foo-bar}}');
+        _this80.render('{{foo-bar}}');
       }, /didInitAttrs called/);
     };
 
-    _class.prototype['@test did{Init,Receive}Attrs fires even if component is not rendered'] = function (assert) {
-      var _this79 = this;
+    _class.prototype['@test using didInitAttrs as an event throws an assert'] = function (assert) {
+      var _this81 = this;
 
-      expectDeprecation(/didInitAttrs called/);
+      this.registerComponent('foo-bar', {
+        ComponentClass: _helpers.Component.extend({
+          foo: (0, _emberMetal.on)('didInitAttrs', function () {
+            assert.ok(true, 'should fire `didInitAttrs` event');
+          })
+        })
+      });
 
-      var didInitAttrsCount = 0;
+      expectAssertion(function () {
+        _this81.render('{{foo-bar}}');
+      }, /didInitAttrs called/);
+    };
+
+    _class.prototype['@test didReceiveAttrs fires even if component is not rendered'] = function (assert) {
+      var _this82 = this;
+
       var didReceiveAttrsCount = 0;
 
       this.registerComponent('foo-bar', {
@@ -15369,10 +15619,6 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
           init: function () {
             this._super.apply(this, arguments);
             this.didInit = true;
-          },
-          didInitAttrs: function () {
-            assert.ok(this.didInit, 'expected init to have run before didInitAttrs');
-            didInitAttrsCount++;
           },
           didReceiveAttrs: function () {
             assert.ok(this.didInit, 'expected init to have run before didReceiveAttrs');
@@ -15384,23 +15630,18 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
         })
       });
 
-      assert.strictEqual(didInitAttrsCount, 0, 'precond: didInitAttrs is not fired');
       assert.strictEqual(didReceiveAttrsCount, 0, 'precond: didReceiveAttrs is not fired');
 
       this.runTask(function () {
-        return _this79.component = _this79.owner.lookup('component:foo-bar');
+        return _this82.component = _this82.owner.lookup('component:foo-bar');
       });
 
-      assert.strictEqual(didInitAttrsCount, 1, 'precond: didInitAttrs is fired');
       assert.strictEqual(didReceiveAttrsCount, 1, 'precond: didReceiveAttrs is fired');
     };
 
-    _class.prototype['@test did{Init,Receive}Attrs fires after .init() but before observers become active'] = function (assert) {
-      var _this80 = this;
+    _class.prototype['@test didReceiveAttrs fires after .init() but before observers become active'] = function (assert) {
+      var _this83 = this;
 
-      expectDeprecation(/didInitAttrs called/);
-
-      var fooCopyDidChangeCount = 0;
       var barCopyDidChangeCount = 0;
 
       this.registerComponent('foo-bar', {
@@ -15409,49 +15650,31 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
             this._super.apply(this, arguments);
             this.didInit = true;
           },
-          didInitAttrs: function () {
-            assert.ok(this.didInit, 'expected init to have run before didInitAttrs');
-            this.set('fooCopy', this.attrs.foo.value + 1);
-          },
           didReceiveAttrs: function () {
             assert.ok(this.didInit, 'expected init to have run before didReceiveAttrs');
             this.set('barCopy', this.attrs.bar.value + 1);
           },
 
-          fooCopyDidChange: (0, _emberMetal.observer)('fooCopy', function () {
-            fooCopyDidChangeCount++;
-          }),
           barCopyDidChange: (0, _emberMetal.observer)('barCopy', function () {
             barCopyDidChangeCount++;
           })
         }),
 
-        template: '{{foo}}-{{fooCopy}}-{{bar}}-{{barCopy}}'
+        template: '{{bar}}-{{barCopy}}'
       });
 
-      this.render('{{foo-bar foo=foo bar=bar}}', { foo: 1, bar: 3 });
+      this.render('{{foo-bar bar=bar}}', { bar: 3 });
 
-      this.assertText('1-2-3-4');
+      this.assertText('3-4');
 
-      assert.strictEqual(fooCopyDidChangeCount, 0, 'expected NO observer firing for: fooCopy');
       assert.strictEqual(barCopyDidChangeCount, 0, 'expected NO observer firing for: barCopy');
 
       this.runTask(function () {
-        return (0, _emberMetal.set)(_this80.context, 'foo', 5);
+        return (0, _emberMetal.set)(_this83.context, 'bar', 7);
       });
 
-      this.assertText('5-2-3-4');
+      this.assertText('7-8');
 
-      assert.strictEqual(fooCopyDidChangeCount, 0, 'expected observer firing for: fooCopy');
-      assert.strictEqual(barCopyDidChangeCount, 0, 'expected NO observer firing for: barCopy');
-
-      this.runTask(function () {
-        return (0, _emberMetal.set)(_this80.context, 'bar', 7);
-      });
-
-      this.assertText('5-2-7-8');
-
-      assert.strictEqual(fooCopyDidChangeCount, 0, 'expected observer firing for: fooCopy');
       assert.strictEqual(barCopyDidChangeCount, 1, 'expected observer firing for: barCopy');
     };
 
@@ -15470,7 +15693,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
     };
 
     _class.prototype['@test overriding didUpdateAttrs does not trigger deprecation'] = function (assert) {
-      var _this81 = this;
+      var _this84 = this;
 
       this.registerComponent('foo-bar', {
         ComponentClass: _helpers.Component.extend({
@@ -15485,12 +15708,12 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
       this.render('{{foo-bar foo=foo bar=bar}}', { foo: 1, bar: 3 });
 
       this.runTask(function () {
-        return (0, _emberMetal.set)(_this81.context, 'foo', 5);
+        return (0, _emberMetal.set)(_this84.context, 'foo', 5);
       });
     };
 
     _class.prototype['@test returning `true` from an action does not bubble if `target` is not specified (GH#14275)'] = function (assert) {
-      var _this82 = this;
+      var _this85 = this;
 
       this.registerComponent('display-toggle', {
         ComponentClass: _helpers.Component.extend({
@@ -15514,12 +15737,12 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
       this.assertText('Show');
 
       this.runTask(function () {
-        return _this82.$('button').click();
+        return _this85.$('button').click();
       });
     };
 
     _class.prototype['@test returning `true` from an action bubbles to the `target` if specified'] = function (assert) {
-      var _this83 = this;
+      var _this86 = this;
 
       assert.expect(4);
 
@@ -15546,7 +15769,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
       this.assertText('Show');
 
       this.runTask(function () {
-        return _this83.$('button').click();
+        return _this86.$('button').click();
       });
     };
 
@@ -15600,13 +15823,13 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
     };
 
     _class.prototype['@test component yielding in an {{#each}} has correct block values after rerendering (GH#14284)'] = function () {
-      var _this84 = this;
+      var _this87 = this;
 
       this.registerComponent('list-items', {
         template: '{{#each items as |item|}}{{yield item}}{{/each}}'
       });
 
-      this.render((0, _abstractTestCase.strip)(_templateObject43), {
+      this.render((0, _abstractTestCase.strip)(_templateObject45), {
         editMode: false,
         items: ['foo', 'bar', 'qux', 'baz']
       });
@@ -15616,13 +15839,13 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
       this.assertStableRerender();
 
       this.runTask(function () {
-        return (0, _emberMetal.set)(_this84.context, 'editMode', true);
+        return (0, _emberMetal.set)(_this87.context, 'editMode', true);
       });
 
       this.assertText('|foo|Remove foo|bar|Remove bar|qux|Remove qux|baz|Remove baz');
 
       this.runTask(function () {
-        return (0, _emberMetal.set)(_this84.context, 'editMode', false);
+        return (0, _emberMetal.set)(_this87.context, 'editMode', false);
       });
 
       this.assertText('|foo||bar||qux||baz|');
@@ -15645,6 +15868,21 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
           positionalParams: ['myVar']
         }),
         template: 'MyVar1: {{attrs.myVar}} {{myVar}} MyVar2: {{myVar2}} {{attrs.myVar2}}'
+      });
+
+      this.render('{{foo-bar 1 myVar2=2}}');
+
+      this.assertText('MyVar1: 1 1 MyVar2: 2 2');
+    };
+
+    _class.prototype['@feature(ember-glimmer-named-arguments) using named arguments for positional params'] = function () {
+      var MyComponent = _helpers.Component.extend();
+
+      this.registerComponent('foo-bar', {
+        ComponentClass: MyComponent.reopenClass({
+          positionalParams: ['myVar']
+        }),
+        template: 'MyVar1: {{@myVar}} {{myVar}} MyVar2: {{myVar2}} {{@myVar2}}'
       });
 
       this.render('{{foo-bar 1 myVar2=2}}');
@@ -15725,11 +15963,22 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
       this.assertText('Hi!');
     };
 
-    _class.prototype['@test can access properties off of rest style positionalParams array'] = function () {
+    _class.prototype['@feature(!ember-glimmer-named-arguments) can access properties off of rest style positionalParams array'] = function () {
       this.registerComponent('foo-bar', {
         ComponentClass: _helpers.Component.extend().reopenClass({ positionalParams: 'things' }),
         // using `attrs` here to simulate `@things.length`
         template: '{{attrs.things.length}}'
+      });
+
+      this.render('{{foo-bar "foo" "bar" "baz"}}');
+
+      this.assertText('3');
+    };
+
+    _class.prototype['@feature(ember-glimmer-named-arguments) can access properties off of rest style positionalParams array'] = function () {
+      this.registerComponent('foo-bar', {
+        ComponentClass: _helpers.Component.extend().reopenClass({ positionalParams: 'things' }),
+        template: '{{@things.length}}'
       });
 
       this.render('{{foo-bar "foo" "bar" "baz"}}');
@@ -17196,14 +17445,11 @@ enifed('ember-glimmer/tests/integration/components/life-cycle-test', ['ember-bab
       };
     };
 
-    LifeCycleHooksTest.prototype.invocationFor = function () {
-      arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-
-
+    LifeCycleHooksTest.prototype.invocationFor = function () /* name, namedArgs = {} */{
       throw new Error('Not implemented: `invocationFor`');
     };
 
-    LifeCycleHooksTest.prototype.attrFor = function () {
+    LifeCycleHooksTest.prototype.attrFor = function () /* name */{
       throw new Error('Not implemented: `attrFor`');
     };
 
@@ -17294,12 +17540,9 @@ enifed('ember-glimmer/tests/integration/components/life-cycle-test', ['ember-bab
 
       var ComponentClass = this.ComponentClass.extend({
         init: function () {
-          var _this3 = this,
-              _arguments = arguments;
+          var _this3 = this;
 
-          expectDeprecation(function () {
-            _this3._super.apply(_this3, _arguments);
-          }, /didInitAttrs called/);
+          this._super.apply(this, arguments);
 
           this.isInitialRender = true;
           this.componentName = name;
@@ -17316,12 +17559,6 @@ enifed('ember-glimmer/tests/integration/components/life-cycle-test', ['ember-bab
           _emberMetal.run.schedule('afterRender', function () {
             _this3.isInitialRender = false;
           });
-        },
-        didInitAttrs: function (options) {
-          pushHook('didInitAttrs', options);
-          assertParentView('didInitAttrs', this);
-          assertNoElement('didInitAttrs', this);
-          assertState('didInitAttrs', 'preRender', this);
         },
         didReceiveAttrs: function (options) {
           pushHook('didReceiveAttrs', options);
@@ -17460,7 +17697,7 @@ enifed('ember-glimmer/tests/integration/components/life-cycle-test', ['ember-bab
         interactive: [
         // Sync hooks
 
-        ['the-top', 'init'], ['the-top', 'didInitAttrs'], ['the-top', 'didReceiveAttrs'], ['the-top', 'on(init)'], ['the-top', 'willRender'], ['the-top', 'willInsertElement'], ['the-middle', 'init'], ['the-middle', 'didInitAttrs'], ['the-middle', 'didReceiveAttrs'], ['the-middle', 'on(init)'], ['the-middle', 'willRender'], ['the-middle', 'willInsertElement'], ['the-bottom', 'init'], ['the-bottom', 'didInitAttrs'], ['the-bottom', 'didReceiveAttrs'], ['the-bottom', 'on(init)'], ['the-bottom', 'willRender'], ['the-bottom', 'willInsertElement'],
+        ['the-top', 'init'], ['the-top', 'didReceiveAttrs'], ['the-top', 'on(init)'], ['the-top', 'willRender'], ['the-top', 'willInsertElement'], ['the-middle', 'init'], ['the-middle', 'didReceiveAttrs'], ['the-middle', 'on(init)'], ['the-middle', 'willRender'], ['the-middle', 'willInsertElement'], ['the-bottom', 'init'], ['the-bottom', 'didReceiveAttrs'], ['the-bottom', 'on(init)'], ['the-bottom', 'willRender'], ['the-bottom', 'willInsertElement'],
 
         // Async hooks
 
@@ -17468,7 +17705,7 @@ enifed('ember-glimmer/tests/integration/components/life-cycle-test', ['ember-bab
 
         nonInteractive: [
         // Sync hooks
-        ['the-top', 'init'], ['the-top', 'didInitAttrs'], ['the-top', 'didReceiveAttrs'], ['the-top', 'on(init)'], ['the-middle', 'init'], ['the-middle', 'didInitAttrs'], ['the-middle', 'didReceiveAttrs'], ['the-middle', 'on(init)'], ['the-bottom', 'init'], ['the-bottom', 'didInitAttrs'], ['the-bottom', 'didReceiveAttrs'], ['the-bottom', 'on(init)']]
+        ['the-top', 'init'], ['the-top', 'didReceiveAttrs'], ['the-top', 'on(init)'], ['the-middle', 'init'], ['the-middle', 'didReceiveAttrs'], ['the-middle', 'on(init)'], ['the-bottom', 'init'], ['the-bottom', 'didReceiveAttrs'], ['the-bottom', 'on(init)']]
       });
 
       this.runTask(function () {
@@ -17610,7 +17847,7 @@ enifed('ember-glimmer/tests/integration/components/life-cycle-test', ['ember-bab
         interactive: [
         // Sync hooks
 
-        ['the-parent', 'init'], ['the-parent', 'didInitAttrs'], ['the-parent', 'didReceiveAttrs'], ['the-parent', 'on(init)'], ['the-parent', 'willRender'], ['the-parent', 'willInsertElement'], ['the-first-child', 'init'], ['the-first-child', 'didInitAttrs'], ['the-first-child', 'didReceiveAttrs'], ['the-first-child', 'on(init)'], ['the-first-child', 'willRender'], ['the-first-child', 'willInsertElement'], ['the-second-child', 'init'], ['the-second-child', 'didInitAttrs'], ['the-second-child', 'didReceiveAttrs'], ['the-second-child', 'on(init)'], ['the-second-child', 'willRender'], ['the-second-child', 'willInsertElement'], ['the-last-child', 'init'], ['the-last-child', 'didInitAttrs'], ['the-last-child', 'didReceiveAttrs'], ['the-last-child', 'on(init)'], ['the-last-child', 'willRender'], ['the-last-child', 'willInsertElement'],
+        ['the-parent', 'init'], ['the-parent', 'didReceiveAttrs'], ['the-parent', 'on(init)'], ['the-parent', 'willRender'], ['the-parent', 'willInsertElement'], ['the-first-child', 'init'], ['the-first-child', 'didReceiveAttrs'], ['the-first-child', 'on(init)'], ['the-first-child', 'willRender'], ['the-first-child', 'willInsertElement'], ['the-second-child', 'init'], ['the-second-child', 'didReceiveAttrs'], ['the-second-child', 'on(init)'], ['the-second-child', 'willRender'], ['the-second-child', 'willInsertElement'], ['the-last-child', 'init'], ['the-last-child', 'didReceiveAttrs'], ['the-last-child', 'on(init)'], ['the-last-child', 'willRender'], ['the-last-child', 'willInsertElement'],
 
         // Async hooks
 
@@ -17619,7 +17856,7 @@ enifed('ember-glimmer/tests/integration/components/life-cycle-test', ['ember-bab
         nonInteractive: [
         // Sync hooks
 
-        ['the-parent', 'init'], ['the-parent', 'didInitAttrs'], ['the-parent', 'didReceiveAttrs'], ['the-parent', 'on(init)'], ['the-first-child', 'init'], ['the-first-child', 'didInitAttrs'], ['the-first-child', 'didReceiveAttrs'], ['the-first-child', 'on(init)'], ['the-second-child', 'init'], ['the-second-child', 'didInitAttrs'], ['the-second-child', 'didReceiveAttrs'], ['the-second-child', 'on(init)'], ['the-last-child', 'init'], ['the-last-child', 'didInitAttrs'], ['the-last-child', 'didReceiveAttrs'], ['the-last-child', 'on(init)']]
+        ['the-parent', 'init'], ['the-parent', 'didReceiveAttrs'], ['the-parent', 'on(init)'], ['the-first-child', 'init'], ['the-first-child', 'didReceiveAttrs'], ['the-first-child', 'on(init)'], ['the-second-child', 'init'], ['the-second-child', 'didReceiveAttrs'], ['the-second-child', 'on(init)'], ['the-last-child', 'init'], ['the-last-child', 'didReceiveAttrs'], ['the-last-child', 'on(init)']]
       });
 
       this.runTask(function () {
@@ -17774,7 +18011,7 @@ enifed('ember-glimmer/tests/integration/components/life-cycle-test', ['ember-bab
         interactive: [
         // Sync hooks
 
-        ['the-top', 'init'], ['the-top', 'didInitAttrs'], ['the-top', 'didReceiveAttrs'], ['the-top', 'on(init)'], ['the-top', 'willRender'], ['the-top', 'willInsertElement'], ['the-middle', 'init'], ['the-middle', 'didInitAttrs'], ['the-middle', 'didReceiveAttrs'], ['the-middle', 'on(init)'], ['the-middle', 'willRender'], ['the-middle', 'willInsertElement'], ['the-bottom', 'init'], ['the-bottom', 'didInitAttrs'], ['the-bottom', 'didReceiveAttrs'], ['the-bottom', 'on(init)'], ['the-bottom', 'willRender'], ['the-bottom', 'willInsertElement'],
+        ['the-top', 'init'], ['the-top', 'didReceiveAttrs'], ['the-top', 'on(init)'], ['the-top', 'willRender'], ['the-top', 'willInsertElement'], ['the-middle', 'init'], ['the-middle', 'didReceiveAttrs'], ['the-middle', 'on(init)'], ['the-middle', 'willRender'], ['the-middle', 'willInsertElement'], ['the-bottom', 'init'], ['the-bottom', 'didReceiveAttrs'], ['the-bottom', 'on(init)'], ['the-bottom', 'willRender'], ['the-bottom', 'willInsertElement'],
 
         // Async hooks
 
@@ -17783,7 +18020,7 @@ enifed('ember-glimmer/tests/integration/components/life-cycle-test', ['ember-bab
         nonInteractive: [
         // Sync hooks
 
-        ['the-top', 'init'], ['the-top', 'didInitAttrs'], ['the-top', 'didReceiveAttrs'], ['the-top', 'on(init)'], ['the-middle', 'init'], ['the-middle', 'didInitAttrs'], ['the-middle', 'didReceiveAttrs'], ['the-middle', 'on(init)'], ['the-bottom', 'init'], ['the-bottom', 'didInitAttrs'], ['the-bottom', 'didReceiveAttrs'], ['the-bottom', 'on(init)']]
+        ['the-top', 'init'], ['the-top', 'didReceiveAttrs'], ['the-top', 'on(init)'], ['the-middle', 'init'], ['the-middle', 'didReceiveAttrs'], ['the-middle', 'on(init)'], ['the-bottom', 'init'], ['the-bottom', 'didReceiveAttrs'], ['the-bottom', 'on(init)']]
       });
 
       this.runTask(function () {
@@ -17859,11 +18096,11 @@ enifed('ember-glimmer/tests/integration/components/life-cycle-test', ['ember-bab
       this.assertRegisteredViews('intial render');
 
       var initialHooks = function () {
-        var ret = [['an-item', 'init'], ['an-item', 'didInitAttrs'], ['an-item', 'didReceiveAttrs'], ['an-item', 'on(init)']];
+        var ret = [['an-item', 'init'], ['an-item', 'didReceiveAttrs'], ['an-item', 'on(init)']];
         if (_this7.isInteractive) {
           ret.push(['an-item', 'willRender'], ['an-item', 'willInsertElement']);
         }
-        ret.push(['nested-item', 'init'], ['nested-item', 'didInitAttrs'], ['nested-item', 'didReceiveAttrs'], ['nested-item', 'on(init)']);
+        ret.push(['nested-item', 'init'], ['nested-item', 'didReceiveAttrs'], ['nested-item', 'on(init)']);
         if (_this7.isInteractive) {
           ret.push(['nested-item', 'willRender'], ['nested-item', 'willInsertElement']);
         }
@@ -17905,9 +18142,9 @@ enifed('ember-glimmer/tests/integration/components/life-cycle-test', ['ember-bab
       this.assertHooks({
         label: 'reset to empty array',
 
-        interactive: [['an-item', 'willDestroyElement'], ['an-item', 'willClearRender'], ['nested-item', 'willDestroyElement'], ['nested-item', 'willClearRender'], ['an-item', 'willDestroyElement'], ['an-item', 'willClearRender'], ['nested-item', 'willDestroyElement'], ['nested-item', 'willClearRender'], ['an-item', 'willDestroyElement'], ['an-item', 'willClearRender'], ['nested-item', 'willDestroyElement'], ['nested-item', 'willClearRender'], ['an-item', 'willDestroyElement'], ['an-item', 'willClearRender'], ['nested-item', 'willDestroyElement'], ['nested-item', 'willClearRender'], ['an-item', 'willDestroyElement'], ['an-item', 'willClearRender'], ['nested-item', 'willDestroyElement'], ['nested-item', 'willClearRender'], ['no-items', 'init'], ['no-items', 'didInitAttrs'], ['no-items', 'didReceiveAttrs'], ['no-items', 'on(init)'], ['no-items', 'willRender'], ['no-items', 'willInsertElement'], ['nested-item', 'init'], ['nested-item', 'didInitAttrs'], ['nested-item', 'didReceiveAttrs'], ['nested-item', 'on(init)'], ['nested-item', 'willRender'], ['nested-item', 'willInsertElement'], ['an-item', 'didDestroyElement'], ['nested-item', 'didDestroyElement'], ['an-item', 'didDestroyElement'], ['nested-item', 'didDestroyElement'], ['an-item', 'didDestroyElement'], ['nested-item', 'didDestroyElement'], ['an-item', 'didDestroyElement'], ['nested-item', 'didDestroyElement'], ['an-item', 'didDestroyElement'], ['nested-item', 'didDestroyElement'], ['nested-item', 'didInsertElement'], ['nested-item', 'didRender'], ['no-items', 'didInsertElement'], ['no-items', 'didRender'], ['an-item', 'willDestroy'], ['nested-item', 'willDestroy'], ['an-item', 'willDestroy'], ['nested-item', 'willDestroy'], ['an-item', 'willDestroy'], ['nested-item', 'willDestroy'], ['an-item', 'willDestroy'], ['nested-item', 'willDestroy'], ['an-item', 'willDestroy'], ['nested-item', 'willDestroy']],
+        interactive: [['an-item', 'willDestroyElement'], ['an-item', 'willClearRender'], ['nested-item', 'willDestroyElement'], ['nested-item', 'willClearRender'], ['an-item', 'willDestroyElement'], ['an-item', 'willClearRender'], ['nested-item', 'willDestroyElement'], ['nested-item', 'willClearRender'], ['an-item', 'willDestroyElement'], ['an-item', 'willClearRender'], ['nested-item', 'willDestroyElement'], ['nested-item', 'willClearRender'], ['an-item', 'willDestroyElement'], ['an-item', 'willClearRender'], ['nested-item', 'willDestroyElement'], ['nested-item', 'willClearRender'], ['an-item', 'willDestroyElement'], ['an-item', 'willClearRender'], ['nested-item', 'willDestroyElement'], ['nested-item', 'willClearRender'], ['no-items', 'init'], ['no-items', 'didReceiveAttrs'], ['no-items', 'on(init)'], ['no-items', 'willRender'], ['no-items', 'willInsertElement'], ['nested-item', 'init'], ['nested-item', 'didReceiveAttrs'], ['nested-item', 'on(init)'], ['nested-item', 'willRender'], ['nested-item', 'willInsertElement'], ['an-item', 'didDestroyElement'], ['nested-item', 'didDestroyElement'], ['an-item', 'didDestroyElement'], ['nested-item', 'didDestroyElement'], ['an-item', 'didDestroyElement'], ['nested-item', 'didDestroyElement'], ['an-item', 'didDestroyElement'], ['nested-item', 'didDestroyElement'], ['an-item', 'didDestroyElement'], ['nested-item', 'didDestroyElement'], ['nested-item', 'didInsertElement'], ['nested-item', 'didRender'], ['no-items', 'didInsertElement'], ['no-items', 'didRender'], ['an-item', 'willDestroy'], ['nested-item', 'willDestroy'], ['an-item', 'willDestroy'], ['nested-item', 'willDestroy'], ['an-item', 'willDestroy'], ['nested-item', 'willDestroy'], ['an-item', 'willDestroy'], ['nested-item', 'willDestroy'], ['an-item', 'willDestroy'], ['nested-item', 'willDestroy']],
 
-        nonInteractive: [['no-items', 'init'], ['no-items', 'didInitAttrs'], ['no-items', 'didReceiveAttrs'], ['no-items', 'on(init)'], ['nested-item', 'init'], ['nested-item', 'didInitAttrs'], ['nested-item', 'didReceiveAttrs'], ['nested-item', 'on(init)'], ['an-item', 'willDestroy'], ['nested-item', 'willDestroy'], ['an-item', 'willDestroy'], ['nested-item', 'willDestroy'], ['an-item', 'willDestroy'], ['nested-item', 'willDestroy'], ['an-item', 'willDestroy'], ['nested-item', 'willDestroy'], ['an-item', 'willDestroy'], ['nested-item', 'willDestroy']]
+        nonInteractive: [['no-items', 'init'], ['no-items', 'didReceiveAttrs'], ['no-items', 'on(init)'], ['nested-item', 'init'], ['nested-item', 'didReceiveAttrs'], ['nested-item', 'on(init)'], ['an-item', 'willDestroy'], ['nested-item', 'willDestroy'], ['an-item', 'willDestroy'], ['nested-item', 'willDestroy'], ['an-item', 'willDestroy'], ['nested-item', 'willDestroy'], ['an-item', 'willDestroy'], ['nested-item', 'willDestroy'], ['an-item', 'willDestroy'], ['nested-item', 'willDestroy']]
       });
 
       this.teardownAssertions.push(function () {
@@ -18371,26 +18608,6 @@ enifed('ember-glimmer/tests/integration/components/link-to-test', ['ember-babel'
       return p;
     };
 
-    _class.prototype['@test accessing `currentWhen` triggers a deprecation'] = function () {
-      var component = void 0;
-      this.addComponent('link-to', {
-        ComponentClass: _helpers.LinkComponent.extend({
-          init: function () {
-            this._super.apply(this, arguments);
-            component = this;
-          }
-        })
-      });
-
-      this.addTemplate('application', '{{link-to \'Index\' \'index\'}}');
-
-      return this.visit('/').then(function () {
-        expectDeprecation(function () {
-          component.get('currentWhen');
-        }, /Usage of `currentWhen` is deprecated, use `current-when` instead/);
-      });
-    };
-
     _class.prototype['@test should be able to be inserted in DOM when the router is not present'] = function () {
       var _this3 = this;
 
@@ -18467,28 +18684,8 @@ enifed('ember-glimmer/tests/integration/components/link-to-test', ['ember-babel'
       });
     };
 
-    _class.prototype['@test unwraps controllers'] = function () {
-      var _this8 = this;
-
-      this.router.map(function () {
-        this.route('profile', { path: '/profile/:id' });
-      });
-      this.addTemplate('application', '{{#link-to \'profile\' otherController}}Text{{/link-to}}');
-      this.add('controller:application', _emberRuntime.Controller.extend({
-        otherController: _emberRuntime.Controller.create({
-          model: 'foo'
-        })
-      }));
-
-      var deprecation = /Providing `{{link-to}}` with a param that is wrapped in a controller is deprecated./;
-
-      return this.visitWithDeprecation('/', deprecation).then(function () {
-        _this8.assertText('Text');
-      });
-    };
-
     _class.prototype['@test able to safely extend the built-in component and use the normal path'] = function () {
-      var _this9 = this;
+      var _this8 = this;
 
       this.addComponent('custom-link-to', { ComponentClass: _helpers.LinkComponent.extend() });
       this.addTemplate('application', '{{#custom-link-to \'index\'}}{{title}}{{/custom-link-to}}');
@@ -18497,12 +18694,12 @@ enifed('ember-glimmer/tests/integration/components/link-to-test', ['ember-babel'
       }));
 
       return this.visit('/').then(function () {
-        _this9.assertText('Hello');
+        _this8.assertText('Hello');
       });
     };
 
     _class.prototype['@test [GH#13432] able to safely extend the built-in component and invoke it inline'] = function () {
-      var _this10 = this;
+      var _this9 = this;
 
       this.addComponent('custom-link-to', { ComponentClass: _helpers.LinkComponent.extend() });
       this.addTemplate('application', '{{custom-link-to title \'index\'}}');
@@ -18511,7 +18708,7 @@ enifed('ember-glimmer/tests/integration/components/link-to-test', ['ember-babel'
       }));
 
       return this.visit('/').then(function () {
-        _this10.assertText('Hello');
+        _this9.assertText('Hello');
       });
     };
 
@@ -18523,23 +18720,23 @@ enifed('ember-glimmer/tests/integration/components/link-to-test', ['ember-babel'
 
     function _class2() {
 
-      var _this11 = (0, _emberBabel.possibleConstructorReturn)(this, _ApplicationTest2.apply(this, arguments));
+      var _this10 = (0, _emberBabel.possibleConstructorReturn)(this, _ApplicationTest2.apply(this, arguments));
 
-      _this11.add('controller:index', _emberRuntime.Controller.extend({
+      _this10.add('controller:index', _emberRuntime.Controller.extend({
         queryParams: ['foo'],
         foo: '123',
         bar: 'yes'
       }));
-      return _this11;
+      return _this10;
     }
 
     _class2.prototype['@test populates href with fully supplied query param values'] = function () {
-      var _this12 = this;
+      var _this11 = this;
 
       this.addTemplate('index', '{{#link-to \'index\' (query-params foo=\'456\' bar=\'NAW\')}}Index{{/link-to}}');
 
       return this.visit('/').then(function () {
-        _this12.assertComponentElement(_this12.firstChild.firstElementChild, {
+        _this11.assertComponentElement(_this11.firstChild, {
           tagName: 'a',
           attrs: { href: '/?bar=NAW&foo=456' },
           content: 'Index'
@@ -18548,12 +18745,12 @@ enifed('ember-glimmer/tests/integration/components/link-to-test', ['ember-babel'
     };
 
     _class2.prototype['@test populates href with partially supplied query param values, but omits if value is default value'] = function () {
-      var _this13 = this;
+      var _this12 = this;
 
       this.addTemplate('index', '{{#link-to \'index\' (query-params foo=\'123\')}}Index{{/link-to}}');
 
       return this.visit('/').then(function () {
-        _this13.assertComponentElement(_this13.firstChild.firstElementChild, {
+        _this12.assertComponentElement(_this12.firstChild, {
           tagName: 'a',
           attrs: { href: '/', class: (0, _testHelpers.classes)('ember-view active') },
           content: 'Index'
@@ -19590,6 +19787,155 @@ enifed('ember-glimmer/tests/integration/components/target-action-test', ['ember-
     return _class4;
   }(_testCase.RenderingTest));
 });
+enifed('ember-glimmer/tests/integration/components/template-only-components-test', ['ember-babel', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/test-helpers'], function (_emberBabel, _testCase, _testHelpers) {
+  'use strict';
+
+  var TemplateOnlyComponentsTest = function (_RenderingTest) {
+    (0, _emberBabel.inherits)(TemplateOnlyComponentsTest, _RenderingTest);
+
+    function TemplateOnlyComponentsTest() {
+      return (0, _emberBabel.possibleConstructorReturn)(this, _RenderingTest.apply(this, arguments));
+    }
+
+    TemplateOnlyComponentsTest.prototype.registerComponent = function (name, template) {
+      _RenderingTest.prototype.registerComponent.call(this, name, { template: template, ComponentClass: null });
+    };
+
+    return TemplateOnlyComponentsTest;
+  }(_testCase.RenderingTest);
+
+  (0, _testCase.moduleFor)('Components test: template-only components (curly components)', function (_TemplateOnlyComponen2) {
+    (0, _emberBabel.inherits)(_class2, _TemplateOnlyComponen2);
+
+    function _class2() {
+      return (0, _emberBabel.possibleConstructorReturn)(this, _TemplateOnlyComponen2.apply(this, arguments));
+    }
+
+    _class2.prototype['@test it can render a template-only component'] = function () {
+      this.registerComponent('foo-bar', 'hello');
+
+      this.render('{{foo-bar}}');
+
+      this.assertComponentElement(this.firstChild, { content: 'hello' });
+
+      this.assertStableRerender();
+    };
+
+    _class2.prototype['@feature(ember-glimmer-named-arguments) it can render named arguments'] = function () {
+      var _this7 = this;
+
+      this.registerComponent('foo-bar', '|{{@foo}}|{{@bar}}|');
+
+      this.render('{{foo-bar foo=foo bar=bar}}', {
+        foo: 'foo', bar: 'bar'
+      });
+
+      this.assertComponentElement(this.firstChild, { content: '|foo|bar|' });
+
+      this.assertStableRerender();
+
+      this.runTask(function () {
+        return _this7.context.set('foo', 'FOO');
+      });
+
+      this.assertComponentElement(this.firstChild, { content: '|FOO|bar|' });
+
+      this.runTask(function () {
+        return _this7.context.set('bar', 'BAR');
+      });
+
+      this.assertComponentElement(this.firstChild, { content: '|FOO|BAR|' });
+
+      this.runTask(function () {
+        return _this7.context.setProperties({ foo: 'foo', bar: 'bar' });
+      });
+
+      this.assertComponentElement(this.firstChild, { content: '|foo|bar|' });
+    };
+
+    _class2.prototype['@test it renders named arguments as reflected properties'] = function () {
+      var _this8 = this;
+
+      this.registerComponent('foo-bar', '|{{foo}}|{{this.bar}}|');
+
+      this.render('{{foo-bar foo=foo bar=bar}}', {
+        foo: 'foo', bar: 'bar'
+      });
+
+      this.assertComponentElement(this.firstChild, { content: '|foo|bar|' });
+
+      this.assertStableRerender();
+
+      this.runTask(function () {
+        return _this8.context.set('foo', 'FOO');
+      });
+
+      this.assertComponentElement(this.firstChild, { content: '|FOO|bar|' });
+
+      this.runTask(function () {
+        return _this8.context.set('bar', null);
+      });
+
+      this.assertComponentElement(this.firstChild, { content: '|FOO||' });
+
+      this.runTask(function () {
+        return _this8.context.setProperties({ foo: 'foo', bar: 'bar' });
+      });
+
+      this.assertComponentElement(this.firstChild, { content: '|foo|bar|' });
+    };
+
+    _class2.prototype['@test it has curly component features'] = function () {
+      var _this9 = this;
+
+      this.registerComponent('foo-bar', 'hello');
+
+      this.render('{{foo-bar tagName="p" class=class}}', {
+        class: 'foo bar'
+      });
+
+      this.assertComponentElement(this.firstChild, {
+        tagName: 'p',
+        attrs: { class: (0, _testHelpers.classes)('foo bar ember-view') },
+        content: 'hello'
+      });
+
+      this.assertStableRerender();
+
+      this.runTask(function () {
+        return _this9.context.set('class', 'foo');
+      });
+
+      this.assertComponentElement(this.firstChild, {
+        tagName: 'p',
+        attrs: { class: (0, _testHelpers.classes)('foo ember-view') },
+        content: 'hello'
+      });
+
+      this.runTask(function () {
+        return _this9.context.set('class', null);
+      });
+
+      this.assertComponentElement(this.firstChild, {
+        tagName: 'p',
+        attrs: { class: (0, _testHelpers.classes)('ember-view') },
+        content: 'hello'
+      });
+
+      this.runTask(function () {
+        return _this9.context.set('class', 'foo bar');
+      });
+
+      this.assertComponentElement(this.firstChild, {
+        tagName: 'p',
+        attrs: { class: (0, _testHelpers.classes)('foo bar ember-view') },
+        content: 'hello'
+      });
+    };
+
+    return _class2;
+  }(TemplateOnlyComponentsTest));
+});
 enifed('ember-glimmer/tests/integration/components/utils-test', ['ember-babel', 'ember-runtime', 'ember-views', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/helpers'], function (_emberBabel, _emberRuntime, _emberViews, _testCase, _helpers) {
   'use strict';
 
@@ -20104,10 +20450,7 @@ enifed('ember-glimmer/tests/integration/content-test', ['ember-babel', 'ember-gl
       return (0, _emberBabel.possibleConstructorReturn)(this, _RenderingTest2.apply(this, arguments));
     }
 
-    DynamicContentTest.prototype.renderPath = function () {
-      arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-
-
+    DynamicContentTest.prototype.renderPath = function () /* path, context = {} */{
       throw new Error('Not implemented: `renderValues`');
     };
 
@@ -20115,7 +20458,7 @@ enifed('ember-glimmer/tests/integration/content-test', ['ember-babel', 'ember-gl
       this.assert.strictEqual(this.firstChild, null);
     };
 
-    DynamicContentTest.prototype.assertContent = function () {
+    DynamicContentTest.prototype.assertContent = function () /* content */{
       throw new Error('Not implemented: `assertContent`');
     };
 
@@ -22314,6 +22657,7 @@ enifed('ember-glimmer/tests/integration/helpers/closure-action-test', ['ember-ba
       var OuterComponent = _helpers.Component.extend({
         third: third,
         outerSubmit: function () {
+          // eslint-disable-line no-unused-vars
           actualArgs = [].concat(Array.prototype.slice.call(arguments));
         }
       });
@@ -23329,13 +23673,11 @@ enifed('ember-glimmer/tests/integration/helpers/concat-test', ['ember-babel', 'e
     return _class;
   }(_testCase.RenderingTest));
 });
-enifed('ember-glimmer/tests/integration/helpers/custom-helper-test', ['ember-babel', 'ember-glimmer/tests/utils/test-case', 'internal-test-helpers', 'ember-metal', 'ember-utils'], function (_emberBabel, _testCase, _internalTestHelpers, _emberMetal, _emberUtils) {
+enifed('ember-glimmer/tests/integration/helpers/custom-helper-test', ['ember-babel', 'ember-glimmer/tests/utils/test-case', 'internal-test-helpers', 'ember-metal'], function (_emberBabel, _testCase, _internalTestHelpers, _emberMetal) {
   'use strict';
 
-  /* globals EmberDev */
-
   var assert = QUnit.assert,
-      HelperMutatingArgsTests;
+      HelperMutatingArgsTests; /* globals EmberDev */
 
   (0, _testCase.moduleFor)('Helpers test: custom helpers', function (_RenderingTest) {
     (0, _emberBabel.inherits)(_class, _RenderingTest);
@@ -24027,49 +24369,7 @@ enifed('ember-glimmer/tests/integration/helpers/custom-helper-test', ['ember-bab
     return _class;
   }(_testCase.RenderingTest));
 
-  // these feature detects prevent errors in these tests
-  // on platforms (*cough* IE9 *cough*) that do not
-  // property support `Object.freeze`
-  var pushingIntoFrozenArrayThrows = function () {
-    var array = [];
-    Object.freeze(array);
-
-    try {
-      array.push('foo');
-
-      return false;
-    } catch (e) {
-      return true;
-    }
-  }();
-
-  var assigningExistingFrozenPropertyThrows = function () {
-    var obj = { foo: 'asdf' };
-    Object.freeze(obj);
-
-    try {
-      obj.foo = 'derp';
-
-      return false;
-    } catch (e) {
-      return true;
-    }
-  }();
-
-  var addingPropertyToFrozenObjectThrows = function () {
-    var obj = { foo: 'asdf' };
-    Object.freeze(obj);
-
-    try {
-      obj.bar = 'derp';
-
-      return false;
-    } catch (e) {
-      return true;
-    }
-  }();
-
-  if (!EmberDev.runningProdBuild && _emberUtils.HAS_NATIVE_WEAKMAP && (pushingIntoFrozenArrayThrows || assigningExistingFrozenPropertyThrows || addingPropertyToFrozenObjectThrows)) {
+  if (!EmberDev.runningProdBuild) {
     HelperMutatingArgsTests = function (_RenderingTest2) {
       (0, _emberBabel.inherits)(HelperMutatingArgsTests, _RenderingTest2);
 
@@ -24081,29 +24381,23 @@ enifed('ember-glimmer/tests/integration/helpers/custom-helper-test', ['ember-bab
         var _this23 = this;
 
         return function (params, hash) {
-          if (pushingIntoFrozenArrayThrows) {
-            _this23.assert.throws(function () {
-              params.push('foo');
+          _this23.assert.throws(function () {
+            params.push('foo');
 
-              // cannot assert error message as it varies by platform
-            });
-          }
+            // cannot assert error message as it varies by platform
+          });
 
-          if (assigningExistingFrozenPropertyThrows) {
-            _this23.assert.throws(function () {
-              hash.foo = 'bar';
+          _this23.assert.throws(function () {
+            hash.foo = 'bar';
 
-              // cannot assert error message as it varies by platform
-            });
-          }
+            // cannot assert error message as it varies by platform
+          });
 
-          if (addingPropertyToFrozenObjectThrows) {
-            _this23.assert.throws(function () {
-              hash.someUnusedHashProperty = 'bar';
+          _this23.assert.throws(function () {
+            hash.someUnusedHashProperty = 'bar';
 
-              // cannot assert error message as it varies by platform
-            });
-          }
+            // cannot assert error message as it varies by platform
+          });
         };
       };
 
@@ -26885,12 +27179,7 @@ enifed('ember-glimmer/tests/integration/helpers/input-test', ['ember-babel', 'em
     (0, _emberBabel.inherits)(InputRenderingTest, _RenderingTest);
 
     function InputRenderingTest() {
-
-      var _this = (0, _emberBabel.possibleConstructorReturn)(this, _RenderingTest.call(this));
-
-      _this.registerComponent('-text-field', { ComponentClass: _helpers.TextField });
-      _this.registerComponent('-checkbox', { ComponentClass: _helpers.Checkbox });
-      return _this;
+      return (0, _emberBabel.possibleConstructorReturn)(this, _RenderingTest.apply(this, arguments));
     }
 
     InputRenderingTest.prototype.$input = function () {
@@ -27168,34 +27457,6 @@ enifed('ember-glimmer/tests/integration/helpers/input-test', ['ember-babel', 'em
       // this.assertSelectionRange(8, 8); //NOTE: this fails in IE, the range is 0 -> 0 (TEST_SUITE=sauce)
     };
 
-    _class.prototype['@test specifying `on="someevent" action="foo"` results in a deprecation warning'] = function () {
-      var _this9 = this;
-
-      expectDeprecation(function () {
-        _this9.render('{{input on="focus-in" action="doFoo" value="hello"}}');
-      }, 'Using \'{{input on="focus-in" action="doFoo"}}\' (\'-top-level\' @ L1:C0) is deprecated. Please use \'{{input focus-in="doFoo"}}\' instead.');
-    };
-
-    _class.prototype['@test sends an action with `{{input action="foo"}}` when <enter> is pressed [DEPRECATED]'] = function (assert) {
-      var _this10 = this;
-
-      assert.expect(2);
-
-      expectDeprecation(function () {
-        _this10.render('{{input action=\'foo\'}}', {
-          actions: {
-            foo: function () {
-              assert.ok(true, 'action was triggered');
-            }
-          }
-        });
-      }, /Please use '{{input enter="foo"}}' instead/);
-
-      this.triggerEvent('keyup', {
-        keyCode: 13
-      });
-    };
-
     _class.prototype['@test sends an action with `{{input enter="foo"}}` when <enter> is pressed'] = function (assert) {
       assert.expect(1);
 
@@ -27249,7 +27510,7 @@ enifed('ember-glimmer/tests/integration/helpers/input-test', ['ember-babel', 'em
     };
 
     _class.prototype['@test triggers `focus-in` when focused'] = function (assert) {
-      var _this11 = this;
+      var _this9 = this;
 
       assert.expect(1);
 
@@ -27262,7 +27523,7 @@ enifed('ember-glimmer/tests/integration/helpers/input-test', ['ember-babel', 'em
       });
 
       this.runTask(function () {
-        _this11.$input().trigger('focusin');
+        _this9.$input().trigger('focusin');
       });
     };
 
@@ -27348,33 +27609,33 @@ enifed('ember-glimmer/tests/integration/helpers/input-test', ['ember-babel', 'em
     }
 
     _class2.prototype['@test a bound property can be used to determine type'] = function () {
-      var _this13 = this;
+      var _this11 = this;
 
       this.render('{{input type=type}}', { type: 'password' });
 
       this.assertAttr('type', 'password');
 
       this.runTask(function () {
-        return _this13.rerender();
+        return _this11.rerender();
       });
 
       this.assertAttr('type', 'password');
 
       this.runTask(function () {
-        return (0, _emberMetal.set)(_this13.context, 'type', 'text');
+        return (0, _emberMetal.set)(_this11.context, 'type', 'text');
       });
 
       this.assertAttr('type', 'text');
 
       this.runTask(function () {
-        return (0, _emberMetal.set)(_this13.context, 'type', 'password');
+        return (0, _emberMetal.set)(_this11.context, 'type', 'password');
       });
 
       this.assertAttr('type', 'password');
     };
 
     _class2.prototype['@test a subexpression can be used to determine type'] = function () {
-      var _this14 = this;
+      var _this12 = this;
 
       this.render('{{input type=(if isTruthy trueType falseType)}}', {
         isTruthy: true,
@@ -27385,19 +27646,19 @@ enifed('ember-glimmer/tests/integration/helpers/input-test', ['ember-babel', 'em
       this.assertAttr('type', 'text');
 
       this.runTask(function () {
-        return _this14.rerender();
+        return _this12.rerender();
       });
 
       this.assertAttr('type', 'text');
 
       this.runTask(function () {
-        return (0, _emberMetal.set)(_this14.context, 'isTruthy', false);
+        return (0, _emberMetal.set)(_this12.context, 'isTruthy', false);
       });
 
       this.assertAttr('type', 'password');
 
       this.runTask(function () {
-        return (0, _emberMetal.set)(_this14.context, 'isTruthy', true);
+        return (0, _emberMetal.set)(_this12.context, 'isTruthy', true);
       });
 
       this.assertAttr('type', 'text');
@@ -27414,7 +27675,7 @@ enifed('ember-glimmer/tests/integration/helpers/input-test', ['ember-babel', 'em
     }
 
     _class3.prototype['@test dynamic attributes'] = function () {
-      var _this16 = this;
+      var _this14 = this;
 
       this.render('{{input\n      type=\'checkbox\'\n      disabled=disabled\n      name=name\n      checked=checked\n      tabindex=tabindex\n    }}', {
         disabled: false,
@@ -27429,7 +27690,7 @@ enifed('ember-glimmer/tests/integration/helpers/input-test', ['ember-babel', 'em
       this.assertAttr('tabindex', '10');
 
       this.runTask(function () {
-        return _this16.rerender();
+        return _this14.rerender();
       });
 
       this.assertSingleCheckbox();
@@ -27438,9 +27699,9 @@ enifed('ember-glimmer/tests/integration/helpers/input-test', ['ember-babel', 'em
       this.assertAttr('tabindex', '10');
 
       this.runTask(function () {
-        (0, _emberMetal.set)(_this16.context, 'disabled', true);
-        (0, _emberMetal.set)(_this16.context, 'name', 'updated-name');
-        (0, _emberMetal.set)(_this16.context, 'tabindex', 11);
+        (0, _emberMetal.set)(_this14.context, 'disabled', true);
+        (0, _emberMetal.set)(_this14.context, 'name', 'updated-name');
+        (0, _emberMetal.set)(_this14.context, 'tabindex', 11);
       });
 
       this.assertSingleCheckbox();
@@ -27449,9 +27710,9 @@ enifed('ember-glimmer/tests/integration/helpers/input-test', ['ember-babel', 'em
       this.assertAttr('tabindex', '11');
 
       this.runTask(function () {
-        (0, _emberMetal.set)(_this16.context, 'disabled', false);
-        (0, _emberMetal.set)(_this16.context, 'name', 'original-name');
-        (0, _emberMetal.set)(_this16.context, 'tabindex', 10);
+        (0, _emberMetal.set)(_this14.context, 'disabled', false);
+        (0, _emberMetal.set)(_this14.context, 'name', 'original-name');
+        (0, _emberMetal.set)(_this14.context, 'tabindex', 10);
       });
 
       this.assertSingleCheckbox();
@@ -27461,15 +27722,15 @@ enifed('ember-glimmer/tests/integration/helpers/input-test', ['ember-babel', 'em
     };
 
     _class3.prototype['@test `value` property assertion'] = function () {
-      var _this17 = this;
+      var _this15 = this;
 
       expectAssertion(function () {
-        _this17.render('{{input type="checkbox" value=value}}', { value: 'value' });
+        _this15.render('{{input type="checkbox" value=value}}', { value: 'value' });
       }, /you must use `checked=/);
     };
 
     _class3.prototype['@test with a bound type'] = function () {
-      var _this18 = this;
+      var _this16 = this;
 
       this.render('{{input type=inputType checked=isChecked}}', { inputType: 'checkbox', isChecked: true });
 
@@ -27477,19 +27738,19 @@ enifed('ember-glimmer/tests/integration/helpers/input-test', ['ember-babel', 'em
       this.assertCheckboxIsChecked();
 
       this.runTask(function () {
-        return _this18.rerender();
+        return _this16.rerender();
       });
 
       this.assertCheckboxIsChecked();
 
       this.runTask(function () {
-        return (0, _emberMetal.set)(_this18.context, 'isChecked', false);
+        return (0, _emberMetal.set)(_this16.context, 'isChecked', false);
       });
 
       this.assertCheckboxIsNotChecked();
 
       this.runTask(function () {
-        return (0, _emberMetal.set)(_this18.context, 'isChecked', true);
+        return (0, _emberMetal.set)(_this16.context, 'isChecked', true);
       });
 
       this.assertCheckboxIsChecked();
@@ -27507,7 +27768,7 @@ enifed('ember-glimmer/tests/integration/helpers/input-test', ['ember-babel', 'em
     };
 
     _class3.prototype['@test with static values'] = function () {
-      var _this19 = this;
+      var _this17 = this;
 
       this.render('{{input type="checkbox" disabled=false tabindex=10 name="original-name" checked=false}}');
 
@@ -27518,7 +27779,7 @@ enifed('ember-glimmer/tests/integration/helpers/input-test', ['ember-babel', 'em
       this.assertAttr('name', 'original-name');
 
       this.runTask(function () {
-        return _this19.rerender();
+        return _this17.rerender();
       });
 
       this.assertSingleCheckbox();
@@ -27539,7 +27800,7 @@ enifed('ember-glimmer/tests/integration/helpers/input-test', ['ember-babel', 'em
     }
 
     _class4.prototype['@test null values'] = function () {
-      var _this21 = this;
+      var _this19 = this;
 
       var attributes = ['disabled', 'placeholder', 'name', 'maxlength', 'size', 'tabindex'];
 
@@ -27557,20 +27818,20 @@ enifed('ember-glimmer/tests/integration/helpers/input-test', ['ember-babel', 'em
       this.assertAllAttrs(attributes, undefined);
 
       this.runTask(function () {
-        return _this21.rerender();
+        return _this19.rerender();
       });
 
       this.assertValue('');
       this.assertAllAttrs(attributes, undefined);
 
       this.runTask(function () {
-        (0, _emberMetal.set)(_this21.context, 'disabled', true);
-        (0, _emberMetal.set)(_this21.context, 'value', 'Updated value');
-        (0, _emberMetal.set)(_this21.context, 'placeholder', 'Updated placeholder');
-        (0, _emberMetal.set)(_this21.context, 'name', 'updated-name');
-        (0, _emberMetal.set)(_this21.context, 'maxlength', 11);
-        (0, _emberMetal.set)(_this21.context, 'size', 21);
-        (0, _emberMetal.set)(_this21.context, 'tabindex', 31);
+        (0, _emberMetal.set)(_this19.context, 'disabled', true);
+        (0, _emberMetal.set)(_this19.context, 'value', 'Updated value');
+        (0, _emberMetal.set)(_this19.context, 'placeholder', 'Updated placeholder');
+        (0, _emberMetal.set)(_this19.context, 'name', 'updated-name');
+        (0, _emberMetal.set)(_this19.context, 'maxlength', 11);
+        (0, _emberMetal.set)(_this19.context, 'size', 21);
+        (0, _emberMetal.set)(_this19.context, 'tabindex', 31);
       });
 
       this.assertDisabled();
@@ -27582,13 +27843,13 @@ enifed('ember-glimmer/tests/integration/helpers/input-test', ['ember-babel', 'em
       this.assertAttr('tabindex', '31');
 
       this.runTask(function () {
-        (0, _emberMetal.set)(_this21.context, 'disabled', null);
-        (0, _emberMetal.set)(_this21.context, 'value', null);
-        (0, _emberMetal.set)(_this21.context, 'placeholder', null);
-        (0, _emberMetal.set)(_this21.context, 'name', null);
-        (0, _emberMetal.set)(_this21.context, 'maxlength', null);
+        (0, _emberMetal.set)(_this19.context, 'disabled', null);
+        (0, _emberMetal.set)(_this19.context, 'value', null);
+        (0, _emberMetal.set)(_this19.context, 'placeholder', null);
+        (0, _emberMetal.set)(_this19.context, 'name', null);
+        (0, _emberMetal.set)(_this19.context, 'maxlength', null);
         // set(this.context, 'size', null); //NOTE: this fails with `Error: Failed to set the 'size' property on 'HTMLInputElement': The value provided is 0, which is an invalid size.` (TEST_SUITE=sauce)
-        (0, _emberMetal.set)(_this21.context, 'tabindex', null);
+        (0, _emberMetal.set)(_this19.context, 'tabindex', null);
       });
 
       this.assertAttr('disabled', undefined);
@@ -27617,17 +27878,6 @@ enifed('ember-glimmer/tests/integration/helpers/input-test', ['ember-babel', 'em
         var value = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 25;
 
         this.render('{{input ' + attrs.replace("%x", value) + '}}');
-      };
-
-      _class5.prototype.assertValue = function (expected) {
-        var type = this.$input().attr('type');
-
-        if (type !== 'range') {
-          this.assert.ok(true, 'IE9 does not support range items');
-          return;
-        }
-
-        _InputRenderingTest5.prototype.assertValue.call(this, expected);
       };
 
       _class5.prototype['@test value over default max but below set max is kept'] = function () {
@@ -29010,15 +29260,25 @@ enifed('ember-glimmer/tests/integration/helpers/readonly-test', ['ember-babel', 
     return _class;
   }(_testCase.RenderingTest));
 });
-enifed('ember-glimmer/tests/integration/helpers/render-test', ['ember-babel', 'ember-metal', 'ember-runtime', 'ember-glimmer/tests/utils/test-case'], function (_emberBabel, _emberMetal, _emberRuntime, _testCase) {
+enifed('ember-glimmer/tests/integration/helpers/render-test', ['ember-babel', 'ember-metal', 'ember-runtime', 'ember-environment', 'ember-glimmer/tests/utils/test-case'], function (_emberBabel, _emberMetal, _emberRuntime, _emberEnvironment, _testCase) {
   'use strict';
 
   (0, _testCase.moduleFor)('Helpers test: {{render}}', function (_RenderingTest) {
     (0, _emberBabel.inherits)(_class, _RenderingTest);
 
     function _class() {
-      return (0, _emberBabel.possibleConstructorReturn)(this, _RenderingTest.apply(this, arguments));
+
+      var _this = (0, _emberBabel.possibleConstructorReturn)(this, _RenderingTest.call(this));
+
+      _this.originalRenderSupport = _emberEnvironment.ENV._ENABLE_RENDER_SUPPORT;
+      _emberEnvironment.ENV._ENABLE_RENDER_SUPPORT = true;
+      return _this;
     }
+
+    _class.prototype.teardown = function () {
+      _RenderingTest.prototype.teardown.call(this);
+      _emberEnvironment.ENV._ENABLE_RENDER_SUPPORT = this.originalRenderSupport;
+    };
 
     _class.prototype['@test should render given template'] = function () {
       var _this2 = this;
@@ -29294,7 +29554,7 @@ enifed('ember-glimmer/tests/integration/helpers/render-test', ['ember-babel', 'e
       assert.strictEqual(willDestroyFired, 2, 'it did destroy the controller');
     };
 
-    _class.prototype['@test with a supplied model should not fire observers on the controller'] = function () {
+    _class.prototype['@test with a supplied model should not fire observers on the controller'] = function (assert) {
       var _this12 = this;
 
       this.owner.register('controller:post', _emberRuntime.Controller.extend());
@@ -29319,6 +29579,7 @@ enifed('ember-glimmer/tests/integration/helpers/render-test', ['ember-babel', 'e
       });
 
       this.assertText('HIIt\'s Simple Made Easy');
+      assert.equal(postDidChange, 0);
     };
 
     _class.prototype['@test should raise an error when a given controller name does not resolve to a controller'] = function () {
@@ -29559,18 +29820,14 @@ enifed('ember-glimmer/tests/integration/helpers/render-test', ['ember-babel', 'e
     return _class;
   }(_testCase.RenderingTest));
 });
-enifed('ember-glimmer/tests/integration/helpers/text-area-test', ['ember-babel', 'ember-utils', 'ember-metal', 'ember-glimmer/tests/utils/helpers', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/test-helpers', 'ember-glimmer/tests/utils/abstract-test-case'], function (_emberBabel, _emberUtils, _emberMetal, _helpers, _testCase, _testHelpers, _abstractTestCase) {
+enifed('ember-glimmer/tests/integration/helpers/text-area-test', ['ember-babel', 'ember-utils', 'ember-metal', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/test-helpers', 'ember-glimmer/tests/utils/abstract-test-case'], function (_emberBabel, _emberUtils, _emberMetal, _testCase, _testHelpers, _abstractTestCase) {
   'use strict';
 
   var TextAreaRenderingTest = function (_RenderingTest) {
     (0, _emberBabel.inherits)(TextAreaRenderingTest, _RenderingTest);
 
     function TextAreaRenderingTest() {
-
-      var _this = (0, _emberBabel.possibleConstructorReturn)(this, _RenderingTest.call(this));
-
-      _this.registerComponent('-text-area', { ComponentClass: _helpers.TextArea });
-      return _this;
+      return (0, _emberBabel.possibleConstructorReturn)(this, _RenderingTest.apply(this, arguments));
     }
 
     TextAreaRenderingTest.prototype.assertTextArea = function () {
@@ -31140,19 +31397,19 @@ enifed('ember-glimmer/tests/integration/mount-test', ['ember-babel', 'ember-util
         var engineInstance = (0, _emberUtils.getOwner)(controller);
         assert.strictEqual((0, _emberApplication.getEngineParent)(engineInstance), _this10.applicationInstance, 'engine instance has the application instance as its parent');
 
-        _this10.assertComponentElement(_this10.firstChild, { content: '<h2>Chat here, dgeb</h2>' });
+        _this10.assertInnerHTML('<h2>Chat here, dgeb</h2>');
 
         _this10.runTask(function () {
           return (0, _emberMetal.set)(controller, 'username', 'chancancode');
         });
 
-        _this10.assertComponentElement(_this10.firstChild, { content: '<h2>Chat here, chancancode</h2>' });
+        _this10.assertInnerHTML('<h2>Chat here, chancancode</h2>');
 
         _this10.runTask(function () {
           return (0, _emberMetal.set)(controller, 'username', 'dgeb');
         });
 
-        _this10.assertComponentElement(_this10.firstChild, { content: '<h2>Chat here, dgeb</h2>' });
+        _this10.assertInnerHTML('<h2>Chat here, dgeb</h2>');
       });
     };
 
@@ -31220,43 +31477,43 @@ enifed('ember-glimmer/tests/integration/mount-test', ['ember-babel', 'ember-util
       }));
 
       return this.visit('/bound-engine-name').then(function () {
-        _this12.assertComponentElement(_this12.firstChild, { content: '<!---->' });
+        _this12.assertInnerHTML('<!---->');
 
         _this12.runTask(function () {
           return (0, _emberMetal.set)(controller, 'engineName', 'foo');
         });
 
-        _this12.assertComponentElement(_this12.firstChild, { content: '<h2>Foo Engine</h2>' });
+        _this12.assertInnerHTML('<h2>Foo Engine</h2>');
 
         _this12.runTask(function () {
           return (0, _emberMetal.set)(controller, 'engineName', undefined);
         });
 
-        _this12.assertComponentElement(_this12.firstChild, { content: '<!---->' });
+        _this12.assertInnerHTML('<!---->');
 
         _this12.runTask(function () {
           return (0, _emberMetal.set)(controller, 'engineName', 'foo');
         });
 
-        _this12.assertComponentElement(_this12.firstChild, { content: '<h2>Foo Engine</h2>' });
+        _this12.assertInnerHTML('<h2>Foo Engine</h2>');
 
         _this12.runTask(function () {
           return (0, _emberMetal.set)(controller, 'engineName', 'bar');
         });
 
-        _this12.assertComponentElement(_this12.firstChild, { content: '<h2>Bar Engine</h2>' });
+        _this12.assertInnerHTML('<h2>Bar Engine</h2>');
 
         _this12.runTask(function () {
           return (0, _emberMetal.set)(controller, 'engineName', 'foo');
         });
 
-        _this12.assertComponentElement(_this12.firstChild, { content: '<h2>Foo Engine</h2>' });
+        _this12.assertInnerHTML('<h2>Foo Engine</h2>');
 
         _this12.runTask(function () {
           return (0, _emberMetal.set)(controller, 'engineName', null);
         });
 
-        _this12.assertComponentElement(_this12.firstChild, { content: '<!---->' });
+        _this12.assertInnerHTML('<!---->');
       });
     };
 
@@ -31295,7 +31552,7 @@ enifed('ember-glimmer/tests/integration/mount-test', ['ember-babel', 'ember-util
       }));
 
       return this.visit('/engine-event-dispatcher-singleton').then(function () {
-        _this13.assertComponentElement(_this13.firstChild, { content: '<h2>Foo Engine: Tagless Component</h2>' });
+        _this13.assertInnerHTML('<h2>Foo Engine: Tagless Component</h2>');
 
         var controllerOwnerEventDispatcher = (0, _emberUtils.getOwner)(controller).lookup('event_dispatcher:main');
         var taglessComponentOwnerEventDispatcher = (0, _emberUtils.getOwner)(component).lookup('event_dispatcher:main');
@@ -31333,7 +31590,7 @@ enifed('ember-glimmer/tests/integration/mount-test', ['ember-babel', 'ember-util
       this.addTemplate('engine-params-static', '{{mount "paramEngine" model=(hash foo="bar")}}');
 
       return this.visit('/engine-params-static').then(function () {
-        _this15.assertComponentElement(_this15.firstChild, { content: '<h2>Param Engine: bar</h2>' });
+        _this15.assertInnerHTML('<h2>Param Engine: bar</h2>');
       });
     };
 
@@ -31354,43 +31611,43 @@ enifed('ember-glimmer/tests/integration/mount-test', ['ember-babel', 'ember-util
       this.addTemplate('engine-params-bound', '{{mount "paramEngine" model=(hash foo=boundParamValue)}}');
 
       return this.visit('/engine-params-bound').then(function () {
-        _this16.assertComponentElement(_this16.firstChild, { content: '<h2>Param Engine: </h2>' });
+        _this16.assertInnerHTML('<h2>Param Engine: </h2>');
 
         _this16.runTask(function () {
           return (0, _emberMetal.set)(controller, 'boundParamValue', 'bar');
         });
 
-        _this16.assertComponentElement(_this16.firstChild, { content: '<h2>Param Engine: bar</h2>' });
+        _this16.assertInnerHTML('<h2>Param Engine: bar</h2>');
 
         _this16.runTask(function () {
           return (0, _emberMetal.set)(controller, 'boundParamValue', undefined);
         });
 
-        _this16.assertComponentElement(_this16.firstChild, { content: '<h2>Param Engine: </h2>' });
+        _this16.assertInnerHTML('<h2>Param Engine: </h2>');
 
         _this16.runTask(function () {
           return (0, _emberMetal.set)(controller, 'boundParamValue', 'bar');
         });
 
-        _this16.assertComponentElement(_this16.firstChild, { content: '<h2>Param Engine: bar</h2>' });
+        _this16.assertInnerHTML('<h2>Param Engine: bar</h2>');
 
         _this16.runTask(function () {
           return (0, _emberMetal.set)(controller, 'boundParamValue', 'baz');
         });
 
-        _this16.assertComponentElement(_this16.firstChild, { content: '<h2>Param Engine: baz</h2>' });
+        _this16.assertInnerHTML('<h2>Param Engine: baz</h2>');
 
         _this16.runTask(function () {
           return (0, _emberMetal.set)(controller, 'boundParamValue', 'bar');
         });
 
-        _this16.assertComponentElement(_this16.firstChild, { content: '<h2>Param Engine: bar</h2>' });
+        _this16.assertInnerHTML('<h2>Param Engine: bar</h2>');
 
         _this16.runTask(function () {
           return (0, _emberMetal.set)(controller, 'boundParamValue', null);
         });
 
-        _this16.assertComponentElement(_this16.firstChild, { content: '<h2>Param Engine: </h2>' });
+        _this16.assertInnerHTML('<h2>Param Engine: </h2>');
       });
     };
 
@@ -31418,7 +31675,7 @@ enifed('ember-glimmer/tests/integration/mount-test', ['ember-babel', 'ember-util
       this.addTemplate('engine-params-contextual-component', '{{mount "componentParamEngine" model=(hash foo=(component "foo-component"))}}');
 
       return this.visit('/engine-params-contextual-component').then(function () {
-        _this17.assertComponentElement(_this17.firstChild.firstChild, { content: 'foo-component rendered! - rendered app-bar-component from the app' });
+        _this17.assertComponentElement(_this17.firstChild, { content: 'foo-component rendered! - rendered app-bar-component from the app' });
       });
     };
 
@@ -34805,7 +35062,7 @@ enifed('ember-glimmer/tests/unit/template-factory-test', ['ember-babel', 'ember-
 enifed('ember-glimmer/tests/unit/utils/debug-stack-test', ['ember-glimmer/utils/debug-stack'], function () {
   'use strict';
 });
-enifed('ember-glimmer/tests/unit/utils/iterable-test', ['ember-babel', 'ember', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/utils/iterable', 'ember-glimmer/utils/references', 'ember-glimmer/helpers/each-in', '@glimmer/runtime'], function (_emberBabel, _ember, _testCase, _iterable, _references) {
+enifed('ember-glimmer/tests/unit/utils/iterable-test', ['ember-babel', 'ember', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/utils/iterable', 'ember-glimmer/utils/references'], function (_emberBabel, _ember, _testCase, _iterable, _references) {
   'use strict';
 
   var ITERATOR_KEY_GUID = 'be277757-bbbe-4620-9fcb-213ef433cca2';
@@ -35002,22 +35259,10 @@ enifed('ember-glimmer/tests/utils/helpers', ['exports', 'ember-template-compiler
       return _emberGlimmer.Component;
     }
   });
-  Object.defineProperty(exports, 'TextArea', {
-    enumerable: true,
-    get: function () {
-      return _emberGlimmer.TextArea;
-    }
-  });
   Object.defineProperty(exports, 'LinkComponent', {
     enumerable: true,
     get: function () {
       return _emberGlimmer.LinkComponent;
-    }
-  });
-  Object.defineProperty(exports, 'TextField', {
-    enumerable: true,
-    get: function () {
-      return _emberGlimmer.TextField;
     }
   });
   Object.defineProperty(exports, 'InteractiveRender', {
@@ -35079,16 +35324,12 @@ enifed('ember-glimmer/tests/utils/shared-conditional-tests', ['exports', 'ember-
       return this.wrapperFor([this.templateFor(options)]);
     };
 
-    AbstractConditionalsTest.prototype.templateFor = function (_ref) {
-      var cond = _ref.cond,
-          truthy = _ref.truthy,
-          falsy = _ref.falsy;
-
+    AbstractConditionalsTest.prototype.templateFor = function () /* { cond, truthy, falsy } */{
       // e.g. `{{#if ${cond}}}${truthy}{{else}}${falsy}{{/if}}`
       throw new Error('Not implemented: `templateFor`');
     };
 
-    AbstractConditionalsTest.prototype.renderValues = function () {
+    AbstractConditionalsTest.prototype.renderValues = function () /* ...values */{
       throw new Error('Not implemented: `renderValues`');
     };
 
@@ -35114,7 +35355,7 @@ enifed('ember-glimmer/tests/utils/shared-conditional-tests', ['exports', 'ember-
 
     /* abstract */
 
-    AbstractGenerator.prototype.generate = function () {
+    AbstractGenerator.prototype.generate = function () /* value, idx */{
       throw new Error('Not implemented: `generate`');
     };
 
@@ -35129,9 +35370,9 @@ enifed('ember-glimmer/tests/utils/shared-conditional-tests', ['exports', 'ember-
     }
 
     TruthyGenerator.prototype.generate = function (value, idx) {
-      var _ref2;
+      var _ref;
 
-      return _ref2 = {}, _ref2['@test it should consider ' + JSON.stringify(value) + ' truthy [' + idx + ']'] = function () {
+      return _ref = {}, _ref['@test it should consider ' + JSON.stringify(value) + ' truthy [' + idx + ']'] = function () {
         var _this3 = this;
 
         this.renderValues(value);
@@ -35155,7 +35396,7 @@ enifed('ember-glimmer/tests/utils/shared-conditional-tests', ['exports', 'ember-
         });
 
         this.assertText('T1');
-      }, _ref2;
+      }, _ref;
     };
 
     return TruthyGenerator;
@@ -35169,9 +35410,9 @@ enifed('ember-glimmer/tests/utils/shared-conditional-tests', ['exports', 'ember-
     }
 
     FalsyGenerator.prototype.generate = function (value, idx) {
-      var _ref3;
+      var _ref2;
 
-      return _ref3 = {}, _ref3['@test it should consider ' + JSON.stringify(value) + ' falsy [' + idx + ']'] = function () {
+      return _ref2 = {}, _ref2['@test it should consider ' + JSON.stringify(value) + ' falsy [' + idx + ']'] = function () {
         var _this5 = this;
 
         this.renderValues(value);
@@ -35195,7 +35436,7 @@ enifed('ember-glimmer/tests/utils/shared-conditional-tests', ['exports', 'ember-
         });
 
         this.assertText('F1');
-      }, _ref3;
+      }, _ref2;
     };
 
     return FalsyGenerator;
@@ -35289,13 +35530,13 @@ enifed('ember-glimmer/tests/utils/shared-conditional-tests', ['exports', 'ember-
     }
 
     ObjectProxyGenerator.prototype.generate = function (value, idx) {
-      var _ref4, _ref5;
+      var _ref3, _ref4;
 
       // This is inconsistent with our usual to-bool policy, but the current proxy implementation
       // simply uses !!content to determine truthiness
       if (value) {
 
-        return _ref4 = {}, _ref4['@test it should consider an object proxy with `' + JSON.stringify(value) + '` truthy [' + idx + ']'] = function () {
+        return _ref3 = {}, _ref3['@test it should consider an object proxy with `' + JSON.stringify(value) + '` truthy [' + idx + ']'] = function () {
           var _this11 = this;
 
           this.renderValues(_emberRuntime.ObjectProxy.create({ content: value }));
@@ -35319,10 +35560,10 @@ enifed('ember-glimmer/tests/utils/shared-conditional-tests', ['exports', 'ember-
           });
 
           this.assertText('T1');
-        }, _ref4;
+        }, _ref3;
       } else {
 
-        return _ref5 = {}, _ref5['@test it should consider an object proxy with `' + JSON.stringify(value) + '` falsy [' + idx + ']'] = function () {
+        return _ref4 = {}, _ref4['@test it should consider an object proxy with `' + JSON.stringify(value) + '` falsy [' + idx + ']'] = function () {
           var _this12 = this;
 
           this.renderValues(_emberRuntime.ObjectProxy.create({ content: value }));
@@ -35346,7 +35587,7 @@ enifed('ember-glimmer/tests/utils/shared-conditional-tests', ['exports', 'ember-
           });
 
           this.assertText('F1');
-        }, _ref5;
+        }, _ref4;
       }
     };
 
@@ -36207,14 +36448,18 @@ enifed('ember-glimmer/tests/utils/test-helpers', ['exports', 'internal-test-help
     }
   });
 });
-enifed('ember-metal/tests/accessors/get_path_test', ['ember-metal'], function (_emberMetal) {
+enifed('ember-metal/tests/accessors/get_path_test', ['ember-babel', 'ember-metal', 'internal-test-helpers'], function (_emberBabel, _emberMetal, _internalTestHelpers) {
   'use strict';
 
   var obj = void 0;
 
+  (0, _internalTestHelpers.moduleFor)('Ember.get with path', function (_AbstractTestCase) {
+    (0, _emberBabel.inherits)(_class, _AbstractTestCase);
 
-  QUnit.module('Ember.get with path', {
-    setup: function () {
+    function _class() {
+
+      var _this = (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase.call(this));
+
       obj = {
         foo: {
           bar: {
@@ -36233,317 +36478,359 @@ enifed('ember-metal/tests/accessors/get_path_test', ['ember-metal'], function (_
         },
         nullValue: null
       };
-    },
-    teardown: function () {
+      return _this;
+    }
+
+    _class.prototype.teardown = function () {
       obj = undefined;
-    }
-  });
+    };
 
-  // ..........................................................
-  // LOCAL PATHS
-  //
+    _class.prototype['@test [obj, foo] -> obj.foo'] = function (assert) {
+      assert.deepEqual((0, _emberMetal.get)(obj, 'foo'), obj.foo);
+    };
 
-  QUnit.test('[obj, foo] -> obj.foo', function () {
-    deepEqual((0, _emberMetal.get)(obj, 'foo'), obj.foo);
-  });
+    _class.prototype['@test [obj, foo.bar] -> obj.foo.bar'] = function (assert) {
+      assert.deepEqual((0, _emberMetal.get)(obj, 'foo.bar'), obj.foo.bar);
+    };
 
-  QUnit.test('[obj, foo.bar] -> obj.foo.bar', function () {
-    deepEqual((0, _emberMetal.get)(obj, 'foo.bar'), obj.foo.bar);
-  });
+    _class.prototype['@test [obj, foothis.bar] -> obj.foothis.bar'] = function (assert) {
+      assert.deepEqual((0, _emberMetal.get)(obj, 'foothis.bar'), obj.foothis.bar);
+    };
 
-  QUnit.test('[obj, foothis.bar] -> obj.foothis.bar', function () {
-    deepEqual((0, _emberMetal.get)(obj, 'foothis.bar'), obj.foothis.bar);
-  });
+    _class.prototype['@test [obj, falseValue.notDefined] -> (undefined)'] = function (assert) {
+      assert.strictEqual((0, _emberMetal.get)(obj, 'falseValue.notDefined'), undefined);
+    };
 
-  QUnit.test('[obj, falseValue.notDefined] -> (undefined)', function () {
-    strictEqual((0, _emberMetal.get)(obj, 'falseValue.notDefined'), undefined);
-  });
+    _class.prototype['@test [obj, emptyString.length] -> 0'] = function (assert) {
+      assert.strictEqual((0, _emberMetal.get)(obj, 'emptyString.length'), 0);
+    };
 
-  QUnit.test('[obj, emptyString.length] -> 0', function () {
-    strictEqual((0, _emberMetal.get)(obj, 'emptyString.length'), 0);
-  });
+    _class.prototype['@test [obj, nullValue.notDefined] -> (undefined)'] = function (assert) {
+      assert.strictEqual((0, _emberMetal.get)(obj, 'nullValue.notDefined'), undefined);
+    };
 
-  QUnit.test('[obj, nullValue.notDefined] -> (undefined)', function () {
-    strictEqual((0, _emberMetal.get)(obj, 'nullValue.notDefined'), undefined);
-  });
+    _class.prototype['@test [obj, Wuz] -> obj.Wuz'] = function (assert) {
+      assert.deepEqual((0, _emberMetal.get)(obj, 'Wuz'), obj.Wuz);
+    };
 
-  // ..........................................................
-  // GLOBAL PATHS TREATED LOCAL WITH GET
-  //
+    _class.prototype['@test [obj, Wuz.nar] -> obj.Wuz.nar'] = function (assert) {
+      assert.deepEqual((0, _emberMetal.get)(obj, 'Wuz.nar'), obj.Wuz.nar);
+    };
 
-  QUnit.test('[obj, Wuz] -> obj.Wuz', function () {
-    deepEqual((0, _emberMetal.get)(obj, 'Wuz'), obj.Wuz);
-  });
+    _class.prototype['@test [obj, Foo] -> (undefined)'] = function (assert) {
+      assert.strictEqual((0, _emberMetal.get)(obj, 'Foo'), undefined);
+    };
 
-  QUnit.test('[obj, Wuz.nar] -> obj.Wuz.nar', function () {
-    deepEqual((0, _emberMetal.get)(obj, 'Wuz.nar'), obj.Wuz.nar);
-  });
+    _class.prototype['@test [obj, Foo.bar] -> (undefined)'] = function (assert) {
+      assert.strictEqual((0, _emberMetal.get)(obj, 'Foo.bar'), undefined);
+    };
 
-  QUnit.test('[obj, Foo] -> (undefined)', function () {
-    strictEqual((0, _emberMetal.get)(obj, 'Foo'), undefined);
-  });
-
-  QUnit.test('[obj, Foo.bar] -> (undefined)', function () {
-    strictEqual((0, _emberMetal.get)(obj, 'Foo.bar'), undefined);
-  });
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
 });
-enifed('ember-metal/tests/accessors/get_properties_test', ['ember-metal'], function (_emberMetal) {
+enifed('ember-metal/tests/accessors/get_properties_test', ['ember-babel', 'ember-metal', 'internal-test-helpers'], function (_emberBabel, _emberMetal, _internalTestHelpers) {
   'use strict';
 
-  QUnit.module('Ember.getProperties');
+  (0, _internalTestHelpers.moduleFor)('Ember.getProperties', function (_AbstractTestCase) {
+    (0, _emberBabel.inherits)(_class, _AbstractTestCase);
 
-  QUnit.test('can retrieve a hash of properties from an object via an argument list or array of property names', function () {
-    var obj = {
-      firstName: 'Steve',
-      lastName: 'Jobs',
-      companyName: 'Apple, Inc.'
+    function _class() {
+      return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase.apply(this, arguments));
+    }
+
+    _class.prototype['@test can retrieve a hash of properties from an object via an argument list or array of property names'] = function (assert) {
+      var obj = {
+        firstName: 'Steve',
+        lastName: 'Jobs',
+        companyName: 'Apple, Inc.'
+      };
+
+      assert.deepEqual((0, _emberMetal.getProperties)(obj, 'firstName', 'lastName'), { firstName: 'Steve', lastName: 'Jobs' });
+      assert.deepEqual((0, _emberMetal.getProperties)(obj, 'firstName', 'lastName'), { firstName: 'Steve', lastName: 'Jobs' });
+      assert.deepEqual((0, _emberMetal.getProperties)(obj, 'lastName'), { lastName: 'Jobs' });
+      assert.deepEqual((0, _emberMetal.getProperties)(obj), {});
+      assert.deepEqual((0, _emberMetal.getProperties)(obj, ['firstName', 'lastName']), { firstName: 'Steve', lastName: 'Jobs' });
+      assert.deepEqual((0, _emberMetal.getProperties)(obj, ['firstName']), { firstName: 'Steve' });
+      assert.deepEqual((0, _emberMetal.getProperties)(obj, []), {});
     };
 
-    deepEqual((0, _emberMetal.getProperties)(obj, 'firstName', 'lastName'), { firstName: 'Steve', lastName: 'Jobs' });
-    deepEqual((0, _emberMetal.getProperties)(obj, 'firstName', 'lastName'), { firstName: 'Steve', lastName: 'Jobs' });
-    deepEqual((0, _emberMetal.getProperties)(obj, 'lastName'), { lastName: 'Jobs' });
-    deepEqual((0, _emberMetal.getProperties)(obj), {});
-    deepEqual((0, _emberMetal.getProperties)(obj, ['firstName', 'lastName']), { firstName: 'Steve', lastName: 'Jobs' });
-    deepEqual((0, _emberMetal.getProperties)(obj, ['firstName']), { firstName: 'Steve' });
-    deepEqual((0, _emberMetal.getProperties)(obj, []), {});
-  });
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
 });
-enifed('ember-metal/tests/accessors/get_test', ['internal-test-helpers', 'ember-metal'], function (_internalTestHelpers, _emberMetal) {
+enifed('ember-metal/tests/accessors/get_test', ['ember-babel', 'ember-environment', 'ember-metal', 'internal-test-helpers'], function (_emberBabel, _emberEnvironment, _emberMetal, _internalTestHelpers) {
   'use strict';
 
-  QUnit.module('Ember.get');
+  function aget(x, y) {
+    return x[y];
+  }
 
-  QUnit.test('should get arbitrary properties on an object', function () {
-    var obj = {
-      string: 'string',
-      number: 23,
-      boolTrue: true,
-      boolFalse: false,
-      nullValue: null
-    };
+  (0, _internalTestHelpers.moduleFor)('Ember.get', function (_AbstractTestCase) {
+    (0, _emberBabel.inherits)(_class, _AbstractTestCase);
 
-    for (var key in obj) {
-      if (!obj.hasOwnProperty(key)) {
-        continue;
-      }
-      equal((0, _emberMetal.get)(obj, key), obj[key], key);
-    }
-  });
-
-  QUnit.test('should not access a property more than once', function () {
-    var count = 0;
-    var obj = {
-      get id() {
-        return ++count;
-      }
-    };
-
-    (0, _emberMetal.get)(obj, 'id');
-
-    equal(count, 1);
-  });
-
-  (0, _internalTestHelpers.testBoth)('should call unknownProperty on watched values if the value is undefined', function (get) {
-    var obj = {
-      count: 0,
-      unknownProperty: function (key) {
-        equal(key, 'foo', 'should pass key');
-        this.count++;
-        return 'FOO';
-      }
-    };
-
-    var count = 0;
-    (0, _emberMetal.addObserver)(obj, 'foo', function () {
-      count++;
-    });
-
-    equal(get(obj, 'foo'), 'FOO', 'should return value from unknown');
-  });
-
-  QUnit.test('warn on attempts to call get with no arguments', function () {
-    expectAssertion(function () {
-      (0, _emberMetal.get)('aProperty');
-    }, /Get must be called with two arguments;/i);
-  });
-
-  QUnit.test('warn on attempts to call get with only one argument', function () {
-    expectAssertion(function () {
-      (0, _emberMetal.get)('aProperty');
-    }, /Get must be called with two arguments;/i);
-  });
-
-  QUnit.test('warn on attempts to call get with more then two arguments', function () {
-    expectAssertion(function () {
-      (0, _emberMetal.get)({}, 'aProperty', true);
-    }, /Get must be called with two arguments;/i);
-  });
-
-  QUnit.test('warn on attempts to get a property of undefined', function () {
-    expectAssertion(function () {
-      (0, _emberMetal.get)(undefined, 'aProperty');
-    }, /Cannot call get with 'aProperty' on an undefined object/i);
-  });
-
-  QUnit.test('warn on attempts to get a property path of undefined', function () {
-    expectAssertion(function () {
-      (0, _emberMetal.get)(undefined, 'aProperty.on.aPath');
-    }, /Cannot call get with 'aProperty.on.aPath' on an undefined object/);
-  });
-
-  QUnit.test('warn on attempts to get a property of null', function () {
-    expectAssertion(function () {
-      (0, _emberMetal.get)(null, 'aProperty');
-    }, /Cannot call get with 'aProperty' on an undefined object/);
-  });
-
-  QUnit.test('warn on attempts to get a property path of null', function () {
-    expectAssertion(function () {
-      (0, _emberMetal.get)(null, 'aProperty.on.aPath');
-    }, /Cannot call get with 'aProperty.on.aPath' on an undefined object/);
-  });
-
-  QUnit.test('warn on attempts to use get with an unsupported property path', function () {
-    var obj = {};
-    expectAssertion(function () {
-      return (0, _emberMetal.get)(obj, null);
-    }, /The key provided to get must be a string, you passed null/);
-    expectAssertion(function () {
-      return (0, _emberMetal.get)(obj, NaN);
-    }, /The key provided to get must be a string, you passed NaN/);
-    expectAssertion(function () {
-      return (0, _emberMetal.get)(obj, undefined);
-    }, /The key provided to get must be a string, you passed undefined/);
-    expectAssertion(function () {
-      return (0, _emberMetal.get)(obj, false);
-    }, /The key provided to get must be a string, you passed false/);
-    expectAssertion(function () {
-      return (0, _emberMetal.get)(obj, 42);
-    }, /The key provided to get must be a string, you passed 42/);
-    expectAssertion(function () {
-      return (0, _emberMetal.get)(obj, '');
-    }, /Cannot call `Ember.get` with an empty string/);
-  });
-
-  // ..........................................................
-  // BUGS
-  //
-
-  QUnit.test('(regression) watched properties on unmodified inherited objects should still return their original value', function () {
-    var MyMixin = _emberMetal.Mixin.create({
-      someProperty: 'foo',
-      propertyDidChange: (0, _emberMetal.observer)('someProperty', function () {})
-    });
-
-    var baseObject = MyMixin.apply({});
-    var theRealObject = Object.create(baseObject);
-
-    equal((0, _emberMetal.get)(theRealObject, 'someProperty'), 'foo', 'should return the set value, not false');
-  });
-
-  QUnit.module('Ember.getWithDefault');
-
-  QUnit.test('should get arbitrary properties on an object', function () {
-    var obj = {
-      string: 'string',
-      number: 23,
-      boolTrue: true,
-      boolFalse: false,
-      nullValue: null
-    };
-
-    for (var key in obj) {
-      if (!obj.hasOwnProperty(key)) {
-        continue;
-      }
-      equal((0, _emberMetal.getWithDefault)(obj, key, 'fail'), obj[key], key);
+    function _class() {
+      return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase.apply(this, arguments));
     }
 
-    obj = {
-      undef: undefined
-    };
+    _class.prototype['@test should get arbitrary properties on an object'] = function (assert) {
+      var obj = {
+        string: 'string',
+        number: 23,
+        boolTrue: true,
+        boolFalse: false,
+        nullValue: null
+      };
 
-    equal((0, _emberMetal.getWithDefault)(obj, 'undef', 'default'), 'default', 'explicit undefined retrieves the default');
-    equal((0, _emberMetal.getWithDefault)(obj, 'not-present', 'default'), 'default', 'non-present key retrieves the default');
-  });
-
-  QUnit.test('should call unknownProperty if defined and value is undefined', function () {
-    var obj = {
-      count: 0,
-      unknownProperty: function (key) {
-        equal(key, 'foo', 'should pass key');
-        this.count++;
-        return 'FOO';
+      for (var key in obj) {
+        if (!obj.hasOwnProperty(key)) {
+          continue;
+        }
+        assert.equal((0, _emberMetal.get)(obj, key), obj[key], key);
       }
     };
 
-    equal((0, _emberMetal.get)(obj, 'foo'), 'FOO', 'should return value from unknown');
-    equal(obj.count, 1, 'should have invoked');
-  });
+    _class.prototype['@test should not access a property more than once'] = function (assert) {
+      var count = 0;
+      var obj = {
+        get id() {
+          return ++count;
+        }
+      };
 
-  (0, _internalTestHelpers.testBoth)('if unknownProperty is present, it is called', function () {
-    var obj = {
-      count: 0,
-      unknownProperty: function (key) {
-        if (key === 'foo') {
+      (0, _emberMetal.get)(obj, 'id');
+
+      assert.equal(count, 1);
+    };
+
+    _class.prototype['@test should call unknownProperty on watched values if the value is undefined using getFromEmberMetal()/Ember.set()'] = function (assert) {
+      assert.equal((0, _emberMetal.get)({
+        unknownProperty: function (key) {
+          assert.equal(key, 'foo', 'should pass key');
+          return 'FOO';
+        }
+      }, 'foo'), 'FOO', 'should return value from unknown');
+    };
+
+    _class.prototype['@test should call unknownProperty on watched values if the value is undefined using accessors'] = function (assert) {
+      var obj;
+
+      if (_emberEnvironment.ENV.USES_ACCESSORS) {
+        obj = {
+          unknownProperty: function (key) {
+            assert.equal(key, 'foo', 'should pass key');
+            return 'FOO';
+          }
+        };
+
+        assert.equal(aget(obj, 'foo'), 'FOO', 'should return value from unknown');
+      } else {
+        assert.ok('SKIPPING ACCESSORS');
+      }
+    };
+
+    _class.prototype['@test warn on attempts to call get with no arguments'] = function () {
+      expectAssertion(function () {
+        (0, _emberMetal.get)('aProperty');
+      }, /Get must be called with two arguments;/i);
+    };
+
+    _class.prototype['@test warn on attempts to call get with only one argument'] = function () {
+      expectAssertion(function () {
+        (0, _emberMetal.get)('aProperty');
+      }, /Get must be called with two arguments;/i);
+    };
+
+    _class.prototype['@test warn on attempts to call get with more then two arguments'] = function () {
+      expectAssertion(function () {
+        (0, _emberMetal.get)({}, 'aProperty', true);
+      }, /Get must be called with two arguments;/i);
+    };
+
+    _class.prototype['@test warn on attempts to get a property of undefined'] = function () {
+      expectAssertion(function () {
+        (0, _emberMetal.get)(undefined, 'aProperty');
+      }, /Cannot call get with 'aProperty' on an undefined object/i);
+    };
+
+    _class.prototype['@test warn on attempts to get a property path of undefined'] = function () {
+      expectAssertion(function () {
+        (0, _emberMetal.get)(undefined, 'aProperty.on.aPath');
+      }, /Cannot call get with 'aProperty.on.aPath' on an undefined object/);
+    };
+
+    _class.prototype['@test warn on attempts to get a property of null'] = function () {
+      expectAssertion(function () {
+        (0, _emberMetal.get)(null, 'aProperty');
+      }, /Cannot call get with 'aProperty' on an undefined object/);
+    };
+
+    _class.prototype['@test warn on attempts to get a property path of null'] = function () {
+      expectAssertion(function () {
+        (0, _emberMetal.get)(null, 'aProperty.on.aPath');
+      }, /Cannot call get with 'aProperty.on.aPath' on an undefined object/);
+    };
+
+    _class.prototype['@test warn on attempts to use get with an unsupported property path'] = function () {
+      var obj = {};
+      expectAssertion(function () {
+        return (0, _emberMetal.get)(obj, null);
+      }, /The key provided to get must be a string, you passed null/);
+      expectAssertion(function () {
+        return (0, _emberMetal.get)(obj, NaN);
+      }, /The key provided to get must be a string, you passed NaN/);
+      expectAssertion(function () {
+        return (0, _emberMetal.get)(obj, undefined);
+      }, /The key provided to get must be a string, you passed undefined/);
+      expectAssertion(function () {
+        return (0, _emberMetal.get)(obj, false);
+      }, /The key provided to get must be a string, you passed false/);
+      expectAssertion(function () {
+        return (0, _emberMetal.get)(obj, 42);
+      }, /The key provided to get must be a string, you passed 42/);
+      expectAssertion(function () {
+        return (0, _emberMetal.get)(obj, '');
+      }, /Cannot call `Ember.get` with an empty string/);
+    };
+
+    _class.prototype['@test (regression) watched properties on unmodified inherited objects should still return their original value'] = function () {
+      var MyMixin = _emberMetal.Mixin.create({
+        someProperty: 'foo',
+        propertyDidChange: (0, _emberMetal.observer)('someProperty', function () {})
+      });
+
+      var baseObject = MyMixin.apply({});
+      var theRealObject = Object.create(baseObject);
+
+      equal((0, _emberMetal.get)(theRealObject, 'someProperty'), 'foo', 'should return the set value, not false');
+    };
+
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
+
+  (0, _internalTestHelpers.moduleFor)('Ember.getWithDefault', function (_AbstractTestCase2) {
+    (0, _emberBabel.inherits)(_class2, _AbstractTestCase2);
+
+    function _class2() {
+      return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase2.apply(this, arguments));
+    }
+
+    _class2.prototype['@test should get arbitrary properties on an object'] = function (assert) {
+      var obj = {
+        string: 'string',
+        number: 23,
+        boolTrue: true,
+        boolFalse: false,
+        nullValue: null
+      };
+
+      for (var key in obj) {
+        if (!obj.hasOwnProperty(key)) {
+          continue;
+        }
+        assert.equal((0, _emberMetal.getWithDefault)(obj, key, 'fail'), obj[key], key);
+      }
+
+      obj = {
+        undef: undefined
+      };
+
+      assert.equal((0, _emberMetal.getWithDefault)(obj, 'undef', 'default'), 'default', 'explicit undefined retrieves the default');
+      assert.equal((0, _emberMetal.getWithDefault)(obj, 'not-present', 'default'), 'default', 'non-present key retrieves the default');
+    };
+
+    _class2.prototype['@test should call unknownProperty if defined and value is undefined'] = function (assert) {
+      var obj = {
+        count: 0,
+        unknownProperty: function (key) {
           equal(key, 'foo', 'should pass key');
           this.count++;
           return 'FOO';
         }
+      };
+
+      assert.equal((0, _emberMetal.get)(obj, 'foo'), 'FOO', 'should return value from unknown');
+      assert.equal(obj.count, 1, 'should have invoked');
+    };
+
+    _class2.prototype['@test if unknownProperty is present, it is called using getFromEmberMetal()/Ember.set()'] = function (assert) {
+      var obj = {
+        unknownProperty: function (key) {
+          if (key === 'foo') {
+            equal(key, 'foo', 'should pass key');
+            return 'FOO';
+          }
+        }
+      };
+      assert.equal((0, _emberMetal.getWithDefault)(obj, 'foo', 'fail'), 'FOO', 'should return value from unknownProperty');
+      assert.equal((0, _emberMetal.getWithDefault)(obj, 'bar', 'default'), 'default', 'should convert undefined from unknownProperty into default');
+    };
+
+    _class2.prototype['@test if unknownProperty is present, it is called using accessors'] = function (assert) {
+      var obj;
+
+      if (_emberEnvironment.ENV.USES_ACCESSORS) {
+        obj = {
+          unknownProperty: function (key) {
+            if (key === 'foo') {
+              assert.equal(key, 'foo', 'should pass key');
+              return 'FOO';
+            }
+          }
+        };
+
+        assert.equal(aget(obj, 'foo', 'fail'), 'FOO', 'should return value from unknownProperty');
+        assert.equal(aget(obj, 'bar', 'default'), 'default', 'should convert undefined from unknownProperty into default');
+      } else {
+        assert.ok('SKIPPING ACCESSORS');
       }
     };
 
-    var count = 0;
-    (0, _emberMetal.addObserver)(obj, 'foo', function () {
-      return count++;
-    });
+    _class2.prototype['@test (regression) watched properties on unmodified inherited objects should still return their original value'] = function (assert) {
+      var MyMixin = _emberMetal.Mixin.create({
+        someProperty: 'foo',
+        propertyDidChange: (0, _emberMetal.observer)('someProperty', function () {/* nothing to do */})
+      });
 
-    equal((0, _emberMetal.getWithDefault)(obj, 'foo', 'fail'), 'FOO', 'should return value from unknownProperty');
-    equal((0, _emberMetal.getWithDefault)(obj, 'bar', 'default'), 'default', 'should convert undefined from unknownProperty into default');
-  });
+      var baseObject = MyMixin.apply({});
+      var theRealObject = Object.create(baseObject);
 
-  // ..........................................................
-  // BUGS
-  //
+      assert.equal((0, _emberMetal.getWithDefault)(theRealObject, 'someProperty', 'fail'), 'foo', 'should return the set value, not false');
+    };
 
-  QUnit.test('(regression) watched properties on unmodified inherited objects should still return their original value', function () {
-    var MyMixin = _emberMetal.Mixin.create({
-      someProperty: 'foo',
-      propertyDidChange: (0, _emberMetal.observer)('someProperty', function () {/* nothing to do */})
-    });
-
-    var baseObject = MyMixin.apply({});
-    var theRealObject = Object.create(baseObject);
-
-    equal((0, _emberMetal.getWithDefault)(theRealObject, 'someProperty', 'fail'), 'foo', 'should return the set value, not false');
-  });
+    return _class2;
+  }(_internalTestHelpers.AbstractTestCase));
 });
-enifed('ember-metal/tests/accessors/is_global_path_test', ['ember-metal'], function (_emberMetal) {
+enifed('ember-metal/tests/accessors/is_global_path_test', ['ember-babel', 'ember-metal', 'internal-test-helpers'], function (_emberBabel, _emberMetal, _internalTestHelpers) {
   'use strict';
 
-  QUnit.module('Ember.isGlobalPath');
+  (0, _internalTestHelpers.moduleFor)('Ember.isGlobalPath', function (_AbstractTestCase) {
+    (0, _emberBabel.inherits)(_class, _AbstractTestCase);
 
-  QUnit.test('global path\'s are recognized', function () {
-    ok((0, _emberMetal.isGlobalPath)('App.myProperty'));
-    ok((0, _emberMetal.isGlobalPath)('App.myProperty.subProperty'));
-  });
+    function _class() {
+      return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase.apply(this, arguments));
+    }
 
-  QUnit.test('if there is a \'this\' in the path, it\'s not a global path', function () {
-    ok(!(0, _emberMetal.isGlobalPath)('this.myProperty'));
-    ok(!(0, _emberMetal.isGlobalPath)('this'));
-  });
+    _class.prototype['@test global path\'s are recognized'] = function (assert) {
+      assert.ok((0, _emberMetal.isGlobalPath)('App.myProperty'));
+      assert.ok((0, _emberMetal.isGlobalPath)('App.myProperty.subProperty'));
+    };
 
-  QUnit.test('if the path starts with a lowercase character, it is not a global path', function () {
-    ok(!(0, _emberMetal.isGlobalPath)('myObj'));
-    ok(!(0, _emberMetal.isGlobalPath)('myObj.SecondProperty'));
-  });
+    _class.prototype['@test if there is a \'this\' in the path, it\'s not a global path'] = function (assert) {
+      assert.ok(!(0, _emberMetal.isGlobalPath)('this.myProperty'));
+      assert.ok(!(0, _emberMetal.isGlobalPath)('this'));
+    };
+
+    _class.prototype['@test if the path starts with a lowercase character, it is not a global path'] = function (assert) {
+      assert.ok(!(0, _emberMetal.isGlobalPath)('myObj'));
+      assert.ok(!(0, _emberMetal.isGlobalPath)('myObj.SecondProperty'));
+    };
+
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
 });
-enifed('ember-metal/tests/accessors/mandatory_setters_test', ['ember-metal'], function (_emberMetal) {
+enifed('ember-metal/tests/accessors/mandatory_setters_test', ['ember-metal', 'internal-test-helpers'], function (_emberMetal) {
   'use strict';
-
-  QUnit.module('mandatory-setters');
 });
-enifed('ember-metal/tests/accessors/set_path_test', ['ember-environment', 'ember-metal'], function (_emberEnvironment, _emberMetal) {
+enifed('ember-metal/tests/accessors/set_path_test', ['ember-babel', 'ember-environment', 'ember-metal', 'internal-test-helpers'], function (_emberBabel, _emberEnvironment, _emberMetal, _internalTestHelpers) {
   'use strict';
 
   var originalLookup = _emberEnvironment.context.lookup;
@@ -36566,167 +36853,193 @@ enifed('ember-metal/tests/accessors/set_path_test', ['ember-environment', 'ember
     obj = null;
   }
 
-  QUnit.module('set with path', {
-    setup: commonSetup,
-    teardown: commonTeardown
-  });
+  (0, _internalTestHelpers.moduleFor)('set with path', function (_AbstractTestCase) {
+    (0, _emberBabel.inherits)(_class, _AbstractTestCase);
 
-  QUnit.test('[Foo, bar] -> Foo.bar', function () {
-    lookup.Foo = {
-      toString: function () {
-        return 'Foo';
-      }
-    }; // Behave like an Ember.Namespace
+    function _class() {
 
-    (0, _emberMetal.set)(lookup.Foo, 'bar', 'baz');
-    equal((0, _emberMetal.get)(lookup.Foo, 'bar'), 'baz');
-  });
+      var _this = (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase.call(this));
 
-  // ..........................................................
-  //
-  // LOCAL PATHS
-
-  QUnit.test('[obj, foo] -> obj.foo', function () {
-    (0, _emberMetal.set)(obj, 'foo', 'BAM');
-    equal((0, _emberMetal.get)(obj, 'foo'), 'BAM');
-  });
-
-  QUnit.test('[obj, foo.bar] -> obj.foo.bar', function () {
-    (0, _emberMetal.set)(obj, 'foo.bar', 'BAM');
-    equal((0, _emberMetal.get)(obj, 'foo.bar'), 'BAM');
-  });
-
-  // ..........................................................
-  // DEPRECATED
-  //
-
-  QUnit.module('set with path - deprecated', {
-    setup: commonSetup,
-    teardown: commonTeardown
-  });
-
-  QUnit.test('[obj, bla.bla] gives a proper exception message', function () {
-    try {
-      (0, _emberMetal.set)(obj, 'bla.bla', 'BAM');
-    } catch (ex) {
-      equal(ex.message, 'Property set failed: object in path \"bla\" could not be found or was destroyed.');
+      commonSetup();
+      return _this;
     }
-  });
 
-  QUnit.test('[obj, foo.baz.bat] -> EXCEPTION', function () {
-    throws(function () {
-      return (0, _emberMetal.set)(obj, 'foo.baz.bat', 'BAM');
-    });
-  });
+    _class.prototype.teardown = function () {
+      commonTeardown();
+    };
 
-  QUnit.test('[obj, foo.baz.bat] -> EXCEPTION', function () {
-    (0, _emberMetal.trySet)(obj, 'foo.baz.bat', 'BAM');
-    ok(true, 'does not raise');
-  });
+    _class.prototype['@test [Foo, bar] -> Foo.bar'] = function (assert) {
+      lookup.Foo = {
+        toString: function () {
+          return 'Foo';
+        }
+      }; // Behave like an Ember.Namespace
+
+      (0, _emberMetal.set)(lookup.Foo, 'bar', 'baz');
+      assert.equal((0, _emberMetal.get)(lookup.Foo, 'bar'), 'baz');
+    };
+
+    _class.prototype['@test [obj, foo] -> obj.foo'] = function (assert) {
+      (0, _emberMetal.set)(obj, 'foo', 'BAM');
+      assert.equal((0, _emberMetal.get)(obj, 'foo'), 'BAM');
+    };
+
+    _class.prototype['@test [obj, foo.bar] -> obj.foo.bar'] = function (assert) {
+      (0, _emberMetal.set)(obj, 'foo.bar', 'BAM');
+      assert.equal((0, _emberMetal.get)(obj, 'foo.bar'), 'BAM');
+    };
+
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
+
+  (0, _internalTestHelpers.moduleFor)('set with path - deprecated', function (_AbstractTestCase2) {
+    (0, _emberBabel.inherits)(_class2, _AbstractTestCase2);
+
+    function _class2() {
+
+      var _this2 = (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase2.call(this));
+
+      commonSetup();
+      return _this2;
+    }
+
+    _class2.prototype.teardown = function () {
+      commonTeardown();
+    };
+
+    _class2.prototype['@test [obj, bla.bla] gives a proper exception message'] = function (assert) {
+      try {
+        (0, _emberMetal.set)(obj, 'bla.bla', 'BAM');
+      } catch (ex) {
+        assert.equal(ex.message, 'Property set failed: object in path \"bla\" could not be found or was destroyed.');
+      }
+    };
+
+    _class2.prototype['@test [obj, foo.baz.bat] -> EXCEPTION'] = function (assert) {
+      assert.throws(function () {
+        return (0, _emberMetal.set)(obj, 'foo.baz.bat', 'BAM');
+      });
+    };
+
+    _class2.prototype['@test [obj, foo.baz.bat] -> EXCEPTION'] = function (assert) {
+      (0, _emberMetal.trySet)(obj, 'foo.baz.bat', 'BAM');
+      assert.ok(true, 'does not raise');
+    };
+
+    return _class2;
+  }(_internalTestHelpers.AbstractTestCase));
 });
-enifed('ember-metal/tests/accessors/set_test', ['ember-metal'], function (_emberMetal) {
+enifed('ember-metal/tests/accessors/set_test', ['ember-babel', 'ember-metal', 'internal-test-helpers'], function (_emberBabel, _emberMetal, _internalTestHelpers) {
   'use strict';
 
-  QUnit.module('set', {
-    teardown: function () {
+  (0, _internalTestHelpers.moduleFor)('set', function (_AbstractTestCase) {
+    (0, _emberBabel.inherits)(_class, _AbstractTestCase);
+
+    function _class() {
+      return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase.apply(this, arguments));
+    }
+
+    _class.prototype.teardown = function () {
       (0, _emberMetal.setHasViews)(function () {
         return false;
       });
-    }
-  });
-
-  QUnit.test('should set arbitrary properties on an object', function () {
-    var obj = {
-      string: 'string',
-      number: 23,
-      boolTrue: true,
-      boolFalse: false,
-      nullValue: null,
-      undefinedValue: undefined
     };
 
-    var newObj = {
-      undefinedValue: 'emberjs'
-    };
+    _class.prototype['@test should set arbitrary properties on an object'] = function (assert) {
+      var obj = {
+        string: 'string',
+        number: 23,
+        boolTrue: true,
+        boolFalse: false,
+        nullValue: null,
+        undefinedValue: undefined
+      };
 
-    for (var key in obj) {
-      if (!obj.hasOwnProperty(key)) {
-        continue;
-      }
+      var newObj = {
+        undefinedValue: 'emberjs'
+      };
 
-      equal((0, _emberMetal.set)(newObj, key, obj[key]), obj[key], 'should return value');
-      equal((0, _emberMetal.get)(newObj, key), obj[key], 'should set value');
-    }
-  });
+      for (var key in obj) {
+        if (!obj.hasOwnProperty(key)) {
+          continue;
+        }
 
-  QUnit.test('should call setUnknownProperty if defined and value is undefined', function () {
-    var obj = {
-      count: 0,
-
-      unknownProperty: function () {
-        ok(false, 'should not invoke unknownProperty if setUnknownProperty is defined');
-      },
-      setUnknownProperty: function (key, value) {
-        equal(key, 'foo', 'should pass key');
-        equal(value, 'BAR', 'should pass key');
-        this.count++;
-        return 'FOO';
+        assert.equal((0, _emberMetal.set)(newObj, key, obj[key]), obj[key], 'should return value');
+        assert.equal((0, _emberMetal.get)(newObj, key), obj[key], 'should set value');
       }
     };
 
-    equal((0, _emberMetal.set)(obj, 'foo', 'BAR'), 'BAR', 'should return set value');
-    equal(obj.count, 1, 'should have invoked');
-  });
+    _class.prototype['@test should call setUnknownProperty if defined and value is undefined'] = function (assert) {
+      var obj = {
+        count: 0,
 
-  QUnit.test('warn on attempts to call set with undefined as object', function () {
-    expectAssertion(function () {
-      return (0, _emberMetal.set)(undefined, 'aProperty', 'BAM');
-    }, /Cannot call set with 'aProperty' on an undefined object./);
-  });
+        unknownProperty: function () {
+          assert.ok(false, 'should not invoke unknownProperty if setUnknownProperty is defined');
+        },
+        setUnknownProperty: function (key, value) {
+          assert.equal(key, 'foo', 'should pass key');
+          assert.equal(value, 'BAR', 'should pass key');
+          this.count++;
+          return 'FOO';
+        }
+      };
 
-  QUnit.test('warn on attempts to call set with null as object', function () {
-    expectAssertion(function () {
-      return (0, _emberMetal.set)(null, 'aProperty', 'BAM');
-    }, /Cannot call set with 'aProperty' on an undefined object./);
-  });
+      assert.equal((0, _emberMetal.set)(obj, 'foo', 'BAR'), 'BAR', 'should return set value');
+      assert.equal(obj.count, 1, 'should have invoked');
+    };
 
-  QUnit.test('warn on attempts to use set with an unsupported property path', function () {
-    var obj = {};
-    expectAssertion(function () {
-      return (0, _emberMetal.set)(obj, null, 42);
-    }, /The key provided to set must be a string, you passed null/);
-    expectAssertion(function () {
-      return (0, _emberMetal.set)(obj, NaN, 42);
-    }, /The key provided to set must be a string, you passed NaN/);
-    expectAssertion(function () {
-      return (0, _emberMetal.set)(obj, undefined, 42);
-    }, /The key provided to set must be a string, you passed undefined/);
-    expectAssertion(function () {
-      return (0, _emberMetal.set)(obj, false, 42);
-    }, /The key provided to set must be a string, you passed false/);
-    expectAssertion(function () {
-      return (0, _emberMetal.set)(obj, 42, 42);
-    }, /The key provided to set must be a string, you passed 42/);
-  });
+    _class.prototype['@test warn on attempts to call set with undefined as object'] = function () {
+      expectAssertion(function () {
+        return (0, _emberMetal.set)(undefined, 'aProperty', 'BAM');
+      }, /Cannot call set with 'aProperty' on an undefined object./);
+    };
 
-  QUnit.test('warn on attempts of calling set on a destroyed object', function () {
-    var obj = { isDestroyed: true };
+    _class.prototype['@test warn on attempts to call set with null as object'] = function () {
+      expectAssertion(function () {
+        return (0, _emberMetal.set)(null, 'aProperty', 'BAM');
+      }, /Cannot call set with 'aProperty' on an undefined object./);
+    };
 
-    expectAssertion(function () {
-      return (0, _emberMetal.set)(obj, 'favoriteFood', 'hot dogs');
-    }, 'calling set on destroyed object: [object Object].favoriteFood = hot dogs');
-  });
+    _class.prototype['@test warn on attempts to use set with an unsupported property path'] = function () {
+      var obj = {};
+      expectAssertion(function () {
+        return (0, _emberMetal.set)(obj, null, 42);
+      }, /The key provided to set must be a string, you passed null/);
+      expectAssertion(function () {
+        return (0, _emberMetal.set)(obj, NaN, 42);
+      }, /The key provided to set must be a string, you passed NaN/);
+      expectAssertion(function () {
+        return (0, _emberMetal.set)(obj, undefined, 42);
+      }, /The key provided to set must be a string, you passed undefined/);
+      expectAssertion(function () {
+        return (0, _emberMetal.set)(obj, false, 42);
+      }, /The key provided to set must be a string, you passed false/);
+      expectAssertion(function () {
+        return (0, _emberMetal.set)(obj, 42, 42);
+      }, /The key provided to set must be a string, you passed 42/);
+    };
 
-  QUnit.test('does not trigger auto-run assertion for objects that have not been tagged', function (assert) {
-    (0, _emberMetal.setHasViews)(function () {
-      return true;
-    });
-    var obj = {};
+    _class.prototype['@test warn on attempts of calling set on a destroyed object'] = function () {
+      var obj = { isDestroyed: true };
 
-    (0, _emberMetal.set)(obj, 'foo', 'bar');
+      expectAssertion(function () {
+        return (0, _emberMetal.set)(obj, 'favoriteFood', 'hot dogs');
+      }, 'calling set on destroyed object: [object Object].favoriteFood = hot dogs');
+    };
 
-    assert.equal(obj.foo, 'bar');
-  });
+    _class.prototype['@test does not trigger auto-run assertion for objects that have not been tagged'] = function (assert) {
+      (0, _emberMetal.setHasViews)(function () {
+        return true;
+      });
+      var obj = {};
+
+      (0, _emberMetal.set)(obj, 'foo', 'bar');
+
+      assert.equal(obj.foo, 'bar');
+    };
+
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
 });
 enifed('ember-metal/tests/alias_test', ['ember-metal'], function (_emberMetal) {
   'use strict';
@@ -38169,37 +38482,6 @@ enifed('ember-metal/tests/computed_test', ['ember-runtime', 'internal-test-helpe
 enifed('ember-metal/tests/descriptor_test', ['ember-babel', 'ember-runtime', 'ember-metal'], function (_emberBabel, _emberRuntime, _emberMetal) {
   'use strict';
 
-  // IE9 soft-fails when trying to delete a non-configurable property
-
-  var hasCompliantDelete = function () {
-    var obj = {};
-
-    Object.defineProperty(obj, 'zomg', { configurable: false, value: 'zomg' });
-
-    try {
-      delete obj.zomg;
-    } catch (e) {
-      return true;
-    }
-
-    return false;
-  }();
-
-  // IE9 soft-fails when trying to assign to a non-writable property
-  var hasCompliantAssign = function () {
-    var obj = {};
-
-    Object.defineProperty(obj, 'zomg', { writable: false, value: 'zomg' });
-
-    try {
-      obj.zomg = 'lol';
-    } catch (e) {
-      return true;
-    }
-
-    return false;
-  }();
-
   var DescriptorTest = function () {
     DescriptorTest.test = function (title, callback) {
       var _this = this;
@@ -38431,13 +38713,9 @@ enifed('ember-metal/tests/descriptor_test', ['ember-babel', 'ember-runtime', 'em
 
       var source = factory.source();
 
-      if (hasCompliantDelete) {
-        assert.throws(function () {
-          return delete source.foo;
-        }, TypeError);
-      } else {
-        delete source.foo;
-      }
+      assert.throws(function () {
+        return delete source.foo;
+      }, TypeError);
 
       assert.throws(function () {
         return Object.defineProperty(source, 'foo', { configurable: true, value: 'baz' });
@@ -38497,17 +38775,12 @@ enifed('ember-metal/tests/descriptor_test', ['ember-babel', 'ember-runtime', 'em
 
       var source = factory.source();
 
-      if (hasCompliantAssign) {
-        assert.throws(function () {
-          return source.foo = 'baz';
-        }, TypeError);
-        assert.throws(function () {
-          return obj.foo = 'baz';
-        }, TypeError);
-      } else {
-        source.foo = 'baz';
-        obj.foo = 'baz';
-      }
+      assert.throws(function () {
+        return source.foo = 'baz';
+      }, TypeError);
+      assert.throws(function () {
+        return obj.foo = 'baz';
+      }, TypeError);
 
       assert.equal(obj.foo, 'bar');
     });
@@ -38591,13 +38864,9 @@ enifed('ember-metal/tests/descriptor_test', ['ember-babel', 'ember-runtime', 'em
 
       assert.equal(obj.fooBar, 'FOO-BAR');
 
-      if (hasCompliantAssign) {
-        assert.throws(function () {
-          return obj.fooBar = 'foobar';
-        }, TypeError);
-      } else {
-        obj.fooBar = 'foobar';
-      }
+      assert.throws(function () {
+        return obj.fooBar = 'foobar';
+      }, TypeError);
 
       assert.equal(obj.fooBar, 'FOO-BAR');
     });
@@ -39483,16 +39752,6 @@ enifed('ember-metal/tests/main_test', ['ember-metal'], function (_emberMetal) {
     validateVersionString('1.11.3.aba18a', false);
     validateVersionString('1.11', false);
   });
-
-  QUnit.test('Ember.K is deprecated', function (assert) {
-    expectDeprecation(function () {
-      var obj = {
-        noop: _emberMetal.default.K
-      };
-
-      assert.equal(obj, obj.noop());
-    }, 'Ember.K is deprecated in favor of defining a function inline.');
-  });
 });
 enifed('ember-metal/tests/map_test', ['ember-metal'], function (_emberMetal) {
   'use strict';
@@ -39974,169 +40233,177 @@ enifed('ember-metal/tests/map_test', ['ember-metal'], function (_emberMetal) {
     equal(map.add(obj), map, 'when it is already in the set');
   });
 });
-enifed('ember-metal/tests/meta_test', ['ember-metal'], function (_emberMetal) {
+enifed('ember-metal/tests/meta_test', ['ember-babel', 'ember-metal', 'internal-test-helpers'], function (_emberBabel, _emberMetal, _internalTestHelpers) {
   'use strict';
 
-  QUnit.module('Ember.meta');
+  (0, _internalTestHelpers.moduleFor)('Ember.meta', function (_AbstractTestCase) {
+    (0, _emberBabel.inherits)(_class, _AbstractTestCase);
 
-  QUnit.test('should return the same hash for an object', function () {
-    var obj = {};
-
-    (0, _emberMetal.meta)(obj).foo = 'bar';
-
-    equal((0, _emberMetal.meta)(obj).foo, 'bar', 'returns same hash with multiple calls to Ember.meta()');
-  });
-
-  QUnit.test('meta is not enumerable', function () {
-    var proto = void 0,
-        obj = void 0,
-        props = void 0,
-        prop = void 0;
-    proto = { foo: 'bar' };
-    (0, _emberMetal.meta)(proto);
-    obj = Object.create(proto);
-    (0, _emberMetal.meta)(obj);
-    obj.bar = 'baz';
-    props = [];
-    for (prop in obj) {
-      props.push(prop);
+    function _class() {
+      return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase.apply(this, arguments));
     }
-    deepEqual(props.sort(), ['bar', 'foo']);
-    if (typeof JSON !== 'undefined' && 'stringify' in JSON) {
-      try {
-        JSON.stringify(obj);
-      } catch (e) {
-        ok(false, 'meta should not fail JSON.stringify');
+
+    _class.prototype['@test should return the same hash for an object'] = function (assert) {
+      var obj = {};
+
+      (0, _emberMetal.meta)(obj).foo = 'bar';
+
+      assert.equal((0, _emberMetal.meta)(obj).foo, 'bar', 'returns same hash with multiple calls to Ember.meta()');
+    };
+
+    _class.prototype['@test meta is not enumerable'] = function (assert) {
+      var proto = void 0,
+          obj = void 0,
+          props = void 0,
+          prop = void 0;
+      proto = { foo: 'bar' };
+      (0, _emberMetal.meta)(proto);
+      obj = Object.create(proto);
+      (0, _emberMetal.meta)(obj);
+      obj.bar = 'baz';
+      props = [];
+      for (prop in obj) {
+        props.push(prop);
       }
-    }
-  });
-
-  QUnit.test('meta.listeners basics', function (assert) {
-    var t = {};
-    var m = (0, _emberMetal.meta)({});
-    m.addToListeners('hello', t, 'm', 0);
-    var matching = m.matchingListeners('hello');
-    assert.equal(matching.length, 3);
-    assert.equal(matching[0], t);
-    m.removeFromListeners('hello', t, 'm');
-    matching = m.matchingListeners('hello');
-    assert.equal(matching, undefined);
-  });
-
-  QUnit.test('meta.listeners inheritance', function (assert) {
-    var target = {};
-    var parent = {};
-    var parentMeta = (0, _emberMetal.meta)(parent);
-    parentMeta.addToListeners('hello', target, 'm', 0);
-
-    var child = Object.create(parent);
-    var m = (0, _emberMetal.meta)(child);
-
-    var matching = m.matchingListeners('hello');
-    assert.equal(matching.length, 3);
-    assert.equal(matching[0], target);
-    assert.equal(matching[1], 'm');
-    assert.equal(matching[2], 0);
-    m.removeFromListeners('hello', target, 'm');
-    matching = m.matchingListeners('hello');
-    assert.equal(matching, undefined);
-    matching = parentMeta.matchingListeners('hello');
-    assert.equal(matching.length, 3);
-  });
-
-  QUnit.test('meta.listeners deduplication', function (assert) {
-    var t = {};
-    var m = (0, _emberMetal.meta)({});
-    m.addToListeners('hello', t, 'm', 0);
-    m.addToListeners('hello', t, 'm', 0);
-    var matching = m.matchingListeners('hello');
-    assert.equal(matching.length, 3);
-    assert.equal(matching[0], t);
-  });
-
-  QUnit.test('meta.writeWatching issues useful error after destroy', function () {
-    var targetMeta = (0, _emberMetal.meta)({
-      toString: function () {
-        return '<special-sauce:123>';
+      assert.deepEqual(props.sort(), ['bar', 'foo']);
+      if (typeof JSON !== 'undefined' && 'stringify' in JSON) {
+        try {
+          JSON.stringify(obj);
+        } catch (e) {
+          assert.ok(false, 'meta should not fail JSON.stringify');
+        }
       }
-    });
+    };
 
-    targetMeta.destroy();
+    _class.prototype['@test meta.listeners basics'] = function (assert) {
+      var t = {};
+      var m = (0, _emberMetal.meta)({});
+      m.addToListeners('hello', t, 'm', 0);
+      var matching = m.matchingListeners('hello');
+      assert.equal(matching.length, 3);
+      assert.equal(matching[0], t);
+      m.removeFromListeners('hello', t, 'm');
+      matching = m.matchingListeners('hello');
+      assert.equal(matching, undefined);
+    };
 
-    expectAssertion(function () {
-      targetMeta.writeWatching('hello', 1);
-    }, 'Cannot update watchers for `hello` on `<special-sauce:123>` after it has been destroyed.');
-  });
+    _class.prototype['@test meta.listeners inheritance'] = function (assert) {
+      var target = {};
+      var parent = {};
+      var parentMeta = (0, _emberMetal.meta)(parent);
+      parentMeta.addToListeners('hello', target, 'm', 0);
 
-  QUnit.test('meta.writableTag issues useful error after destroy', function () {
-    var targetMeta = (0, _emberMetal.meta)({
-      toString: function () {
-        return '<special-sauce:123>';
-      }
-    });
+      var child = Object.create(parent);
+      var m = (0, _emberMetal.meta)(child);
 
-    targetMeta.destroy();
+      var matching = m.matchingListeners('hello');
+      assert.equal(matching.length, 3);
+      assert.equal(matching[0], target);
+      assert.equal(matching[1], 'm');
+      assert.equal(matching[2], 0);
+      m.removeFromListeners('hello', target, 'm');
+      matching = m.matchingListeners('hello');
+      assert.equal(matching, undefined);
+      matching = parentMeta.matchingListeners('hello');
+      assert.equal(matching.length, 3);
+    };
 
-    expectAssertion(function () {
-      targetMeta.writableTag(function () {});
-    }, 'Cannot create a new tag for `<special-sauce:123>` after it has been destroyed.');
-  });
+    _class.prototype['@test meta.listeners deduplication'] = function (assert) {
+      var t = {};
+      var m = (0, _emberMetal.meta)({});
+      m.addToListeners('hello', t, 'm', 0);
+      m.addToListeners('hello', t, 'm', 0);
+      var matching = m.matchingListeners('hello');
+      assert.equal(matching.length, 3);
+      assert.equal(matching[0], t);
+    };
 
-  QUnit.test('meta.writableChainWatchers issues useful error after destroy', function () {
-    var targetMeta = (0, _emberMetal.meta)({
-      toString: function () {
-        return '<special-sauce:123>';
-      }
-    });
+    _class.prototype['@test meta.writeWatching issues useful error after destroy'] = function () {
+      var targetMeta = (0, _emberMetal.meta)({
+        toString: function () {
+          return '<special-sauce:123>';
+        }
+      });
 
-    targetMeta.destroy();
+      targetMeta.destroy();
 
-    expectAssertion(function () {
-      targetMeta.writableChainWatchers(function () {});
-    }, 'Cannot create a new chain watcher for `<special-sauce:123>` after it has been destroyed.');
-  });
+      expectAssertion(function () {
+        targetMeta.writeWatching('hello', 1);
+      }, 'Cannot update watchers for `hello` on `<special-sauce:123>` after it has been destroyed.');
+    };
 
-  QUnit.test('meta.writableChains issues useful error after destroy', function () {
-    var targetMeta = (0, _emberMetal.meta)({
-      toString: function () {
-        return '<special-sauce:123>';
-      }
-    });
+    _class.prototype['@test meta.writableTag issues useful error after destroy'] = function () {
+      var targetMeta = (0, _emberMetal.meta)({
+        toString: function () {
+          return '<special-sauce:123>';
+        }
+      });
 
-    targetMeta.destroy();
+      targetMeta.destroy();
 
-    expectAssertion(function () {
-      targetMeta.writableChains(function () {});
-    }, 'Cannot create a new chains for `<special-sauce:123>` after it has been destroyed.');
-  });
+      expectAssertion(function () {
+        targetMeta.writableTag(function () {});
+      }, 'Cannot create a new tag for `<special-sauce:123>` after it has been destroyed.');
+    };
 
-  QUnit.test('meta.writeValues issues useful error after destroy', function () {
-    var targetMeta = (0, _emberMetal.meta)({
-      toString: function () {
-        return '<special-sauce:123>';
-      }
-    });
+    _class.prototype['@test meta.writableChainWatchers issues useful error after destroy'] = function () {
+      var targetMeta = (0, _emberMetal.meta)({
+        toString: function () {
+          return '<special-sauce:123>';
+        }
+      });
 
-    targetMeta.destroy();
+      targetMeta.destroy();
 
-    expectAssertion(function () {
-      targetMeta.writeValues('derp', 'ohai');
-    }, 'Cannot set the value of `derp` on `<special-sauce:123>` after it has been destroyed.');
-  });
+      expectAssertion(function () {
+        targetMeta.writableChainWatchers(function () {});
+      }, 'Cannot create a new chain watcher for `<special-sauce:123>` after it has been destroyed.');
+    };
 
-  QUnit.test('meta.writeDeps issues useful error after destroy', function () {
-    var targetMeta = (0, _emberMetal.meta)({
-      toString: function () {
-        return '<special-sauce:123>';
-      }
-    });
+    _class.prototype['@test meta.writableChains issues useful error after destroy'] = function () {
+      var targetMeta = (0, _emberMetal.meta)({
+        toString: function () {
+          return '<special-sauce:123>';
+        }
+      });
 
-    targetMeta.destroy();
+      targetMeta.destroy();
 
-    expectAssertion(function () {
-      targetMeta.writeDeps('derp', 'ohai', 1);
-    }, 'Cannot modify dependent keys for `ohai` on `<special-sauce:123>` after it has been destroyed.');
-  });
+      expectAssertion(function () {
+        targetMeta.writableChains(function () {});
+      }, 'Cannot create a new chains for `<special-sauce:123>` after it has been destroyed.');
+    };
+
+    _class.prototype['@test meta.writeValues issues useful error after destroy'] = function () {
+      var targetMeta = (0, _emberMetal.meta)({
+        toString: function () {
+          return '<special-sauce:123>';
+        }
+      });
+
+      targetMeta.destroy();
+
+      expectAssertion(function () {
+        targetMeta.writeValues('derp', 'ohai');
+      }, 'Cannot set the value of `derp` on `<special-sauce:123>` after it has been destroyed.');
+    };
+
+    _class.prototype['@test meta.writeDeps issues useful error after destroy'] = function () {
+      var targetMeta = (0, _emberMetal.meta)({
+        toString: function () {
+          return '<special-sauce:123>';
+        }
+      });
+
+      targetMeta.destroy();
+
+      expectAssertion(function () {
+        targetMeta.writeDeps('derp', 'ohai', 1);
+      }, 'Cannot modify dependent keys for `ohai` on `<special-sauce:123>` after it has been destroyed.');
+    };
+
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
 });
 enifed('ember-metal/tests/mixin/alias_method_test', ['ember-metal'], function (_emberMetal) {
   'use strict';
@@ -41254,17 +41521,6 @@ enifed('ember-metal/tests/mixin/observer_test', ['internal-test-helpers', 'ember
     set(obj3, 'baz', 'BEAR');
     equal(get(obj, 'count'), 1, 'should invoke observer after change');
   });
-
-  (0, _internalTestHelpers.testBoth)('providing the arguments in reverse order is deprecated', function (get, set) {
-    expectDeprecation(/Passing the dependentKeys after the callback function in observer is deprecated. Ensure the callback function is the last argument/);
-
-    _emberMetal.Mixin.create({
-      count: 0,
-      foo: (0, _emberMetal.observer)(function () {
-        set(this, 'count', get(this, 'count') + 1);
-      }, 'bar.baz')
-    });
-  });
 });
 enifed('ember-metal/tests/mixin/reopen_test', ['ember-runtime', 'ember-metal'], function (_emberRuntime, _emberMetal) {
   'use strict';
@@ -41313,15 +41569,17 @@ enifed('ember-metal/tests/mixin/reopen_test', ['ember-runtime', 'ember-metal'], 
     equal(result, 'Breakfast!');
   });
 });
-enifed('ember-metal/tests/mixin/required_test', ['ember-metal'], function (_emberMetal) {
+enifed('ember-metal/tests/mixin/required_test', ['ember-metal', 'ember-environment'], function (_emberMetal, _emberEnvironment) {
   'use strict';
 
   var PartialMixin = void 0,
       FinalMixin = void 0,
       obj = void 0;
-
+  var originalEnvVal = void 0;
   QUnit.module('Module.required', {
     setup: function () {
+      originalEnvVal = _emberEnvironment.ENV._ENABLE_PROPERTY_REQUIRED_SUPPORT;
+      _emberEnvironment.ENV._ENABLE_PROPERTY_REQUIRED_SUPPORT = true;
       expectDeprecation(function () {
         PartialMixin = _emberMetal.Mixin.create({
           foo: (0, _emberMetal.required)(),
@@ -41337,6 +41595,7 @@ enifed('ember-metal/tests/mixin/required_test', ['ember-metal'], function (_embe
     },
     teardown: function () {
       PartialMixin = FinalMixin = obj = null;
+      _emberEnvironment.ENV._ENABLE_PROPERTY_REQUIRED_SUPPORT = originalEnvVal;
     }
   });
 
@@ -41400,8 +41659,6 @@ enifed('ember-metal/tests/observer_test', ['ember-environment', 'internal-test-h
     expectAssertion(function () {
       (0, _emberMetal.observer)(function () {});
     }, 'observer called without valid path');
-
-    expectDeprecation('Passing the dependentKeys after the callback function in observer is deprecated. Ensure the callback function is the last argument.');
 
     expectAssertion(function () {
       (0, _emberMetal.observer)(null);
@@ -42382,128 +42639,6 @@ enifed('ember-metal/tests/observer_test', ['ember-environment', 'internal-test-h
     equal(get(obj, 'foo'), 'bar');
   });
 
-  QUnit.module('Ember.immediateObserver (Deprecated)');
-
-  (0, _internalTestHelpers.testBoth)('immediate observers should fire synchronously', function (get, set) {
-    expectDeprecation(/Usage of `Ember.immediateObserver` is deprecated, use `observer` instead./);
-    var obj = {};
-    var observerCalled = 0;
-    var mixin = void 0;
-
-    // explicitly create a run loop so we do not inadvertently
-    // trigger deferred behavior
-    (0, _emberMetal.run)(function () {
-      mixin = _emberMetal.Mixin.create({
-        fooDidChange: (0, _emberMetal._immediateObserver)('foo', function () {
-          observerCalled++;
-          equal(get(this, 'foo'), 'barbaz', 'newly set value is immediately available');
-        })
-      });
-
-      mixin.apply(obj);
-
-      (0, _emberMetal.defineProperty)(obj, 'foo', (0, _emberMetal.computed)({
-        get: function () {
-          return 'yes hello this is foo';
-        },
-        set: function (key, value) {
-          return value;
-        }
-      }));
-
-      equal(get(obj, 'foo'), 'yes hello this is foo', 'precond - computed property returns a value');
-      equal(observerCalled, 0, 'observer has not yet been called');
-
-      set(obj, 'foo', 'barbaz');
-
-      equal(observerCalled, 1, 'observer was called once');
-    });
-  });
-
-  if (_emberEnvironment.ENV.EXTEND_PROTOTYPES.Function) {
-    (0, _internalTestHelpers.testBoth)('immediate observers added declaratively via brace expansion fire synchronously', function (get, set) {
-      var obj = {};
-      var observerCalled = 0;
-      var mixin = void 0;
-
-      // explicitly create a run loop so we do not inadvertently
-      // trigger deferred behavior
-      (0, _emberMetal.run)(function () {
-        expectDeprecation(function () {
-          mixin = _emberMetal.Mixin.create({
-            fooDidChange: function () {
-              observerCalled++;
-              equal(get(this, 'foo'), 'barbaz', 'newly set value is immediately available');
-            }.observesImmediately('{foo,bar}')
-          });
-        }, /Function#observesImmediately is deprecated. Use Function#observes instead/);
-
-        mixin.apply(obj);
-
-        (0, _emberMetal.defineProperty)(obj, 'foo', (0, _emberMetal.computed)({
-          get: function () {
-            return 'yes hello this is foo';
-          },
-          set: function (key, value) {
-            return value;
-          }
-        }));
-
-        equal(get(obj, 'foo'), 'yes hello this is foo', 'precond - computed property returns a value');
-        equal(observerCalled, 0, 'observer has not yet been called');
-
-        set(obj, 'foo', 'barbaz');
-
-        equal(observerCalled, 1, 'observer was called once');
-      });
-    });
-  }
-
-  (0, _internalTestHelpers.testBoth)('immediate observers watching multiple properties via brace expansion fire synchronously', function (get, set) {
-    expectDeprecation(/Usage of `Ember.immediateObserver` is deprecated, use `observer` instead./);
-    var obj = {};
-    var observerCalled = 0;
-    var mixin = void 0;
-
-    // explicitly create a run loop so we do not inadvertently
-    // trigger deferred behavior
-    (0, _emberMetal.run)(function () {
-      mixin = _emberMetal.Mixin.create({
-        fooDidChange: (0, _emberMetal._immediateObserver)('{foo,bar}', function () {
-          observerCalled++;
-          equal(get(this, 'foo'), 'barbaz', 'newly set value is immediately available');
-        })
-      });
-
-      mixin.apply(obj);
-
-      (0, _emberMetal.defineProperty)(obj, 'foo', (0, _emberMetal.computed)({
-        get: function () {
-          return 'yes hello this is foo';
-        },
-        set: function (key, value) {
-          return value;
-        }
-      }));
-
-      equal(get(obj, 'foo'), 'yes hello this is foo', 'precond - computed property returns a value');
-      equal(observerCalled, 0, 'observer has not yet been called');
-
-      set(obj, 'foo', 'barbaz');
-
-      equal(observerCalled, 1, 'observer was called once');
-    });
-  });
-
-  (0, _internalTestHelpers.testBoth)('immediate observers are for internal properties only', function () {
-    expectDeprecation(/Usage of `Ember.immediateObserver` is deprecated, use `observer` instead./);
-    expectAssertion(function () {
-      (0, _emberMetal._immediateObserver)('foo.bar', function () {
-        return this;
-      });
-    }, 'Immediate observers must observe internal properties only, not properties on other objects.');
-  });
-
   QUnit.module('changeProperties');
 
   (0, _internalTestHelpers.testBoth)('observers added/removed during changeProperties should do the right thing.', function (get, set) {
@@ -42690,7 +42825,7 @@ enifed('ember-metal/tests/observer_test', ['ember-environment', 'internal-test-h
     deepEqual(Object.keys(itsMyLastBeer), ['type'], 'set -> removeObserver');
   });
 });
-enifed('ember-metal/tests/performance_test', ['ember-metal'], function (_emberMetal) {
+enifed('ember-metal/tests/performance_test', ['ember-babel', 'ember-metal', 'internal-test-helpers'], function (_emberBabel, _emberMetal, _internalTestHelpers) {
   'use strict';
 
   /*
@@ -42700,150 +42835,174 @@ enifed('ember-metal/tests/performance_test', ['ember-metal'], function (_emberMe
     bugs that cause them to get evaluated more than necessary should be put here.
   */
 
-  QUnit.module('Computed Properties - Number of times evaluated');
+  (0, _internalTestHelpers.moduleFor)('Computed Properties - Number of times evaluated', function (_AbstractTestCase) {
+    (0, _emberBabel.inherits)(_class, _AbstractTestCase);
 
-  QUnit.test('computed properties that depend on multiple properties should run only once per run loop', function () {
-    var obj = { a: 'a', b: 'b', c: 'c' };
-    var cpCount = 0;
-    var obsCount = 0;
+    function _class() {
+      return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase.apply(this, arguments));
+    }
 
-    (0, _emberMetal.defineProperty)(obj, 'abc', (0, _emberMetal.computed)(function (key) {
-      cpCount++;
-      return 'computed ' + key;
-    }).property('a', 'b', 'c'));
+    _class.prototype['@test computed properties that depend on multiple properties should run only once per run loop'] = function (assert) {
+      var obj = { a: 'a', b: 'b', c: 'c' };
+      var cpCount = 0;
+      var obsCount = 0;
 
-    (0, _emberMetal.get)(obj, 'abc');
+      (0, _emberMetal.defineProperty)(obj, 'abc', (0, _emberMetal.computed)(function (key) {
+        cpCount++;
+        return 'computed ' + key;
+      }).property('a', 'b', 'c'));
 
-    cpCount = 0;
+      (0, _emberMetal.get)(obj, 'abc');
 
-    (0, _emberMetal.addObserver)(obj, 'abc', function () {
-      obsCount++;
-    });
+      cpCount = 0;
 
-    (0, _emberMetal.beginPropertyChanges)();
-    (0, _emberMetal.set)(obj, 'a', 'aa');
-    (0, _emberMetal.set)(obj, 'b', 'bb');
-    (0, _emberMetal.set)(obj, 'c', 'cc');
-    (0, _emberMetal.endPropertyChanges)();
+      (0, _emberMetal.addObserver)(obj, 'abc', function () {
+        obsCount++;
+      });
 
-    (0, _emberMetal.get)(obj, 'abc');
+      (0, _emberMetal.beginPropertyChanges)();
+      (0, _emberMetal.set)(obj, 'a', 'aa');
+      (0, _emberMetal.set)(obj, 'b', 'bb');
+      (0, _emberMetal.set)(obj, 'c', 'cc');
+      (0, _emberMetal.endPropertyChanges)();
 
-    equal(cpCount, 1, 'The computed property is only invoked once');
-    equal(obsCount, 1, 'The observer is only invoked once');
-  });
+      (0, _emberMetal.get)(obj, 'abc');
 
-  QUnit.test('computed properties are not executed if they are the last segment of an observer chain pain', function () {
-    var foo = { bar: { baz: {} } };
-
-    var count = 0;
-
-    (0, _emberMetal.defineProperty)(foo.bar.baz, 'bam', (0, _emberMetal.computed)(function () {
-      count++;
-    }));
-
-    (0, _emberMetal.addObserver)(foo, 'bar.baz.bam', function () {});
-
-    (0, _emberMetal.propertyDidChange)((0, _emberMetal.get)(foo, 'bar.baz'), 'bam');
-
-    equal(count, 0, 'should not have recomputed property');
-  });
-});
-enifed('ember-metal/tests/properties_test', ['ember-metal'], function (_emberMetal) {
-  'use strict';
-
-  QUnit.module('Ember.defineProperty');
-
-  QUnit.test('toString', function () {
-    var obj = {};
-    (0, _emberMetal.defineProperty)(obj, 'toString', undefined, function () {
-      return 'FOO';
-    });
-    equal(obj.toString(), 'FOO', 'should replace toString');
-  });
-
-  QUnit.test('for data properties, didDefineProperty hook should be called if implemented', function () {
-    expect(2);
-
-    (0, _emberMetal.defineProperty)({
-      didDefineProperty: function (obj, keyName, value) {
-        equal(keyName, 'foo', 'key name should be foo');
-        equal(value, 'bar', 'value should be bar');
-      }
-    }, 'foo', undefined, 'bar');
-  });
-
-  QUnit.test('for computed properties, didDefineProperty hook should be called if implemented', function () {
-    expect(2);
-
-    var computedProperty = (0, _emberMetal.computed)(function () {
-      return this;
-    });
-
-    (0, _emberMetal.defineProperty)({
-      didDefineProperty: function (obj, keyName, value) {
-        equal(keyName, 'foo', 'key name should be foo');
-        strictEqual(value, computedProperty, 'value should be passed as computed property');
-      }
-    }, 'foo', computedProperty);
-  });
-
-  QUnit.test('for descriptor properties, didDefineProperty hook should be called if implemented', function () {
-    expect(2);
-
-    var descriptor = {
-      writable: true,
-      configurable: false,
-      enumerable: true,
-      value: 42
+      assert.equal(cpCount, 1, 'The computed property is only invoked once');
+      assert.equal(obsCount, 1, 'The observer is only invoked once');
     };
 
-    (0, _emberMetal.defineProperty)({
-      didDefineProperty: function (obj, keyName, value) {
-        equal(keyName, 'answer', 'key name should be answer');
-        strictEqual(value, descriptor, 'value should be passed as descriptor');
-      }
-    }, 'answer', descriptor);
-  });
+    _class.prototype['@test computed properties are not executed if they are the last segment of an observer chain pain'] = function (assert) {
+      var foo = { bar: { baz: {} } };
 
-  QUnit.module('Ember.deprecateProperty');
+      var count = 0;
 
-  QUnit.test('enables access to deprecated property and returns the value of the new property', function () {
-    expect(3);
-    var obj = { foo: 'bar' };
+      (0, _emberMetal.defineProperty)(foo.bar.baz, 'bam', (0, _emberMetal.computed)(function () {
+        count++;
+      }));
 
-    (0, _emberMetal.deprecateProperty)(obj, 'baz', 'foo');
+      (0, _emberMetal.addObserver)(foo, 'bar.baz.bam', function () {});
 
-    expectDeprecation();
-    equal(obj.baz, obj.foo, 'baz and foo are equal');
+      (0, _emberMetal.propertyDidChange)((0, _emberMetal.get)(foo, 'bar.baz'), 'bam');
 
-    obj.foo = 'blammo';
-    equal(obj.baz, obj.foo, 'baz and foo are equal');
-  });
+      assert.equal(count, 0, 'should not have recomputed property');
+    };
 
-  QUnit.test('deprecatedKey is not enumerable', function () {
-    expect(2);
-    var obj = { foo: 'bar', blammo: 'whammy' };
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
+});
+enifed('ember-metal/tests/properties_test', ['ember-babel', 'ember-metal', 'internal-test-helpers'], function (_emberBabel, _emberMetal, _internalTestHelpers) {
+  'use strict';
 
-    (0, _emberMetal.deprecateProperty)(obj, 'baz', 'foo');
+  (0, _internalTestHelpers.moduleFor)('Ember.defineProperty', function (_AbstractTestCase) {
+    (0, _emberBabel.inherits)(_class, _AbstractTestCase);
 
-    for (var prop in obj) {
-      if (obj.hasOwnProperty(prop)) {
-        notEqual(prop, 'baz');
-      }
+    function _class() {
+      return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase.apply(this, arguments));
     }
-  });
 
-  QUnit.test('enables setter to deprecated property and updates the value of the new property', function () {
-    expect(3);
-    var obj = { foo: 'bar' };
+    _class.prototype['@test toString'] = function (assert) {
+      var obj = {};
+      (0, _emberMetal.defineProperty)(obj, 'toString', undefined, function () {
+        return 'FOO';
+      });
+      assert.equal(obj.toString(), 'FOO', 'should replace toString');
+    };
 
-    (0, _emberMetal.deprecateProperty)(obj, 'baz', 'foo');
+    _class.prototype['@test for data properties, didDefineProperty hook should be called if implemented'] = function (assert) {
+      assert.expect(2);
 
-    expectDeprecation();
-    obj.baz = 'bloop';
-    equal(obj.foo, 'bloop', 'updating baz updates foo');
-    equal(obj.baz, obj.foo, 'baz and foo are equal');
-  });
+      (0, _emberMetal.defineProperty)({
+        didDefineProperty: function (obj, keyName, value) {
+          assert.equal(keyName, 'foo', 'key name should be foo');
+          assert.equal(value, 'bar', 'value should be bar');
+        }
+      }, 'foo', undefined, 'bar');
+    };
+
+    _class.prototype['@test for computed properties, didDefineProperty hook should be called if implemented'] = function (assert) {
+      assert.expect(2);
+
+      var computedProperty = (0, _emberMetal.computed)(function () {
+        return this;
+      });
+
+      (0, _emberMetal.defineProperty)({
+        didDefineProperty: function (obj, keyName, value) {
+          assert.equal(keyName, 'foo', 'key name should be foo');
+          assert.strictEqual(value, computedProperty, 'value should be passed as computed property');
+        }
+      }, 'foo', computedProperty);
+    };
+
+    _class.prototype['@test for descriptor properties, didDefineProperty hook should be called if implemented'] = function (assert) {
+      assert.expect(2);
+
+      var descriptor = {
+        writable: true,
+        configurable: false,
+        enumerable: true,
+        value: 42
+      };
+
+      (0, _emberMetal.defineProperty)({
+        didDefineProperty: function (obj, keyName, value) {
+          assert.equal(keyName, 'answer', 'key name should be answer');
+          assert.strictEqual(value, descriptor, 'value should be passed as descriptor');
+        }
+      }, 'answer', descriptor);
+    };
+
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
+
+  (0, _internalTestHelpers.moduleFor)('Ember.deprecateProperty', function (_AbstractTestCase2) {
+    (0, _emberBabel.inherits)(_class2, _AbstractTestCase2);
+
+    function _class2() {
+      return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase2.apply(this, arguments));
+    }
+
+    _class2.prototype['@test enables access to deprecated property and returns the value of the new property'] = function (assert) {
+      assert.expect(3);
+      var obj = { foo: 'bar' };
+
+      (0, _emberMetal.deprecateProperty)(obj, 'baz', 'foo');
+
+      expectDeprecation();
+      assert.equal(obj.baz, obj.foo, 'baz and foo are equal');
+
+      obj.foo = 'blammo';
+      assert.equal(obj.baz, obj.foo, 'baz and foo are equal');
+    };
+
+    _class2.prototype['@test deprecatedKey is not enumerable'] = function (assert) {
+      assert.expect(2);
+      var obj = { foo: 'bar', blammo: 'whammy' };
+
+      (0, _emberMetal.deprecateProperty)(obj, 'baz', 'foo');
+
+      for (var prop in obj) {
+        if (obj.hasOwnProperty(prop)) {
+          assert.notEqual(prop, 'baz');
+        }
+      }
+    };
+
+    _class2.prototype['@test enables setter to deprecated property and updates the value of the new property'] = function (assert) {
+      assert.expect(3);
+      var obj = { foo: 'bar' };
+
+      (0, _emberMetal.deprecateProperty)(obj, 'baz', 'foo');
+
+      expectDeprecation();
+      obj.baz = 'bloop';
+      assert.equal(obj.foo, 'bloop', 'updating baz updates foo');
+      assert.equal(obj.baz, obj.foo, 'baz and foo are equal');
+    };
+
+    return _class2;
+  }(_internalTestHelpers.AbstractTestCase));
 });
 enifed('ember-metal/tests/property_did_change_hook', ['internal-test-helpers', 'ember-metal'], function (_internalTestHelpers, _emberMetal) {
   'use strict';
@@ -43606,31 +43765,39 @@ enifed('ember-metal/tests/run_loop/unwind_test', ['ember-metal', 'ember-debug'],
     _emberMetal.run.currentRunLoop = initialRunLoop;
   });
 });
-enifed('ember-metal/tests/set_properties_test', ['ember-metal'], function (_emberMetal) {
+enifed('ember-metal/tests/set_properties_test', ['ember-babel', 'ember-metal', 'internal-test-helpers'], function (_emberBabel, _emberMetal, _internalTestHelpers) {
   'use strict';
 
-  QUnit.module('Ember.setProperties');
+  (0, _internalTestHelpers.moduleFor)('Ember.setProperties', function (_AbstractTestCase) {
+    (0, _emberBabel.inherits)(_class, _AbstractTestCase);
 
-  QUnit.test('supports setting multiple attributes at once', function () {
-    deepEqual((0, _emberMetal.setProperties)(null, null), null, 'noop for null properties and null object');
-    deepEqual((0, _emberMetal.setProperties)(undefined, undefined), undefined, 'noop for undefined properties and undefined object');
+    function _class() {
+      return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase.apply(this, arguments));
+    }
 
-    deepEqual((0, _emberMetal.setProperties)({}), undefined, 'noop for no properties');
-    deepEqual((0, _emberMetal.setProperties)({}, undefined), undefined, 'noop for undefined');
-    deepEqual((0, _emberMetal.setProperties)({}, null), null, 'noop for null');
-    deepEqual((0, _emberMetal.setProperties)({}, NaN), NaN, 'noop for NaN');
-    deepEqual((0, _emberMetal.setProperties)({}, {}), {}, 'meh');
+    _class.prototype['@test supports setting multiple attributes at once'] = function (assert) {
+      assert.deepEqual((0, _emberMetal.setProperties)(null, null), null, 'noop for null properties and null object');
+      assert.deepEqual((0, _emberMetal.setProperties)(undefined, undefined), undefined, 'noop for undefined properties and undefined object');
 
-    deepEqual((0, _emberMetal.setProperties)({}, { foo: 1 }), { foo: 1 }, 'Set a single property');
+      assert.deepEqual((0, _emberMetal.setProperties)({}), undefined, 'noop for no properties');
+      assert.deepEqual((0, _emberMetal.setProperties)({}, undefined), undefined, 'noop for undefined');
+      assert.deepEqual((0, _emberMetal.setProperties)({}, null), null, 'noop for null');
+      assert.deepEqual((0, _emberMetal.setProperties)({}, NaN), NaN, 'noop for NaN');
+      assert.deepEqual((0, _emberMetal.setProperties)({}, {}), {}, 'meh');
 
-    deepEqual((0, _emberMetal.setProperties)({}, { foo: 1, bar: 1 }), { foo: 1, bar: 1 }, 'Set multiple properties');
+      assert.deepEqual((0, _emberMetal.setProperties)({}, { foo: 1 }), { foo: 1 }, 'Set a single property');
 
-    deepEqual((0, _emberMetal.setProperties)({ foo: 2, baz: 2 }, { foo: 1 }), { foo: 1 }, 'Set one of multiple properties');
+      assert.deepEqual((0, _emberMetal.setProperties)({}, { foo: 1, bar: 1 }), { foo: 1, bar: 1 }, 'Set multiple properties');
 
-    deepEqual((0, _emberMetal.setProperties)({ foo: 2, baz: 2 }, { bar: 2 }), {
-      bar: 2
-    }, 'Set an additional, previously unset property');
-  });
+      assert.deepEqual((0, _emberMetal.setProperties)({ foo: 2, baz: 2 }, { foo: 1 }), { foo: 1 }, 'Set one of multiple properties');
+
+      assert.deepEqual((0, _emberMetal.setProperties)({ foo: 2, baz: 2 }, { bar: 2 }), {
+        bar: 2
+      }, 'Set an additional, previously unset property');
+    };
+
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
 });
 enifed('ember-metal/tests/watching/is_watching_test', ['ember-metal'], function (_emberMetal) {
   'use strict';
@@ -44069,204 +44236,93 @@ enifed('ember-metal/tests/watching/watch_test', ['ember-environment', 'ember-met
     equal(get(child, 'b'), 1, 'Ember.get(child, "b") (after watch)');
   });
 });
-enifed('ember-metal/tests/weak_map_test', ['ember-metal'], function (_emberMetal) {
+enifed('ember-routing/tests/ext/controller_test', ['ember-babel', 'ember-utils', 'ember-runtime', 'internal-test-helpers'], function (_emberBabel, _emberUtils, _emberRuntime, _internalTestHelpers) {
   'use strict';
 
-  QUnit.module('Ember.WeakMap');
+  (0, _internalTestHelpers.moduleFor)('ember-routing/ext/controller', function (_AbstractTestCase) {
+    (0, _emberBabel.inherits)(_class, _AbstractTestCase);
 
-  QUnit.test('has weakMap like qualities', function (assert) {
-    var map = new _emberMetal.WeakMapPolyfill();
-    var map2 = new _emberMetal.WeakMapPolyfill();
+    function _class() {
+      return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase.apply(this, arguments));
+    }
 
-    var a = {};
-    var b = {};
-    var c = {};
+    _class.prototype['@test transitionToRoute considers an engine\'s mountPoint'] = function (assert) {
 
-    assert.strictEqual(map.get(a), undefined);
-    assert.strictEqual(map.get(b), undefined);
-    assert.strictEqual(map.get(c), undefined);
-
-    assert.strictEqual(map2.get(a), undefined);
-    assert.strictEqual(map2.get(b), undefined);
-    assert.strictEqual(map2.get(c), undefined);
-
-    assert.strictEqual(map.set(a, 1), map, 'map.set should return itself');
-    assert.strictEqual(map.get(a), 1);
-    assert.strictEqual(map.set(b, undefined), map);
-    assert.strictEqual(map.set(a, 2), map);
-    assert.strictEqual(map.get(a), 2);
-    assert.strictEqual(map.set(b, undefined), map);
-
-    assert.strictEqual(map2.get(a), undefined);
-    assert.strictEqual(map2.get(b), undefined);
-    assert.strictEqual(map2.get(c), undefined);
-
-    assert.strictEqual(map.set(c, 1), map);
-    assert.strictEqual(map.get(c), 1);
-    assert.strictEqual(map.get(a), 2);
-    assert.strictEqual(map.get(b), undefined);
-
-    assert.strictEqual(map2.set(a, 3), map2);
-    assert.strictEqual(map2.set(b, 4), map2);
-    assert.strictEqual(map2.set(c, 5), map2);
-
-    assert.strictEqual(map2.get(a), 3);
-    assert.strictEqual(map2.get(b), 4);
-    assert.strictEqual(map2.get(c), 5);
-
-    assert.strictEqual(map.get(c), 1);
-    assert.strictEqual(map.get(a), 2);
-    assert.strictEqual(map.get(b), undefined);
-  });
-
-  QUnit.test('constructing a WeakMap with an invalid iterator throws an error', function (assert) {
-    var expectedError = new TypeError('The weak map constructor polyfill only supports an array argument');
-
-    assert.throws(function () {
-      new _emberMetal.WeakMapPolyfill({ a: 1 });
-    }, expectedError);
-  });
-
-  QUnit.test('constructing a WeakMap with a valid iterator inserts the entries', function (assert) {
-    var a = {};
-    var b = {};
-    var c = {};
-
-    var map = new _emberMetal.WeakMapPolyfill([[a, 1], [b, 2], [c, 3]]);
-
-    assert.strictEqual(map.get(a), 1);
-    assert.strictEqual(map.get(b), 2);
-    assert.strictEqual(map.get(c), 3);
-  });
-
-  QUnit.test('that error is thrown when using a primitive key', function (assert) {
-    var expectedError = new TypeError('Invalid value used as weak map key');
-    var map = new _emberMetal.WeakMapPolyfill();
-
-    assert.throws(function () {
-      return map.set('a', 1);
-    }, expectedError);
-    assert.throws(function () {
-      return map.set(1, 1);
-    }, expectedError);
-    assert.throws(function () {
-      return map.set(true, 1);
-    }, expectedError);
-    assert.throws(function () {
-      return map.set(null, 1);
-    }, expectedError);
-    assert.throws(function () {
-      return map.set(undefined, 1);
-    }, expectedError);
-  });
-
-  QUnit.test('that .has and .delete work as expected', function (assert) {
-    var map = new _emberMetal.WeakMapPolyfill();
-    var a = {};
-
-    var foo = { id: 1, name: 'My file', progress: 0 };
-
-    assert.strictEqual(map.set(a, foo), map);
-    assert.strictEqual(map.get(a), foo);
-    assert.strictEqual(map.has(a), true);
-    assert.strictEqual(map.has({}), false);
-    assert.strictEqual(map.delete(a), true);
-    assert.strictEqual(map.has(a), false);
-    assert.strictEqual(map.delete(a), false);
-    assert.strictEqual(map.set(a, undefined), map);
-    assert.strictEqual(map.has(a), true);
-    assert.strictEqual(map.delete(a), true);
-    assert.strictEqual(map.delete(a), false);
-    assert.strictEqual(map.has(a), false);
-  });
-
-  QUnit.test('that .toString works as expected', function (assert) {
-    var map = new _emberMetal.WeakMapPolyfill();
-
-    assert.strictEqual(map.toString(), '[object WeakMap]');
-  });
-});
-enifed('ember-routing/tests/ext/controller_test', ['ember-utils', 'internal-test-helpers', 'ember-runtime'], function (_emberUtils, _internalTestHelpers, _emberRuntime) {
-  'use strict';
-
-  QUnit.module('ember-routing/ext/controller');
-
-  QUnit.test('transitionToRoute considers an engine\'s mountPoint', function () {
-    expect(4);
-
-    var engineInstance = (0, _internalTestHelpers.buildOwner)({
-      ownerOptions: {
-        routable: true,
-        mountPoint: 'foo.bar'
-      }
-    });
-
-    var controller = _emberRuntime.Controller.create({ target: {
-        transitionTo: function (route) {
-          return route;
+      var engineInstance = (0, _internalTestHelpers.buildOwner)({
+        ownerOptions: {
+          routable: true,
+          mountPoint: 'foo.bar'
         }
-      } });
-    (0, _emberUtils.setOwner)(controller, engineInstance);
+      });
 
-    strictEqual(controller.transitionToRoute('application'), 'foo.bar.application', 'properly prefixes application route');
-    strictEqual(controller.transitionToRoute('posts'), 'foo.bar.posts', 'properly prefixes child routes');
-    throws(function () {
-      return controller.transitionToRoute('/posts');
-    }, 'throws when trying to use a url');
+      var controller = _emberRuntime.Controller.create({ target: {
+          transitionTo: function (route) {
+            return route;
+          }
+        } });
+      (0, _emberUtils.setOwner)(controller, engineInstance);
 
-    var queryParams = {};
-    strictEqual(controller.transitionToRoute(queryParams), queryParams, 'passes query param only transitions through');
-  });
+      assert.strictEqual(controller.transitionToRoute('application'), 'foo.bar.application', 'properly prefixes application route');
+      assert.strictEqual(controller.transitionToRoute('posts'), 'foo.bar.posts', 'properly prefixes child routes');
+      assert.throws(function () {
+        return controller.transitionToRoute('/posts');
+      }, 'throws when trying to use a url');
 
-  QUnit.test('replaceRoute considers an engine\'s mountPoint', function () {
-    expect(4);
+      var queryParams = {};
+      assert.strictEqual(controller.transitionToRoute(queryParams), queryParams, 'passes query param only transitions through');
+    };
 
-    var engineInstance = (0, _internalTestHelpers.buildOwner)({
-      ownerOptions: {
-        routable: true,
-        mountPoint: 'foo.bar'
-      }
-    });
+    _class.prototype['@test replaceRoute considers an engine\'s mountPoint'] = function (assert) {
 
-    var controller = _emberRuntime.Controller.create({ target: {
-        replaceWith: function (route) {
-          return route;
+      var engineInstance = (0, _internalTestHelpers.buildOwner)({
+        ownerOptions: {
+          routable: true,
+          mountPoint: 'foo.bar'
         }
-      } });
-    (0, _emberUtils.setOwner)(controller, engineInstance);
+      });
 
-    strictEqual(controller.replaceRoute('application'), 'foo.bar.application', 'properly prefixes application route');
-    strictEqual(controller.replaceRoute('posts'), 'foo.bar.posts', 'properly prefixes child routes');
-    throws(function () {
-      return controller.replaceRoute('/posts');
-    }, 'throws when trying to use a url');
+      var controller = _emberRuntime.Controller.create({ target: {
+          replaceWith: function (route) {
+            return route;
+          }
+        } });
+      (0, _emberUtils.setOwner)(controller, engineInstance);
 
-    var queryParams = {};
-    strictEqual(controller.replaceRoute(queryParams), queryParams, 'passes query param only transitions through');
-  });
+      assert.strictEqual(controller.replaceRoute('application'), 'foo.bar.application', 'properly prefixes application route');
+      assert.strictEqual(controller.replaceRoute('posts'), 'foo.bar.posts', 'properly prefixes child routes');
+      assert.throws(function () {
+        return controller.replaceRoute('/posts');
+      }, 'throws when trying to use a url');
+
+      var queryParams = {};
+      assert.strictEqual(controller.replaceRoute(queryParams), queryParams, 'passes query param only transitions through');
+    };
+
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
 });
-enifed('ember-routing/tests/location/auto_location_test', ['ember-utils', 'ember-environment', 'ember-metal', 'ember-routing/location/auto_location', 'ember-routing/location/history_location', 'ember-routing/location/hash_location', 'ember-routing/location/none_location', 'internal-test-helpers'], function (_emberUtils, _emberEnvironment, _emberMetal, _auto_location, _history_location, _hash_location, _none_location, _internalTestHelpers) {
+enifed('ember-routing/tests/location/auto_location_test', ['ember-babel', 'ember-utils', 'ember-environment', 'ember-metal', 'ember-routing/location/auto_location', 'ember-routing/location/history_location', 'ember-routing/location/hash_location', 'ember-routing/location/none_location', 'internal-test-helpers'], function (_emberBabel, _emberUtils, _emberEnvironment, _emberMetal, _auto_location, _history_location, _hash_location, _none_location, _internalTestHelpers) {
   'use strict';
 
-  function mockBrowserLocation(overrides) {
+  function mockBrowserLocation(overrides, assert) {
     return (0, _emberUtils.assign)({
       href: 'http://test.com/',
       pathname: '/',
       hash: '',
       search: '',
       replace: function () {
-        ok(false, 'location.replace should not be called during testing');
+        assert.ok(false, 'location.replace should not be called during testing');
       }
     }, overrides);
   }
 
-  function mockBrowserHistory(overrides) {
+  function mockBrowserHistory(overrides, assert) {
     return (0, _emberUtils.assign)({
       pushState: function () {
-        ok(false, 'history.pushState should not be called during testing');
+        assert.ok(false, 'history.pushState should not be called during testing');
       },
       replaceState: function () {
-        ok(false, 'history.replaceState should not be called during testing');
+        assert.ok(false, 'history.replaceState should not be called during testing');
       }
     }, overrides);
   }
@@ -44287,257 +44343,258 @@ enifed('ember-routing/tests/location/auto_location_test', ['ember-utils', 'ember
 
   var location = void 0;
 
-  QUnit.module('Ember.AutoLocation', {
-    teardown: function () {
+  (0, _internalTestHelpers.moduleFor)('Ember.AutoLocation', function (_AbstractTestCase) {
+    (0, _emberBabel.inherits)(_class, _AbstractTestCase);
+
+    function _class() {
+      return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase.apply(this, arguments));
+    }
+
+    _class.prototype.teardown = function () {
       if (location) {
         (0, _emberMetal.run)(location, 'destroy');
       }
-    }
-  });
-
-  QUnit.test('AutoLocation should have the `global`', function (assert) {
-    var location = _auto_location.default.create();
-
-    assert.ok(location.global, 'has a global defined');
-    assert.strictEqual(location.global, _emberEnvironment.environment.window, 'has the environments window global');
-  });
-
-  QUnit.test('AutoLocation should return concrete implementation\'s value for `getURL`', function () {
-    expect(1);
-
-    var browserLocation = mockBrowserLocation();
-    var browserHistory = mockBrowserHistory();
-
-    location = createLocation(browserLocation, browserHistory);
-    location.detect();
-
-    var concreteImplementation = (0, _emberMetal.get)(location, 'concreteImplementation');
-
-    concreteImplementation.getURL = function () {
-      return '/lincoln/park';
     };
 
-    equal(location.getURL(), '/lincoln/park');
-  });
+    _class.prototype['@test AutoLocation should have the `global`'] = function (assert) {
+      var location = _auto_location.default.create();
 
-  QUnit.test('AutoLocation should use a HistoryLocation instance when pushStates is supported', function () {
-    expect(1);
-
-    var browserLocation = mockBrowserLocation();
-    var browserHistory = mockBrowserHistory();
-
-    location = createLocation(browserLocation, browserHistory);
-    location.detect();
-
-    ok((0, _emberMetal.get)(location, 'concreteImplementation') instanceof _history_location.default);
-  });
-
-  QUnit.test('AutoLocation should use a HashLocation instance when pushStates are not supported, but hashchange events are and the URL is already in the HashLocation format', function () {
-    expect(1);
-
-    var browserLocation = mockBrowserLocation({
-      hash: '#/testd'
-    });
-
-    location = createLocation(browserLocation);
-    location.global = {
-      onhashchange: function () {}
+      assert.ok(location.global, 'has a global defined');
+      assert.strictEqual(location.global, _emberEnvironment.environment.window, 'has the environments window global');
     };
 
-    location.detect();
-    ok((0, _emberMetal.get)(location, 'concreteImplementation') instanceof _hash_location.default);
-  });
+    _class.prototype['@test AutoLocation should return concrete implementation\'s value for `getURL`'] = function (assert) {
+      var browserLocation = mockBrowserLocation({}, assert);
+      var browserHistory = mockBrowserHistory({}, assert);
 
-  QUnit.test('AutoLocation should use a NoneLocation instance when neither history nor hashchange are supported.', function () {
-    expect(1);
-
-    location = createLocation(mockBrowserLocation());
-    location.detect();
-
-    ok((0, _emberMetal.get)(location, 'concreteImplementation') instanceof _none_location.default);
-  });
-
-  QUnit.test('AutoLocation should use an index path (i.e. \'/\') without any location.hash as OK for HashLocation', function () {
-    expect(1);
-
-    var browserLocation = mockBrowserLocation({
-      href: 'http://test.com/',
-      pathname: '/',
-      hash: '',
-      search: '',
-      replace: function () {
-        ok(false, 'location.replace should not be called');
-      }
-    });
-
-    location = createLocation(browserLocation);
-    location.global = {
-      onhashchange: function () {}
-    };
-
-    location.detect();
-
-    ok((0, _emberMetal.get)(location, 'concreteImplementation') instanceof _hash_location.default, 'uses a HashLocation');
-  });
-
-  QUnit.test('AutoLocation should transform the URL for hashchange-only browsers viewing a HistoryLocation-formatted path', function () {
-    expect(3);
-
-    var browserLocation = mockBrowserLocation({
-      hash: '',
-      hostname: 'test.com',
-      href: 'http://test.com/test',
-      pathname: '/test',
-      protocol: 'http:',
-      port: '',
-      search: '',
-
-      replace: function (path) {
-        equal(path, 'http://test.com/#/test', 'location.replace should be called with normalized HashLocation path');
-      }
-    });
-
-    var location = createLocation(browserLocation);
-    location.global = {
-      onhashchange: function () {}
-    };
-
-    location.detect();
-
-    ok((0, _emberMetal.get)(location, 'concreteImplementation') instanceof _none_location.default, 'NoneLocation should be used while we attempt to location.replace()');
-    equal((0, _emberMetal.get)(location, 'cancelRouterSetup'), true, 'cancelRouterSetup should be set so the router knows.');
-  });
-
-  QUnit.test('AutoLocation should replace the URL for pushState-supported browsers viewing a HashLocation-formatted url', function () {
-    expect(2);
-
-    var browserLocation = mockBrowserLocation({
-      hash: '#/test',
-      hostname: 'test.com',
-      href: 'http://test.com/#/test',
-      pathname: '/',
-      protocol: 'http:',
-      port: '',
-      search: ''
-    });
-
-    var browserHistory = mockBrowserHistory({
-      replaceState: function (state, title, path) {
-        equal(path, '/test', 'history.replaceState should be called with normalized HistoryLocation url');
-      }
-    });
-
-    var location = createLocation(browserLocation, browserHistory);
-    location.detect();
-
-    ok((0, _emberMetal.get)(location, 'concreteImplementation'), _history_location.default);
-  });
-
-  QUnit.test('AutoLocation requires any rootURL given to end in a trailing forward slash', function () {
-    expect(3);
-    var browserLocation = mockBrowserLocation();
-    var expectedMsg = /rootURL must end with a trailing forward slash e.g. "\/app\/"/;
-
-    location = createLocation(browserLocation);
-    location.rootURL = 'app';
-
-    expectAssertion(function () {
+      location = createLocation(browserLocation, browserHistory);
       location.detect();
-    }, expectedMsg);
 
-    location.rootURL = '/app';
-    expectAssertion(function () {
+      var concreteImplementation = (0, _emberMetal.get)(location, 'concreteImplementation');
+
+      concreteImplementation.getURL = function () {
+        return '/lincoln/park';
+      };
+
+      assert.equal(location.getURL(), '/lincoln/park');
+    };
+
+    _class.prototype['@test AutoLocation should use a HistoryLocation instance when pushStates is supported'] = function (assert) {
+      var browserLocation = mockBrowserLocation({}, assert);
+      var browserHistory = mockBrowserHistory({}, assert);
+
+      location = createLocation(browserLocation, browserHistory);
       location.detect();
-    }, expectedMsg);
 
-    // Note the trailing whitespace
-    location.rootURL = '/app/ ';
-    expectAssertion(function () {
+      assert.ok((0, _emberMetal.get)(location, 'concreteImplementation') instanceof _history_location.default);
+    };
+
+    _class.prototype['@test AutoLocation should use a HashLocation instance when pushStates are not supported, but hashchange events are and the URL is already in the HashLocation format'] = function (assert) {
+      var browserLocation = mockBrowserLocation({
+        hash: '#/testd'
+      }, assert);
+
+      location = createLocation(browserLocation);
+      location.global = {
+        onhashchange: function () {}
+      };
+
       location.detect();
-    }, expectedMsg);
-  });
+      assert.ok((0, _emberMetal.get)(location, 'concreteImplementation') instanceof _hash_location.default);
+    };
 
-  QUnit.test('AutoLocation provides its rootURL to the concreteImplementation', function () {
-    expect(1);
-    var browserLocation = mockBrowserLocation({
-      pathname: '/some/subdir/derp'
-    });
-    var browserHistory = mockBrowserHistory();
+    _class.prototype['@test AutoLocation should use a NoneLocation instance when neither history nor hashchange are supported.'] = function (assert) {
+      location = createLocation(mockBrowserLocation({}, assert));
+      location.detect();
 
-    location = createLocation(browserLocation, browserHistory);
-    location.rootURL = '/some/subdir/';
+      assert.ok((0, _emberMetal.get)(location, 'concreteImplementation') instanceof _none_location.default);
+    };
 
-    location.detect();
+    _class.prototype['@test AutoLocation should use an index path (i.e. \'/\') without any location.hash as OK for HashLocation'] = function (assert) {
+      var browserLocation = mockBrowserLocation({
+        href: 'http://test.com/',
+        pathname: '/',
+        hash: '',
+        search: '',
+        replace: function () {
+          assert.ok(false, 'location.replace should not be called');
+        }
+      }, assert);
 
-    var concreteLocation = (0, _emberMetal.get)(location, 'concreteImplementation');
-    equal(location.rootURL, concreteLocation.rootURL);
-  });
+      location = createLocation(browserLocation);
+      location.global = {
+        onhashchange: function () {}
+      };
 
-  QUnit.test('getHistoryPath() should return a normalized, HistoryLocation-supported path', function () {
-    expect(3);
+      location.detect();
 
-    var browserLocation = mockBrowserLocation({
-      href: 'http://test.com/app/about?foo=bar#foo',
-      pathname: '/app/about',
-      search: '?foo=bar',
-      hash: '#foo'
-    });
+      assert.ok((0, _emberMetal.get)(location, 'concreteImplementation') instanceof _hash_location.default, 'uses a HashLocation');
+    };
 
-    equal((0, _auto_location.getHistoryPath)('/app/', browserLocation), '/app/about?foo=bar#foo', 'URLs already in HistoryLocation form should come out the same');
+    _class.prototype['@test AutoLocation should transform the URL for hashchange-only browsers viewing a HistoryLocation-formatted path'] = function (assert) {
+      assert.expect(3);
 
-    browserLocation = mockBrowserLocation({
-      href: 'http://test.com/app/#/about?foo=bar#foo',
-      pathname: '/app/',
-      search: '',
-      hash: '#/about?foo=bar#foo'
-    });
-    equal((0, _auto_location.getHistoryPath)('/app/', browserLocation), '/app/about?foo=bar#foo', 'HashLocation formed URLs should be normalized');
+      var browserLocation = mockBrowserLocation({
+        hash: '',
+        hostname: 'test.com',
+        href: 'http://test.com/test',
+        pathname: '/test',
+        protocol: 'http:',
+        port: '',
+        search: '',
+        replace: function (path) {
+          assert.equal(path, 'http://test.com/#/test', 'location.replace should be called with normalized HashLocation path');
+        }
+      }, assert);
 
-    browserLocation = mockBrowserLocation({
-      href: 'http://test.com/app/#about?foo=bar#foo',
-      pathname: '/app/',
-      search: '',
-      hash: '#about?foo=bar#foo'
-    });
-    equal((0, _auto_location.getHistoryPath)('/app', browserLocation), '/app/#about?foo=bar#foo', 'URLs with a hash not following #/ convention shouldn\'t be normalized as a route');
-  });
+      var location = createLocation(browserLocation);
+      location.global = {
+        onhashchange: function () {}
+      };
 
-  QUnit.test('getHashPath() should return a normalized, HashLocation-supported path', function () {
-    expect(3);
+      location.detect();
 
-    var browserLocation = mockBrowserLocation({
-      href: 'http://test.com/app/#/about?foo=bar#foo',
-      pathname: '/app/',
-      search: '',
-      hash: '#/about?foo=bar#foo'
-    });
-    equal((0, _auto_location.getHashPath)('/app/', browserLocation), '/app/#/about?foo=bar#foo', 'URLs already in HistoryLocation form should come out the same');
+      assert.ok((0, _emberMetal.get)(location, 'concreteImplementation') instanceof _none_location.default, 'NoneLocation should be used while we attempt to location.replace()');
+      assert.equal((0, _emberMetal.get)(location, 'cancelRouterSetup'), true, 'cancelRouterSetup should be set so the router knows.');
+    };
 
-    browserLocation = mockBrowserLocation({
-      href: 'http://test.com/app/about?foo=bar#foo',
-      pathname: '/app/about',
-      search: '?foo=bar',
-      hash: '#foo'
-    });
-    equal((0, _auto_location.getHashPath)('/app/', browserLocation), '/app/#/about?foo=bar#foo', 'HistoryLocation formed URLs should be normalized');
+    _class.prototype['@test AutoLocation should replace the URL for pushState-supported browsers viewing a HashLocation-formatted url'] = function (assert) {
+      assert.expect(2);
+      var browserLocation = mockBrowserLocation({
+        hash: '#/test',
+        hostname: 'test.com',
+        href: 'http://test.com/#/test',
+        pathname: '/',
+        protocol: 'http:',
+        port: '',
+        search: ''
+      }, assert);
 
-    browserLocation = mockBrowserLocation({
-      href: 'http://test.com/app/#about?foo=bar#foo',
-      pathname: '/app/',
-      search: '',
-      hash: '#about?foo=bar#foo'
-    });
+      var browserHistory = mockBrowserHistory({
+        replaceState: function (state, title, path) {
+          assert.equal(path, '/test', 'history.replaceState should be called with normalized HistoryLocation url');
+        }
+      }, assert);
 
-    equal((0, _auto_location.getHashPath)('/app/', browserLocation), '/app/#/#about?foo=bar#foo', 'URLs with a hash not following #/ convention shouldn\'t be normalized as a route');
-  });
+      var location = createLocation(browserLocation, browserHistory);
+      location.detect();
+
+      assert.ok((0, _emberMetal.get)(location, 'concreteImplementation'), _history_location.default);
+    };
+
+    _class.prototype['@test AutoLocation requires any rootURL given to end in a trailing forward slash'] = function (assert) {
+      var browserLocation = mockBrowserLocation({}, assert);
+      var expectedMsg = /rootURL must end with a trailing forward slash e.g. "\/app\/"/;
+
+      location = createLocation(browserLocation);
+      location.rootURL = 'app';
+
+      expectAssertion(function () {
+        location.detect();
+      }, expectedMsg);
+
+      location.rootURL = '/app';
+      expectAssertion(function () {
+        location.detect();
+      }, expectedMsg);
+
+      // Note the trailing whitespace
+      location.rootURL = '/app/ ';
+      expectAssertion(function () {
+        location.detect();
+      }, expectedMsg);
+    };
+
+    _class.prototype['@test AutoLocation provides its rootURL to the concreteImplementation'] = function (assert) {
+      var browserLocation = mockBrowserLocation({
+        pathname: '/some/subdir/derp'
+      }, assert);
+      var browserHistory = mockBrowserHistory({}, assert);
+
+      location = createLocation(browserLocation, browserHistory);
+      location.rootURL = '/some/subdir/';
+
+      location.detect();
+
+      var concreteLocation = (0, _emberMetal.get)(location, 'concreteImplementation');
+      assert.equal(location.rootURL, concreteLocation.rootURL);
+    };
+
+    _class.prototype['@test getHistoryPath() should return a normalized, HistoryLocation-supported path'] = function (assert) {
+      var browserLocation = mockBrowserLocation({
+        href: 'http://test.com/app/about?foo=bar#foo',
+        pathname: '/app/about',
+        search: '?foo=bar',
+        hash: '#foo'
+      }, assert);
+
+      assert.equal((0, _auto_location.getHistoryPath)('/app/', browserLocation), '/app/about?foo=bar#foo', 'URLs already in HistoryLocation form should come out the same');
+
+      browserLocation = mockBrowserLocation({
+        href: 'http://test.com/app/#/about?foo=bar#foo',
+        pathname: '/app/',
+        search: '',
+        hash: '#/about?foo=bar#foo'
+      }, assert);
+      assert.equal((0, _auto_location.getHistoryPath)('/app/', browserLocation), '/app/about?foo=bar#foo', 'HashLocation formed URLs should be normalized');
+
+      browserLocation = mockBrowserLocation({
+        href: 'http://test.com/app/#about?foo=bar#foo',
+        pathname: '/app/',
+        search: '',
+        hash: '#about?foo=bar#foo'
+      }, assert);
+      assert.equal((0, _auto_location.getHistoryPath)('/app', browserLocation), '/app/#about?foo=bar#foo', 'URLs with a hash not following #/ convention shouldn\'t be normalized as a route');
+    };
+
+    _class.prototype['@test getHashPath() should return a normalized, HashLocation-supported path'] = function (assert) {
+      var browserLocation = mockBrowserLocation({
+        href: 'http://test.com/app/#/about?foo=bar#foo',
+        pathname: '/app/',
+        search: '',
+        hash: '#/about?foo=bar#foo'
+      }, assert);
+      assert.equal((0, _auto_location.getHashPath)('/app/', browserLocation), '/app/#/about?foo=bar#foo', 'URLs already in HistoryLocation form should come out the same');
+
+      browserLocation = mockBrowserLocation({
+        href: 'http://test.com/app/about?foo=bar#foo',
+        pathname: '/app/about',
+        search: '?foo=bar',
+        hash: '#foo'
+      }, assert);
+      assert.equal((0, _auto_location.getHashPath)('/app/', browserLocation), '/app/#/about?foo=bar#foo', 'HistoryLocation formed URLs should be normalized');
+
+      browserLocation = mockBrowserLocation({
+        href: 'http://test.com/app/#about?foo=bar#foo',
+        pathname: '/app/',
+        search: '',
+        hash: '#about?foo=bar#foo'
+      }, assert);
+
+      assert.equal((0, _auto_location.getHashPath)('/app/', browserLocation), '/app/#/#about?foo=bar#foo', 'URLs with a hash not following #/ convention shouldn\'t be normalized as a route');
+    };
+
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
 });
-enifed('ember-routing/tests/location/hash_location_test', ['ember-metal', 'ember-routing/location/hash_location'], function (_emberMetal, _hash_location) {
+enifed('ember-routing/tests/location/hash_location_test', ['ember-babel', 'ember-metal', 'ember-routing/location/hash_location', 'internal-test-helpers'], function (_emberBabel, _emberMetal, _hash_location, _internalTestHelpers) {
   'use strict';
 
-  var HashTestLocation = void 0,
-      location = void 0;
+  var location = void 0;
 
-  function createLocation(options) {
+  function createLocation(options, assert) {
+    var HashTestLocation = _hash_location.default.extend({
+      _location: {
+        href: 'http://test.com/',
+        pathname: '/',
+        hash: '',
+        search: '',
+        replace: function () {
+          assert.ok(false, 'location.replace should not be called during testing');
+        }
+      }
+    });
+
     if (!options) {
       options = {};
     }
@@ -44571,153 +44628,136 @@ enifed('ember-routing/tests/location/hash_location_test', ['ember-metal', 'ember
     window.dispatchEvent(event);
   }
 
-  QUnit.module('Ember.HashLocation', {
-    setup: function () {
-      HashTestLocation = _hash_location.default.extend({
-        _location: {
-          href: 'http://test.com/',
-          pathname: '/',
-          hash: '',
-          search: '',
-          replace: function () {
-            ok(false, 'location.replace should not be called during testing');
-          }
-        }
-      });
-    },
-    teardown: function () {
+  (0, _internalTestHelpers.moduleFor)('Ember.HashLocation', function (_AbstractTestCase) {
+    (0, _emberBabel.inherits)(_class, _AbstractTestCase);
+
+    function _class() {
+      return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase.apply(this, arguments));
+    }
+
+    _class.prototype.teardown = function () {
       (0, _emberMetal.run)(function () {
         if (location) {
           location.destroy();
         }
       });
-    }
-  });
+    };
 
-  QUnit.test('HashLocation.getURL() returns the current url', function () {
-    expect(1);
+    _class.prototype['@test HashLocation.getURL() returns the current url'] = function (assert) {
+      createLocation({
+        _location: mockBrowserLocation('/#/foo/bar')
+      }, assert);
 
-    createLocation({
-      _location: mockBrowserLocation('/#/foo/bar')
-    });
+      assert.equal(location.getURL(), '/foo/bar');
+    };
 
-    equal(location.getURL(), '/foo/bar');
-  });
+    _class.prototype['@test HashLocation.getURL() includes extra hashes'] = function (assert) {
+      createLocation({
+        _location: mockBrowserLocation('/#/foo#bar#car')
+      }, assert);
 
-  QUnit.test('HashLocation.getURL() includes extra hashes', function () {
-    expect(1);
+      assert.equal(location.getURL(), '/foo#bar#car');
+    };
 
-    createLocation({
-      _location: mockBrowserLocation('/#/foo#bar#car')
-    });
+    _class.prototype['@test HashLocation.getURL() assumes location.hash without #/ prefix is not a route path'] = function (assert) {
+      createLocation({
+        _location: mockBrowserLocation('/#foo#bar')
+      }, assert);
 
-    equal(location.getURL(), '/foo#bar#car');
-  });
+      assert.equal(location.getURL(), '/#foo#bar');
+    };
 
-  QUnit.test('HashLocation.getURL() assumes location.hash without #/ prefix is not a route path', function () {
-    expect(1);
+    _class.prototype['@test HashLocation.getURL() returns a normal forward slash when there is no location.hash'] = function (assert) {
+      createLocation({
+        _location: mockBrowserLocation('/')
+      }, assert);
 
-    createLocation({
-      _location: mockBrowserLocation('/#foo#bar')
-    });
+      assert.equal(location.getURL(), '/');
+    };
 
-    equal(location.getURL(), '/#foo#bar');
-  });
+    _class.prototype['@test HashLocation.setURL() correctly sets the url'] = function (assert) {
+      createLocation({}, assert);
 
-  QUnit.test('HashLocation.getURL() returns a normal forward slash when there is no location.hash', function () {
-    expect(1);
+      location.setURL('/bar');
 
-    createLocation({
-      _location: mockBrowserLocation('/')
-    });
+      assert.equal((0, _emberMetal.get)(location, 'location.hash'), '/bar');
+      assert.equal((0, _emberMetal.get)(location, 'lastSetURL'), '/bar');
+    };
 
-    equal(location.getURL(), '/');
-  });
+    _class.prototype['@test HashLocation.replaceURL() correctly replaces to the path with a page reload'] = function (assert) {
+      expect(2);
 
-  QUnit.test('HashLocation.setURL() correctly sets the url', function () {
-    expect(2);
-
-    createLocation();
-
-    location.setURL('/bar');
-
-    equal((0, _emberMetal.get)(location, 'location.hash'), '/bar');
-    equal((0, _emberMetal.get)(location, 'lastSetURL'), '/bar');
-  });
-
-  QUnit.test('HashLocation.replaceURL() correctly replaces to the path with a page reload', function () {
-    expect(2);
-
-    createLocation({
-      _location: {
-        replace: function (path) {
-          equal(path, '#/foo');
+      createLocation({
+        _location: {
+          replace: function (path) {
+            assert.equal(path, '#/foo');
+          }
         }
-      }
-    });
+      }, assert);
 
-    location.replaceURL('/foo');
+      location.replaceURL('/foo');
 
-    equal((0, _emberMetal.get)(location, 'lastSetURL'), '/foo');
-  });
+      assert.equal((0, _emberMetal.get)(location, 'lastSetURL'), '/foo');
+    };
 
-  QUnit.test('HashLocation.onUpdateURL callback executes as expected', function () {
-    expect(1);
+    _class.prototype['@test HashLocation.onUpdateURL callback executes as expected'] = function (assert) {
+      expect(1);
 
-    createLocation({
-      _location: mockBrowserLocation('/#/foo/bar')
-    });
+      createLocation({
+        _location: mockBrowserLocation('/#/foo/bar')
+      }, assert);
 
-    location.onUpdateURL(function (param) {
-      equal(param, '/foo/bar', 'path is passed as param');
-    });
+      location.onUpdateURL(function (param) {
+        assert.equal(param, '/foo/bar', 'path is passed as param');
+      });
 
-    triggerHashchange();
-  });
+      triggerHashchange();
+    };
 
-  QUnit.test('HashLocation.onUpdateURL doesn\'t execute callback if lastSetURL === path', function () {
-    expect(0);
+    _class.prototype['@test HashLocation.onUpdateURL doesn\'t execute callback if lastSetURL === path'] = function (assert) {
+      expect(0);
 
-    createLocation({
-      _location: {
-        href: '/#/foo/bar'
-      },
-      lastSetURL: '/foo/bar'
-    });
+      createLocation({
+        _location: {
+          href: '/#/foo/bar'
+        },
+        lastSetURL: '/foo/bar'
+      }, assert);
 
-    location.onUpdateURL(function () {
-      ok(false, 'callback should not be called');
-    });
+      location.onUpdateURL(function () {
+        assert.ok(false, 'callback should not be called');
+      });
 
-    triggerHashchange();
-  });
+      triggerHashchange();
+    };
 
-  QUnit.test('HashLocation.formatURL() prepends a # to the provided string', function () {
-    expect(1);
+    _class.prototype['@test HashLocation.formatURL() prepends a # to the provided string'] = function (assert) {
+      createLocation({}, assert);
 
-    createLocation();
+      assert.equal(location.formatURL('/foo#bar'), '#/foo#bar');
+    };
 
-    equal(location.formatURL('/foo#bar'), '#/foo#bar');
-  });
+    _class.prototype['@test HashLocation.willDestroy() cleans up hashchange event listener'] = function (assert) {
+      expect(1);
 
-  QUnit.test('HashLocation.willDestroy() cleans up hashchange event listener', function () {
-    expect(1);
+      createLocation({}, assert);
 
-    createLocation();
+      location.onUpdateURL(function () {
+        assert.ok(true, 'should invoke callback once');
+      });
 
-    location.onUpdateURL(function () {
-      ok(true, 'should invoke callback once');
-    });
+      triggerHashchange();
 
-    triggerHashchange();
+      (0, _emberMetal.run)(location, 'destroy');
+      location = null;
 
-    (0, _emberMetal.run)(location, 'destroy');
-    location = null;
+      triggerHashchange();
+    };
 
-    triggerHashchange();
-  });
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
 });
-enifed('ember-routing/tests/location/history_location_test', ['ember-metal', 'ember-routing/location/history_location'], function (_emberMetal, _history_location) {
+enifed('ember-routing/tests/location/history_location_test', ['ember-babel', 'ember-metal', 'ember-routing/location/history_location', 'internal-test-helpers'], function (_emberBabel, _emberMetal, _history_location, _internalTestHelpers) {
   'use strict';
 
   var FakeHistory = void 0,
@@ -44752,8 +44792,13 @@ enifed('ember-routing/tests/location/history_location_test', ['ember-metal', 'em
     };
   }
 
-  QUnit.module('Ember.HistoryLocation', {
-    setup: function () {
+  (0, _internalTestHelpers.moduleFor)('Ember.HistoryLocation', function (_AbstractTestCase) {
+    (0, _emberBabel.inherits)(_class, _AbstractTestCase);
+
+    function _class() {
+
+      var _this = (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase.call(this));
+
       FakeHistory = {
         state: null,
         _states: [],
@@ -44770,262 +44815,264 @@ enifed('ember-routing/tests/location/history_location_test', ['ember-metal', 'em
       HistoryTestLocation = _history_location.default.extend({
         history: FakeHistory
       });
-    },
-    teardown: function () {
+      return _this;
+    }
+
+    _class.prototype.teardown = function () {
       (0, _emberMetal.run)(function () {
         if (location) {
           location.destroy();
         }
       });
-    }
-  });
+    };
 
-  QUnit.test('HistoryLocation initState does not get fired on init', function () {
-    expect(1);
+    _class.prototype['@test HistoryLocation initState does not get fired on init'] = function (assert) {
+      assert.expect(1);
 
-    HistoryTestLocation.reopen({
-      init: function () {
-        ok(true, 'init was called');
-        this._super.apply(this, arguments);
-      },
-      initState: function () {
-        ok(false, 'initState() should not be called automatically');
-      }
-    });
+      HistoryTestLocation.reopen({
+        init: function () {
+          assert.ok(true, 'init was called');
+          this._super.apply(this, arguments);
+        },
+        initState: function () {
+          assert.ok(false, 'initState() should not be called automatically');
+        }
+      });
 
-    createLocation();
-  });
+      createLocation();
+    };
 
-  QUnit.test('webkit doesn\'t fire popstate on page load', function () {
-    expect(1);
+    _class.prototype['@test webkit doesn\'t fire popstate on page load'] = function (assert) {
+      assert.expect(1);
 
-    HistoryTestLocation.reopen({
-      initState: function () {
-        this._super.apply(this, arguments);
-        // these two should be equal to be able
-        // to successfully detect webkit initial popstate
-        equal(this._previousURL, this.getURL());
-      }
-    });
+      HistoryTestLocation.reopen({
+        initState: function () {
+          this._super.apply(this, arguments);
+          // these two should be equal to be able
+          // to successfully detect webkit initial popstate
+          assert.equal(this._previousURL, this.getURL());
+        }
+      });
 
-    createLocation();
-    location.initState();
-  });
+      createLocation();
+      location.initState();
+    };
 
-  QUnit.test('base URL is removed when retrieving the current pathname', function () {
-    expect(1);
+    _class.prototype['@test base URL is removed when retrieving the current pathname'] = function (assert) {
+      assert.expect(1);
 
-    HistoryTestLocation.reopen({
-      init: function () {
-        this._super.apply(this, arguments);
+      HistoryTestLocation.reopen({
+        init: function () {
+          this._super.apply(this, arguments);
 
-        (0, _emberMetal.set)(this, 'location', mockBrowserLocation('/base/foo/bar'));
-        (0, _emberMetal.set)(this, 'baseURL', '/base/');
-      },
-      initState: function () {
-        this._super.apply(this, arguments);
+          (0, _emberMetal.set)(this, 'location', mockBrowserLocation('/base/foo/bar'));
+          (0, _emberMetal.set)(this, 'baseURL', '/base/');
+        },
+        initState: function () {
+          this._super.apply(this, arguments);
 
-        equal(this.getURL(), '/foo/bar');
-      }
-    });
+          assert.equal(this.getURL(), '/foo/bar');
+        }
+      });
 
-    createLocation();
-    location.initState();
-  });
+      createLocation();
+      location.initState();
+    };
 
-  QUnit.test('base URL is preserved when moving around', function () {
-    expect(2);
+    _class.prototype['@test base URL is preserved when moving around'] = function (assert) {
+      assert.expect(2);
 
-    HistoryTestLocation.reopen({
-      init: function () {
-        this._super.apply(this, arguments);
+      HistoryTestLocation.reopen({
+        init: function () {
+          this._super.apply(this, arguments);
 
-        (0, _emberMetal.set)(this, 'location', mockBrowserLocation('/base/foo/bar'));
-        (0, _emberMetal.set)(this, 'baseURL', '/base/');
-      }
-    });
+          (0, _emberMetal.set)(this, 'location', mockBrowserLocation('/base/foo/bar'));
+          (0, _emberMetal.set)(this, 'baseURL', '/base/');
+        }
+      });
 
-    createLocation();
-    location.initState();
-    location.setURL('/one/two');
+      createLocation();
+      location.initState();
+      location.setURL('/one/two');
 
-    equal(location._historyState.path, '/base/one/two');
-    ok(location._historyState.uuid);
-  });
+      assert.equal(location._historyState.path, '/base/one/two');
+      assert.ok(location._historyState.uuid);
+    };
 
-  QUnit.test('setURL continues to set even with a null state (iframes may set this)', function () {
-    expect(2);
+    _class.prototype['@test setURL continues to set even with a null state (iframes may set this)'] = function (assert) {
+      createLocation();
+      location.initState();
 
-    createLocation();
-    location.initState();
+      FakeHistory.pushState(null);
+      location.setURL('/three/four');
 
-    FakeHistory.pushState(null);
-    location.setURL('/three/four');
+      assert.equal(location._historyState.path, '/three/four');
+      assert.ok(location._historyState.uuid);
+    };
 
-    equal(location._historyState.path, '/three/four');
-    ok(location._historyState.uuid);
-  });
+    _class.prototype['@test replaceURL continues to set even with a null state (iframes may set this)'] = function (assert) {
+      createLocation();
+      location.initState();
 
-  QUnit.test('replaceURL continues to set even with a null state (iframes may set this)', function () {
-    expect(2);
+      FakeHistory.pushState(null);
+      location.replaceURL('/three/four');
 
-    createLocation();
-    location.initState();
+      assert.equal(location._historyState.path, '/three/four');
+      assert.ok(location._historyState.uuid);
+    };
 
-    FakeHistory.pushState(null);
-    location.replaceURL('/three/four');
+    _class.prototype['@test HistoryLocation.getURL() returns the current url, excluding both rootURL and baseURL'] = function (assert) {
+      HistoryTestLocation.reopen({
+        init: function () {
+          this._super.apply(this, arguments);
 
-    equal(location._historyState.path, '/three/four');
-    ok(location._historyState.uuid);
-  });
+          (0, _emberMetal.set)(this, 'location', mockBrowserLocation('/base/foo/bar'));
+          (0, _emberMetal.set)(this, 'rootURL', '/app/');
+          (0, _emberMetal.set)(this, 'baseURL', '/base/');
+        }
+      });
 
-  QUnit.test('HistoryLocation.getURL() returns the current url, excluding both rootURL and baseURL', function () {
-    expect(1);
+      createLocation();
 
-    HistoryTestLocation.reopen({
-      init: function () {
-        this._super.apply(this, arguments);
+      assert.equal(location.getURL(), '/foo/bar');
+    };
 
-        (0, _emberMetal.set)(this, 'location', mockBrowserLocation('/base/foo/bar'));
-        (0, _emberMetal.set)(this, 'rootURL', '/app/');
-        (0, _emberMetal.set)(this, 'baseURL', '/base/');
-      }
-    });
+    _class.prototype['@test HistoryLocation.getURL() returns the current url, does not remove rootURL if its not at start of url'] = function (assert) {
+      HistoryTestLocation.reopen({
+        init: function () {
+          this._super.apply(this, arguments);
 
-    createLocation();
+          (0, _emberMetal.set)(this, 'location', mockBrowserLocation('/foo/bar/baz'));
+          (0, _emberMetal.set)(this, 'rootURL', '/bar/');
+        }
+      });
 
-    equal(location.getURL(), '/foo/bar');
-  });
+      createLocation();
 
-  QUnit.test('HistoryLocation.getURL() returns the current url, does not remove rootURL if its not at start of url', function () {
-    expect(1);
+      assert.equal(location.getURL(), '/foo/bar/baz');
+    };
 
-    HistoryTestLocation.reopen({
-      init: function () {
-        this._super.apply(this, arguments);
+    _class.prototype['@test HistoryLocation.getURL() will not remove the rootURL when only a partial match'] = function (assert) {
+      HistoryTestLocation.reopen({
+        init: function () {
+          this._super.apply(this, arguments);
+          (0, _emberMetal.set)(this, 'location', mockBrowserLocation('/bars/baz'));
+          (0, _emberMetal.set)(this, 'rootURL', '/bar/');
+        }
+      });
 
-        (0, _emberMetal.set)(this, 'location', mockBrowserLocation('/foo/bar/baz'));
-        (0, _emberMetal.set)(this, 'rootURL', '/bar/');
-      }
-    });
+      createLocation();
 
-    createLocation();
+      assert.equal(location.getURL(), '/bars/baz');
+    };
 
-    equal(location.getURL(), '/foo/bar/baz');
-  });
+    _class.prototype['@test HistoryLocation.getURL() returns the current url, does not remove baseURL if its not at start of url'] = function (assert) {
+      HistoryTestLocation.reopen({
+        init: function () {
+          this._super.apply(this, arguments);
 
-  QUnit.test('HistoryLocation.getURL() will not remove the rootURL when only a partial match', function () {
-    expect(1);
+          (0, _emberMetal.set)(this, 'location', mockBrowserLocation('/foo/bar/baz'));
+          (0, _emberMetal.set)(this, 'baseURL', '/bar/');
+        }
+      });
 
-    HistoryTestLocation.reopen({
-      init: function () {
-        this._super.apply(this, arguments);
-        (0, _emberMetal.set)(this, 'location', mockBrowserLocation('/bars/baz'));
-        (0, _emberMetal.set)(this, 'rootURL', '/bar/');
-      }
-    });
+      createLocation();
 
-    createLocation();
+      assert.equal(location.getURL(), '/foo/bar/baz');
+    };
 
-    equal(location.getURL(), '/bars/baz');
-  });
+    _class.prototype['@test HistoryLocation.getURL() will not remove the baseURL when only a partial match'] = function (assert) {
+      HistoryTestLocation.reopen({
+        init: function () {
+          this._super.apply(this, arguments);
+          (0, _emberMetal.set)(this, 'location', mockBrowserLocation('/bars/baz'));
+          (0, _emberMetal.set)(this, 'baseURL', '/bar/');
+        }
+      });
 
-  QUnit.test('HistoryLocation.getURL() returns the current url, does not remove baseURL if its not at start of url', function () {
-    expect(1);
+      createLocation();
 
-    HistoryTestLocation.reopen({
-      init: function () {
-        this._super.apply(this, arguments);
+      assert.equal(location.getURL(), '/bars/baz');
+    };
 
-        (0, _emberMetal.set)(this, 'location', mockBrowserLocation('/foo/bar/baz'));
-        (0, _emberMetal.set)(this, 'baseURL', '/bar/');
-      }
-    });
+    _class.prototype['@test HistoryLocation.getURL() includes location.search'] = function (assert) {
+      HistoryTestLocation.reopen({
+        init: function () {
+          this._super.apply(this, arguments);
+          (0, _emberMetal.set)(this, 'location', mockBrowserLocation('/foo/bar?time=morphin'));
+        }
+      });
 
-    createLocation();
+      createLocation();
 
-    equal(location.getURL(), '/foo/bar/baz');
-  });
+      assert.equal(location.getURL(), '/foo/bar?time=morphin');
+    };
 
-  QUnit.test('HistoryLocation.getURL() will not remove the baseURL when only a partial match', function () {
-    expect(1);
+    _class.prototype['@test HistoryLocation.getURL() includes location.hash'] = function (assert) {
+      HistoryTestLocation.reopen({
+        init: function () {
+          this._super.apply(this, arguments);
+          (0, _emberMetal.set)(this, 'location', mockBrowserLocation('/foo/bar#pink-power-ranger'));
+        }
+      });
 
-    HistoryTestLocation.reopen({
-      init: function () {
-        this._super.apply(this, arguments);
-        (0, _emberMetal.set)(this, 'location', mockBrowserLocation('/bars/baz'));
-        (0, _emberMetal.set)(this, 'baseURL', '/bar/');
-      }
-    });
+      createLocation();
 
-    createLocation();
+      assert.equal(location.getURL(), '/foo/bar#pink-power-ranger');
+    };
 
-    equal(location.getURL(), '/bars/baz');
-  });
+    _class.prototype['@test HistoryLocation.getURL() includes location.hash and location.search'] = function (assert) {
+      HistoryTestLocation.reopen({
+        init: function () {
+          this._super.apply(this, arguments);
+          (0, _emberMetal.set)(this, 'location', mockBrowserLocation('/foo/bar?time=morphin#pink-power-ranger'));
+        }
+      });
 
-  QUnit.test('HistoryLocation.getURL() includes location.search', function () {
-    expect(1);
+      createLocation();
 
-    HistoryTestLocation.reopen({
-      init: function () {
-        this._super.apply(this, arguments);
-        (0, _emberMetal.set)(this, 'location', mockBrowserLocation('/foo/bar?time=morphin'));
-      }
-    });
+      assert.equal(location.getURL(), '/foo/bar?time=morphin#pink-power-ranger');
+    };
 
-    createLocation();
+    _class.prototype['@test HistoryLocation.getURL() drops duplicate slashes'] = function (assert) {
+      HistoryTestLocation.reopen({
+        init: function () {
+          this._super.apply(this, arguments);
+          var location = mockBrowserLocation('//');
+          location.pathname = '//'; // mockBrowserLocation does not allow for `//`, so force it
+          (0, _emberMetal.set)(this, 'location', location);
+        }
+      });
 
-    equal(location.getURL(), '/foo/bar?time=morphin');
-  });
+      createLocation();
 
-  QUnit.test('HistoryLocation.getURL() includes location.hash', function () {
-    expect(1);
+      assert.equal(location.getURL(), '/');
+    };
 
-    HistoryTestLocation.reopen({
-      init: function () {
-        this._super.apply(this, arguments);
-        (0, _emberMetal.set)(this, 'location', mockBrowserLocation('/foo/bar#pink-power-ranger'));
-      }
-    });
+    _class.prototype['@test Existing state is preserved on init'] = function (assert) {
+      var existingState = {
+        path: '/route/path',
+        uuid: 'abcd'
+      };
 
-    createLocation();
+      FakeHistory.state = existingState;
 
-    equal(location.getURL(), '/foo/bar#pink-power-ranger');
-  });
+      HistoryTestLocation.reopen({
+        init: function () {
+          this._super.apply(this, arguments);
+          (0, _emberMetal.set)(this, 'location', mockBrowserLocation('/route/path'));
+        }
+      });
 
-  QUnit.test('HistoryLocation.getURL() includes location.hash and location.search', function () {
-    expect(1);
+      createLocation();
+      location.initState();
+      assert.deepEqual(location.getState(), existingState);
+    };
 
-    HistoryTestLocation.reopen({
-      init: function () {
-        this._super.apply(this, arguments);
-        (0, _emberMetal.set)(this, 'location', mockBrowserLocation('/foo/bar?time=morphin#pink-power-ranger'));
-      }
-    });
-
-    createLocation();
-
-    equal(location.getURL(), '/foo/bar?time=morphin#pink-power-ranger');
-  });
-
-  QUnit.test('HistoryLocation.getURL() drops duplicate slashes', function () {
-    expect(1);
-
-    HistoryTestLocation.reopen({
-      init: function () {
-        this._super.apply(this, arguments);
-        var location = mockBrowserLocation('//');
-        location.pathname = '//'; // mockBrowserLocation does not allow for `//`, so force it
-        (0, _emberMetal.set)(this, 'location', location);
-      }
-    });
-
-    createLocation();
-
-    equal(location.getURL(), '/');
-  });
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
 });
-enifed('ember-routing/tests/location/none_location_test', ['ember-metal', 'ember-routing/location/none_location'], function (_emberMetal, _none_location) {
+enifed('ember-routing/tests/location/none_location_test', ['ember-babel', 'ember-metal', 'ember-routing/location/none_location', 'internal-test-helpers'], function (_emberBabel, _emberMetal, _none_location, _internalTestHelpers) {
   'use strict';
 
   var NoneTestLocation = void 0,
@@ -45038,224 +45085,235 @@ enifed('ember-routing/tests/location/none_location_test', ['ember-metal', 'ember
     location = NoneTestLocation.create(options);
   }
 
-  QUnit.module('Ember.NoneLocation', {
-    setup: function () {
+  (0, _internalTestHelpers.moduleFor)('Ember.NoneLocation', function (_AbstractTestCase) {
+    (0, _emberBabel.inherits)(_class, _AbstractTestCase);
+
+    function _class() {
+
+      var _this = (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase.call(this));
+
       NoneTestLocation = _none_location.default.extend({});
-    },
-    teardown: function () {
+      return _this;
+    }
+
+    _class.prototype.teardown = function () {
       (0, _emberMetal.run)(function () {
         if (location) {
           location.destroy();
         }
       });
-    }
-  });
+    };
 
-  QUnit.test('NoneLocation.formatURL() returns the current url always appending rootURL', function () {
-    expect(1);
+    _class.prototype['@test NoneLocation.formatURL() returns the current url always appending rootURL'] = function (assert) {
+      NoneTestLocation.reopen({
+        init: function () {
+          this._super.apply(this, arguments);
+          (0, _emberMetal.set)(this, 'rootURL', '/en/');
+        }
+      });
 
-    NoneTestLocation.reopen({
-      init: function () {
-        this._super.apply(this, arguments);
-        (0, _emberMetal.set)(this, 'rootURL', '/en/');
-      }
-    });
+      createLocation();
 
-    createLocation();
+      assert.equal(location.formatURL('/foo/bar'), '/en/foo/bar');
+    };
 
-    equal(location.formatURL('/foo/bar'), '/en/foo/bar');
-  });
+    _class.prototype['@test NoneLocation.getURL() returns the current path minus rootURL'] = function (assert) {
+      NoneTestLocation.reopen({
+        init: function () {
+          this._super.apply(this, arguments);
+          (0, _emberMetal.set)(this, 'rootURL', '/foo/');
+          (0, _emberMetal.set)(this, 'path', '/foo/bar');
+        }
+      });
 
-  QUnit.test('NoneLocation.getURL() returns the current path minus rootURL', function () {
-    expect(1);
+      createLocation();
 
-    NoneTestLocation.reopen({
-      init: function () {
-        this._super.apply(this, arguments);
-        (0, _emberMetal.set)(this, 'rootURL', '/foo/');
-        (0, _emberMetal.set)(this, 'path', '/foo/bar');
-      }
-    });
+      assert.equal(location.getURL(), '/bar');
+    };
 
-    createLocation();
+    _class.prototype['@test NoneLocation.getURL() will remove the rootURL only from the beginning of a url'] = function (assert) {
+      NoneTestLocation.reopen({
+        init: function () {
+          this._super.apply(this, arguments);
+          (0, _emberMetal.set)(this, 'rootURL', '/bar/');
+          (0, _emberMetal.set)(this, 'path', '/foo/bar/baz');
+        }
+      });
 
-    equal(location.getURL(), '/bar');
-  });
+      createLocation();
 
-  QUnit.test('NoneLocation.getURL() will remove the rootURL only from the beginning of a url', function () {
-    expect(1);
+      assert.equal(location.getURL(), '/foo/bar/baz');
+    };
 
-    NoneTestLocation.reopen({
-      init: function () {
-        this._super.apply(this, arguments);
-        (0, _emberMetal.set)(this, 'rootURL', '/bar/');
-        (0, _emberMetal.set)(this, 'path', '/foo/bar/baz');
-      }
-    });
+    _class.prototype['@test NoneLocation.getURL() will not remove the rootURL when only a partial match'] = function (assert) {
+      NoneTestLocation.reopen({
+        init: function () {
+          this._super.apply(this, arguments);
+          (0, _emberMetal.set)(this, 'rootURL', '/bar/');
+          (0, _emberMetal.set)(this, 'path', '/bars/baz');
+        }
+      });
 
-    createLocation();
+      createLocation();
 
-    equal(location.getURL(), '/foo/bar/baz');
-  });
+      assert.equal(location.getURL(), '/bars/baz');
+    };
 
-  QUnit.test('NoneLocation.getURL() will not remove the rootURL when only a partial match', function () {
-    expect(1);
-
-    NoneTestLocation.reopen({
-      init: function () {
-        this._super.apply(this, arguments);
-        (0, _emberMetal.set)(this, 'rootURL', '/bar/');
-        (0, _emberMetal.set)(this, 'path', '/bars/baz');
-      }
-    });
-
-    createLocation();
-
-    equal(location.getURL(), '/bars/baz');
-  });
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
 });
-enifed('ember-routing/tests/location/util_test', ['ember-utils', 'ember-routing/location/util'], function (_emberUtils, _util) {
+enifed('ember-routing/tests/location/util_test', ['ember-babel', 'ember-utils', 'ember-routing/location/util', 'internal-test-helpers'], function (_emberBabel, _emberUtils, _util, _internalTestHelpers) {
   'use strict';
 
-  function mockBrowserLocation(overrides) {
+  function mockBrowserLocation(overrides, assert) {
     return (0, _emberUtils.assign)({
       href: 'http://test.com/',
       pathname: '/',
       hash: '',
       search: '',
       replace: function () {
-        ok(false, 'location.replace should not be called during testing');
+        assert.ok(false, 'location.replace should not be called during testing');
       }
     }, overrides);
   }
 
-  QUnit.module('Location Utilities');
+  (0, _internalTestHelpers.moduleFor)('Location Utilities', function (_AbstractTestCase) {
+    (0, _emberBabel.inherits)(_class, _AbstractTestCase);
 
-  QUnit.test('replacePath cannot be used to redirect to a different origin', function () {
-    expect(1);
+    function _class() {
+      return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase.apply(this, arguments));
+    }
 
-    var expectedURL = void 0;
+    _class.prototype['@test replacePath cannot be used to redirect to a different origin'] = function (assert) {
+      assert.expect(1);
 
-    expectedURL = 'http://emberjs.com:1337//google.com';
-    (0, _util.replacePath)({
-      protocol: 'http:',
-      hostname: 'emberjs.com',
-      port: '1337',
+      var expectedURL = void 0;
 
-      replace: function (url) {
-        equal(url, expectedURL);
-      }
-    }, '//google.com');
-  });
+      expectedURL = 'http://emberjs.com:1337//google.com';
+      (0, _util.replacePath)({
+        protocol: 'http:',
+        hostname: 'emberjs.com',
+        port: '1337',
 
-  QUnit.test('getPath() should normalize location.pathname, making sure it always returns a leading slash', function () {
-    expect(2);
+        replace: function (url) {
+          assert.equal(url, expectedURL);
+        }
+      }, '//google.com');
+    };
 
-    var location = mockBrowserLocation({ pathname: 'test' });
-    equal((0, _util.getPath)(location), '/test', 'When there is no leading slash, one is added.');
+    _class.prototype['@test getPath() should normalize location.pathname, making sure it always returns a leading slash'] = function (assert) {
+      var location = mockBrowserLocation({ pathname: 'test' }, assert);
+      assert.equal((0, _util.getPath)(location), '/test', 'When there is no leading slash, one is added.');
 
-    location = mockBrowserLocation({ pathname: '/test' });
-    equal((0, _util.getPath)(location), '/test', 'When a leading slash is already there, it isn\'t added again');
-  });
+      location = mockBrowserLocation({ pathname: '/test' }, assert);
+      assert.equal((0, _util.getPath)(location), '/test', 'When a leading slash is already there, it isn\'t added again');
+    };
 
-  QUnit.test('getQuery() should return location.search as-is', function () {
-    expect(1);
+    _class.prototype['@test getQuery() should return location.search as-is'] = function (assert) {
+      var location = mockBrowserLocation({ search: '?foo=bar' }, assert);
+      assert.equal((0, _util.getQuery)(location), '?foo=bar');
+    };
 
-    var location = mockBrowserLocation({ search: '?foo=bar' });
-    equal((0, _util.getQuery)(location), '?foo=bar');
-  });
+    _class.prototype['@test getFullPath() should return full pathname including query and hash'] = function (assert) {
+      var location = mockBrowserLocation({
+        href: 'http://test.com/about?foo=bar#foo',
+        pathname: '/about',
+        search: '?foo=bar',
+        hash: '#foo'
+      }, assert);
 
-  QUnit.test('getFullPath() should return full pathname including query and hash', function () {
-    expect(1);
+      assert.equal((0, _util.getFullPath)(location), '/about?foo=bar#foo');
+    };
 
-    var location = mockBrowserLocation({
-      href: 'http://test.com/about?foo=bar#foo',
-      pathname: '/about',
-      search: '?foo=bar',
-      hash: '#foo'
-    });
+    _class.prototype['@test Feature-Detecting onhashchange'] = function (assert) {
+      assert.equal((0, _util.supportsHashChange)(undefined, {
+        onhashchange: function () {}
+      }), true, 'When not in IE, use onhashchange existence as evidence of the feature');
+      assert.equal((0, _util.supportsHashChange)(undefined, {}), false, 'When not in IE, use onhashchange absence as evidence of the feature absence');
+      assert.equal((0, _util.supportsHashChange)(7, {
+        onhashchange: function () {}
+      }), false, 'When in IE7 compatibility mode, never report existence of the feature');
+      assert.equal((0, _util.supportsHashChange)(8, {
+        onhashchange: function () {}
+      }), true, 'When in IE8+, use onhashchange existence as evidence of the feature');
+    };
 
-    equal((0, _util.getFullPath)(location), '/about?foo=bar#foo');
-  });
+    _class.prototype['@test Feature-detecting the history API'] = function (assert) {
+      assert.equal((0, _util.supportsHistory)("", { pushState: true }), true, "returns true if not Android Gingerbread and history.pushState exists");
+      assert.equal((0, _util.supportsHistory)("", {}), false, "returns false if history.pushState doesn't exist");
+      assert.equal((0, _util.supportsHistory)("", undefined), false, "returns false if history doesn't exist");
 
-  QUnit.test('Feature-Detecting onhashchange', function () {
-    equal((0, _util.supportsHashChange)(undefined, {
-      onhashchange: function () {}
-    }), true, 'When not in IE, use onhashchange existence as evidence of the feature');
-    equal((0, _util.supportsHashChange)(undefined, {}), false, 'When not in IE, use onhashchange absence as evidence of the feature absence');
-    equal((0, _util.supportsHashChange)(7, {
-      onhashchange: function () {}
-    }), false, 'When in IE7 compatibility mode, never report existence of the feature');
-    equal((0, _util.supportsHashChange)(8, {
-      onhashchange: function () {}
-    }), true, 'When in IE8+, use onhashchange existence as evidence of the feature');
-  });
+      assert.equal((0, _util.supportsHistory)("Mozilla/5.0 (Linux; U; Android 2.3.5; en-us; HTC Vision Build/GRI40) AppleWebKit/533.1 (KHTML, like Gecko) Version/4.0 Mobile Safari/533.1", { pushState: true }), false, "returns false if Android 2.x stock browser (not Chrome) claiming to support pushState");
 
-  QUnit.test("Feature-detecting the history API", function () {
-    equal((0, _util.supportsHistory)("", { pushState: true }), true, "returns true if not Android Gingerbread and history.pushState exists");
-    equal((0, _util.supportsHistory)("", {}), false, "returns false if history.pushState doesn't exist");
-    equal((0, _util.supportsHistory)("", undefined), false, "returns false if history doesn't exist");
+      assert.equal((0, _util.supportsHistory)("Mozilla/5.0 (Linux; U; Android 4.0.3; nl-nl; GT-N7000 Build/IML74K) AppleWebKit/534.30 (KHTML, like Gecko) Version/4.0 Mobile Safari/534.30", { pushState: true }), false, "returns false for Android 4.0.x stock browser (not Chrome) claiming to support pushState");
 
-    equal((0, _util.supportsHistory)("Mozilla/5.0 (Linux; U; Android 2.3.5; en-us; HTC Vision Build/GRI40) AppleWebKit/533.1 (KHTML, like Gecko) Version/4.0 Mobile Safari/533.1", { pushState: true }), false, "returns false if Android 2.x stock browser (not Chrome) claiming to support pushState");
+      assert.equal((0, _util.supportsHistory)("Mozilla/5.0 (Linux; U; Android 20.3.5; en-us; HTC Vision Build/GRI40) AppleWebKit/533.1 (KHTML, like Gecko) Version/4.0 Mobile Safari/533.1", { pushState: true }), true, "returns true if Android version begins with 2, but is greater than 2");
 
-    equal((0, _util.supportsHistory)("Mozilla/5.0 (Linux; U; Android 4.0.3; nl-nl; GT-N7000 Build/IML74K) AppleWebKit/534.30 (KHTML, like Gecko) Version/4.0 Mobile Safari/534.30", { pushState: true }), false, "returns false for Android 4.0.x stock browser (not Chrome) claiming to support pushState");
+      assert.equal((0, _util.supportsHistory)("Mozilla/5.0 (Linux; Android 4.0.4; Galaxy Nexus Build/IMM76B) AppleWebKit/535.19 (KHTML, like Gecko) Chrome/18.0.1025.133 Mobile Safari/535.19", { pushState: true }), true, "returns true for Chrome (not stock browser) on Android 4.0.x");
 
-    equal((0, _util.supportsHistory)("Mozilla/5.0 (Linux; U; Android 20.3.5; en-us; HTC Vision Build/GRI40) AppleWebKit/533.1 (KHTML, like Gecko) Version/4.0 Mobile Safari/533.1", { pushState: true }), true, "returns true if Android version begins with 2, but is greater than 2");
+      // Windows Phone UA and History API: https://github.com/Modernizr/Modernizr/issues/1471
+      assert.equal((0, _util.supportsHistory)("Mozilla/5.0 (Mobile; Windows Phone 8.1; Android 4.0; ARM; Trident/7.0; Touch; rv:11.0; IEMobile/11.0; Microsoft; Virtual) like iPhone OS 7_0_3 Mac OS X AppleWebKit/537 (KHTML, like Gecko) Mobile Safari/537", { pushState: true }), true, "returns true for Windows Phone 8.1 with misleading user agent string");
+    };
 
-    equal((0, _util.supportsHistory)("Mozilla/5.0 (Linux; Android 4.0.4; Galaxy Nexus Build/IMM76B) AppleWebKit/535.19 (KHTML, like Gecko) Chrome/18.0.1025.133 Mobile Safari/535.19", { pushState: true }), true, "returns true for Chrome (not stock browser) on Android 4.0.x");
-
-    // Windows Phone UA and History API: https://github.com/Modernizr/Modernizr/issues/1471
-    equal((0, _util.supportsHistory)("Mozilla/5.0 (Mobile; Windows Phone 8.1; Android 4.0; ARM; Trident/7.0; Touch; rv:11.0; IEMobile/11.0; Microsoft; Virtual) like iPhone OS 7_0_3 Mac OS X AppleWebKit/537 (KHTML, like Gecko) Mobile Safari/537", { pushState: true }), true, "returns true for Windows Phone 8.1 with misleading user agent string");
-  });
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
 });
-enifed('ember-routing/tests/system/cache_test', ['ember-routing/system/cache'], function (_cache) {
+enifed('ember-routing/tests/system/cache_test', ['ember-babel', 'ember-routing/system/cache', 'internal-test-helpers'], function (_emberBabel, _cache, _internalTestHelpers) {
   'use strict';
 
-  QUnit.module('BucketCache', {
-    setup: function () {
-      this.cache = _cache.default.create();
+  (0, _internalTestHelpers.moduleFor)('BucketCache', function (_AbstractTestCase) {
+    (0, _emberBabel.inherits)(_class, _AbstractTestCase);
+
+    function _class() {
+
+      var _this = (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase.call(this));
+
+      _this.cache = _cache.default.create();
+      return _this;
     }
-  });
 
-  QUnit.test('has - returns false when bucket is not in cache', function (assert) {
-    assert.strictEqual(this.cache.has('foo'), false);
-    assert.strictEqual(this.cache.has('constructor'), false);
-  });
+    _class.prototype['@test has - returns false when bucket is not in cache'] = function (assert) {
+      assert.strictEqual(this.cache.has('foo'), false);
+      assert.strictEqual(this.cache.has('constructor'), false);
+    };
 
-  QUnit.test('has - returns true when bucket is in cache', function (assert) {
-    var token = {};
+    _class.prototype['@test has - returns true when bucket is in cache'] = function (assert) {
+      var token = {};
 
-    this.cache.stash('foo', 'bar', token);
-    this.cache.stash('constructor', 'bar', token);
+      this.cache.stash('foo', 'bar', token);
+      this.cache.stash('constructor', 'bar', token);
 
-    assert.strictEqual(this.cache.has('foo'), true);
-    assert.strictEqual(this.cache.has('constructor'), true);
-  });
+      assert.strictEqual(this.cache.has('foo'), true);
+      assert.strictEqual(this.cache.has('constructor'), true);
+    };
 
-  QUnit.test('lookup - returns stashed value if key does exist in bucket', function (assert) {
-    var token = {};
+    _class.prototype['@test lookup - returns stashed value if key does exist in bucket'] = function (assert) {
+      var token = {};
 
 
-    this.cache.stash('foo', 'bar', token);
+      this.cache.stash('foo', 'bar', token);
 
-    assert.strictEqual(this.cache.lookup('foo', 'bar', {}), token);
-  });
+      assert.strictEqual(this.cache.lookup('foo', 'bar', {}), token);
+    };
 
-  QUnit.test('lookup - returns default value if key does not exist in bucket', function (assert) {
-    var defaultValue = {};
+    _class.prototype['@test lookup - returns default value if key does not exist in bucket'] = function (assert) {
+      var defaultValue = {};
 
-    this.cache.stash('foo', 'bar', {});
+      this.cache.stash('foo', 'bar', {});
 
-    assert.strictEqual(this.cache.lookup('foo', 'boo', defaultValue), defaultValue);
-    assert.strictEqual(this.cache.lookup('foo', 'constructor', defaultValue), defaultValue);
-  });
+      assert.strictEqual(this.cache.lookup('foo', 'boo', defaultValue), defaultValue);
+      assert.strictEqual(this.cache.lookup('foo', 'constructor', defaultValue), defaultValue);
+    };
 
-  QUnit.test('lookup - returns default value if bucket does not exist', function (assert) {
-    var defaultValue = {};
+    _class.prototype['@test lookup - returns default value if bucket does not exist'] = function (assert) {
+      var defaultValue = {};
 
-    assert.strictEqual(this.cache.lookup('boo', 'bar', defaultValue), defaultValue);
-    assert.strictEqual(this.cache.lookup('constructor', 'bar', defaultValue), defaultValue);
-  });
+      assert.strictEqual(this.cache.lookup('boo', 'bar', defaultValue), defaultValue);
+      assert.strictEqual(this.cache.lookup('constructor', 'bar', defaultValue), defaultValue);
+    };
+
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
 });
 enifed('ember-routing/tests/system/controller_for_test', ['ember-babel', 'ember-runtime', 'ember-routing/system/controller_for', 'ember-routing/system/generate_controller', 'internal-test-helpers'], function (_emberBabel, _emberRuntime, _controller_for, _generate_controller, _internalTestHelpers) {
   'use strict';
@@ -45327,336 +45385,323 @@ enifed('ember-routing/tests/system/controller_for_test', ['ember-babel', 'ember-
     return _class2;
   }(_internalTestHelpers.ApplicationTestCase));
 });
-enifed('ember-routing/tests/system/dsl_test', ['ember-utils', 'ember-routing/system/router', 'internal-test-helpers'], function (_emberUtils, _router, _internalTestHelpers) {
+enifed('ember-routing/tests/system/dsl_test', ['ember-babel', 'ember-utils', 'ember-routing/system/router', 'internal-test-helpers'], function (_emberBabel, _emberUtils, _router, _internalTestHelpers) {
   'use strict';
 
   var Router = void 0;
 
-  function setup() {
-    Router = _router.default.extend();
-  }
+  (0, _internalTestHelpers.moduleFor)('Ember Router DSL', function (_AbstractTestCase) {
+    (0, _emberBabel.inherits)(_class, _AbstractTestCase);
 
-  function teardown() {
-    Router = null;
-  }
+    function _class() {
 
-  QUnit.module('Ember Router DSL', {
-    setup: setup,
-    teardown: teardown
-  });
+      var _this = (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase.call(this));
 
-  QUnit.test('should fail when using a reserved route name', function () {
-    expectDeprecation('this.resource() is deprecated. Use this.route(\'name\', { resetNamespace: true }, function () {}) instead.');
-    var reservedNames = ['array', 'basic', 'object', 'application'];
+      Router = _router.default.extend();
+      return _this;
+    }
 
-    expect(reservedNames.length * 2 + 1);
+    _class.prototype.teardown = function () {
+      Router = null;
+    };
 
-    reservedNames.forEach(function (reservedName) {
-      expectAssertion(function () {
-        Router = _router.default.extend();
+    _class.prototype['@test should fail when using a reserved route name'] = function (assert) {
+      var reservedNames = ['array', 'basic', 'object', 'application'];
 
-        Router.map(function () {
-          this.route(reservedName);
-        });
+      assert.expect(reservedNames.length);
 
-        var router = Router.create();
-        router._initRouterJs();
-      }, '\'' + reservedName + '\' cannot be used as a route name.');
+      reservedNames.forEach(function (reservedName) {
+        expectAssertion(function () {
+          Router = _router.default.extend();
 
-      expectAssertion(function () {
-        Router = _router.default.extend();
+          Router.map(function () {
+            this.route(reservedName);
+          });
 
-        Router.map(function () {
-          this.resource(reservedName);
-        });
+          var router = Router.create();
+          router._initRouterJs();
+        }, '\'' + reservedName + '\' cannot be used as a route name.');
+      });
+    };
 
-        var router = Router.create();
-        router._initRouterJs();
-      }, '\'' + reservedName + '\' cannot be used as a route name.');
-    });
-  });
-
-  QUnit.test('should reset namespace if nested with resource', function () {
-    expectDeprecation('this.resource() is deprecated. Use this.route(\'name\', { resetNamespace: true }, function () {}) instead.');
-
-    Router = Router.map(function () {
-      this.resource('bleep', function () {
-        this.resource('bloop', function () {
-          this.resource('blork');
+    _class.prototype['@test should retain resource namespace if nested with routes'] = function (assert) {
+      Router = Router.map(function () {
+        this.route('bleep', function () {
+          this.route('bloop', function () {
+            this.route('blork');
+          });
         });
       });
-    });
 
-    var router = Router.create();
-    router._initRouterJs();
+      var router = Router.create();
+      router._initRouterJs();
 
-    ok(router._routerMicrolib.recognizer.names['bleep'], 'nested resources do not contain parent name');
-    ok(router._routerMicrolib.recognizer.names['bloop'], 'nested resources do not contain parent name');
-    ok(router._routerMicrolib.recognizer.names['blork'], 'nested resources do not contain parent name');
-  });
+      assert.ok(router._routerMicrolib.recognizer.names['bleep'], 'parent name was used as base of nested routes');
+      assert.ok(router._routerMicrolib.recognizer.names['bleep.bloop'], 'parent name was used as base of nested routes');
+      assert.ok(router._routerMicrolib.recognizer.names['bleep.bloop.blork'], 'parent name was used as base of nested routes');
+    };
 
-  QUnit.test('should retain resource namespace if nested with routes', function () {
-    Router = Router.map(function () {
-      this.route('bleep', function () {
-        this.route('bloop', function () {
-          this.route('blork');
+    _class.prototype['@test should add loading and error routes if _isRouterMapResult is true'] = function (assert) {
+      Router.map(function () {
+        this.route('blork');
+      });
+
+      var router = Router.create({
+        _hasModuleBasedResolver: function () {
+          return true;
+        }
+      });
+
+      router._initRouterJs();
+
+      assert.ok(router._routerMicrolib.recognizer.names['blork'], 'main route was created');
+      assert.ok(router._routerMicrolib.recognizer.names['blork_loading'], 'loading route was added');
+      assert.ok(router._routerMicrolib.recognizer.names['blork_error'], 'error route was added');
+    };
+
+    _class.prototype['@test should not add loading and error routes if _isRouterMapResult is false'] = function (assert) {
+      Router.map(function () {
+        this.route('blork');
+      });
+
+      var router = Router.create();
+      router._initRouterJs(false);
+
+      assert.ok(router._routerMicrolib.recognizer.names['blork'], 'main route was created');
+      assert.ok(!router._routerMicrolib.recognizer.names['blork_loading'], 'loading route was not added');
+      assert.ok(!router._routerMicrolib.recognizer.names['blork_error'], 'error route was not added');
+    };
+
+    _class.prototype['@test should reset namespace of loading and error routes for routes with resetNamespace'] = function (assert) {
+      Router.map(function () {
+        this.route('blork', function () {
+          this.route('blorp');
+          this.route('bleep', { resetNamespace: true });
         });
       });
-    });
 
-    var router = Router.create();
-    router._initRouterJs();
-
-    ok(router._routerMicrolib.recognizer.names['bleep'], 'parent name was used as base of nested routes');
-    ok(router._routerMicrolib.recognizer.names['bleep.bloop'], 'parent name was used as base of nested routes');
-    ok(router._routerMicrolib.recognizer.names['bleep.bloop.blork'], 'parent name was used as base of nested routes');
-  });
-
-  QUnit.test('should add loading and error routes if _isRouterMapResult is true', function () {
-    Router.map(function () {
-      this.route('blork');
-    });
-
-    var router = Router.create({
-      _hasModuleBasedResolver: function () {
-        return true;
-      }
-    });
-
-    router._initRouterJs();
-
-    ok(router._routerMicrolib.recognizer.names['blork'], 'main route was created');
-    ok(router._routerMicrolib.recognizer.names['blork_loading'], 'loading route was added');
-    ok(router._routerMicrolib.recognizer.names['blork_error'], 'error route was added');
-  });
-
-  QUnit.test('should not add loading and error routes if _isRouterMapResult is false', function () {
-    Router.map(function () {
-      this.route('blork');
-    });
-
-    var router = Router.create();
-    router._initRouterJs(false);
-
-    ok(router._routerMicrolib.recognizer.names['blork'], 'main route was created');
-    ok(!router._routerMicrolib.recognizer.names['blork_loading'], 'loading route was not added');
-    ok(!router._routerMicrolib.recognizer.names['blork_error'], 'error route was not added');
-  });
-
-  QUnit.test('should reset namespace of loading and error routes for routes with resetNamespace', function () {
-    Router.map(function () {
-      this.route('blork', function () {
-        this.route('blorp');
-        this.route('bleep', { resetNamespace: true });
+      var router = Router.create({
+        _hasModuleBasedResolver: function () {
+          return true;
+        }
       });
-    });
 
-    var router = Router.create({
-      _hasModuleBasedResolver: function () {
-        return true;
-      }
-    });
+      router._initRouterJs();
 
-    router._initRouterJs();
+      assert.ok(router._routerMicrolib.recognizer.names['blork.blorp'], 'nested route was created');
+      assert.ok(router._routerMicrolib.recognizer.names['blork.blorp_loading'], 'nested loading route was added');
+      assert.ok(router._routerMicrolib.recognizer.names['blork.blorp_error'], 'nested error route was added');
 
-    ok(router._routerMicrolib.recognizer.names['blork.blorp'], 'nested route was created');
-    ok(router._routerMicrolib.recognizer.names['blork.blorp_loading'], 'nested loading route was added');
-    ok(router._routerMicrolib.recognizer.names['blork.blorp_error'], 'nested error route was added');
+      assert.ok(router._routerMicrolib.recognizer.names['bleep'], 'reset route was created');
+      assert.ok(router._routerMicrolib.recognizer.names['bleep_loading'], 'reset loading route was added');
+      assert.ok(router._routerMicrolib.recognizer.names['bleep_error'], 'reset error route was added');
 
-    ok(router._routerMicrolib.recognizer.names['bleep'], 'reset route was created');
-    ok(router._routerMicrolib.recognizer.names['bleep_loading'], 'reset loading route was added');
-    ok(router._routerMicrolib.recognizer.names['bleep_error'], 'reset error route was added');
+      assert.ok(!router._routerMicrolib.recognizer.names['blork.bleep'], 'nested reset route was not created');
+      assert.ok(!router._routerMicrolib.recognizer.names['blork.bleep_loading'], 'nested reset loading route was not added');
+      assert.ok(!router._routerMicrolib.recognizer.names['blork.bleep_error'], 'nested reset error route was not added');
+    };
 
-    ok(!router._routerMicrolib.recognizer.names['blork.bleep'], 'nested reset route was not created');
-    ok(!router._routerMicrolib.recognizer.names['blork.bleep_loading'], 'nested reset loading route was not added');
-    ok(!router._routerMicrolib.recognizer.names['blork.bleep_error'], 'nested reset error route was not added');
-  });
+    _class.prototype['@test should throw an error when defining a route serializer outside an engine'] = function (assert) {
+      Router.map(function () {
+        var _this2 = this;
 
-  QUnit.test('should throw an error when defining a route serializer outside an engine', function () {
-    Router.map(function () {
-      var _this = this;
+        assert.throws(function () {
+          _this2.route('posts', { serialize: function () {} });
+        }, /Defining a route serializer on route 'posts' outside an Engine is not allowed/);
+      });
 
-      throws(function () {
-        _this.route('posts', { serialize: function () {} });
-      }, /Defining a route serializer on route 'posts' outside an Engine is not allowed/);
-    });
+      Router.create()._initRouterJs();
+    };
 
-    Router.create()._initRouterJs();
-  });
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
 
-  QUnit.module('Ember Router DSL with engines', {
-    setup: setup,
-    teardown: teardown
-  });
+  (0, _internalTestHelpers.moduleFor)('Ember Router DSL with engines', function (_AbstractTestCase2) {
+    (0, _emberBabel.inherits)(_class2, _AbstractTestCase2);
 
-  QUnit.test('should allow mounting of engines', function (assert) {
-    assert.expect(3);
+    function _class2() {
 
-    Router = Router.map(function () {
-      this.route('bleep', function () {
-        this.route('bloop', function () {
-          this.mount('chat');
+      var _this3 = (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase2.call(this));
+
+      Router = _router.default.extend();
+      return _this3;
+    }
+
+    _class2.prototype.teardown = function () {
+      Router = null;
+    };
+
+    _class2.prototype['@test should allow mounting of engines'] = function (assert) {
+      assert.expect(3);
+
+      Router = Router.map(function () {
+        this.route('bleep', function () {
+          this.route('bloop', function () {
+            this.mount('chat');
+          });
         });
       });
-    });
 
-    var engineInstance = (0, _internalTestHelpers.buildOwner)({
-      ownerOptions: { routable: true }
-    });
+      var engineInstance = (0, _internalTestHelpers.buildOwner)({
+        ownerOptions: { routable: true }
+      });
 
-    var router = Router.create();
-    (0, _emberUtils.setOwner)(router, engineInstance);
-    router._initRouterJs();
+      var router = Router.create();
+      (0, _emberUtils.setOwner)(router, engineInstance);
+      router._initRouterJs();
 
-    assert.ok(router._routerMicrolib.recognizer.names['bleep'], 'parent name was used as base of nested routes');
-    assert.ok(router._routerMicrolib.recognizer.names['bleep.bloop'], 'parent name was used as base of nested routes');
-    assert.ok(router._routerMicrolib.recognizer.names['bleep.bloop.chat'], 'parent name was used as base of mounted engine');
-  });
+      assert.ok(router._routerMicrolib.recognizer.names['bleep'], 'parent name was used as base of nested routes');
+      assert.ok(router._routerMicrolib.recognizer.names['bleep.bloop'], 'parent name was used as base of nested routes');
+      assert.ok(router._routerMicrolib.recognizer.names['bleep.bloop.chat'], 'parent name was used as base of mounted engine');
+    };
 
-  QUnit.test('should allow mounting of engines at a custom path', function (assert) {
-    assert.expect(1);
+    _class2.prototype['@test should allow mounting of engines at a custom path'] = function (assert) {
+      assert.expect(1);
 
-    Router = Router.map(function () {
-      this.route('bleep', function () {
-        this.route('bloop', function () {
-          this.mount('chat', { path: 'custom-chat' });
+      Router = Router.map(function () {
+        this.route('bleep', function () {
+          this.route('bloop', function () {
+            this.mount('chat', { path: 'custom-chat' });
+          });
         });
       });
-    });
 
-    var engineInstance = (0, _internalTestHelpers.buildOwner)({
-      ownerOptions: { routable: true }
-    });
+      var engineInstance = (0, _internalTestHelpers.buildOwner)({
+        ownerOptions: { routable: true }
+      });
 
-    var router = Router.create();
-    (0, _emberUtils.setOwner)(router, engineInstance);
-    router._initRouterJs();
+      var router = Router.create();
+      (0, _emberUtils.setOwner)(router, engineInstance);
+      router._initRouterJs();
 
-    assert.deepEqual(router._routerMicrolib.recognizer.names['bleep.bloop.chat'].segments.slice(1, 4).map(function (s) {
-      return s.value;
-    }), ['bleep', 'bloop', 'custom-chat'], 'segments are properly associated with mounted engine');
-  });
+      assert.deepEqual(router._routerMicrolib.recognizer.names['bleep.bloop.chat'].segments.slice(1, 4).map(function (s) {
+        return s.value;
+      }), ['bleep', 'bloop', 'custom-chat'], 'segments are properly associated with mounted engine');
+    };
 
-  QUnit.test('should allow aliasing of engine names with `as`', function (assert) {
-    assert.expect(1);
+    _class2.prototype['@test should allow aliasing of engine names with `as`'] = function (assert) {
+      assert.expect(1);
 
-    Router = Router.map(function () {
-      this.route('bleep', function () {
-        this.route('bloop', function () {
-          this.mount('chat', { as: 'blork' });
+      Router = Router.map(function () {
+        this.route('bleep', function () {
+          this.route('bloop', function () {
+            this.mount('chat', { as: 'blork' });
+          });
         });
       });
-    });
 
-    var engineInstance = (0, _internalTestHelpers.buildOwner)({
-      ownerOptions: { routable: true }
-    });
+      var engineInstance = (0, _internalTestHelpers.buildOwner)({
+        ownerOptions: { routable: true }
+      });
 
-    var router = Router.create();
-    (0, _emberUtils.setOwner)(router, engineInstance);
-    router._initRouterJs();
+      var router = Router.create();
+      (0, _emberUtils.setOwner)(router, engineInstance);
+      router._initRouterJs();
 
-    assert.deepEqual(router._routerMicrolib.recognizer.names['bleep.bloop.blork'].segments.slice(1, 4).map(function (s) {
-      return s.value;
-    }), ['bleep', 'bloop', 'blork'], 'segments are properly associated with mounted engine with aliased name');
-  });
+      assert.deepEqual(router._routerMicrolib.recognizer.names['bleep.bloop.blork'].segments.slice(1, 4).map(function (s) {
+        return s.value;
+      }), ['bleep', 'bloop', 'blork'], 'segments are properly associated with mounted engine with aliased name');
+    };
 
-  QUnit.test('should add loading and error routes to a mount if _isRouterMapResult is true', function () {
-    Router.map(function () {
-      this.mount('chat');
-    });
-
-    var engineInstance = (0, _internalTestHelpers.buildOwner)({
-      ownerOptions: { routable: true }
-    });
-
-    var router = Router.create({
-      _hasModuleBasedResolver: function () {
-        return true;
-      }
-    });
-    (0, _emberUtils.setOwner)(router, engineInstance);
-    router._initRouterJs();
-
-    ok(router._routerMicrolib.recognizer.names['chat'], 'main route was created');
-    ok(router._routerMicrolib.recognizer.names['chat_loading'], 'loading route was added');
-    ok(router._routerMicrolib.recognizer.names['chat_error'], 'error route was added');
-  });
-
-  QUnit.test('should add loading and error routes to a mount alias if _isRouterMapResult is true', function () {
-    Router.map(function () {
-      this.mount('chat', { as: 'shoutbox' });
-    });
-
-    var engineInstance = (0, _internalTestHelpers.buildOwner)({
-      ownerOptions: { routable: true }
-    });
-
-    var router = Router.create({
-      _hasModuleBasedResolver: function () {
-        return true;
-      }
-    });
-    (0, _emberUtils.setOwner)(router, engineInstance);
-    router._initRouterJs();
-
-    ok(router._routerMicrolib.recognizer.names['shoutbox'], 'main route was created');
-    ok(router._routerMicrolib.recognizer.names['shoutbox_loading'], 'loading route was added');
-    ok(router._routerMicrolib.recognizer.names['shoutbox_error'], 'error route was added');
-  });
-
-  QUnit.test('should not add loading and error routes to a mount if _isRouterMapResult is false', function () {
-    Router.map(function () {
-      this.mount('chat');
-    });
-
-    var engineInstance = (0, _internalTestHelpers.buildOwner)({
-      ownerOptions: { routable: true }
-    });
-
-    var router = Router.create();
-    (0, _emberUtils.setOwner)(router, engineInstance);
-    router._initRouterJs(false);
-
-    ok(router._routerMicrolib.recognizer.names['chat'], 'main route was created');
-    ok(!router._routerMicrolib.recognizer.names['chat_loading'], 'loading route was not added');
-    ok(!router._routerMicrolib.recognizer.names['chat_error'], 'error route was not added');
-  });
-
-  QUnit.test('should reset namespace of loading and error routes for mounts with resetNamespace', function () {
-    Router.map(function () {
-      this.route('news', function () {
+    _class2.prototype['@test should add loading and error routes to a mount if _isRouterMapResult is true'] = function (assert) {
+      Router.map(function () {
         this.mount('chat');
-        this.mount('blog', { resetNamespace: true });
       });
-    });
 
-    var engineInstance = (0, _internalTestHelpers.buildOwner)({
-      ownerOptions: { routable: true }
-    });
+      var engineInstance = (0, _internalTestHelpers.buildOwner)({
+        ownerOptions: { routable: true }
+      });
 
-    var router = Router.create({
-      _hasModuleBasedResolver: function () {
-        return true;
-      }
-    });
-    (0, _emberUtils.setOwner)(router, engineInstance);
-    router._initRouterJs();
+      var router = Router.create({
+        _hasModuleBasedResolver: function () {
+          return true;
+        }
+      });
+      (0, _emberUtils.setOwner)(router, engineInstance);
+      router._initRouterJs();
 
-    ok(router._routerMicrolib.recognizer.names['news.chat'], 'nested route was created');
-    ok(router._routerMicrolib.recognizer.names['news.chat_loading'], 'nested loading route was added');
-    ok(router._routerMicrolib.recognizer.names['news.chat_error'], 'nested error route was added');
+      assert.ok(router._routerMicrolib.recognizer.names['chat'], 'main route was created');
+      assert.ok(router._routerMicrolib.recognizer.names['chat_loading'], 'loading route was added');
+      assert.ok(router._routerMicrolib.recognizer.names['chat_error'], 'error route was added');
+    };
 
-    ok(router._routerMicrolib.recognizer.names['blog'], 'reset route was created');
-    ok(router._routerMicrolib.recognizer.names['blog_loading'], 'reset loading route was added');
-    ok(router._routerMicrolib.recognizer.names['blog_error'], 'reset error route was added');
+    _class2.prototype['@test should add loading and error routes to a mount alias if _isRouterMapResult is true'] = function (assert) {
+      Router.map(function () {
+        this.mount('chat', { as: 'shoutbox' });
+      });
 
-    ok(!router._routerMicrolib.recognizer.names['news.blog'], 'nested reset route was not created');
-    ok(!router._routerMicrolib.recognizer.names['news.blog_loading'], 'nested reset loading route was not added');
-    ok(!router._routerMicrolib.recognizer.names['news.blog_error'], 'nested reset error route was not added');
-  });
+      var engineInstance = (0, _internalTestHelpers.buildOwner)({
+        ownerOptions: { routable: true }
+      });
+
+      var router = Router.create({
+        _hasModuleBasedResolver: function () {
+          return true;
+        }
+      });
+      (0, _emberUtils.setOwner)(router, engineInstance);
+      router._initRouterJs();
+
+      assert.ok(router._routerMicrolib.recognizer.names['shoutbox'], 'main route was created');
+      assert.ok(router._routerMicrolib.recognizer.names['shoutbox_loading'], 'loading route was added');
+      assert.ok(router._routerMicrolib.recognizer.names['shoutbox_error'], 'error route was added');
+    };
+
+    _class2.prototype['@test should not add loading and error routes to a mount if _isRouterMapResult is false'] = function (assert) {
+      Router.map(function () {
+        this.mount('chat');
+      });
+
+      var engineInstance = (0, _internalTestHelpers.buildOwner)({
+        ownerOptions: { routable: true }
+      });
+
+      var router = Router.create();
+      (0, _emberUtils.setOwner)(router, engineInstance);
+      router._initRouterJs(false);
+
+      assert.ok(router._routerMicrolib.recognizer.names['chat'], 'main route was created');
+      assert.ok(!router._routerMicrolib.recognizer.names['chat_loading'], 'loading route was not added');
+      assert.ok(!router._routerMicrolib.recognizer.names['chat_error'], 'error route was not added');
+    };
+
+    _class2.prototype['@test should reset namespace of loading and error routes for mounts with resetNamespace'] = function (assert) {
+      Router.map(function () {
+        this.route('news', function () {
+          this.mount('chat');
+          this.mount('blog', { resetNamespace: true });
+        });
+      });
+
+      var engineInstance = (0, _internalTestHelpers.buildOwner)({
+        ownerOptions: { routable: true }
+      });
+
+      var router = Router.create({
+        _hasModuleBasedResolver: function () {
+          return true;
+        }
+      });
+      (0, _emberUtils.setOwner)(router, engineInstance);
+      router._initRouterJs();
+
+      assert.ok(router._routerMicrolib.recognizer.names['news.chat'], 'nested route was created');
+      assert.ok(router._routerMicrolib.recognizer.names['news.chat_loading'], 'nested loading route was added');
+      assert.ok(router._routerMicrolib.recognizer.names['news.chat_error'], 'nested error route was added');
+
+      assert.ok(router._routerMicrolib.recognizer.names['blog'], 'reset route was created');
+      assert.ok(router._routerMicrolib.recognizer.names['blog_loading'], 'reset loading route was added');
+      assert.ok(router._routerMicrolib.recognizer.names['blog_error'], 'reset error route was added');
+
+      assert.ok(!router._routerMicrolib.recognizer.names['news.blog'], 'nested reset route was not created');
+      assert.ok(!router._routerMicrolib.recognizer.names['news.blog_loading'], 'nested reset loading route was not added');
+      assert.ok(!router._routerMicrolib.recognizer.names['news.blog_error'], 'nested reset error route was not added');
+    };
+
+    return _class2;
+  }(_internalTestHelpers.AbstractTestCase));
 });
-enifed('ember-routing/tests/system/route_test', ['ember-utils', 'internal-test-helpers', 'ember-runtime', 'ember-routing/system/route'], function (_emberUtils, _internalTestHelpers, _emberRuntime, _route) {
+enifed('ember-routing/tests/system/route_test', ['ember-babel', 'ember-utils', 'internal-test-helpers', 'ember-runtime', 'ember-routing/system/route'], function (_emberBabel, _emberUtils, _internalTestHelpers, _emberRuntime, _route) {
   'use strict';
 
   var route = void 0,
@@ -45664,271 +45709,239 @@ enifed('ember-routing/tests/system/route_test', ['ember-utils', 'internal-test-h
       routeTwo = void 0,
       lookupHash = void 0;
 
-  function setup() {
-    route = _route.default.create();
-  }
+  (0, _internalTestHelpers.moduleFor)('Ember.Route', function (_AbstractTestCase) {
+    (0, _emberBabel.inherits)(_class, _AbstractTestCase);
 
-  function teardown() {
-    (0, _internalTestHelpers.runDestroy)(route);
-  }
+    function _class() {
 
-  QUnit.module('Ember.Route', {
-    setup: setup,
-    teardown: teardown
-  });
+      var _this = (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase.call(this));
 
-  QUnit.test('default store utilizes the container to acquire the model factory', function () {
-    expect(4);
+      route = _route.default.create();
+      return _this;
+    }
 
-    var Post = _emberRuntime.Object.extend();
-    var post = {};
-
-    Post.reopenClass({
-      find: function () {
-        return post;
-      }
-    });
-
-    (0, _emberUtils.setOwner)(route, (0, _internalTestHelpers.buildOwner)({
-      ownerOptions: {
-        hasRegistration: function () {
-          return true;
-        },
-        factoryFor: function (fullName) {
-          equal(fullName, 'model:post', 'correct factory was looked up');
-
-          return {
-            class: Post,
-            create: function () {
-              return Post.create();
-            }
-          };
-        }
-      }
-    }));
-
-    route.set('_qp', null);
-
-    equal(route.model({ post_id: 1 }), post);
-    equal(route.findModel('post', 1), post, '#findModel returns the correct post');
-  });
-
-  QUnit.test('\'store\' can be injected by data persistence frameworks', function () {
-    expect(8);
-    (0, _internalTestHelpers.runDestroy)(route);
-
-    var owner = (0, _internalTestHelpers.buildOwner)();
-
-    var post = {
-      id: 1
+    _class.prototype.teardown = function () {
+      (0, _internalTestHelpers.runDestroy)(route);
     };
 
-    var Store = _emberRuntime.Object.extend({
-      find: function (type, value) {
-        ok(true, 'injected model was called');
-        equal(type, 'post', 'correct type was called');
-        equal(value, 1, 'correct value was called');
-        return post;
-      }
-    });
+    _class.prototype['@test default store utilizes the container to acquire the model factory'] = function (assert) {
+      assert.expect(4);
 
-    owner.register('route:index', _route.default);
-    owner.register('store:main', Store);
+      var Post = _emberRuntime.Object.extend();
+      var post = {};
 
-    owner.inject('route', 'store', 'store:main');
-
-    route = owner.lookup('route:index');
-
-    equal(route.model({ post_id: 1 }), post, '#model returns the correct post');
-    equal(route.findModel('post', 1), post, '#findModel returns the correct post');
-  });
-
-  QUnit.test('assert if \'store.find\' method is not found', function () {
-    expect(1);
-    (0, _internalTestHelpers.runDestroy)(route);
-
-    var owner = (0, _internalTestHelpers.buildOwner)();
-    var Post = _emberRuntime.Object.extend();
-
-    owner.register('route:index', _route.default);
-    owner.register('model:post', Post);
-
-    route = owner.lookup('route:index');
-
-    expectAssertion(function () {
-      route.findModel('post', 1);
-    }, 'Post has no method `find`.');
-  });
-
-  QUnit.test('asserts if model class is not found', function () {
-    expect(1);
-    (0, _internalTestHelpers.runDestroy)(route);
-
-    var owner = (0, _internalTestHelpers.buildOwner)();
-    owner.register('route:index', _route.default);
-
-    route = owner.lookup('route:index');
-
-    expectAssertion(function () {
-      route.model({ post_id: 1 });
-    }, /You used the dynamic segment post_id in your route undefined, but <Ember.Object:ember\d+>.Post did not exist and you did not override your route\'s `model` hook./);
-  });
-
-  QUnit.test('\'store\' does not need to be injected', function () {
-    expect(1);
-
-    (0, _internalTestHelpers.runDestroy)(route);
-
-    var owner = (0, _internalTestHelpers.buildOwner)();
-
-    owner.register('route:index', _route.default);
-
-    route = owner.lookup('route:index');
-
-    ignoreAssertion(function () {
-      route.model({ post_id: 1 });
-    });
-
-    ok(true, 'no error was raised');
-  });
-
-  QUnit.test('modelFor doesn\'t require the router', function () {
-    expect(1);
-
-    var owner = (0, _internalTestHelpers.buildOwner)();
-    (0, _emberUtils.setOwner)(route, owner);
-
-    var foo = { name: 'foo' };
-
-    var FooRoute = _route.default.extend({
-      currentModel: foo
-    });
-
-    owner.register('route:foo', FooRoute);
-
-    strictEqual(route.modelFor('foo'), foo);
-  });
-
-  QUnit.test('.send just calls an action if the router is absent', function () {
-    expect(7);
-    var route = _route.default.extend({
-      actions: {
-        returnsTrue: function (foo, bar) {
-          equal(foo, 1);
-          equal(bar, 2);
-          equal(this, route);
-          return true;
-        },
-        returnsFalse: function () {
-          ok(true, 'returnsFalse was called');
-          return false;
+      Post.reopenClass({
+        find: function () {
+          return post;
         }
-      }
-    }).create();
+      });
 
-    equal(true, route.send('returnsTrue', 1, 2));
-    equal(false, route.send('returnsFalse'));
-    equal(undefined, route.send('nonexistent', 1, 2, 3));
-  });
+      (0, _emberUtils.setOwner)(route, (0, _internalTestHelpers.buildOwner)({
+        ownerOptions: {
+          hasRegistration: function () {
+            return true;
+          },
+          factoryFor: function (fullName) {
+            assert.equal(fullName, 'model:post', 'correct factory was looked up');
 
-  QUnit.test('.send just calls an action if the routers internal router property is absent', function () {
-    expect(7);
-    var route = _route.default.extend({
-      router: {},
-      actions: {
-        returnsTrue: function (foo, bar) {
-          equal(foo, 1);
-          equal(bar, 2);
-          equal(this, route);
-          return true;
-        },
-        returnsFalse: function () {
-          ok(true, 'returnsFalse was called');
-          return false;
-        }
-      }
-    }).create();
-
-    equal(true, route.send('returnsTrue', 1, 2));
-    equal(false, route.send('returnsFalse'));
-    equal(undefined, route.send('nonexistent', 1, 2, 3));
-  });
-
-  QUnit.test('can access `actions` hash via `_actions` [DEPRECATED]', function () {
-    expect(2);
-
-    var route = _route.default.extend({
-      actions: {
-        foo: function () {
-          ok(true, 'called foo action');
-        }
-      }
-    }).create();
-
-    expectDeprecation(function () {
-      route._actions.foo();
-    }, 'Usage of `_actions` is deprecated, use `actions` instead.');
-  });
-
-  QUnit.test('actions in both `_actions` and `actions` results in an assertion', function () {
-    expectAssertion(function () {
-      _route.default.extend({
-        _actions: {},
-        actions: {}
-      }).create();
-    }, 'Specifying `_actions` and `actions` in the same mixin is not supported.');
-  });
-
-  QUnit.test('actions added via `_actions` can be used [DEPRECATED]', function () {
-    expect(3);
-
-    var route = void 0;
-    expectDeprecation(function () {
-      route = _route.default.extend({
-        _actions: {
-          bar: function () {
-            ok(true, 'called bar action');
+            return {
+              class: Post,
+              create: function () {
+                return Post.create();
+              }
+            };
           }
         }
-      }, {
+      }));
+
+      route.set('_qp', null);
+
+      assert.equal(route.model({ post_id: 1 }), post);
+      assert.equal(route.findModel('post', 1), post, '#findModel returns the correct post');
+    };
+
+    _class.prototype['@test \'store\' can be injected by data persistence frameworks'] = function (assert) {
+      assert.expect(8);
+      (0, _internalTestHelpers.runDestroy)(route);
+
+      var owner = (0, _internalTestHelpers.buildOwner)();
+
+      var post = {
+        id: 1
+      };
+
+      var Store = _emberRuntime.Object.extend({
+        find: function (type, value) {
+          assert.ok(true, 'injected model was called');
+          assert.equal(type, 'post', 'correct type was called');
+          assert.equal(value, 1, 'correct value was called');
+          return post;
+        }
+      });
+
+      owner.register('route:index', _route.default);
+      owner.register('store:main', Store);
+
+      owner.inject('route', 'store', 'store:main');
+
+      route = owner.lookup('route:index');
+
+      assert.equal(route.model({ post_id: 1 }), post, '#model returns the correct post');
+      assert.equal(route.findModel('post', 1), post, '#findModel returns the correct post');
+    };
+
+    _class.prototype['@test assert if \'store.find\' method is not found'] = function () {
+      (0, _internalTestHelpers.runDestroy)(route);
+
+      var owner = (0, _internalTestHelpers.buildOwner)();
+      var Post = _emberRuntime.Object.extend();
+
+      owner.register('route:index', _route.default);
+      owner.register('model:post', Post);
+
+      route = owner.lookup('route:index');
+
+      expectAssertion(function () {
+        route.findModel('post', 1);
+      }, 'Post has no method `find`.');
+    };
+
+    _class.prototype['@test asserts if model class is not found'] = function () {
+      (0, _internalTestHelpers.runDestroy)(route);
+
+      var owner = (0, _internalTestHelpers.buildOwner)();
+      owner.register('route:index', _route.default);
+
+      route = owner.lookup('route:index');
+
+      expectAssertion(function () {
+        route.model({ post_id: 1 });
+      }, /You used the dynamic segment post_id in your route undefined, but <Ember.Object:ember\d+>.Post did not exist and you did not override your route\'s `model` hook./);
+    };
+
+    _class.prototype['@test \'store\' does not need to be injected'] = function (assert) {
+      (0, _internalTestHelpers.runDestroy)(route);
+
+      var owner = (0, _internalTestHelpers.buildOwner)();
+
+      owner.register('route:index', _route.default);
+
+      route = owner.lookup('route:index');
+
+      ignoreAssertion(function () {
+        route.model({ post_id: 1 });
+      });
+
+      assert.ok(true, 'no error was raised');
+    };
+
+    _class.prototype['@test modelFor doesn\'t require the router'] = function (assert) {
+      var owner = (0, _internalTestHelpers.buildOwner)();
+      (0, _emberUtils.setOwner)(route, owner);
+
+      var foo = { name: 'foo' };
+
+      var FooRoute = _route.default.extend({
+        currentModel: foo
+      });
+
+      owner.register('route:foo', FooRoute);
+
+      assert.strictEqual(route.modelFor('foo'), foo);
+    };
+
+    _class.prototype['@test .send just calls an action if the router is absent'] = function (assert) {
+      assert.expect(7);
+      var route = _route.default.extend({
         actions: {
-          foo: function () {
-            ok(true, 'called foo action');
+          returnsTrue: function (foo, bar) {
+            assert.equal(foo, 1);
+            assert.equal(bar, 2);
+            assert.equal(this, route);
+            return true;
+          },
+          returnsFalse: function () {
+            assert.ok(true, 'returnsFalse was called');
+            return false;
           }
         }
       }).create();
-    }, 'Specifying actions in `_actions` is deprecated, please use `actions` instead.');
 
-    route.send('foo');
-    route.send('bar');
-  });
+      assert.equal(true, route.send('returnsTrue', 1, 2));
+      assert.equal(false, route.send('returnsFalse'));
+      assert.equal(undefined, route.send('nonexistent', 1, 2, 3));
+    };
 
-  QUnit.module('Ember.Route serialize', {
-    setup: setup,
-    teardown: teardown
-  });
+    _class.prototype['@test .send just calls an action if the routers internal router property is absent'] = function (assert) {
+      assert.expect(7);
+      var route = _route.default.extend({
+        router: {},
+        actions: {
+          returnsTrue: function (foo, bar) {
+            assert.equal(foo, 1);
+            assert.equal(bar, 2);
+            assert.equal(this, route);
+            return true;
+          },
+          returnsFalse: function () {
+            assert.ok(true, 'returnsFalse was called');
+            return false;
+          }
+        }
+      }).create();
 
-  QUnit.test('returns the models properties if params does not include *_id', function () {
+      assert.equal(true, route.send('returnsTrue', 1, 2));
+      assert.equal(false, route.send('returnsFalse'));
+      assert.equal(undefined, route.send('nonexistent', 1, 2, 3));
+    };
 
-    deepEqual(route.serialize({ id: 2, firstName: 'Ned', lastName: 'Ryerson' }, ['firstName', 'lastName']), { firstName: 'Ned', lastName: 'Ryerson' }, 'serialized correctly');
-  });
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
 
-  QUnit.test('returns model.id if params include *_id', function () {
+  (0, _internalTestHelpers.moduleFor)('Ember.Route serialize', function (_AbstractTestCase2) {
+    (0, _emberBabel.inherits)(_class2, _AbstractTestCase2);
 
-    deepEqual(route.serialize({ id: 2 }, ['post_id']), { post_id: 2 }, 'serialized correctly');
-  });
+    function _class2() {
 
-  QUnit.test('returns checks for existence of model.post_id before trying model.id', function () {
+      var _this2 = (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase2.call(this));
 
-    deepEqual(route.serialize({ post_id: 3 }, ['post_id']), { post_id: 3 }, 'serialized correctly');
-  });
+      route = _route.default.create();
+      return _this2;
+    }
 
-  QUnit.test('returns undefined if model is not set', function () {
-    equal(route.serialize(undefined, ['post_id']), undefined, 'serialized correctly');
-  });
+    _class2.prototype.teardown = function () {
+      (0, _internalTestHelpers.runDestroy)(route);
+    };
 
-  QUnit.module('Ember.Route interaction', {
-    setup: function () {
+    _class2.prototype['@test returns the models properties if params does not include *_id'] = function (assert) {
+
+      assert.deepEqual(route.serialize({ id: 2, firstName: 'Ned', lastName: 'Ryerson' }, ['firstName', 'lastName']), { firstName: 'Ned', lastName: 'Ryerson' }, 'serialized correctly');
+    };
+
+    _class2.prototype['@test returns model.id if params include *_id'] = function (assert) {
+
+      assert.deepEqual(route.serialize({ id: 2 }, ['post_id']), { post_id: 2 }, 'serialized correctly');
+    };
+
+    _class2.prototype['@test returns checks for existence of model.post_id before trying model.id'] = function (assert) {
+
+      assert.deepEqual(route.serialize({ post_id: 3 }, ['post_id']), { post_id: 3 }, 'serialized correctly');
+    };
+
+    _class2.prototype['@test returns undefined if model is not set'] = function () {
+      equal(route.serialize(undefined, ['post_id']), undefined, 'serialized correctly');
+    };
+
+    return _class2;
+  }(_internalTestHelpers.AbstractTestCase));
+
+  (0, _internalTestHelpers.moduleFor)('Ember.Route interaction', function (_AbstractTestCase3) {
+    (0, _emberBabel.inherits)(_class3, _AbstractTestCase3);
+
+    function _class3() {
+
+      var _this3 = (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase3.call(this));
+
       var owner = {
         lookup: function (fullName) {
           return lookupHash[fullName];
@@ -45945,232 +45958,244 @@ enifed('ember-routing/tests/system/route_test', ['ember-utils', 'internal-test-h
         'route:one': routeOne,
         'route:two': routeTwo
       };
-    },
-    teardown: function () {
+      return _this3;
+    }
+
+    _class3.prototype.teardown = function () {
       (0, _internalTestHelpers.runDestroy)(routeOne);
       (0, _internalTestHelpers.runDestroy)(routeTwo);
+    };
+
+    _class3.prototype['@test route._qp does not crash if the controller has no QP, or setProperties'] = function (assert) {
+      lookupHash['controller:test'] = {};
+
+      routeOne.controllerName = 'test';
+      var qp = routeOne.get('_qp');
+
+      assert.deepEqual(qp.map, {}, 'map should be empty');
+      assert.deepEqual(qp.propertyNames, [], 'property names should be empty');
+      assert.deepEqual(qp.qps, [], 'qps is should be empty');
+    };
+
+    _class3.prototype['@test controllerFor uses route\'s controllerName if specified'] = function (assert) {
+      var testController = {};
+      lookupHash['controller:test'] = testController;
+
+      routeOne.controllerName = 'test';
+
+      assert.equal(routeTwo.controllerFor('one'), testController);
+    };
+
+    return _class3;
+  }(_internalTestHelpers.AbstractTestCase));
+
+  (0, _internalTestHelpers.moduleFor)('Route injected properties', function (_AbstractTestCase4) {
+    (0, _emberBabel.inherits)(_class4, _AbstractTestCase4);
+
+    function _class4() {
+      return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase4.apply(this, arguments));
     }
-  });
 
-  QUnit.test('route._qp does not crash if the controller has no QP, or setProperties', function () {
-    lookupHash['controller:test'] = {};
+    _class4.prototype['@test services can be injected into routes'] = function (assert) {
+      var owner = (0, _internalTestHelpers.buildOwner)();
 
-    routeOne.controllerName = 'test';
-    var qp = routeOne.get('_qp');
+      owner.register('route:application', _route.default.extend({
+        authService: _emberRuntime.inject.service('auth')
+      }));
 
-    deepEqual(qp.map, {}, 'map should be empty');
-    deepEqual(qp.propertyNames, [], 'property names should be empty');
-    deepEqual(qp.qps, [], 'qps is should be empty');
-  });
+      owner.register('service:auth', _emberRuntime.Service.extend());
 
-  QUnit.test('controllerFor uses route\'s controllerName if specified', function () {
-    var testController = {};
-    lookupHash['controller:test'] = testController;
+      var appRoute = owner.lookup('route:application');
+      var authService = owner.lookup('service:auth');
 
-    routeOne.controllerName = 'test';
-
-    equal(routeTwo.controllerFor('one'), testController);
-  });
-
-  QUnit.module('Route injected properties');
-
-  QUnit.test('services can be injected into routes', function () {
-    var owner = (0, _internalTestHelpers.buildOwner)();
-
-    owner.register('route:application', _route.default.extend({
-      authService: _emberRuntime.inject.service('auth')
-    }));
-
-    owner.register('service:auth', _emberRuntime.Service.extend());
-
-    var appRoute = owner.lookup('route:application');
-    var authService = owner.lookup('service:auth');
-
-    equal(authService, appRoute.get('authService'), 'service.auth is injected');
-  });
-
-  QUnit.module('Ember.Route with engines');
-
-  QUnit.test('paramsFor considers an engine\'s mountPoint', function (assert) {
-    expect(2);
-
-    var router = {
-      _deserializeQueryParams: function () {},
-
-      _routerMicrolib: {
-        state: {
-          handlerInfos: [{ name: 'posts' }],
-          params: {
-            'foo.bar': { a: 'b' },
-            'foo.bar.posts': { c: 'd' }
-          }
-        }
-      }
+      assert.equal(authService, appRoute.get('authService'), 'service.auth is injected');
     };
 
-    var engineInstance = (0, _internalTestHelpers.buildOwner)({
-      ownerOptions: {
-        routable: true,
+    return _class4;
+  }(_internalTestHelpers.AbstractTestCase));
 
-        mountPoint: 'foo.bar',
+  (0, _internalTestHelpers.moduleFor)('Ember.Route with engines', function (_AbstractTestCase5) {
+    (0, _emberBabel.inherits)(_class5, _AbstractTestCase5);
 
-        lookup: function (name) {
-          if (name === 'route:posts') {
-            return postsRoute;
-          } else if (name === 'route:application') {
-            return applicationRoute;
+    function _class5() {
+      return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase5.apply(this, arguments));
+    }
+
+    _class5.prototype['@test paramsFor considers an engine\'s mountPoint'] = function (assert) {
+      var router = {
+        _deserializeQueryParams: function () {},
+
+        _routerMicrolib: {
+          state: {
+            handlerInfos: [{ name: 'posts' }],
+            params: {
+              'foo.bar': { a: 'b' },
+              'foo.bar.posts': { c: 'd' }
+            }
           }
         }
-      }
-    });
+      };
 
-    var applicationRoute = _route.default.create({ router: router, routeName: 'application', fullRouteName: 'foo.bar' });
-    var postsRoute = _route.default.create({ router: router, routeName: 'posts', fullRouteName: 'foo.bar.posts' });
-    var route = _route.default.create({ router: router });
+      var engineInstance = (0, _internalTestHelpers.buildOwner)({
+        ownerOptions: {
+          routable: true,
 
-    (0, _emberUtils.setOwner)(applicationRoute, engineInstance);
-    (0, _emberUtils.setOwner)(postsRoute, engineInstance);
-    (0, _emberUtils.setOwner)(route, engineInstance);
+          mountPoint: 'foo.bar',
 
-    assert.deepEqual(route.paramsFor('application'), { a: 'b' }, 'params match for root `application` route in engine');
-    assert.deepEqual(route.paramsFor('posts'), { c: 'd' }, 'params match for `posts` route in engine');
-  });
-
-  QUnit.test('modelFor considers an engine\'s mountPoint', function () {
-    expect(2);
-
-    var applicationModel = { id: '1' };
-    var postsModel = { id: '2' };
-
-    var router = {
-      _routerMicrolib: {
-        activeTransition: {
-          resolvedModels: {
-            'foo.bar': applicationModel,
-            'foo.bar.posts': postsModel
+          lookup: function (name) {
+            if (name === 'route:posts') {
+              return postsRoute;
+            } else if (name === 'route:application') {
+              return applicationRoute;
+            }
           }
         }
-      }
+      });
+
+      var applicationRoute = _route.default.create({ router: router, routeName: 'application', fullRouteName: 'foo.bar' });
+      var postsRoute = _route.default.create({ router: router, routeName: 'posts', fullRouteName: 'foo.bar.posts' });
+      var route = _route.default.create({ router: router });
+
+      (0, _emberUtils.setOwner)(applicationRoute, engineInstance);
+      (0, _emberUtils.setOwner)(postsRoute, engineInstance);
+      (0, _emberUtils.setOwner)(route, engineInstance);
+
+      assert.deepEqual(route.paramsFor('application'), { a: 'b' }, 'params match for root `application` route in engine');
+      assert.deepEqual(route.paramsFor('posts'), { c: 'd' }, 'params match for `posts` route in engine');
     };
 
-    var engineInstance = (0, _internalTestHelpers.buildOwner)({
-      ownerOptions: {
-        routable: true,
+    _class5.prototype['@test modelFor considers an engine\'s mountPoint'] = function (assert) {
+      var applicationModel = { id: '1' };
+      var postsModel = { id: '2' };
 
-        mountPoint: 'foo.bar',
-
-        lookup: function (name) {
-          if (name === 'route:posts') {
-            return postsRoute;
-          } else if (name === 'route:application') {
-            return applicationRoute;
+      var router = {
+        _routerMicrolib: {
+          activeTransition: {
+            resolvedModels: {
+              'foo.bar': applicationModel,
+              'foo.bar.posts': postsModel
+            }
           }
         }
-      }
-    });
+      };
 
-    var applicationRoute = _route.default.create({ router: router, routeName: 'application' });
-    var postsRoute = _route.default.create({ router: router, routeName: 'posts' });
-    var route = _route.default.create({ router: router });
+      var engineInstance = (0, _internalTestHelpers.buildOwner)({
+        ownerOptions: {
+          routable: true,
 
-    (0, _emberUtils.setOwner)(applicationRoute, engineInstance);
-    (0, _emberUtils.setOwner)(postsRoute, engineInstance);
-    (0, _emberUtils.setOwner)(route, engineInstance);
+          mountPoint: 'foo.bar',
 
-    strictEqual(route.modelFor('application'), applicationModel);
-    strictEqual(route.modelFor('posts'), postsModel);
-  });
-
-  QUnit.test('transitionTo considers an engine\'s mountPoint', function () {
-    expect(4);
-
-    var engineInstance = (0, _internalTestHelpers.buildOwner)({
-      ownerOptions: {
-        routable: true,
-        mountPoint: 'foo.bar'
-      }
-    });
-
-    var route = _route.default.create({ router: {
-        transitionTo: function (route) {
-          return route;
+          lookup: function (name) {
+            if (name === 'route:posts') {
+              return postsRoute;
+            } else if (name === 'route:application') {
+              return applicationRoute;
+            }
+          }
         }
-      } });
-    (0, _emberUtils.setOwner)(route, engineInstance);
+      });
 
-    strictEqual(route.transitionTo('application'), 'foo.bar.application', 'properly prefixes application route');
-    strictEqual(route.transitionTo('posts'), 'foo.bar.posts', 'properly prefixes child routes');
-    throws(function () {
-      return route.transitionTo('/posts');
-    }, 'throws when trying to use a url');
+      var applicationRoute = _route.default.create({ router: router, routeName: 'application' });
+      var postsRoute = _route.default.create({ router: router, routeName: 'posts' });
+      var route = _route.default.create({ router: router });
 
-    var queryParams = {};
-    strictEqual(route.transitionTo(queryParams), queryParams, 'passes query param only transitions through');
-  });
+      (0, _emberUtils.setOwner)(applicationRoute, engineInstance);
+      (0, _emberUtils.setOwner)(postsRoute, engineInstance);
+      (0, _emberUtils.setOwner)(route, engineInstance);
 
-  QUnit.test('intermediateTransitionTo considers an engine\'s mountPoint', function () {
-    expect(4);
+      assert.strictEqual(route.modelFor('application'), applicationModel);
+      assert.strictEqual(route.modelFor('posts'), postsModel);
+    };
 
-    var lastRoute = void 0;
+    _class5.prototype['@test transitionTo considers an engine\'s mountPoint'] = function (assert) {
 
-
-    var engineInstance = (0, _internalTestHelpers.buildOwner)({
-      ownerOptions: {
-        routable: true,
-        mountPoint: 'foo.bar'
-      }
-    });
-
-    var route = _route.default.create({ router: {
-        intermediateTransitionTo: function (route) {
-          lastRoute = route;
+      var engineInstance = (0, _internalTestHelpers.buildOwner)({
+        ownerOptions: {
+          routable: true,
+          mountPoint: 'foo.bar'
         }
-      } });
-    (0, _emberUtils.setOwner)(route, engineInstance);
+      });
 
-    route.intermediateTransitionTo('application');
-    strictEqual(lastRoute, 'foo.bar.application', 'properly prefixes application route');
+      var route = _route.default.create({ router: {
+          transitionTo: function (route) {
+            return route;
+          }
+        } });
+      (0, _emberUtils.setOwner)(route, engineInstance);
 
-    route.intermediateTransitionTo('posts');
-    strictEqual(lastRoute, 'foo.bar.posts', 'properly prefixes child routes');
+      assert.strictEqual(route.transitionTo('application'), 'foo.bar.application', 'properly prefixes application route');
+      assert.strictEqual(route.transitionTo('posts'), 'foo.bar.posts', 'properly prefixes child routes');
+      assert.throws(function () {
+        return route.transitionTo('/posts');
+      }, 'throws when trying to use a url');
 
-    throws(function () {
-      return route.intermediateTransitionTo('/posts');
-    }, 'throws when trying to use a url');
+      var queryParams = {};
+      assert.strictEqual(route.transitionTo(queryParams), queryParams, 'passes query param only transitions through');
+    };
 
-    var queryParams = {};
-    route.intermediateTransitionTo(queryParams);
-    strictEqual(lastRoute, queryParams, 'passes query param only transitions through');
-  });
+    _class5.prototype['@test intermediateTransitionTo considers an engine\'s mountPoint'] = function (assert) {
+      var lastRoute = void 0;
 
-  QUnit.test('replaceWith considers an engine\'s mountPoint', function () {
-    expect(4);
 
-    var engineInstance = (0, _internalTestHelpers.buildOwner)({
-      ownerOptions: {
-        routable: true,
-        mountPoint: 'foo.bar'
-      }
-    });
-
-    var route = _route.default.create({ router: {
-        replaceWith: function (route) {
-          return route;
+      var engineInstance = (0, _internalTestHelpers.buildOwner)({
+        ownerOptions: {
+          routable: true,
+          mountPoint: 'foo.bar'
         }
-      } });
-    (0, _emberUtils.setOwner)(route, engineInstance);
+      });
 
-    strictEqual(route.replaceWith('application'), 'foo.bar.application', 'properly prefixes application route');
-    strictEqual(route.replaceWith('posts'), 'foo.bar.posts', 'properly prefixes child routes');
-    throws(function () {
-      return route.replaceWith('/posts');
-    }, 'throws when trying to use a url');
+      var route = _route.default.create({ router: {
+          intermediateTransitionTo: function (route) {
+            lastRoute = route;
+          }
+        } });
+      (0, _emberUtils.setOwner)(route, engineInstance);
 
-    var queryParams = {};
-    strictEqual(route.replaceWith(queryParams), queryParams, 'passes query param only transitions through');
-  });
+      route.intermediateTransitionTo('application');
+      assert.strictEqual(lastRoute, 'foo.bar.application', 'properly prefixes application route');
+
+      route.intermediateTransitionTo('posts');
+      assert.strictEqual(lastRoute, 'foo.bar.posts', 'properly prefixes child routes');
+
+      assert.throws(function () {
+        return route.intermediateTransitionTo('/posts');
+      }, 'throws when trying to use a url');
+
+      var queryParams = {};
+      route.intermediateTransitionTo(queryParams);
+      assert.strictEqual(lastRoute, queryParams, 'passes query param only transitions through');
+    };
+
+    _class5.prototype['@test replaceWith considers an engine\'s mountPoint'] = function (assert) {
+
+      var engineInstance = (0, _internalTestHelpers.buildOwner)({
+        ownerOptions: {
+          routable: true,
+          mountPoint: 'foo.bar'
+        }
+      });
+
+      var route = _route.default.create({ router: {
+          replaceWith: function (route) {
+            return route;
+          }
+        } });
+      (0, _emberUtils.setOwner)(route, engineInstance);
+
+      assert.strictEqual(route.replaceWith('application'), 'foo.bar.application', 'properly prefixes application route');
+      assert.strictEqual(route.replaceWith('posts'), 'foo.bar.posts', 'properly prefixes child routes');
+      assert.throws(function () {
+        return route.replaceWith('/posts');
+      }, 'throws when trying to use a url');
+
+      var queryParams = {};
+      assert.strictEqual(route.replaceWith(queryParams), queryParams, 'passes query param only transitions through');
+    };
+
+    return _class5;
+  }(_internalTestHelpers.AbstractTestCase));
 });
-enifed('ember-routing/tests/system/router_test', ['ember-utils', 'ember-routing/location/hash_location', 'ember-routing/location/history_location', 'ember-routing/location/auto_location', 'ember-routing/location/none_location', 'ember-routing/system/router', 'internal-test-helpers'], function (_emberUtils, _hash_location, _history_location, _auto_location, _none_location, _router, _internalTestHelpers) {
+enifed('ember-routing/tests/system/router_test', ['ember-babel', 'ember-utils', 'ember-routing/location/hash_location', 'ember-routing/location/history_location', 'ember-routing/location/auto_location', 'ember-routing/location/none_location', 'ember-routing/system/router', 'internal-test-helpers'], function (_emberBabel, _emberUtils, _hash_location, _history_location, _auto_location, _none_location, _router, _internalTestHelpers) {
   'use strict';
 
   var owner = void 0;
@@ -46192,8 +46217,13 @@ enifed('ember-routing/tests/system/router_test', ['ember-utils', 'ember-routing/
     return router;
   }
 
-  QUnit.module('Ember Router', {
-    setup: function () {
+  (0, _internalTestHelpers.moduleFor)('Ember Router', function (_AbstractTestCase) {
+    (0, _emberBabel.inherits)(_class, _AbstractTestCase);
+
+    function _class() {
+
+      var _this = (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase.call(this));
+
       owner = (0, _internalTestHelpers.buildOwner)();
 
       //register the HashLocation (the default)
@@ -46201,264 +46231,274 @@ enifed('ember-routing/tests/system/router_test', ['ember-utils', 'ember-routing/
       owner.register('location:history', _history_location.default);
       owner.register('location:auto', _auto_location.default);
       owner.register('location:none', _none_location.default);
-    },
-    teardown: function () {
+      return _this;
+    }
+
+    _class.prototype.teardown = function () {
       (0, _internalTestHelpers.runDestroy)(owner);
       owner = null;
-    }
-  });
-
-  QUnit.test('can create a router without an owner', function () {
-    createRouter(null, { disableSetup: true, skipOwner: true });
-
-    ok(true, 'no errors were thrown when creating without a container');
-  });
-
-  QUnit.test('[GH#15237] EmberError is imported correctly', function () {
-    // If we get the right message it means Error is being imported correctly.
-    throws(function () {
-      (0, _router.triggerEvent)(null, false, []);
-    }, /because your app hasn't finished transitioning/);
-  });
-
-  QUnit.test('should not create a router.js instance upon init', function () {
-    var router = createRouter(null, { disableSetup: true });
-
-    ok(!router._routerMicrolib);
-  });
-
-  QUnit.test('should not reify location until setupRouter is called', function () {
-    var router = createRouter(null, { disableSetup: true });
-    equal(typeof router.location, 'string', 'location is specified as a string');
-
-    router.setupRouter();
-
-    equal(typeof router.location, 'object', 'location is reified into an object');
-  });
-
-  QUnit.test('should destroy its location upon destroying the routers owner.', function () {
-    var router = createRouter();
-    var location = router.get('location');
-
-    (0, _internalTestHelpers.runDestroy)(owner);
-
-    ok(location.isDestroyed, 'location should be destroyed');
-  });
-
-  QUnit.test('should instantiate its location with its `rootURL`', function () {
-    var router = createRouter({
-      rootURL: '/rootdir/'
-    });
-    var location = router.get('location');
-
-    equal(location.get('rootURL'), '/rootdir/');
-  });
-
-  QUnit.test('replacePath should be called with the right path', function () {
-    expect(1);
-
-    var location = owner.lookup('location:auto');
-
-    location.location = {
-      href: 'http://test.com/rootdir/welcome',
-      origin: 'http://test.com',
-      pathname: '/rootdir/welcome',
-      hash: '',
-      search: '',
-      replace: function (url) {
-        equal(url, 'http://test.com/rootdir/#/welcome');
-      }
     };
-    location.global = {
-      onhashchange: function () {}
+
+    _class.prototype['@test can create a router without an owner'] = function (assert) {
+      createRouter(null, { disableSetup: true, skipOwner: true });
+
+      assert.ok(true, 'no errors were thrown when creating without a container');
     };
-    location.history = null;
 
-    createRouter({
-      location: 'auto',
-      rootURL: '/rootdir/'
-    });
-  });
+    _class.prototype['@test [GH#15237] EmberError is imported correctly'] = function (assert) {
+      // If we get the right message it means Error is being imported correctly.
+      assert.throws(function () {
+        (0, _router.triggerEvent)(null, false, []);
+      }, /because your app hasn't finished transitioning/);
+    };
 
-  QUnit.test('Ember.Router._routePath should consume identical prefixes', function () {
-    createRouter();
+    _class.prototype['@test should not create a router.js instance upon init'] = function (assert) {
+      var router = createRouter(null, { disableSetup: true });
 
-    expect(8);
+      assert.ok(!router._routerMicrolib);
+    };
 
-    function routePath() {
-      var handlerInfos = Array.prototype.slice.call(arguments).map(function (s) {
-        return { name: s };
+    _class.prototype['@test should not reify location until setupRouter is called'] = function (assert) {
+      var router = createRouter(null, { disableSetup: true });
+      assert.equal(typeof router.location, 'string', 'location is specified as a string');
+
+      router.setupRouter();
+
+      assert.equal(typeof router.location, 'object', 'location is reified into an object');
+    };
+
+    _class.prototype['@test should destroy its location upon destroying the routers owner.'] = function (assert) {
+      var router = createRouter();
+      var location = router.get('location');
+
+      (0, _internalTestHelpers.runDestroy)(owner);
+
+      assert.ok(location.isDestroyed, 'location should be destroyed');
+    };
+
+    _class.prototype['@test should instantiate its location with its `rootURL`'] = function (assert) {
+      var router = createRouter({
+        rootURL: '/rootdir/'
       });
-      handlerInfos.unshift({ name: 'ignored' });
+      var location = router.get('location');
 
-      return _router.default._routePath(handlerInfos);
-    }
-
-    equal(routePath('foo'), 'foo');
-    equal(routePath('foo', 'bar', 'baz'), 'foo.bar.baz');
-    equal(routePath('foo', 'foo.bar'), 'foo.bar');
-    equal(routePath('foo', 'foo.bar', 'foo.bar.baz'), 'foo.bar.baz');
-    equal(routePath('foo', 'foo.bar', 'foo.bar.baz.wow'), 'foo.bar.baz.wow');
-    equal(routePath('foo', 'foo.bar.baz.wow'), 'foo.bar.baz.wow');
-    equal(routePath('foo.bar', 'bar.baz.wow'), 'foo.bar.baz.wow');
-
-    // This makes no sense, not trying to handle it, just
-    // making sure it doesn't go boom.
-    equal(routePath('foo.bar.baz', 'foo'), 'foo.bar.baz.foo');
-  });
-
-  QUnit.test('Router should cancel routing setup when the Location class says so via cancelRouterSetup', function () {
-    expect(0);
-
-    var router = void 0;
-
-
-    owner.register('location:fake', {
-      cancelRouterSetup: true,
-      create: function () {
-        return this;
-      }
-    });
-
-    router = createRouter({
-      location: 'fake',
-
-      _setupRouter: function () {
-        ok(false, '_setupRouter should not be called');
-      }
-    });
-
-    router.startRouting();
-  });
-
-  QUnit.test('AutoLocation should replace the url when it\'s not in the preferred format', function () {
-    expect(1);
-
-    var location = owner.lookup('location:auto');
-
-    location.location = {
-      href: 'http://test.com/rootdir/welcome',
-      origin: 'http://test.com',
-      pathname: '/rootdir/welcome',
-      hash: '',
-      search: '',
-      replace: function (url) {
-        equal(url, 'http://test.com/rootdir/#/welcome');
-      }
-    };
-    location.history = null;
-    location.global = {
-      onhashchange: function () {}
+      assert.equal(location.get('rootURL'), '/rootdir/');
     };
 
-    createRouter({
-      location: 'auto',
-      rootURL: '/rootdir/'
-    });
-  });
+    _class.prototype['@test replacePath should be called with the right path'] = function (assert) {
+      assert.expect(1);
 
-  QUnit.test('Router#handleURL should remove any #hashes before doing URL transition', function () {
-    expect(2);
+      var location = owner.lookup('location:auto');
 
-    var router = createRouter({
-      _doURLTransition: function (routerJsMethod, url) {
-        equal(routerJsMethod, 'handleURL');
-        equal(url, '/foo/bar?time=morphin');
+      location.location = {
+        href: 'http://test.com/rootdir/welcome',
+        origin: 'http://test.com',
+        pathname: '/rootdir/welcome',
+        hash: '',
+        search: '',
+        replace: function (url) {
+          assert.equal(url, 'http://test.com/rootdir/#/welcome');
+        }
+      };
+      location.global = {
+        onhashchange: function () {}
+      };
+      location.history = null;
+
+      createRouter({
+        location: 'auto',
+        rootURL: '/rootdir/'
+      });
+    };
+
+    _class.prototype['@test Ember.Router._routePath should consume identical prefixes'] = function (assert) {
+      createRouter();
+
+      function routePath() {
+        var handlerInfos = Array.prototype.slice.call(arguments).map(function (s) {
+          return { name: s };
+        });
+        handlerInfos.unshift({ name: 'ignored' });
+
+        return _router.default._routePath(handlerInfos);
       }
-    });
 
-    router.handleURL('/foo/bar?time=morphin#pink-power-ranger');
-  });
+      assert.equal(routePath('foo'), 'foo');
+      assert.equal(routePath('foo', 'bar', 'baz'), 'foo.bar.baz');
+      assert.equal(routePath('foo', 'foo.bar'), 'foo.bar');
+      assert.equal(routePath('foo', 'foo.bar', 'foo.bar.baz'), 'foo.bar.baz');
+      assert.equal(routePath('foo', 'foo.bar', 'foo.bar.baz.wow'), 'foo.bar.baz.wow');
+      assert.equal(routePath('foo', 'foo.bar.baz.wow'), 'foo.bar.baz.wow');
+      equal(routePath('foo.bar', 'bar.baz.wow'), 'foo.bar.baz.wow');
 
-  QUnit.test('Router#triggerEvent allows actions to bubble when returning true', function (assert) {
-    assert.expect(2);
+      // This makes no sense, not trying to handle it, just
+      // making sure it doesn't go boom.
+      assert.equal(routePath('foo.bar.baz', 'foo'), 'foo.bar.baz.foo');
+    };
 
-    (0, _router.triggerEvent)([{
-      name: 'application',
-      handler: {
-        actions: {
-          loading: function () {
-            assert.ok(false, 'loading not handled by application route');
+    _class.prototype['@test Router should cancel routing setup when the Location class says so via cancelRouterSetup'] = function (assert) {
+      assert.expect(0);
+
+      var router = void 0;
+
+
+      owner.register('location:fake', {
+        cancelRouterSetup: true,
+        create: function () {
+          return this;
+        }
+      });
+
+      router = createRouter({
+        location: 'fake',
+
+        _setupRouter: function () {
+          assert.ok(false, '_setupRouter should not be called');
+        }
+      });
+
+      router.startRouting();
+    };
+
+    _class.prototype['@test AutoLocation should replace the url when it\'s not in the preferred format'] = function (assert) {
+      assert.expect(1);
+
+      var location = owner.lookup('location:auto');
+
+      location.location = {
+        href: 'http://test.com/rootdir/welcome',
+        origin: 'http://test.com',
+        pathname: '/rootdir/welcome',
+        hash: '',
+        search: '',
+        replace: function (url) {
+          assert.equal(url, 'http://test.com/rootdir/#/welcome');
+        }
+      };
+      location.history = null;
+      location.global = {
+        onhashchange: function () {}
+      };
+
+      createRouter({
+        location: 'auto',
+        rootURL: '/rootdir/'
+      });
+    };
+
+    _class.prototype['@test Router#handleURL should remove any #hashes before doing URL transition'] = function (assert) {
+      assert.expect(2);
+
+      var router = createRouter({
+        _doURLTransition: function (routerJsMethod, url) {
+          assert.equal(routerJsMethod, 'handleURL');
+          assert.equal(url, '/foo/bar?time=morphin');
+        }
+      });
+
+      router.handleURL('/foo/bar?time=morphin#pink-power-ranger');
+    };
+
+    _class.prototype['@test Router#triggerEvent allows actions to bubble when returning true'] = function (assert) {
+      assert.expect(2);
+
+      (0, _router.triggerEvent)([{
+        name: 'application',
+        handler: {
+          actions: {
+            loading: function () {
+              assert.ok(false, 'loading not handled by application route');
+            }
           }
         }
-      }
-    }, {
-      name: 'about',
-      handler: {
-        actions: {
-          loading: function () {
-            assert.ok(true, 'loading handled by about route');
-            return false;
+      }, {
+        name: 'about',
+        handler: {
+          actions: {
+            loading: function () {
+              assert.ok(true, 'loading handled by about route');
+              return false;
+            }
           }
         }
-      }
-    }, {
-      name: 'about.me',
-      handler: {
-        actions: {
-          loading: function () {
-            assert.ok(true, 'loading handled by about.me route');
-            return true;
+      }, {
+        name: 'about.me',
+        handler: {
+          actions: {
+            loading: function () {
+              assert.ok(true, 'loading handled by about.me route');
+              return true;
+            }
           }
         }
-      }
-    }], false, ['loading']);
-  });
+      }], false, ['loading']);
+    };
 
-  QUnit.test('Router#triggerEvent ignores handlers that have not loaded yet', function (assert) {
-    assert.expect(1);
+    _class.prototype['@test Router#triggerEvent ignores handlers that have not loaded yet'] = function (assert) {
+      assert.expect(1);
 
-    var handlerInfos = [{
-      name: 'about',
-      handler: {
-        actions: {
-          loading: function () {
-            assert.ok(true, 'loading handled by about route');
+      var handlerInfos = [{
+        name: 'about',
+        handler: {
+          actions: {
+            loading: function () {
+              assert.ok(true, 'loading handled by about route');
+            }
           }
         }
-      }
-    }, {
-      name: 'about.me',
-      handler: undefined
-    }];
+      }, {
+        name: 'about.me',
+        handler: undefined
+      }];
 
-    (0, _router.triggerEvent)(handlerInfos, false, ['loading']);
-  });
+      (0, _router.triggerEvent)(handlerInfos, false, ['loading']);
+    };
+
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
 });
-enifed('ember-routing/tests/utils_test', ['ember-routing/utils'], function (_utils) {
+enifed('ember-routing/tests/utils_test', ['ember-babel', 'ember-routing/utils', 'internal-test-helpers'], function (_emberBabel, _utils, _internalTestHelpers) {
   'use strict';
 
-  QUnit.module('Routing query parameter utils - normalizeControllerQueryParams');
+  (0, _internalTestHelpers.moduleFor)('Routing query parameter utils - normalizeControllerQueryParams', function (_AbstractTestCase) {
+    (0, _emberBabel.inherits)(_class, _AbstractTestCase);
 
-  QUnit.test('converts array style into verbose object style', function () {
-    var paramName = 'foo';
+    function _class() {
+      return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase.apply(this, arguments));
+    }
 
-    var normalized = (0, _utils.normalizeControllerQueryParams)([paramName]);
+    _class.prototype['@test converts array style into verbose object style'] = function (assert) {
+      var paramName = 'foo';
 
-    ok(normalized[paramName], 'turns the query param name into key');
-    equal(normalized[paramName].as, null, 'includes a blank alias in \'as\' key');
-    equal(normalized[paramName].scope, 'model', 'defaults scope to model');
-  });
+      var normalized = (0, _utils.normalizeControllerQueryParams)([paramName]);
 
-  QUnit.test('converts object style [{foo: \'an_alias\'}]', function () {
-    var paramName = 'foo';
+      assert.ok(normalized[paramName], 'turns the query param name into key');
+      assert.equal(normalized[paramName].as, null, 'includes a blank alias in \'as\' key');
+      assert.equal(normalized[paramName].scope, 'model', 'defaults scope to model');
+    };
 
-    var normalized = (0, _utils.normalizeControllerQueryParams)([{ 'foo': 'an_alias' }]);
+    _class.prototype['@test converts object style [{foo: \'an_alias\'}]'] = function (assert) {
+      var paramName = 'foo';
 
-    ok(normalized[paramName], 'retains the query param name as key');
-    equal(normalized[paramName].as, 'an_alias', 'includes the provided alias in \'as\' key');
-    equal(normalized[paramName].scope, 'model', 'defaults scope to model');
-  });
+      var normalized = (0, _utils.normalizeControllerQueryParams)([{ 'foo': 'an_alias' }]);
 
-  QUnit.test('retains maximally verbose object style [{foo: {as: \'foo\'}}]', function () {
-    var paramName = 'foo';
+      assert.ok(normalized[paramName], 'retains the query param name as key');
+      assert.equal(normalized[paramName].as, 'an_alias', 'includes the provided alias in \'as\' key');
+      assert.equal(normalized[paramName].scope, 'model', 'defaults scope to model');
+    };
 
-    var normalized = (0, _utils.normalizeControllerQueryParams)([{ 'foo': { as: 'an_alias' } }]);
+    _class.prototype['@test retains maximally verbose object style [{foo: {as: \'foo\'}}]'] = function (assert) {
+      var paramName = 'foo';
 
-    ok(normalized[paramName], 'retains the query param name as key');
-    equal(normalized[paramName].as, 'an_alias', 'includes the provided alias in \'as\' key');
-    equal(normalized[paramName].scope, 'model', 'defaults scope to model');
-  });
+      var normalized = (0, _utils.normalizeControllerQueryParams)([{ 'foo': { as: 'an_alias' } }]);
+
+      assert.ok(normalized[paramName], 'retains the query param name as key');
+      assert.equal(normalized[paramName].as, 'an_alias', 'includes the provided alias in \'as\' key');
+      assert.equal(normalized[paramName].scope, 'model', 'defaults scope to model');
+    };
+
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
 });
 enifed('ember-runtime/tests/computed/computed_macros_test', ['ember-metal', 'ember-runtime/computed/computed_macros', 'internal-test-helpers', 'ember-runtime/system/object', 'ember-runtime/system/native_array'], function (_emberMetal, _computed_macros, _internalTestHelpers, _object, _native_array) {
   'use strict';
@@ -48428,22 +48468,6 @@ enifed('ember-runtime/tests/controllers/controller_test', ['ember-runtime/contro
   /* global EmberDev */
 
   QUnit.module('Controller event handling');
-
-  QUnit.test('can access `actions` hash via `_actions` [DEPRECATED]', function () {
-    expect(2);
-
-    var controller = _controller.default.extend({
-      actions: {
-        foo: function () {
-          ok(true, 'called foo action');
-        }
-      }
-    }).create();
-
-    expectDeprecation(function () {
-      controller._actions.foo();
-    }, 'Usage of `_actions` is deprecated, use `actions` instead.');
-  });
 
   QUnit.test('Action can be handled by a function on actions object', function () {
     expect(1);
@@ -51743,22 +51767,10 @@ enifed('ember-runtime/tests/mixins/container_proxy_test', ['ember-utils', 'conta
     assert.equal(result[_emberUtils.OWNER], this.instance, 'returns an object with the OWNER symbol');
   });
 });
-enifed('ember-runtime/tests/mixins/copyable_test', ['ember-utils', 'ember-runtime/tests/suites/copyable', 'ember-runtime/mixins/copyable', 'ember-runtime/mixins/freezable', 'ember-runtime/system/object', 'ember-metal'], function (_emberUtils, _copyable, _copyable2, _freezable, _object, _emberMetal) {
+enifed('ember-runtime/tests/mixins/copyable_test', ['ember-utils', 'ember-runtime/tests/suites/copyable', 'ember-runtime/mixins/copyable', 'ember-runtime/system/object', 'ember-metal'], function (_emberUtils, _copyable, _copyable2, _object, _emberMetal) {
   'use strict';
 
-  QUnit.module('Ember.Copyable.frozenCopy');
-
-  QUnit.test('should be deprecated', function () {
-    expectDeprecation('`frozenCopy` is deprecated, use `Object.freeze` instead.');
-
-    var Obj = _object.default.extend(_freezable.Freezable, _copyable2.default, {
-      copy: function () {
-        return Obj.create();
-      }
-    });
-
-    Obj.create().frozenCopy();
-  });
+  QUnit.module('Ember.Copyable');
 
   var CopyableObject = _object.default.extend(_copyable2.default, {
     id: null,
@@ -52144,16 +52156,6 @@ enifed('ember-runtime/tests/mixins/enumerable_test', ['ember-runtime/tests/suite
     deepEqual(observer._after, null);
   });
 });
-enifed('ember-runtime/tests/mixins/freezable_test', ['ember-runtime/system/object', 'ember-runtime/mixins/freezable'], function (_object, _freezable) {
-  'use strict';
-
-  QUnit.module('Ember.Freezable');
-
-  QUnit.test('should be deprecated', function () {
-    expectDeprecation('`Ember.Freezable` is deprecated, use `Object.freeze` instead.');
-    _object.default.extend(_freezable.Freezable).create();
-  });
-});
 enifed('ember-runtime/tests/mixins/mutable_array_test', ['ember-metal', 'ember-runtime/tests/suites/mutable_array', 'ember-runtime/mixins/mutable_array', 'ember-runtime/system/object', 'ember-runtime/system/native_array', 'ember-runtime/mixins/array'], function (_emberMetal, _mutable_array, _mutable_array2, _object, _native_array, _array) {
   'use strict';
 
@@ -52530,8 +52532,6 @@ enifed('ember-runtime/tests/mixins/promise_proxy_test', ['ember-metal', 'ember-r
 
   // https://github.com/emberjs/ember.js/issues/15694
   QUnit.test('rejection without specifying reason', function () {
-    new Error('failure');
-
     var deferred = _rsvp2.defer();
     var proxy = ObjectPromiseProxy.create({
       promise: deferred.promise
@@ -53072,7 +53072,7 @@ enifed('ember-runtime/tests/suites/array/indexOf', ['exports', 'ember-runtime/te
 
   exports.default = suite;
 });
-enifed('ember-runtime/tests/suites/array/lastIndexOf', ['exports', 'ember-runtime/tests/suites/suite'], function (exports, _suite) {
+enifed('ember-runtime/tests/suites/array/lastIndexOf', ['exports', 'ember-metal', 'ember-runtime/tests/suites/suite'], function (exports, _emberMetal, _suite) {
   'use strict';
 
   var suite = _suite.SuiteModuleBuilder.create();
@@ -53123,14 +53123,14 @@ enifed('ember-runtime/tests/suites/array/lastIndexOf', ['exports', 'ember-runtim
     var obj = this.newObject(this.newFixture(3));
 
 
-    equal(obj.lastIndexOf({}, obj.length), -1, 'obj.lastIndexOf(foo) should be -1');
+    equal(obj.lastIndexOf({}, (0, _emberMetal.get)(obj, 'length')), -1, 'obj.lastIndexOf(foo) should be -1');
   });
 
   suite.test('should return -1 when no match is found even startAt search location is greater than length', function () {
     var obj = this.newObject(this.newFixture(3));
 
 
-    equal(obj.lastIndexOf({}, obj.length + 1), -1, 'obj.lastIndexOf(foo) should be -1');
+    equal(obj.lastIndexOf({}, (0, _emberMetal.get)(obj, 'length') + 1), -1, 'obj.lastIndexOf(foo) should be -1');
   });
 
   exports.default = suite;
@@ -53165,7 +53165,7 @@ enifed('ember-runtime/tests/suites/array/objectAt', ['exports', 'ember-runtime/t
 
   exports.default = suite;
 });
-enifed('ember-runtime/tests/suites/copyable', ['exports', 'ember-runtime/tests/suites/suite', 'ember-runtime/tests/suites/copyable/copy', 'ember-runtime/tests/suites/copyable/frozenCopy'], function (exports, _suite, _copy, _frozenCopy) {
+enifed('ember-runtime/tests/suites/copyable', ['exports', 'ember-runtime/tests/suites/suite', 'ember-runtime/tests/suites/copyable/copy'], function (exports, _suite, _copy) {
   'use strict';
 
   var CopyableTests = _suite.Suite.extend({
@@ -53187,21 +53187,11 @@ enifed('ember-runtime/tests/suites/copyable', ['exports', 'ember-runtime/tests/s
         Second object
        @returns {Boolean}
     */
-    isEqual: null,
-
-    /*
-      Set this to true if you expect the objects you test to be freezable.
-      The suite will verify that your objects actually match this.  (i.e. if
-      you say you can't test freezable it will verify that your objects really
-      aren't freezable.)
-       @type Boolean
-    */
-    shouldBeFreezable: false
+    isEqual: null
 
   });
 
   CopyableTests.importModuleTests(_copy.default);
-  CopyableTests.importModuleTests(_frozenCopy.default);
 
   exports.default = CopyableTests;
 });
@@ -53220,38 +53210,7 @@ enifed('ember-runtime/tests/suites/copyable/copy', ['exports', 'ember-runtime/te
 
   exports.default = suite;
 });
-enifed('ember-runtime/tests/suites/copyable/frozenCopy', ['exports', 'ember-runtime/tests/suites/suite', 'ember-runtime/mixins/freezable', 'ember-metal'], function (exports, _suite, _freezable, _emberMetal) {
-  'use strict';
-
-  var suite = _suite.SuiteModuleBuilder.create();
-
-  suite.module('frozenCopy');
-
-  suite.test('frozen objects should return same instance', function () {
-    var obj = void 0,
-        copy = void 0;
-
-    obj = this.newObject();
-    if ((0, _emberMetal.get)(this, 'shouldBeFreezable')) {
-      expectDeprecation('`frozenCopy` is deprecated, use Object.freeze instead.');
-
-      ok(!_freezable.Freezable || _freezable.Freezable.detect(obj), 'object should be freezable');
-
-      copy = obj.frozenCopy();
-      ok(this.isEqual(obj, copy), 'new copy should be equal');
-      ok((0, _emberMetal.get)(copy, 'isFrozen'), 'returned value should be frozen');
-
-      copy = obj.freeze().frozenCopy();
-      equal(copy, obj, 'returns frozen object should be same');
-      ok((0, _emberMetal.get)(copy, 'isFrozen'), 'returned object should be frozen');
-    } else {
-      ok(!_freezable.Freezable || !_freezable.Freezable.detect(obj), 'object should not be freezable');
-    }
-  });
-
-  exports.default = suite;
-});
-enifed('ember-runtime/tests/suites/enumerable', ['exports', 'ember-utils', 'ember-runtime/tests/suites/suite', 'ember-runtime/system/object', 'ember-metal', 'ember-runtime/tests/suites/enumerable/any', 'ember-runtime/tests/suites/enumerable/is_any', 'ember-runtime/tests/suites/enumerable/compact', 'ember-runtime/tests/suites/enumerable/contains', 'ember-runtime/tests/suites/enumerable/includes', 'ember-runtime/tests/suites/enumerable/every', 'ember-runtime/tests/suites/enumerable/filter', 'ember-runtime/tests/suites/enumerable/find', 'ember-runtime/tests/suites/enumerable/firstObject', 'ember-runtime/tests/suites/enumerable/forEach', 'ember-runtime/tests/suites/enumerable/mapBy', 'ember-runtime/tests/suites/enumerable/invoke', 'ember-runtime/tests/suites/enumerable/lastObject', 'ember-runtime/tests/suites/enumerable/map', 'ember-runtime/tests/suites/enumerable/reduce', 'ember-runtime/tests/suites/enumerable/reject', 'ember-runtime/tests/suites/enumerable/sortBy', 'ember-runtime/tests/suites/enumerable/toArray', 'ember-runtime/tests/suites/enumerable/uniq', 'ember-runtime/tests/suites/enumerable/uniqBy', 'ember-runtime/tests/suites/enumerable/without'], function (exports, _emberUtils, _suite, _object, _emberMetal, _any, _is_any, _compact, _contains, _includes, _every, _filter, _find, _firstObject, _forEach, _mapBy, _invoke, _lastObject, _map, _reduce, _reject, _sortBy, _toArray, _uniq, _uniqBy, _without) {
+enifed('ember-runtime/tests/suites/enumerable', ['exports', 'ember-utils', 'ember-runtime/tests/suites/suite', 'ember-runtime/system/object', 'ember-metal', 'ember-runtime/tests/suites/enumerable/any', 'ember-runtime/tests/suites/enumerable/is_any', 'ember-runtime/tests/suites/enumerable/compact', 'ember-runtime/tests/suites/enumerable/includes', 'ember-runtime/tests/suites/enumerable/every', 'ember-runtime/tests/suites/enumerable/filter', 'ember-runtime/tests/suites/enumerable/find', 'ember-runtime/tests/suites/enumerable/firstObject', 'ember-runtime/tests/suites/enumerable/forEach', 'ember-runtime/tests/suites/enumerable/mapBy', 'ember-runtime/tests/suites/enumerable/invoke', 'ember-runtime/tests/suites/enumerable/lastObject', 'ember-runtime/tests/suites/enumerable/map', 'ember-runtime/tests/suites/enumerable/reduce', 'ember-runtime/tests/suites/enumerable/reject', 'ember-runtime/tests/suites/enumerable/sortBy', 'ember-runtime/tests/suites/enumerable/toArray', 'ember-runtime/tests/suites/enumerable/uniq', 'ember-runtime/tests/suites/enumerable/uniqBy', 'ember-runtime/tests/suites/enumerable/without'], function (exports, _emberUtils, _suite, _object, _emberMetal, _any, _is_any, _compact, _includes, _every, _filter, _find, _firstObject, _forEach, _mapBy, _invoke, _lastObject, _map, _reduce, _reject, _sortBy, _toArray, _uniq, _uniqBy, _without) {
   'use strict';
 
   exports.ObserverClass = exports.EnumerableTests = undefined;
@@ -53408,7 +53367,7 @@ enifed('ember-runtime/tests/suites/enumerable', ['exports', 'ember-utils', 'embe
     }),
 
     run: function () {},
-    newObserver: function () {
+    newObserver: function () /* obj */{
       var ret = (0, _emberMetal.get)(this, 'observerClass').create();
       if (arguments.length > 0) {
         ret.observeBefore.apply(ret, arguments);
@@ -53427,7 +53386,6 @@ enifed('ember-runtime/tests/suites/enumerable', ['exports', 'ember-utils', 'embe
   EnumerableTests.importModuleTests(_any.default);
   EnumerableTests.importModuleTests(_is_any.default);
   EnumerableTests.importModuleTests(_compact.default);
-  EnumerableTests.importModuleTests(_contains.default);
   EnumerableTests.importModuleTests(_every.default);
   EnumerableTests.importModuleTests(_filter.default);
   EnumerableTests.importModuleTests(_find.default);
@@ -53538,31 +53496,6 @@ enifed('ember-runtime/tests/suites/enumerable/compact', ['exports', 'ember-runti
     var obj = this.newObject([null, 1, false, '', undefined, 0, null]);
     var ary = obj.compact();
     deepEqual(ary, [1, false, '', 0]);
-  });
-
-  exports.default = suite;
-});
-enifed('ember-runtime/tests/suites/enumerable/contains', ['exports', 'ember-runtime/tests/suites/suite'], function (exports, _suite) {
-  'use strict';
-
-  var suite = _suite.SuiteModuleBuilder.create();
-
-  suite.module('contains');
-
-  suite.test('contains returns true if item is in enumerable', function () {
-    var data = this.newFixture(3);
-    var obj = this.newObject(data);
-
-    expectDeprecation('`Enumerable#contains` is deprecated, use `Enumerable#includes` instead.');
-    equal(obj.contains(data[1]), true, 'should return true if contained');
-  });
-
-  suite.test('contains returns false if item is not in enumerable', function () {
-    var data = this.newFixture(1);
-    var obj = this.newObject(this.newFixture(3));
-
-    expectDeprecation('`Enumerable#contains` is deprecated, use `Enumerable#includes` instead.');
-    equal(obj.contains(data[0]), false, 'should return false if not contained');
   });
 
   exports.default = suite;
@@ -57236,9 +57169,7 @@ enifed('ember-runtime/tests/system/native_array/copyable_suite_test', ['ember-ut
       }
 
       return a[0] === b[0];
-    },
-
-    shouldBeFreezable: false
+    }
   }).run();
 
   QUnit.module('NativeArray Copyable');
@@ -57608,7 +57539,7 @@ enifed('ember-runtime/tests/system/object/create_test', ['ember-metal', 'ember-r
     var setUnknownPropertyCalled = false;
 
     var MyClass = _object.default.extend({
-      setUnknownProperty: function () {
+      setUnknownProperty: function () /* key, value */{
         setUnknownPropertyCalled = true;
       }
     });
@@ -57682,7 +57613,7 @@ enifed('ember-runtime/tests/system/object/destroy_test', ['ember-metal', 'intern
 
   QUnit.module('ember-runtime/system/object/destroy_test');
 
-  (0, _internalTestHelpers.testBoth)('should schedule objects to be destroyed at the end of the run loop', function (get) {
+  (0, _internalTestHelpers.testBoth)('should schedule objects to be destroyed at the end of the run loop', function (get /*, set */) {
     var obj = _object.default.create();
     var meta = void 0;
 
@@ -58348,6 +58279,34 @@ enifed('ember-runtime/tests/system/object/extend_test', ['ember-metal', 'ember-r
     deepEqual((0, _emberMetal.get)(another.constructor, 'things'), ['foo', 'bar'], 'subclass should have base class\' and its own');
     deepEqual((0, _emberMetal.get)(yetAnother.constructor, 'things'), ['foo', 'baz'], 'subclass should have base class\' and its own');
   });
+
+  QUnit.test('Overriding a computed property with an observer', function (assert) {
+    var Parent = _object.default.extend({
+      foo: (0, _emberMetal.computed)(function () {
+        return 'FOO';
+      })
+    });
+
+    var seen = [];
+
+    var Child = Parent.extend({
+      foo: (0, _emberMetal.observer)('bar', function () {
+        seen.push(this.get('bar'));
+      })
+    });
+
+    var child = Child.create({ bar: 0 });
+
+    assert.deepEqual(seen, []);
+
+    child.set('bar', 1);
+
+    assert.deepEqual(seen, [1]);
+
+    child.set('bar', 2);
+
+    assert.deepEqual(seen, [1, 2]);
+  });
 });
 enifed('ember-runtime/tests/system/object/observer_test', ['ember-metal', 'internal-test-helpers', 'ember-runtime/system/object'], function (_emberMetal, _internalTestHelpers, _object) {
   'use strict';
@@ -58527,7 +58486,7 @@ enifed('ember-runtime/tests/system/object/observer_test', ['ember-metal', 'inter
     equal(get(obj2, 'count'), 1, 'should invoke observer on obj2');
   });
 
-  (0, _internalTestHelpers.testBoth)('chain observer on class that has a reference to an uninitialized object will finish chains that reference it', function () {
+  (0, _internalTestHelpers.testBoth)('chain observer on class that has a reference to an uninitialized object will finish chains that reference it', function (get, set) {
     var changed = false;
 
     var ChildClass = _object.default.extend({
@@ -58552,11 +58511,11 @@ enifed('ember-runtime/tests/system/object/observer_test', ['ember-metal', 'inter
 
     equal(changed, false, 'precond');
 
-    parent.set('one.two', 'new');
+    set(parent, 'one.two', 'new');
 
     equal(changed, true, 'child should have been notified of change to path');
 
-    parent.set('one', { two: 'newer' });
+    set(parent, 'one', { two: 'newer' });
 
     equal(changed, true, 'child should have been notified of change to path');
   });
@@ -59174,38 +59133,6 @@ enifed('ember-runtime/tests/system/string/decamelize_test', ['ember-environment'
   test('PrivateDocs/OwnerInvoice', 'private_docs/owner_invoice', 'decamelize namespaced classified string');
   test('privateDocs/ownerInvoice', 'private_docs/owner_invoice', 'decamelize namespaced camelized string');
 });
-enifed('ember-runtime/tests/system/string/fmt_string_test', ['ember-environment', 'ember-runtime/system/string'], function (_emberEnvironment, _string) {
-  'use strict';
-
-  QUnit.module('EmberStringUtils.fmt');
-
-  if (!_emberEnvironment.ENV.EXTEND_PROTOTYPES.String) {
-    QUnit.test('String.prototype.fmt is not modified without EXTEND_PROTOTYPES', function () {
-      ok('undefined' === typeof String.prototype.fmt, 'String.prototype helper disabled');
-    });
-  }
-
-  function test(given, args, expected, description) {
-    QUnit.test(description, function () {
-      expectDeprecation('Ember.String.fmt is deprecated, use ES6 template strings instead.');
-      equal((0, _string.fmt)(given, args), expected);
-      if (_emberEnvironment.ENV.EXTEND_PROTOTYPES.String) {
-        equal(given.fmt.apply(given, args), expected);
-      }
-    });
-  }
-
-  test('Hello %@ %@', ['John', 'Doe'], 'Hello John Doe', 'fmt(\'Hello %@ %@\', [\'John\', \'Doe\']) => \'Hello John Doe\'');
-  test('Hello %@2 %@1', ['John', 'Doe'], 'Hello Doe John', 'fmt(\'Hello %@2 %@1\', [\'John\', \'Doe\']) => \'Hello Doe John\'');
-  test('%@08 %@07 %@06 %@05 %@04 %@03 %@02 %@01', ['One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight'], 'Eight Seven Six Five Four Three Two One', 'fmt(\'%@08 %@07 %@06 %@05 %@04 %@03 %@02 %@01\', [\'One\', \'Two\', \'Three\', \'Four\', \'Five\', \'Six\', \'Seven\', \'Eight\']) => \'Eight Seven Six Five Four Three Two One\'');
-  test('data: %@', [{ id: 3 }], 'data: {id: 3}', 'fmt(\'data: %@\', [{ id: 3 }]) => \'data: {id: 3}\'');
-
-  QUnit.test('works with argument form', function () {
-    expectDeprecation('Ember.String.fmt is deprecated, use ES6 template strings instead.');
-    equal((0, _string.fmt)('%@', 'John'), 'John');
-    equal((0, _string.fmt)('%@ %@', ['John'], 'Doe'), '[John] Doe');
-  });
-});
 enifed('ember-runtime/tests/system/string/loc_test', ['ember-metal', 'ember-environment', 'ember-runtime/system/string'], function (_emberMetal, _emberEnvironment, _string) {
   'use strict';
 
@@ -59394,10 +59321,17 @@ enifed('ember-template-compiler/plugins/assert-input-helper-without-block', ['ex
     return 'The {{input}} helper cannot be used in block form. ' + sourceInformation;
   }
 });
-enifed('ember-template-compiler/plugins/assert-reserved-named-arguments', ['exports', 'ember-debug', 'ember-template-compiler/system/calculate-location-display'], function (exports, _emberDebug, _calculateLocationDisplay) {
+enifed('ember-template-compiler/plugins/assert-reserved-named-arguments', ['exports', 'ember-debug', 'ember/features', 'ember-template-compiler/system/calculate-location-display'], function (exports, _emberDebug, _features, _calculateLocationDisplay) {
   'use strict';
 
   exports.default = assertReservedNamedArguments;
+
+
+  var RESERVED = ['@arguments', '@args'];
+
+  var isReserved = void 0,
+      assertMessage = void 0;
+
   function assertReservedNamedArguments(env) {
     var moduleName = env.meta.moduleName;
 
@@ -59406,26 +59340,44 @@ enifed('ember-template-compiler/plugins/assert-reserved-named-arguments', ['expo
       name: 'assert-reserved-named-arguments',
 
       visitors: {
-        PathExpression: function (node) {
-          if (node.original[0] === '@') {
-            (true && !(false) && (0, _emberDebug.assert)(assertMessage(moduleName, node)));
+        PathExpression: function (_ref) {
+          var original = _ref.original,
+              loc = _ref.loc;
+
+          if (isReserved(original)) {
+            (true && !(false) && (0, _emberDebug.assert)(assertMessage(original) + ' ' + (0, _calculateLocationDisplay.default)(moduleName, loc)));
           }
         }
       }
     };
   }
 
-  function assertMessage(moduleName, node) {
-    var path = node.original;
-    var source = (0, _calculateLocationDisplay.default)(moduleName, node.loc);
-
-    return '\'' + path + '\' is not a valid path. ' + source;
+  if (_features.EMBER_GLIMMER_NAMED_ARGUMENTS) {
+    isReserved = function (name) {
+      return RESERVED.indexOf(name) !== -1 || name.match(/^@[^a-z]/);
+    };
+    assertMessage = function (name) {
+      return '\'' + name + '\' is reserved.';
+    };
+  } else {
+    isReserved = function (name) {
+      return name[0] === '@';
+    };
+    assertMessage = function (name) {
+      return '\'' + name + '\' is not a valid path.';
+    };
   }
 });
 enifed('ember-template-compiler/plugins/deprecate-render-model', ['exports', 'ember-debug', 'ember-template-compiler/system/calculate-location-display'], function (exports, _emberDebug, _calculateLocationDisplay) {
   'use strict';
 
   exports.default = deprecateRenderModel;
+
+
+  /*
+   * Remove after 3.4 once _ENABLE_RENDER_SUPPORT flag is no
+   * longer needed.
+   */
   function deprecateRenderModel(env) {
     var moduleName = env.meta.moduleName;
 
@@ -59467,6 +59419,12 @@ enifed('ember-template-compiler/plugins/deprecate-render', ['exports', 'ember-de
   'use strict';
 
   exports.default = deprecateRender;
+
+
+  /*
+   * Remove after 3.4 once _ENABLE_RENDER_SUPPORT flag is no
+   * longer needed.
+   */
   function deprecateRender(env) {
     var moduleName = env.meta.moduleName;
 
@@ -59540,10 +59498,10 @@ enifed('ember-template-compiler/plugins/extract-pragma-tag', ['exports'], functi
     };
   }
 });
-enifed('ember-template-compiler/plugins/index', ['exports', 'ember-template-compiler/plugins/transform-old-binding-syntax', 'ember-template-compiler/plugins/transform-angle-bracket-components', 'ember-template-compiler/plugins/transform-input-on-to-onEvent', 'ember-template-compiler/plugins/transform-top-level-components', 'ember-template-compiler/plugins/transform-inline-link-to', 'ember-template-compiler/plugins/transform-old-class-binding-syntax', 'ember-template-compiler/plugins/transform-quoted-bindings-into-just-bindings', 'ember-template-compiler/plugins/deprecate-render-model', 'ember-template-compiler/plugins/deprecate-render', 'ember-template-compiler/plugins/assert-reserved-named-arguments', 'ember-template-compiler/plugins/transform-action-syntax', 'ember-template-compiler/plugins/transform-input-type-syntax', 'ember-template-compiler/plugins/transform-attrs-into-args', 'ember-template-compiler/plugins/transform-each-in-into-each', 'ember-template-compiler/plugins/transform-has-block-syntax', 'ember-template-compiler/plugins/transform-dot-component-invocation', 'ember-template-compiler/plugins/extract-pragma-tag', 'ember-template-compiler/plugins/assert-input-helper-without-block', 'ember/features'], function (exports, _transformOldBindingSyntax, _transformAngleBracketComponents, _transformInputOnToOnEvent, _transformTopLevelComponents, _transformInlineLinkTo, _transformOldClassBindingSyntax, _transformQuotedBindingsIntoJustBindings, _deprecateRenderModel, _deprecateRender, _assertReservedNamedArguments, _transformActionSyntax, _transformInputTypeSyntax, _transformAttrsIntoArgs, _transformEachInIntoEach, _transformHasBlockSyntax, _transformDotComponentInvocation, _extractPragmaTag, _assertInputHelperWithoutBlock, _features) {
+enifed('ember-template-compiler/plugins/index', ['exports', 'ember-template-compiler/plugins/transform-old-binding-syntax', 'ember-template-compiler/plugins/transform-angle-bracket-components', 'ember-template-compiler/plugins/transform-top-level-components', 'ember-template-compiler/plugins/transform-inline-link-to', 'ember-template-compiler/plugins/transform-old-class-binding-syntax', 'ember-template-compiler/plugins/transform-quoted-bindings-into-just-bindings', 'ember-template-compiler/plugins/deprecate-render-model', 'ember-template-compiler/plugins/deprecate-render', 'ember-template-compiler/plugins/assert-reserved-named-arguments', 'ember-template-compiler/plugins/transform-action-syntax', 'ember-template-compiler/plugins/transform-input-type-syntax', 'ember-template-compiler/plugins/transform-attrs-into-args', 'ember-template-compiler/plugins/transform-each-in-into-each', 'ember-template-compiler/plugins/transform-has-block-syntax', 'ember-template-compiler/plugins/transform-dot-component-invocation', 'ember-template-compiler/plugins/extract-pragma-tag', 'ember-template-compiler/plugins/assert-input-helper-without-block', 'ember/features'], function (exports, _transformOldBindingSyntax, _transformAngleBracketComponents, _transformTopLevelComponents, _transformInlineLinkTo, _transformOldClassBindingSyntax, _transformQuotedBindingsIntoJustBindings, _deprecateRenderModel, _deprecateRender, _assertReservedNamedArguments, _transformActionSyntax, _transformInputTypeSyntax, _transformAttrsIntoArgs, _transformEachInIntoEach, _transformHasBlockSyntax, _transformDotComponentInvocation, _extractPragmaTag, _assertInputHelperWithoutBlock, _features) {
   'use strict';
 
-  var transforms = [_transformDotComponentInvocation.default, _transformOldBindingSyntax.default, _transformAngleBracketComponents.default, _transformInputOnToOnEvent.default, _transformTopLevelComponents.default, _transformInlineLinkTo.default, _transformOldClassBindingSyntax.default, _transformQuotedBindingsIntoJustBindings.default, _deprecateRenderModel.default, _deprecateRender.default, _assertReservedNamedArguments.default, _transformActionSyntax.default, _transformInputTypeSyntax.default, _transformAttrsIntoArgs.default, _transformEachInIntoEach.default, _transformHasBlockSyntax.default, _assertInputHelperWithoutBlock.default];
+  var transforms = [_transformDotComponentInvocation.default, _transformOldBindingSyntax.default, _transformAngleBracketComponents.default, _transformTopLevelComponents.default, _transformInlineLinkTo.default, _transformOldClassBindingSyntax.default, _transformQuotedBindingsIntoJustBindings.default, _deprecateRenderModel.default, _deprecateRender.default, _assertReservedNamedArguments.default, _transformActionSyntax.default, _transformInputTypeSyntax.default, _transformAttrsIntoArgs.default, _transformEachInIntoEach.default, _transformHasBlockSyntax.default, _assertInputHelperWithoutBlock.default];
 
   if (_features.GLIMMER_CUSTOM_COMPONENT_MANAGER) {
     transforms.push(_extractPragmaTag.default);
@@ -59620,7 +59578,7 @@ enifed('ember-template-compiler/plugins/transform-angle-bracket-components', ['e
   'use strict';
 
   exports.default = transformAngleBracketComponents;
-  function transformAngleBracketComponents(env) {
+  function transformAngleBracketComponents() /* env */{
     return {
       name: 'transform-angle-bracket-components',
 
@@ -59675,7 +59633,7 @@ enifed('ember-template-compiler/plugins/transform-attrs-into-args', ['exports'],
             var parent = stack[stack.length - 1];
             stack.push(parent.concat(node.blockParams));
           },
-          exit: function (node) {
+          exit: function () {
             stack.pop();
           }
         },
@@ -59955,122 +59913,6 @@ enifed('ember-template-compiler/plugins/transform-inline-link-to', ['exports'], 
     };
   }
 });
-enifed('ember-template-compiler/plugins/transform-input-on-to-onEvent', ['exports', 'ember-debug', 'ember-template-compiler/system/calculate-location-display'], function (exports, _emberDebug, _calculateLocationDisplay) {
-  'use strict';
-
-  exports.default = transformInputOnToOnEvent;
-
-
-  /**
-   @module ember
-  */
-
-  /**
-    An HTMLBars AST transformation that replaces all instances of
-  
-    ```handlebars
-   {{input on="enter" action="doStuff"}}
-   {{input on="key-press" action="doStuff"}}
-    ```
-  
-    with
-  
-    ```handlebars
-   {{input enter="doStuff"}}
-   {{input key-press="doStuff"}}
-    ```
-  
-    @private
-    @class TransformInputOnToOnEvent
-  */
-  function transformInputOnToOnEvent(env) {
-    var b = env.syntax.builders;
-    var moduleName = env.meta.moduleName;
-
-
-    return {
-      name: 'transform-input-on-to-onEvent',
-
-      visitors: {
-        MustacheStatement: function (node) {
-          if (node.path.original !== 'input') {
-            return;
-          }
-
-          var action = hashPairForKey(node.hash, 'action');
-          var on = hashPairForKey(node.hash, 'on');
-          var onEvent = hashPairForKey(node.hash, 'onEvent');
-
-          if (!action && !on && !onEvent) {
-            return;
-          }
-
-          var normalizedOn = on || onEvent;
-          var moduleInfo = (0, _calculateLocationDisplay.default)(moduleName, node.loc);
-
-          if (normalizedOn && normalizedOn.value.type !== 'StringLiteral') {
-            (true && !(false) && (0, _emberDebug.deprecate)('Using a dynamic value for \'#{normalizedOn.key}=\' with the \'{{input}}\' helper ' + moduleInfo + 'is deprecated.', false, { id: 'ember-template-compiler.transform-input-on-to-onEvent.dynamic-value', until: '3.0.0' }));
-
-
-            normalizedOn.key = 'onEvent';
-            return; // exit early, as we cannot transform further
-          }
-
-          removeFromHash(node.hash, normalizedOn);
-          removeFromHash(node.hash, action);
-
-          if (!action) {
-            (true && !(false) && (0, _emberDebug.deprecate)('Using \'{{input ' + normalizedOn.key + '="' + normalizedOn.value.value + '" ...}}\' without specifying an action ' + moduleInfo + 'will do nothing.', false, { id: 'ember-template-compiler.transform-input-on-to-onEvent.no-action', until: '3.0.0' }));
-
-
-            return; // exit early, if no action was available there is nothing to do
-          }
-
-          var specifiedOn = normalizedOn ? normalizedOn.key + '="' + normalizedOn.value.value + '" ' : '';
-          if (normalizedOn && normalizedOn.value.value === 'keyPress') {
-            // using `keyPress` in the root of the component will
-            // clobber the keyPress event handler
-            normalizedOn.value.value = 'key-press';
-          }
-
-          var expected = (normalizedOn ? normalizedOn.value.value : 'enter') + '="' + action.value.original + '"';
-
-          (true && !(false) && (0, _emberDebug.deprecate)('Using \'{{input ' + specifiedOn + 'action="' + action.value.original + '"}}\' ' + moduleInfo + 'is deprecated. Please use \'{{input ' + expected + '}}\' instead.', false, { id: 'ember-template-compiler.transform-input-on-to-onEvent.normalized-on', until: '3.0.0' }));
-
-          if (!normalizedOn) {
-            normalizedOn = b.pair('onEvent', b.string('enter'));
-          }
-
-          node.hash.pairs.push(b.pair(normalizedOn.value.value, action.value));
-        }
-      }
-    };
-  }
-
-  function hashPairForKey(hash, key) {
-    for (var i = 0; i < hash.pairs.length; i++) {
-      var pair = hash.pairs[i];
-      if (pair.key === key) {
-        return pair;
-      }
-    }
-
-    return false;
-  }
-
-  function removeFromHash(hash, pairToRemove) {
-    var newPairs = [];
-    for (var i = 0; i < hash.pairs.length; i++) {
-      var pair = hash.pairs[i];
-
-      if (pair !== pairToRemove) {
-        newPairs.push(pair);
-      }
-    }
-
-    hash.pairs = newPairs;
-  }
-});
 enifed('ember-template-compiler/plugins/transform-input-type-syntax', ['exports'], function (exports) {
   'use strict';
 
@@ -60253,8 +60095,7 @@ enifed('ember-template-compiler/plugins/transform-old-class-binding-syntax', ['e
     });
 
     each(allOfTheMicrosyntaxes, function (_ref) {
-      var value = _ref.value,
-          loc = _ref.loc;
+      var value = _ref.value;
 
       var sexprs = [];
       // TODO: add helpful deprecation when both `classNames` and `classNameBindings` can
@@ -60337,7 +60178,7 @@ enifed('ember-template-compiler/plugins/transform-quoted-bindings-into-just-bind
   'use strict';
 
   exports.default = transformQuotedBindingsIntoJustBindings;
-  function transformQuotedBindingsIntoJustBindings(env) {
+  function transformQuotedBindingsIntoJustBindings() /* env */{
 
     return {
       name: 'transform-quoted-bindings-into-just-bindings',
@@ -60386,7 +60227,7 @@ enifed('ember-template-compiler/plugins/transform-top-level-components', ['expor
   'use strict';
 
   exports.default = transformTopLevelComponent;
-  function transformTopLevelComponent(env) {
+  function transformTopLevelComponent() /* env */{
     return {
       name: 'transform-top-level-component',
 
@@ -60667,193 +60508,195 @@ enifed('ember-template-compiler/system/precompile', ['exports', 'ember-template-
     return glimmerPrecompile(templateString, (0, _compileOptions.default)(options));
   }
 });
-enifed('ember-template-compiler/tests/plugins/assert-input-helper-without-block-test', ['ember-template-compiler/index'], function (_index) {
+enifed('ember-template-compiler/tests/plugins/assert-input-helper-without-block-test', ['ember-babel', 'ember-template-compiler/index', 'internal-test-helpers'], function (_emberBabel, _index, _internalTestHelpers) {
   'use strict';
 
-  QUnit.module('ember-template-compiler: assert-input-helper-without-block');
+  (0, _internalTestHelpers.moduleFor)('ember-template-compiler: assert-input-helper-without-block', function (_AbstractTestCase) {
+    (0, _emberBabel.inherits)(_class, _AbstractTestCase);
 
-  QUnit.test('Using {{#input}}{{/input}} is not valid', function () {
-    expect(1);
+    function _class() {
+      return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase.apply(this, arguments));
+    }
 
-    expectAssertion(function () {
-      (0, _index.compile)('{{#input value="123"}}Completely invalid{{/input}}', {
-        moduleName: 'baz/foo-bar'
-      });
-    }, 'The {{input}} helper cannot be used in block form. (\'baz/foo-bar\' @ L1:C0) ');
-  });
+    _class.prototype['@test Using {{#input}}{{/input}} is not valid'] = function () {
+
+      expectAssertion(function () {
+        (0, _index.compile)('{{#input value="123"}}Completely invalid{{/input}}', {
+          moduleName: 'baz/foo-bar'
+        });
+      }, 'The {{input}} helper cannot be used in block form. (\'baz/foo-bar\' @ L1:C0) ');
+    };
+
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
 });
-enifed('ember-template-compiler/tests/plugins/assert-reserved-named-arguments-test', ['ember-template-compiler/index'], function (_index) {
+enifed('ember-template-compiler/tests/plugins/assert-reserved-named-arguments-test', ['ember-babel', 'ember-template-compiler/index', 'internal-test-helpers'], function (_emberBabel, _index, _internalTestHelpers) {
   'use strict';
 
-  QUnit.module('ember-template-compiler: assert-reserved-named-arguments');
+  (0, _internalTestHelpers.moduleFor)('ember-template-compiler: assert-reserved-named-arguments', function (_AbstractTestCase2) {
+    (0, _emberBabel.inherits)(_class2, _AbstractTestCase2);
 
-  QUnit.test('Paths beginning with @ are not valid', function () {
-    expect(3);
+    function _class2() {
+      return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase2.apply(this, arguments));
+    }
 
-    expectAssertion(function () {
-      (0, _index.compile)('{{@foo}}', {
-        moduleName: 'baz/foo-bar'
-      });
-    }, '\'@foo\' is not a valid path. (\'baz/foo-bar\' @ L1:C2) ');
+    _class2.prototype['@test Paths beginning with @ are not valid'] = function () {
+      expectAssertion(function () {
+        (0, _index.compile)('{{@foo}}', {
+          moduleName: 'baz/foo-bar'
+        });
+      }, '\'@foo\' is not a valid path. (\'baz/foo-bar\' @ L1:C2) ');
 
-    expectAssertion(function () {
-      (0, _index.compile)('{{#if @foo}}Yup{{/if}}', {
-        moduleName: 'baz/foo-bar'
-      });
-    }, '\'@foo\' is not a valid path. (\'baz/foo-bar\' @ L1:C6) ');
+      expectAssertion(function () {
+        (0, _index.compile)('{{#if @foo}}Yup{{/if}}', {
+          moduleName: 'baz/foo-bar'
+        });
+      }, '\'@foo\' is not a valid path. (\'baz/foo-bar\' @ L1:C6) ');
 
-    expectAssertion(function () {
-      (0, _index.compile)('{{input type=(if @foo "bar" "baz")}}', {
-        moduleName: 'baz/foo-bar'
-      });
-    }, '\'@foo\' is not a valid path. (\'baz/foo-bar\' @ L1:C17) ');
-  });
+      expectAssertion(function () {
+        (0, _index.compile)('{{input type=(if @foo "bar" "baz")}}', {
+          moduleName: 'baz/foo-bar'
+        });
+      }, '\'@foo\' is not a valid path. (\'baz/foo-bar\' @ L1:C17) ');
+    };
+
+    return _class2;
+  }(_internalTestHelpers.AbstractTestCase));
 });
-enifed('ember-template-compiler/tests/plugins/deprecate-render-model-test', ['ember-template-compiler/index'], function (_index) {
+enifed('ember-template-compiler/tests/plugins/deprecate-render-model-test', ['ember-babel', 'ember-template-compiler/index', 'internal-test-helpers'], function (_emberBabel, _index, _internalTestHelpers) {
   'use strict';
 
-  QUnit.module('ember-template-compiler: deprecate-model-render');
+  (0, _internalTestHelpers.moduleFor)('ember-template-compiler: deprecate-model-render', function (_AbstractTestCase) {
+    (0, _emberBabel.inherits)(_class, _AbstractTestCase);
 
-  QUnit.test('Using `{{render` with model provides a deprecation', function () {
-    expect(1);
+    function _class() {
+      return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase.apply(this, arguments));
+    }
 
-    expectDeprecation(function () {
-      (0, _index.compile)('{{render "foo-bar" coolModel}}', {
-        moduleName: 'baz/foo-bar'
+    _class.prototype['@test Using `{{render` with model provides a deprecation'] = function () {
+
+      expectDeprecation(function () {
+        (0, _index.compile)('{{render "foo-bar" coolModel}}', {
+          moduleName: 'baz/foo-bar'
+        });
+      }, 'Please refactor `{{render "foo-bar" coolModel}}` to a component and' + ' invoke via `{{foo-bar model=coolModel}}`. (\'baz/foo-bar\' @ L1:C0) ');
+    };
+
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
+});
+enifed('ember-template-compiler/tests/plugins/deprecate-render-test', ['ember-babel', 'ember-template-compiler/index', 'internal-test-helpers'], function (_emberBabel, _index, _internalTestHelpers) {
+  'use strict';
+
+  (0, _internalTestHelpers.moduleFor)('ember-template-compiler: deprecate-render', function (_AbstractTestCase) {
+    (0, _emberBabel.inherits)(_class, _AbstractTestCase);
+
+    function _class() {
+      return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase.apply(this, arguments));
+    }
+
+    _class.prototype['@test Using `{{render` without a model provides a deprecation'] = function () {
+
+      expectDeprecation(function () {
+        (0, _index.compile)('{{render "foo-bar"}}', {
+          moduleName: 'baz/foo-bar'
+        });
+      }, 'Please refactor `{{render "foo-bar"}}` to a component and' + ' invoke via `{{foo-bar}}`. (\'baz/foo-bar\' @ L1:C0) ');
+    };
+
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
+});
+enifed('ember-template-compiler/tests/plugins/transform-dot-component-invocation-test', ['ember-babel', 'ember-template-compiler/index', 'internal-test-helpers'], function (_emberBabel, _index, _internalTestHelpers) {
+  'use strict';
+
+  (0, _internalTestHelpers.moduleFor)('ember-template-compiler: transforms dot component invocation', function (_AbstractTestCase) {
+    (0, _emberBabel.inherits)(_class, _AbstractTestCase);
+
+    function _class() {
+      return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase.apply(this, arguments));
+    }
+
+    _class.prototype['@test Does not throw a compiler error for path components'] = function (assert) {
+      assert.expect(0);
+
+      ['{{this.modal open}}', '{{this.modal isOpen=true}}', '{{#this.modal}}Woot{{/this.modal}}', '{{c.modal open}}', '{{c.modal isOpen=true}}', '{{#c.modal}}Woot{{/c.modal}}', '{{#my-component as |c|}}{{c.a name="Chad"}}{{/my-component}}', '{{#my-component as |c|}}{{c.a "Chad"}}{{/my-component}}', '{{#my-component as |c|}}{{#c.a}}{{/c.a}}{{/my-component}}', '<input disabled={{true}}>', // GH#15740
+      '<td colspan={{3}}></td>' // GH#15217
+      ].forEach(function (layout, i) {
+        (0, _index.compile)(layout, { moduleName: 'example-' + i });
       });
-    }, 'Please refactor `{{render "foo-bar" coolModel}}` to a component and' + ' invoke via `{{foo-bar model=coolModel}}`. (\'baz/foo-bar\' @ L1:C0) ');
-  });
+    };
+
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
 });
-enifed('ember-template-compiler/tests/plugins/deprecate-render-test', ['ember-template-compiler/index'], function (_index) {
+enifed('ember-template-compiler/tests/plugins/transform-inline-link-to-test', ['ember-babel', 'ember-template-compiler/index', 'internal-test-helpers'], function (_emberBabel, _index, _internalTestHelpers) {
   'use strict';
 
-  QUnit.module('ember-template-compiler: deprecate-render');
+  (0, _internalTestHelpers.moduleFor)('ember-template-compiler: inline-link-to', function (_AbstractTestCase) {
+    (0, _emberBabel.inherits)(_class, _AbstractTestCase);
 
-  QUnit.test('Using `{{render` without a model provides a deprecation', function () {
-    expect(1);
+    function _class() {
+      return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase.apply(this, arguments));
+    }
 
-    expectDeprecation(function () {
-      (0, _index.compile)('{{render "foo-bar"}}', {
-        moduleName: 'baz/foo-bar'
-      });
-    }, 'Please refactor `{{render "foo-bar"}}` to a component and' + ' invoke via `{{foo-bar}}`. (\'baz/foo-bar\' @ L1:C0) ');
-  });
-});
-enifed('ember-template-compiler/tests/plugins/transform-dot-component-invocation-test', ['ember-template-compiler/index'], function (_index) {
-  'use strict';
+    _class.prototype['@test Can transform an inline {{link-to}} without error'] = function (assert) {
+      assert.expect(0);
 
-  QUnit.module('ember-template-compiler: transforms dot component invocation');
-
-  QUnit.test('Does not throw a compiler error for path components', function (assert) {
-    assert.expect(1);
-
-    ['{{this.modal open}}', '{{this.modal isOpen=true}}', '{{#this.modal}}Woot{{/this.modal}}', '{{c.modal open}}', '{{c.modal isOpen=true}}', '{{#c.modal}}Woot{{/c.modal}}', '{{#my-component as |c|}}{{c.a name="Chad"}}{{/my-component}}', '{{#my-component as |c|}}{{c.a "Chad"}}{{/my-component}}', '{{#my-component as |c|}}{{#c.a}}{{/c.a}}{{/my-component}}', '<input disabled={{true}}>', // GH#15740
-    '<td colspan={{3}}></td>' // GH#15217
-    ].forEach(function (layout, i) {
-      (0, _index.compile)(layout, { moduleName: 'example-' + i });
-    });
-
-    assert.ok(true);
-  });
-});
-enifed('ember-template-compiler/tests/plugins/transform-inline-link-to-test', ['ember-template-compiler/index'], function (_index) {
-  'use strict';
-
-  QUnit.module('ember-template-compiler: assert-no-view-and-controller-paths without legacy view support');
-
-  QUnit.test('Can transform an inline {{link-to}} without error', function () {
-    expect(0);
-
-    (0, _index.compile)('{{link-to \'foo\' \'index\'}}', {
-      moduleName: 'foo/bar/baz'
-    });
-  });
-});
-enifed('ember-template-compiler/tests/plugins/transform-input-on-test', ['ember-template-compiler/index'], function (_index) {
-  'use strict';
-
-  QUnit.module('ember-template-compiler: transform-input-on');
-
-  QUnit.test('Using `action` without `on` provides a deprecation', function () {
-    expect(1);
-
-    expectDeprecation(function () {
-      (0, _index.compile)('{{input action="foo"}}', {
+      (0, _index.compile)('{{link-to \'foo\' \'index\'}}', {
         moduleName: 'foo/bar/baz'
       });
-    }, 'Using \'{{input action="foo"}}\' (\'foo/bar/baz\' @ L1:C0) is deprecated. Please use \'{{input enter="foo"}}\' instead.');
-  });
+    };
 
-  QUnit.test('Using `action` with `on` provides a deprecation', function () {
-    expect(1);
-
-    expectDeprecation(function () {
-      (0, _index.compile)('{{input on="focus-in" action="foo"}}', {
-        moduleName: 'foo/bar/baz'
-      });
-    }, 'Using \'{{input on="focus-in" action="foo"}}\' (\'foo/bar/baz\' @ L1:C0) is deprecated. Please use \'{{input focus-in="foo"}}\' instead.');
-  });
-
-  QUnit.test('Using `on=\'keyPress\'` does not clobber `keyPress`', function () {
-    expect(1);
-
-    expectDeprecation(function () {
-      (0, _index.compile)('{{input on="keyPress" action="foo"}}', {
-        moduleName: 'foo/bar/baz'
-      });
-    }, 'Using \'{{input on="keyPress" action="foo"}}\' (\'foo/bar/baz\' @ L1:C0) is deprecated. Please use \'{{input key-press="foo"}}\' instead.');
-  });
-
-  QUnit.test('Using `on=\'foo\'` without `action=\'asdf\'` raises specific deprecation', function () {
-    expect(1);
-
-    expectDeprecation(function () {
-      (0, _index.compile)('{{input on="asdf"}}', {
-        moduleName: 'foo/bar/baz'
-      });
-    }, 'Using \'{{input on="asdf" ...}}\' without specifying an action (\'foo/bar/baz\' @ L1:C0) will do nothing.');
-  });
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
 });
-enifed('ember-template-compiler/tests/plugins/transform-input-type-syntax-test', ['ember-template-compiler/index'], function (_index) {
+enifed('ember-template-compiler/tests/plugins/transform-input-type-syntax-test', ['ember-babel', 'ember-template-compiler/index', 'internal-test-helpers'], function (_emberBabel, _index, _internalTestHelpers) {
   'use strict';
 
-  QUnit.module('ember-template-compiler: input type syntax');
+  (0, _internalTestHelpers.moduleFor)('ember-template-compiler: input type syntax', function (_AbstractTestCase) {
+    (0, _emberBabel.inherits)(_class, _AbstractTestCase);
 
-  QUnit.test('Can compile an {{input}} helper that has a sub-expression value as its type', function () {
-    expect(0);
+    function _class() {
+      return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase.apply(this, arguments));
+    }
 
-    (0, _index.compile)('{{input type=(if true \'password\' \'text\')}}');
-  });
+    _class.prototype['@test Can compile an {{input}} helper that has a sub-expression value as its type'] = function (assert) {
+      assert.expect(0);
 
-  QUnit.test('Can compile an {{input}} helper with a string literal type', function () {
-    expect(0);
+      (0, _index.compile)('{{input type=(if true \'password\' \'text\')}}');
+    };
 
-    (0, _index.compile)('{{input type=\'text\'}}');
-  });
+    _class.prototype['@test Can compile an {{input}} helper with a string literal type'] = function (assert) {
+      assert.expect(0);
 
-  QUnit.test('Can compile an {{input}} helper with a type stored in a var', function () {
-    expect(0);
+      (0, _index.compile)('{{input type=\'text\'}}');
+    };
 
-    (0, _index.compile)('{{input type=_type}}');
-  });
+    _class.prototype['@test Can compile an {{input}} helper with a type stored in a var'] = function (assert) {
+      assert.expect(0);
+
+      (0, _index.compile)('{{input type=_type}}');
+    };
+
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
 });
-enifed('ember-template-compiler/tests/system/bootstrap-test', ['ember-metal', 'ember-views', 'ember-glimmer', 'ember-template-compiler/system/bootstrap', 'internal-test-helpers'], function (_emberMetal, _emberViews, _emberGlimmer, _bootstrap, _internalTestHelpers) {
+enifed('ember-template-compiler/tests/system/bootstrap-test', ['ember-babel', 'ember-metal', 'ember-views', 'ember-glimmer', 'ember-template-compiler/system/bootstrap', 'internal-test-helpers'], function (_emberBabel, _emberMetal, _emberViews, _emberGlimmer, _bootstrap, _internalTestHelpers) {
   'use strict';
-
-  var trim = _emberViews.jQuery.trim;
 
   var component = void 0,
       fixture = void 0;
 
-  function checkTemplate(templateName) {
+  function checkTemplate(templateName, assert) {
     (0, _emberMetal.run)(function () {
       return (0, _bootstrap.default)({ context: fixture, hasTemplate: _emberGlimmer.hasTemplate, setTemplate: _emberGlimmer.setTemplate });
     });
 
     var template = (0, _emberGlimmer.getTemplate)(templateName);
 
-    ok(template, 'template is available on Ember.TEMPLATES');
-    equal((0, _emberViews.jQuery)('#qunit-fixture script').length, 0, 'script removed');
+    assert.ok(template, 'template is available on Ember.TEMPLATES');
+    assert.equal((0, _emberViews.jQuery)('#qunit-fixture script').length, 0, 'script removed');
 
     var owner = (0, _internalTestHelpers.buildOwner)();
     owner.register('template:-top-level', template);
@@ -60866,40 +60709,45 @@ enifed('ember-template-compiler/tests/system/bootstrap-test', ['ember-metal', 'e
     component = owner.lookup('component:-top-level');
     (0, _internalTestHelpers.runAppend)(component);
 
-    equal((0, _emberViews.jQuery)('#qunit-fixture').text().trim(), 'Tobias takes teamocil', 'template works');
+    assert.equal((0, _emberViews.jQuery)('#qunit-fixture').text().trim(), 'Tobias takes teamocil', 'template works');
     (0, _internalTestHelpers.runDestroy)(component);
   }
 
-  QUnit.module('ember-templates: bootstrap', {
-    setup: function () {
+  (0, _internalTestHelpers.moduleFor)('ember-templates: bootstrap', function (_AbstractTestCase) {
+    (0, _emberBabel.inherits)(_class, _AbstractTestCase);
+
+    function _class() {
+
+      var _this = (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase.call(this));
+
       fixture = document.getElementById('qunit-fixture');
-    },
-    teardown: function () {
+      return _this;
+    }
+
+    _class.prototype.teardown = function () {
       (0, _emberGlimmer.setTemplates)({});
       (0, _internalTestHelpers.runDestroy)(component);
-    }
-  });
+    };
 
-  QUnit.test('template with data-template-name should add a new template to Ember.TEMPLATES', function () {
-    (0, _emberViews.jQuery)('#qunit-fixture').html('<script type="text/x-handlebars" data-template-name="funkyTemplate">{{firstName}} takes {{drug}}</script>');
+    _class.prototype['@test template with data-template-name should add a new template to Ember.TEMPLATES'] = function (assert) {
+      (0, _emberViews.jQuery)('#qunit-fixture').html('<script type="text/x-handlebars" data-template-name="funkyTemplate">{{firstName}} takes {{drug}}</script>');
 
-    checkTemplate('funkyTemplate');
-  });
+      checkTemplate('funkyTemplate', assert);
+    };
 
-  QUnit.test('template with id instead of data-template-name should add a new template to Ember.TEMPLATES', function () {
-    (0, _emberViews.jQuery)('#qunit-fixture').html('<script type="text/x-handlebars" id="funkyTemplate" >{{firstName}} takes {{drug}}</script>');
+    _class.prototype['@test template with id instead of data-template-name should add a new template to Ember.TEMPLATES'] = function (assert) {
+      (0, _emberViews.jQuery)('#qunit-fixture').html('<script type="text/x-handlebars" id="funkyTemplate" >{{firstName}} takes {{drug}}</script>');
 
-    checkTemplate('funkyTemplate');
-  });
+      checkTemplate('funkyTemplate', assert);
+    };
 
-  QUnit.test('template without data-template-name or id should default to application', function () {
-    (0, _emberViews.jQuery)('#qunit-fixture').html('<script type="text/x-handlebars">{{firstName}} takes {{drug}}</script>');
+    _class.prototype['@test template without data-template-name or id should default to application'] = function (assert) {
+      (0, _emberViews.jQuery)('#qunit-fixture').html('<script type="text/x-handlebars">{{firstName}} takes {{drug}}</script>');
 
-    checkTemplate('application');
-  });
+      checkTemplate('application', assert);
+    };
 
-  if (typeof Handlebars === 'object') {
-    QUnit.test('template with type text/x-raw-handlebars should be parsed', function () {
+    _class.prototype[(typeof Handlebars === 'object' ? '@test' : '@skip') + ' template with type text/x-raw-handlebars should be parsed'] = function (assert) {
       (0, _emberViews.jQuery)('#qunit-fixture').html('<script type="text/x-raw-handlebars" data-template-name="funkyTemplate">{{name}}</script>');
 
       (0, _emberMetal.run)(function () {
@@ -60908,75 +60756,85 @@ enifed('ember-template-compiler/tests/system/bootstrap-test', ['ember-metal', 'e
 
       var template = (0, _emberGlimmer.getTemplate)('funkyTemplate');
 
-      ok(template, 'template with name funkyTemplate available');
+      assert.ok(template, 'template with name funkyTemplate available');
 
       // This won't even work with Ember templates
-      equal(trim(template({ name: 'Tobias' })), 'Tobias');
-    });
-  }
+      assert.equal(template({ name: 'Tobias' }).trim(), 'Tobias');
+    };
 
-  QUnit.test('duplicated default application templates should throw exception', function () {
-    (0, _emberViews.jQuery)('#qunit-fixture').html('<script type="text/x-handlebars">first</script><script type="text/x-handlebars">second</script>');
+    _class.prototype['@test duplicated default application templates should throw exception'] = function (assert) {
+      (0, _emberViews.jQuery)('#qunit-fixture').html('<script type="text/x-handlebars">first</script><script type="text/x-handlebars">second</script>');
 
-    throws(function () {
-      return (0, _bootstrap.default)({ context: fixture, hasTemplate: _emberGlimmer.hasTemplate, setTemplate: _emberGlimmer.setTemplate });
-    }, /Template named "[^"]+" already exists\./, 'duplicate templates should not be allowed');
-  });
+      assert.throws(function () {
+        return (0, _bootstrap.default)({ context: fixture, hasTemplate: _emberGlimmer.hasTemplate, setTemplate: _emberGlimmer.setTemplate });
+      }, /Template named "[^"]+" already exists\./, 'duplicate templates should not be allowed');
+    };
 
-  QUnit.test('default application template and id application template present should throw exception', function () {
-    (0, _emberViews.jQuery)('#qunit-fixture').html('<script type="text/x-handlebars">first</script><script type="text/x-handlebars" id="application">second</script>');
+    _class.prototype['@test default default application template and id application template present should throw exception'] = function (assert) {
+      (0, _emberViews.jQuery)('#qunit-fixture').html('<script type="text/x-handlebars">first</script><script type="text/x-handlebars" id="application">second</script>');
 
-    throws(function () {
-      return (0, _bootstrap.default)({ context: fixture, hasTemplate: _emberGlimmer.hasTemplate, setTemplate: _emberGlimmer.setTemplate });
-    }, /Template named "[^"]+" already exists\./, 'duplicate templates should not be allowed');
-  });
+      assert.throws(function () {
+        return (0, _bootstrap.default)({ context: fixture, hasTemplate: _emberGlimmer.hasTemplate, setTemplate: _emberGlimmer.setTemplate });
+      }, /Template named "[^"]+" already exists\./, 'duplicate templates should not be allowed');
+    };
 
-  QUnit.test('default application template and data-template-name application template present should throw exception', function () {
-    (0, _emberViews.jQuery)('#qunit-fixture').html('<script type="text/x-handlebars">first</script><script type="text/x-handlebars" data-template-name="application">second</script>');
+    _class.prototype['@test default application template and data-template-name application template present should throw exception'] = function (assert) {
+      (0, _emberViews.jQuery)('#qunit-fixture').html('<script type="text/x-handlebars">first</script><script type="text/x-handlebars" data-template-name="application">second</script>');
 
-    throws(function () {
-      return (0, _bootstrap.default)({ context: fixture, hasTemplate: _emberGlimmer.hasTemplate, setTemplate: _emberGlimmer.setTemplate });
-    }, /Template named "[^"]+" already exists\./, 'duplicate templates should not be allowed');
-  });
+      assert.throws(function () {
+        return (0, _bootstrap.default)({ context: fixture, hasTemplate: _emberGlimmer.hasTemplate, setTemplate: _emberGlimmer.setTemplate });
+      }, /Template named "[^"]+" already exists\./, 'duplicate templates should not be allowed');
+    };
 
-  QUnit.test('duplicated template id should throw exception', function () {
-    (0, _emberViews.jQuery)('#qunit-fixture').html('<script type="text/x-handlebars" id="funkyTemplate">first</script><script type="text/x-handlebars" id="funkyTemplate">second</script>');
+    _class.prototype['@test duplicated template id should throw exception'] = function (assert) {
+      (0, _emberViews.jQuery)('#qunit-fixture').html('<script type="text/x-handlebars" id="funkyTemplate">first</script><script type="text/x-handlebars" id="funkyTemplate">second</script>');
 
-    throws(function () {
-      return (0, _bootstrap.default)({ context: fixture, hasTemplate: _emberGlimmer.hasTemplate, setTemplate: _emberGlimmer.setTemplate });
-    }, /Template named "[^"]+" already exists\./, 'duplicate templates should not be allowed');
-  });
+      assert.throws(function () {
+        return (0, _bootstrap.default)({ context: fixture, hasTemplate: _emberGlimmer.hasTemplate, setTemplate: _emberGlimmer.setTemplate });
+      }, /Template named "[^"]+" already exists\./, 'duplicate templates should not be allowed');
+    };
 
-  QUnit.test('duplicated template data-template-name should throw exception', function () {
-    (0, _emberViews.jQuery)('#qunit-fixture').html('<script type="text/x-handlebars" data-template-name="funkyTemplate">first</script><script type="text/x-handlebars" data-template-name="funkyTemplate">second</script>');
+    _class.prototype['@test duplicated template data-template-name should throw exception'] = function (assert) {
+      (0, _emberViews.jQuery)('#qunit-fixture').html('<script type="text/x-handlebars" data-template-name="funkyTemplate">first</script><script type="text/x-handlebars" data-template-name="funkyTemplate">second</script>');
 
-    throws(function () {
-      return (0, _bootstrap.default)({ context: fixture, hasTemplate: _emberGlimmer.hasTemplate, setTemplate: _emberGlimmer.setTemplate });
-    }, /Template named "[^"]+" already exists\./, 'duplicate templates should not be allowed');
-  });
+      assert.throws(function () {
+        return (0, _bootstrap.default)({ context: fixture, hasTemplate: _emberGlimmer.hasTemplate, setTemplate: _emberGlimmer.setTemplate });
+      }, /Template named "[^"]+" already exists\./, 'duplicate templates should not be allowed');
+    };
+
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
 });
-enifed('ember-template-compiler/tests/system/compile_options_test', ['ember-template-compiler/index'], function (_index) {
+enifed('ember-template-compiler/tests/system/compile_options_test', ['ember-babel', 'ember-template-compiler/index', 'internal-test-helpers'], function (_emberBabel, _index, _internalTestHelpers) {
   'use strict';
 
-  QUnit.module('ember-template-compiler: default compile options');
+  (0, _internalTestHelpers.moduleFor)('ember-template-compiler: default compile options', function (_AbstractTestCase) {
+    (0, _emberBabel.inherits)(_class, _AbstractTestCase);
 
-  QUnit.test('default options are a new copy', function () {
-    notEqual((0, _index.compileOptions)(), (0, _index.compileOptions)());
-  });
-
-  QUnit.test('has default AST plugins', function (assert) {
-    assert.expect(_index.defaultPlugins.length);
-
-    var plugins = (0, _index.compileOptions)().plugins.ast,
-        i,
-        plugin;
-
-    for (i = 0; i < _index.defaultPlugins.length; i++) {
-      plugin = _index.defaultPlugins[i];
-
-      assert.ok(plugins.indexOf(plugin) > -1, 'includes ' + plugin);
+    function _class() {
+      return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase.apply(this, arguments));
     }
-  });
+
+    _class.prototype['@test default options are a new copy'] = function (assert) {
+      assert.notEqual((0, _index.compileOptions)(), (0, _index.compileOptions)());
+    };
+
+    _class.prototype['@test has default AST plugins'] = function (assert) {
+      assert.expect(_index.defaultPlugins.length);
+
+      var plugins = (0, _index.compileOptions)().plugins.ast,
+          i,
+          plugin;
+
+      for (i = 0; i < _index.defaultPlugins.length; i++) {
+        plugin = _index.defaultPlugins[i];
+
+        assert.ok(plugins.indexOf(plugin) > -1, 'includes ' + plugin);
+      }
+    };
+
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
 });
 enifed('ember-testing/tests/acceptance_test', ['ember-babel', 'internal-test-helpers', 'ember-metal', 'ember-testing/test', 'ember-testing/adapters/qunit', 'ember-routing', 'ember-runtime'], function (_emberBabel, _internalTestHelpers, _emberMetal, _test, _qunit, _emberRouting, _emberRuntime) {
   'use strict';
@@ -61370,95 +61228,122 @@ enifed('ember-testing/tests/acceptance_test', ['ember-babel', 'internal-test-hel
     return _class2;
   }(_internalTestHelpers.AutobootApplicationTestCase));
 });
-enifed('ember-testing/tests/adapters/adapter_test', ['ember-metal', 'ember-testing/adapters/adapter'], function (_emberMetal, _adapter) {
+enifed('ember-testing/tests/adapters/adapter_test', ['ember-babel', 'ember-metal', 'ember-testing/adapters/adapter', 'internal-test-helpers'], function (_emberBabel, _emberMetal, _adapter, _internalTestHelpers) {
   'use strict';
 
   var adapter;
 
-  QUnit.module('ember-testing Adapter', {
-    setup: function () {
+  (0, _internalTestHelpers.moduleFor)('ember-testing Adapter', function (_AbstractTestCase) {
+    (0, _emberBabel.inherits)(_class, _AbstractTestCase);
+
+    function _class() {
+
+      var _this = (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase.call(this));
+
       adapter = new _adapter.default();
-    },
-    teardown: function () {
+      return _this;
+    }
+
+    _class.prototype.teardown = function () {
       (0, _emberMetal.run)(adapter, adapter.destroy);
-    }
-  });
+    };
 
-  QUnit.test('exception throws', function () {
-    var error = 'Hai';
-    var thrown;
+    _class.prototype['@test exception throws'] = function (assert) {
+      var error = 'Hai';
+      var thrown;
 
-    try {
-      adapter.exception(error);
-    } catch (e) {
-      thrown = e;
-    }
-    equal(thrown, error);
-  });
+      try {
+        adapter.exception(error);
+      } catch (e) {
+        thrown = e;
+      }
+      assert.equal(thrown, error);
+    };
+
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
 });
-enifed('ember-testing/tests/adapters/qunit_test', ['ember-metal', 'ember-testing/adapters/qunit'], function (_emberMetal, _qunit) {
+enifed('ember-testing/tests/adapters/qunit_test', ['ember-babel', 'ember-metal', 'ember-testing/adapters/qunit', 'internal-test-helpers'], function (_emberBabel, _emberMetal, _qunit, _internalTestHelpers) {
   'use strict';
 
   var adapter;
 
-  QUnit.module('ember-testing QUnitAdapter', {
-    setup: function () {
+  (0, _internalTestHelpers.moduleFor)('ember-testing QUnitAdapter', function (_AbstractTestCase) {
+    (0, _emberBabel.inherits)(_class, _AbstractTestCase);
+
+    function _class() {
+
+      var _this = (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase.call(this));
+
       adapter = new _qunit.default();
-    },
-    teardown: function () {
+      return _this;
+    }
+
+    _class.prototype.teardown = function () {
       (0, _emberMetal.run)(adapter, adapter.destroy);
-    }
-  });
+    };
 
-  QUnit.test('asyncStart calls stop', function () {
-    var originalStop = QUnit.stop;
-    try {
-      QUnit.stop = function () {
-        ok(true, 'stop called');
-      };
-      adapter.asyncStart();
-    } finally {
-      QUnit.stop = originalStop;
-    }
-  });
+    _class.prototype['@test asyncStart calls stop'] = function (assert) {
+      var originalStop = QUnit.stop;
+      try {
+        QUnit.stop = function () {
+          assert.ok(true, 'stop called');
+        };
+        adapter.asyncStart();
+      } finally {
+        QUnit.stop = originalStop;
+      }
+    };
 
-  QUnit.test('asyncEnd calls start', function () {
-    var originalStart = QUnit.start;
-    try {
-      QUnit.start = function () {
-        ok(true, 'start called');
-      };
-      adapter.asyncEnd();
-    } finally {
-      QUnit.start = originalStart;
-    }
-  });
+    _class.prototype['@test asyncEnd calls start'] = function (assert) {
+      var originalStart = QUnit.start;
+      try {
+        QUnit.start = function () {
+          assert.ok(true, 'start called');
+        };
+        adapter.asyncEnd();
+      } finally {
+        QUnit.start = originalStart;
+      }
+    };
 
-  QUnit.test('exception causes a failing assertion', function () {
-    var originalOk = window.ok;
-    try {
-      window.ok = function (val, msg) {
-        originalOk(!val, 'ok is called with false');
-        originalOk(msg, '{err: "hai"}');
-      };
-      adapter.exception({ err: 'hai' });
-    } finally {
-      window.ok = originalOk;
-    }
-  });
+    _class.prototype['@test exception causes a failing assertion'] = function (assert) {
+      var originalPushResult = assert.pushResult;
+      try {
+        assert.pushResult = function (resultInfo) {
+          // Inverts the result so we can test failing assertions
+          resultInfo.result = !resultInfo.result;
+          resultInfo.message = 'Failed: ' + resultInfo.message;
+          originalPushResult(resultInfo);
+        };
+        adapter.exception({ err: 'hai' });
+      } finally {
+        assert.pushResult = originalPushResult;
+      }
+    };
+
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
 });
-enifed('ember-testing/tests/adapters_test', ['ember-metal', 'ember-testing/test', 'ember-testing/adapters/adapter', 'ember-testing/adapters/qunit', 'ember-application'], function (_emberMetal, _test, _adapter, _qunit, _emberApplication) {
+enifed('ember-testing/tests/adapters_test', ['ember-babel', 'ember-metal', 'ember-testing/test', 'ember-testing/adapters/adapter', 'ember-testing/adapters/qunit', 'ember-application', 'internal-test-helpers'], function (_emberBabel, _emberMetal, _test, _adapter, _qunit, _emberApplication, _internalTestHelpers) {
   'use strict';
 
   var App, originalAdapter, originalQUnit, originalWindowOnerror;
 
-  QUnit.module('ember-testing Adapters', {
-    setup: function () {
+  (0, _internalTestHelpers.moduleFor)('ember-testing Adapters', function (_AbstractTestCase) {
+    (0, _emberBabel.inherits)(_class, _AbstractTestCase);
+
+    function _class() {
+
+      var _this = (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase.call(this));
+
       originalAdapter = _test.default.adapter;
       originalQUnit = window.QUnit;
       originalWindowOnerror = window.onerror;
-    },
-    teardown: function () {
+      return _this;
+    }
+
+    _class.prototype.teardown = function () {
       if (App) {
         (0, _emberMetal.run)(App, App.destroy);
         App.removeTestHelpers();
@@ -61468,79 +61353,81 @@ enifed('ember-testing/tests/adapters_test', ['ember-metal', 'ember-testing/test'
       _test.default.adapter = originalAdapter;
       window.QUnit = originalQUnit;
       window.onerror = originalWindowOnerror;
-    }
-  });
+    };
 
-  QUnit.test('Setting a test adapter manually', function () {
-    expect(1);
-    var CustomAdapter = _adapter.default.extend({
-      asyncStart: function () {
-        ok(true, 'Correct adapter was used');
-      }
-    });
-
-    (0, _emberMetal.run)(function () {
-      App = _emberApplication.Application.create();
-      _test.default.adapter = CustomAdapter.create();
-      App.setupForTesting();
-    });
-
-    _test.default.adapter.asyncStart();
-  });
-
-  QUnit.test('QUnitAdapter is used by default (if QUnit is available)', function () {
-    expect(1);
-
-    _test.default.adapter = null;
-
-    (0, _emberMetal.run)(function () {
-      App = _emberApplication.Application.create();
-      App.setupForTesting();
-    });
-
-    ok(_test.default.adapter instanceof _qunit.default);
-  });
-
-  QUnit.test('Adapter is used by default (if QUnit is not available)', function () {
-    expect(2);
-
-    delete window.QUnit;
-
-    _test.default.adapter = null;
-
-    (0, _emberMetal.run)(function () {
-      App = _emberApplication.Application.create();
-      App.setupForTesting();
-    });
-
-    ok(_test.default.adapter instanceof _adapter.default);
-    ok(!(_test.default.adapter instanceof _qunit.default));
-  });
-
-  QUnit.test('With Ember.Test.adapter set, errors in synchronous Ember.run are bubbled out', function (assert) {
-    var thrown = new Error('Boom!');
-
-    var caughtInAdapter = void 0,
-        caughtInCatch = void 0;
-    _test.default.adapter = _qunit.default.create({
-      exception: function (error) {
-        caughtInAdapter = error;
-      }
-    });
-
-    try {
-      (0, _emberMetal.run)(function () {
-        throw thrown;
+    _class.prototype['@test Setting a test adapter manually'] = function (assert) {
+      assert.expect(1);
+      var CustomAdapter = _adapter.default.extend({
+        asyncStart: function () {
+          assert.ok(true, 'Correct adapter was used');
+        }
       });
-    } catch (e) {
-      caughtInCatch = e;
-    }
 
-    assert.equal(caughtInAdapter, undefined, 'test adapter should never receive synchronous errors');
-    assert.equal(caughtInCatch, thrown, 'a "normal" try/catch should catch errors in sync run');
-  });
+      (0, _emberMetal.run)(function () {
+        App = _emberApplication.Application.create();
+        _test.default.adapter = CustomAdapter.create();
+        App.setupForTesting();
+      });
+
+      _test.default.adapter.asyncStart();
+    };
+
+    _class.prototype['@test QUnitAdapter is used by default (if QUnit is available)'] = function (assert) {
+      assert.expect(1);
+
+      _test.default.adapter = null;
+
+      (0, _emberMetal.run)(function () {
+        App = _emberApplication.Application.create();
+        App.setupForTesting();
+      });
+
+      assert.ok(_test.default.adapter instanceof _qunit.default);
+    };
+
+    _class.prototype['@test Adapter is used by default (if QUnit is not available)'] = function (assert) {
+      assert.expect(2);
+
+      delete window.QUnit;
+
+      _test.default.adapter = null;
+
+      (0, _emberMetal.run)(function () {
+        App = _emberApplication.Application.create();
+        App.setupForTesting();
+      });
+
+      assert.ok(_test.default.adapter instanceof _adapter.default);
+      assert.ok(!(_test.default.adapter instanceof _qunit.default));
+    };
+
+    _class.prototype['@test With Ember.Test.adapter set, errors in synchronous Ember.run are bubbled out'] = function (assert) {
+      var thrown = new Error('Boom!');
+
+      var caughtInAdapter = void 0,
+          caughtInCatch = void 0;
+      _test.default.adapter = _qunit.default.create({
+        exception: function (error) {
+          caughtInAdapter = error;
+        }
+      });
+
+      try {
+        (0, _emberMetal.run)(function () {
+          throw thrown;
+        });
+      } catch (e) {
+        caughtInCatch = e;
+      }
+
+      assert.equal(caughtInAdapter, undefined, 'test adapter should never receive synchronous errors');
+      assert.equal(caughtInCatch, thrown, 'a "normal" try/catch should catch errors in sync run');
+    };
+
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
 });
-enifed('ember-testing/tests/ext/rsvp_test', ['ember-testing/ext/rsvp', 'ember-testing/test/adapter', 'ember-testing/test/promise', 'ember-metal', 'ember-debug'], function (_rsvp, _adapter, _promise, _emberMetal, _emberDebug) {
+enifed('ember-testing/tests/ext/rsvp_test', ['ember-babel', 'ember-testing/ext/rsvp', 'ember-testing/test/adapter', 'ember-testing/test/promise', 'ember-metal', 'ember-debug', 'internal-test-helpers'], function (_emberBabel, _rsvp, _adapter, _promise, _emberMetal, _emberDebug, _internalTestHelpers) {
   'use strict';
 
   var originalTestAdapter = (0, _adapter.getAdapter)();
@@ -61549,111 +61436,121 @@ enifed('ember-testing/tests/ext/rsvp_test', ['ember-testing/ext/rsvp', 'ember-te
   var asyncStarted = 0;
   var asyncEnded = 0;
 
-  QUnit.module('ember-testing RSVP', {
-    setup: function () {
+  (0, _internalTestHelpers.moduleFor)('ember-testing RSVP', function (_AbstractTestCase) {
+    (0, _emberBabel.inherits)(_class, _AbstractTestCase);
+
+    function _class() {
+
+      var _this = (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase.call(this));
+
       (0, _emberDebug.setTesting)(true);
       (0, _adapter.setAdapter)({
         asyncStart: function () {
           asyncStarted++;
-          QUnit.stop();
         },
         asyncEnd: function () {
           asyncEnded++;
-          QUnit.start();
         }
       });
-    },
-    teardown: function () {
+      return _this;
+    }
+
+    _class.prototype.teardown = function () {
       asyncStarted = 0;
       asyncEnded = 0;
       (0, _adapter.setAdapter)(originalTestAdapter);
       (0, _emberDebug.setTesting)(originalTestingFlag);
+    };
+
+    _class.prototype['@test given `Ember.testing = true`, correctly informs the test suite about async steps'] = function (assert) {
+      var done = assert.async();
+      assert.expect(19);
+
+      assert.ok(!_emberMetal.run.currentRunLoop, 'expect no run-loop');
+
+      (0, _emberDebug.setTesting)(true);
+
+      assert.equal(asyncStarted, 0);
+      assert.equal(asyncEnded, 0);
+
+      var user = _rsvp.default.Promise.resolve({ name: 'tomster' });
+
+      assert.equal(asyncStarted, 0);
+      assert.equal(asyncEnded, 0);
+
+      user.then(function (user) {
+        assert.equal(asyncStarted, 1);
+        assert.equal(asyncEnded, 1);
+
+        assert.equal(user.name, 'tomster');
+
+        return _rsvp.default.Promise.resolve(1).then(function () {
+          assert.equal(asyncStarted, 1);
+          assert.equal(asyncEnded, 1);
+        });
+      }).then(function () {
+        assert.equal(asyncStarted, 1);
+        assert.equal(asyncEnded, 1);
+
+        return new _rsvp.default.Promise(function (resolve) {
+          setTimeout(function () {
+            assert.equal(asyncStarted, 1);
+            assert.equal(asyncEnded, 1);
+
+            resolve({ name: 'async tomster' });
+
+            assert.equal(asyncStarted, 2);
+            assert.equal(asyncEnded, 1);
+          }, 0);
+        });
+      }).then(function (user) {
+        assert.equal(user.name, 'async tomster');
+        assert.equal(asyncStarted, 2);
+        assert.equal(asyncEnded, 2);
+        done();
+      });
+    };
+
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
+
+  (0, _internalTestHelpers.moduleFor)('TestPromise', function (_AbstractTestCase2) {
+    (0, _emberBabel.inherits)(_class2, _AbstractTestCase2);
+
+    function _class2() {
+      return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase2.apply(this, arguments));
     }
-  });
 
-  QUnit.test('given `Ember.testing = true`, correctly informs the test suite about async steps', function () {
-    expect(19);
-
-    ok(!_emberMetal.run.currentRunLoop, 'expect no run-loop');
-
-    (0, _emberDebug.setTesting)(true);
-
-    equal(asyncStarted, 0);
-    equal(asyncEnded, 0);
-
-    var user = _rsvp.default.Promise.resolve({
-      name: 'tomster'
-    });
-
-    equal(asyncStarted, 0);
-    equal(asyncEnded, 0);
-
-    user.then(function (user) {
-      equal(asyncStarted, 1);
-      equal(asyncEnded, 1);
-
-      equal(user.name, 'tomster');
-
-      return _rsvp.default.Promise.resolve(1).then(function () {
-        equal(asyncStarted, 1);
-        equal(asyncEnded, 1);
+    _class2.prototype['does not throw error when falsy value passed to then'] = function (assert) {
+      assert.expect(1);
+      return new _promise.default(function (resolve) {
+        resolve();
+      }).then(null).then(function () {
+        assert.ok(true);
       });
-    }).then(function () {
-      equal(asyncStarted, 1);
-      equal(asyncEnded, 1);
+    };
 
-      return new _rsvp.default.Promise(function (resolve) {
-        QUnit.stop(); // raw async, we must inform the test framework manually
-        setTimeout(function () {
-          QUnit.start(); // raw async, we must inform the test framework manually
+    _class2.prototype['able to get last Promise'] = function (assert) {
+      assert.expect(2);
 
-          equal(asyncStarted, 1);
-          equal(asyncEnded, 1);
-
-          resolve({
-            name: 'async tomster'
-          });
-
-          equal(asyncStarted, 2);
-          equal(asyncEnded, 1);
-        }, 0);
+      var p1 = new _promise.default(function (resolve) {
+        resolve();
+      }).then(function () {
+        assert.ok(true);
       });
-    }).then(function (user) {
-      equal(user.name, 'async tomster');
-      equal(asyncStarted, 2);
-      equal(asyncEnded, 2);
-    });
-  });
 
-  QUnit.module('TestPromise');
+      var p2 = new _promise.default(function (resolve) {
+        resolve();
+      });
 
-  QUnit.test('does not throw error when falsy value passed to then', function () {
-    expect(1);
-    return new _promise.default(function (resolve) {
-      resolve();
-    }).then(null).then(function () {
-      ok(true);
-    });
-  });
+      assert.deepEqual((0, _promise.getLastPromise)(), p2);
+      return p1;
+    };
 
-  QUnit.test('able to get last Promise', function () {
-    expect(2);
-
-    var p1 = new _promise.default(function (resolve) {
-      resolve();
-    }).then(function () {
-      ok(true);
-    });
-
-    var p2 = new _promise.default(function (resolve) {
-      resolve();
-    });
-
-    deepEqual((0, _promise.getLastPromise)(), p2);
-    return p1;
-  });
+    return _class2;
+  }(_internalTestHelpers.AbstractTestCase));
 });
-enifed('ember-testing/tests/helper_registration_test', ['ember-metal', 'ember-testing/test', 'ember-application'], function (_emberMetal, _test, _emberApplication) {
+enifed('ember-testing/tests/helper_registration_test', ['ember-babel', 'ember-metal', 'ember-testing/test', 'ember-application', 'internal-test-helpers'], function (_emberBabel, _emberMetal, _test, _emberApplication, _internalTestHelpers) {
   'use strict';
 
   var App, appBooted, helperContainer;
@@ -61690,51 +61587,59 @@ enifed('ember-testing/tests/helper_registration_test', ['ember-metal', 'ember-te
     }
   }
 
-  QUnit.module('Test - registerHelper/unregisterHelper', {
-    teardown: function () {
+  (0, _internalTestHelpers.moduleFor)('Test - registerHelper/unregisterHelper', function (_AbstractTestCase) {
+    (0, _emberBabel.inherits)(_class, _AbstractTestCase);
+
+    function _class() {
+      return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase.apply(this, arguments));
+    }
+
+    _class.prototype.teardown = function () {
       _test.default.adapter = originalAdapter;
       destroyApp();
-    }
-  });
+    };
 
-  QUnit.test('Helper gets registered', function () {
-    expect(2);
+    _class.prototype['@test Helper gets registered'] = function (assert) {
+      assert.expect(2);
 
-    registerHelper();
-    setupApp();
+      registerHelper();
+      setupApp();
 
-    ok(App.testHelpers.boot);
-    ok(helperContainer.boot);
-  });
+      assert.ok(App.testHelpers.boot);
+      assert.ok(helperContainer.boot);
+    };
 
-  QUnit.test('Helper is ran when called', function (assert) {
-    var done = assert.async();
-    assert.expect(1);
+    _class.prototype['@test Helper is ran when called'] = function (assert) {
+      var done = assert.async();
+      assert.expect(1);
 
-    registerHelper();
-    setupApp();
+      registerHelper();
+      setupApp();
 
-    App.testHelpers.boot().then(function () {
-      assert.ok(appBooted);
-    }).finally(done);
-  });
+      App.testHelpers.boot().then(function () {
+        assert.ok(appBooted);
+      }).finally(done);
+    };
 
-  QUnit.test('Helper can be unregistered', function () {
-    expect(4);
+    _class.prototype['@test Helper can be unregistered'] = function (assert) {
+      assert.expect(4);
 
-    registerHelper();
-    setupApp();
+      registerHelper();
+      setupApp();
 
-    ok(App.testHelpers.boot);
-    ok(helperContainer.boot);
+      assert.ok(App.testHelpers.boot);
+      assert.ok(helperContainer.boot);
 
-    unregisterHelper();
+      unregisterHelper();
 
-    setupApp();
+      setupApp();
 
-    ok(!App.testHelpers.boot, 'once unregistered the helper is not added to App.testHelpers');
-    ok(!helperContainer.boot, 'once unregistered the helper is not added to the helperContainer');
-  });
+      assert.ok(!App.testHelpers.boot, 'once unregistered the helper is not added to App.testHelpers');
+      assert.ok(!helperContainer.boot, 'once unregistered the helper is not added to the helperContainer');
+    };
+
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
 });
 enifed('ember-testing/tests/helpers_test', ['ember-babel', 'internal-test-helpers', 'ember-routing', 'ember-runtime', 'ember-metal', 'ember-views', 'ember-glimmer', 'ember-testing/test', 'ember-testing/setup_for_testing', 'ember-testing/test/pending_requests', 'ember-testing/test/adapter', 'ember-testing/test/waiters'], function (_emberBabel, _internalTestHelpers, _emberRouting, _emberRuntime, _emberMetal, _emberViews, _emberGlimmer, _test, _setup_for_testing, _pending_requests, _adapter, _waiters) {
   'use strict';
@@ -62945,10 +62850,18 @@ enifed('ember-testing/tests/integration_test', ['ember-babel', 'internal-test-he
     return _class;
   }(_internalTestHelpers.AutobootApplicationTestCase));
 });
-enifed('ember-testing/tests/reexports_test', ['ember', 'internal-test-helpers'], function (_ember, _internalTestHelpers) {
+enifed('ember-testing/tests/reexports_test', ['ember-babel', 'ember', 'internal-test-helpers'], function (_emberBabel, _ember, _internalTestHelpers) {
   'use strict';
 
-  QUnit.module('ember-testing reexports');
+  var ReexportsTestCase = function (_AbstractTestCase) {
+    (0, _emberBabel.inherits)(ReexportsTestCase, _AbstractTestCase);
+
+    function ReexportsTestCase() {
+      return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase.apply(this, arguments));
+    }
+
+    return ReexportsTestCase;
+  }(_internalTestHelpers.AbstractTestCase);
 
   [
   // ember-testing
@@ -62962,28 +62875,14 @@ enifed('ember-testing/tests/reexports_test', ['ember', 'internal-test-helpers'],
       exportName = path;
     }
 
-    QUnit.test('Ember.' + path + ' exports correctly', function (assert) {
+    ReexportsTestCase.prototype['@test Ember.' + path + ' exports correctly'] = function (assert) {
       (0, _internalTestHelpers.confirmExport)(_ember.default, assert, path, moduleId, exportName);
-    });
+    };
   });
-});
-enifed('ember-testing/tests/simple_setup', ['ember-metal', 'ember-views'], function (_emberMetal, _emberViews) {
-  'use strict';
 
-  var App;
-
-  QUnit.module('Simple Testing Setup', {
-    teardown: function () {
-      if (App) {
-        App.removeTestHelpers();
-        (0, _emberViews.jQuery)('#ember-testing-container, #ember-testing').remove();
-        (0, _emberMetal.run)(App, 'destroy');
-        App = null;
-      }
-    }
-  });
+  (0, _internalTestHelpers.moduleFor)('ember-testing reexports', ReexportsTestCase);
 });
-enifed('ember-testing/tests/test/waiters-test', ['ember-testing/test/waiters'], function (_waiters) {
+enifed('ember-testing/tests/test/waiters-test', ['ember-babel', 'ember-testing/test/waiters', 'internal-test-helpers'], function (_emberBabel, _waiters, _internalTestHelpers) {
   'use strict';
 
   var Waiters = function () {
@@ -63030,286 +62929,336 @@ enifed('ember-testing/tests/test/waiters-test', ['ember-testing/test/waiters'], 
     return Waiters;
   }();
 
-  QUnit.module('ember-testing: waiters', {
-    setup: function () {
-      this.waiters = new Waiters();
-    },
-    teardown: function () {
-      this.waiters.unregister();
+  (0, _internalTestHelpers.moduleFor)('ember-testing: waiters', function (_AbstractTestCase) {
+    (0, _emberBabel.inherits)(_class, _AbstractTestCase);
+
+    function _class() {
+
+      var _this = (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase.call(this));
+
+      _this.waiters = new Waiters();
+      return _this;
     }
-  });
 
-  QUnit.test('registering a waiter', function (assert) {
-    assert.expect(2);
+    _class.prototype.teardown = function () {
+      this.waiters.unregister();
+    };
 
-    this.waiters.add({ foo: true }, function () {
-      assert.ok(this.foo, 'has proper `this` context');
-      return true;
-    });
+    _class.prototype['@test registering a waiter'] = function (assert) {
+      assert.expect(2);
 
-    this.waiters.add(function () {
-      assert.ok(true, 'is called');
-      return true;
-    });
+      this.waiters.add({ foo: true }, function () {
+        assert.ok(this.foo, 'has proper `this` context');
+        return true;
+      });
 
-    this.waiters.check();
-  });
+      this.waiters.add(function () {
+        assert.ok(true, 'is called');
+        return true;
+      });
 
-  QUnit.test('unregistering a waiter', function (assert) {
-    assert.expect(2);
+      this.waiters.check();
+    };
 
-    this.waiters.add({ foo: true }, function () {
-      assert.ok(true, 'precond - waiter with context is registered');
-      return true;
-    });
+    _class.prototype['@test unregistering a waiter'] = function (assert) {
+      assert.expect(2);
 
-    this.waiters.add(function () {
-      assert.ok(true, 'precond - waiter without context is registered');
-      return true;
-    });
+      this.waiters.add({ foo: true }, function () {
+        assert.ok(true, 'precond - waiter with context is registered');
+        return true;
+      });
 
-    this.waiters.check();
-    this.waiters.unregister();
+      this.waiters.add(function () {
+        assert.ok(true, 'precond - waiter without context is registered');
+        return true;
+      });
 
-    (0, _waiters.checkWaiters)();
-  });
+      this.waiters.check();
+      this.waiters.unregister();
 
-  QUnit.test('checkWaiters returns false if all waiters return true', function (assert) {
-    assert.expect(3);
+      (0, _waiters.checkWaiters)();
+    };
 
-    this.waiters.add(function () {
-      assert.ok(true, 'precond - waiter is registered');
+    _class.prototype['@test checkWaiters returns false if all waiters return true'] = function (assert) {
+      assert.expect(3);
 
-      return true;
-    });
+      this.waiters.add(function () {
+        assert.ok(true, 'precond - waiter is registered');
 
-    this.waiters.add(function () {
-      assert.ok(true, 'precond - waiter is registered');
+        return true;
+      });
 
-      return true;
-    });
+      this.waiters.add(function () {
+        assert.ok(true, 'precond - waiter is registered');
 
-    assert.notOk(this.waiters.check(), 'checkWaiters returns true if all waiters return true');
-  });
+        return true;
+      });
 
-  QUnit.test('checkWaiters returns true if any waiters return false', function (assert) {
-    assert.expect(3);
+      assert.notOk(this.waiters.check(), 'checkWaiters returns true if all waiters return true');
+    };
 
-    this.waiters.add(function () {
-      assert.ok(true, 'precond - waiter is registered');
+    _class.prototype['@test checkWaiters returns true if any waiters return false'] = function (assert) {
+      assert.expect(3);
 
-      return true;
-    });
+      this.waiters.add(function () {
+        assert.ok(true, 'precond - waiter is registered');
 
-    this.waiters.add(function () {
-      assert.ok(true, 'precond - waiter is registered');
+        return true;
+      });
 
-      return false;
-    });
+      this.waiters.add(function () {
+        assert.ok(true, 'precond - waiter is registered');
 
-    assert.ok(this.waiters.check(), 'checkWaiters returns false if any waiters return false');
-  });
+        return false;
+      });
 
-  QUnit.test('checkWaiters short circuits after first falsey waiter', function (assert) {
-    assert.expect(2);
+      assert.ok(this.waiters.check(), 'checkWaiters returns false if any waiters return false');
+    };
 
-    this.waiters.add(function () {
-      assert.ok(true, 'precond - waiter is registered');
+    _class.prototype['@test checkWaiters short circuits after first falsey waiter'] = function (assert) {
+      assert.expect(2);
 
-      return false;
-    });
+      this.waiters.add(function () {
+        assert.ok(true, 'precond - waiter is registered');
 
-    this.waiters.add(function () {
-      assert.notOk(true, 'waiter should not be called');
-    });
+        return false;
+      });
 
-    assert.ok(this.waiters.check(), 'checkWaiters returns false if any waiters return false');
-  });
+      this.waiters.add(function () {
+        assert.notOk(true, 'waiter should not be called');
+      });
+
+      assert.ok(this.waiters.check(), 'checkWaiters returns false if any waiters return false');
+    };
+
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
 });
-enifed('ember-utils/tests/assign_test', ['ember-utils'], function (_emberUtils) {
+enifed('ember-utils/tests/assign_test', ['ember-babel', 'ember-utils', 'internal-test-helpers'], function (_emberBabel, _emberUtils, _internalTestHelpers) {
   'use strict';
 
-  QUnit.module('Ember.assign');
+  (0, _internalTestHelpers.moduleFor)('Ember.assign', function (_TestCase) {
+    (0, _emberBabel.inherits)(_class, _TestCase);
 
-  QUnit.test('merging objects', function () {
-    var trgt = { a: 1 };
-    var src1 = { b: 2 };
-    var src2 = { c: 3 };
+    function _class() {
+      return (0, _emberBabel.possibleConstructorReturn)(this, _TestCase.apply(this, arguments));
+    }
 
-    (0, _emberUtils.assignPolyfill)(trgt, src1, src2);
+    _class.prototype['@test merging objects'] = function (assert) {
+      var trgt = { a: 1 };
+      var src1 = { b: 2 };
+      var src2 = { c: 3 };
+      (0, _emberUtils.assignPolyfill)(trgt, src1, src2);
 
-    deepEqual(trgt, { a: 1, b: 2, c: 3 }, 'assign copies values from one or more source objects to a target object');
-    deepEqual(src1, { b: 2 }, 'assign does not change source object 1');
-    deepEqual(src2, { c: 3 }, 'assign does not change source object 2');
-  });
+      assert.deepEqual(trgt, { a: 1, b: 2, c: 3 }, 'assign copies values from one or more source objects to a target object');
+      assert.deepEqual(src1, { b: 2 }, 'assign does not change source object 1');
+      assert.deepEqual(src2, { c: 3 }, 'assign does not change source object 2');
+    };
 
-  QUnit.test('merging objects with same property', function () {
-    var trgt = { a: 1, b: 1 };
+    _class.prototype['@test merging objects with same property'] = function (assert) {
+      var trgt = { a: 1, b: 1 };
 
+      (0, _emberUtils.assignPolyfill)(trgt, { a: 2, b: 2 }, { a: 3 });
 
-    (0, _emberUtils.assignPolyfill)(trgt, { a: 2, b: 2 }, { a: 3 });
-    deepEqual(trgt, { a: 3, b: 2 }, 'properties are overwritten by other objects that have the same properties later in the parameters order');
-  });
+      assert.deepEqual(trgt, { a: 3, b: 2 }, 'properties are overwritten by other objects that have the same properties later in the parameters order');
+    };
 
-  QUnit.test('null', function () {
-    var trgt = { a: 1 };
+    _class.prototype['@test null'] = function (assert) {
+      var trgt = { a: 1 };
+      (0, _emberUtils.assignPolyfill)(trgt, null);
 
-    (0, _emberUtils.assignPolyfill)(trgt, null);
-    deepEqual(trgt, { a: 1 }, 'null as a source parameter is ignored');
-  });
+      assert.deepEqual(trgt, { a: 1 }, 'null as a source parameter is ignored');
+    };
 
-  QUnit.test('undefined', function () {
-    var trgt = { a: 1 };
+    _class.prototype['@test undefined'] = function (assert) {
+      var trgt = { a: 1 };
+      (0, _emberUtils.assignPolyfill)(trgt, null);
 
-    (0, _emberUtils.assignPolyfill)(trgt, null);
-    deepEqual(trgt, { a: 1 }, 'undefined as a source parameter is ignored');
-  });
+      assert.deepEqual(trgt, { a: 1 }, 'undefined as a source parameter is ignored');
+    };
+
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
 });
-enifed('ember-utils/tests/can_invoke_test', ['ember-utils'], function (_emberUtils) {
+enifed('ember-utils/tests/can_invoke_test', ['ember-babel', 'ember-utils', 'internal-test-helpers'], function (_emberBabel, _emberUtils, _internalTestHelpers) {
   'use strict';
 
   var obj = void 0;
 
-  QUnit.module('Ember.canInvoke', {
-    setup: function () {
+  (0, _internalTestHelpers.moduleFor)('Ember.canInvoke', function (_TestCase) {
+    (0, _emberBabel.inherits)(_class, _TestCase);
+
+    function _class() {
+
+      var _this = (0, _emberBabel.possibleConstructorReturn)(this, _TestCase.call(this));
+
       obj = {
         foobar: 'foobar',
         aMethodThatExists: function () {}
       };
-    },
-    teardown: function () {
-      obj = undefined;
+      return _this;
     }
-  });
 
-  QUnit.test('should return false if the object doesn\'t exist', function () {
-    equal((0, _emberUtils.canInvoke)(undefined, 'aMethodThatDoesNotExist'), false);
-  });
+    _class.prototype.teardown = function () {
+      obj = undefined;
+    };
 
-  QUnit.test('should return true for falsy values that have methods', function () {
-    equal((0, _emberUtils.canInvoke)(false, 'valueOf'), true);
-    equal((0, _emberUtils.canInvoke)('', 'charAt'), true);
-    equal((0, _emberUtils.canInvoke)(0, 'toFixed'), true);
-  });
+    _class.prototype['@test should return false if the object doesn\'t exist'] = function (assert) {
+      assert.equal((0, _emberUtils.canInvoke)(undefined, 'aMethodThatDoesNotExist'), false);
+    };
 
-  QUnit.test('should return true if the method exists on the object', function () {
-    equal((0, _emberUtils.canInvoke)(obj, 'aMethodThatExists'), true);
-  });
+    _class.prototype['@test should return true for falsy values that have methods'] = function (assert) {
+      assert.equal((0, _emberUtils.canInvoke)(false, 'valueOf'), true);
+      assert.equal((0, _emberUtils.canInvoke)('', 'charAt'), true);
+      assert.equal((0, _emberUtils.canInvoke)(0, 'toFixed'), true);
+    };
 
-  QUnit.test('should return false if the method doesn\'t exist on the object', function () {
-    equal((0, _emberUtils.canInvoke)(obj, 'aMethodThatDoesNotExist'), false);
-  });
+    _class.prototype['@test should return true if the method exists on the object'] = function (assert) {
+      assert.equal((0, _emberUtils.canInvoke)(obj, 'aMethodThatExists'), true);
+    };
 
-  QUnit.test('should return false if the property exists on the object but is a non-function', function () {
-    equal((0, _emberUtils.canInvoke)(obj, 'foobar'), false);
-  });
+    _class.prototype['@test should return false if the method doesn\'t exist on the object'] = function (assert) {
+      assert.equal((0, _emberUtils.canInvoke)(obj, 'aMethodThatDoesNotExist'), false);
+    };
+
+    _class.prototype['@test should return false if the property exists on the object but is a non-function'] = function (assert) {
+      assert.equal((0, _emberUtils.canInvoke)(obj, 'foobar'), false);
+    };
+
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
 });
-enifed('ember-utils/tests/checkHasSuper_test', ['ember-environment', 'ember-utils'], function (_emberEnvironment, _emberUtils) {
+enifed('ember-utils/tests/checkHasSuper_test', ['ember-babel', 'ember-environment', 'ember-utils', 'internal-test-helpers'], function (_emberBabel, _emberEnvironment, _emberUtils, _internalTestHelpers) {
   'use strict';
-
-  QUnit.module('checkHasSuper');
 
   // Only run this test on browsers that we are certain should have function
   // source available.  This allows the test suite to continue to pass on other
   // platforms that correctly (for them) fall back to the "always wrap" code.
-  if (_emberEnvironment.environment.isPhantom || _emberEnvironment.environment.isChrome || _emberEnvironment.environment.isFirefox) {
-    QUnit.test('does not super wrap needlessly [GH #12462]', function (assert) {
-      assert.notOk((0, _emberUtils.checkHasSuper)(function () {}), 'empty function does not have super');
-    });
+
+  if (_emberEnvironment.environment.isChrome || _emberEnvironment.environment.isFirefox) {
+    (0, _internalTestHelpers.moduleFor)('checkHasSuper', function (_TestCase) {
+      (0, _emberBabel.inherits)(_class, _TestCase);
+
+      function _class() {
+        return (0, _emberBabel.possibleConstructorReturn)(this, _TestCase.apply(this, arguments));
+      }
+
+      _class.prototype['@test does not super wrap needlessly [GH #12462]'] = function (assert) {
+        assert.notOk((0, _emberUtils.checkHasSuper)(function () {}), 'empty function does not have super');
+      };
+
+      return _class;
+    }(_internalTestHelpers.AbstractTestCase));
   }
 });
-enifed('ember-utils/tests/generate_guid_test', ['ember-utils'], function (_emberUtils) {
+enifed('ember-utils/tests/generate_guid_test', ['ember-babel', 'ember-utils', 'internal-test-helpers'], function (_emberBabel, _emberUtils, _internalTestHelpers) {
   'use strict';
 
-  QUnit.module('Ember.generateGuid');
+  (0, _internalTestHelpers.moduleFor)('Ember.generateGuid', function (_TestCase) {
+    (0, _emberBabel.inherits)(_class, _TestCase);
 
-  QUnit.test('Prefix', function () {
+    function _class() {
+      return (0, _emberBabel.possibleConstructorReturn)(this, _TestCase.apply(this, arguments));
+    }
 
-    ok((0, _emberUtils.generateGuid)({}, 'tyrell').indexOf('tyrell') > -1, 'guid can be prefixed');
-  });
+    _class.prototype['@test Prefix'] = function (assert) {
+
+      assert.ok((0, _emberUtils.generateGuid)({}, 'tyrell').indexOf('tyrell') > -1, 'guid can be prefixed');
+    };
+
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
 });
-enifed('ember-utils/tests/guid_for_test', ['ember-utils'], function (_emberUtils) {
+enifed('ember-utils/tests/guid_for_test', ['ember-babel', 'ember-utils', 'internal-test-helpers'], function (_emberBabel, _emberUtils, _internalTestHelpers) {
   'use strict';
 
-  QUnit.module('guidFor');
-
-  function sameGuid(a, b, message) {
-    equal((0, _emberUtils.guidFor)(a), (0, _emberUtils.guidFor)(b), message);
+  function sameGuid(assert, a, b, message) {
+    assert.equal((0, _emberUtils.guidFor)(a), (0, _emberUtils.guidFor)(b), message);
   }
 
-  function diffGuid(a, b, message) {
-    ok((0, _emberUtils.guidFor)(a) !== (0, _emberUtils.guidFor)(b), message);
+  function diffGuid(assert, a, b, message) {
+    assert.ok((0, _emberUtils.guidFor)(a) !== (0, _emberUtils.guidFor)(b), message);
   }
 
-  function nanGuid(obj) {
-    ok(isNaN(parseInt((0, _emberUtils.guidFor)(obj), 0)), 'guids for ' + typeof obj + 'don\'t parse to numbers');
+  function nanGuid(assert, obj) {
+    assert.ok(isNaN(parseInt((0, _emberUtils.guidFor)(obj), 0)), 'guids for ' + typeof obj + 'don\'t parse to numbers');
   }
 
-  QUnit.test('Object', function () {
-    var a = {};
+  (0, _internalTestHelpers.moduleFor)('guidFor', function (_TestCase) {
+    (0, _emberBabel.inherits)(_class, _TestCase);
+
+    function _class() {
+      return (0, _emberBabel.possibleConstructorReturn)(this, _TestCase.apply(this, arguments));
+    }
+
+    _class.prototype['@test Object'] = function (assert) {
+      var a = {};
 
 
-    sameGuid(a, a, 'same object always yields same guid');
-    diffGuid(a, {}, 'different objects yield different guids');
-    nanGuid(a);
-  });
+      sameGuid(assert, a, a, 'same object always yields same guid');
+      diffGuid(assert, a, {}, 'different objects yield different guids');
+      nanGuid(assert, a);
+    };
 
-  QUnit.test('strings', function () {
-    var a = 'string A';
-
-
-    sameGuid(a, a, 'same string always yields same guid');
-    sameGuid(a, 'string A', 'identical strings always yield the same guid');
-    diffGuid(a, 'String B', 'different strings yield different guids');
-    nanGuid(a);
-  });
-
-  QUnit.test('numbers', function () {
-    var a = 23;
+    _class.prototype['@test strings'] = function (assert) {
+      var a = 'string A';
 
 
-    sameGuid(a, a, 'same numbers always yields same guid');
-    sameGuid(a, 23, 'identical numbers always yield the same guid');
-    diffGuid(a, 34, 'different numbers yield different guids');
-    nanGuid(a);
-  });
+      sameGuid(assert, a, a, 'same string always yields same guid');
+      sameGuid(assert, a, 'string A', 'identical strings always yield the same guid');
+      diffGuid(assert, a, 'String B', 'different strings yield different guids');
+      nanGuid(assert, a);
+    };
 
-  QUnit.test('numbers', function () {
-    var a = true;
-
-    var b = false;
-
-    sameGuid(a, a, 'same booleans always yields same guid');
-    sameGuid(a, true, 'identical booleans always yield the same guid');
-    diffGuid(a, b, 'different boolean yield different guids');
-    nanGuid(a);
-    nanGuid(b);
-  });
-
-  QUnit.test('null and undefined', function () {
-    var a = null;
-
-    var b = void 0;
-
-    sameGuid(a, a, 'null always returns the same guid');
-    sameGuid(b, b, 'undefined always returns the same guid');
-    sameGuid(a, null, 'different nulls return the same guid');
-    diffGuid(a, b, 'null and undefined return different guids');
-    nanGuid(a);
-    nanGuid(b);
-  });
-
-  QUnit.test('arrays', function () {
-    var a = ['a', 'b', 'c'];
+    _class.prototype['@test numbers'] = function (assert) {
+      var a = 23;
 
 
-    sameGuid(a, a, 'same instance always yields same guid');
-    diffGuid(a, ['a', 'b', 'c'], 'identical arrays always yield the same guid');
-    diffGuid(a, ['1', '2', '3'], 'different arrays yield different guids');
-    nanGuid(a);
-  });
+      sameGuid(assert, a, a, 'same numbers always yields same guid');
+      sameGuid(assert, a, 23, 'identical numbers always yield the same guid');
+      diffGuid(assert, a, 34, 'different numbers yield different guids');
+      nanGuid(assert, a);
+    };
+
+    _class.prototype['@test numbers'] = function (assert) {
+      var a = true;
+
+      var b = false;
+
+      sameGuid(assert, a, a, 'same booleans always yields same guid');
+      sameGuid(assert, a, true, 'identical booleans always yield the same guid');
+      diffGuid(assert, a, b, 'different boolean yield different guids');
+      nanGuid(assert, a);
+      nanGuid(assert, b);
+    };
+
+    _class.prototype['@test null and undefined'] = function (assert) {
+      var a = null;
+
+      var b = void 0;
+
+      sameGuid(assert, a, a, 'null always returns the same guid');
+      sameGuid(assert, b, b, 'undefined always returns the same guid');
+      sameGuid(assert, a, null, 'different nulls return the same guid');
+      diffGuid(assert, a, b, 'null and undefined return different guids');
+      nanGuid(assert, a);
+      nanGuid(assert, b);
+    };
+
+    _class.prototype['@test arrays'] = function (assert) {
+      var a = ['a', 'b', 'c'];
+
+
+      sameGuid(assert, a, a, 'same instance always yields same guid');
+      diffGuid(assert, a, ['a', 'b', 'c'], 'identical arrays always yield the same guid');
+      diffGuid(assert, a, ['1', '2', '3'], 'different arrays yield different guids');
+      nanGuid(assert, a);
+    };
+
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
 });
-enifed('ember-utils/tests/inspect_test', ['ember-utils'], function (_emberUtils) {
+enifed('ember-utils/tests/inspect_test', ['ember-babel', 'ember-utils', 'internal-test-helpers'], function (_emberBabel, _emberUtils, _internalTestHelpers) {
   'use strict';
 
   // Symbol is not defined on pre-ES2015 runtimes, so this let's us safely test
@@ -63317,147 +63266,176 @@ enifed('ember-utils/tests/inspect_test', ['ember-utils'], function (_emberUtils)
 
   var HAS_NATIVE_SYMBOL = typeof Symbol === 'function';
 
-  QUnit.module('Ember.inspect');
+  (0, _internalTestHelpers.moduleFor)('Ember.inspect', function (_TestCase) {
+    (0, _emberBabel.inherits)(_class, _TestCase);
 
-  QUnit.test('strings', function () {
-    equal((0, _emberUtils.inspect)('foo'), 'foo');
-  });
-
-  QUnit.test('numbers', function () {
-    equal((0, _emberUtils.inspect)(2.6), '2.6');
-  });
-
-  QUnit.test('null', function () {
-    equal((0, _emberUtils.inspect)(null), 'null');
-  });
-
-  QUnit.test('undefined', function () {
-    equal((0, _emberUtils.inspect)(undefined), 'undefined');
-  });
-
-  QUnit.test('true', function () {
-    equal((0, _emberUtils.inspect)(true), 'true');
-  });
-
-  QUnit.test('false', function () {
-    equal((0, _emberUtils.inspect)(false), 'false');
-  });
-
-  QUnit.test('object', function () {
-    equal((0, _emberUtils.inspect)({}), '{}');
-    equal((0, _emberUtils.inspect)({ foo: 'bar' }), '{foo: bar}');
-    equal((0, _emberUtils.inspect)({
-      foo: function () {
-        return this;
-      }
-    }), '{foo: function() { ... }}');
-  });
-
-  QUnit.test('objects without a prototype', function () {
-    var prototypelessObj = Object.create(null);
-    equal((0, _emberUtils.inspect)({ foo: prototypelessObj }), '{foo: [object Object]}');
-  });
-
-  QUnit.test('array', function () {
-    equal((0, _emberUtils.inspect)([1, 2, 3]), '[1,2,3]');
-  });
-
-  QUnit.test('regexp', function () {
-    equal((0, _emberUtils.inspect)(/regexp/), '/regexp/');
-  });
-
-  QUnit.test('date', function () {
-    var inspected = (0, _emberUtils.inspect)(new Date('Sat Apr 30 2011 13:24:11'));
-    ok(inspected.match(/Sat Apr 30/), 'The inspected date has its date');
-    ok(inspected.match(/2011/), 'The inspected date has its year');
-    ok(inspected.match(/13:24:11/), 'The inspected date has its time');
-  });
-
-  QUnit.test('inspect outputs the toString() representation of Symbols', function () {
-    var symbol;
-
-    if (HAS_NATIVE_SYMBOL) {
-      symbol = Symbol('test');
-
-      equal((0, _emberUtils.inspect)(symbol), 'Symbol(test)');
-    } else {
-      expect(0);
+    function _class() {
+      return (0, _emberBabel.possibleConstructorReturn)(this, _TestCase.apply(this, arguments));
     }
-  });
-});
-enifed('ember-utils/tests/make_array_test', ['ember-utils'], function (_emberUtils) {
-  'use strict';
 
-  QUnit.module('Ember.makeArray');
+    _class.prototype['@test strings'] = function (assert) {
+      assert.equal((0, _emberUtils.inspect)('foo'), 'foo');
+    };
 
-  QUnit.test('undefined', function () {
-    deepEqual((0, _emberUtils.makeArray)(), []);
-    deepEqual((0, _emberUtils.makeArray)(undefined), []);
-  });
+    _class.prototype['@test numbers'] = function (assert) {
+      assert.equal((0, _emberUtils.inspect)(2.6), '2.6');
+    };
 
-  QUnit.test('null', function () {
-    deepEqual((0, _emberUtils.makeArray)(null), []);
-  });
+    _class.prototype['@test null'] = function (assert) {
+      assert.equal((0, _emberUtils.inspect)(null), 'null');
+    };
 
-  QUnit.test('string', function () {
-    deepEqual((0, _emberUtils.makeArray)('lindsay'), ['lindsay']);
-  });
+    _class.prototype['@test undefined'] = function (assert) {
+      assert.equal((0, _emberUtils.inspect)(undefined), 'undefined');
+    };
 
-  QUnit.test('number', function () {
-    deepEqual((0, _emberUtils.makeArray)(0), [0]);
-    deepEqual((0, _emberUtils.makeArray)(1), [1]);
-  });
+    _class.prototype['@test true'] = function (assert) {
+      assert.equal((0, _emberUtils.inspect)(true), 'true');
+    };
 
-  QUnit.test('array', function () {
-    deepEqual((0, _emberUtils.makeArray)([1, 2, 42]), [1, 2, 42]);
-  });
+    _class.prototype['@test false'] = function (assert) {
+      assert.equal((0, _emberUtils.inspect)(false), 'false');
+    };
 
-  QUnit.test('true', function () {
-    deepEqual((0, _emberUtils.makeArray)(true), [true]);
-  });
+    _class.prototype['@test object'] = function (assert) {
+      assert.equal((0, _emberUtils.inspect)({}), '{}');
+      assert.equal((0, _emberUtils.inspect)({ foo: 'bar' }), '{foo: bar}');
+      assert.equal((0, _emberUtils.inspect)({
+        foo: function () {
+          return this;
+        }
+      }), '{foo: function() { ... }}');
+    };
 
-  QUnit.test('false', function () {
-    deepEqual((0, _emberUtils.makeArray)(false), [false]);
-  });
+    _class.prototype['@test objects without a prototype'] = function (assert) {
+      var prototypelessObj = Object.create(null);
+      assert.equal((0, _emberUtils.inspect)({ foo: prototypelessObj }), '{foo: [object Object]}');
+    };
 
-  QUnit.test('object', function () {
-    deepEqual((0, _emberUtils.makeArray)({}), [{}]);
-  });
-});
-enifed('ember-utils/tests/to-string-test', ['ember-utils'], function (_emberUtils) {
-  'use strict';
+    _class.prototype['@test array'] = function (assert) {
+      assert.equal((0, _emberUtils.inspect)([1, 2, 3]), '[1,2,3]');
+    };
 
-  QUnit.module('ember-utils toString');
+    _class.prototype['@test regexp'] = function (assert) {
+      assert.equal((0, _emberUtils.inspect)(/regexp/), '/regexp/');
+    };
 
-  QUnit.test('toString uses an object\'s toString method when available', function () {
+    _class.prototype['@test date'] = function (assert) {
+      var inspected = (0, _emberUtils.inspect)(new Date('Sat Apr 30 2011 13:24:11'));
+      assert.ok(inspected.match(/Sat Apr 30/), 'The inspected date has its date');
+      assert.ok(inspected.match(/2011/), 'The inspected date has its year');
+      assert.ok(inspected.match(/13:24:11/), 'The inspected date has its time');
+    };
 
-    strictEqual((0, _emberUtils.toString)({
-      toString: function () {
-        return 'bob';
+    _class.prototype['@test inspect outputs the toString() representation of Symbols'] = function (assert) {
+      var symbol;
+
+      if (HAS_NATIVE_SYMBOL) {
+        symbol = Symbol('test');
+
+        assert.equal((0, _emberUtils.inspect)(symbol), 'Symbol(test)');
+      } else {
+        assert.expect(0);
       }
-    }), 'bob');
-  });
+    };
 
-  QUnit.test('toString falls back to Object.prototype.toString', function () {
-    var obj = Object.create(null);
-
-    strictEqual((0, _emberUtils.toString)(obj), {}.toString());
-  });
-
-  QUnit.test('toString does not fail when called on Arrays with objects without toString method', function () {
-    var obj = Object.create(null);
-
-
-    strictEqual((0, _emberUtils.toString)([obj, 2]), {}.toString() + ',2');
-  });
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
 });
-enifed('ember-utils/tests/try_invoke_test', ['ember-utils'], function (_emberUtils) {
+enifed('ember-utils/tests/make_array_test', ['ember-babel', 'ember-utils', 'internal-test-helpers'], function (_emberBabel, _emberUtils, _internalTestHelpers) {
+  'use strict';
+
+  (0, _internalTestHelpers.moduleFor)('Ember.makeArray', function (_TestCase) {
+    (0, _emberBabel.inherits)(_class, _TestCase);
+
+    function _class() {
+      return (0, _emberBabel.possibleConstructorReturn)(this, _TestCase.apply(this, arguments));
+    }
+
+    _class.prototype['@test undefined'] = function (assert) {
+      assert.deepEqual((0, _emberUtils.makeArray)(), []);
+      assert.deepEqual((0, _emberUtils.makeArray)(undefined), []);
+    };
+
+    _class.prototype['@test null'] = function (assert) {
+      assert.deepEqual((0, _emberUtils.makeArray)(null), []);
+    };
+
+    _class.prototype['@test string'] = function (assert) {
+      assert.deepEqual((0, _emberUtils.makeArray)('lindsay'), ['lindsay']);
+    };
+
+    _class.prototype['@test number'] = function (assert) {
+      assert.deepEqual((0, _emberUtils.makeArray)(0), [0]);
+      assert.deepEqual((0, _emberUtils.makeArray)(1), [1]);
+    };
+
+    _class.prototype['@test array'] = function (assert) {
+      assert.deepEqual((0, _emberUtils.makeArray)([1, 2, 42]), [1, 2, 42]);
+    };
+
+    _class.prototype['@test true'] = function (assert) {
+      assert.deepEqual((0, _emberUtils.makeArray)(true), [true]);
+    };
+
+    _class.prototype['@test false'] = function (assert) {
+      assert.deepEqual((0, _emberUtils.makeArray)(false), [false]);
+    };
+
+    _class.prototype['@test object'] = function (assert) {
+      assert.deepEqual((0, _emberUtils.makeArray)({}), [{}]);
+    };
+
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
+});
+enifed('ember-utils/tests/to-string-test', ['ember-babel', 'ember-utils', 'internal-test-helpers'], function (_emberBabel, _emberUtils, _internalTestHelpers) {
+  'use strict';
+
+  (0, _internalTestHelpers.moduleFor)('ember-utils toString', function (_TestCase) {
+    (0, _emberBabel.inherits)(_class, _TestCase);
+
+    function _class() {
+      return (0, _emberBabel.possibleConstructorReturn)(this, _TestCase.apply(this, arguments));
+    }
+
+    _class.prototype['@test toString uses an object\'s toString method when available'] = function (assert) {
+
+      assert.strictEqual((0, _emberUtils.toString)({
+        toString: function () {
+          return 'bob';
+        }
+      }), 'bob');
+    };
+
+    _class.prototype['@test toString falls back to Object.prototype.toString'] = function (assert) {
+      var obj = Object.create(null);
+
+      assert.strictEqual((0, _emberUtils.toString)(obj), {}.toString());
+    };
+
+    _class.prototype['@test toString does not fail when called on Arrays with objects without toString method'] = function (assert) {
+      var obj = Object.create(null);
+
+
+      assert.strictEqual((0, _emberUtils.toString)([obj, 2]), {}.toString() + ',2');
+    };
+
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
+});
+enifed('ember-utils/tests/try_invoke_test', ['ember-babel', 'ember-utils', 'internal-test-helpers'], function (_emberBabel, _emberUtils, _internalTestHelpers) {
   'use strict';
 
   var obj = void 0;
 
-  QUnit.module('Ember.tryInvoke', {
-    setup: function () {
+  (0, _internalTestHelpers.moduleFor)('Ember.tryInvoke', function (_TestCase) {
+    (0, _emberBabel.inherits)(_class, _TestCase);
+
+    function _class() {
+
+      var _this = (0, _emberBabel.possibleConstructorReturn)(this, _TestCase.call(this));
+
       obj = {
         aMethodThatExists: function () {
           return true;
@@ -63466,27 +63444,31 @@ enifed('ember-utils/tests/try_invoke_test', ['ember-utils'], function (_emberUti
           return arg1 === arg2;
         }
       };
-    },
-    teardown: function () {
-      obj = undefined;
+      return _this;
     }
-  });
 
-  QUnit.test('should return undefined when the object doesn\'t exist', function () {
-    equal((0, _emberUtils.tryInvoke)(undefined, 'aMethodThatDoesNotExist'), undefined);
-  });
+    _class.prototype.teardown = function () {
+      obj = undefined;
+    };
 
-  QUnit.test('should return undefined when asked to perform a method that doesn\'t exist on the object', function () {
-    equal((0, _emberUtils.tryInvoke)(obj, 'aMethodThatDoesNotExist'), undefined);
-  });
+    _class.prototype['@test should return undefined when the object doesn\'t exist'] = function (assert) {
+      assert.equal((0, _emberUtils.tryInvoke)(undefined, 'aMethodThatDoesNotExist'), undefined);
+    };
 
-  QUnit.test('should return what the method returns when asked to perform a method that exists on the object', function () {
-    equal((0, _emberUtils.tryInvoke)(obj, 'aMethodThatExists'), true);
-  });
+    _class.prototype['@test should return undefined when asked to perform a method that doesn\'t exist on the object'] = function (assert) {
+      assert.equal((0, _emberUtils.tryInvoke)(obj, 'aMethodThatDoesNotExist'), undefined);
+    };
 
-  QUnit.test('should return what the method returns when asked to perform a method that takes arguments and exists on the object', function () {
-    equal((0, _emberUtils.tryInvoke)(obj, 'aMethodThatTakesArguments', [true, true]), true);
-  });
+    _class.prototype['@test should return what the method returns when asked to perform a method that exists on the object'] = function (assert) {
+      assert.equal((0, _emberUtils.tryInvoke)(obj, 'aMethodThatExists'), true);
+    };
+
+    _class.prototype['@test should return what the method returns when asked to perform a method that takes arguments and exists on the object'] = function (assert) {
+      assert.equal((0, _emberUtils.tryInvoke)(obj, 'aMethodThatTakesArguments', [true, true]), true);
+    };
+
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
 });
 enifed('ember/tests/application_lifecycle_test', ['ember-babel', 'internal-test-helpers', 'ember-application', 'ember-routing', 'ember-glimmer'], function (_emberBabel, _internalTestHelpers, _emberApplication, _emberRouting, _emberGlimmer) {
   'use strict';
@@ -63883,7 +63865,7 @@ enifed('ember/tests/component_registration_test', ['ember-babel', 'ember-runtime
       return (0, _emberBabel.possibleConstructorReturn)(this, _AutobootApplicationT.apply(this, arguments));
     }
 
-    _class.prototype['@test The helper becomes the body of the component'] = function (assert) {
+    _class.prototype['@feature(!ember-glimmer-template-only-components) The helper becomes the body of the component'] = function () {
       var _this2 = this;
 
       this.runTask(function () {
@@ -63893,11 +63875,11 @@ enifed('ember/tests/component_registration_test', ['ember-babel', 'ember-runtime
         _this2.addTemplate('application', 'Hello world {{#expand-it}}world{{/expand-it}}');
       });
 
-      var text = this.$('div.ember-view > div.ember-view').text().trim();
-      assert.equal(text, 'hello world', 'The component is composed correctly');
+      this.assertText('Hello world hello world');
+      this.assertComponentElement(this.element.firstElementChild, { tagName: 'div', content: '<p>hello world</p>' });
     };
 
-    _class.prototype['@test If a component is registered, it is used'] = function (assert) {
+    _class.prototype['@feature(ember-glimmer-template-only-components) The helper becomes the body of the component'] = function () {
       var _this3 = this;
 
       this.runTask(function () {
@@ -63905,8 +63887,21 @@ enifed('ember/tests/component_registration_test', ['ember-babel', 'ember-runtime
 
         _this3.addTemplate('components/expand-it', '<p>hello {{yield}}</p>');
         _this3.addTemplate('application', 'Hello world {{#expand-it}}world{{/expand-it}}');
+      });
 
-        _this3.applicationInstance.register('component:expand-it', _emberGlimmer.Component.extend({
+      this.assertInnerHTML('Hello world <p>hello world</p>');
+    };
+
+    _class.prototype['@test If a component is registered, it is used'] = function (assert) {
+      var _this4 = this;
+
+      this.runTask(function () {
+        _this4.createApplication();
+
+        _this4.addTemplate('components/expand-it', '<p>hello {{yield}}</p>');
+        _this4.addTemplate('application', 'Hello world {{#expand-it}}world{{/expand-it}}');
+
+        _this4.applicationInstance.register('component:expand-it', _emberGlimmer.Component.extend({
           classNames: 'testing123'
         }));
       });
@@ -63916,16 +63911,16 @@ enifed('ember/tests/component_registration_test', ['ember-babel', 'ember-runtime
     };
 
     _class.prototype['@test Late-registered components can be rendered with custom `layout` property'] = function (assert) {
-      var _this4 = this;
+      var _this5 = this;
 
       this.runTask(function () {
-        _this4.createApplication();
+        _this5.createApplication();
 
-        _this4.addTemplate('application', '<div id=\'wrapper\'>there goes {{my-hero}}</div>');
+        _this5.addTemplate('application', '<div id=\'wrapper\'>there goes {{my-hero}}</div>');
 
-        _this4.applicationInstance.register('component:my-hero', _emberGlimmer.Component.extend({
+        _this5.applicationInstance.register('component:my-hero', _emberGlimmer.Component.extend({
           classNames: 'testing123',
-          layout: _this4.compile('watch him as he GOES')
+          layout: _this5.compile('watch him as he GOES')
         }));
       });
 
@@ -63934,15 +63929,15 @@ enifed('ember/tests/component_registration_test', ['ember-babel', 'ember-runtime
     };
 
     _class.prototype['@test Late-registered components can be rendered with template registered on the container'] = function (assert) {
-      var _this5 = this;
+      var _this6 = this;
 
       this.runTask(function () {
-        _this5.createApplication();
+        _this6.createApplication();
 
-        _this5.addTemplate('application', '<div id=\'wrapper\'>hello world {{sally-rutherford}}-{{#sally-rutherford}}!!!{{/sally-rutherford}}</div>');
+        _this6.addTemplate('application', '<div id=\'wrapper\'>hello world {{sally-rutherford}}-{{#sally-rutherford}}!!!{{/sally-rutherford}}</div>');
 
-        _this5.applicationInstance.register('template:components/sally-rutherford', _this5.compile('funkytowny{{yield}}'));
-        _this5.applicationInstance.register('component:sally-rutherford', _emberGlimmer.Component);
+        _this6.applicationInstance.register('template:components/sally-rutherford', _this6.compile('funkytowny{{yield}}'));
+        _this6.applicationInstance.register('component:sally-rutherford', _emberGlimmer.Component);
       });
 
       var text = this.$('#wrapper').text().trim();
@@ -63950,14 +63945,14 @@ enifed('ember/tests/component_registration_test', ['ember-babel', 'ember-runtime
     };
 
     _class.prototype['@test Late-registered components can be rendered with ONLY the template registered on the container'] = function (assert) {
-      var _this6 = this;
+      var _this7 = this;
 
       this.runTask(function () {
-        _this6.createApplication();
+        _this7.createApplication();
 
-        _this6.addTemplate('application', '<div id=\'wrapper\'>hello world {{borf-snorlax}}-{{#borf-snorlax}}!!!{{/borf-snorlax}}</div>');
+        _this7.addTemplate('application', '<div id=\'wrapper\'>hello world {{borf-snorlax}}-{{#borf-snorlax}}!!!{{/borf-snorlax}}</div>');
 
-        _this6.applicationInstance.register('template:components/borf-snorlax', _this6.compile('goodfreakingTIMES{{yield}}'));
+        _this7.applicationInstance.register('template:components/borf-snorlax', _this7.compile('goodfreakingTIMES{{yield}}'));
       });
 
       var text = this.$('#wrapper').text().trim();
@@ -63965,20 +63960,20 @@ enifed('ember/tests/component_registration_test', ['ember-babel', 'ember-runtime
     };
 
     _class.prototype['@test Assigning layoutName to a component should setup the template as a layout'] = function (assert) {
-      var _this7 = this;
+      var _this8 = this;
 
       assert.expect(1);
 
       this.runTask(function () {
-        _this7.createApplication();
+        _this8.createApplication();
 
-        _this7.addTemplate('application', '<div id=\'wrapper\'>{{#my-component}}{{text}}{{/my-component}}</div>');
-        _this7.addTemplate('foo-bar-baz', '{{text}}-{{yield}}');
+        _this8.addTemplate('application', '<div id=\'wrapper\'>{{#my-component}}{{text}}{{/my-component}}</div>');
+        _this8.addTemplate('foo-bar-baz', '{{text}}-{{yield}}');
 
-        _this7.applicationInstance.register('controller:application', _emberRuntime.Controller.extend({
+        _this8.applicationInstance.register('controller:application', _emberRuntime.Controller.extend({
           text: 'outer'
         }));
-        _this7.applicationInstance.register('component:my-component', _emberGlimmer.Component.extend({
+        _this8.applicationInstance.register('component:my-component', _emberGlimmer.Component.extend({
           text: 'inner',
           layoutName: 'foo-bar-baz'
         }));
@@ -63989,89 +63984,38 @@ enifed('ember/tests/component_registration_test', ['ember-babel', 'ember-runtime
     };
 
     _class.prototype['@test Assigning layoutName and layout to a component should use the `layout` value'] = function (assert) {
-      var _this8 = this;
+      var _this9 = this;
 
       assert.expect(1);
 
       this.runTask(function () {
-        _this8.createApplication();
+        _this9.createApplication();
 
-        _this8.addTemplate('application', '<div id=\'wrapper\'>{{#my-component}}{{text}}{{/my-component}}</div>');
-        _this8.addTemplate('foo-bar-baz', 'No way!');
+        _this9.addTemplate('application', '<div id=\'wrapper\'>{{#my-component}}{{text}}{{/my-component}}</div>');
+        _this9.addTemplate('foo-bar-baz', 'No way!');
 
-        _this8.applicationInstance.register('controller:application', _emberRuntime.Controller.extend({
+        _this9.applicationInstance.register('controller:application', _emberRuntime.Controller.extend({
           text: 'outer'
         }));
-        _this8.applicationInstance.register('component:my-component', _emberGlimmer.Component.extend({
+        _this9.applicationInstance.register('component:my-component', _emberGlimmer.Component.extend({
           text: 'inner',
           layoutName: 'foo-bar-baz',
-          layout: _this8.compile('{{text}}-{{yield}}')
+          layout: _this9.compile('{{text}}-{{yield}}')
         }));
       });
-
-      var text = this.$('#wrapper').text().trim();
-      assert.equal(text, 'inner-outer', 'The component is composed correctly');
-    };
-
-    _class.prototype['@test Assigning defaultLayout to a component should set it up as a layout if no layout was found [DEPRECATED]'] = function (assert) {
-      var _this9 = this;
-
-      assert.expect(2);
-
-      expectDeprecation(function () {
-        _this9.runTask(function () {
-          _this9.createApplication();
-
-          _this9.addTemplate('application', '<div id=\'wrapper\'>{{#my-component}}{{text}}{{/my-component}}</div>');
-
-          _this9.applicationInstance.register('controller:application', _emberRuntime.Controller.extend({
-            text: 'outer'
-          }));
-          _this9.applicationInstance.register('component:my-component', _emberGlimmer.Component.extend({
-            text: 'inner',
-            defaultLayout: _this9.compile('{{text}}-{{yield}}')
-          }));
-        });
-      });
-
-      var text = this.$('#wrapper').text().trim();
-      assert.equal(text, 'inner-outer', 'The component is composed correctly');
-    };
-
-    _class.prototype['@test Assigning defaultLayout to a component should set it up as a layout if layout was found [DEPRECATED]'] = function (assert) {
-      var _this10 = this;
-
-      assert.expect(2);
-
-      expectDeprecation(function () {
-        _this10.runTask(function () {
-          _this10.createApplication();
-
-          _this10.addTemplate('application', '<div id=\'wrapper\'>{{#my-component}}{{text}}{{/my-component}}</div>');
-          _this10.addTemplate('components/my-component', '{{text}}-{{yield}}');
-
-          _this10.applicationInstance.register('controller:application', _emberRuntime.Controller.extend({
-            text: 'outer'
-          }));
-          _this10.applicationInstance.register('component:my-component', _emberGlimmer.Component.extend({
-            text: 'inner',
-            defaultLayout: _this10.compile('should not see this!')
-          }));
-        });
-      }, /Specifying `defaultLayout` to .+ is deprecated\./);
 
       var text = this.$('#wrapper').text().trim();
       assert.equal(text, 'inner-outer', 'The component is composed correctly');
     };
 
     _class.prototype['@test Using name of component that does not exist'] = function () {
-      var _this11 = this;
+      var _this10 = this;
 
       expectAssertion(function () {
-        _this11.runTask(function () {
-          _this11.createApplication();
+        _this10.runTask(function () {
+          _this10.createApplication();
 
-          _this11.addTemplate('application', '<div id=\'wrapper\'>{{#no-good}} {{/no-good}}</div>');
+          _this10.addTemplate('application', '<div id=\'wrapper\'>{{#no-good}} {{/no-good}}</div>');
         });
       }, /.* named "no-good" .*/);
     };
@@ -64440,26 +64384,56 @@ enifed('ember/tests/error_handler_test', ['ember', 'ember-metal'], function (_em
     });
   }, 20);
 });
-enifed('ember/tests/global-api-test', ['ember-metal', 'ember-runtime'], function (_emberMetal, _emberRuntime) {
+enifed('ember/tests/global-api-test', ['ember-babel', 'ember-metal', 'ember-runtime', 'internal-test-helpers'], function (_emberBabel, _emberMetal, _emberRuntime, _internalTestHelpers) {
   'use strict';
 
-  QUnit.module('Global API Tests');
+  (0, _internalTestHelpers.moduleFor)('Global API Tests', function (_AbstractTestCase) {
+    (0, _emberBabel.inherits)(_class, _AbstractTestCase);
 
-  function confirmExport(property, internal) {
-    QUnit.test('confirm ' + property + ' is exported', function () {
-      var theExport = (0, _emberMetal.get)(window, property);
-      ok(theExport + ' is exported');
+    function _class() {
+      return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase.apply(this, arguments));
+    }
+
+    _class.prototype['@test confirm Ember.DefaultResolver is exported'] = function (assert) {
+      undefined;
+
+      var theExport = (0, _emberMetal.get)(window, 'Ember.DefaultResolver');
+      assert.ok(theExport + ' is exported');
+    };
+
+    _class.prototype['@test confirm Ember.generateController is exported'] = function (assert) {
+      undefined;
+
+      var theExport = (0, _emberMetal.get)(window, 'Ember.generateController');
+      assert.ok(theExport + ' is exported');
+    };
+
+    _class.prototype['@test confirm Ember.Helper is exported'] = function (assert) {
+      undefined;
+
+      var theExport = (0, _emberMetal.get)(window, 'Ember.Helper');
+      assert.ok(theExport + ' is exported');
+    };
+
+    _class.prototype['@test confirm Ember.Helper.helper is exported'] = function (assert) {
+      undefined;
+
+      var theExport = (0, _emberMetal.get)(window, 'Ember.Helper.helper');
+      assert.ok(theExport + ' is exported');
+    };
+
+    _class.prototype['@test confirm Ember.isArray is exported'] = function (assert) {
+      var internal = _emberRuntime.isArray;
+      var theExport = (0, _emberMetal.get)(window, 'Ember.isArray');
+      assert.ok(theExport + ' is exported');
+
       if (internal !== undefined) {
-        equal(theExport, internal, theExport + ' is exported properly');
+        assert.equal(theExport, internal, theExport + ' is exported properly');
       }
-    });
-  }
+    };
 
-  confirmExport('Ember.DefaultResolver');
-  confirmExport('Ember.generateController');
-  confirmExport('Ember.Helper');
-  confirmExport('Ember.Helper.helper');
-  confirmExport('Ember.isArray', _emberRuntime.isArray);
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
 });
 enifed('ember/tests/helpers/helper_registration_test', ['ember-babel', 'internal-test-helpers', 'ember-runtime', 'ember-glimmer'], function (_emberBabel, _internalTestHelpers, _emberRuntime, _emberGlimmer) {
   'use strict';
@@ -64551,7 +64525,7 @@ enifed('ember/tests/helpers/helper_registration_test', ['ember-babel', 'internal
     return _class;
   }(_internalTestHelpers.ApplicationTestCase));
 });
-enifed('ember/tests/helpers/link_to_test', ['ember-babel', 'ember-console', 'internal-test-helpers', 'ember-runtime', 'ember-metal', 'ember-routing', 'ember-views'], function (_emberBabel, _emberConsole, _internalTestHelpers, _emberRuntime, _emberMetal, _emberRouting, _emberViews) {
+enifed('ember/tests/helpers/link_to_test', ['ember-babel', 'internal-test-helpers', 'ember-runtime', 'ember-metal', 'ember-routing', 'ember-views'], function (_emberBabel, _internalTestHelpers, _emberRuntime, _emberMetal, _emberRouting, _emberViews) {
   'use strict';
 
   // IE includes the host name
@@ -64849,24 +64823,6 @@ enifed('ember/tests/helpers/link_to_test', ['ember-babel', 'ember-console', 'int
       assert.equal(normalizeUrl(this.$('#item a').attr('href')), '/about');
     };
 
-    _class4.prototype['@test The {{link-to}} helper supports currentWhen (DEPRECATED)'] = function (assert) {
-      expectDeprecation('Usage of `currentWhen` is deprecated, use `current-when` instead.');
-
-      this.router.map(function () {
-        this.route('index', { path: '/' }, function () {
-          this.route('about');
-        });
-        this.route('item');
-      });
-
-      this.addTemplate('index', '<h3>Home</h3>{{outlet}}');
-      this.addTemplate('index.about', '\n      {{#link-to \'item\' id=\'other-link\' currentWhen=\'index\'}}ITEM{{/link-to}}\n    ');
-
-      this.visit('/about');
-
-      assert.equal(this.$('#other-link.active').length, 1, 'The link is active since current-when is a parent route');
-    };
-
     _class4.prototype['@test The {{link-to}} helper supports custom, nested, current-when'] = function () {
       this.router.map(function () {
         this.route('index', { path: '/' }, function () {
@@ -65064,7 +65020,7 @@ enifed('ember/tests/helpers/link_to_test', ['ember-babel', 'ember-console', 'int
         this.route('item', { path: '/item/:id' });
       });
 
-      this.addTemplate('about', '\n      <h3>List</h3>\n      <ul>\n        {{#each model as |person|}}\n          <li>\n            {{#link-to \'item\' person}}\n              {{person.name}}\n            {{/link-to}}\n          </li>\n        {{/each}}\n      </ul>\n      {{#link-to \'index\' id=\'home-link\'}}Home{{/link-to}}\n    ');
+      this.addTemplate('about', '\n      <h3>List</h3>\n      <ul>\n        {{#each model as |person|}}\n          <li>\n            {{#link-to \'item\' person id=person.id}}\n              {{person.name}}\n            {{/link-to}}\n          </li>\n        {{/each}}\n      </ul>\n      {{#link-to \'index\' id=\'home-link\'}}Home{{/link-to}}\n    ');
 
       this.addTemplate('item', '\n      <h3>Item</h3>\n      <p>{{model.name}}</p>\n      {{#link-to \'index\' id=\'home-link\'}}Home{{/link-to}}\n    ');
 
@@ -65081,7 +65037,7 @@ enifed('ember/tests/helpers/link_to_test', ['ember-babel', 'ember-console', 'int
       assert.equal(this.$('h3:contains(List)').length, 1, 'The home template was rendered');
       assert.equal(normalizeUrl(this.$('#home-link').attr('href')), '/', 'The home link points back at /');
 
-      this.click('li a:contains(Yehuda)');
+      this.click('#yehuda');
 
       assert.equal(this.$('h3:contains(Item)').length, 1, 'The item template was rendered');
       assert.equal(this.$('p').text(), 'Yehuda Katz', 'The name is correct');
@@ -65093,7 +65049,7 @@ enifed('ember/tests/helpers/link_to_test', ['ember-babel', 'ember-console', 'int
       assert.equal(normalizeUrl(this.$('li a:contains(Tom)').attr('href')), '/item/tom');
       assert.equal(normalizeUrl(this.$('li a:contains(Erik)').attr('href')), '/item/erik');
 
-      this.click('li a:contains(Erik)');
+      this.click('#erik');
 
       assert.equal(this.$('h3:contains(Item)').length, 1, 'The item template was rendered');
       assert.equal(this.$('p').text(), 'Erik Brynroflsson', 'The name is correct');
@@ -65471,12 +65427,12 @@ enifed('ember/tests/helpers/link_to_test', ['ember-babel', 'ember-console', 'int
         }
       }));
 
-      this.addTemplate('index', '\n      <h3>Home</h3>\n      <ul>\n        {{#each model as |person|}}\n          <li>\n            {{link-to person.name \'item\' person}}\n          </li>\n        {{/each}}\n      </ul>\n    ');
+      this.addTemplate('index', '\n      <h3>Home</h3>\n      <ul>\n        {{#each model as |person|}}\n          <li>\n            {{link-to person.name \'item\' person id=person.id}}\n          </li>\n        {{/each}}\n      </ul>\n    ');
       this.addTemplate('item', '\n      <h3>Item</h3>\n      <p>{{model.name}}</p>\n      {{#link-to \'index\' id=\'home-link\'}}Home{{/link-to}}\n    ');
 
       this.visit('/');
 
-      this.click('li a:contains(Yehuda)');
+      this.click('#yehuda');
 
       assert.equal(this.$('h3:contains(Item)').length, 1, 'The item template was rendered');
       assert.equal(this.$('p').text(), 'Yehuda Katz', 'The name is correct');
@@ -65770,7 +65726,7 @@ enifed('ember/tests/helpers/link_to_test', ['ember-babel', 'ember-console', 'int
       assertLinkStatus(staticLink);
 
       expectWarning(function () {
-        _this9.click(contextLink);
+        _this9.click(contextLink[0]);
       }, warningMessage);
 
       // Set the destinationRoute (context is still null).
@@ -65804,7 +65760,7 @@ enifed('ember/tests/helpers/link_to_test', ['ember-babel', 'ember-console', 'int
       assertLinkStatus(contextLink);
 
       expectWarning(function () {
-        _this9.click(staticLink);
+        _this9.click(staticLink[0]);
       }, warningMessage);
 
       this.runTask(function () {
@@ -65813,7 +65769,7 @@ enifed('ember/tests/helpers/link_to_test', ['ember-babel', 'ember-console', 'int
       assertLinkStatus(staticLink, '/about');
 
       // Click the now-active link
-      this.click(staticLink);
+      this.click(staticLink[0]);
     };
 
     return _class5;
@@ -66838,12 +66794,12 @@ enifed('ember/tests/production_build_test', ['ember-debug'], function (_emberDeb
     assert.equal(fired, false, 'runInDebug callback should not be ran');
   });
 });
-enifed('ember/tests/reexports_test', ['ember/index', 'internal-test-helpers'], function (_index, _internalTestHelpers) {
+enifed('ember/tests/reexports_test', ['ember/index', 'ember-environment', 'internal-test-helpers'], function (_index, _emberEnvironment, _internalTestHelpers) {
   'use strict';
 
   QUnit.module('ember reexports');
 
-  [
+  var allExports = [
   // ember-utils
   ['getOwner', 'ember-utils', 'getOwner'], ['setOwner', 'ember-utils', 'setOwner'], ['assign', 'ember-utils'], ['GUID_KEY', 'ember-utils'], ['uuid', 'ember-utils'], ['generateGuid', 'ember-utils'], ['guidFor', 'ember-utils'], ['inspect', 'ember-utils'], ['makeArray', 'ember-utils'], ['canInvoke', 'ember-utils'], ['tryInvoke', 'ember-utils'], ['wrap', 'ember-utils'], ['applyStr', 'ember-utils'],
 
@@ -66860,16 +66816,16 @@ enifed('ember/tests/reexports_test', ['ember/index', 'internal-test-helpers'], f
   ['computed', 'ember-metal'], ['computed.alias', 'ember-metal', 'alias'], ['ComputedProperty', 'ember-metal'], ['cacheFor', 'ember-metal'], ['merge', 'ember-metal'], ['instrument', 'ember-metal'], ['Instrumentation.instrument', 'ember-metal', 'instrument'], ['Instrumentation.subscribe', 'ember-metal', 'instrumentationSubscribe'], ['Instrumentation.unsubscribe', 'ember-metal', 'instrumentationUnsubscribe'], ['Instrumentation.reset', 'ember-metal', 'instrumentationReset'], ['testing', 'ember-debug', { get: 'isTesting', set: 'setTesting' }], ['onerror', 'ember-metal', { get: 'getOnerror', set: 'setOnerror' }],
   // ['create'], TODO: figure out what to do here
   // ['keys'], TODO: figure out what to do here
-  ['FEATURES', 'ember/features'], ['FEATURES.isEnabled', 'ember-debug', 'isFeatureEnabled'], ['Error', 'ember-debug'], ['META_DESC', 'ember-metal'], ['meta', 'ember-metal'], ['get', 'ember-metal'], ['set', 'ember-metal'], ['_getPath', 'ember-metal'], ['getWithDefault', 'ember-metal'], ['trySet', 'ember-metal'], ['_Cache', 'ember-metal', 'Cache'], ['on', 'ember-metal'], ['addListener', 'ember-metal'], ['removeListener', 'ember-metal'], ['_suspendListener', 'ember-metal', 'suspendListener'], ['_suspendListeners', 'ember-metal', 'suspendListeners'], ['sendEvent', 'ember-metal'], ['hasListeners', 'ember-metal'], ['watchedEvents', 'ember-metal'], ['listenersFor', 'ember-metal'], ['isNone', 'ember-metal'], ['isEmpty', 'ember-metal'], ['isBlank', 'ember-metal'], ['isPresent', 'ember-metal'], ['_Backburner', 'backburner', 'default'], ['run', 'ember-metal'], ['_ObserverSet', 'ember-metal', 'ObserverSet'], ['propertyWillChange', 'ember-metal'], ['propertyDidChange', 'ember-metal'], ['overrideChains', 'ember-metal'], ['beginPropertyChanges', 'ember-metal'], ['beginPropertyChanges', 'ember-metal'], ['endPropertyChanges', 'ember-metal'], ['changeProperties', 'ember-metal'], ['defineProperty', 'ember-metal'], ['watchKey', 'ember-metal'], ['unwatchKey', 'ember-metal'], ['removeChainWatcher', 'ember-metal'], ['_ChainNode', 'ember-metal', 'ChainNode'], ['finishChains', 'ember-metal'], ['watchPath', 'ember-metal'], ['unwatchPath', 'ember-metal'], ['watch', 'ember-metal'], ['isWatching', 'ember-metal'], ['unwatch', 'ember-metal'], ['destroy', 'ember-metal', 'deleteMeta'], ['libraries', 'ember-metal'], ['OrderedSet', 'ember-metal'], ['Map', 'ember-metal'], ['MapWithDefault', 'ember-metal'], ['getProperties', 'ember-metal'], ['setProperties', 'ember-metal'], ['expandProperties', 'ember-metal'], ['NAME_KEY', 'ember-utils'], ['addObserver', 'ember-metal'], ['observersFor', 'ember-metal'], ['removeObserver', 'ember-metal'], ['_suspendObserver', 'ember-metal'], ['_suspendObservers', 'ember-metal'], ['required', 'ember-metal'], ['aliasMethod', 'ember-metal'], ['observer', 'ember-metal'], ['immediateObserver', 'ember-metal', '_immediateObserver'], ['mixin', 'ember-metal'], ['Mixin', 'ember-metal'], ['bind', 'ember-metal'], ['Binding', 'ember-metal'], ['isGlobalPath', 'ember-metal'],
+  ['FEATURES', 'ember/features'], ['FEATURES.isEnabled', 'ember-debug', 'isFeatureEnabled'], ['Error', 'ember-debug'], ['meta', 'ember-metal'], ['get', 'ember-metal'], ['set', 'ember-metal'], ['_getPath', 'ember-metal'], ['getWithDefault', 'ember-metal'], ['trySet', 'ember-metal'], ['_Cache', 'ember-metal', 'Cache'], ['on', 'ember-metal'], ['addListener', 'ember-metal'], ['removeListener', 'ember-metal'], ['_suspendListener', 'ember-metal', 'suspendListener'], ['_suspendListeners', 'ember-metal', 'suspendListeners'], ['sendEvent', 'ember-metal'], ['hasListeners', 'ember-metal'], ['watchedEvents', 'ember-metal'], ['listenersFor', 'ember-metal'], ['isNone', 'ember-metal'], ['isEmpty', 'ember-metal'], ['isBlank', 'ember-metal'], ['isPresent', 'ember-metal'], ['_Backburner', 'backburner', 'default'], ['run', 'ember-metal'], ['_ObserverSet', 'ember-metal', 'ObserverSet'], ['propertyWillChange', 'ember-metal'], ['propertyDidChange', 'ember-metal'], ['overrideChains', 'ember-metal'], ['beginPropertyChanges', 'ember-metal'], ['beginPropertyChanges', 'ember-metal'], ['endPropertyChanges', 'ember-metal'], ['changeProperties', 'ember-metal'], ['defineProperty', 'ember-metal'], ['watchKey', 'ember-metal'], ['unwatchKey', 'ember-metal'], ['removeChainWatcher', 'ember-metal'], ['_ChainNode', 'ember-metal', 'ChainNode'], ['finishChains', 'ember-metal'], ['watchPath', 'ember-metal'], ['unwatchPath', 'ember-metal'], ['watch', 'ember-metal'], ['isWatching', 'ember-metal'], ['unwatch', 'ember-metal'], ['destroy', 'ember-metal', 'deleteMeta'], ['libraries', 'ember-metal'], ['OrderedSet', 'ember-metal'], ['Map', 'ember-metal'], ['MapWithDefault', 'ember-metal'], ['getProperties', 'ember-metal'], ['setProperties', 'ember-metal'], ['expandProperties', 'ember-metal'], ['NAME_KEY', 'ember-utils'], ['addObserver', 'ember-metal'], ['observersFor', 'ember-metal'], ['removeObserver', 'ember-metal'], ['_suspendObserver', 'ember-metal'], ['_suspendObservers', 'ember-metal'], ['aliasMethod', 'ember-metal'], ['observer', 'ember-metal'], ['mixin', 'ember-metal'], ['Mixin', 'ember-metal'], ['bind', 'ember-metal'], ['Binding', 'ember-metal'], ['isGlobalPath', 'ember-metal'],
 
   // ember-views
   ['$', 'ember-views', 'jQuery'], ['ViewUtils.isSimpleClick', 'ember-views', 'isSimpleClick'], ['ViewUtils.getViewElement', 'ember-views', 'getViewElement'], ['ViewUtils.getViewBounds', 'ember-views', 'getViewBounds'], ['ViewUtils.getViewClientRects', 'ember-views', 'getViewClientRects'], ['ViewUtils.getViewBoundingClientRect', 'ember-views', 'getViewBoundingClientRect'], ['ViewUtils.getRootViews', 'ember-views', 'getRootViews'], ['ViewUtils.getChildViews', 'ember-views', 'getChildViews'], ['TextSupport', 'ember-views'], ['ComponentLookup', 'ember-views'], ['EventDispatcher', 'ember-views'],
 
   // ember-glimmer
-  ['Component', 'ember-glimmer', 'Component'], ['Helper', 'ember-glimmer', 'Helper'], ['Helper.helper', 'ember-glimmer', 'helper'], ['Checkbox', 'ember-glimmer', 'Checkbox'], ['LinkComponent', 'ember-glimmer', 'LinkComponent'], ['TextArea', 'ember-glimmer', 'TextArea'], ['TextField', 'ember-glimmer', 'TextField'], ['TEMPLATES', 'ember-glimmer', { get: 'getTemplates', set: 'setTemplates' }], ['Handlebars.template', 'ember-glimmer', 'template'], ['Handlebars.SafeString', 'ember-glimmer', { get: '_getSafeString' }], ['Handlebars.Utils.escapeExpression', 'ember-glimmer', 'escapeExpression'], ['String.htmlSafe', 'ember-glimmer', 'htmlSafe'],
+  ['Component', 'ember-glimmer', 'Component'], ['Helper', 'ember-glimmer', 'Helper'], ['Helper.helper', 'ember-glimmer', 'helper'], ['Checkbox', 'ember-glimmer', 'Checkbox'], ['LinkComponent', 'ember-glimmer', 'LinkComponent'], ['TextArea', 'ember-glimmer', 'TextArea'], ['TextField', 'ember-glimmer', 'TextField'], ['TEMPLATES', 'ember-glimmer', { get: 'getTemplates', set: 'setTemplates' }], ['Handlebars.template', 'ember-glimmer', 'template'], ['Handlebars.Utils.escapeExpression', 'ember-glimmer', 'escapeExpression'], ['String.htmlSafe', 'ember-glimmer', 'htmlSafe'],
 
   // ember-runtime
-  ['_RegistryProxyMixin', 'ember-runtime', 'RegistryProxyMixin'], ['_ContainerProxyMixin', 'ember-runtime', 'ContainerProxyMixin'], ['Object', 'ember-runtime'], ['String', 'ember-runtime'], ['compare', 'ember-runtime'], ['copy', 'ember-runtime'], ['isEqual', 'ember-runtime'], ['inject', 'ember-runtime'], ['Array', 'ember-runtime'], ['Comparable', 'ember-runtime'], ['Namespace', 'ember-runtime'], ['Enumerable', 'ember-runtime'], ['ArrayProxy', 'ember-runtime'], ['ObjectProxy', 'ember-runtime'], ['ActionHandler', 'ember-runtime'], ['CoreObject', 'ember-runtime'], ['NativeArray', 'ember-runtime'], ['Copyable', 'ember-runtime'], ['Freezable', 'ember-runtime'], ['FROZEN_ERROR', 'ember-runtime'], ['MutableEnumerable', 'ember-runtime'], ['MutableArray', 'ember-runtime'], ['TargetActionSupport', 'ember-runtime'], ['Evented', 'ember-runtime'], ['PromiseProxyMixin', 'ember-runtime'], ['Observable', 'ember-runtime'], ['typeOf', 'ember-runtime'], ['isArray', 'ember-runtime'], ['Object', 'ember-runtime'], ['onLoad', 'ember-runtime'], ['runLoadHooks', 'ember-runtime'], ['Controller', 'ember-runtime'], ['ControllerMixin', 'ember-runtime'], ['Service', 'ember-runtime'], ['_ProxyMixin', 'ember-runtime'], ['RSVP', 'ember-runtime'], ['STRINGS', 'ember-runtime', { get: 'getStrings', set: 'setStrings' }], ['BOOTED', 'ember-runtime', { get: 'isNamespaceSearchDisabled', set: 'setNamespaceSearchDisabled' }],
+  ['_RegistryProxyMixin', 'ember-runtime', 'RegistryProxyMixin'], ['_ContainerProxyMixin', 'ember-runtime', 'ContainerProxyMixin'], ['Object', 'ember-runtime'], ['String', 'ember-runtime'], ['compare', 'ember-runtime'], ['copy', 'ember-runtime'], ['isEqual', 'ember-runtime'], ['inject', 'ember-runtime'], ['Array', 'ember-runtime'], ['Comparable', 'ember-runtime'], ['Namespace', 'ember-runtime'], ['Enumerable', 'ember-runtime'], ['ArrayProxy', 'ember-runtime'], ['ObjectProxy', 'ember-runtime'], ['ActionHandler', 'ember-runtime'], ['CoreObject', 'ember-runtime'], ['NativeArray', 'ember-runtime'], ['Copyable', 'ember-runtime'], ['MutableEnumerable', 'ember-runtime'], ['MutableArray', 'ember-runtime'], ['TargetActionSupport', 'ember-runtime'], ['Evented', 'ember-runtime'], ['PromiseProxyMixin', 'ember-runtime'], ['Observable', 'ember-runtime'], ['typeOf', 'ember-runtime'], ['isArray', 'ember-runtime'], ['Object', 'ember-runtime'], ['onLoad', 'ember-runtime'], ['runLoadHooks', 'ember-runtime'], ['Controller', 'ember-runtime'], ['ControllerMixin', 'ember-runtime'], ['Service', 'ember-runtime'], ['_ProxyMixin', 'ember-runtime'], ['RSVP', 'ember-runtime'], ['STRINGS', 'ember-runtime', { get: 'getStrings', set: 'setStrings' }], ['BOOTED', 'ember-runtime', { get: 'isNamespaceSearchDisabled', set: 'setNamespaceSearchDisabled' }],
 
   // ember-routing
   ['Location', 'ember-routing'], ['AutoLocation', 'ember-routing'], ['HashLocation', 'ember-routing'], ['HistoryLocation', 'ember-routing'], ['NoneLocation', 'ember-routing'], ['controllerFor', 'ember-routing'], ['generateControllerFactory', 'ember-routing'], ['generateController', 'ember-routing'], ['RouterDSL', 'ember-routing'], ['Router', 'ember-routing'], ['Route', 'ember-routing'],
@@ -66878,7 +66834,13 @@ enifed('ember/tests/reexports_test', ['ember/index', 'internal-test-helpers'], f
   ['Application', 'ember-application'], ['ApplicationInstance', 'ember-application'], ['Engine', 'ember-application'], ['EngineInstance', 'ember-application'], ['Resolver', 'ember-application'], ['DefaultResolver', 'ember-application', 'Resolver'],
 
   // ember-extension-support
-  ['DataAdapter', 'ember-extension-support'], ['ContainerDebugAdapter', 'ember-extension-support']].forEach(function (reexport) {
+  ['DataAdapter', 'ember-extension-support'], ['ContainerDebugAdapter', 'ember-extension-support']];
+
+  if (_emberEnvironment.ENV._ENABLE_PROPERTY_REQUIRED_SUPPORT) {
+    allExports.push(['required', 'ember-metal']);
+  }
+
+  allExports.forEach(function (reexport) {
     var path = reexport[0],
         moduleId = reexport[1],
         exportName = reexport[2];
@@ -66897,17 +66859,16 @@ enifed('ember/tests/reexports_test', ['ember/index', 'internal-test-helpers'], f
     (0, _internalTestHelpers.confirmExport)(_index.default, assert, 'String.isHTMLSafe', 'ember-glimmer', 'isHTMLSafe');
   });
 });
-enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember-runtime', 'ember-routing', 'ember-metal', 'ember-glimmer', 'ember-views', 'ember-template-compiler', 'ember-application', 'router'], function (_emberUtils, _emberConsole, _emberRuntime, _emberRouting, _emberMetal, _emberGlimmer, _emberViews, _emberTemplateCompiler, _emberApplication, _router) {
+enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember-runtime', 'ember-routing', 'ember-metal', 'ember-glimmer', 'ember-views', 'ember-environment', 'ember-template-compiler', 'ember-application', 'router'], function (_emberUtils, _emberConsole, _emberRuntime, _emberRouting, _emberMetal, _emberGlimmer, _emberViews, _emberEnvironment, _emberTemplateCompiler, _emberApplication, _router) {
   'use strict';
-
-  var trim = _emberViews.jQuery.trim;
 
   var Router = void 0,
       App = void 0,
       router = void 0,
       registry = void 0,
       container = void 0,
-      originalLoggerError = void 0;
+      originalLoggerError = void 0,
+      originalRenderSupport = void 0;
 
   function bootApplication() {
     router = container.lookup('router:main');
@@ -66973,6 +66934,9 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
         (0, _emberGlimmer.setTemplate)('camelot', (0, _emberTemplateCompiler.compile)('<section><h3>Is a silly place</h3></section>'));
 
         originalLoggerError = _emberConsole.default.error;
+        originalRenderSupport = _emberEnvironment.ENV._ENABLE_RENDER_SUPPORT;
+
+        _emberEnvironment.ENV._ENABLE_RENDER_SUPPORT = true;
       });
     },
     teardown: function () {
@@ -66982,6 +66946,7 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
 
         (0, _emberGlimmer.setTemplates)({});
         _emberConsole.default.error = originalLoggerError;
+        _emberEnvironment.ENV._ENABLE_RENDER_SUPPORT = originalRenderSupport;
       });
     }
   });
@@ -67041,7 +67006,7 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
     });
 
     App.HomeRoute = _emberRouting.Route.extend({
-      setupController: function () {
+      setupController: function () /* controller */{
         (0, _emberMetal.set)(this.controllerFor('home'), 'hours', (0, _emberRuntime.A)(['Monday through Friday: 9am to 5pm', 'Saturday: Noon to Midnight', 'Sunday: Noon to 6pm']));
       }
     });
@@ -67863,7 +67828,7 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
     });
 
     App.ThePostCommentsRoute = _emberRouting.Route.extend({
-      afterModel: function (post) {
+      afterModel: function (post /*, transition */) {
         var parent_model = this.modelFor('thePost');
 
         equal(post, parent_model);
@@ -67877,7 +67842,7 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
     });
 
     App.SharesShareRoute = _emberRouting.Route.extend({
-      afterModel: function (share) {
+      afterModel: function (share /*, transition */) {
         var parent_model = this.modelFor('shares');
 
         equal(share, parent_model);
@@ -67918,7 +67883,7 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
     });
 
     App.CommentsRoute = _emberRouting.Route.extend({
-      afterModel: function (post) {
+      afterModel: function (post /*, transition */) {
         var parent_model = this.modelFor('thePost');
 
         equal(post, parent_model);
@@ -68547,7 +68512,7 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
 
     bootApplication();
 
-    equal((0, _emberViews.jQuery)('#qunit-fixture > div').text(), 'App posts');
+    equal((0, _emberViews.jQuery)('#qunit-fixture').text(), 'App posts');
   });
 
   QUnit.test('The template is not re-rendered when the route\'s context changes', function () {
@@ -69580,10 +69545,10 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
     var calls = [];
 
     var SpyRoute = _emberRouting.Route.extend({
-      setupController: function () {
+      setupController: function () /* controller, model, transition */{
         calls.push(['setup', this.routeName]);
       },
-      resetController: function () {
+      resetController: function () /* controller */{
         calls.push(['reset', this.routeName]);
       }
     });
@@ -69870,13 +69835,13 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
       }
     });
     bootApplication();
-    equal(trim((0, _emberViews.jQuery)('#qunit-fixture').text()), 'hi');
+    equal((0, _emberViews.jQuery)('#qunit-fixture').text().trim(), 'hi');
     (0, _emberMetal.run)(router, 'send', 'openLayer');
-    equal(trim((0, _emberViews.jQuery)('#qunit-fixture').text()), 'hilayer');
+    equal((0, _emberViews.jQuery)('#qunit-fixture').text().trim(), 'hilayer');
     (0, _emberMetal.run)(router, 'send', 'openLayer');
-    equal(trim((0, _emberViews.jQuery)('#qunit-fixture').text()), 'hilayer');
+    equal((0, _emberViews.jQuery)('#qunit-fixture').text().trim(), 'hilayer');
     (0, _emberMetal.run)(router, 'send', 'close');
-    equal(trim((0, _emberViews.jQuery)('#qunit-fixture').text()), 'hi');
+    equal((0, _emberViews.jQuery)('#qunit-fixture').text().trim(), 'hi');
   });
 
   QUnit.test('Renders child into parent with non-default template name', function () {
@@ -69930,11 +69895,11 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
       }
     });
     bootApplication();
-    equal(trim((0, _emberViews.jQuery)('#qunit-fixture').text()), 'hi');
+    equal((0, _emberViews.jQuery)('#qunit-fixture').text().trim(), 'hi');
     (0, _emberMetal.run)(router, 'send', 'openLayer');
-    equal(trim((0, _emberViews.jQuery)('#qunit-fixture').text()), 'hilayer');
+    equal((0, _emberViews.jQuery)('#qunit-fixture').text().trim(), 'hilayer');
     (0, _emberMetal.run)(router, 'send', 'close');
-    equal(trim((0, _emberViews.jQuery)('#qunit-fixture').text()), 'hi');
+    equal((0, _emberViews.jQuery)('#qunit-fixture').text().trim(), 'hi');
   });
 
   QUnit.test('Can this.render({into:...}) the render helper', function () {
@@ -70699,7 +70664,7 @@ enifed('ember/tests/routing/query_params_test', ['ember-babel', 'ember-runtime',
             defaultValue: 'applol'
           }
         },
-        model: function () {
+        model: function () /* params */{
           appModelCount++;
         }
       }));
@@ -71008,7 +70973,7 @@ enifed('ember/tests/routing/query_params_test', ['ember-babel', 'ember-runtime',
       this.setSingleQPController('index');
 
       this.add('route:index', _emberRouting.Route.extend({
-        model: function () {
+        model: function () /* params, transition */{
           assert.deepEqual(this.paramsFor('index'), { something: 'baz', foo: 'bar' }, 'could retrieve params for index');
         }
       }));
@@ -71026,7 +70991,7 @@ enifed('ember/tests/routing/query_params_test', ['ember-babel', 'ember-runtime',
       this.setSingleQPController('index');
 
       this.add('route:index', _emberRouting.Route.extend({
-        model: function () {
+        model: function () /* params, transition */{
           assert.deepEqual(this.paramsFor('index'), { something: 'baz', foo: 'boo' }, 'could retrieve params for index');
         }
       }));
@@ -71044,7 +71009,7 @@ enifed('ember/tests/routing/query_params_test', ['ember-babel', 'ember-runtime',
       this.setSingleQPController('index', 'foo', false);
 
       this.add('route:index', _emberRouting.Route.extend({
-        model: function () {
+        model: function () /* params, transition */{
           assert.deepEqual(this.paramsFor('index'), { something: 'baz', foo: false }, 'could retrieve params for index');
         }
       }));
@@ -71062,7 +71027,7 @@ enifed('ember/tests/routing/query_params_test', ['ember-babel', 'ember-runtime',
       this.setSingleQPController('index', 'foo', true);
 
       this.add('route:index', _emberRouting.Route.extend({
-        model: function () {
+        model: function () /* params, transition */{
           assert.deepEqual(this.paramsFor('index'), { something: 'baz', foo: false }, 'could retrieve params for index');
         }
       }));
@@ -71124,7 +71089,7 @@ enifed('ember/tests/routing/query_params_test', ['ember-babel', 'ember-runtime',
 
       var appModelCount = 0;
       this.add('route:application', _emberRouting.Route.extend({
-        model: function () {
+        model: function () /* params, transition */{
           appModelCount++;
         }
       }));
@@ -71169,7 +71134,7 @@ enifed('ember/tests/routing/query_params_test', ['ember-babel', 'ember-runtime',
 
       var appModelCount = 0;
       this.add('route:application', _emberRouting.Route.extend({
-        model: function () {
+        model: function () /* params */{
           appModelCount++;
         }
       }));
@@ -71301,7 +71266,7 @@ enifed('ember/tests/routing/query_params_test', ['ember-babel', 'ember-runtime',
 
       var appModelCount = 0;
       this.add('route:application', _emberRouting.Route.extend({
-        model: function () {
+        model: function () /* params */{
           appModelCount++;
         }
       }));
@@ -71495,7 +71460,7 @@ enifed('ember/tests/routing/query_params_test', ['ember-babel', 'ember-runtime',
 
       this.add('route:application', _emberRouting.Route.extend({
         queryParams: _emberRuntime.Object.create({
-          unknownProperty: function () {
+          unknownProperty: function () /* keyName */{
             // We are simulating all qps requiring refresh
             return { replace: true };
           }
@@ -71953,7 +71918,7 @@ enifed('ember/tests/routing/query_params_test', ['ember-babel', 'ember-runtime',
       });
 
       this.add('route:application', _emberRouting.Route.extend({
-        model: function () {
+        model: function () /* p, trans */{
           return { woot: true };
         }
       }));
@@ -73578,7 +73543,7 @@ enifed('ember/tests/routing/router_map_test', ['ember-babel', 'internal-test-hel
     return _class;
   }(_internalTestHelpers.ApplicationTestCase));
 });
-enifed('ember/tests/routing/router_service_test/basic_test', ['ember-babel', 'ember-runtime', 'ember-glimmer', 'ember-routing', 'ember-metal', 'internal-test-helpers'], function (_emberBabel, _emberRuntime, _emberGlimmer, _emberRouting, _emberMetal, _internalTestHelpers) {
+enifed('ember/tests/routing/router_service_test/basic_test', ['ember-babel', 'ember-routing', 'ember-metal', 'internal-test-helpers'], function (_emberBabel, _emberRouting, _emberMetal, _internalTestHelpers) {
   'use strict';
 
   (0, _internalTestHelpers.moduleFor)('Router Service - main', function (_RouterTestCase) {
@@ -73815,7 +73780,7 @@ enifed('ember/tests/routing/router_service_test/currenturl_lifecycle_test', ['em
     return _class;
   }(_internalTestHelpers.RouterTestCase));
 });
-enifed('ember/tests/routing/router_service_test/isActive_test', ['ember-babel', 'ember-runtime', 'ember-glimmer', 'ember-routing', 'ember-metal', 'internal-test-helpers'], function (_emberBabel, _emberRuntime, _emberGlimmer, _emberRouting, _emberMetal, _internalTestHelpers) {
+enifed('ember/tests/routing/router_service_test/isActive_test', ['ember-babel', 'ember-runtime', 'internal-test-helpers'], function (_emberBabel, _emberRuntime, _internalTestHelpers) {
   'use strict';
 
   (0, _internalTestHelpers.moduleFor)('Router Service - isActive', function (_RouterTestCase) {
@@ -74475,9 +74440,6 @@ enifed('ember/tests/routing/router_service_test/urlFor_test', ['ember-babel', 'e
         queryParams: ['sort', 'foo'],
         sort: 'ASC'
       }));
-
-      this.buildQueryParams({ sort: 'DESC' });
-
 
       return this.visit('/child/?sort=DESC').then(function () {
         var controller = _this6.applicationInstance.lookup('controller:parent.child');
@@ -75654,13 +75616,23 @@ enifed('ember/tests/routing/toplevel_dom_test', ['ember-babel', 'internal-test-h
       return (0, _emberBabel.possibleConstructorReturn)(this, _ApplicationTestCase.apply(this, arguments));
     }
 
-    _class.prototype['@test Topmost template always get an element'] = function (assert) {
+    _class.prototype['@feature(!ember-glimmer-remove-application-template-wrapper) Topmost template always get an element'] = function () {
       var _this2 = this;
 
       this.addTemplate('application', 'hello world');
 
       return this.visit('/').then(function () {
-        assert.equal(_this2.$('> .ember-view').text(), 'hello world');
+        _this2.assertComponentElement(_this2.element, { content: 'hello world' });
+      });
+    };
+
+    _class.prototype['@feature(ember-glimmer-remove-application-template-wrapper) Topmost template does not get an element'] = function () {
+      var _this3 = this;
+
+      this.addTemplate('application', 'hello world');
+
+      return this.visit('/').then(function () {
+        _this3.assertInnerHTML('hello world');
       });
     };
 
@@ -76262,7 +76234,7 @@ enifed('internal-test-helpers/matchers', ['exports'], function (exports) {
     }, _ref;
   }
 });
-enifed('internal-test-helpers/module-for', ['exports', 'ember-runtime', 'internal-test-helpers/apply-mixins'], function (exports, _emberRuntime, _applyMixins) {
+enifed('internal-test-helpers/module-for', ['exports', 'ember-debug', 'internal-test-helpers/apply-mixins'], function (exports, _emberDebug, _applyMixins) {
   'use strict';
 
   exports.default = function (description, TestClass) {
@@ -76296,7 +76268,21 @@ enifed('internal-test-helpers/module-for', ['exports', 'ember-runtime', 'interna
       proto = Object.getPrototypeOf(proto);
     }
 
+    function shouldTest(features) {
+      return features.every(function (feature) {
+        if (feature[0] === '!' && (0, _emberDebug.isFeatureEnabled)(feature.slice(1))) {
+          return false;
+        } else if (!(0, _emberDebug.isFeatureEnabled)(feature)) {
+          return false;
+        } else {
+          return true;
+        }
+      });
+    }
+
     function generateTest(name) {
+      var match, features;
+
       if (name.indexOf('@test ') === 0) {
         QUnit.test(name.slice(5), function (assert) {
           return context[name](assert);
@@ -76305,6 +76291,20 @@ enifed('internal-test-helpers/module-for', ['exports', 'ember-runtime', 'interna
         QUnit.skip(name.slice(5), function (assert) {
           return context[name](assert);
         });
+      } else {
+        match = /^@feature\(([a-z-!]+)\) /.exec(name);
+
+
+        if (match) {
+          features = match[1].replace(/ /g, '').split(',');
+
+
+          if (shouldTest(features)) {
+            QUnit.test(name.slice(match[0].length), function (assert) {
+              return context[name](assert);
+            });
+          }
+        }
       }
     }
   };
@@ -76343,18 +76343,14 @@ enifed('internal-test-helpers/strip', ['exports'], function (exports) {
     }).join('');
   };
 });
-enifed('internal-test-helpers/test-cases/abstract-application', ['exports', 'ember-babel', 'ember-template-compiler', 'internal-test-helpers/test-cases/abstract', 'ember-views', 'internal-test-helpers/run'], function (exports, _emberBabel, _emberTemplateCompiler, _abstract, _emberViews, _run) {
+enifed('internal-test-helpers/test-cases/abstract-application', ['exports', 'ember-babel', 'ember-template-compiler', 'internal-test-helpers/test-cases/abstract', 'internal-test-helpers/run'], function (exports, _emberBabel, _emberTemplateCompiler, _abstract, _run) {
   'use strict';
 
   var AbstractApplicationTestCase = function (_AbstractTestCase) {
     (0, _emberBabel.inherits)(AbstractApplicationTestCase, _AbstractTestCase);
 
     function AbstractApplicationTestCase() {
-
-      var _this = (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase.call(this));
-
-      _this.element = (0, _emberViews.jQuery)('#qunit-fixture')[0];
-      return _this;
+      return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase.apply(this, arguments));
     }
 
     AbstractApplicationTestCase.prototype.teardown = function () {
@@ -76362,11 +76358,23 @@ enifed('internal-test-helpers/test-cases/abstract-application', ['exports', 'emb
       _AbstractTestCase.prototype.teardown.call(this);
     };
 
-    AbstractApplicationTestCase.prototype.compile = function () {
+    AbstractApplicationTestCase.prototype.compile = function () /* string, options */{
       return _emberTemplateCompiler.compile.apply(undefined, arguments);
     };
 
     (0, _emberBabel.createClass)(AbstractApplicationTestCase, [{
+      key: 'element',
+      get: function () {
+        if (this._element) {
+          return this._element;
+        } else {
+          return this._element = document.querySelector('#qunit-fixture > div.ember-view');
+        }
+      },
+      set: function (element) {
+        this._element = element;
+      }
+    }, {
       key: 'applicationOptions',
       get: function () {
         return {
@@ -76412,7 +76420,7 @@ enifed('internal-test-helpers/test-cases/abstract-rendering', ['exports', 'ember
       });
 
       _this.renderer = _this.owner.lookup('renderer:-dom');
-      _this.element = (0, _emberViews.jQuery)('#qunit-fixture')[0];
+      _this.element = document.querySelector('#qunit-fixture');
       _this.component = null;
 
       owner.register('event_dispatcher:main', _emberViews.EventDispatcher);
@@ -76498,7 +76506,7 @@ enifed('internal-test-helpers/test-cases/abstract-rendering', ['exports', 'ember
 
     AbstractRenderingTestCase.prototype.registerComponent = function (name, _ref) {
       var _ref$ComponentClass = _ref.ComponentClass,
-          ComponentClass = _ref$ComponentClass === undefined ? null : _ref$ComponentClass,
+          ComponentClass = _ref$ComponentClass === undefined ? _emberGlimmer.Component : _ref$ComponentClass,
           _ref$template = _ref.template,
           template = _ref$template === undefined ? null : _ref$template;
       var owner = this.owner;
@@ -76574,6 +76582,12 @@ enifed('internal-test-helpers/test-cases/abstract', ['exports', 'ember-babel', '
       this.element = null;
       this.snapshot = null;
       this.assert = QUnit.config.current.assert;
+
+      var fixture = this.fixture;
+
+      if (fixture) {
+        this.setupFixture(fixture);
+      }
     }
 
     AbstractTestCase.prototype.teardown = function () {};
@@ -76584,6 +76598,11 @@ enifed('internal-test-helpers/test-cases/abstract', ['exports', 'ember-babel', '
 
     AbstractTestCase.prototype.runTaskNext = function (callback) {
       return _emberMetal.run.next(callback);
+    };
+
+    AbstractTestCase.prototype.setupFixture = function (innerHTML) {
+      var fixture = document.getElementById('qunit-fixture');
+      fixture.innerHTML = innerHTML;
     };
 
     AbstractTestCase.prototype.nthChild = function (n) {
@@ -76610,11 +76629,17 @@ enifed('internal-test-helpers/test-cases/abstract', ['exports', 'ember-babel', '
     };
 
     AbstractTestCase.prototype.click = function (selector) {
-      return this.$(selector).click();
+      var element = void 0;
+      if (typeof selector === 'string') {
+        element = this.element.querySelector(selector);
+      } else {
+        element = selector;
+      }
+      return element.click();
     };
 
     AbstractTestCase.prototype.textValue = function () {
-      return this.$().text();
+      return this.element.textContent;
     };
 
     AbstractTestCase.prototype.takeSnapshot = function () {
@@ -76817,7 +76842,7 @@ enifed('internal-test-helpers/test-cases/application', ['exports', 'ember-babel'
 
   exports.default = ApplicationTestCase;
 });
-enifed('internal-test-helpers/test-cases/autoboot-application', ['exports', 'ember-babel', 'internal-test-helpers/test-cases/test-resolver-application', 'internal-test-helpers/test-resolver', 'ember-application', 'ember-utils', 'ember-routing'], function (exports, _emberBabel, _testResolverApplication, _testResolver, _emberApplication, _emberUtils, _emberRouting) {
+enifed('internal-test-helpers/test-cases/autoboot-application', ['exports', 'ember-babel', 'internal-test-helpers/test-cases/test-resolver-application', 'ember-application', 'ember-utils', 'ember-routing'], function (exports, _emberBabel, _testResolverApplication, _emberApplication, _emberUtils, _emberRouting) {
   'use strict';
 
   var AutobootApplicationTestCase = function (_TestResolverApplicat) {
@@ -77106,7 +77131,7 @@ enifed('internal-test-helpers/test-cases/router', ['exports', 'ember-babel', 'in
 
   exports.default = RouterTestCase;
 });
-enifed('internal-test-helpers/test-cases/test-resolver-application', ['exports', 'ember-babel', 'internal-test-helpers/test-cases/abstract-application', 'internal-test-helpers/test-resolver', 'ember-utils'], function (exports, _emberBabel, _abstractApplication, _testResolver, _emberUtils) {
+enifed('internal-test-helpers/test-cases/test-resolver-application', ['exports', 'ember-babel', 'internal-test-helpers/test-cases/abstract-application', 'internal-test-helpers/test-resolver', 'ember-glimmer', 'ember-utils'], function (exports, _emberBabel, _abstractApplication, _testResolver, _emberGlimmer, _emberUtils) {
   'use strict';
 
   var TestResolverApplicationTestCase = function (_AbstractApplicationT) {
@@ -77128,7 +77153,7 @@ enifed('internal-test-helpers/test-cases/test-resolver-application', ['exports',
 
     TestResolverApplicationTestCase.prototype.addComponent = function (name, _ref) {
       var _ref$ComponentClass = _ref.ComponentClass,
-          ComponentClass = _ref$ComponentClass === undefined ? null : _ref$ComponentClass,
+          ComponentClass = _ref$ComponentClass === undefined ? _emberGlimmer.Component : _ref$ComponentClass,
           _ref$template = _ref.template,
           template = _ref$template === undefined ? null : _ref$template;
 
@@ -77293,14 +77318,22 @@ enifed('internal-test-helpers/test-resolver', ['exports', 'ember-babel', 'ember-
 
   exports.ModuleBasedResolver = ModuleBasedResolver;
 });
-enifed('internal-test-helpers/tests/index-test', [], function () {
+enifed('internal-test-helpers/tests/index-test', ['ember-babel', 'internal-test-helpers'], function (_emberBabel, _internalTestHelpers) {
   'use strict';
 
-  QUnit.module('internal-test-helpers');
+  (0, _internalTestHelpers.moduleFor)('internal-test-helpers', function (_AbstractTestCase) {
+    (0, _emberBabel.inherits)(_class, _AbstractTestCase);
 
-  QUnit.test('module present', function (assert) {
-    assert.ok(true, 'each package needs at least one test to be able to run through `npm test`');
-  });
+    function _class() {
+      return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase.apply(this, arguments));
+    }
+
+    _class.prototype['@test module present'] = function (assert) {
+      assert.ok(true, 'each package needs at least one test to be able to run through `npm test`');
+    };
+
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
 });
 /*global enifed */
 enifed('node-module', ['exports'], function(_exports) {

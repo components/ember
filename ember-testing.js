@@ -1,17 +1,19 @@
 (function() {
 /*!
  * @overview  Ember - JavaScript Application Framework
- * @copyright Copyright 2011-2017 Tilde Inc. and contributors
+ * @copyright Copyright 2011-2018 Tilde Inc. and contributors
  *            Portions Copyright 2006-2011 Strobe Inc.
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.18.0
+ * @version   3.0.0-beta.1
  */
 
-/*global process */
+/*globals process */
 var enifed, requireModule, Ember;
-var mainContext = this; // Used in ember-environment/lib/global.js
+
+// Used in ember-environment/lib/global.js
+mainContext = this; // eslint-disable-line no-undef
 
 (function() {
     function missingModule(name, referrerName) {
@@ -186,7 +188,7 @@ enifed('ember-babel', ['exports'], function (exports) {
 
   var slice = exports.slice = Array.prototype.slice;
 });
-enifed('ember-debug/deprecate', ['exports', 'ember-debug/error', 'ember-console', 'ember-environment', 'ember-debug/handlers'], function (exports, _error, _emberConsole, _emberEnvironment, _handlers) {
+enifed('ember-debug/deprecate', ['exports', 'ember-debug/error', 'ember-console', 'ember-environment', 'ember-debug/index', 'ember-debug/handlers'], function (exports, _error, _emberConsole, _emberEnvironment, _index, _handlers) {
   'use strict';
 
   exports.missingOptionsUntilDeprecation = exports.missingOptionsIdDeprecation = exports.missingOptionsDeprecation = exports.registerHandler = undefined;
@@ -231,8 +233,8 @@ enifed('ember-debug/deprecate', ['exports', 'ember-debug/error', 'ember-console'
     @param handler {Function} A function to handle deprecation calls.
     @since 2.1.0
   */
-  var registerHandler = function () {}; /*global __fail__*/
-
+  /*global __fail__*/
+  var registerHandler = function () {};
   var missingOptionsDeprecation = void 0,
       missingOptionsIdDeprecation = void 0,
       missingOptionsUntilDeprecation = void 0,
@@ -346,7 +348,13 @@ enifed('ember-debug/deprecate', ['exports', 'ember-debug/error', 'ember-console'
       @since 1.0.0
     */
     deprecate = function deprecate(message, test, options) {
-      if (!options || !options.id && !options.until) {
+      if (_emberEnvironment.ENV._ENABLE_DEPRECATION_OPTIONS_SUPPORT !== true) {
+        (0, _index.assert)(missingOptionsDeprecation, options && (options.id || options.until));
+        (0, _index.assert)(missingOptionsIdDeprecation, options.id);
+        (0, _index.assert)(missingOptionsUntilDeprecation, options.until);
+      }
+
+      if ((!options || !options.id && !options.until) && _emberEnvironment.ENV._ENABLE_DEPRECATION_OPTIONS_SUPPORT === true) {
         deprecate(missingOptionsDeprecation, false, {
           id: 'ember-debug.deprecate-options-missing',
           until: '3.0.0',
@@ -354,7 +362,7 @@ enifed('ember-debug/deprecate', ['exports', 'ember-debug/error', 'ember-console'
         });
       }
 
-      if (options && !options.id) {
+      if (options && !options.id && _emberEnvironment.ENV._ENABLE_DEPRECATION_OPTIONS_SUPPORT === true) {
         deprecate(missingOptionsIdDeprecation, false, {
           id: 'ember-debug.deprecate-id-missing',
           until: '3.0.0',
@@ -362,7 +370,7 @@ enifed('ember-debug/deprecate', ['exports', 'ember-debug/error', 'ember-console'
         });
       }
 
-      if (options && !options.until) {
+      if (options && !options.until && _emberEnvironment.ENV._ENABLE_DEPRECATION_OPTIONS_SUPPORT === true) {
         deprecate(missingOptionsUntilDeprecation, options && options.until, {
           id: 'ember-debug.deprecate-until-missing',
           until: '3.0.0',
@@ -872,7 +880,7 @@ enifed("ember-debug/testing", ["exports"], function (exports) {
     testing = !!value;
   }
 });
-enifed('ember-debug/warn', ['exports', 'ember-console', 'ember-debug/deprecate', 'ember-debug/handlers'], function (exports, _emberConsole, _deprecate, _handlers) {
+enifed('ember-debug/warn', ['exports', 'ember-environment', 'ember-console', 'ember-debug/deprecate', 'ember-debug/index', 'ember-debug/handlers'], function (exports, _emberEnvironment, _emberConsole, _deprecate, _index, _handlers) {
   'use strict';
 
   exports.missingOptionsDeprecation = exports.missingOptionsIdDeprecation = exports.registerHandler = undefined;
@@ -918,7 +926,7 @@ enifed('ember-debug/warn', ['exports', 'ember-console', 'ember-debug/deprecate',
       (0, _handlers.registerHandler)('warn', handler);
     };
 
-    registerHandler(function logWarning(message, options) {
+    registerHandler(function logWarning(message) {
       _emberConsole.default.warn('WARNING: ' + message);
       if ('trace' in _emberConsole.default) {
         _emberConsole.default.trace();
@@ -950,7 +958,13 @@ enifed('ember-debug/warn', ['exports', 'ember-console', 'ember-debug/deprecate',
         options = test;
         test = false;
       }
-      if (!options) {
+
+      if (_emberEnvironment.ENV._ENABLE_WARN_OPTIONS_SUPPORT !== true) {
+        (0, _index.assert)(missingOptionsDeprecation, options);
+        (0, _index.assert)(missingOptionsIdDeprecation, options && options.id);
+      }
+
+      if (!options && _emberEnvironment.ENV._ENABLE_WARN_OPTIONS_SUPPORT === true) {
         (0, _deprecate.default)(missingOptionsDeprecation, false, {
           id: 'ember-debug.warn-options-missing',
           until: '3.0.0',
@@ -958,7 +972,7 @@ enifed('ember-debug/warn', ['exports', 'ember-console', 'ember-debug/deprecate',
         });
       }
 
-      if (options && !options.id) {
+      if (options && !options.id && _emberEnvironment.ENV._ENABLE_WARN_OPTIONS_SUPPORT === true) {
         (0, _deprecate.default)(missingOptionsIdDeprecation, false, {
           id: 'ember-debug.warn-id-missing',
           until: '3.0.0',
@@ -1040,7 +1054,7 @@ enifed('ember-testing/adapters/qunit', ['exports', 'ember-utils', 'ember-testing
       QUnit.start();
     },
     exception: function (error) {
-      ok(false, (0, _emberUtils.inspect)(error));
+      QUnit.config.current.assert.ok(false, (0, _emberUtils.inspect)(error));
     }
   });
 });
@@ -2449,14 +2463,12 @@ enifed('ember-testing/test/run', ['exports', 'ember-metal'], function (exports, 
     }
   }
 });
-enifed('ember-testing/test/waiters', ['exports', 'ember-debug'], function (exports, _emberDebug) {
-  'use strict';
+enifed("ember-testing/test/waiters", ["exports"], function (exports) {
+  "use strict";
 
   exports.registerWaiter = registerWaiter;
   exports.unregisterWaiter = unregisterWaiter;
   exports.checkWaiters = checkWaiters;
-
-
   /**
    @module @ember/test
   */
