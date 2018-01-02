@@ -3,7 +3,7 @@
     "name": "The Ember API",
     "description": "The Ember API: a framework for building ambitious web applications",
     "url": "https://emberjs.com/",
-    "version": "3.0.0-canary+9b9e72db"
+    "version": "3.0.0-canary+b2aa1cd9"
   },
   "files": {
     "node_modules/rsvp/lib/rsvp/promise/all.js": {
@@ -6312,7 +6312,7 @@
     },
     {
       "file": "packages/ember-console/lib/index.js",
-      "line": 95,
+      "line": 101,
       "description": "If the value passed into `Ember.Logger.assert` is not truthy it will throw an error with a stack trace.\n\n ```javascript\n Ember.Logger.assert(true); // undefined\n Ember.Logger.assert(true === false); // Throws an Assertion failed error.\n Ember.Logger.assert(true === false, 'Something invalid'); // Throws an Assertion failed error with message.\n ```",
       "itemtype": "method",
       "name": "assert",
