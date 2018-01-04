@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.0.0-canary+49e202e0
+ * @version   3.0.0-canary+416acec0
  */
 
 /*globals process */
@@ -43781,57 +43781,75 @@ enifed('ember-metal/tests/property_did_change_hook', ['internal-test-helpers', '
     equal(counts['total'], 1, 'PROPERTY_DID_CHANGE called with total');
   });
 });
-enifed('ember-metal/tests/run_loop/add_queue_test', ['ember-metal'], function (_emberMetal) {
+enifed('ember-metal/tests/run_loop/add_queue_test', ['ember-babel', 'ember-metal', 'internal-test-helpers'], function (_emberBabel, _emberMetal, _internalTestHelpers) {
   'use strict';
 
   var originalQueues = _emberMetal.run.queues;
   var queues = void 0;
 
-  QUnit.module('system/run_loop/add_queue_test', {
-    setup: function () {
+  (0, _internalTestHelpers.moduleFor)('system/run_loop/add_queue_test', function (_AbstractTestCase) {
+    (0, _emberBabel.inherits)(_class, _AbstractTestCase);
+
+    function _class() {
+
+      var _this = (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase.call(this));
+
       _emberMetal.run.queues = queues = ['blork', 'bleep'];
-    },
-    teardown: function () {
-      _emberMetal.run.queues = originalQueues;
+      return _this;
     }
-  });
 
-  QUnit.test('adds a queue after a specified one', function () {
-    _emberMetal.run._addQueue('testeroo', 'blork');
+    _class.prototype.teardown = function () {
+      _emberMetal.run.queues = originalQueues;
+    };
 
-    equal(queues.indexOf('testeroo'), 1, 'new queue was added after specified queue');
-  });
+    _class.prototype['@test adds a queue after a specified one'] = function (assert) {
+      _emberMetal.run._addQueue('testeroo', 'blork');
 
-  QUnit.test('does not add the queue if it already exists', function () {
-    _emberMetal.run._addQueue('testeroo', 'blork');
-    _emberMetal.run._addQueue('testeroo', 'blork');
+      assert.equal(queues.indexOf('testeroo'), 1, 'new queue was added after specified queue');
+    };
 
-    equal(queues.length, 3, 'queue was not added twice');
-  });
+    _class.prototype['@test does not add the queue if it already exists'] = function (assert) {
+      _emberMetal.run._addQueue('testeroo', 'blork');
+      _emberMetal.run._addQueue('testeroo', 'blork');
+
+      assert.equal(queues.length, 3, 'queue was not added twice');
+    };
+
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
 });
-enifed('ember-metal/tests/run_loop/debounce_test', ['ember-metal'], function (_emberMetal) {
+enifed('ember-metal/tests/run_loop/debounce_test', ['ember-babel', 'ember-metal', 'internal-test-helpers'], function (_emberBabel, _emberMetal, _internalTestHelpers) {
   'use strict';
 
   var originalDebounce = _emberMetal.run.backburner.debounce;
   var wasCalled = false;
 
-  QUnit.module('Ember.run.debounce', {
-    setup: function () {
+  (0, _internalTestHelpers.moduleFor)('Ember.run.debounce', function (_AbstractTestCase) {
+    (0, _emberBabel.inherits)(_class, _AbstractTestCase);
+
+    function _class() {
+
+      var _this = (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase.call(this));
+
       _emberMetal.run.backburner.debounce = function () {
         wasCalled = true;
       };
-    },
-    teardown: function () {
-      _emberMetal.run.backburner.debounce = originalDebounce;
+      return _this;
     }
-  });
 
-  QUnit.test('Ember.run.debounce uses Backburner.debounce', function () {
-    _emberMetal.run.debounce(function () {});
-    ok(wasCalled, 'Ember.run.debounce used');
-  });
+    _class.prototype.teardown = function () {
+      _emberMetal.run.backburner.debounce = originalDebounce;
+    };
+
+    _class.prototype['@test Ember.run.debounce uses Backburner.debounce'] = function (assert) {
+      _emberMetal.run.debounce(function () {});
+      assert.ok(wasCalled, 'Ember.run.debounce used');
+    };
+
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
 });
-enifed('ember-metal/tests/run_loop/later_test', ['ember-utils', 'ember-metal'], function (_emberUtils, _emberMetal) {
+enifed('ember-metal/tests/run_loop/later_test', ['ember-babel', 'internal-test-helpers', 'ember-utils', 'ember-metal'], function (_emberBabel, _internalTestHelpers, _emberUtils, _emberMetal) {
   'use strict';
 
   var originalSetTimeout = window.setTimeout;
@@ -43863,622 +43881,644 @@ enifed('ember-metal/tests/run_loop/later_test', ['ember-utils', 'ember-metal'], 
     while (+new Date() < time) {/* do nothing - sleeping */}
   }
 
-  QUnit.module('run.later', {
-    teardown: function () {
+  (0, _internalTestHelpers.moduleFor)('run.later', function (_AbstractTestCase) {
+    (0, _emberBabel.inherits)(_class, _AbstractTestCase);
+
+    function _class() {
+      return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase.apply(this, arguments));
+    }
+
+    _class.prototype.teardown = function () {
       _emberMetal.run.backburner._platform = originalPlatform;
       window.setTimeout = originalSetTimeout;
       Date.prototype.valueOf = originalDateValueOf;
-    }
-  });
+    };
 
-  asyncTest('should invoke after specified period of time - function only', function () {
-    var invoked = false;
+    _class.prototype['@test should invoke after specified period of time - function only'] = function (assert) {
+      var done = assert.async();
+      var invoked = false;
 
-    (0, _emberMetal.run)(function () {
-      _emberMetal.run.later(function () {
-        return invoked = true;
-      }, 100);
-    });
+      (0, _emberMetal.run)(function () {
+        _emberMetal.run.later(function () {
+          return invoked = true;
+        }, 100);
+      });
 
-    wait(function () {
-      QUnit.start();
-      equal(invoked, true, 'should have invoked later item');
-    });
-  });
+      wait(function () {
+        assert.equal(invoked, true, 'should have invoked later item');
+        done();
+      });
+    };
 
-  asyncTest('should invoke after specified period of time - target/method', function () {
-    var obj = { invoked: false };
+    _class.prototype['@test should invoke after specified period of time - target/method'] = function (assert) {
+      var done = assert.async();
+      var obj = { invoked: false };
 
-    (0, _emberMetal.run)(function () {
-      _emberMetal.run.later(obj, function () {
-        this.invoked = true;
-      }, 100);
-    });
+      (0, _emberMetal.run)(function () {
+        _emberMetal.run.later(obj, function () {
+          this.invoked = true;
+        }, 100);
+      });
 
-    wait(function () {
-      QUnit.start();
-      equal(obj.invoked, true, 'should have invoked later item');
-    });
-  });
+      wait(function () {
+        assert.equal(obj.invoked, true, 'should have invoked later item');
+        done();
+      });
+    };
 
-  asyncTest('should invoke after specified period of time - target/method/args', function () {
-    var obj = { invoked: 0 };
+    _class.prototype['@test should invoke after specified period of time - target/method/args'] = function (assert) {
+      var done = assert.async();
+      var obj = { invoked: 0 };
 
-    (0, _emberMetal.run)(function () {
-      _emberMetal.run.later(obj, function (amt) {
-        this.invoked += amt;
-      }, 10, 100);
-    });
+      (0, _emberMetal.run)(function () {
+        _emberMetal.run.later(obj, function (amt) {
+          this.invoked += amt;
+        }, 10, 100);
+      });
 
-    wait(function () {
-      QUnit.start();
-      equal(obj.invoked, 10, 'should have invoked later item');
-    });
-  });
+      wait(function () {
+        assert.equal(obj.invoked, 10, 'should have invoked later item');
+        done();
+      });
+    };
 
-  asyncTest('should always invoke within a separate runloop', function () {
-    var obj = { invoked: 0 };
-    var firstRunLoop = void 0,
-        secondRunLoop = void 0;
+    _class.prototype['@test should always invoke within a separate runloop'] = function (assert) {
+      var done = assert.async();
+      var obj = { invoked: 0 };
+      var firstRunLoop = void 0,
+          secondRunLoop = void 0;
 
-    (0, _emberMetal.run)(function () {
-      firstRunLoop = _emberMetal.run.currentRunLoop;
+      (0, _emberMetal.run)(function () {
+        firstRunLoop = _emberMetal.run.currentRunLoop;
 
-      _emberMetal.run.later(obj, function (amt) {
-        this.invoked += amt;
-        secondRunLoop = _emberMetal.run.currentRunLoop;
-      }, 10, 1);
+        _emberMetal.run.later(obj, function (amt) {
+          this.invoked += amt;
+          secondRunLoop = _emberMetal.run.currentRunLoop;
+        }, 10, 1);
 
-      pauseUntil(+new Date() + 100);
-    });
+        pauseUntil(+new Date() + 100);
+      });
 
-    ok(firstRunLoop, 'first run loop captured');
-    ok(!_emberMetal.run.currentRunLoop, 'shouldn\'t be in a run loop after flush');
-    equal(obj.invoked, 0, 'shouldn\'t have invoked later item yet');
+      assert.ok(firstRunLoop, 'first run loop captured');
+      assert.ok(!_emberMetal.run.currentRunLoop, 'shouldn\'t be in a run loop after flush');
+      assert.equal(obj.invoked, 0, 'shouldn\'t have invoked later item yet');
 
-    wait(function () {
-      QUnit.start();
-      equal(obj.invoked, 10, 'should have invoked later item');
-      ok(secondRunLoop, 'second run loop took place');
-      ok(secondRunLoop !== firstRunLoop, 'two different run loops took place');
-    });
-  });
+      wait(function () {
+        assert.equal(obj.invoked, 10, 'should have invoked later item');
+        assert.ok(secondRunLoop, 'second run loop took place');
+        assert.ok(secondRunLoop !== firstRunLoop, 'two different run loops took place');
+        done();
+      });
+    };
 
-  // Our current implementation doesn't allow us to correctly enforce this ordering.
-  // We should probably implement a queue to provide this guarantee.
-  // See https://github.com/emberjs/ember.js/issues/3526 for more information.
+    _class.prototype['@test inception calls to run.later should run callbacks in separate run loops'] = function (assert) {
+      var done = assert.async();
+      var runLoop = void 0,
+          finished = void 0;
 
-  // asyncTest('callback order', function() {
-  //   let array = [];
-  //   function fn(val) { array.push(val); }
-
-  //   run(function() {
-  //     run.later(this, fn, 4, 5);
-  //     run.later(this, fn, 1, 1);
-  //     run.later(this, fn, 5, 10);
-  //     run.later(this, fn, 2, 3);
-  //     run.later(this, fn, 3, 3);
-  //   });
-
-  //   deepEqual(array, []);
-
-  //   wait(function() {
-  //     QUnit.start();
-  //     deepEqual(array, [1,2,3,4,5], 'callbacks were called in expected order');
-  //   });
-  // });
-
-
-  // Out current implementation doesn't allow us to properly enforce what is tested here.
-  // We should probably fix it, but it's not technically a bug right now.
-  // See https://github.com/emberjs/ember.js/issues/3522 for more information.
-
-  // asyncTest('callbacks coalesce into same run loop if expiring at the same time', function() {
-  //   let array = [];
-  //   function fn(val) { array.push(run.currentRunLoop); }
-
-  //   run(function() {
-
-  //     // Force +new Date to return the same result while scheduling
-  //     // run.later timers. Otherwise: non-determinism!
-  //     let now = +new Date();
-  //     Date.prototype.valueOf = function() { return now; };
-
-  //     run.later(this, fn, 10);
-  //     run.later(this, fn, 200);
-  //     run.later(this, fn, 200);
-
-  //     Date.prototype.valueOf = originalDateValueOf;
-  //   });
-
-  //   deepEqual(array, []);
-
-  //   wait(function() {
-  //     QUnit.start();
-  //     equal(array.length, 3, 'all callbacks called');
-  //     ok(array[0] !== array[1], 'first two callbacks have different run loops');
-  //     ok(array[0], 'first runloop present');
-  //     ok(array[1], 'second runloop present');
-  //     equal(array[1], array[2], 'last two callbacks got the same run loop');
-  //   });
-  // });
-
-  asyncTest('inception calls to run.later should run callbacks in separate run loops', function () {
-    var runLoop = void 0,
-        finished = void 0;
-
-    (0, _emberMetal.run)(function () {
-      runLoop = _emberMetal.run.currentRunLoop;
-      ok(runLoop);
-
-      _emberMetal.run.later(function () {
-        ok(_emberMetal.run.currentRunLoop && _emberMetal.run.currentRunLoop !== runLoop, 'first later callback has own run loop');
+      (0, _emberMetal.run)(function () {
         runLoop = _emberMetal.run.currentRunLoop;
+        assert.ok(runLoop);
 
         _emberMetal.run.later(function () {
-          ok(_emberMetal.run.currentRunLoop && _emberMetal.run.currentRunLoop !== runLoop, 'second later callback has own run loop');
-          finished = true;
+          assert.ok(_emberMetal.run.currentRunLoop && _emberMetal.run.currentRunLoop !== runLoop, 'first later callback has own run loop');
+          runLoop = _emberMetal.run.currentRunLoop;
+
+          _emberMetal.run.later(function () {
+            assert.ok(_emberMetal.run.currentRunLoop && _emberMetal.run.currentRunLoop !== runLoop, 'second later callback has own run loop');
+            finished = true;
+          }, 40);
         }, 40);
-      }, 40);
-    });
-
-    wait(function () {
-      QUnit.start();
-      ok(finished, 'all .later callbacks run');
-    });
-  });
-
-  asyncTest('setTimeout should never run with a negative wait', function () {
-    // Rationale: The old run loop code was susceptible to an occasional
-    // bug where invokeLaterTimers would be scheduled with a setTimeout
-    // with a negative wait. Modern browsers normalize this to 0, but
-    // older browsers (IE <= 8) break with a negative wait, which
-    // happens when an expired timer callback takes a while to run,
-    // which is what we simulate here.
-    var newSetTimeoutUsed = void 0;
-    _emberMetal.run.backburner._platform = (0, _emberUtils.assign)({}, originalPlatform, {
-      setTimeout: function () {
-        var wait = arguments[arguments.length - 1];
-        newSetTimeoutUsed = true;
-        ok(!isNaN(wait) && wait >= 0, 'wait is a non-negative number');
-
-        return originalPlatform.setTimeout.apply(originalPlatform, arguments);
-      }
-    });
-
-    var count = 0;
-    (0, _emberMetal.run)(function () {
-      _emberMetal.run.later(function () {
-        count++;
-
-        // This will get run first. Waste some time.
-        // This is intended to break invokeLaterTimers code by taking a
-        // long enough time that other timers should technically expire. It's
-        // fine that they're not called in this run loop; just need to
-        // make sure that invokeLaterTimers doesn't end up scheduling
-        // a negative setTimeout.
-        pauseUntil(+new Date() + 60);
-      }, 1);
-
-      _emberMetal.run.later(function () {
-        equal(count, 1, 'callbacks called in order');
-      }, 50);
-    });
-
-    wait(function () {
-      QUnit.start();
-      ok(newSetTimeoutUsed, 'stub setTimeout was used');
-    });
-  });
-});
-enifed('ember-metal/tests/run_loop/next_test', ['ember-metal'], function (_emberMetal) {
-  'use strict';
-
-  QUnit.module('run.next');
-
-  asyncTest('should invoke immediately on next timeout', function () {
-    var invoked = false;
-
-    (0, _emberMetal.run)(function () {
-      return _emberMetal.run.next(function () {
-        return invoked = true;
       });
-    });
 
-    equal(invoked, false, 'should not have invoked yet');
-
-    setTimeout(function () {
-      QUnit.start();
-      equal(invoked, true, 'should have invoked later item');
-    }, 20);
-  });
-
-  asyncTest('callback should be called from within separate loop', function () {
-    var firstRunLoop = void 0,
-        secondRunLoop = void 0;
-    (0, _emberMetal.run)(function () {
-      firstRunLoop = _emberMetal.run.currentRunLoop;
-      _emberMetal.run.next(function () {
-        return secondRunLoop = _emberMetal.run.currentRunLoop;
+      wait(function () {
+        assert.ok(finished, 'all .later callbacks run');
+        done();
       });
-    });
-
-    setTimeout(function () {
-      QUnit.start();
-      ok(secondRunLoop, 'callback was called from within run loop');
-      ok(firstRunLoop && secondRunLoop !== firstRunLoop, 'two separate run loops were invoked');
-    }, 20);
-  });
-
-  asyncTest('multiple calls to run.next share coalesce callbacks into same run loop', function () {
-    var secondRunLoop = void 0,
-        thirdRunLoop = void 0;
-    (0, _emberMetal.run)(function () {
-      _emberMetal.run.next(function () {
-        return secondRunLoop = _emberMetal.run.currentRunLoop;
-      });
-      _emberMetal.run.next(function () {
-        return thirdRunLoop = _emberMetal.run.currentRunLoop;
-      });
-    });
-
-    setTimeout(function () {
-      QUnit.start();
-      ok(secondRunLoop && secondRunLoop === thirdRunLoop, 'callbacks coalesced into same run loop');
-    }, 20);
-  });
-});
-enifed('ember-metal/tests/run_loop/once_test', ['ember-metal'], function (_emberMetal) {
-  'use strict';
-
-  QUnit.module('system/run_loop/once_test');
-
-  QUnit.test('calling invokeOnce more than once invokes only once', function () {
-    var count = 0;
-    (0, _emberMetal.run)(function () {
-      function F() {
-        count++;
-      }
-      _emberMetal.run.once(F);
-      _emberMetal.run.once(F);
-      _emberMetal.run.once(F);
-    });
-
-    equal(count, 1, 'should have invoked once');
-  });
-
-  QUnit.test('should differentiate based on target', function () {
-    var A = { count: 0 };
-    var B = { count: 0 };
-    (0, _emberMetal.run)(function () {
-      function F() {
-        this.count++;
-      }
-      _emberMetal.run.once(A, F);
-      _emberMetal.run.once(B, F);
-      _emberMetal.run.once(A, F);
-      _emberMetal.run.once(B, F);
-    });
-
-    equal(A.count, 1, 'should have invoked once on A');
-    equal(B.count, 1, 'should have invoked once on B');
-  });
-
-  QUnit.test('should ignore other arguments - replacing previous ones', function () {
-    var A = { count: 0 };
-    var B = { count: 0 };
-
-    (0, _emberMetal.run)(function () {
-      function F(amt) {
-        this.count += amt;
-      }
-      _emberMetal.run.once(A, F, 10);
-      _emberMetal.run.once(B, F, 20);
-      _emberMetal.run.once(A, F, 30);
-      _emberMetal.run.once(B, F, 40);
-    });
-
-    equal(A.count, 30, 'should have invoked once on A');
-    equal(B.count, 40, 'should have invoked once on B');
-  });
-
-  QUnit.test('should be inside of a runloop when running', function () {
-    (0, _emberMetal.run)(function () {
-      _emberMetal.run.once(function () {
-        return ok(!!_emberMetal.run.currentRunLoop, 'should have a runloop');
-      });
-    });
-  });
-});
-enifed('ember-metal/tests/run_loop/onerror_test', ['ember-metal', 'ember-debug'], function (_emberMetal, _emberDebug) {
-  'use strict';
-
-  QUnit.module('system/run_loop/onerror_test');
-
-  QUnit.test('With Ember.onerror undefined, errors in Ember.run are thrown', function () {
-    var thrown = new Error('Boom!');
-    var original = (0, _emberMetal.getOnerror)();
-
-    var caught = void 0;
-    (0, _emberMetal.setOnerror)(undefined);
-    try {
-      (0, _emberMetal.run)(function () {
-        throw thrown;
-      });
-    } catch (error) {
-      caught = error;
-    } finally {
-      (0, _emberMetal.setOnerror)(original);
-    }
-
-    deepEqual(caught, thrown);
-  });
-
-  QUnit.test('With Ember.onerror set, errors in Ember.run are caught', function () {
-    var thrown = new Error('Boom!');
-    var original = (0, _emberMetal.getOnerror)();
-    var originalDispatchOverride = (0, _emberMetal.getDispatchOverride)();
-    var originalIsTesting = (0, _emberDebug.isTesting)();
-
-    var caught = void 0;
-    (0, _emberMetal.setOnerror)(function (error) {
-      caught = error;
-    });
-    (0, _emberMetal.setDispatchOverride)(null);
-    (0, _emberDebug.setTesting)(false);
-
-    try {
-      (0, _emberMetal.run)(function () {
-        throw thrown;
-      });
-    } finally {
-      (0, _emberMetal.setOnerror)(original);
-      (0, _emberMetal.setDispatchOverride)(originalDispatchOverride);
-      (0, _emberDebug.setTesting)(originalIsTesting);
-    }
-
-    deepEqual(caught, thrown);
-  });
-});
-enifed('ember-metal/tests/run_loop/run_bind_test', ['ember-metal'], function (_emberMetal) {
-  'use strict';
-
-  QUnit.module('system/run_loop/run_bind_test');
-
-  QUnit.test('Ember.run.bind builds a run-loop wrapped callback handler', function () {
-    expect(3);
-
-    var obj = {
-      value: 0,
-      increment: function (increment) {
-        ok(_emberMetal.run.currentRunLoop, 'expected a run-loop');
-        return this.value += increment;
-      }
     };
 
-    var proxiedFunction = _emberMetal.run.bind(obj, obj.increment, 1);
-    equal(proxiedFunction(), 1);
-    equal(obj.value, 1);
-  });
+    _class.prototype['@test setTimeout should never run with a negative wait'] = function (assert) {
+      var done = assert.async();
+      // Rationale: The old run loop code was susceptible to an occasional
+      // bug where invokeLaterTimers would be scheduled with a setTimeout
+      // with a negative wait. Modern browsers normalize this to 0, but
+      // older browsers (IE <= 8) break with a negative wait, which
+      // happens when an expired timer callback takes a while to run,
+      // which is what we simulate here.
+      var newSetTimeoutUsed = void 0;
+      _emberMetal.run.backburner._platform = (0, _emberUtils.assign)({}, originalPlatform, {
+        setTimeout: function () {
+          var wait = arguments[arguments.length - 1];
+          newSetTimeoutUsed = true;
+          assert.ok(!isNaN(wait) && wait >= 0, 'wait is a non-negative number');
 
-  QUnit.test('Ember.run.bind keeps the async callback arguments', function () {
-    expect(4);
+          return originalPlatform.setTimeout.apply(originalPlatform, arguments);
+        }
+      });
 
-    function asyncCallback(increment, increment2, increment3) {
-      ok(_emberMetal.run.currentRunLoop, 'expected a run-loop');
-      equal(increment, 1);
-      equal(increment2, 2);
-      equal(increment3, 3);
-    }
+      var count = 0;
+      (0, _emberMetal.run)(function () {
+        _emberMetal.run.later(function () {
+          count++;
 
-    (function (fn) {
-      fn(2, 3);
-    })(_emberMetal.run.bind(asyncCallback, asyncCallback, 1));
-  });
-});
-enifed('ember-metal/tests/run_loop/run_test', ['ember-metal'], function (_emberMetal) {
-  'use strict';
+          // This will get run first. Waste some time.
+          // This is intended to break invokeLaterTimers code by taking a
+          // long enough time that other timers should technically expire. It's
+          // fine that they're not called in this run loop; just need to
+          // make sure that invokeLaterTimers doesn't end up scheduling
+          // a negative setTimeout.
+          pauseUntil(+new Date() + 60);
+        }, 1);
 
-  QUnit.module('system/run_loop/run_test');
+        _emberMetal.run.later(function () {
+          assert.equal(count, 1, 'callbacks called in order');
+        }, 50);
+      });
 
-  QUnit.test('Ember.run invokes passed function, returning value', function () {
-    var obj = {
-      foo: function () {
-        return [this.bar, 'FOO'];
-      },
-
-      bar: 'BAR',
-      checkArgs: function (arg1, arg2) {
-        return [arg1, this.bar, arg2];
-      }
+      wait(function () {
+        assert.ok(newSetTimeoutUsed, 'stub setTimeout was used');
+        done();
+      });
     };
 
-    equal((0, _emberMetal.run)(function () {
-      return 'FOO';
-    }), 'FOO', 'pass function only');
-    deepEqual((0, _emberMetal.run)(obj, obj.foo), ['BAR', 'FOO'], 'pass obj and obj.method');
-    deepEqual((0, _emberMetal.run)(obj, 'foo'), ['BAR', 'FOO'], 'pass obj and "method"');
-    deepEqual((0, _emberMetal.run)(obj, obj.checkArgs, 'hello', 'world'), ['hello', 'BAR', 'world'], 'pass obj, obj.method, and extra arguments');
-  });
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
 });
-enifed('ember-metal/tests/run_loop/schedule_test', ['ember-metal'], function (_emberMetal) {
+enifed('ember-metal/tests/run_loop/next_test', ['ember-babel', 'ember-metal', 'internal-test-helpers'], function (_emberBabel, _emberMetal, _internalTestHelpers) {
   'use strict';
 
-  QUnit.module('system/run_loop/schedule_test');
+  (0, _internalTestHelpers.moduleFor)('run.next', function (_AbstractTestCase) {
+    (0, _emberBabel.inherits)(_class, _AbstractTestCase);
 
-  QUnit.test('scheduling item in queue should defer until finished', function () {
-    var cnt = 0;
+    function _class() {
+      return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase.apply(this, arguments));
+    }
 
-    (0, _emberMetal.run)(function () {
-      _emberMetal.run.schedule('actions', function () {
-        return cnt++;
+    _class.prototype['@test should invoke immediately on next timeout'] = function (assert) {
+      var done = assert.async();
+      var invoked = false;
+
+      (0, _emberMetal.run)(function () {
+        return _emberMetal.run.next(function () {
+          return invoked = true;
+        });
       });
-      _emberMetal.run.schedule('actions', function () {
-        return cnt++;
+
+      assert.equal(invoked, false, 'should not have invoked yet');
+
+      setTimeout(function () {
+        assert.equal(invoked, true, 'should have invoked later item');
+        done();
+      }, 20);
+    };
+
+    _class.prototype['@test callback should be called from within separate loop'] = function (assert) {
+      var done = assert.async();
+      var firstRunLoop = void 0,
+          secondRunLoop = void 0;
+      (0, _emberMetal.run)(function () {
+        firstRunLoop = _emberMetal.run.currentRunLoop;
+        _emberMetal.run.next(function () {
+          return secondRunLoop = _emberMetal.run.currentRunLoop;
+        });
       });
-      equal(cnt, 0, 'should not run action yet');
-    });
 
-    equal(cnt, 2, 'should flush actions now');
-  });
+      setTimeout(function () {
+        assert.ok(secondRunLoop, 'callback was called from within run loop');
+        assert.ok(firstRunLoop && secondRunLoop !== firstRunLoop, 'two separate run loops were invoked');
+        done();
+      }, 20);
+    };
 
-  QUnit.test('a scheduled item can be canceled', function (assert) {
-    var hasRan = false;
-
-    (0, _emberMetal.run)(function () {
-      var cancelId = _emberMetal.run.schedule('actions', function () {
-        return hasRan = true;
+    _class.prototype['@test multiple calls to run.next share coalesce callbacks into same run loop'] = function (assert) {
+      var done = assert.async();
+      var secondRunLoop = void 0,
+          thirdRunLoop = void 0;
+      (0, _emberMetal.run)(function () {
+        _emberMetal.run.next(function () {
+          return secondRunLoop = _emberMetal.run.currentRunLoop;
+        });
+        _emberMetal.run.next(function () {
+          return thirdRunLoop = _emberMetal.run.currentRunLoop;
+        });
       });
-      _emberMetal.run.cancel(cancelId);
-    });
 
-    assert.notOk(hasRan, 'should not have ran callback run');
-  });
+      setTimeout(function () {
+        assert.ok(secondRunLoop && secondRunLoop === thirdRunLoop, 'callbacks coalesced into same run loop');
+        done();
+      }, 20);
+    };
 
-  QUnit.test('nested runs should queue each phase independently', function () {
-    var cnt = 0;
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
+});
+enifed('ember-metal/tests/run_loop/once_test', ['ember-babel', 'ember-metal', 'internal-test-helpers'], function (_emberBabel, _emberMetal, _internalTestHelpers) {
+  'use strict';
 
-    (0, _emberMetal.run)(function () {
-      _emberMetal.run.schedule('actions', function () {
-        return cnt++;
+  (0, _internalTestHelpers.moduleFor)('system/run_loop/once_test', function (_AbstractTestCase) {
+    (0, _emberBabel.inherits)(_class, _AbstractTestCase);
+
+    function _class() {
+      return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase.apply(this, arguments));
+    }
+
+    _class.prototype['@test calling invokeOnce more than once invokes only once'] = function (assert) {
+      var count = 0;
+      (0, _emberMetal.run)(function () {
+        function F() {
+          count++;
+        }
+        _emberMetal.run.once(F);
+        _emberMetal.run.once(F);
+        _emberMetal.run.once(F);
       });
-      equal(cnt, 0, 'should not run action yet');
+
+      assert.equal(count, 1, 'should have invoked once');
+    };
+
+    _class.prototype['@test should differentiate based on target'] = function (assert) {
+      var A = { count: 0 };
+      var B = { count: 0 };
+      (0, _emberMetal.run)(function () {
+        function F() {
+          this.count++;
+        }
+        _emberMetal.run.once(A, F);
+        _emberMetal.run.once(B, F);
+        _emberMetal.run.once(A, F);
+        _emberMetal.run.once(B, F);
+      });
+
+      assert.equal(A.count, 1, 'should have invoked once on A');
+      assert.equal(B.count, 1, 'should have invoked once on B');
+    };
+
+    _class.prototype['@test should ignore other arguments - replacing previous ones'] = function (assert) {
+      var A = { count: 0 };
+      var B = { count: 0 };
+
+      (0, _emberMetal.run)(function () {
+        function F(amt) {
+          this.count += amt;
+        }
+        _emberMetal.run.once(A, F, 10);
+        _emberMetal.run.once(B, F, 20);
+        _emberMetal.run.once(A, F, 30);
+        _emberMetal.run.once(B, F, 40);
+      });
+
+      assert.equal(A.count, 30, 'should have invoked once on A');
+      assert.equal(B.count, 40, 'should have invoked once on B');
+    };
+
+    _class.prototype['@test should be inside of a runloop when running'] = function (assert) {
+      (0, _emberMetal.run)(function () {
+        _emberMetal.run.once(function () {
+          return assert.ok(!!_emberMetal.run.currentRunLoop, 'should have a runloop');
+        });
+      });
+    };
+
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
+});
+enifed('ember-metal/tests/run_loop/onerror_test', ['ember-babel', 'ember-metal', 'ember-debug', 'internal-test-helpers'], function (_emberBabel, _emberMetal, _emberDebug, _internalTestHelpers) {
+  'use strict';
+
+  (0, _internalTestHelpers.moduleFor)('system/run_loop/onerror_test', function (_AbstractTestCase) {
+    (0, _emberBabel.inherits)(_class, _AbstractTestCase);
+
+    function _class() {
+      return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase.apply(this, arguments));
+    }
+
+    _class.prototype['@test With Ember.onerror undefined, errors in Ember.run are thrown'] = function (assert) {
+      var thrown = new Error('Boom!');
+      var original = (0, _emberMetal.getOnerror)();
+
+      var caught = void 0;
+      (0, _emberMetal.setOnerror)(undefined);
+      try {
+        (0, _emberMetal.run)(function () {
+          throw thrown;
+        });
+      } catch (error) {
+        caught = error;
+      } finally {
+        (0, _emberMetal.setOnerror)(original);
+      }
+
+      assert.deepEqual(caught, thrown);
+    };
+
+    _class.prototype['@test With Ember.onerror set, errors in Ember.run are caught'] = function (assert) {
+      var thrown = new Error('Boom!');
+      var original = (0, _emberMetal.getOnerror)();
+      var originalDispatchOverride = (0, _emberMetal.getDispatchOverride)();
+      var originalIsTesting = (0, _emberDebug.isTesting)();
+
+      var caught = void 0;
+      (0, _emberMetal.setOnerror)(function (error) {
+        caught = error;
+      });
+      (0, _emberMetal.setDispatchOverride)(null);
+      (0, _emberDebug.setTesting)(false);
+
+      try {
+        (0, _emberMetal.run)(function () {
+          throw thrown;
+        });
+      } finally {
+        (0, _emberMetal.setOnerror)(original);
+        (0, _emberMetal.setDispatchOverride)(originalDispatchOverride);
+        (0, _emberDebug.setTesting)(originalIsTesting);
+      }
+
+      assert.deepEqual(caught, thrown);
+    };
+
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
+});
+enifed('ember-metal/tests/run_loop/run_bind_test', ['ember-babel', 'ember-metal', 'internal-test-helpers'], function (_emberBabel, _emberMetal, _internalTestHelpers) {
+  'use strict';
+
+  (0, _internalTestHelpers.moduleFor)('system/run_loop/run_bind_test', function (_AbstractTestCase) {
+    (0, _emberBabel.inherits)(_class, _AbstractTestCase);
+
+    function _class() {
+      return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase.apply(this, arguments));
+    }
+
+    _class.prototype['@test Ember.run.bind builds a run-loop wrapped callback handler'] = function (assert) {
+      assert.expect(3);
+
+      var obj = {
+        value: 0,
+        increment: function (increment) {
+          ok(_emberMetal.run.currentRunLoop, 'expected a run-loop');
+          return this.value += increment;
+        }
+      };
+
+      var proxiedFunction = _emberMetal.run.bind(obj, obj.increment, 1);
+      assert.equal(proxiedFunction(), 1);
+      assert.equal(obj.value, 1);
+    };
+
+    _class.prototype['@test Ember.run.bind keeps the async callback arguments'] = function (assert) {
+      assert.expect(4);
+
+      function asyncCallback(increment, increment2, increment3) {
+        assert.ok(_emberMetal.run.currentRunLoop, 'expected a run-loop');
+        assert.equal(increment, 1);
+        assert.equal(increment2, 2);
+        assert.equal(increment3, 3);
+      }
+
+      (function (fn) {
+        fn(2, 3);
+      })(_emberMetal.run.bind(asyncCallback, asyncCallback, 1));
+    };
+
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
+});
+enifed('ember-metal/tests/run_loop/run_test', ['ember-babel', 'ember-metal', 'internal-test-helpers'], function (_emberBabel, _emberMetal, _internalTestHelpers) {
+  'use strict';
+
+  (0, _internalTestHelpers.moduleFor)('system/run_loop/run_test', function (_AbstractTestCase) {
+    (0, _emberBabel.inherits)(_class, _AbstractTestCase);
+
+    function _class() {
+      return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase.apply(this, arguments));
+    }
+
+    _class.prototype['@test Ember.run invokes passed function, returning value'] = function (assert) {
+      var obj = {
+        foo: function () {
+          return [this.bar, 'FOO'];
+        },
+
+        bar: 'BAR',
+        checkArgs: function (arg1, arg2) {
+          return [arg1, this.bar, arg2];
+        }
+      };
+
+      assert.equal((0, _emberMetal.run)(function () {
+        return 'FOO';
+      }), 'FOO', 'pass function only');
+      assert.deepEqual((0, _emberMetal.run)(obj, obj.foo), ['BAR', 'FOO'], 'pass obj and obj.method');
+      assert.deepEqual((0, _emberMetal.run)(obj, 'foo'), ['BAR', 'FOO'], 'pass obj and "method"');
+      assert.deepEqual((0, _emberMetal.run)(obj, obj.checkArgs, 'hello', 'world'), ['hello', 'BAR', 'world'], 'pass obj, obj.method, and extra arguments');
+    };
+
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
+});
+enifed('ember-metal/tests/run_loop/schedule_test', ['ember-babel', 'ember-metal', 'internal-test-helpers'], function (_emberBabel, _emberMetal, _internalTestHelpers) {
+  'use strict';
+
+  (0, _internalTestHelpers.moduleFor)('system/run_loop/schedule_test', function (_AbstractTestCase) {
+    (0, _emberBabel.inherits)(_class, _AbstractTestCase);
+
+    function _class() {
+      return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase.apply(this, arguments));
+    }
+
+    _class.prototype['@test scheduling item in queue should defer until finished'] = function (assert) {
+      var cnt = 0;
 
       (0, _emberMetal.run)(function () {
         _emberMetal.run.schedule('actions', function () {
           return cnt++;
         });
-      });
-      equal(cnt, 1, 'should not run action yet');
-    });
-
-    equal(cnt, 2, 'should flush actions now');
-  });
-
-  QUnit.test('prior queues should be flushed before moving on to next queue', function () {
-    var order = [];
-
-    (0, _emberMetal.run)(function () {
-      var runLoop = _emberMetal.run.currentRunLoop;
-      ok(runLoop, 'run loop present');
-
-      _emberMetal.run.schedule('sync', function () {
-        order.push('sync');
-        equal(runLoop, _emberMetal.run.currentRunLoop, 'same run loop used');
-      });
-
-      _emberMetal.run.schedule('actions', function () {
-        order.push('actions');
-        equal(runLoop, _emberMetal.run.currentRunLoop, 'same run loop used');
-
         _emberMetal.run.schedule('actions', function () {
-          order.push('actions');
-          equal(runLoop, _emberMetal.run.currentRunLoop, 'same run loop used');
+          return cnt++;
         });
+        assert.equal(cnt, 0, 'should not run action yet');
+      });
+
+      assert.equal(cnt, 2, 'should flush actions now');
+    };
+
+    _class.prototype['@test a scheduled item can be canceled'] = function (assert) {
+      var hasRan = false;
+
+      (0, _emberMetal.run)(function () {
+        var cancelId = _emberMetal.run.schedule('actions', function () {
+          return hasRan = true;
+        });
+        _emberMetal.run.cancel(cancelId);
+      });
+
+      assert.notOk(hasRan, 'should not have ran callback run');
+    };
+
+    _class.prototype['@test nested runs should queue each phase independently'] = function (assert) {
+      var cnt = 0;
+
+      (0, _emberMetal.run)(function () {
+        _emberMetal.run.schedule('actions', function () {
+          return cnt++;
+        });
+        assert.equal(cnt, 0, 'should not run action yet');
+
+        (0, _emberMetal.run)(function () {
+          _emberMetal.run.schedule('actions', function () {
+            return cnt++;
+          });
+        });
+        assert.equal(cnt, 1, 'should not run action yet');
+      });
+
+      assert.equal(cnt, 2, 'should flush actions now');
+    };
+
+    _class.prototype['@test prior queues should be flushed before moving on to next queue'] = function (assert) {
+      var order = [];
+
+      (0, _emberMetal.run)(function () {
+        var runLoop = _emberMetal.run.currentRunLoop;
+        assert.ok(runLoop, 'run loop present');
 
         _emberMetal.run.schedule('sync', function () {
           order.push('sync');
-          equal(runLoop, _emberMetal.run.currentRunLoop, 'same run loop used');
+          assert.equal(runLoop, _emberMetal.run.currentRunLoop, 'same run loop used');
+        });
+
+        _emberMetal.run.schedule('actions', function () {
+          order.push('actions');
+          assert.equal(runLoop, _emberMetal.run.currentRunLoop, 'same run loop used');
+
+          _emberMetal.run.schedule('actions', function () {
+            order.push('actions');
+            assert.equal(runLoop, _emberMetal.run.currentRunLoop, 'same run loop used');
+          });
+
+          _emberMetal.run.schedule('sync', function () {
+            order.push('sync');
+            assert.equal(runLoop, _emberMetal.run.currentRunLoop, 'same run loop used');
+          });
+        });
+
+        _emberMetal.run.schedule('destroy', function () {
+          order.push('destroy');
+          assert.equal(runLoop, _emberMetal.run.currentRunLoop, 'same run loop used');
         });
       });
 
-      _emberMetal.run.schedule('destroy', function () {
-        order.push('destroy');
-        equal(runLoop, _emberMetal.run.currentRunLoop, 'same run loop used');
-      });
-    });
+      assert.deepEqual(order, ['sync', 'actions', 'sync', 'actions', 'destroy']);
+    };
 
-    deepEqual(order, ['sync', 'actions', 'sync', 'actions', 'destroy']);
-  });
+    _class.prototype['@test makes sure it does not trigger an autorun during testing'] = function () {
+      expectAssertion(function () {
+        return _emberMetal.run.schedule('actions', function () {});
+      }, /wrap any code with asynchronous side-effects in a run/);
 
-  QUnit.test('makes sure it does not trigger an autorun during testing', function () {
-    expectAssertion(function () {
-      return _emberMetal.run.schedule('actions', function () {});
-    }, /wrap any code with asynchronous side-effects in a run/);
+      // make sure not just the first violation is asserted.
+      expectAssertion(function () {
+        return _emberMetal.run.schedule('actions', function () {});
+      }, /wrap any code with asynchronous side-effects in a run/);
+    };
 
-    // make sure not just the first violation is asserted.
-    expectAssertion(function () {
-      return _emberMetal.run.schedule('actions', function () {});
-    }, /wrap any code with asynchronous side-effects in a run/);
-  });
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
 });
-enifed('ember-metal/tests/run_loop/sync_test', ['ember-metal'], function (_emberMetal) {
+enifed('ember-metal/tests/run_loop/sync_test', ['ember-babel', 'ember-metal', 'internal-test-helpers'], function (_emberBabel, _emberMetal, _internalTestHelpers) {
   'use strict';
 
-  QUnit.module('system/run_loop/sync_test');
+  (0, _internalTestHelpers.moduleFor)('system/run_loop/sync_test', function (_AbstractTestCase) {
+    (0, _emberBabel.inherits)(_class, _AbstractTestCase);
 
-  QUnit.test('sync() will immediately flush the sync queue only', function () {
-    var cnt = 0;
+    function _class() {
+      return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase.apply(this, arguments));
+    }
 
-    (0, _emberMetal.run)(function () {
-      function cntup() {
-        cnt++;
-      }
+    _class.prototype['@test sync() will immediately flush the sync queue only'] = function (assert) {
+      var cnt = 0;
 
-      function syncfunc() {
-        if (++cnt < 5) {
-          _emberMetal.run.schedule('sync', syncfunc);
-        }
-        _emberMetal.run.schedule('actions', cntup);
-      }
-
-      syncfunc();
-
-      equal(cnt, 1, 'should not run action yet');
-      _emberMetal.run.sync();
-
-      equal(cnt, 5, 'should have run sync queue continuously');
-    });
-
-    equal(cnt, 10, 'should flush actions now too');
-  });
-
-  QUnit.test('calling sync() outside a run loop does not cause an error', function () {
-    expect(0);
-
-    _emberMetal.run.sync();
-  });
-});
-enifed('ember-metal/tests/run_loop/unwind_test', ['ember-metal', 'ember-debug'], function (_emberMetal, _emberDebug) {
-  'use strict';
-
-  QUnit.module('system/run_loop/unwind_test');
-
-  QUnit.test('RunLoop unwinds despite unhandled exception', function () {
-    var initialRunLoop = _emberMetal.run.currentRunLoop;
-
-    throws(function () {
       (0, _emberMetal.run)(function () {
-        _emberMetal.run.schedule('actions', function () {
+        function cntup() {
+          cnt++;
+        }
+
+        function syncfunc() {
+          if (++cnt < 5) {
+            _emberMetal.run.schedule('sync', syncfunc);
+          }
+          _emberMetal.run.schedule('actions', cntup);
+        }
+
+        syncfunc();
+
+        assert.equal(cnt, 1, 'should not run action yet');
+        _emberMetal.run.sync();
+
+        assert.equal(cnt, 5, 'should have run sync queue continuously');
+      });
+
+      assert.equal(cnt, 10, 'should flush actions now too');
+    };
+
+    _class.prototype['@test calling sync() outside a run loop does not cause an error'] = function (assert) {
+      assert.expect(0);
+
+      _emberMetal.run.sync();
+    };
+
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
+});
+enifed('ember-metal/tests/run_loop/unwind_test', ['ember-babel', 'ember-metal', 'ember-debug', 'internal-test-helpers'], function (_emberBabel, _emberMetal, _emberDebug, _internalTestHelpers) {
+  'use strict';
+
+  (0, _internalTestHelpers.moduleFor)('system/run_loop/unwind_test', function (_AbstractTestCase) {
+    (0, _emberBabel.inherits)(_class, _AbstractTestCase);
+
+    function _class() {
+      return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase.apply(this, arguments));
+    }
+
+    _class.prototype['@test RunLoop unwinds despite unhandled exception'] = function (assert) {
+      var initialRunLoop = _emberMetal.run.currentRunLoop;
+
+      throws(function () {
+        (0, _emberMetal.run)(function () {
+          _emberMetal.run.schedule('actions', function () {
+            throw new _emberDebug.Error('boom!');
+          });
+        });
+      }, Error, 'boom!');
+
+      // The real danger at this point is that calls to autorun will stick
+      // tasks into the already-dead runloop, which will never get
+      // flushed. I can't easily demonstrate this in a unit test because
+      // autorun explicitly doesn't work in test mode. - ef4
+      assert.equal(_emberMetal.run.currentRunLoop, initialRunLoop, 'Previous run loop should be cleaned up despite exception');
+
+      // Prevent a failure in this test from breaking subsequent tests.
+      _emberMetal.run.currentRunLoop = initialRunLoop;
+    };
+
+    _class.prototype['@test run unwinds despite unhandled exception'] = function (assert) {
+      var initialRunLoop = _emberMetal.run.currentRunLoop;
+
+      assert.throws(function () {
+        (0, _emberMetal.run)(function () {
           throw new _emberDebug.Error('boom!');
         });
-      });
-    }, Error, 'boom!');
+      }, _emberDebug.Error, 'boom!');
 
-    // The real danger at this point is that calls to autorun will stick
-    // tasks into the already-dead runloop, which will never get
-    // flushed. I can't easily demonstrate this in a unit test because
-    // autorun explicitly doesn't work in test mode. - ef4
-    equal(_emberMetal.run.currentRunLoop, initialRunLoop, 'Previous run loop should be cleaned up despite exception');
+      assert.equal(_emberMetal.run.currentRunLoop, initialRunLoop, 'Previous run loop should be cleaned up despite exception');
 
-    // Prevent a failure in this test from breaking subsequent tests.
-    _emberMetal.run.currentRunLoop = initialRunLoop;
-  });
+      // Prevent a failure in this test from breaking subsequent tests.
+      _emberMetal.run.currentRunLoop = initialRunLoop;
+    };
 
-  QUnit.test('run unwinds despite unhandled exception', function () {
-    var initialRunLoop = _emberMetal.run.currentRunLoop;
-
-    throws(function () {
-      (0, _emberMetal.run)(function () {
-        throw new _emberDebug.Error('boom!');
-      });
-    }, _emberDebug.Error, 'boom!');
-
-    equal(_emberMetal.run.currentRunLoop, initialRunLoop, 'Previous run loop should be cleaned up despite exception');
-
-    // Prevent a failure in this test from breaking subsequent tests.
-    _emberMetal.run.currentRunLoop = initialRunLoop;
-  });
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
 });
 enifed('ember-metal/tests/set_properties_test', ['ember-babel', 'ember-metal', 'internal-test-helpers'], function (_emberBabel, _emberMetal, _internalTestHelpers) {
   'use strict';
