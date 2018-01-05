@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.0.0-canary+37877683
+ * @version   3.0.0-canary+abd88d78
  */
 
 /*globals process */
@@ -11222,6 +11222,8 @@ enifed('ember-application/system/application-instance', ['exports', 'ember-utils
     init: function () {
       this._super.apply(this, arguments);
 
+      this.application._watchInstance(this);
+
       // Register this instance in the per-instance registry.
       //
       // Why do we need to register the instance in the first place?
@@ -11350,6 +11352,10 @@ enifed('ember-application/system/application-instance', ['exports', 'ember-utils
 
       // getURL returns the set url with the rootURL stripped off
       return router.handleURL(location.getURL()).then(handleTransitionResolve, handleTransitionReject);
+    },
+    willDestroy: function () {
+      this._super.apply(this, arguments);
+      this.application._unwatchInstance(this);
     }
   });
 
@@ -11824,6 +11830,16 @@ enifed('ember-application/system/application', ['exports', 'ember-babel', 'ember
     */
     _globalsMode: true,
 
+    /**
+      An array of application instances created by `buildInstance()`. Used
+      internally to ensure that all instances get destroyed.
+       @property _applicationInstances
+      @type Array
+      @default null
+      @private
+    */
+    _applicationInstances: null,
+
     init: function (options) {
       // eslint-disable-line no-unused-vars
       this._super.apply(this, arguments);
@@ -11842,6 +11858,7 @@ enifed('ember-application/system/application', ['exports', 'ember-babel', 'ember
       // the Application's own `boot` method.
       this._readinessDeferrals = 1;
       this._booted = false;
+      this._applicationInstances = [];
 
       this.autoboot = this._globalsMode = !!this.autoboot;
 
@@ -11859,6 +11876,15 @@ enifed('ember-application/system/application', ['exports', 'ember-babel', 'ember
       options.base = this;
       options.application = this;
       return _applicationInstance.default.create(options);
+    },
+    _watchInstance: function (instance) {
+      this._applicationInstances.push(instance);
+    },
+    _unwatchInstance: function (instance) {
+      var index = this._applicationInstances.indexOf(instance);
+      if (index > -1) {
+        this._applicationInstances.splice(index, 1);
+      }
     },
     _prepareForGlobalsMode: function () {
       // Create subclass of Ember.Router for this Application instance.
@@ -12026,8 +12052,11 @@ enifed('ember-application/system/application', ['exports', 'ember-babel', 'ember
         _emberRuntime._loaded.application = undefined;
       }
 
-      if (this._globalsMode && this.__deprecatedInstance__) {
-        this.__deprecatedInstance__.destroy();
+      if (this._applicationInstances.length) {
+        this._applicationInstances.forEach(function (i) {
+          return i.destroy();
+        });
+        this._applicationInstances.length = 0;
       }
     },
     visit: function (url, options) {
@@ -47231,7 +47260,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "3.0.0-canary+37877683";
+  exports.default = "3.0.0-canary+abd88d78";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";
