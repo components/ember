@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.0.0-canary+63e4f277
+ * @version   3.0.0-canary+a8c03376
  */
 
 /*globals process */
@@ -5691,7 +5691,9 @@ enifed('ember-application/tests/system/visit_test', ['ember-babel', 'internal-te
          * Visit on the application a second time. The application should remain
          * booted, but a new instance will be created.
          */
-        return _this3.visit('/');
+        return _this3.application.visit('/').then(function (instance) {
+          _this3.applicationInstance = instance;
+        });
       }).then(function () {
         assert.ok(appBooted === 1, 'the app should not be booted again');
         assert.ok(instanceBooted === 2, 'another instance should be booted');
@@ -81666,8 +81668,39 @@ enifed('internal-test-helpers/test-cases/abstract-application', ['exports', 'emb
       return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase.apply(this, arguments));
     }
 
+    AbstractApplicationTestCase.prototype._ensureInstance = function _ensureInstance(bootOptions) {
+      var _this2 = this;
+
+      if (this._applicationInstancePromise) {
+        return this._applicationInstancePromise;
+      }
+
+      return this._applicationInstancePromise = this.runTask(function () {
+        return _this2.application.boot();
+      }).then(function (app) {
+        _this2.applicationInstance = app.buildInstance();
+
+        return _this2.applicationInstance.boot(bootOptions);
+      });
+    };
+
+    AbstractApplicationTestCase.prototype.visit = function visit(url, options) {
+      var _this3 = this;
+
+      // TODO: THIS IS HORRIBLE
+      // the promise returned by `ApplicationInstance.protoype.visit` does **not**
+      // currently guarantee rendering is completed
+      return this.runTask(function () {
+        return _this3._ensureInstance(options).then(function (instance) {
+          return instance.visit(url);
+        });
+      });
+    };
+
     AbstractApplicationTestCase.prototype.teardown = function teardown() {
+      (0, _run.runDestroy)(this.applicationInstance);
       (0, _run.runDestroy)(this.application);
+
       _AbstractTestCase.prototype.teardown.call(this);
     };
 
@@ -82073,7 +82106,7 @@ enifed('internal-test-helpers/test-cases/abstract', ['exports', 'ember-babel', '
 
   exports.default = AbstractTestCase;
 });
-enifed('internal-test-helpers/test-cases/application', ['exports', 'ember-babel', 'internal-test-helpers/test-cases/test-resolver-application', 'ember-application', 'ember-routing', 'ember-utils', 'internal-test-helpers/run'], function (exports, _emberBabel, _testResolverApplication, _emberApplication, _emberRouting, _emberUtils, _run) {
+enifed('internal-test-helpers/test-cases/application', ['exports', 'ember-babel', 'internal-test-helpers/test-cases/test-resolver-application', 'ember-application', 'ember-routing', 'ember-utils'], function (exports, _emberBabel, _testResolverApplication, _emberApplication, _emberRouting, _emberUtils) {
   'use strict';
 
   var ApplicationTestCase = function (_TestResolverApplicat) {
@@ -82105,39 +82138,14 @@ enifed('internal-test-helpers/test-cases/application', ['exports', 'ember-babel'
       return MyApplication.create(myOptions);
     };
 
-    ApplicationTestCase.prototype.teardown = function teardown() {
-      (0, _run.runDestroy)(this.applicationInstance);
-      _TestResolverApplicat.prototype.teardown.call(this);
-    };
-
-    ApplicationTestCase.prototype.visit = function visit(url, options) {
-      var _this2 = this;
-
-      var applicationInstance = this.applicationInstance;
-
-
-      if (applicationInstance) {
-        return this.runTask(function () {
-          return applicationInstance.visit(url, options);
-        });
-      } else {
-        return this.runTask(function () {
-          return _this2.application.visit(url, options).then(function (instance) {
-            _this2.applicationInstance = instance;
-            return instance;
-          });
-        });
-      }
-    };
-
     ApplicationTestCase.prototype.transitionTo = function transitionTo() {
-      var _this3 = this,
+      var _this2 = this,
           _arguments = arguments;
 
       return this.runTask(function () {
         var _appRouter;
 
-        return (_appRouter = _this3.appRouter).transitionTo.apply(_appRouter, _arguments);
+        return (_appRouter = _this2.appRouter).transitionTo.apply(_appRouter, _arguments);
       });
     };
 
@@ -82195,7 +82203,14 @@ enifed('internal-test-helpers/test-cases/autoboot-application', ['exports', 'emb
     (0, _emberBabel.createClass)(AutobootApplicationTestCase, [{
       key: 'applicationInstance',
       get: function () {
-        return this.application.__deprecatedInstance__;
+        var application = this.application;
+
+
+        if (!application) {
+          return undefined;
+        }
+
+        return application.__deprecatedInstance__;
       }
     }]);
     return AutobootApplicationTestCase;
@@ -82203,7 +82218,7 @@ enifed('internal-test-helpers/test-cases/autoboot-application', ['exports', 'emb
 
   exports.default = AutobootApplicationTestCase;
 });
-enifed('internal-test-helpers/test-cases/default-resolver-application', ['exports', 'ember-babel', 'internal-test-helpers/test-cases/abstract-application', 'ember-application', 'ember-glimmer', 'ember-utils', 'internal-test-helpers/run', 'ember-routing'], function (exports, _emberBabel, _abstractApplication, _emberApplication, _emberGlimmer, _emberUtils, _run, _emberRouting) {
+enifed('internal-test-helpers/test-cases/default-resolver-application', ['exports', 'ember-babel', 'internal-test-helpers/test-cases/abstract-application', 'ember-application', 'ember-glimmer', 'ember-utils', 'ember-routing'], function (exports, _emberBabel, _abstractApplication, _emberApplication, _emberGlimmer, _emberUtils, _emberRouting) {
   'use strict';
 
   var ApplicationTestCase = function (_AbstractApplicationT) {
@@ -82221,38 +82236,18 @@ enifed('internal-test-helpers/test-cases/default-resolver-application', ['export
     };
 
     ApplicationTestCase.prototype.teardown = function teardown() {
-      (0, _run.runDestroy)(this.applicationInstance);
       _AbstractApplicationT.prototype.teardown.call(this);
       (0, _emberGlimmer.setTemplates)({});
     };
 
-    ApplicationTestCase.prototype.visit = function visit(url, options) {
-      var _this2 = this;
-
-      var applicationInstance = this.applicationInstance;
-
-
-      if (applicationInstance) {
-        return this.runTask(function () {
-          return applicationInstance.visit(url, options);
-        });
-      } else {
-        return this.runTask(function () {
-          return _this2.application.visit(url, options).then(function (instance) {
-            _this2.applicationInstance = instance;
-          });
-        });
-      }
-    };
-
     ApplicationTestCase.prototype.transitionTo = function transitionTo() {
-      var _this3 = this,
+      var _this2 = this,
           _arguments = arguments;
 
       return this.runTask(function () {
         var _appRouter;
 
-        return (_appRouter = _this3.appRouter).transitionTo.apply(_appRouter, _arguments);
+        return (_appRouter = _this2.appRouter).transitionTo.apply(_appRouter, _arguments);
       });
     };
 
