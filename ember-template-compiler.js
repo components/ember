@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.18.0-release+dee84b06
+ * @version   2.18.0-release+2dc45b2b
  */
 
 /*global process */
@@ -5230,28 +5230,45 @@ enifed('backburner', ['exports'], function (exports) {
             return this._setTimeout(fn, executeAt);
         };
 
-        Backburner.prototype.throttle = function (target, method) /*, ...args, wait, [immediate] */{
+        Backburner.prototype.throttle = function (targetOrThisArgOrMethod) {
             var _this2 = this,
                 _len4,
                 args,
                 _key4;
 
-            for (_len4 = arguments.length, args = Array(_len4 > 2 ? _len4 - 2 : 0), _key4 = 2; _key4 < _len4; _key4++) {
-                args[_key4 - 2] = arguments[_key4];
-            }
-
-            var immediate = args.pop();
+            var target = void 0;
+            var method = void 0;
+            var immediate = void 0;
             var isImmediate = void 0;
             var wait = void 0;
-            if (isCoercableNumber(immediate)) {
-                wait = immediate;
+
+            for (_len4 = arguments.length, args = Array(_len4 > 1 ? _len4 - 1 : 0), _key4 = 1; _key4 < _len4; _key4++) {
+                args[_key4 - 1] = arguments[_key4];
+            }
+
+            if (args.length === 1) {
+                method = targetOrThisArgOrMethod;
+                wait = args.pop();
+                target = null;
                 isImmediate = true;
             } else {
-                wait = args.pop();
-                isImmediate = immediate === true;
-            }
-            if (isString(method)) {
-                method = target[method];
+                target = targetOrThisArgOrMethod;
+                method = args.shift();
+                immediate = args.pop();
+                if (isString(method)) {
+                    method = target[method];
+                } else if (!isFunction(method)) {
+                    args.unshift(method);
+                    method = target;
+                    target = null;
+                }
+                if (isCoercableNumber(immediate)) {
+                    wait = immediate;
+                    isImmediate = true;
+                } else {
+                    wait = args.pop();
+                    isImmediate = immediate === true;
+                }
             }
             var index = findItem(target, method, this._throttlers);
             if (index > -1) {
@@ -5278,29 +5295,46 @@ enifed('backburner', ['exports'], function (exports) {
             return timer;
         };
 
-        Backburner.prototype.debounce = function (target, method) /* , wait, [immediate] */{
+        Backburner.prototype.debounce = function (targetOrThisArgOrMethod) {
             var _this3 = this,
                 _len5,
                 args,
                 _key5,
                 timerId;
 
-            for (_len5 = arguments.length, args = Array(_len5 > 2 ? _len5 - 2 : 0), _key5 = 2; _key5 < _len5; _key5++) {
-                args[_key5 - 2] = arguments[_key5];
-            }
-
-            var immediate = args.pop();
+            var target = void 0;
+            var method = void 0;
+            var immediate = void 0;
             var isImmediate = void 0;
             var wait = void 0;
-            if (isCoercableNumber(immediate)) {
-                wait = immediate;
+
+            for (_len5 = arguments.length, args = Array(_len5 > 1 ? _len5 - 1 : 0), _key5 = 1; _key5 < _len5; _key5++) {
+                args[_key5 - 1] = arguments[_key5];
+            }
+
+            if (args.length === 1) {
+                method = targetOrThisArgOrMethod;
+                wait = args.pop();
+                target = null;
                 isImmediate = false;
             } else {
-                wait = args.pop();
-                isImmediate = immediate === true;
-            }
-            if (isString(method)) {
-                method = target[method];
+                target = targetOrThisArgOrMethod;
+                method = args.shift();
+                immediate = args.pop();
+                if (isString(method)) {
+                    method = target[method];
+                } else if (!isFunction(method)) {
+                    args.unshift(method);
+                    method = target;
+                    target = null;
+                }
+                if (isCoercableNumber(immediate)) {
+                    wait = immediate;
+                    isImmediate = false;
+                } else {
+                    wait = args.pop();
+                    isImmediate = immediate === true;
+                }
             }
             wait = parseInt(wait, 10);
             // Remove debouncee
@@ -17344,7 +17378,7 @@ enifed('ember/features', ['exports', 'ember-environment', 'ember-utils'], functi
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.18.0-release+dee84b06";
+  exports.default = "2.18.0-release+2dc45b2b";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";
