@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.0.0-canary+d007c272
+ * @version   3.0.0-canary+a8ee02e0
  */
 
 /*globals process */
@@ -9164,15 +9164,6 @@ enifed('backburner', ['exports', 'ember-babel'], function (exports, _emberBabel)
             this.globalOptions = globalOptions;
         }
 
-        Queue.prototype.push = function push(target, method, args, stack) {
-            this._queue.push(target, method, args, stack);
-            return {
-                queue: this,
-                target: target,
-                method: method
-            };
-        };
-
         Queue.prototype.flush = function flush(sync) {
             var _options = this.options,
                 before = _options.before,
@@ -9246,16 +9237,10 @@ enifed('backburner', ['exports', 'ember-babel'], function (exports, _emberBabel)
 
             var queue = this._queue;
             var targetQueueMap = this.targetQueues.get(target);
-            var index = void 0;
             if (targetQueueMap !== undefined) {
-                index = targetQueueMap.get(method);
-                if (index !== undefined) {
-                    targetQueueMap.delete(method);
-                }
+                targetQueueMap.delete(method);
             }
-            if (index === undefined) {
-                index = findItem(target, method, queue);
-            }
+            var index = findItem(target, method, queue);
             if (index > -1) {
                 queue.splice(index, 4);
                 return true;
@@ -9269,6 +9254,15 @@ enifed('backburner', ['exports', 'ember-babel'], function (exports, _emberBabel)
                 return true;
             }
             return false;
+        };
+
+        Queue.prototype.push = function push(target, method, args, stack) {
+            this._queue.push(target, method, args, stack);
+            return {
+                queue: this,
+                target: target,
+                method: method
+            };
         };
 
         Queue.prototype.pushUnique = function pushUnique(target, method, args, stack) {
@@ -9345,10 +9339,10 @@ enifed('backburner', ['exports', 'ember-babel'], function (exports, _emberBabel)
         DeferredActionQueues.prototype.schedule = function schedule(queueName, target, method, args, onceFlag, stack) {
             var queues = this.queues;
             var queue = queues[queueName];
-            if (!queue) {
+            if (queue === undefined) {
                 noSuchQueue(queueName);
             }
-            if (!method) {
+            if (method === undefined || method === null) {
                 noSuchMethod(queueName);
             }
             if (onceFlag) {
@@ -9683,25 +9677,42 @@ enifed('backburner', ['exports', 'ember-babel'], function (exports, _emberBabel)
             return this._setTimeout(fn, executeAt);
         };
 
-        Backburner.prototype.throttle = function throttle(target, method) /*, ...args, wait, [immediate] */{
+        Backburner.prototype.throttle = function throttle(targetOrThisArgOrMethod) {
             var _this2 = this;
 
-            for (var _len4 = arguments.length, args = Array(_len4 > 2 ? _len4 - 2 : 0), _key4 = 2; _key4 < _len4; _key4++) {
-                args[_key4 - 2] = arguments[_key4];
-            }
-
-            var immediate = args.pop();
+            var target = void 0;
+            var method = void 0;
+            var immediate = void 0;
             var isImmediate = void 0;
             var wait = void 0;
-            if (isCoercableNumber(immediate)) {
-                wait = immediate;
+
+            for (var _len4 = arguments.length, args = Array(_len4 > 1 ? _len4 - 1 : 0), _key4 = 1; _key4 < _len4; _key4++) {
+                args[_key4 - 1] = arguments[_key4];
+            }
+
+            if (args.length === 1) {
+                method = targetOrThisArgOrMethod;
+                wait = args.pop();
+                target = null;
                 isImmediate = true;
             } else {
-                wait = args.pop();
-                isImmediate = immediate === true;
-            }
-            if (isString(method)) {
-                method = target[method];
+                target = targetOrThisArgOrMethod;
+                method = args.shift();
+                immediate = args.pop();
+                if (isString(method)) {
+                    method = target[method];
+                } else if (!isFunction(method)) {
+                    args.unshift(method);
+                    method = target;
+                    target = null;
+                }
+                if (isCoercableNumber(immediate)) {
+                    wait = immediate;
+                    isImmediate = true;
+                } else {
+                    wait = args.pop();
+                    isImmediate = immediate === true;
+                }
             }
             var index = findItem(target, method, this._throttlers);
             if (index > -1) {
@@ -9728,25 +9739,42 @@ enifed('backburner', ['exports', 'ember-babel'], function (exports, _emberBabel)
             return timer;
         };
 
-        Backburner.prototype.debounce = function debounce(target, method) /* , wait, [immediate] */{
+        Backburner.prototype.debounce = function debounce(targetOrThisArgOrMethod) {
             var _this3 = this;
 
-            for (var _len5 = arguments.length, args = Array(_len5 > 2 ? _len5 - 2 : 0), _key5 = 2; _key5 < _len5; _key5++) {
-                args[_key5 - 2] = arguments[_key5];
-            }
-
-            var immediate = args.pop();
+            var target = void 0;
+            var method = void 0;
+            var immediate = void 0;
             var isImmediate = void 0;
             var wait = void 0;
-            if (isCoercableNumber(immediate)) {
-                wait = immediate;
+
+            for (var _len5 = arguments.length, args = Array(_len5 > 1 ? _len5 - 1 : 0), _key5 = 1; _key5 < _len5; _key5++) {
+                args[_key5 - 1] = arguments[_key5];
+            }
+
+            if (args.length === 1) {
+                method = targetOrThisArgOrMethod;
+                wait = args.pop();
+                target = null;
                 isImmediate = false;
             } else {
-                wait = args.pop();
-                isImmediate = immediate === true;
-            }
-            if (isString(method)) {
-                method = target[method];
+                target = targetOrThisArgOrMethod;
+                method = args.shift();
+                immediate = args.pop();
+                if (isString(method)) {
+                    method = target[method];
+                } else if (!isFunction(method)) {
+                    args.unshift(method);
+                    method = target;
+                    target = null;
+                }
+                if (isCoercableNumber(immediate)) {
+                    wait = immediate;
+                    isImmediate = false;
+                } else {
+                    wait = args.pop();
+                    isImmediate = immediate === true;
+                }
             }
             wait = parseInt(wait, 10);
             // Remove debouncee
@@ -47262,7 +47290,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "3.0.0-canary+d007c272";
+  exports.default = "3.0.0-canary+a8ee02e0";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";

@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.0.0-canary+d007c272
+ * @version   3.0.0-canary+a8ee02e0
  */
 
 /*globals process */
@@ -45328,30 +45328,104 @@ QUnit.test('should pass ESLint', function(assert) {
 enifed('ember-metal/tests/run_loop/debounce_test', ['ember-babel', 'ember-metal', 'internal-test-helpers'], function (_emberBabel, _emberMetal, _internalTestHelpers) {
   'use strict';
 
-  var originalDebounce = _emberMetal.run.backburner.debounce;
-  var wasCalled = false;
-
   (0, _internalTestHelpers.moduleFor)('Ember.run.debounce', function (_AbstractTestCase) {
     (0, _emberBabel.inherits)(_class, _AbstractTestCase);
 
     function _class() {
       (0, _emberBabel.classCallCheck)(this, _class);
-
-      var _this = (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase.call(this));
-
-      _emberMetal.run.backburner.debounce = function () {
-        wasCalled = true;
-      };
-      return _this;
+      return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase.apply(this, arguments));
     }
 
-    _class.prototype.teardown = function teardown() {
-      _emberMetal.run.backburner.debounce = originalDebounce;
+    _class.prototype['@test Ember.run.debounce - with target, with method, without args'] = function testEmberRunDebounceWithTargetWithMethodWithoutArgs(assert) {
+      var done = assert.async();
+
+      var calledWith = [];
+      var target = {
+        someFunc: function () {
+          for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+            args[_key] = arguments[_key];
+          }
+
+          calledWith.push(args);
+        }
+      };
+
+      _emberMetal.run.debounce(target, target.someFunc, 10);
+      _emberMetal.run.debounce(target, target.someFunc, 10);
+      _emberMetal.run.debounce(target, target.someFunc, 10);
+
+      setTimeout(function () {
+        assert.deepEqual(calledWith, [[]], 'someFunc called once with correct arguments');
+        done();
+      }, 20);
     };
 
-    _class.prototype['@test Ember.run.debounce uses Backburner.debounce'] = function testEmberRunDebounceUsesBackburnerDebounce(assert) {
-      _emberMetal.run.debounce(function () {});
-      assert.ok(wasCalled, 'Ember.run.debounce used');
+    _class.prototype['@test Ember.run.debounce - with target, with method name, without args'] = function testEmberRunDebounceWithTargetWithMethodNameWithoutArgs(assert) {
+      var done = assert.async();
+
+      var calledWith = [];
+      var target = {
+        someFunc: function () {
+          for (var _len2 = arguments.length, args = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
+            args[_key2] = arguments[_key2];
+          }
+
+          calledWith.push(args);
+        }
+      };
+
+      _emberMetal.run.debounce(target, 'someFunc', 10);
+      _emberMetal.run.debounce(target, 'someFunc', 10);
+      _emberMetal.run.debounce(target, 'someFunc', 10);
+
+      setTimeout(function () {
+        assert.deepEqual(calledWith, [[]], 'someFunc called once with correct arguments');
+        done();
+      }, 20);
+    };
+
+    _class.prototype['@test Ember.run.debounce - without target, without args'] = function testEmberRunDebounceWithoutTargetWithoutArgs(assert) {
+      var done = assert.async();
+
+      var calledWith = [];
+      function someFunc() {
+        for (var _len3 = arguments.length, args = Array(_len3), _key3 = 0; _key3 < _len3; _key3++) {
+          args[_key3] = arguments[_key3];
+        }
+
+        calledWith.push(args);
+      }
+
+      _emberMetal.run.debounce(someFunc, 10);
+      _emberMetal.run.debounce(someFunc, 10);
+      _emberMetal.run.debounce(someFunc, 10);
+
+      setTimeout(function () {
+        assert.deepEqual(calledWith, [[]], 'someFunc called once with correct arguments');
+        done();
+      }, 20);
+    };
+
+    _class.prototype['@test Ember.run.debounce - without target, with args'] = function testEmberRunDebounceWithoutTargetWithArgs(assert) {
+      var done = assert.async();
+
+      var calledWith = [];
+      function someFunc() {
+        for (var _len4 = arguments.length, args = Array(_len4), _key4 = 0; _key4 < _len4; _key4++) {
+          args[_key4] = arguments[_key4];
+        }
+
+        calledWith.push(args);
+      }
+
+      _emberMetal.run.debounce(someFunc, { isFoo: true }, 10);
+      _emberMetal.run.debounce(someFunc, { isBar: true }, 10);
+      _emberMetal.run.debounce(someFunc, { isBaz: true }, 10);
+
+      setTimeout(function () {
+        assert.deepEqual(calledWith, [[{ isBaz: true }]], 'someFunc called once with correct arguments');
+        done();
+      }, 20);
     };
 
     return _class;
