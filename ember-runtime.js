@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.0.0-canary+abd88d78
+ * @version   3.0.0-canary+35825d8c
  */
 
 /*globals process */
@@ -2678,7 +2678,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     // development to aid in development asertions. Production builds of
     // ember strip this entire branch out.
     var messageFor = function (obj, keyName, property, value) {
-      return 'You attempted to access the `' + keyName + '.' + property + '` property ' + ('(of ' + obj + '). Due to certain internal implementation details of Ember, ') + ('the `' + keyName + '` property previously contained an internal "descriptor" ') + ('object (a private API), therefore `' + keyName + '.' + property + '` would have ') + ('been `' + String(value).replace(/\n/g, ' ') + '`. This internal implementation ') + 'detail was never intended to be a public (or even intimate) API.\n\n' + 'This internal implementation detail has now changed and the (still private) ' + '"descriptor" object has been relocated to the object\'s "meta" (also a ' + ('private API). Soon, accessing `' + keyName + '` on this object will ') + 'return the computed value (see RFC #281 for more details).\n\n' + 'If you are seeing this error, you are likely using an addon that ' + 'relies on this now-defunct private implementation detail. If you can, ' + 'find out which addon is doing this from the stack trace below and ' + 'report this bug to the addon authors. If you feel stuck, the Ember ' + 'Community Slack (https://ember-community-slackin.herokuapp.com/) ' + 'may be able to offer some help.\n\n' + 'If you are an addon author and need help transitioning your code, ' + 'please get in touch in the #dev-ember channel in the Ember Community ' + 'Slack.';
+      return 'You attempted to access the `' + keyName + '.' + String(property) + '` property ' + ('(of ' + obj + '). Due to certain internal implementation details of Ember, ') + ('the `' + keyName + '` property previously contained an internal "descriptor" ') + ('object (a private API), therefore `' + keyName + '.' + String(property) + '` would have ') + ('been `' + String(value).replace(/\n/g, ' ') + '`. This internal implementation ') + 'detail was never intended to be a public (or even intimate) API.\n\n' + 'This internal implementation detail has now changed and the (still private) ' + '"descriptor" object has been relocated to the object\'s "meta" (also a ' + ('private API). Soon, accessing `' + keyName + '` on this object will ') + 'return the computed value (see RFC #281 for more details).\n\n' + 'If you are seeing this error, you are likely using an addon that ' + 'relies on this now-defunct private implementation detail. If you can, ' + 'find out which addon is doing this from the stack trace below and ' + 'report this bug to the addon authors. If you feel stuck, the Ember ' + 'Community Slack (https://ember-community-slackin.herokuapp.com/) ' + 'may be able to offer some help.\n\n' + 'If you are an addon author and need help transitioning your code, ' + 'please get in touch in the #dev-ember channel in the Ember Community ' + 'Slack.';
     };
 
     var trapFor = void 0;
@@ -2690,7 +2690,9 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
           get: function (descriptor, property) {
             if (property === DESCRIPTOR) {
               return descriptor;
-            } else if (property === 'toString' || property == 'valueOf' || Symbol && property === Symbol.toPrimitive) {
+            } else if (property === 'prototype' || property === 'constructor' || property === 'nodeType') {
+              return undefined;
+            } else if (property === 'toString' || property === 'valueOf' || property === 'inspect' || Symbol && property === Symbol.toPrimitive || Symbol && property === Symbol.toStringTag) {
               return function () {
                 return '[COMPUTED PROPERTY]';
               };

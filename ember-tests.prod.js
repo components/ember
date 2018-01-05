@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.0.0-canary+abd88d78
+ * @version   3.0.0-canary+35825d8c
  */
 
 /*globals process */
@@ -16770,10 +16770,10 @@ enifed('ember-glimmer/tests/integration/components/life-cycle-test', ['ember-bab
       return _this;
     }
 
-    LifeCycleHooksTest.prototype.teardown = function () {
+    LifeCycleHooksTest.prototype.afterEach = function () {
       var i;
 
-      _RenderingTest.prototype.teardown.call(this);
+      _RenderingTest.prototype.afterEach.call(this);
 
       for (i = 0; i < this.teardownAssertions.length; i++) {
         this.teardownAssertions[i]();
@@ -36625,7 +36625,7 @@ enifed('ember-metal/tests/accessors/get_test', ['ember-babel', 'ember-environmen
       }, /Cannot call `Ember.get` with an empty string/);
     };
 
-    _class.prototype['@test (regression) watched properties on unmodified inherited objects should still return their original value'] = function () {
+    _class.prototype['@test (regression) watched properties on unmodified inherited objects should still return their original value'] = function (assert) {
       var MyMixin = _emberMetal.Mixin.create({
         someProperty: 'foo',
         propertyDidChange: (0, _emberMetal.observer)('someProperty', function () {})
@@ -36634,7 +36634,7 @@ enifed('ember-metal/tests/accessors/get_test', ['ember-babel', 'ember-environmen
       var baseObject = MyMixin.apply({});
       var theRealObject = Object.create(baseObject);
 
-      equal((0, _emberMetal.get)(theRealObject, 'someProperty'), 'foo', 'should return the set value, not false');
+      assert.equal((0, _emberMetal.get)(theRealObject, 'someProperty'), 'foo', 'should return the set value, not false');
     };
 
     return _class;
@@ -36675,7 +36675,7 @@ enifed('ember-metal/tests/accessors/get_test', ['ember-babel', 'ember-environmen
       var obj = {
         count: 0,
         unknownProperty: function (key) {
-          equal(key, 'foo', 'should pass key');
+          assert.equal(key, 'foo', 'should pass key');
           this.count++;
           return 'FOO';
         }
@@ -36689,7 +36689,7 @@ enifed('ember-metal/tests/accessors/get_test', ['ember-babel', 'ember-environmen
       var obj = {
         unknownProperty: function (key) {
           if (key === 'foo') {
-            equal(key, 'foo', 'should pass key');
+            assert.equal(key, 'foo', 'should pass key');
             return 'FOO';
           }
         }
@@ -36982,11 +36982,11 @@ enifed('ember-metal/tests/alias_test', ['ember-metal'], function (_emberMetal) {
       count = void 0;
 
   QUnit.module('ember-metal/alias', {
-    setup: function () {
+    beforeEach: function () {
       obj = { foo: { faz: 'FOO' } };
       count = 0;
     },
-    teardown: function () {
+    afterEach: function () {
       obj = null;
     }
   });
@@ -36995,18 +36995,18 @@ enifed('ember-metal/tests/alias_test', ['ember-metal'], function (_emberMetal) {
     count++;
   }
 
-  QUnit.test('should proxy get to alt key', function () {
+  QUnit.test('should proxy get to alt key', function (assert) {
     (0, _emberMetal.defineProperty)(obj, 'bar', (0, _emberMetal.alias)('foo.faz'));
-    equal((0, _emberMetal.get)(obj, 'bar'), 'FOO');
+    assert.equal((0, _emberMetal.get)(obj, 'bar'), 'FOO');
   });
 
-  QUnit.test('should proxy set to alt key', function () {
+  QUnit.test('should proxy set to alt key', function (assert) {
     (0, _emberMetal.defineProperty)(obj, 'bar', (0, _emberMetal.alias)('foo.faz'));
     (0, _emberMetal.set)(obj, 'bar', 'BAR');
-    equal((0, _emberMetal.get)(obj, 'foo.faz'), 'BAR');
+    assert.equal((0, _emberMetal.get)(obj, 'foo.faz'), 'BAR');
   });
 
-  QUnit.test('old dependent keys should not trigger property changes', function () {
+  QUnit.test('old dependent keys should not trigger property changes', function (assert) {
     var obj1 = Object.create(null);
     (0, _emberMetal.defineProperty)(obj1, 'foo', null, null);
     (0, _emberMetal.defineProperty)(obj1, 'bar', (0, _emberMetal.alias)('foo'));
@@ -37015,15 +37015,15 @@ enifed('ember-metal/tests/alias_test', ['ember-metal'], function (_emberMetal) {
     (0, _emberMetal.addObserver)(obj1, 'baz', incrementCount);
 
     (0, _emberMetal.set)(obj1, 'foo', 'FOO');
-    equal(count, 1);
+    assert.equal(count, 1);
 
     (0, _emberMetal.removeObserver)(obj1, 'baz', incrementCount);
 
     (0, _emberMetal.set)(obj1, 'foo', 'OOF');
-    equal(count, 1);
+    assert.equal(count, 1);
   });
 
-  QUnit.test('inheriting an observer of the alias from the prototype then\n            redefining the alias on the instance to another property dependent on same key\n            does not call the observer twice', function () {
+  QUnit.test('inheriting an observer of the alias from the prototype then\n            redefining the alias on the instance to another property dependent on same key\n            does not call the observer twice', function (assert) {
     var obj1 = Object.create(null);
 
     (0, _emberMetal.meta)(obj1).proto = obj1;
@@ -37037,36 +37037,39 @@ enifed('ember-metal/tests/alias_test', ['ember-metal'], function (_emberMetal) {
     (0, _emberMetal.defineProperty)(obj2, 'baz', (0, _emberMetal.alias)('bar')); // override baz
 
     (0, _emberMetal.set)(obj2, 'foo', 'FOO');
-    equal(count, 1);
+    assert.equal(count, 1);
 
     (0, _emberMetal.removeObserver)(obj2, 'baz', incrementCount);
 
     (0, _emberMetal.set)(obj2, 'foo', 'OOF');
-    equal(count, 1);
+    assert.equal(count, 1);
   });
 
-  QUnit.test('an observer of the alias works if added after defining the alias', function () {
+  QUnit.test('an observer of the alias works if added after defining the alias', function (assert) {
     (0, _emberMetal.defineProperty)(obj, 'bar', (0, _emberMetal.alias)('foo.faz'));
     (0, _emberMetal.addObserver)(obj, 'bar', incrementCount);
-    ok((0, _emberMetal.isWatching)(obj, 'foo.faz'));
+    assert.ok((0, _emberMetal.isWatching)(obj, 'foo.faz'));
     (0, _emberMetal.set)(obj, 'foo.faz', 'BAR');
-    equal(count, 1);
+    assert.equal(count, 1);
   });
 
-  QUnit.test('an observer of the alias works if added before defining the alias', function () {
+  QUnit.test('an observer of the alias works if added before defining the alias', function (assert) {
     (0, _emberMetal.addObserver)(obj, 'bar', incrementCount);
     (0, _emberMetal.defineProperty)(obj, 'bar', (0, _emberMetal.alias)('foo.faz'));
-    ok((0, _emberMetal.isWatching)(obj, 'foo.faz'));
+    assert.ok((0, _emberMetal.isWatching)(obj, 'foo.faz'));
     (0, _emberMetal.set)(obj, 'foo.faz', 'BAR');
-    equal(count, 1);
+    assert.equal(count, 1);
   });
 
-  QUnit.test('object with alias is dirtied if interior object of alias is set after consumption', function () {
+  QUnit.test('object with alias is dirtied if interior object of alias is set after consumption', function (assert) {
     (0, _emberMetal.defineProperty)(obj, 'bar', (0, _emberMetal.alias)('foo.faz'));
     (0, _emberMetal.get)(obj, 'bar');
-    assertDirty(obj, function () {
-      return (0, _emberMetal.set)(obj, 'foo.faz', 'BAR');
-    }, 'setting the aliased key should dirty the object');
+
+    var tag = (0, _emberMetal.tagFor)(obj);
+    var tagValue = tag.value();
+    (0, _emberMetal.set)(obj, 'foo.faz', 'BAR');
+
+    assert.ok(!tag.validate(tagValue), 'setting the aliased key should dirty the object');
   });
 
   QUnit.test('setting alias on self should fail assertion', function () {
@@ -37074,13 +37077,6 @@ enifed('ember-metal/tests/alias_test', ['ember-metal'], function (_emberMetal) {
       return (0, _emberMetal.defineProperty)(obj, 'bar', (0, _emberMetal.alias)('bar'));
     }, 'Setting alias \'bar\' on self');
   });
-
-  function assertDirty(obj, callback, label) {
-    var tag = (0, _emberMetal.tagFor)(obj);
-    var tagValue = tag.value();
-    callback();
-    ok(!tag.validate(tagValue), label);
-  }
 });
 enifed('ember-metal/tests/binding/connect_test', ['ember-environment', 'internal-test-helpers', 'ember-metal'], function (_emberEnvironment, _internalTestHelpers, _emberMetal) {
   'use strict';
@@ -37092,26 +37088,28 @@ enifed('ember-metal/tests/binding/connect_test', ['ember-environment', 'internal
       };
     }
 
-    ok(!_emberMetal.run.currentRunLoop, 'performTest should not have a currentRunLoop');
+    var assert = QUnit.config.current.assert;
 
-    equal(get(a, 'foo'), 'FOO', 'a should not have changed');
-    equal(get(b, 'bar'), 'BAR', 'b should not have changed');
+    assert.ok(!_emberMetal.run.currentRunLoop, 'performTest should not have a currentRunLoop');
+
+    assert.equal(get(a, 'foo'), 'FOO', 'a should not have changed');
+    assert.equal(get(b, 'bar'), 'BAR', 'b should not have changed');
 
     connect();
 
-    equal(get(a, 'foo'), 'BAR', 'a should have changed');
-    equal(get(b, 'bar'), 'BAR', 'b should have changed');
+    assert.equal(get(a, 'foo'), 'BAR', 'a should have changed');
+    assert.equal(get(b, 'bar'), 'BAR', 'b should have changed');
     //
     // make sure changes sync both ways
     (0, _emberMetal.run)(function () {
       return set(b, 'bar', 'BAZZ');
     });
-    equal(get(a, 'foo'), 'BAZZ', 'a should have changed');
+    assert.equal(get(a, 'foo'), 'BAZZ', 'a should have changed');
 
     (0, _emberMetal.run)(function () {
       return set(a, 'foo', 'BARF');
     });
-    equal(get(b, 'bar'), 'BARF', 'a should have changed');
+    assert.equal(get(b, 'bar'), 'BARF', 'a should have changed');
   }
 
   var originalLookup = void 0,
@@ -37119,11 +37117,11 @@ enifed('ember-metal/tests/binding/connect_test', ['ember-environment', 'internal
       GlobalB = void 0;
 
   QUnit.module('Ember.Binding', {
-    setup: function () {
+    beforeEach: function () {
       originalLookup = _emberEnvironment.context.lookup;
       _emberEnvironment.context.lookup = lookup = {};
     },
-    teardown: function () {
+    afterEach: function () {
       lookup = null;
       _emberEnvironment.context.lookup = originalLookup;
     }
@@ -37166,7 +37164,7 @@ enifed('ember-metal/tests/binding/connect_test', ['ember-environment', 'internal
     }, /`Ember\.Binding` is deprecated./);
   });
 
-  (0, _internalTestHelpers.testBoth)('Connecting a binding to path', function (get, set) {
+  (0, _internalTestHelpers.testBoth)('Connecting a binding to path', function (get, set, assert) {
     var a = { foo: 'FOO' };
     lookup['GlobalB'] = GlobalB = {
       b: { bar: 'BAR' }
@@ -37188,7 +37186,7 @@ enifed('ember-metal/tests/binding/connect_test', ['ember-environment', 'internal
       return set(GlobalB, 'b', b);
     });
 
-    equal(get(a, 'foo'), 'BIFF', 'a should have changed');
+    assert.equal(get(a, 'foo'), 'BIFF', 'a should have changed');
   });
 
   (0, _internalTestHelpers.testBoth)('Calling connect more than once', function (get, set) {
@@ -37206,7 +37204,7 @@ enifed('ember-metal/tests/binding/connect_test', ['ember-environment', 'internal
     }, /`Ember\.Binding` is deprecated./);
   });
 
-  QUnit.test('inherited bindings should sync on create', function () {
+  QUnit.test('inherited bindings should sync on create', function (assert) {
     var a = void 0;
     (0, _emberMetal.run)(function () {
       function A() {
@@ -37220,7 +37218,7 @@ enifed('ember-metal/tests/binding/connect_test', ['ember-environment', 'internal
       (0, _emberMetal.set)(a, 'bar', { baz: 'BAZ' });
     });
 
-    equal((0, _emberMetal.get)(a, 'foo'), 'BAZ', 'should have synced binding on new obj');
+    assert.equal((0, _emberMetal.get)(a, 'foo'), 'BAZ', 'should have synced binding on new obj');
   });
 });
 enifed('ember-metal/tests/binding/sync_test', ['internal-test-helpers', 'ember-metal'], function (_internalTestHelpers, _emberMetal) {
@@ -37228,7 +37226,7 @@ enifed('ember-metal/tests/binding/sync_test', ['internal-test-helpers', 'ember-m
 
   QUnit.module('system/binding/sync_test.js');
 
-  (0, _internalTestHelpers.testBoth)('bindings should not sync twice in a single run loop', function (get, set) {
+  (0, _internalTestHelpers.testBoth)('bindings should not sync twice in a single run loop', function (get, set, assert) {
     var a = void 0,
         b = void 0,
         setValue = void 0;
@@ -37268,12 +37266,12 @@ enifed('ember-metal/tests/binding/sync_test', ['internal-test-helpers', 'ember-m
       set(a, 'foo', 'trollface');
     });
 
-    equal(get(b, 'foo'), 'trollface', 'the binding should sync');
-    equal(setCalled, 1, 'Set should only be called once');
-    equal(getCalled, 1, 'Get should only be called once');
+    assert.equal(get(b, 'foo'), 'trollface', 'the binding should sync');
+    assert.equal(setCalled, 1, 'Set should only be called once');
+    assert.equal(getCalled, 1, 'Get should only be called once');
   });
 
-  (0, _internalTestHelpers.testBoth)('bindings should not infinite loop if computed properties return objects', function (get) {
+  (0, _internalTestHelpers.testBoth)('bindings should not infinite loop if computed properties return objects', function (get, set, assert) {
     var a = void 0,
         b = void 0;
     var getCalled = 0;
@@ -37298,11 +37296,11 @@ enifed('ember-metal/tests/binding/sync_test', ['internal-test-helpers', 'ember-m
       }, /`Ember.Binding` is deprecated/);
     });
 
-    deepEqual(get(b, 'foo'), ['foo', 'bar'], 'the binding should sync');
-    equal(getCalled, 1, 'Get should only be called once');
+    assert.deepEqual(get(b, 'foo'), ['foo', 'bar'], 'the binding should sync');
+    assert.equal(getCalled, 1, 'Get should only be called once');
   });
 
-  (0, _internalTestHelpers.testBoth)('bindings should do the right thing when observers trigger bindings in the opposite direction', function (get, set) {
+  (0, _internalTestHelpers.testBoth)('bindings should do the right thing when observers trigger bindings in the opposite direction', function (get, set, assert) {
     var a = void 0,
         b = void 0,
         c = void 0;
@@ -37339,10 +37337,10 @@ enifed('ember-metal/tests/binding/sync_test', ['internal-test-helpers', 'ember-m
       return set(a, 'foo', 'trollface');
     });
 
-    equal(get(a, 'foo'), 'what is going on');
+    assert.equal(get(a, 'foo'), 'what is going on');
   });
 
-  (0, _internalTestHelpers.testBoth)('bindings should not try to sync destroyed objects', function (get, set) {
+  (0, _internalTestHelpers.testBoth)('bindings should not try to sync destroyed objects', function (get, set, assert) {
     var a = void 0,
         b = void 0;
 
@@ -37365,7 +37363,7 @@ enifed('ember-metal/tests/binding/sync_test', ['internal-test-helpers', 'ember-m
     (0, _emberMetal.run)(function () {
       set(a, 'foo', 'trollface');
       set(b, 'isDestroyed', true);
-      ok(true, 'should not raise');
+      assert.ok(true, 'should not raise');
     });
 
     (0, _emberMetal.run)(function () {
@@ -37387,7 +37385,7 @@ enifed('ember-metal/tests/binding/sync_test', ['internal-test-helpers', 'ember-m
     (0, _emberMetal.run)(function () {
       set(b, 'foo', 'trollface');
       set(a, 'isDestroyed', true);
-      ok(true, 'should not raise');
+      assert.ok(true, 'should not raise');
     });
   });
 });
@@ -37396,51 +37394,51 @@ enifed('ember-metal/tests/cache_test', ['ember-metal'], function (_emberMetal) {
 
   QUnit.module('Cache');
 
-  QUnit.test('basic', function () {
+  QUnit.test('basic', function (assert) {
     var cache = new _emberMetal.Cache(100, function (key) {
       return key.toUpperCase();
     });
 
-    equal(cache.get('foo'), 'FOO');
-    equal(cache.get('bar'), 'BAR');
-    equal(cache.get('foo'), 'FOO');
+    assert.equal(cache.get('foo'), 'FOO');
+    assert.equal(cache.get('bar'), 'BAR');
+    assert.equal(cache.get('foo'), 'FOO');
   });
 
-  QUnit.test('explicit sets', function () {
+  QUnit.test('explicit sets', function (assert) {
     var cache = new _emberMetal.Cache(100, function (key) {
       return key.toUpperCase();
     });
 
-    equal(cache.get('foo'), 'FOO');
+    assert.equal(cache.get('foo'), 'FOO');
 
-    equal(cache.set('foo', 'FOO!!!'), 'FOO!!!');
+    assert.equal(cache.set('foo', 'FOO!!!'), 'FOO!!!');
 
-    equal(cache.get('foo'), 'FOO!!!');
+    assert.equal(cache.get('foo'), 'FOO!!!');
 
-    strictEqual(cache.set('foo', undefined), undefined);
+    assert.strictEqual(cache.set('foo', undefined), undefined);
 
-    strictEqual(cache.get('foo'), undefined);
+    assert.strictEqual(cache.get('foo'), undefined);
   });
 
-  QUnit.test('caches computation correctly', function () {
+  QUnit.test('caches computation correctly', function (assert) {
     var count = 0;
     var cache = new _emberMetal.Cache(100, function (key) {
       count++;
       return key.toUpperCase();
     });
 
-    equal(count, 0);
+    assert.equal(count, 0);
     cache.get('foo');
-    equal(count, 1);
+    assert.equal(count, 1);
     cache.get('bar');
-    equal(count, 2);
+    assert.equal(count, 2);
     cache.get('bar');
-    equal(count, 2);
+    assert.equal(count, 2);
     cache.get('foo');
-    equal(count, 2);
+    assert.equal(count, 2);
   });
 
-  QUnit.test('caches computation correctly with custom cache keys', function () {
+  QUnit.test('caches computation correctly with custom cache keys', function (assert) {
     var count = 0;
     var cache = new _emberMetal.Cache(100, function (obj) {
       count++;
@@ -37449,35 +37447,35 @@ enifed('ember-metal/tests/cache_test', ['ember-metal'], function (_emberMetal) {
       return obj.key;
     });
 
-    equal(count, 0);
+    assert.equal(count, 0);
     cache.get({ key: 'foo', value: 'foo' });
-    equal(count, 1);
+    assert.equal(count, 1);
     cache.get({ key: 'bar', value: 'bar' });
-    equal(count, 2);
+    assert.equal(count, 2);
     cache.get({ key: 'bar', value: 'bar' });
-    equal(count, 2);
+    assert.equal(count, 2);
     cache.get({ key: 'foo', value: 'foo' });
-    equal(count, 2);
+    assert.equal(count, 2);
   });
 
-  QUnit.test('handles undefined value correctly', function () {
+  QUnit.test('handles undefined value correctly', function (assert) {
     var count = 0;
     var cache = new _emberMetal.Cache(100, function () {
       count++;
     });
 
-    equal(count, 0);
-    strictEqual(cache.get('foo'), undefined);
-    equal(count, 1);
-    strictEqual(cache.get('bar'), undefined);
-    equal(count, 2);
-    strictEqual(cache.get('bar'), undefined);
-    equal(count, 2);
-    strictEqual(cache.get('foo'), undefined);
-    equal(count, 2);
+    assert.equal(count, 0);
+    assert.strictEqual(cache.get('foo'), undefined);
+    assert.equal(count, 1);
+    assert.strictEqual(cache.get('bar'), undefined);
+    assert.equal(count, 2);
+    assert.strictEqual(cache.get('bar'), undefined);
+    assert.equal(count, 2);
+    assert.strictEqual(cache.get('foo'), undefined);
+    assert.equal(count, 2);
   });
 
-  QUnit.test('continues working after reaching cache limit', function () {
+  QUnit.test('continues working after reaching cache limit', function (assert) {
     var cache = new _emberMetal.Cache(3, function (key) {
       return key.toUpperCase();
     });
@@ -37486,10 +37484,10 @@ enifed('ember-metal/tests/cache_test', ['ember-metal'], function (_emberMetal) {
     cache.get('b');
     cache.get('c');
 
-    equal(cache.get('d'), 'D');
-    equal(cache.get('a'), 'A');
-    equal(cache.get('b'), 'B');
-    equal(cache.get('c'), 'C');
+    assert.equal(cache.get('d'), 'D');
+    assert.equal(cache.get('a'), 'A');
+    assert.equal(cache.get('b'), 'B');
+    assert.equal(cache.get('c'), 'C');
   });
 });
 enifed('ember-metal/tests/chains_test', ['ember-metal'], function (_emberMetal) {
@@ -37497,7 +37495,7 @@ enifed('ember-metal/tests/chains_test', ['ember-metal'], function (_emberMetal) 
 
   QUnit.module('Chains');
 
-  QUnit.test('finishChains should properly copy chains from prototypes to instances', function () {
+  QUnit.test('finishChains should properly copy chains from prototypes to instances', function (assert) {
 
     var obj = {};
     (0, _emberMetal.addObserver)(obj, 'foo.bar', null, function () {});
@@ -37509,7 +37507,7 @@ enifed('ember-metal/tests/chains_test', ['ember-metal'], function (_emberMetal) 
 
     (0, _emberMetal.finishChains)(childMeta);
 
-    ok(parentMeta.readableChains() !== childMeta.readableChains(), 'The chains object is copied');
+    assert.ok(parentMeta.readableChains() !== childMeta.readableChains(), 'The chains object is copied');
   });
 
   QUnit.test('does not observe primitive values', function (assert) {
@@ -37522,7 +37520,7 @@ enifed('ember-metal/tests/chains_test', ['ember-metal'], function (_emberMetal) 
     assert.notOk(meta._object);
   });
 
-  QUnit.test('observer and CP chains', function () {
+  QUnit.test('observer and CP chains', function (assert) {
     var obj = {};
 
     (0, _emberMetal.defineProperty)(obj, 'foo', (0, _emberMetal.computed)('qux.[]', function () {}));
@@ -37566,7 +37564,7 @@ enifed('ember-metal/tests/chains_test', ['ember-metal'], function (_emberMetal) 
     */
 
     (0, _emberMetal.get)(obj, 'qux'); // CP chain re-recreated
-    ok(true, 'no crash');
+    assert.ok(true, 'no crash');
   });
 
   QUnit.test('checks cache correctly', function (assert) {
@@ -37590,8 +37588,8 @@ enifed('ember-metal/tests/computed_test', ['ember/features', 'ember-runtime', 'i
 
   QUnit.module('computed');
 
-  QUnit.test('computed property should be an instance of descriptor', function () {
-    ok((0, _emberMetal.computed)(function () {}) instanceof _emberMetal.Descriptor);
+  QUnit.test('computed property should be an instance of descriptor', function (assert) {
+    assert.ok((0, _emberMetal.computed)(function () {}) instanceof _emberMetal.Descriptor);
   });
 
   QUnit.test('computed properties assert the presence of a getter or setter function', function () {
@@ -37630,7 +37628,7 @@ enifed('ember-metal/tests/computed_test', ['ember/features', 'ember-runtime', 'i
     });
   }
 
-  QUnit.test('defining computed property should invoke property on get', function () {
+  QUnit.test('defining computed property should invoke property on get', function (assert) {
     var obj = {};
     var count = 0;
     (0, _emberMetal.defineProperty)(obj, 'foo', (0, _emberMetal.computed)(function (key) {
@@ -37638,11 +37636,11 @@ enifed('ember-metal/tests/computed_test', ['ember/features', 'ember-runtime', 'i
       return 'computed ' + key;
     }));
 
-    equal((0, _emberMetal.get)(obj, 'foo'), 'computed foo', 'should return value');
-    equal(count, 1, 'should have invoked computed property');
+    assert.equal((0, _emberMetal.get)(obj, 'foo'), 'computed foo', 'should return value');
+    assert.equal(count, 1, 'should have invoked computed property');
   });
 
-  QUnit.test('defining computed property should invoke property on set', function () {
+  QUnit.test('defining computed property should invoke property on set', function (assert) {
     var obj = {};
     var count = 0;
     (0, _emberMetal.defineProperty)(obj, 'foo', (0, _emberMetal.computed)({
@@ -37656,19 +37654,19 @@ enifed('ember-metal/tests/computed_test', ['ember/features', 'ember-runtime', 'i
       }
     }));
 
-    equal((0, _emberMetal.set)(obj, 'foo', 'bar'), 'bar', 'should return set value');
-    equal(count, 1, 'should have invoked computed property');
-    equal((0, _emberMetal.get)(obj, 'foo'), 'computed bar', 'should return new value');
+    assert.equal((0, _emberMetal.set)(obj, 'foo', 'bar'), 'bar', 'should return set value');
+    assert.equal(count, 1, 'should have invoked computed property');
+    assert.equal((0, _emberMetal.get)(obj, 'foo'), 'computed bar', 'should return new value');
   });
 
-  QUnit.test('defining a computed property with a dependent key ending with @each is expanded to []', function () {
+  QUnit.test('defining a computed property with a dependent key ending with @each is expanded to []', function (assert) {
     var cp = (0, _emberMetal.computed)('blazo.@each', function () {});
 
-    deepEqual(cp._dependentKeys, ['blazo.[]']);
+    assert.deepEqual(cp._dependentKeys, ['blazo.[]']);
 
     cp = (0, _emberMetal.computed)('qux', 'zoopa.@each', function () {});
 
-    deepEqual(cp._dependentKeys, ['qux', 'zoopa.[]']);
+    assert.deepEqual(cp._dependentKeys, ['qux', 'zoopa.[]']);
   });
 
   QUnit.test('defining a computed property with a dependent key more than one level deep beyond @each is not supported', function () {
@@ -37692,7 +37690,7 @@ enifed('ember-metal/tests/computed_test', ['ember/features', 'ember-runtime', 'i
   var objA = void 0,
       objB = void 0;
   QUnit.module('computed should inherit through prototype', {
-    setup: function () {
+    beforeEach: function () {
       objA = { __foo: 'FOO' };
       (0, _emberMetal.defineProperty)(objA, 'foo', (0, _emberMetal.computed)({
         get: function (key) {
@@ -37707,30 +37705,30 @@ enifed('ember-metal/tests/computed_test', ['ember/features', 'ember-runtime', 'i
       objB = Object.create(objA);
       objB.__foo = 'FOO'; // make a copy;
     },
-    teardown: function () {
+    afterEach: function () {
       objA = objB = null;
     }
   });
 
-  (0, _internalTestHelpers.testBoth)('using get() and set()', function (get, set) {
-    equal(get(objA, 'foo'), 'FOO', 'should get FOO from A');
-    equal(get(objB, 'foo'), 'FOO', 'should get FOO from B');
+  (0, _internalTestHelpers.testBoth)('using get() and set()', function (get, set, assert) {
+    assert.equal(get(objA, 'foo'), 'FOO', 'should get FOO from A');
+    assert.equal(get(objB, 'foo'), 'FOO', 'should get FOO from B');
 
     set(objA, 'foo', 'BIFF');
-    equal(get(objA, 'foo'), 'computed BIFF', 'should change A');
-    equal(get(objB, 'foo'), 'FOO', 'should NOT change B');
+    assert.equal(get(objA, 'foo'), 'computed BIFF', 'should change A');
+    assert.equal(get(objB, 'foo'), 'FOO', 'should NOT change B');
 
     set(objB, 'foo', 'bar');
-    equal(get(objB, 'foo'), 'computed bar', 'should change B');
-    equal(get(objA, 'foo'), 'computed BIFF', 'should NOT change A');
+    assert.equal(get(objB, 'foo'), 'computed bar', 'should change B');
+    assert.equal(get(objA, 'foo'), 'computed BIFF', 'should NOT change A');
 
     set(objA, 'foo', 'BAZ');
-    equal(get(objA, 'foo'), 'computed BAZ', 'should change A');
-    equal(get(objB, 'foo'), 'computed bar', 'should NOT change B');
+    assert.equal(get(objA, 'foo'), 'computed BAZ', 'should change A');
+    assert.equal(get(objB, 'foo'), 'computed bar', 'should NOT change B');
   });
 
   QUnit.module('redefining computed property to normal', {
-    setup: function () {
+    beforeEach: function () {
       objA = { __foo: 'FOO' };
       (0, _emberMetal.defineProperty)(objA, 'foo', (0, _emberMetal.computed)({
         get: function (key) {
@@ -37745,30 +37743,30 @@ enifed('ember-metal/tests/computed_test', ['ember/features', 'ember-runtime', 'i
       objB = Object.create(objA);
       (0, _emberMetal.defineProperty)(objB, 'foo'); // make this just a normal property.
     },
-    teardown: function () {
+    afterEach: function () {
       objA = objB = null;
     }
   });
 
-  (0, _internalTestHelpers.testBoth)('using get() and set()', function (get, set) {
-    equal(get(objA, 'foo'), 'FOO', 'should get FOO from A');
-    equal(get(objB, 'foo'), undefined, 'should get undefined from B');
+  (0, _internalTestHelpers.testBoth)('using get() and set()', function (get, set, assert) {
+    assert.equal(get(objA, 'foo'), 'FOO', 'should get FOO from A');
+    assert.equal(get(objB, 'foo'), undefined, 'should get undefined from B');
 
     set(objA, 'foo', 'BIFF');
-    equal(get(objA, 'foo'), 'computed BIFF', 'should change A');
-    equal(get(objB, 'foo'), undefined, 'should NOT change B');
+    assert.equal(get(objA, 'foo'), 'computed BIFF', 'should change A');
+    assert.equal(get(objB, 'foo'), undefined, 'should NOT change B');
 
     set(objB, 'foo', 'bar');
-    equal(get(objB, 'foo'), 'bar', 'should change B');
-    equal(get(objA, 'foo'), 'computed BIFF', 'should NOT change A');
+    assert.equal(get(objB, 'foo'), 'bar', 'should change B');
+    assert.equal(get(objA, 'foo'), 'computed BIFF', 'should NOT change A');
 
     set(objA, 'foo', 'BAZ');
-    equal(get(objA, 'foo'), 'computed BAZ', 'should change A');
-    equal(get(objB, 'foo'), 'bar', 'should NOT change B');
+    assert.equal(get(objA, 'foo'), 'computed BAZ', 'should change A');
+    assert.equal(get(objB, 'foo'), 'bar', 'should NOT change B');
   });
 
   QUnit.module('redefining computed property to another property', {
-    setup: function () {
+    beforeEach: function () {
       objA = { __foo: 'FOO' };
       (0, _emberMetal.defineProperty)(objA, 'foo', (0, _emberMetal.computed)({
         get: function (key) {
@@ -37792,40 +37790,40 @@ enifed('ember-metal/tests/computed_test', ['ember/features', 'ember-runtime', 'i
         }
       }));
     },
-    teardown: function () {
+    afterEach: function () {
       objA = objB = null;
     }
   });
 
-  (0, _internalTestHelpers.testBoth)('using get() and set()', function (get, set) {
-    equal(get(objA, 'foo'), 'FOO', 'should get FOO from A');
-    equal(get(objB, 'foo'), 'FOO', 'should get FOO from B');
+  (0, _internalTestHelpers.testBoth)('using get() and set()', function (get, set, assert) {
+    assert.equal(get(objA, 'foo'), 'FOO', 'should get FOO from A');
+    assert.equal(get(objB, 'foo'), 'FOO', 'should get FOO from B');
 
     set(objA, 'foo', 'BIFF');
-    equal(get(objA, 'foo'), 'A BIFF', 'should change A');
-    equal(get(objB, 'foo'), 'FOO', 'should NOT change B');
+    assert.equal(get(objA, 'foo'), 'A BIFF', 'should change A');
+    assert.equal(get(objB, 'foo'), 'FOO', 'should NOT change B');
 
     set(objB, 'foo', 'bar');
-    equal(get(objB, 'foo'), 'B bar', 'should change B');
-    equal(get(objA, 'foo'), 'A BIFF', 'should NOT change A');
+    assert.equal(get(objB, 'foo'), 'B bar', 'should change B');
+    assert.equal(get(objA, 'foo'), 'A BIFF', 'should NOT change A');
 
     set(objA, 'foo', 'BAZ');
-    equal(get(objA, 'foo'), 'A BAZ', 'should change A');
-    equal(get(objB, 'foo'), 'B bar', 'should NOT change B');
+    assert.equal(get(objA, 'foo'), 'A BAZ', 'should change A');
+    assert.equal(get(objB, 'foo'), 'B bar', 'should NOT change B');
   });
 
   QUnit.module('computed - metadata');
 
-  QUnit.test('can set metadata on a computed property', function () {
+  QUnit.test('can set metadata on a computed property', function (assert) {
     var computedProperty = (0, _emberMetal.computed)(function () {});
     computedProperty.meta({ key: 'keyValue' });
 
-    equal(computedProperty.meta().key, 'keyValue', 'saves passed meta hash to the _meta property');
+    assert.equal(computedProperty.meta().key, 'keyValue', 'saves passed meta hash to the _meta property');
   });
 
-  QUnit.test('meta should return an empty hash if no meta is set', function () {
+  QUnit.test('meta should return an empty hash if no meta is set', function (assert) {
     var computedProperty = (0, _emberMetal.computed)(function () {});
-    deepEqual(computedProperty.meta(), {}, 'returned value is an empty hash');
+    assert.deepEqual(computedProperty.meta(), {}, 'returned value is an empty hash');
   });
 
   // ..........................................................
@@ -37833,7 +37831,7 @@ enifed('ember-metal/tests/computed_test', ['ember/features', 'ember-runtime', 'i
   //
 
   QUnit.module('computed - cacheable', {
-    setup: function () {
+    beforeEach: function () {
       obj = {};
       count = 0;
       var func = function () {
@@ -37842,61 +37840,61 @@ enifed('ember-metal/tests/computed_test', ['ember/features', 'ember-runtime', 'i
       };
       (0, _emberMetal.defineProperty)(obj, 'foo', (0, _emberMetal.computed)({ get: func, set: func }));
     },
-    teardown: function () {
+    afterEach: function () {
       obj = count = null;
     }
   });
 
-  (0, _internalTestHelpers.testBoth)('cacheable should cache', function (get) {
-    equal(get(obj, 'foo'), 'bar 1', 'first get');
-    equal(get(obj, 'foo'), 'bar 1', 'second get');
-    equal(count, 1, 'should only invoke once');
+  (0, _internalTestHelpers.testBoth)('cacheable should cache', function (get, set, assert) {
+    assert.equal(get(obj, 'foo'), 'bar 1', 'first get');
+    assert.equal(get(obj, 'foo'), 'bar 1', 'second get');
+    assert.equal(count, 1, 'should only invoke once');
   });
 
-  (0, _internalTestHelpers.testBoth)('modifying a cacheable property should update cache', function (get, set) {
-    equal(get(obj, 'foo'), 'bar 1', 'first get');
-    equal(get(obj, 'foo'), 'bar 1', 'second get');
+  (0, _internalTestHelpers.testBoth)('modifying a cacheable property should update cache', function (get, set, assert) {
+    assert.equal(get(obj, 'foo'), 'bar 1', 'first get');
+    assert.equal(get(obj, 'foo'), 'bar 1', 'second get');
 
-    equal(set(obj, 'foo', 'baz'), 'baz', 'setting');
-    equal(get(obj, 'foo'), 'bar 2', 'third get');
-    equal(count, 2, 'should not invoke again');
+    assert.equal(set(obj, 'foo', 'baz'), 'baz', 'setting');
+    assert.equal(get(obj, 'foo'), 'bar 2', 'third get');
+    assert.equal(count, 2, 'should not invoke again');
   });
 
-  (0, _internalTestHelpers.testBoth)('inherited property should not pick up cache', function (get, set) {
+  (0, _internalTestHelpers.testBoth)('inherited property should not pick up cache', function (get, set, assert) {
     var objB = Object.create(obj);
 
-    equal(get(obj, 'foo'), 'bar 1', 'obj first get');
-    equal(get(objB, 'foo'), 'bar 2', 'objB first get');
+    assert.equal(get(obj, 'foo'), 'bar 1', 'obj first get');
+    assert.equal(get(objB, 'foo'), 'bar 2', 'objB first get');
 
-    equal(get(obj, 'foo'), 'bar 1', 'obj second get');
-    equal(get(objB, 'foo'), 'bar 2', 'objB second get');
+    assert.equal(get(obj, 'foo'), 'bar 1', 'obj second get');
+    assert.equal(get(objB, 'foo'), 'bar 2', 'objB second get');
 
     set(obj, 'foo', 'baz'); // modify A
-    equal(get(obj, 'foo'), 'bar 3', 'obj third get');
-    equal(get(objB, 'foo'), 'bar 2', 'objB third get');
+    assert.equal(get(obj, 'foo'), 'bar 3', 'obj third get');
+    assert.equal(get(objB, 'foo'), 'bar 2', 'objB third get');
   });
 
-  (0, _internalTestHelpers.testBoth)('cacheFor should return the cached value', function (get) {
-    equal((0, _emberMetal.cacheFor)(obj, 'foo'), undefined, 'should not yet be a cached value');
+  (0, _internalTestHelpers.testBoth)('cacheFor should return the cached value', function (get, set, assert) {
+    assert.equal((0, _emberMetal.cacheFor)(obj, 'foo'), undefined, 'should not yet be a cached value');
 
     get(obj, 'foo');
 
-    equal((0, _emberMetal.cacheFor)(obj, 'foo'), 'bar 1', 'should retrieve cached value');
+    assert.equal((0, _emberMetal.cacheFor)(obj, 'foo'), 'bar 1', 'should retrieve cached value');
   });
 
-  (0, _internalTestHelpers.testBoth)('cacheFor should return falsy cached values', function (get) {
+  (0, _internalTestHelpers.testBoth)('cacheFor should return falsy cached values', function (get, set, assert) {
     (0, _emberMetal.defineProperty)(obj, 'falsy', (0, _emberMetal.computed)(function () {
       return false;
     }));
 
-    equal((0, _emberMetal.cacheFor)(obj, 'falsy'), undefined, 'should not yet be a cached value');
+    assert.equal((0, _emberMetal.cacheFor)(obj, 'falsy'), undefined, 'should not yet be a cached value');
 
     get(obj, 'falsy');
 
-    equal((0, _emberMetal.cacheFor)(obj, 'falsy'), false, 'should retrieve cached value');
+    assert.equal((0, _emberMetal.cacheFor)(obj, 'falsy'), false, 'should retrieve cached value');
   });
 
-  (0, _internalTestHelpers.testBoth)('setting a cached computed property passes the old value as the third argument', function (get, set) {
+  (0, _internalTestHelpers.testBoth)('setting a cached computed property passes the old value as the third argument', function (get, set, assert) {
     var obj = {
       foo: 0
     };
@@ -37912,13 +37910,13 @@ enifed('ember-metal/tests/computed_test', ['ember/features', 'ember-runtime', 'i
     }).property('foo'));
 
     set(obj, 'plusOne', 1);
-    strictEqual(receivedOldValue, undefined, 'oldValue should be undefined');
+    assert.strictEqual(receivedOldValue, undefined, 'oldValue should be undefined');
 
     set(obj, 'plusOne', 2);
-    strictEqual(receivedOldValue, 1, 'oldValue should be 1');
+    assert.strictEqual(receivedOldValue, 1, 'oldValue should be 1');
 
     set(obj, 'plusOne', 3);
-    strictEqual(receivedOldValue, 2, 'oldValue should be 2');
+    assert.strictEqual(receivedOldValue, 2, 'oldValue should be 2');
   });
 
   // ..........................................................
@@ -37926,7 +37924,7 @@ enifed('ember-metal/tests/computed_test', ['ember/features', 'ember-runtime', 'i
   //
 
   QUnit.module('computed - dependentkey', {
-    setup: function () {
+    beforeEach: function () {
       obj = { bar: 'baz' };
       count = 0;
       var getterAndSetter = function () {
@@ -37939,36 +37937,36 @@ enifed('ember-metal/tests/computed_test', ['ember/features', 'ember-runtime', 'i
         set: getterAndSetter
       }).property('bar'));
     },
-    teardown: function () {
+    afterEach: function () {
       obj = count = null;
     }
   });
 
-  (0, _internalTestHelpers.testBoth)('should lazily watch dependent keys on set', function (get, set) {
-    equal((0, _emberMetal.isWatching)(obj, 'bar'), false, 'precond not watching dependent key');
+  (0, _internalTestHelpers.testBoth)('should lazily watch dependent keys on set', function (get, set, assert) {
+    assert.equal((0, _emberMetal.isWatching)(obj, 'bar'), false, 'precond not watching dependent key');
     set(obj, 'foo', 'bar');
-    equal((0, _emberMetal.isWatching)(obj, 'bar'), true, 'lazily watching dependent key');
+    assert.equal((0, _emberMetal.isWatching)(obj, 'bar'), true, 'lazily watching dependent key');
   });
 
-  (0, _internalTestHelpers.testBoth)('should lazily watch dependent keys on get', function (get) {
-    equal((0, _emberMetal.isWatching)(obj, 'bar'), false, 'precond not watching dependent key');
+  (0, _internalTestHelpers.testBoth)('should lazily watch dependent keys on get', function (get, set, assert) {
+    assert.equal((0, _emberMetal.isWatching)(obj, 'bar'), false, 'precond not watching dependent key');
     get(obj, 'foo');
-    equal((0, _emberMetal.isWatching)(obj, 'bar'), true, 'lazily watching dependent key');
+    assert.equal((0, _emberMetal.isWatching)(obj, 'bar'), true, 'lazily watching dependent key');
   });
 
-  (0, _internalTestHelpers.testBoth)('local dependent key should invalidate cache', function (get, set) {
-    equal((0, _emberMetal.isWatching)(obj, 'bar'), false, 'precond not watching dependent key');
-    equal(get(obj, 'foo'), 'bar 1', 'get once');
-    equal((0, _emberMetal.isWatching)(obj, 'bar'), true, 'lazily setup watching dependent key');
-    equal(get(obj, 'foo'), 'bar 1', 'cached retrieve');
+  (0, _internalTestHelpers.testBoth)('local dependent key should invalidate cache', function (get, set, assert) {
+    assert.equal((0, _emberMetal.isWatching)(obj, 'bar'), false, 'precond not watching dependent key');
+    assert.equal(get(obj, 'foo'), 'bar 1', 'get once');
+    assert.equal((0, _emberMetal.isWatching)(obj, 'bar'), true, 'lazily setup watching dependent key');
+    assert.equal(get(obj, 'foo'), 'bar 1', 'cached retrieve');
 
     set(obj, 'bar', 'BIFF'); // should invalidate foo
 
-    equal(get(obj, 'foo'), 'bar 2', 'should recache');
-    equal(get(obj, 'foo'), 'bar 2', 'cached retrieve');
+    assert.equal(get(obj, 'foo'), 'bar 2', 'should recache');
+    assert.equal(get(obj, 'foo'), 'bar 2', 'cached retrieve');
   });
 
-  (0, _internalTestHelpers.testBoth)('should invalidate multiple nested dependent keys', function (get, set) {
+  (0, _internalTestHelpers.testBoth)('should invalidate multiple nested dependent keys', function (get, set, assert) {
     var count = 0;
     (0, _emberMetal.defineProperty)(obj, 'bar', (0, _emberMetal.computed)(function () {
       count++;
@@ -37976,24 +37974,24 @@ enifed('ember-metal/tests/computed_test', ['ember/features', 'ember-runtime', 'i
       return 'baz ' + count;
     }).property('baz'));
 
-    equal((0, _emberMetal.isWatching)(obj, 'bar'), false, 'precond not watching dependent key');
-    equal((0, _emberMetal.isWatching)(obj, 'baz'), false, 'precond not watching dependent key');
-    equal(get(obj, 'foo'), 'bar 1', 'get once');
-    equal((0, _emberMetal.isWatching)(obj, 'bar'), true, 'lazily setup watching dependent key');
-    equal((0, _emberMetal.isWatching)(obj, 'baz'), true, 'lazily setup watching dependent key');
-    equal(get(obj, 'foo'), 'bar 1', 'cached retrieve');
+    assert.equal((0, _emberMetal.isWatching)(obj, 'bar'), false, 'precond not watching dependent key');
+    assert.equal((0, _emberMetal.isWatching)(obj, 'baz'), false, 'precond not watching dependent key');
+    assert.equal(get(obj, 'foo'), 'bar 1', 'get once');
+    assert.equal((0, _emberMetal.isWatching)(obj, 'bar'), true, 'lazily setup watching dependent key');
+    assert.equal((0, _emberMetal.isWatching)(obj, 'baz'), true, 'lazily setup watching dependent key');
+    assert.equal(get(obj, 'foo'), 'bar 1', 'cached retrieve');
 
     set(obj, 'baz', 'BIFF'); // should invalidate bar -> foo
-    equal((0, _emberMetal.isWatching)(obj, 'bar'), false, 'should not be watching dependent key after cache cleared');
-    equal((0, _emberMetal.isWatching)(obj, 'baz'), false, 'should not be watching dependent key after cache cleared');
+    assert.equal((0, _emberMetal.isWatching)(obj, 'bar'), false, 'should not be watching dependent key after cache cleared');
+    assert.equal((0, _emberMetal.isWatching)(obj, 'baz'), false, 'should not be watching dependent key after cache cleared');
 
-    equal(get(obj, 'foo'), 'bar 2', 'should recache');
-    equal(get(obj, 'foo'), 'bar 2', 'cached retrieve');
-    equal((0, _emberMetal.isWatching)(obj, 'bar'), true, 'lazily setup watching dependent key');
-    equal((0, _emberMetal.isWatching)(obj, 'baz'), true, 'lazily setup watching dependent key');
+    assert.equal(get(obj, 'foo'), 'bar 2', 'should recache');
+    assert.equal(get(obj, 'foo'), 'bar 2', 'cached retrieve');
+    assert.equal((0, _emberMetal.isWatching)(obj, 'bar'), true, 'lazily setup watching dependent key');
+    assert.equal((0, _emberMetal.isWatching)(obj, 'baz'), true, 'lazily setup watching dependent key');
   });
 
-  (0, _internalTestHelpers.testBoth)('circular keys should not blow up', function (get, set) {
+  (0, _internalTestHelpers.testBoth)('circular keys should not blow up', function (get, set, assert) {
     var func = function () {
       count++;
       return 'bar ' + count;
@@ -38005,57 +38003,57 @@ enifed('ember-metal/tests/computed_test', ['ember/features', 'ember-runtime', 'i
       return 'foo ' + count;
     }).property('bar'));
 
-    equal(get(obj, 'foo'), 'foo 1', 'get once');
-    equal(get(obj, 'foo'), 'foo 1', 'cached retrieve');
+    assert.equal(get(obj, 'foo'), 'foo 1', 'get once');
+    assert.equal(get(obj, 'foo'), 'foo 1', 'cached retrieve');
 
     set(obj, 'bar', 'BIFF'); // should invalidate bar -> foo -> bar
 
-    equal(get(obj, 'foo'), 'foo 3', 'should recache');
-    equal(get(obj, 'foo'), 'foo 3', 'cached retrieve');
+    assert.equal(get(obj, 'foo'), 'foo 3', 'should recache');
+    assert.equal(get(obj, 'foo'), 'foo 3', 'cached retrieve');
   });
 
-  (0, _internalTestHelpers.testBoth)('redefining a property should undo old dependent keys', function (get, set) {
-    equal((0, _emberMetal.isWatching)(obj, 'bar'), false, 'precond not watching dependent key');
-    equal(get(obj, 'foo'), 'bar 1');
-    equal((0, _emberMetal.isWatching)(obj, 'bar'), true, 'lazily watching dependent key');
+  (0, _internalTestHelpers.testBoth)('redefining a property should undo old dependent keys', function (get, set, assert) {
+    assert.equal((0, _emberMetal.isWatching)(obj, 'bar'), false, 'precond not watching dependent key');
+    assert.equal(get(obj, 'foo'), 'bar 1');
+    assert.equal((0, _emberMetal.isWatching)(obj, 'bar'), true, 'lazily watching dependent key');
 
     (0, _emberMetal.defineProperty)(obj, 'foo', (0, _emberMetal.computed)(function () {
       count++;
       return 'baz ' + count;
     }).property('baz'));
 
-    equal((0, _emberMetal.isWatching)(obj, 'bar'), false, 'after redefining should not be watching dependent key');
+    assert.equal((0, _emberMetal.isWatching)(obj, 'bar'), false, 'after redefining should not be watching dependent key');
 
-    equal(get(obj, 'foo'), 'baz 2');
+    assert.equal(get(obj, 'foo'), 'baz 2');
 
     set(obj, 'bar', 'BIFF'); // should not kill cache
-    equal(get(obj, 'foo'), 'baz 2');
+    assert.equal(get(obj, 'foo'), 'baz 2');
 
     set(obj, 'baz', 'BOP');
-    equal(get(obj, 'foo'), 'baz 3');
+    assert.equal(get(obj, 'foo'), 'baz 3');
   });
 
-  (0, _internalTestHelpers.testBoth)('can watch multiple dependent keys specified declaratively via brace expansion', function (get, set) {
+  (0, _internalTestHelpers.testBoth)('can watch multiple dependent keys specified declaratively via brace expansion', function (get, set, assert) {
     (0, _emberMetal.defineProperty)(obj, 'foo', (0, _emberMetal.computed)(function () {
       count++;
       return 'foo ' + count;
     }).property('qux.{bar,baz}'));
 
-    equal(get(obj, 'foo'), 'foo 1', 'get once');
-    equal(get(obj, 'foo'), 'foo 1', 'cached retrieve');
+    assert.equal(get(obj, 'foo'), 'foo 1', 'get once');
+    assert.equal(get(obj, 'foo'), 'foo 1', 'cached retrieve');
 
     set(obj, 'qux', {});
     set(obj, 'qux.bar', 'bar'); // invalidate foo
 
-    equal(get(obj, 'foo'), 'foo 2', 'foo invalidated from bar');
+    assert.equal(get(obj, 'foo'), 'foo 2', 'foo invalidated from bar');
 
     set(obj, 'qux.baz', 'baz'); // invalidate foo
 
-    equal(get(obj, 'foo'), 'foo 3', 'foo invalidated from baz');
+    assert.equal(get(obj, 'foo'), 'foo 3', 'foo invalidated from baz');
 
     set(obj, 'qux.quux', 'quux'); // do not invalidate foo
 
-    equal(get(obj, 'foo'), 'foo 3', 'foo not invalidated by quux');
+    assert.equal(get(obj, 'foo'), 'foo 3', 'foo not invalidated by quux');
   });
 
   (0, _internalTestHelpers.testBoth)('throws assertion if brace expansion notation has spaces', function () {
@@ -38067,8 +38065,8 @@ enifed('ember-metal/tests/computed_test', ['ember/features', 'ember-runtime', 'i
     }, /cannot contain spaces/);
   });
 
-  (0, _internalTestHelpers.testBoth)('throws an assertion if an uncached `get` is called after object is destroyed', function (get) {
-    equal((0, _emberMetal.isWatching)(obj, 'bar'), false, 'precond not watching dependent key');
+  (0, _internalTestHelpers.testBoth)('throws an assertion if an uncached `get` is called after object is destroyed', function (get, set, assert) {
+    assert.equal((0, _emberMetal.isWatching)(obj, 'bar'), false, 'precond not watching dependent key');
 
     var meta = (0, _emberMetal.meta)(obj);
     meta.destroy();
@@ -38081,7 +38079,7 @@ enifed('ember-metal/tests/computed_test', ['ember/features', 'ember-runtime', 'i
       get(obj, 'foo', 'bar');
     }, 'Cannot modify dependent keys for `foo` on `<custom-obj:here>` after it has been destroyed.');
 
-    equal((0, _emberMetal.isWatching)(obj, 'bar'), false, 'deps were not updated');
+    assert.equal((0, _emberMetal.isWatching)(obj, 'bar'), false, 'deps were not updated');
   });
 
   // ..........................................................
@@ -38115,53 +38113,53 @@ enifed('ember-metal/tests/computed_test', ['ember/features', 'ember-runtime', 'i
     }
   });
 
-  (0, _internalTestHelpers.testBoth)('depending on simple chain', function (get, set) {
+  (0, _internalTestHelpers.testBoth)('depending on simple chain', function (get, set, assert) {
     // assign computed property
     (0, _emberMetal.defineProperty)(obj, 'prop', (0, _emberMetal.computed)(func).property('foo.bar.baz.biff'));
 
-    equal(get(obj, 'prop'), 'BIFF 1');
+    assert.equal(get(obj, 'prop'), 'BIFF 1');
 
     set(get(obj, 'foo.bar.baz'), 'biff', 'BUZZ');
-    equal(get(obj, 'prop'), 'BUZZ 2');
-    equal(get(obj, 'prop'), 'BUZZ 2');
+    assert.equal(get(obj, 'prop'), 'BUZZ 2');
+    assert.equal(get(obj, 'prop'), 'BUZZ 2');
 
     set(get(obj, 'foo.bar'), 'baz', { biff: 'BLOB' });
-    equal(get(obj, 'prop'), 'BLOB 3');
-    equal(get(obj, 'prop'), 'BLOB 3');
+    assert.equal(get(obj, 'prop'), 'BLOB 3');
+    assert.equal(get(obj, 'prop'), 'BLOB 3');
 
     set(get(obj, 'foo.bar.baz'), 'biff', 'BUZZ');
-    equal(get(obj, 'prop'), 'BUZZ 4');
-    equal(get(obj, 'prop'), 'BUZZ 4');
+    assert.equal(get(obj, 'prop'), 'BUZZ 4');
+    assert.equal(get(obj, 'prop'), 'BUZZ 4');
 
     set(get(obj, 'foo'), 'bar', { baz: { biff: 'BOOM' } });
-    equal(get(obj, 'prop'), 'BOOM 5');
-    equal(get(obj, 'prop'), 'BOOM 5');
+    assert.equal(get(obj, 'prop'), 'BOOM 5');
+    assert.equal(get(obj, 'prop'), 'BOOM 5');
 
     set(get(obj, 'foo.bar.baz'), 'biff', 'BUZZ');
-    equal(get(obj, 'prop'), 'BUZZ 6');
-    equal(get(obj, 'prop'), 'BUZZ 6');
+    assert.equal(get(obj, 'prop'), 'BUZZ 6');
+    assert.equal(get(obj, 'prop'), 'BUZZ 6');
 
     set(obj, 'foo', { bar: { baz: { biff: 'BLARG' } } });
-    equal(get(obj, 'prop'), 'BLARG 7');
-    equal(get(obj, 'prop'), 'BLARG 7');
+    assert.equal(get(obj, 'prop'), 'BLARG 7');
+    assert.equal(get(obj, 'prop'), 'BLARG 7');
 
     set(get(obj, 'foo.bar.baz'), 'biff', 'BUZZ');
-    equal(get(obj, 'prop'), 'BUZZ 8');
-    equal(get(obj, 'prop'), 'BUZZ 8');
+    assert.equal(get(obj, 'prop'), 'BUZZ 8');
+    assert.equal(get(obj, 'prop'), 'BUZZ 8');
 
     (0, _emberMetal.defineProperty)(obj, 'prop');
     set(obj, 'prop', 'NONE');
-    equal(get(obj, 'prop'), 'NONE');
+    assert.equal(get(obj, 'prop'), 'NONE');
 
     set(obj, 'foo', { bar: { baz: { biff: 'BLARG' } } });
-    equal(get(obj, 'prop'), 'NONE'); // should do nothing
-    equal(count, 8, 'should be not have invoked computed again');
+    assert.equal(get(obj, 'prop'), 'NONE'); // should do nothing
+    assert.equal(count, 8, 'should be not have invoked computed again');
   });
 
-  (0, _internalTestHelpers.testBoth)('chained dependent keys should evaluate computed properties lazily', function () {
+  (0, _internalTestHelpers.testBoth)('chained dependent keys should evaluate computed properties lazily', function (get, set, assert) {
     (0, _emberMetal.defineProperty)(obj.foo.bar, 'b', (0, _emberMetal.computed)(func));
     (0, _emberMetal.defineProperty)(obj.foo, 'c', (0, _emberMetal.computed)(function () {}).property('bar.b'));
-    equal(count, 0, 'b should not run');
+    assert.equal(count, 0, 'b should not run');
   });
 
   // ..........................................................
@@ -38170,55 +38168,55 @@ enifed('ember-metal/tests/computed_test', ['ember/features', 'ember-runtime', 'i
 
   QUnit.module('computed - improved cp syntax');
 
-  QUnit.test('setter and getters are passed using an object', function () {
+  QUnit.test('setter and getters are passed using an object', function (assert) {
     var testObj = _emberRuntime.Object.extend({
       a: '1',
       b: '2',
       aInt: (0, _emberMetal.computed)('a', {
         get: function (keyName) {
-          equal(keyName, 'aInt', 'getter receives the keyName');
+          assert.equal(keyName, 'aInt', 'getter receives the keyName');
           return parseInt(this.get('a'));
         },
         set: function (keyName, value, oldValue) {
-          equal(keyName, 'aInt', 'setter receives the keyName');
-          equal(value, 123, 'setter receives the new value');
-          equal(oldValue, 1, 'setter receives the old value');
+          assert.equal(keyName, 'aInt', 'setter receives the keyName');
+          assert.equal(value, 123, 'setter receives the new value');
+          assert.equal(oldValue, 1, 'setter receives the old value');
           this.set('a', '' + value); // side effect
           return parseInt(this.get('a'));
         }
       })
     }).create();
 
-    ok(testObj.get('aInt') === 1, 'getter works');
+    assert.ok(testObj.get('aInt') === 1, 'getter works');
     testObj.set('aInt', 123);
-    ok(testObj.get('a') === '123', 'setter works');
-    ok(testObj.get('aInt') === 123, 'cp has been updated too');
+    assert.ok(testObj.get('a') === '123', 'setter works');
+    assert.ok(testObj.get('aInt') === 123, 'cp has been updated too');
   });
 
-  QUnit.test('setter can be omited', function () {
+  QUnit.test('setter can be omited', function (assert) {
     var testObj = _emberRuntime.Object.extend({
       a: '1',
       b: '2',
       aInt: (0, _emberMetal.computed)('a', {
         get: function (keyName) {
-          equal(keyName, 'aInt', 'getter receives the keyName');
+          assert.equal(keyName, 'aInt', 'getter receives the keyName');
           return parseInt(this.get('a'));
         }
       })
     }).create();
 
-    ok(testObj.get('aInt') === 1, 'getter works');
-    ok(testObj.get('a') === '1');
+    assert.ok(testObj.get('aInt') === 1, 'getter works');
+    assert.ok(testObj.get('a') === '1');
     testObj.set('aInt', '123');
-    ok(testObj.get('aInt') === '123', 'cp has been updated too');
+    assert.ok(testObj.get('aInt') === '123', 'cp has been updated too');
   });
 
-  QUnit.test('the return value of the setter gets cached', function () {
+  QUnit.test('the return value of the setter gets cached', function (assert) {
     var testObj = _emberRuntime.Object.extend({
       a: '1',
       sampleCP: (0, _emberMetal.computed)('a', {
         get: function () {
-          ok(false, 'The getter should not be invoked');
+          assert.ok(false, 'The getter should not be invoked');
           return 'get-value';
         },
         set: function () {
@@ -38228,7 +38226,7 @@ enifed('ember-metal/tests/computed_test', ['ember/features', 'ember-runtime', 'i
     }).create();
 
     testObj.set('sampleCP', 'abcd');
-    ok(testObj.get('sampleCP') === 'set-value', 'The return value of the CP was cached');
+    assert.ok(testObj.get('sampleCP') === 'set-value', 'The return value of the CP was cached');
   });
 
   // ..........................................................
@@ -38237,7 +38235,7 @@ enifed('ember-metal/tests/computed_test', ['ember/features', 'ember-runtime', 'i
 
   QUnit.module('computed edge cases');
 
-  QUnit.test('adding a computed property should show up in key iteration', function () {
+  QUnit.test('adding a computed property should show up in key iteration', function (assert) {
     var obj = {};
     (0, _emberMetal.defineProperty)(obj, 'foo', (0, _emberMetal.computed)(function () {}));
 
@@ -38245,11 +38243,11 @@ enifed('ember-metal/tests/computed_test', ['ember/features', 'ember-runtime', 'i
     for (var key in obj) {
       found.push(key);
     }
-    ok(found.indexOf('foo') >= 0, 'should find computed property in iteration found=' + found);
-    ok('foo' in obj, 'foo in obj should pass');
+    assert.ok(found.indexOf('foo') >= 0, 'should find computed property in iteration found=' + found);
+    assert.ok('foo' in obj, 'foo in obj should pass');
   });
 
-  (0, _internalTestHelpers.testBoth)('when setting a value after it had been retrieved empty don\'t pass function UNDEFINED as oldValue', function (get, set) {
+  (0, _internalTestHelpers.testBoth)('when setting a value after it had been retrieved empty don\'t pass function UNDEFINED as oldValue', function (get, set, assert) {
     var obj = {};
     var oldValueIsNoFunction = true;
 
@@ -38266,12 +38264,12 @@ enifed('ember-metal/tests/computed_test', ['ember/features', 'ember-runtime', 'i
     get(obj, 'foo');
     set(obj, 'foo', undefined);
 
-    ok(oldValueIsNoFunction);
+    assert.ok(oldValueIsNoFunction);
   });
 
   QUnit.module('computed - setter');
 
-  (0, _internalTestHelpers.testBoth)('setting a watched computed property', function (get, set) {
+  (0, _internalTestHelpers.testBoth)('setting a watched computed property', function (get, set, assert) {
     var obj = {
       firstName: 'Yehuda',
       lastName: 'Katz'
@@ -38314,25 +38312,25 @@ enifed('ember-metal/tests/computed_test', ['ember/features', 'ember-runtime', 'i
       lastNameDidChange++;
     });
 
-    equal(get(obj, 'fullName'), 'Yehuda Katz');
+    assert.equal(get(obj, 'fullName'), 'Yehuda Katz');
 
     set(obj, 'fullName', 'Yehuda Katz');
 
     set(obj, 'fullName', 'Kris Selden');
 
-    equal(get(obj, 'fullName'), 'Kris Selden');
-    equal(get(obj, 'firstName'), 'Kris');
-    equal(get(obj, 'lastName'), 'Selden');
+    assert.equal(get(obj, 'fullName'), 'Kris Selden');
+    assert.equal(get(obj, 'firstName'), 'Kris');
+    assert.equal(get(obj, 'lastName'), 'Selden');
 
-    equal(fullNameWillChange, 1);
-    equal(fullNameDidChange, 1);
-    equal(firstNameWillChange, 1);
-    equal(firstNameDidChange, 1);
-    equal(lastNameWillChange, 1);
-    equal(lastNameDidChange, 1);
+    assert.equal(fullNameWillChange, 1);
+    assert.equal(fullNameDidChange, 1);
+    assert.equal(firstNameWillChange, 1);
+    assert.equal(firstNameDidChange, 1);
+    assert.equal(lastNameWillChange, 1);
+    assert.equal(lastNameDidChange, 1);
   });
 
-  (0, _internalTestHelpers.testBoth)('setting a cached computed property that modifies the value you give it', function (get, set) {
+  (0, _internalTestHelpers.testBoth)('setting a cached computed property that modifies the value you give it', function (get, set, assert) {
     var obj = {
       foo: 0
     };
@@ -38356,25 +38354,25 @@ enifed('ember-metal/tests/computed_test', ['ember/features', 'ember-runtime', 'i
       plusOneDidChange++;
     });
 
-    equal(get(obj, 'plusOne'), 1);
+    assert.equal(get(obj, 'plusOne'), 1);
     set(obj, 'plusOne', 1);
-    equal(get(obj, 'plusOne'), 2);
+    assert.equal(get(obj, 'plusOne'), 2);
     set(obj, 'plusOne', 1);
-    equal(get(obj, 'plusOne'), 2);
+    assert.equal(get(obj, 'plusOne'), 2);
 
-    equal(plusOneWillChange, 1);
-    equal(plusOneDidChange, 1);
+    assert.equal(plusOneWillChange, 1);
+    assert.equal(plusOneDidChange, 1);
 
     set(obj, 'foo', 5);
-    equal(get(obj, 'plusOne'), 6);
+    assert.equal(get(obj, 'plusOne'), 6);
 
-    equal(plusOneWillChange, 2);
-    equal(plusOneDidChange, 2);
+    assert.equal(plusOneWillChange, 2);
+    assert.equal(plusOneDidChange, 2);
   });
 
   QUnit.module('computed - default setter');
 
-  (0, _internalTestHelpers.testBoth)('when setting a value on a computed property that doesn\'t handle sets', function (get, set) {
+  (0, _internalTestHelpers.testBoth)('when setting a value on a computed property that doesn\'t handle sets', function (get, set, assert) {
     var obj = {};
     var observerFired = false;
 
@@ -38388,18 +38386,18 @@ enifed('ember-metal/tests/computed_test', ['ember/features', 'ember-runtime', 'i
 
     set(obj, 'foo', 'bar');
 
-    equal(get(obj, 'foo'), 'bar', 'The set value is properly returned');
-    ok(typeof obj.foo === 'string', 'The computed property was removed');
-    ok(observerFired, 'The observer was still notified');
+    assert.equal(get(obj, 'foo'), 'bar', 'The set value is properly returned');
+    assert.ok(typeof obj.foo === 'string', 'The computed property was removed');
+    assert.ok(observerFired, 'The observer was still notified');
   });
 
   QUnit.module('computed - readOnly');
 
-  QUnit.test('is chainable', function () {
+  QUnit.test('is chainable', function (assert) {
     var cp = (0, _emberMetal.computed)(function () {}).readOnly();
 
-    ok(cp instanceof _emberMetal.Descriptor);
-    ok(cp instanceof _emberMetal.ComputedProperty);
+    assert.ok(cp instanceof _emberMetal.Descriptor);
+    assert.ok(cp instanceof _emberMetal.ComputedProperty);
   });
 
   QUnit.test('throws assertion if called over a CP with a setter defined with the new syntax', function () {
@@ -38411,20 +38409,20 @@ enifed('ember-metal/tests/computed_test', ['ember/features', 'ember-runtime', 'i
     }, /Computed properties that define a setter using the new syntax cannot be read-only/);
   });
 
-  (0, _internalTestHelpers.testBoth)('protects against setting', function (get, set) {
+  (0, _internalTestHelpers.testBoth)('protects against setting', function (get, set, assert) {
     var obj = {};
 
     (0, _emberMetal.defineProperty)(obj, 'bar', (0, _emberMetal.computed)(function () {
       return 'barValue';
     }).readOnly());
 
-    equal(get(obj, 'bar'), 'barValue');
+    assert.equal(get(obj, 'bar'), 'barValue');
 
-    throws(function () {
+    assert.throws(function () {
       set(obj, 'bar', 'newBar');
     }, /Cannot set read\-only property "bar" on object:/);
 
-    equal(get(obj, 'bar'), 'barValue');
+    assert.equal(get(obj, 'bar'), 'barValue');
   });
 });
 enifed('ember-metal/tests/descriptor_test', ['ember-babel', 'ember-runtime', 'ember-metal'], function (_emberBabel, _emberRuntime, _emberMetal) {
@@ -38825,7 +38823,7 @@ enifed('ember-metal/tests/events_test', ['ember-metal'], function (_emberMetal) 
 
   QUnit.module('system/props/events_test');
 
-  QUnit.test('listener should receive event - removing should remove', function () {
+  QUnit.test('listener should receive event - removing should remove', function (assert) {
     var obj = {};
     var count = 0;
 
@@ -38834,19 +38832,19 @@ enifed('ember-metal/tests/events_test', ['ember-metal'], function (_emberMetal) 
     }
 
     (0, _emberMetal.addListener)(obj, 'event!', F);
-    equal(count, 0, 'nothing yet');
+    assert.equal(count, 0, 'nothing yet');
 
     (0, _emberMetal.sendEvent)(obj, 'event!');
-    equal(count, 1, 'received event');
+    assert.equal(count, 1, 'received event');
 
     (0, _emberMetal.removeListener)(obj, 'event!', F);
 
     count = 0;
     (0, _emberMetal.sendEvent)(obj, 'event!');
-    equal(count, 0, 'received event');
+    assert.equal(count, 0, 'received event');
   });
 
-  QUnit.test('listeners should be inherited', function () {
+  QUnit.test('listeners should be inherited', function (assert) {
     var obj = {};
     var count = 0;
     var F = function () {
@@ -38857,22 +38855,22 @@ enifed('ember-metal/tests/events_test', ['ember-metal'], function (_emberMetal) 
 
     var obj2 = Object.create(obj);
 
-    equal(count, 0, 'nothing yet');
+    assert.equal(count, 0, 'nothing yet');
 
     (0, _emberMetal.sendEvent)(obj2, 'event!');
-    equal(count, 1, 'received event');
+    assert.equal(count, 1, 'received event');
 
     (0, _emberMetal.removeListener)(obj2, 'event!', F);
 
     count = 0;
     (0, _emberMetal.sendEvent)(obj2, 'event!');
-    equal(count, 0, 'did not receive event');
+    assert.equal(count, 0, 'did not receive event');
 
     (0, _emberMetal.sendEvent)(obj, 'event!');
-    equal(count, 1, 'should still invoke on parent');
+    assert.equal(count, 1, 'should still invoke on parent');
   });
 
-  QUnit.test('adding a listener more than once should only invoke once', function () {
+  QUnit.test('adding a listener more than once should only invoke once', function (assert) {
     var obj = {};
     var count = 0;
     function F() {
@@ -38882,10 +38880,10 @@ enifed('ember-metal/tests/events_test', ['ember-metal'], function (_emberMetal) 
     (0, _emberMetal.addListener)(obj, 'event!', F);
 
     (0, _emberMetal.sendEvent)(obj, 'event!');
-    equal(count, 1, 'should only invoke once');
+    assert.equal(count, 1, 'should only invoke once');
   });
 
-  QUnit.test('adding a listener with a target should invoke with target', function () {
+  QUnit.test('adding a listener with a target should invoke with target', function (assert) {
     var obj = {};
     var target = void 0;
 
@@ -38898,10 +38896,10 @@ enifed('ember-metal/tests/events_test', ['ember-metal'], function (_emberMetal) 
 
     (0, _emberMetal.addListener)(obj, 'event!', target, target.method);
     (0, _emberMetal.sendEvent)(obj, 'event!');
-    equal(target.count, 1, 'should invoke');
+    assert.equal(target.count, 1, 'should invoke');
   });
 
-  QUnit.test('suspending a listener should not invoke during callback', function () {
+  QUnit.test('suspending a listener should not invoke during callback', function (assert) {
     var obj = {};
     var target = void 0,
         otherTarget = void 0;
@@ -38925,9 +38923,9 @@ enifed('ember-metal/tests/events_test', ['ember-metal'], function (_emberMetal) 
 
     (0, _emberMetal.sendEvent)(obj, 'event!');
 
-    equal((0, _emberMetal.suspendListener)(obj, 'event!', target, target.method, function () {
+    assert.equal((0, _emberMetal.suspendListener)(obj, 'event!', target, target.method, function () {
       /*jshint validthis:true */
-      equal(this, target);
+      assert.equal(this, target);
 
       (0, _emberMetal.sendEvent)(obj, 'event!');
 
@@ -38936,11 +38934,11 @@ enifed('ember-metal/tests/events_test', ['ember-metal'], function (_emberMetal) 
 
     (0, _emberMetal.sendEvent)(obj, 'event!');
 
-    equal(target.count, 2, 'should invoke');
-    equal(otherTarget.count, 3, 'should invoke');
+    assert.equal(target.count, 2, 'should invoke');
+    assert.equal(otherTarget.count, 3, 'should invoke');
   });
 
-  QUnit.test('adding a listener with string method should lookup method on event delivery', function () {
+  QUnit.test('adding a listener with string method should lookup method on event delivery', function (assert) {
     var obj = {};
     var target = void 0;
 
@@ -38951,16 +38949,16 @@ enifed('ember-metal/tests/events_test', ['ember-metal'], function (_emberMetal) 
 
     (0, _emberMetal.addListener)(obj, 'event!', target, 'method');
     (0, _emberMetal.sendEvent)(obj, 'event!');
-    equal(target.count, 0, 'should invoke but do nothing');
+    assert.equal(target.count, 0, 'should invoke but do nothing');
 
     target.method = function () {
       this.count++;
     };
     (0, _emberMetal.sendEvent)(obj, 'event!');
-    equal(target.count, 1, 'should invoke now');
+    assert.equal(target.count, 1, 'should invoke now');
   });
 
-  QUnit.test('calling sendEvent with extra params should be passed to listeners', function () {
+  QUnit.test('calling sendEvent with extra params should be passed to listeners', function (assert) {
     var obj = {};
     var params = null;
     (0, _emberMetal.addListener)(obj, 'event!', function () {
@@ -38968,48 +38966,48 @@ enifed('ember-metal/tests/events_test', ['ember-metal'], function (_emberMetal) 
     });
 
     (0, _emberMetal.sendEvent)(obj, 'event!', ['foo', 'bar']);
-    deepEqual(params, ['foo', 'bar'], 'params should be saved');
+    assert.deepEqual(params, ['foo', 'bar'], 'params should be saved');
   });
 
-  QUnit.test('hasListeners tells you if there are listeners for a given event', function () {
+  QUnit.test('hasListeners tells you if there are listeners for a given event', function (assert) {
     var obj = {};
 
     function F() {}
     function F2() {}
 
-    equal((0, _emberMetal.hasListeners)(obj, 'event!'), false, 'no listeners at first');
+    assert.equal((0, _emberMetal.hasListeners)(obj, 'event!'), false, 'no listeners at first');
 
     (0, _emberMetal.addListener)(obj, 'event!', F);
     (0, _emberMetal.addListener)(obj, 'event!', F2);
 
-    equal((0, _emberMetal.hasListeners)(obj, 'event!'), true, 'has listeners');
+    assert.equal((0, _emberMetal.hasListeners)(obj, 'event!'), true, 'has listeners');
 
     (0, _emberMetal.removeListener)(obj, 'event!', F);
-    equal((0, _emberMetal.hasListeners)(obj, 'event!'), true, 'has listeners');
+    assert.equal((0, _emberMetal.hasListeners)(obj, 'event!'), true, 'has listeners');
 
     (0, _emberMetal.removeListener)(obj, 'event!', F2);
-    equal((0, _emberMetal.hasListeners)(obj, 'event!'), false, 'has no more listeners');
+    assert.equal((0, _emberMetal.hasListeners)(obj, 'event!'), false, 'has no more listeners');
 
     (0, _emberMetal.addListener)(obj, 'event!', F);
-    equal((0, _emberMetal.hasListeners)(obj, 'event!'), true, 'has listeners');
+    assert.equal((0, _emberMetal.hasListeners)(obj, 'event!'), true, 'has listeners');
   });
 
-  QUnit.test('calling removeListener without method should remove all listeners', function () {
+  QUnit.test('calling removeListener without method should remove all listeners', function (assert) {
     var obj = {};
 
 
-    equal((0, _emberMetal.hasListeners)(obj, 'event!'), false, 'no listeners at first');
+    assert.equal((0, _emberMetal.hasListeners)(obj, 'event!'), false, 'no listeners at first');
 
     (0, _emberMetal.addListener)(obj, 'event!', function () {});
     (0, _emberMetal.addListener)(obj, 'event!', function () {});
 
-    equal((0, _emberMetal.hasListeners)(obj, 'event!'), true, 'has listeners');
+    assert.equal((0, _emberMetal.hasListeners)(obj, 'event!'), true, 'has listeners');
     (0, _emberMetal.removeListener)(obj, 'event!');
 
-    equal((0, _emberMetal.hasListeners)(obj, 'event!'), false, 'has no more listeners');
+    assert.equal((0, _emberMetal.hasListeners)(obj, 'event!'), false, 'has no more listeners');
   });
 
-  QUnit.test('while suspended, it should not be possible to add a duplicate listener', function () {
+  QUnit.test('while suspended, it should not be possible to add a duplicate listener', function (assert) {
     var obj = {};
     var target = void 0;
 
@@ -39030,8 +39028,8 @@ enifed('ember-metal/tests/events_test', ['ember-metal'], function (_emberMetal) 
 
     (0, _emberMetal.suspendListener)(obj, 'event!', target, target.method, callback);
 
-    equal(target.count, 1, 'should invoke');
-    equal((0, _emberMetal.meta)(obj).matchingListeners('event!').length, 3, 'a duplicate listener wasn\'t added');
+    assert.equal(target.count, 1, 'should invoke');
+    assert.equal((0, _emberMetal.meta)(obj).matchingListeners('event!').length, 3, 'a duplicate listener wasn\'t added');
 
     // now test suspendListeners...
 
@@ -39039,11 +39037,11 @@ enifed('ember-metal/tests/events_test', ['ember-metal'], function (_emberMetal) 
 
     (0, _emberMetal.suspendListeners)(obj, ['event!'], target, target.method, callback);
 
-    equal(target.count, 2, 'should have invoked again');
-    equal((0, _emberMetal.meta)(obj).matchingListeners('event!').length, 3, 'a duplicate listener wasn\'t added');
+    assert.equal(target.count, 2, 'should have invoked again');
+    assert.equal((0, _emberMetal.meta)(obj).matchingListeners('event!').length, 3, 'a duplicate listener wasn\'t added');
   });
 
-  QUnit.test('a listener can be added as part of a mixin', function () {
+  QUnit.test('a listener can be added as part of a mixin', function (assert) {
     var triggered = 0;
     var MyMixin = _emberMetal.Mixin.create({
       foo1: (0, _emberMetal.on)('bar', function () {
@@ -39059,7 +39057,7 @@ enifed('ember-metal/tests/events_test', ['ember-metal'], function (_emberMetal) 
     MyMixin.apply(obj);
 
     (0, _emberMetal.sendEvent)(obj, 'bar');
-    equal(triggered, 2, 'should invoke listeners');
+    assert.equal(triggered, 2, 'should invoke listeners');
   });
 
   QUnit.test('Ember.on asserts for invalid arguments', function () {
@@ -39076,7 +39074,7 @@ enifed('ember-metal/tests/events_test', ['ember-metal'], function (_emberMetal) 
     }, 'on called without valid event names');
   });
 
-  QUnit.test('a listener added as part of a mixin may be overridden', function () {
+  QUnit.test('a listener added as part of a mixin may be overridden', function (assert) {
     var triggered = 0;
     var FirstMixin = _emberMetal.Mixin.create({
       foo: (0, _emberMetal.on)('bar', function () {
@@ -39094,10 +39092,10 @@ enifed('ember-metal/tests/events_test', ['ember-metal'], function (_emberMetal) 
     SecondMixin.apply(obj);
 
     (0, _emberMetal.sendEvent)(obj, 'bar');
-    equal(triggered, 0, 'should not invoke from overridden property');
+    assert.equal(triggered, 0, 'should not invoke from overridden property');
 
     (0, _emberMetal.sendEvent)(obj, 'baz');
-    equal(triggered, 1, 'should invoke from subclass property');
+    assert.equal(triggered, 1, 'should invoke from subclass property');
   });
 });
 enifed('ember-metal/tests/expand_properties_test', ['ember-metal'], function (_emberMetal) {
@@ -39110,68 +39108,68 @@ enifed('ember-metal/tests/expand_properties_test', ['ember-metal'], function (_e
   }
 
   QUnit.module('Property Brace Expansion Test', {
-    setup: function () {
+    beforeEach: function () {
       foundProperties = [];
     }
   });
 
-  QUnit.test('Properties without expansions are unaffected', function () {
-    expect(1);
+  QUnit.test('Properties without expansions are unaffected', function (assert) {
+    assert.expect(1);
 
     (0, _emberMetal.expandProperties)('a', addProperty);
     (0, _emberMetal.expandProperties)('a.b', addProperty);
     (0, _emberMetal.expandProperties)('a.b.[]', addProperty);
     (0, _emberMetal.expandProperties)('a.b.@each.c', addProperty);
 
-    deepEqual(['a', 'a.b', 'a.b.[]', 'a.b.@each.c'].sort(), foundProperties.sort());
+    assert.deepEqual(['a', 'a.b', 'a.b.[]', 'a.b.@each.c'].sort(), foundProperties.sort());
   });
 
-  QUnit.test('A single expansion at the end expands properly', function () {
-    expect(1);
+  QUnit.test('A single expansion at the end expands properly', function (assert) {
+    assert.expect(1);
 
     (0, _emberMetal.expandProperties)('a.b.{c,d}', addProperty);
 
-    deepEqual(['a.b.c', 'a.b.d'].sort(), foundProperties.sort());
+    assert.deepEqual(['a.b.c', 'a.b.d'].sort(), foundProperties.sort());
   });
 
-  QUnit.test('A property with only a brace expansion expands correctly', function () {
-    expect(1);
+  QUnit.test('A property with only a brace expansion expands correctly', function (assert) {
+    assert.expect(1);
 
     (0, _emberMetal.expandProperties)('{a,b,c}', addProperty);
 
-    deepEqual(['a', 'b', 'c'].sort(), foundProperties.sort());
+    assert.deepEqual(['a', 'b', 'c'].sort(), foundProperties.sort());
   });
 
-  QUnit.test('Expansions with single properties only expand once', function () {
-    expect(1);
+  QUnit.test('Expansions with single properties only expand once', function (assert) {
+    assert.expect(1);
 
     (0, _emberMetal.expandProperties)('a.b.{c}.d.{e}', addProperty);
 
-    deepEqual(['a.b.c.d.e'], foundProperties);
+    assert.deepEqual(['a.b.c.d.e'], foundProperties);
   });
 
-  QUnit.test('A single brace expansion expands correctly', function () {
-    expect(1);
+  QUnit.test('A single brace expansion expands correctly', function (assert) {
+    assert.expect(1);
 
     (0, _emberMetal.expandProperties)('a.{b,c,d}.e', addProperty);
 
-    deepEqual(['a.b.e', 'a.c.e', 'a.d.e'].sort(), foundProperties.sort());
+    assert.deepEqual(['a.b.e', 'a.c.e', 'a.d.e'].sort(), foundProperties.sort());
   });
 
-  QUnit.test('Multiple brace expansions work correctly', function () {
-    expect(1);
+  QUnit.test('Multiple brace expansions work correctly', function (assert) {
+    assert.expect(1);
 
     (0, _emberMetal.expandProperties)('{a,b,c}.d.{e,f}.g', addProperty);
 
-    deepEqual(['a.d.e.g', 'a.d.f.g', 'b.d.e.g', 'b.d.f.g', 'c.d.e.g', 'c.d.f.g'].sort(), foundProperties.sort());
+    assert.deepEqual(['a.d.e.g', 'a.d.f.g', 'b.d.e.g', 'b.d.f.g', 'c.d.e.g', 'c.d.f.g'].sort(), foundProperties.sort());
   });
 
-  QUnit.test('A property with only brace expansions expands correctly', function () {
-    expect(1);
+  QUnit.test('A property with only brace expansions expands correctly', function (assert) {
+    assert.expect(1);
 
     (0, _emberMetal.expandProperties)('{a,b,c}.{d}.{e,f}', addProperty);
 
-    deepEqual(['a.d.e', 'a.d.f', 'b.d.e', 'b.d.f', 'c.d.e', 'c.d.f'].sort(), foundProperties.sort());
+    assert.deepEqual(['a.d.e', 'a.d.f', 'b.d.e', 'b.d.f', 'c.d.e', 'c.d.f'].sort(), foundProperties.sort());
   });
 
   QUnit.test('Nested brace expansions are not allowed', function () {
@@ -39183,24 +39181,24 @@ enifed('ember-metal/tests/expand_properties_test', ['ember-metal'], function (_e
     }, /Brace expanded properties have to be balanced and cannot be nested/);
   });
 
-  QUnit.test('A property with no braces does not expand', function () {
-    expect(1);
+  QUnit.test('A property with no braces does not expand', function (assert) {
+    assert.expect(1);
 
     (0, _emberMetal.expandProperties)('a,b,c.d.e,f', addProperty);
 
-    deepEqual(foundProperties, ['a,b,c.d.e,f']);
+    assert.deepEqual(foundProperties, ['a,b,c.d.e,f']);
   });
 
-  QUnit.test('A pattern must be a string', function () {
-    expect(1);
+  QUnit.test('A pattern must be a string', function (assert) {
+    assert.expect(1);
 
     expectAssertion(function () {
       (0, _emberMetal.expandProperties)([1, 2], addProperty);
     }, /A computed property key must be a string/);
   });
 
-  QUnit.test('A pattern must not contain a space', function () {
-    expect(1);
+  QUnit.test('A pattern must not contain a space', function (assert) {
+    assert.expect(1);
 
     expectAssertion(function () {
       (0, _emberMetal.expandProperties)('{a, b}', addProperty);
@@ -39212,17 +39210,17 @@ enifed('ember-metal/tests/injected_property_test', ['ember-utils', 'ember-metal'
 
   QUnit.module('InjectedProperty');
 
-  QUnit.test('injected properties should be descriptors', function () {
-    ok(new _emberMetal.InjectedProperty() instanceof _emberMetal.Descriptor);
+  QUnit.test('injected properties should be descriptors', function (assert) {
+    assert.ok(new _emberMetal.InjectedProperty() instanceof _emberMetal.Descriptor);
   });
 
-  QUnit.test('injected properties should be overridable', function () {
+  QUnit.test('injected properties should be overridable', function (assert) {
     var obj = {};
     (0, _emberMetal.defineProperty)(obj, 'foo', new _emberMetal.InjectedProperty());
 
     (0, _emberMetal.set)(obj, 'foo', 'bar');
 
-    equal((0, _emberMetal.get)(obj, 'foo'), 'bar', 'should return the overridden value');
+    assert.equal((0, _emberMetal.get)(obj, 'foo'), 'bar', 'should return the overridden value');
   });
 
   QUnit.test('getting on an object without an owner or container should fail assertion', function () {
@@ -39234,11 +39232,11 @@ enifed('ember-metal/tests/injected_property_test', ['ember-utils', 'ember-metal'
     }, /Attempting to lookup an injected property on an object without a container, ensure that the object was instantiated via a container./);
   });
 
-  QUnit.test('getting on an object without an owner but with a container should not fail', function () {
+  QUnit.test('getting on an object without an owner but with a container should not fail', function (assert) {
     var obj = {
       container: {
         lookup: function (key) {
-          ok(true, 'should call container.lookup');
+          assert.ok(true, 'should call container.lookup');
           return key;
         }
       }
@@ -39246,27 +39244,27 @@ enifed('ember-metal/tests/injected_property_test', ['ember-utils', 'ember-metal'
 
     (0, _emberMetal.defineProperty)(obj, 'foo', new _emberMetal.InjectedProperty('type', 'name'));
 
-    equal((0, _emberMetal.get)(obj, 'foo'), 'type:name', 'should return the value of container.lookup');
+    assert.equal((0, _emberMetal.get)(obj, 'foo'), 'type:name', 'should return the value of container.lookup');
   });
 
-  QUnit.test('getting should return a lookup on the container', function () {
-    expect(2);
+  QUnit.test('getting should return a lookup on the container', function (assert) {
+    assert.expect(2);
 
     var obj = {};
 
     (0, _emberUtils.setOwner)(obj, {
       lookup: function (key) {
-        ok(true, 'should call container.lookup');
+        assert.ok(true, 'should call container.lookup');
         return key;
       }
     });
 
     (0, _emberMetal.defineProperty)(obj, 'foo', new _emberMetal.InjectedProperty('type', 'name'));
 
-    equal((0, _emberMetal.get)(obj, 'foo'), 'type:name', 'should return the value of container.lookup');
+    assert.equal((0, _emberMetal.get)(obj, 'foo'), 'type:name', 'should return the value of container.lookup');
   });
 
-  QUnit.test('omitting the lookup name should default to the property name', function () {
+  QUnit.test('omitting the lookup name should default to the property name', function (assert) {
     var obj = {};
 
     (0, _emberUtils.setOwner)(obj, {
@@ -39277,27 +39275,27 @@ enifed('ember-metal/tests/injected_property_test', ['ember-utils', 'ember-metal'
 
     (0, _emberMetal.defineProperty)(obj, 'foo', new _emberMetal.InjectedProperty('type'));
 
-    equal((0, _emberMetal.get)(obj, 'foo'), 'type:foo', 'should lookup the type using the property name');
+    assert.equal((0, _emberMetal.get)(obj, 'foo'), 'type:foo', 'should lookup the type using the property name');
   });
 });
 enifed('ember-metal/tests/instrumentation_test', ['ember-metal'], function (_emberMetal) {
   'use strict';
 
   QUnit.module('Ember Instrumentation', {
-    teardown: function () {
+    afterEach: function () {
       (0, _emberMetal.instrumentationReset)();
     }
   });
 
-  QUnit.test('execute block even if no listeners', function () {
+  QUnit.test('execute block even if no listeners', function (assert) {
     var result = (0, _emberMetal.instrument)('render', {}, function () {
       return 'hello';
     });
-    equal(result, 'hello', 'called block');
+    assert.equal(result, 'hello', 'called block');
   });
 
-  QUnit.test('subscribing to a simple path receives the listener', function () {
-    expect(12);
+  QUnit.test('subscribing to a simple path receives the listener', function (assert) {
+    assert.expect(12);
 
     var sentPayload = {};
     var count = 0;
@@ -39305,23 +39303,23 @@ enifed('ember-metal/tests/instrumentation_test', ['ember-metal'], function (_emb
     (0, _emberMetal.instrumentationSubscribe)('render', {
       before: function (name, timestamp, payload) {
         if (count === 0) {
-          strictEqual(name, 'render');
+          assert.strictEqual(name, 'render');
         } else {
-          strictEqual(name, 'render.handlebars');
+          assert.strictEqual(name, 'render.handlebars');
         }
 
-        ok(typeof timestamp === 'number');
-        strictEqual(payload, sentPayload);
+        assert.ok(typeof timestamp === 'number');
+        assert.strictEqual(payload, sentPayload);
       },
       after: function (name, timestamp, payload) {
         if (count === 0) {
-          strictEqual(name, 'render');
+          assert.strictEqual(name, 'render');
         } else {
-          strictEqual(name, 'render.handlebars');
+          assert.strictEqual(name, 'render.handlebars');
         }
 
-        ok(typeof timestamp === 'number');
-        strictEqual(payload, sentPayload);
+        assert.ok(typeof timestamp === 'number');
+        assert.strictEqual(payload, sentPayload);
 
         count++;
       }
@@ -39332,8 +39330,8 @@ enifed('ember-metal/tests/instrumentation_test', ['ember-metal'], function (_emb
     (0, _emberMetal.instrument)('render.handlebars', sentPayload, function () {});
   });
 
-  QUnit.test('returning a value from the before callback passes it to the after callback', function () {
-    expect(2);
+  QUnit.test('returning a value from the before callback passes it to the after callback', function (assert) {
+    assert.expect(2);
 
     var passthru1 = {};
     var passthru2 = {};
@@ -39343,7 +39341,7 @@ enifed('ember-metal/tests/instrumentation_test', ['ember-metal'], function (_emb
         return passthru1;
       },
       after: function (name, timestamp, payload, beforeValue) {
-        strictEqual(beforeValue, passthru1);
+        assert.strictEqual(beforeValue, passthru1);
       }
     });
 
@@ -39352,19 +39350,19 @@ enifed('ember-metal/tests/instrumentation_test', ['ember-metal'], function (_emb
         return passthru2;
       },
       after: function (name, timestamp, payload, beforeValue) {
-        strictEqual(beforeValue, passthru2);
+        assert.strictEqual(beforeValue, passthru2);
       }
     });
 
     (0, _emberMetal.instrument)('render', null, function () {});
   });
 
-  QUnit.test('instrument with 2 args (name, callback) no payload', function () {
-    expect(1);
+  QUnit.test('instrument with 2 args (name, callback) no payload', function (assert) {
+    assert.expect(1);
 
     (0, _emberMetal.instrumentationSubscribe)('render', {
       before: function (name, timestamp, payload) {
-        deepEqual(payload, {});
+        assert.deepEqual(payload, {});
       },
       after: function () {}
     });
@@ -39372,29 +39370,29 @@ enifed('ember-metal/tests/instrumentation_test', ['ember-metal'], function (_emb
     (0, _emberMetal.instrument)('render', function () {});
   });
 
-  QUnit.test('instrument with 3 args (name, callback, binding) no payload', function () {
-    expect(2);
+  QUnit.test('instrument with 3 args (name, callback, binding) no payload', function (assert) {
+    assert.expect(2);
 
     var binding = {};
     (0, _emberMetal.instrumentationSubscribe)('render', {
       before: function (name, timestamp, payload) {
-        deepEqual(payload, {});
+        assert.deepEqual(payload, {});
       },
       after: function () {}
     });
 
     (0, _emberMetal.instrument)('render', function () {
-      deepEqual(this, binding);
+      assert.deepEqual(this, binding);
     }, binding);
   });
 
-  QUnit.test('instrument with 3 args (name, payload, callback) with payload', function () {
-    expect(1);
+  QUnit.test('instrument with 3 args (name, payload, callback) with payload', function (assert) {
+    assert.expect(1);
 
     var expectedPayload = { hi: 1 };
     (0, _emberMetal.instrumentationSubscribe)('render', {
       before: function (name, timestamp, payload) {
-        deepEqual(payload, expectedPayload);
+        assert.deepEqual(payload, expectedPayload);
       },
       after: function () {}
     });
@@ -39402,39 +39400,39 @@ enifed('ember-metal/tests/instrumentation_test', ['ember-metal'], function (_emb
     (0, _emberMetal.instrument)('render', expectedPayload, function () {});
   });
 
-  QUnit.test('instrument with 4 args (name, payload, callback, binding) with payload', function () {
-    expect(2);
+  QUnit.test('instrument with 4 args (name, payload, callback, binding) with payload', function (assert) {
+    assert.expect(2);
 
     var expectedPayload = { hi: 1 };
     var binding = {};
     (0, _emberMetal.instrumentationSubscribe)('render', {
       before: function (name, timestamp, payload) {
-        deepEqual(payload, expectedPayload);
+        assert.deepEqual(payload, expectedPayload);
       },
       after: function () {}
     });
 
     (0, _emberMetal.instrument)('render', expectedPayload, function () {
-      deepEqual(this, binding);
+      assert.deepEqual(this, binding);
     }, binding);
   });
 
-  QUnit.test('raising an exception in the instrumentation attaches it to the payload', function () {
-    expect(2);
+  QUnit.test('raising an exception in the instrumentation attaches it to the payload', function (assert) {
+    assert.expect(2);
 
     var error = new Error('Instrumentation');
 
     (0, _emberMetal.instrumentationSubscribe)('render', {
       before: function () {},
       after: function (name, timestamp, payload) {
-        strictEqual(payload.exception, error);
+        assert.strictEqual(payload.exception, error);
       }
     });
 
     (0, _emberMetal.instrumentationSubscribe)('render', {
       before: function () {},
       after: function (name, timestamp, payload) {
-        strictEqual(payload.exception, error);
+        assert.strictEqual(payload.exception, error);
       }
     });
 
@@ -39443,34 +39441,34 @@ enifed('ember-metal/tests/instrumentation_test', ['ember-metal'], function (_emb
     });
   });
 
-  QUnit.test('it is possible to add a new subscriber after the first instrument', function () {
+  QUnit.test('it is possible to add a new subscriber after the first instrument', function (assert) {
     (0, _emberMetal.instrument)('render.handlebars', null, function () {});
 
     (0, _emberMetal.instrumentationSubscribe)('render', {
       before: function () {
-        ok(true, 'Before callback was called');
+        assert.ok(true, 'Before callback was called');
       },
       after: function () {
-        ok(true, 'After callback was called');
+        assert.ok(true, 'After callback was called');
       }
     });
 
     (0, _emberMetal.instrument)('render.handlebars', null, function () {});
   });
 
-  QUnit.test('it is possible to remove a subscriber', function () {
-    expect(4);
+  QUnit.test('it is possible to remove a subscriber', function (assert) {
+    assert.expect(4);
 
     var count = 0;
 
     var subscriber = (0, _emberMetal.instrumentationSubscribe)('render', {
       before: function () {
-        equal(count, 0);
-        ok(true, 'Before callback was called');
+        assert.equal(count, 0);
+        assert.ok(true, 'Before callback was called');
       },
       after: function () {
-        equal(count, 0);
-        ok(true, 'After callback was called');
+        assert.equal(count, 0);
+        assert.ok(true, 'After callback was called');
         count++;
       }
     });
@@ -39487,23 +39485,23 @@ enifed('ember-metal/tests/is_blank_test', ['ember-metal'], function (_emberMetal
 
   QUnit.module('Ember.isBlank');
 
-  QUnit.test('Ember.isBlank', function () {
+  QUnit.test('Ember.isBlank', function (assert) {
 
-    equal(true, (0, _emberMetal.isBlank)(null), 'for null');
-    equal(true, (0, _emberMetal.isBlank)(undefined), 'for undefined');
-    equal(true, (0, _emberMetal.isBlank)(''), 'for an empty String');
-    equal(true, (0, _emberMetal.isBlank)('  '), 'for a whitespace String');
-    equal(true, (0, _emberMetal.isBlank)('\n\t'), 'for another whitespace String');
-    equal(false, (0, _emberMetal.isBlank)('\n\t Hi'), 'for a String with whitespaces');
-    equal(false, (0, _emberMetal.isBlank)(true), 'for true');
-    equal(false, (0, _emberMetal.isBlank)(false), 'for false');
-    equal(false, (0, _emberMetal.isBlank)('string'), 'for a String');
-    equal(false, (0, _emberMetal.isBlank)(function () {}), 'for a Function');
-    equal(false, (0, _emberMetal.isBlank)(0), 'for 0');
-    equal(true, (0, _emberMetal.isBlank)([]), 'for an empty Array');
-    equal(false, (0, _emberMetal.isBlank)({}), 'for an empty Object');
-    equal(true, (0, _emberMetal.isBlank)({ length: 0 }), 'for an Object that has zero \'length\'');
-    equal(false, (0, _emberMetal.isBlank)([1, 2, 3]), 'for a non-empty array');
+    assert.equal(true, (0, _emberMetal.isBlank)(null), 'for null');
+    assert.equal(true, (0, _emberMetal.isBlank)(undefined), 'for undefined');
+    assert.equal(true, (0, _emberMetal.isBlank)(''), 'for an empty String');
+    assert.equal(true, (0, _emberMetal.isBlank)('  '), 'for a whitespace String');
+    assert.equal(true, (0, _emberMetal.isBlank)('\n\t'), 'for another whitespace String');
+    assert.equal(false, (0, _emberMetal.isBlank)('\n\t Hi'), 'for a String with whitespaces');
+    assert.equal(false, (0, _emberMetal.isBlank)(true), 'for true');
+    assert.equal(false, (0, _emberMetal.isBlank)(false), 'for false');
+    assert.equal(false, (0, _emberMetal.isBlank)('string'), 'for a String');
+    assert.equal(false, (0, _emberMetal.isBlank)(function () {}), 'for a Function');
+    assert.equal(false, (0, _emberMetal.isBlank)(0), 'for 0');
+    assert.equal(true, (0, _emberMetal.isBlank)([]), 'for an empty Array');
+    assert.equal(false, (0, _emberMetal.isBlank)({}), 'for an empty Object');
+    assert.equal(true, (0, _emberMetal.isBlank)({ length: 0 }), 'for an Object that has zero \'length\'');
+    assert.equal(false, (0, _emberMetal.isBlank)([1, 2, 3]), 'for a non-empty array');
   });
 });
 enifed('ember-metal/tests/is_empty_test', ['ember-metal'], function (_emberMetal) {
@@ -39511,35 +39509,35 @@ enifed('ember-metal/tests/is_empty_test', ['ember-metal'], function (_emberMetal
 
   QUnit.module('Ember.isEmpty');
 
-  QUnit.test('Ember.isEmpty', function () {
+  QUnit.test('Ember.isEmpty', function (assert) {
 
-    equal(true, (0, _emberMetal.isEmpty)(null), 'for null');
-    equal(true, (0, _emberMetal.isEmpty)(undefined), 'for undefined');
-    equal(true, (0, _emberMetal.isEmpty)(''), 'for an empty String');
-    equal(false, (0, _emberMetal.isEmpty)('  '), 'for a whitespace String');
-    equal(false, (0, _emberMetal.isEmpty)('\n\t'), 'for another whitespace String');
-    equal(false, (0, _emberMetal.isEmpty)(true), 'for true');
-    equal(false, (0, _emberMetal.isEmpty)(false), 'for false');
-    equal(false, (0, _emberMetal.isEmpty)('string'), 'for a String');
-    equal(false, (0, _emberMetal.isEmpty)(function () {}), 'for a Function');
-    equal(false, (0, _emberMetal.isEmpty)(0), 'for 0');
-    equal(true, (0, _emberMetal.isEmpty)([]), 'for an empty Array');
-    equal(false, (0, _emberMetal.isEmpty)({}), 'for an empty Object');
-    equal(true, (0, _emberMetal.isEmpty)({ length: 0 }), 'for an Object that has zero \'length\'');
+    assert.equal(true, (0, _emberMetal.isEmpty)(null), 'for null');
+    assert.equal(true, (0, _emberMetal.isEmpty)(undefined), 'for undefined');
+    assert.equal(true, (0, _emberMetal.isEmpty)(''), 'for an empty String');
+    assert.equal(false, (0, _emberMetal.isEmpty)('  '), 'for a whitespace String');
+    assert.equal(false, (0, _emberMetal.isEmpty)('\n\t'), 'for another whitespace String');
+    assert.equal(false, (0, _emberMetal.isEmpty)(true), 'for true');
+    assert.equal(false, (0, _emberMetal.isEmpty)(false), 'for false');
+    assert.equal(false, (0, _emberMetal.isEmpty)('string'), 'for a String');
+    assert.equal(false, (0, _emberMetal.isEmpty)(function () {}), 'for a Function');
+    assert.equal(false, (0, _emberMetal.isEmpty)(0), 'for 0');
+    assert.equal(true, (0, _emberMetal.isEmpty)([]), 'for an empty Array');
+    assert.equal(false, (0, _emberMetal.isEmpty)({}), 'for an empty Object');
+    assert.equal(true, (0, _emberMetal.isEmpty)({ length: 0 }), 'for an Object that has zero \'length\'');
   });
 
-  QUnit.test('Ember.isEmpty Ember.Map', function () {
+  QUnit.test('Ember.isEmpty Ember.Map', function (assert) {
     var map = new _emberMetal.Map();
-    equal(true, (0, _emberMetal.isEmpty)(map), 'Empty map is empty');
+    assert.equal(true, (0, _emberMetal.isEmpty)(map), 'Empty map is empty');
     map.set('foo', 'bar');
-    equal(false, (0, _emberMetal.isEmpty)(map), 'Map is not empty');
+    assert.equal(false, (0, _emberMetal.isEmpty)(map), 'Map is not empty');
   });
 
-  QUnit.test('Ember.isEmpty Ember.OrderedSet', function () {
+  QUnit.test('Ember.isEmpty Ember.OrderedSet', function (assert) {
     var orderedSet = new _emberMetal.OrderedSet();
-    equal(true, (0, _emberMetal.isEmpty)(orderedSet), 'Empty ordered set is empty');
+    assert.equal(true, (0, _emberMetal.isEmpty)(orderedSet), 'Empty ordered set is empty');
     orderedSet.add('foo');
-    equal(false, (0, _emberMetal.isEmpty)(orderedSet), 'Ordered set is not empty');
+    assert.equal(false, (0, _emberMetal.isEmpty)(orderedSet), 'Ordered set is not empty');
   });
 });
 enifed('ember-metal/tests/is_none_test', ['ember-metal'], function (_emberMetal) {
@@ -39547,18 +39545,18 @@ enifed('ember-metal/tests/is_none_test', ['ember-metal'], function (_emberMetal)
 
   QUnit.module('Ember.isNone');
 
-  QUnit.test('Ember.isNone', function () {
+  QUnit.test('Ember.isNone', function (assert) {
 
-    equal(true, (0, _emberMetal.isNone)(null), 'for null');
-    equal(true, (0, _emberMetal.isNone)(undefined), 'for undefined');
-    equal(false, (0, _emberMetal.isNone)(''), 'for an empty String');
-    equal(false, (0, _emberMetal.isNone)(true), 'for true');
-    equal(false, (0, _emberMetal.isNone)(false), 'for false');
-    equal(false, (0, _emberMetal.isNone)('string'), 'for a String');
-    equal(false, (0, _emberMetal.isNone)(function () {}), 'for a Function');
-    equal(false, (0, _emberMetal.isNone)(0), 'for 0');
-    equal(false, (0, _emberMetal.isNone)([]), 'for an empty Array');
-    equal(false, (0, _emberMetal.isNone)({}), 'for an empty Object');
+    assert.equal(true, (0, _emberMetal.isNone)(null), 'for null');
+    assert.equal(true, (0, _emberMetal.isNone)(undefined), 'for undefined');
+    assert.equal(false, (0, _emberMetal.isNone)(''), 'for an empty String');
+    assert.equal(false, (0, _emberMetal.isNone)(true), 'for true');
+    assert.equal(false, (0, _emberMetal.isNone)(false), 'for false');
+    assert.equal(false, (0, _emberMetal.isNone)('string'), 'for a String');
+    assert.equal(false, (0, _emberMetal.isNone)(function () {}), 'for a Function');
+    assert.equal(false, (0, _emberMetal.isNone)(0), 'for 0');
+    assert.equal(false, (0, _emberMetal.isNone)([]), 'for an empty Array');
+    assert.equal(false, (0, _emberMetal.isNone)({}), 'for an empty Object');
   });
 });
 enifed('ember-metal/tests/is_present_test', ['ember-metal'], function (_emberMetal) {
@@ -39566,24 +39564,24 @@ enifed('ember-metal/tests/is_present_test', ['ember-metal'], function (_emberMet
 
   QUnit.module('Ember.isPresent');
 
-  QUnit.test('Ember.isPresent', function () {
+  QUnit.test('Ember.isPresent', function (assert) {
 
-    equal(false, (0, _emberMetal.isPresent)(), 'for no params');
-    equal(false, (0, _emberMetal.isPresent)(null), 'for null');
-    equal(false, (0, _emberMetal.isPresent)(undefined), 'for undefined');
-    equal(false, (0, _emberMetal.isPresent)(''), 'for an empty String');
-    equal(false, (0, _emberMetal.isPresent)('  '), 'for a whitespace String');
-    equal(false, (0, _emberMetal.isPresent)('\n\t'), 'for another whitespace String');
-    equal(true, (0, _emberMetal.isPresent)('\n\t Hi'), 'for a String with whitespaces');
-    equal(true, (0, _emberMetal.isPresent)(true), 'for true');
-    equal(true, (0, _emberMetal.isPresent)(false), 'for false');
-    equal(true, (0, _emberMetal.isPresent)('string'), 'for a String');
-    equal(true, (0, _emberMetal.isPresent)(function () {}), 'for a Function');
-    equal(true, (0, _emberMetal.isPresent)(0), 'for 0');
-    equal(false, (0, _emberMetal.isPresent)([]), 'for an empty Array');
-    equal(true, (0, _emberMetal.isPresent)({}), 'for an empty Object');
-    equal(false, (0, _emberMetal.isPresent)({ length: 0 }), 'for an Object that has zero \'length\'');
-    equal(true, (0, _emberMetal.isPresent)([1, 2, 3]), 'for a non-empty array');
+    assert.equal(false, (0, _emberMetal.isPresent)(), 'for no params');
+    assert.equal(false, (0, _emberMetal.isPresent)(null), 'for null');
+    assert.equal(false, (0, _emberMetal.isPresent)(undefined), 'for undefined');
+    assert.equal(false, (0, _emberMetal.isPresent)(''), 'for an empty String');
+    assert.equal(false, (0, _emberMetal.isPresent)('  '), 'for a whitespace String');
+    assert.equal(false, (0, _emberMetal.isPresent)('\n\t'), 'for another whitespace String');
+    assert.equal(true, (0, _emberMetal.isPresent)('\n\t Hi'), 'for a String with whitespaces');
+    assert.equal(true, (0, _emberMetal.isPresent)(true), 'for true');
+    assert.equal(true, (0, _emberMetal.isPresent)(false), 'for false');
+    assert.equal(true, (0, _emberMetal.isPresent)('string'), 'for a String');
+    assert.equal(true, (0, _emberMetal.isPresent)(function () {}), 'for a Function');
+    assert.equal(true, (0, _emberMetal.isPresent)(0), 'for 0');
+    assert.equal(false, (0, _emberMetal.isPresent)([]), 'for an empty Array');
+    assert.equal(true, (0, _emberMetal.isPresent)({}), 'for an empty Object');
+    assert.equal(false, (0, _emberMetal.isPresent)({ length: 0 }), 'for an Object that has zero \'length\'');
+    assert.equal(true, (0, _emberMetal.isPresent)([1, 2, 3]), 'for a non-empty array');
   });
 });
 enifed('ember-metal/tests/libraries_test', ['ember-debug', 'ember-metal', 'ember/features'], function (_emberDebug, _emberMetal, _features) {
@@ -39595,11 +39593,11 @@ enifed('ember-metal/tests/libraries_test', ['ember-debug', 'ember-metal', 'ember
   var originalWarn = (0, _emberDebug.getDebugFunction)('warn');
 
   QUnit.module('Libraries registry', {
-    setup: function () {
+    beforeEach: function () {
       libs = new _emberMetal.Libraries();
       registry = libs._registry;
     },
-    teardown: function () {
+    afterEach: function () {
       libs = null;
       registry = null;
 
@@ -39607,54 +39605,54 @@ enifed('ember-metal/tests/libraries_test', ['ember-debug', 'ember-metal', 'ember
     }
   });
 
-  QUnit.test('core libraries come before other libraries', function () {
-    expect(2);
+  QUnit.test('core libraries come before other libraries', function (assert) {
+    assert.expect(2);
 
     libs.register('my-lib', '2.0.0a');
     libs.registerCoreLibrary('DS', '1.0.0-beta.2');
 
-    equal(registry[0].name, 'DS');
-    equal(registry[1].name, 'my-lib');
+    assert.equal(registry[0].name, 'DS');
+    assert.equal(registry[1].name, 'my-lib');
   });
 
-  QUnit.test('only the first registration of a library is stored', function () {
-    expect(3);
+  QUnit.test('only the first registration of a library is stored', function (assert) {
+    assert.expect(3);
 
     libs.register('magic', 1.23);
     libs.register('magic', 2.23);
 
-    equal(registry[0].name, 'magic');
-    equal(registry[0].version, 1.23);
-    equal(registry.length, 1);
+    assert.equal(registry[0].name, 'magic');
+    assert.equal(registry[0].version, 1.23);
+    assert.equal(registry.length, 1);
   });
 
   if (_features.EMBER_LIBRARIES_ISREGISTERED) {
-    QUnit.test('isRegistered returns correct value', function () {
-      expect(3);
+    QUnit.test('isRegistered returns correct value', function (assert) {
+      assert.expect(3);
 
-      equal(libs.isRegistered('magic'), false);
+      assert.equal(libs.isRegistered('magic'), false);
 
       libs.register('magic', 1.23);
-      equal(libs.isRegistered('magic'), true);
+      assert.equal(libs.isRegistered('magic'), true);
 
       libs.deRegister('magic');
-      equal(libs.isRegistered('magic'), false);
+      assert.equal(libs.isRegistered('magic'), false);
     });
   }
 
-  QUnit.test('attempting to register a library that is already registered warns you', function () {
+  QUnit.test('attempting to register a library that is already registered warns you', function (assert) {
     if (EmberDev && EmberDev.runningProdBuild) {
-      ok(true, 'Logging does not occur in production builds');
+      assert.ok(true, 'Logging does not occur in production builds');
       return;
     }
 
-    expect(1);
+    assert.expect(1);
 
     libs.register('magic', 1.23);
 
     (0, _emberDebug.setDebugFunction)('warn', function (msg, test) {
       if (!test) {
-        equal(msg, 'Library "magic" is already registered with Ember.');
+        assert.equal(msg, 'Library "magic" is already registered with Ember.');
       }
     });
 
@@ -39662,8 +39660,8 @@ enifed('ember-metal/tests/libraries_test', ['ember-debug', 'ember-metal', 'ember
     libs.register('magic', 2.23);
   });
 
-  QUnit.test('libraries can be de-registered', function () {
-    expect(2);
+  QUnit.test('libraries can be de-registered', function (assert) {
+    assert.expect(2);
 
     libs.register('lib1', '1.0.0b');
     libs.register('lib2', '1.0.0b');
@@ -39672,8 +39670,8 @@ enifed('ember-metal/tests/libraries_test', ['ember-debug', 'ember-metal', 'ember
     libs.deRegister('lib1');
     libs.deRegister('lib3');
 
-    equal(registry[0].name, 'lib2');
-    equal(registry.length, 1);
+    assert.equal(registry[0].name, 'lib2');
+    assert.equal(registry.length, 1);
   });
 });
 enifed('ember-metal/tests/main_test', ['ember-metal'], function (_emberMetal) {
@@ -39687,20 +39685,20 @@ enifed('ember-metal/tests/main_test', ['ember-metal'], function (_emberMetal) {
 
   QUnit.module('ember-metal/core/main');
 
-  QUnit.test('Ember registers itself', function () {
+  QUnit.test('Ember registers itself', function (assert) {
     var lib = _emberMetal.default.libraries._registry[0];
 
-    equal(lib.name, 'Ember');
-    equal(lib.version, _emberMetal.default.VERSION);
+    assert.equal(lib.name, 'Ember');
+    assert.equal(lib.version, _emberMetal.default.VERSION);
   });
 
-  QUnit.test('Ember.VERSION is in alignment with SemVer v2.0.0', function () {
-    ok(SEMVER_REGEX.test(_emberMetal.default.VERSION), 'Ember.VERSION (' + _emberMetal.default.VERSION + ')is valid SemVer v2.0.0');
+  QUnit.test('Ember.VERSION is in alignment with SemVer v2.0.0', function (assert) {
+    assert.ok(SEMVER_REGEX.test(_emberMetal.default.VERSION), 'Ember.VERSION (' + _emberMetal.default.VERSION + ')is valid SemVer v2.0.0');
   });
 
-  QUnit.test('SEMVER_REGEX properly validates and invalidates version numbers', function () {
+  QUnit.test('SEMVER_REGEX properly validates and invalidates version numbers', function (assert) {
     function validateVersionString(versionString, expectedResult) {
-      equal(SEMVER_REGEX.test(versionString), expectedResult);
+      assert.equal(SEMVER_REGEX.test(versionString), expectedResult);
     }
 
     // Positive test cases
@@ -39729,7 +39727,7 @@ enifed('ember-metal/tests/map_test', ['ember-metal'], function (_emberMetal) {
     variety = nameAndFunc[0];
 
     QUnit.module('Ember.' + variety + ' (forEach and get are implicitly tested)', {
-      setup: function () {
+      beforeEach: function () {
         object = {};
         number = 42;
         string = 'foo';
@@ -39738,7 +39736,7 @@ enifed('ember-metal/tests/map_test', ['ember-metal'], function (_emberMetal) {
       }
     });
 
-    var mapHasLength = function (expected, theMap) {
+    var mapHasLength = function (assert, expected, theMap) {
       theMap = theMap || map;
 
       var length = 0;
@@ -39746,20 +39744,20 @@ enifed('ember-metal/tests/map_test', ['ember-metal'], function (_emberMetal) {
         length++;
       });
 
-      equal(length, expected, 'map should contain ' + expected + ' items');
+      assert.equal(length, expected, 'map should contain ' + expected + ' items');
     };
 
-    var mapHasEntries = function (entries, theMap) {
+    var mapHasEntries = function (assert, entries, theMap) {
       var i;
 
       theMap = theMap || map;
 
       for (i = 0; i < entries.length; i++) {
-        equal(theMap.get(entries[i][0]), entries[i][1]);
-        equal(theMap.has(entries[i][0]), true);
+        assert.equal(theMap.get(entries[i][0]), entries[i][1]);
+        assert.equal(theMap.has(entries[i][0]), true);
       }
 
-      mapHasLength(entries.length, theMap);
+      mapHasLength(assert, entries.length, theMap);
     };
 
     var unboundThis = void 0;
@@ -39768,63 +39766,63 @@ enifed('ember-metal/tests/map_test', ['ember-metal'], function (_emberMetal) {
       unboundThis = this;
     })();
 
-    QUnit.test('set', function () {
+    QUnit.test('set', function (assert) {
       map.set(object, 'winning');
       map.set(number, 'winning');
       map.set(string, 'winning');
 
-      mapHasEntries([[object, 'winning'], [number, 'winning'], [string, 'winning']]);
+      mapHasEntries(assert, [[object, 'winning'], [number, 'winning'], [string, 'winning']]);
 
       map.set(object, 'losing');
       map.set(number, 'losing');
       map.set(string, 'losing');
 
-      mapHasEntries([[object, 'losing'], [number, 'losing'], [string, 'losing']]);
+      mapHasEntries(assert, [[object, 'losing'], [number, 'losing'], [string, 'losing']]);
 
-      equal(map.has('nope'), false, 'expected the key `nope` to not be present');
-      equal(map.has({}), false, 'expected they key `{}` to not be present');
+      assert.equal(map.has('nope'), false, 'expected the key `nope` to not be present');
+      assert.equal(map.has({}), false, 'expected they key `{}` to not be present');
     });
 
-    QUnit.test('set chaining', function () {
+    QUnit.test('set chaining', function (assert) {
       map.set(object, 'winning').set(number, 'winning').set(string, 'winning');
 
-      mapHasEntries([[object, 'winning'], [number, 'winning'], [string, 'winning']]);
+      mapHasEntries(assert, [[object, 'winning'], [number, 'winning'], [string, 'winning']]);
 
       map.set(object, 'losing').set(number, 'losing').set(string, 'losing');
 
-      mapHasEntries([[object, 'losing'], [number, 'losing'], [string, 'losing']]);
+      mapHasEntries(assert, [[object, 'losing'], [number, 'losing'], [string, 'losing']]);
 
-      equal(map.has('nope'), false, 'expected the key `nope` to not be present');
-      equal(map.has({}), false, 'expected they key `{}` to not be present');
+      assert.equal(map.has('nope'), false, 'expected the key `nope` to not be present');
+      assert.equal(map.has({}), false, 'expected they key `{}` to not be present');
     });
 
-    QUnit.test('with key with undefined value', function () {
+    QUnit.test('with key with undefined value', function (assert) {
       map.set('foo', undefined);
 
       map.forEach(function (value, key) {
-        equal(value, undefined);
-        equal(key, 'foo');
+        assert.equal(value, undefined);
+        assert.equal(key, 'foo');
       });
 
-      ok(map.has('foo'), 'has key foo, even with undefined value');
+      assert.ok(map.has('foo'), 'has key foo, even with undefined value');
 
-      equal(map.size, 1);
+      assert.equal(map.size, 1);
     });
 
-    QUnit.test('arity of forEach is 1 – es6 23.1.3.5', function () {
-      equal(map.forEach.length, 1, 'expected arity for map.forEach is 1');
+    QUnit.test('arity of forEach is 1 – es6 23.1.3.5', function (assert) {
+      assert.equal(map.forEach.length, 1, 'expected arity for map.forEach is 1');
     });
 
-    QUnit.test('forEach throws without a callback as the first argument', function () {
-      equal(map.forEach.length, 1, 'expected arity for map.forEach is 1');
+    QUnit.test('forEach throws without a callback as the first argument', function (assert) {
+      assert.equal(map.forEach.length, 1, 'expected arity for map.forEach is 1');
     });
 
-    QUnit.test('has empty collection', function () {
-      equal(map.has('foo'), false);
-      equal(map.has(), false);
+    QUnit.test('has empty collection', function (assert) {
+      assert.equal(map.has('foo'), false);
+      assert.equal(map.has(), false);
     });
 
-    QUnit.test('delete', function () {
+    QUnit.test('delete', function (assert) {
       expectNoDeprecation();
 
       map.set(object, 'winning');
@@ -39838,10 +39836,10 @@ enifed('ember-metal/tests/map_test', ['ember-metal'], function (_emberMetal) {
       // doesn't explode
       map.delete({});
 
-      mapHasEntries([]);
+      mapHasEntries(assert, []);
     });
 
-    QUnit.test('copy and then update', function () {
+    QUnit.test('copy and then update', function (assert) {
       map.set(object, 'winning');
       map.set(number, 'winning');
       map.set(string, 'winning');
@@ -39852,12 +39850,12 @@ enifed('ember-metal/tests/map_test', ['ember-metal'], function (_emberMetal) {
       map2.set(number, 'losing');
       map2.set(string, 'losing');
 
-      mapHasEntries([[object, 'winning'], [number, 'winning'], [string, 'winning']]);
+      mapHasEntries(assert, [[object, 'winning'], [number, 'winning'], [string, 'winning']]);
 
-      mapHasEntries([[object, 'losing'], [number, 'losing'], [string, 'losing']], map2);
+      mapHasEntries(assert, [[object, 'losing'], [number, 'losing'], [string, 'losing']], map2);
     });
 
-    QUnit.test('copy and then delete', function () {
+    QUnit.test('copy and then delete', function (assert) {
       map.set(object, 'winning');
       map.set(number, 'winning');
       map.set(string, 'winning');
@@ -39868,45 +39866,45 @@ enifed('ember-metal/tests/map_test', ['ember-metal'], function (_emberMetal) {
       map2.delete(number);
       map2.delete(string);
 
-      mapHasEntries([[object, 'winning'], [number, 'winning'], [string, 'winning']]);
+      mapHasEntries(assert, [[object, 'winning'], [number, 'winning'], [string, 'winning']]);
 
-      mapHasEntries([], map2);
+      mapHasEntries(assert, [], map2);
     });
 
-    QUnit.test('size', function () {
+    QUnit.test('size', function (assert) {
       //Add a key twice
-      equal(map.size, 0);
+      assert.equal(map.size, 0);
       map.set(string, 'a string');
-      equal(map.size, 1);
+      assert.equal(map.size, 1);
       map.set(string, 'the same string');
-      equal(map.size, 1);
+      assert.equal(map.size, 1);
 
       //Add another
       map.set(number, 'a number');
-      equal(map.size, 2);
+      assert.equal(map.size, 2);
 
       //Remove one that doesn't exist
       map.delete('does not exist');
-      equal(map.size, 2);
+      assert.equal(map.size, 2);
 
       //Check copy
       var copy = map.copy();
-      equal(copy.size, 2);
+      assert.equal(copy.size, 2);
 
       //Remove a key twice
       map.delete(number);
-      equal(map.size, 1);
+      assert.equal(map.size, 1);
       map.delete(number);
-      equal(map.size, 1);
+      assert.equal(map.size, 1);
 
       //Remove the last key
       map.delete(string);
-      equal(map.size, 0);
+      assert.equal(map.size, 0);
       map.delete(string);
-      equal(map.size, 0);
+      assert.equal(map.size, 0);
     });
 
-    QUnit.test('forEach without proper callback', function () {
+    QUnit.test('forEach without proper callback', function (assert) {
       expectAssertion(function () {
         map.forEach();
       }, '[object Undefined] is not a function');
@@ -39927,13 +39925,13 @@ enifed('ember-metal/tests/map_test', ['ember-metal'], function (_emberMetal) {
         map.delete(key);
       });
       // ensure the error happens even if no data is present
-      equal(map.size, 0);
+      assert.equal(map.size, 0);
       expectAssertion(function () {
         map.forEach({});
       }, '[object Object] is not a function');
     });
 
-    QUnit.test('forEach basic', function () {
+    QUnit.test('forEach basic', function (assert) {
       map.set('a', 1);
       map.set('b', 2);
       map.set('c', 3);
@@ -39945,18 +39943,18 @@ enifed('ember-metal/tests/map_test', ['ember-metal'], function (_emberMetal) {
       map.forEach(function (value, key, theMap) {
         var expectation = expectations[iteration];
 
-        equal(value, expectation.value, 'value should be correct');
-        equal(key, expectation.key, 'key should be correct');
-        equal(this, expectation.context, 'context should be as if it was unbound');
-        equal(map, theMap, 'map being iterated over should be passed in');
+        assert.equal(value, expectation.value, 'value should be correct');
+        assert.equal(key, expectation.key, 'key should be correct');
+        assert.equal(this, expectation.context, 'context should be as if it was unbound');
+        assert.equal(map, theMap, 'map being iterated over should be passed in');
 
         iteration++;
       });
 
-      equal(iteration, 3, 'expected 3 iterations');
+      assert.equal(iteration, 3, 'expected 3 iterations');
     });
 
-    QUnit.test('forEach basic /w context', function () {
+    QUnit.test('forEach basic /w context', function (assert) {
       map.set('a', 1);
       map.set('b', 2);
       map.set('c', 3);
@@ -39968,18 +39966,18 @@ enifed('ember-metal/tests/map_test', ['ember-metal'], function (_emberMetal) {
       map.forEach(function (value, key, theMap) {
         var expectation = expectations[iteration];
 
-        equal(value, expectation.value, 'value should be correct');
-        equal(key, expectation.key, 'key should be correct');
-        equal(this, expectation.context, 'context should be as if it was unbound');
-        equal(map, theMap, 'map being iterated over should be passed in');
+        assert.equal(value, expectation.value, 'value should be correct');
+        assert.equal(key, expectation.key, 'key should be correct');
+        assert.equal(this, expectation.context, 'context should be as if it was unbound');
+        assert.equal(map, theMap, 'map being iterated over should be passed in');
 
         iteration++;
       }, context);
 
-      equal(iteration, 3, 'expected 3 iterations');
+      assert.equal(iteration, 3, 'expected 3 iterations');
     });
 
-    QUnit.test('forEach basic /w deletion while enumerating', function () {
+    QUnit.test('forEach basic /w deletion while enumerating', function (assert) {
       map.set('a', 1);
       map.set('b', 2);
       map.set('c', 3);
@@ -39995,18 +39993,18 @@ enifed('ember-metal/tests/map_test', ['ember-metal'], function (_emberMetal) {
 
         var expectation = expectations[iteration];
 
-        equal(value, expectation.value, 'value should be correct');
-        equal(key, expectation.key, 'key should be correct');
-        equal(this, expectation.context, 'context should be as if it was unbound');
-        equal(map, theMap, 'map being iterated over should be passed in');
+        assert.equal(value, expectation.value, 'value should be correct');
+        assert.equal(key, expectation.key, 'key should be correct');
+        assert.equal(this, expectation.context, 'context should be as if it was unbound');
+        assert.equal(map, theMap, 'map being iterated over should be passed in');
 
         iteration++;
       });
 
-      equal(iteration, 2, 'expected 3 iterations');
+      assert.equal(iteration, 2, 'expected 3 iterations');
     });
 
-    QUnit.test('forEach basic /w addition while enumerating', function () {
+    QUnit.test('forEach basic /w addition while enumerating', function (assert) {
       map.set('a', 1);
       map.set('b', 2);
       map.set('c', 3);
@@ -40022,18 +40020,18 @@ enifed('ember-metal/tests/map_test', ['ember-metal'], function (_emberMetal) {
 
         var expectation = expectations[iteration];
 
-        equal(value, expectation.value, 'value should be correct');
-        equal(key, expectation.key, 'key should be correct');
-        equal(this, expectation.context, 'context should be as if it was unbound');
-        equal(map, theMap, 'map being iterated over should be passed in');
+        assert.equal(value, expectation.value, 'value should be correct');
+        assert.equal(key, expectation.key, 'key should be correct');
+        assert.equal(this, expectation.context, 'context should be as if it was unbound');
+        assert.equal(map, theMap, 'map being iterated over should be passed in');
 
         iteration++;
       });
 
-      equal(iteration, 4, 'expected 3 iterations');
+      assert.equal(iteration, 4, 'expected 3 iterations');
     });
 
-    QUnit.test('clear', function () {
+    QUnit.test('clear', function (assert) {
       var iterations = 0;
 
       map.set('a', 1);
@@ -40041,78 +40039,78 @@ enifed('ember-metal/tests/map_test', ['ember-metal'], function (_emberMetal) {
       map.set('c', 3);
       map.set('d', 4);
 
-      equal(map.size, 4);
+      assert.equal(map.size, 4);
 
       map.forEach(function () {
         iterations++;
       });
-      equal(iterations, 4);
+      assert.equal(iterations, 4);
 
       map.clear();
-      equal(map.size, 0);
+      assert.equal(map.size, 0);
       iterations = 0;
       map.forEach(function () {
         iterations++;
       });
-      equal(iterations, 0);
+      assert.equal(iterations, 0);
     });
 
-    QUnit.test('-0', function () {
-      equal(map.has(-0), false);
-      equal(map.has(0), false);
+    QUnit.test('-0', function (assert) {
+      assert.equal(map.has(-0), false);
+      assert.equal(map.has(0), false);
 
       map.set(-0, 'zero');
 
-      equal(map.has(-0), true);
-      equal(map.has(0), true);
+      assert.equal(map.has(-0), true);
+      assert.equal(map.has(0), true);
 
-      equal(map.get(0), 'zero');
-      equal(map.get(-0), 'zero');
+      assert.equal(map.get(0), 'zero');
+      assert.equal(map.get(-0), 'zero');
 
       map.forEach(function (value, key) {
-        equal(1 / key, Infinity, 'spec says key should be positive zero');
+        assert.equal(1 / key, Infinity, 'spec says key should be positive zero');
       });
     });
 
-    QUnit.test('NaN', function () {
-      equal(map.has(NaN), false);
+    QUnit.test('NaN', function (assert) {
+      assert.equal(map.has(NaN), false);
 
       map.set(NaN, 'not-a-number');
 
-      equal(map.has(NaN), true);
+      assert.equal(map.has(NaN), true);
 
-      equal(map.get(NaN), 'not-a-number');
+      assert.equal(map.get(NaN), 'not-a-number');
     });
 
-    QUnit.test('NaN Boxed', function () {
+    QUnit.test('NaN Boxed', function (assert) {
       //jshint -W053
       var boxed = new Number(NaN);
-      equal(map.has(boxed), false);
+      assert.equal(map.has(boxed), false);
 
       map.set(boxed, 'not-a-number');
 
-      equal(map.has(boxed), true);
-      equal(map.has(NaN), false);
+      assert.equal(map.has(boxed), true);
+      assert.equal(map.has(NaN), false);
 
-      equal(map.get(NaN), undefined);
-      equal(map.get(boxed), 'not-a-number');
+      assert.equal(map.get(NaN), undefined);
+      assert.equal(map.get(boxed), 'not-a-number');
     });
 
-    QUnit.test('0 value', function () {
+    QUnit.test('0 value', function (assert) {
       var obj = {};
-      equal(map.has(obj), false);
+      assert.equal(map.has(obj), false);
 
-      equal(map.size, 0);
+      assert.equal(map.size, 0);
       map.set(obj, 0);
-      equal(map.size, 1);
+      assert.equal(map.size, 1);
 
-      equal(map.has(obj), true);
-      equal(map.get(obj), 0);
+      assert.equal(map.has(obj), true);
+      assert.equal(map.get(obj), 0);
 
       map.delete(obj);
-      equal(map.has(obj), false);
-      equal(map.get(obj), undefined);
-      equal(map.size, 0);
+      assert.equal(map.has(obj), false);
+      assert.equal(map.get(obj), undefined);
+      assert.equal(map.size, 0);
     });
   }
 
@@ -40122,7 +40120,7 @@ enifed('ember-metal/tests/map_test', ['ember-metal'], function (_emberMetal) {
 
   QUnit.module('MapWithDefault - default values');
 
-  QUnit.test('Retrieving a value that has not been set returns and sets a default value', function () {
+  QUnit.test('Retrieving a value that has not been set returns and sets a default value', function (assert) {
     var map = _emberMetal.MapWithDefault.create({
       defaultValue: function (key) {
         return [key];
@@ -40130,26 +40128,26 @@ enifed('ember-metal/tests/map_test', ['ember-metal'], function (_emberMetal) {
     });
 
     var value = map.get('ohai');
-    deepEqual(value, ['ohai']);
+    assert.deepEqual(value, ['ohai']);
 
-    strictEqual(value, map.get('ohai'));
+    assert.strictEqual(value, map.get('ohai'));
   });
 
-  QUnit.test('Map.prototype.constructor', function () {
+  QUnit.test('Map.prototype.constructor', function (assert) {
     var map = new _emberMetal.Map();
-    equal(map.constructor, _emberMetal.Map);
+    assert.equal(map.constructor, _emberMetal.Map);
   });
 
-  QUnit.test('MapWithDefault.prototype.constructor', function () {
+  QUnit.test('MapWithDefault.prototype.constructor', function (assert) {
     var map = new _emberMetal.MapWithDefault({
       defaultValue: function (key) {
         return key;
       }
     });
-    equal(map.constructor, _emberMetal.MapWithDefault);
+    assert.equal(map.constructor, _emberMetal.MapWithDefault);
   });
 
-  QUnit.test('Copying a MapWithDefault copies the default value', function () {
+  QUnit.test('Copying a MapWithDefault copies the default value', function (assert) {
     var map = _emberMetal.MapWithDefault.create({
       defaultValue: function (key) {
         return [key];
@@ -40161,25 +40159,25 @@ enifed('ember-metal/tests/map_test', ['ember-metal'], function (_emberMetal) {
 
     var map2 = map.copy();
 
-    equal(map2.get('ohai'), 1);
-    deepEqual(map2.get('bai'), ['bai']);
+    assert.equal(map2.get('ohai'), 1);
+    assert.deepEqual(map2.get('bai'), ['bai']);
 
     map2.set('kthx', 3);
 
-    deepEqual(map.get('kthx'), ['kthx']);
-    equal(map2.get('kthx'), 3);
+    assert.deepEqual(map.get('kthx'), ['kthx']);
+    assert.equal(map2.get('kthx'), 3);
 
-    deepEqual(map2.get('default'), ['default']);
+    assert.deepEqual(map2.get('default'), ['default']);
 
     map2.defaultValue = function (key) {
       return ['tom is on', key];
     };
 
-    deepEqual(map2.get('drugs'), ['tom is on', 'drugs']);
+    assert.deepEqual(map2.get('drugs'), ['tom is on', 'drugs']);
   });
 
   QUnit.module('OrderedSet', {
-    setup: function () {
+    beforeEach: function () {
       object = {};
       number = 42;
       string = 'foo';
@@ -40188,10 +40186,10 @@ enifed('ember-metal/tests/map_test', ['ember-metal'], function (_emberMetal) {
     }
   });
 
-  QUnit.test('add returns the set', function () {
+  QUnit.test('add returns the set', function (assert) {
     var obj = {};
-    equal(map.add(obj), map);
-    equal(map.add(obj), map, 'when it is already in the set');
+    assert.equal(map.add(obj), map);
+    assert.equal(map.add(obj), map, 'when it is already in the set');
   });
 });
 enifed('ember-metal/tests/meta_test', ['ember-babel', 'ember-metal', 'internal-test-helpers'], function (_emberBabel, _emberMetal, _internalTestHelpers) {
@@ -40371,12 +40369,12 @@ enifed('ember-metal/tests/mixin/alias_method_test', ['ember-metal'], function (_
 
   QUnit.module('aliasMethod');
 
-  function validateAliasMethod(obj) {
-    equal(obj.fooMethod(), 'FOO', 'obj.fooMethod()');
-    equal(obj.barMethod(), 'FOO', 'obj.barMethod should be a copy of foo');
+  function validateAliasMethod(assert, obj) {
+    assert.equal(obj.fooMethod(), 'FOO', 'obj.fooMethod()');
+    assert.equal(obj.barMethod(), 'FOO', 'obj.barMethod should be a copy of foo');
   }
 
-  QUnit.test('methods of another name are aliased when the mixin is applied', function () {
+  QUnit.test('methods of another name are aliased when the mixin is applied', function (assert) {
     var MyMixin = _emberMetal.Mixin.create({
       fooMethod: function () {
         return 'FOO';
@@ -40386,10 +40384,10 @@ enifed('ember-metal/tests/mixin/alias_method_test', ['ember-metal'], function (_
     });
 
     var obj = MyMixin.apply({});
-    validateAliasMethod(obj);
+    validateAliasMethod(assert, obj);
   });
 
-  QUnit.test('should follow aliasMethods all the way down', function () {
+  QUnit.test('should follow aliasMethods all the way down', function (assert) {
     var MyMixin = _emberMetal.Mixin.create({
       bar: (0, _emberMetal.aliasMethod)('foo'), baz: function () {
         return 'baz';
@@ -40399,10 +40397,10 @@ enifed('ember-metal/tests/mixin/alias_method_test', ['ember-metal'], function (_
     });
 
     var obj = MyMixin.apply({});
-    equal((0, _emberMetal.get)(obj, 'bar')(), 'baz', 'should have followed aliasMethods');
+    assert.equal((0, _emberMetal.get)(obj, 'bar')(), 'baz', 'should have followed aliasMethods');
   });
 
-  QUnit.test('should alias methods from other dependent mixins', function () {
+  QUnit.test('should alias methods from other dependent mixins', function (assert) {
     var BaseMixin = _emberMetal.Mixin.create({
       fooMethod: function () {
         return 'FOO';
@@ -40414,10 +40412,10 @@ enifed('ember-metal/tests/mixin/alias_method_test', ['ember-metal'], function (_
     });
 
     var obj = MyMixin.apply({});
-    validateAliasMethod(obj);
+    validateAliasMethod(assert, obj);
   });
 
-  QUnit.test('should alias methods from other mixins applied at same time', function () {
+  QUnit.test('should alias methods from other mixins applied at same time', function (assert) {
     var BaseMixin = _emberMetal.Mixin.create({
       fooMethod: function () {
         return 'FOO';
@@ -40429,10 +40427,10 @@ enifed('ember-metal/tests/mixin/alias_method_test', ['ember-metal'], function (_
     });
 
     var obj = (0, _emberMetal.mixin)({}, BaseMixin, MyMixin);
-    validateAliasMethod(obj);
+    validateAliasMethod(assert, obj);
   });
 
-  QUnit.test('should alias methods from mixins already applied on object', function () {
+  QUnit.test('should alias methods from mixins already applied on object', function (assert) {
     var BaseMixin = _emberMetal.Mixin.create({
       quxMethod: function () {
         return 'qux';
@@ -40453,7 +40451,7 @@ enifed('ember-metal/tests/mixin/alias_method_test', ['ember-metal'], function (_
     BaseMixin.apply(obj);
     MyMixin.apply(obj);
 
-    validateAliasMethod(obj);
+    validateAliasMethod(assert, obj);
   });
 });
 enifed('ember-metal/tests/mixin/apply_test', ['ember-metal'], function (_emberMetal) {
@@ -40463,24 +40461,24 @@ enifed('ember-metal/tests/mixin/apply_test', ['ember-metal'], function (_emberMe
 
   function K() {}
 
-  QUnit.test('using apply() should apply properties', function () {
+  QUnit.test('using apply() should apply properties', function (assert) {
     var MixinA = _emberMetal.Mixin.create({ foo: 'FOO', baz: K });
     var obj = {};
     (0, _emberMetal.mixin)(obj, MixinA);
 
-    equal((0, _emberMetal.get)(obj, 'foo'), 'FOO', 'should apply foo');
-    equal((0, _emberMetal.get)(obj, 'baz'), K, 'should apply foo');
+    assert.equal((0, _emberMetal.get)(obj, 'foo'), 'FOO', 'should apply foo');
+    assert.equal((0, _emberMetal.get)(obj, 'baz'), K, 'should apply foo');
   });
 
-  QUnit.test('applying anonymous properties', function () {
+  QUnit.test('applying anonymous properties', function (assert) {
     var obj = {};
     (0, _emberMetal.mixin)(obj, {
       foo: 'FOO',
       baz: K
     });
 
-    equal((0, _emberMetal.get)(obj, 'foo'), 'FOO', 'should apply foo');
-    equal((0, _emberMetal.get)(obj, 'baz'), K, 'should apply foo');
+    assert.equal((0, _emberMetal.get)(obj, 'foo'), 'FOO', 'should apply foo');
+    assert.equal((0, _emberMetal.get)(obj, 'baz'), K, 'should apply foo');
   });
 
   QUnit.test('applying null values', function () {
@@ -40489,11 +40487,11 @@ enifed('ember-metal/tests/mixin/apply_test', ['ember-metal'], function (_emberMe
     });
   });
 
-  QUnit.test('applying a property with an undefined value', function () {
+  QUnit.test('applying a property with an undefined value', function (assert) {
     var obj = { tagName: '' };
     (0, _emberMetal.mixin)(obj, { tagName: undefined });
 
-    strictEqual((0, _emberMetal.get)(obj, 'tagName'), '');
+    assert.strictEqual((0, _emberMetal.get)(obj, 'tagName'), '');
   });
 });
 enifed('ember-metal/tests/mixin/computed_test', ['ember-metal'], function (_emberMetal) {
@@ -40505,7 +40503,7 @@ enifed('ember-metal/tests/mixin/computed_test', ['ember-metal'], function (_embe
 
   QUnit.module('Mixin Computed Properties');
 
-  QUnit.test('overriding computed properties', function () {
+  QUnit.test('overriding computed properties', function (assert) {
     var MixinA = void 0,
         MixinB = void 0,
         MixinC = void 0,
@@ -40538,27 +40536,27 @@ enifed('ember-metal/tests/mixin/computed_test', ['ember-metal'], function (_embe
 
     obj = {};
     MixinB.apply(obj);
-    equal((0, _emberMetal.get)(obj, 'aProp'), 'AB', 'should expose super for B');
+    assert.equal((0, _emberMetal.get)(obj, 'aProp'), 'AB', 'should expose super for B');
 
     obj = {};
     MixinC.apply(obj);
-    equal((0, _emberMetal.get)(obj, 'aProp'), 'AC', 'should expose super for C');
+    assert.equal((0, _emberMetal.get)(obj, 'aProp'), 'AC', 'should expose super for C');
 
     obj = {};
 
     MixinA.apply(obj);
     MixinD.apply(obj);
-    equal((0, _emberMetal.get)(obj, 'aProp'), 'AD', 'should define super for D');
+    assert.equal((0, _emberMetal.get)(obj, 'aProp'), 'AD', 'should define super for D');
 
     obj = {};
     (0, _emberMetal.defineProperty)(obj, 'aProp', (0, _emberMetal.computed)(function () {
       return 'obj';
     }));
     MixinD.apply(obj);
-    equal((0, _emberMetal.get)(obj, 'aProp'), 'objD', 'should preserve original computed property');
+    assert.equal((0, _emberMetal.get)(obj, 'aProp'), 'objD', 'should preserve original computed property');
   });
 
-  QUnit.test('calling set on overridden computed properties', function () {
+  QUnit.test('calling set on overridden computed properties', function (assert) {
     var SuperMixin = void 0,
         SubMixin = void 0;
     var obj = void 0;
@@ -40592,7 +40590,7 @@ enifed('ember-metal/tests/mixin/computed_test', ['ember-metal'], function (_embe
     SubMixin.apply(obj);
 
     (0, _emberMetal.set)(obj, 'aProp', 'set thyself');
-    ok(superSetOccurred, 'should pass set to _super');
+    assert.ok(superSetOccurred, 'should pass set to _super');
 
     superSetOccurred = false; // reset the set assertion
 
@@ -40600,13 +40598,13 @@ enifed('ember-metal/tests/mixin/computed_test', ['ember-metal'], function (_embe
     SubMixin.apply(obj);
 
     (0, _emberMetal.get)(obj, 'aProp');
-    ok(superGetOccurred, 'should pass get to _super');
+    assert.ok(superGetOccurred, 'should pass get to _super');
 
     (0, _emberMetal.set)(obj, 'aProp', 'set thyself');
-    ok(superSetOccurred, 'should pass set to _super after getting');
+    assert.ok(superSetOccurred, 'should pass set to _super after getting');
   });
 
-  QUnit.test('setter behavior works properly when overriding computed properties', function () {
+  QUnit.test('setter behavior works properly when overriding computed properties', function (assert) {
     var obj = {};
 
     var MixinA = _emberMetal.Mixin.create({
@@ -40641,16 +40639,16 @@ enifed('ember-metal/tests/mixin/computed_test', ['ember-metal'], function (_embe
     MixinB.apply(obj);
 
     (0, _emberMetal.set)(obj, 'cpWithSetter2', 'test');
-    ok(cpWasCalled, 'The computed property setter was called when defined with two args');
+    assert.ok(cpWasCalled, 'The computed property setter was called when defined with two args');
     cpWasCalled = false;
 
     (0, _emberMetal.set)(obj, 'cpWithSetter3', 'test');
-    ok(cpWasCalled, 'The computed property setter was called when defined with three args');
+    assert.ok(cpWasCalled, 'The computed property setter was called when defined with three args');
     cpWasCalled = false;
 
     (0, _emberMetal.set)(obj, 'cpWithoutSetter', 'test');
-    equal((0, _emberMetal.get)(obj, 'cpWithoutSetter'), 'test', 'The default setter was called, the value is correct');
-    ok(!cpWasCalled, 'The default setter was called, not the CP itself');
+    assert.equal((0, _emberMetal.get)(obj, 'cpWithoutSetter'), 'test', 'The default setter was called, the value is correct');
+    assert.ok(!cpWasCalled, 'The default setter was called, not the CP itself');
   });
 });
 enifed('ember-metal/tests/mixin/concatenated_properties_test', ['ember-metal'], function (_emberMetal) {
@@ -40658,7 +40656,7 @@ enifed('ember-metal/tests/mixin/concatenated_properties_test', ['ember-metal'], 
 
   QUnit.module('Mixin concatenatedProperties');
 
-  QUnit.test('defining concatenated properties should concat future version', function () {
+  QUnit.test('defining concatenated properties should concat future version', function (assert) {
     var MixinA = _emberMetal.Mixin.create({
       concatenatedProperties: ['foo'],
       foo: ['a', 'b', 'c']
@@ -40669,10 +40667,10 @@ enifed('ember-metal/tests/mixin/concatenated_properties_test', ['ember-metal'], 
     });
 
     var obj = (0, _emberMetal.mixin)({}, MixinA, MixinB);
-    deepEqual((0, _emberMetal.get)(obj, 'foo'), ['a', 'b', 'c', 'd', 'e', 'f']);
+    assert.deepEqual((0, _emberMetal.get)(obj, 'foo'), ['a', 'b', 'c', 'd', 'e', 'f']);
   });
 
-  QUnit.test('defining concatenated properties should concat future version', function () {
+  QUnit.test('defining concatenated properties should concat future version', function (assert) {
     var MixinA = _emberMetal.Mixin.create({
       concatenatedProperties: null
     });
@@ -40683,10 +40681,10 @@ enifed('ember-metal/tests/mixin/concatenated_properties_test', ['ember-metal'], 
 
     var obj = (0, _emberMetal.mixin)({}, MixinA, MixinB);
 
-    deepEqual(obj.concatenatedProperties, []);
+    assert.deepEqual(obj.concatenatedProperties, []);
   });
 
-  QUnit.test('concatenatedProperties should be concatenated', function () {
+  QUnit.test('concatenatedProperties should be concatenated', function (assert) {
     var MixinA = _emberMetal.Mixin.create({
       concatenatedProperties: ['foo'],
       foo: ['a', 'b', 'c']
@@ -40703,12 +40701,12 @@ enifed('ember-metal/tests/mixin/concatenated_properties_test', ['ember-metal'], 
     });
 
     var obj = (0, _emberMetal.mixin)({}, MixinA, MixinB, MixinC);
-    deepEqual((0, _emberMetal.get)(obj, 'concatenatedProperties'), ['foo', 'bar'], 'get concatenatedProperties');
-    deepEqual((0, _emberMetal.get)(obj, 'foo'), ['a', 'b', 'c', 'd', 'e', 'f'], 'get foo');
-    deepEqual((0, _emberMetal.get)(obj, 'bar'), [1, 2, 3, 4, 5, 6], 'get bar');
+    assert.deepEqual((0, _emberMetal.get)(obj, 'concatenatedProperties'), ['foo', 'bar'], 'get concatenatedProperties');
+    assert.deepEqual((0, _emberMetal.get)(obj, 'foo'), ['a', 'b', 'c', 'd', 'e', 'f'], 'get foo');
+    assert.deepEqual((0, _emberMetal.get)(obj, 'bar'), [1, 2, 3, 4, 5, 6], 'get bar');
   });
 
-  QUnit.test('adding a prop that is not an array should make array', function () {
+  QUnit.test('adding a prop that is not an array should make array', function (assert) {
     var MixinA = _emberMetal.Mixin.create({
       concatenatedProperties: ['foo'],
       foo: [1, 2, 3]
@@ -40719,20 +40717,20 @@ enifed('ember-metal/tests/mixin/concatenated_properties_test', ['ember-metal'], 
     });
 
     var obj = (0, _emberMetal.mixin)({}, MixinA, MixinB);
-    deepEqual((0, _emberMetal.get)(obj, 'foo'), [1, 2, 3, 4]);
+    assert.deepEqual((0, _emberMetal.get)(obj, 'foo'), [1, 2, 3, 4]);
   });
 
-  QUnit.test('adding a prop that is not an array should make array', function () {
+  QUnit.test('adding a prop that is not an array should make array', function (assert) {
     var MixinA = _emberMetal.Mixin.create({
       concatenatedProperties: ['foo'],
       foo: 'bar'
     });
 
     var obj = (0, _emberMetal.mixin)({}, MixinA);
-    deepEqual((0, _emberMetal.get)(obj, 'foo'), ['bar']);
+    assert.deepEqual((0, _emberMetal.get)(obj, 'foo'), ['bar']);
   });
 
-  QUnit.test('adding a non-concatenable property that already has a defined value should result in an array with both values', function () {
+  QUnit.test('adding a non-concatenable property that already has a defined value should result in an array with both values', function (assert) {
     var mixinA = _emberMetal.Mixin.create({
       foo: 1
     });
@@ -40743,10 +40741,10 @@ enifed('ember-metal/tests/mixin/concatenated_properties_test', ['ember-metal'], 
     });
 
     var obj = (0, _emberMetal.mixin)({}, mixinA, mixinB);
-    deepEqual((0, _emberMetal.get)(obj, 'foo'), [1, 2]);
+    assert.deepEqual((0, _emberMetal.get)(obj, 'foo'), [1, 2]);
   });
 
-  QUnit.test('adding a concatenable property that already has a defined value should result in a concatenated value', function () {
+  QUnit.test('adding a concatenable property that already has a defined value should result in a concatenated value', function (assert) {
     var mixinA = _emberMetal.Mixin.create({
       foobar: 'foo'
     });
@@ -40757,7 +40755,7 @@ enifed('ember-metal/tests/mixin/concatenated_properties_test', ['ember-metal'], 
     });
 
     var obj = (0, _emberMetal.mixin)({}, mixinA, mixinB);
-    deepEqual((0, _emberMetal.get)(obj, 'foobar'), ['foo', 'bar']);
+    assert.deepEqual((0, _emberMetal.get)(obj, 'foobar'), ['foo', 'bar']);
   });
 });
 enifed('ember-metal/tests/mixin/detect_test', ['ember-metal'], function (_emberMetal) {
@@ -40765,37 +40763,37 @@ enifed('ember-metal/tests/mixin/detect_test', ['ember-metal'], function (_emberM
 
   QUnit.module('Mixin.detect');
 
-  QUnit.test('detect() finds a directly applied mixin', function () {
+  QUnit.test('detect() finds a directly applied mixin', function (assert) {
     var MixinA = _emberMetal.Mixin.create();
     var obj = {};
 
-    equal(MixinA.detect(obj), false, 'MixinA.detect(obj) before apply()');
+    assert.equal(MixinA.detect(obj), false, 'MixinA.detect(obj) before apply()');
 
     MixinA.apply(obj);
-    equal(MixinA.detect(obj), true, 'MixinA.detect(obj) after apply()');
+    assert.equal(MixinA.detect(obj), true, 'MixinA.detect(obj) after apply()');
   });
 
-  QUnit.test('detect() finds nested mixins', function () {
+  QUnit.test('detect() finds nested mixins', function (assert) {
     var MixinA = _emberMetal.Mixin.create({});
     var MixinB = _emberMetal.Mixin.create(MixinA);
     var obj = {};
 
-    equal(MixinA.detect(obj), false, 'MixinA.detect(obj) before apply()');
+    assert.equal(MixinA.detect(obj), false, 'MixinA.detect(obj) before apply()');
 
     MixinB.apply(obj);
-    equal(MixinA.detect(obj), true, 'MixinA.detect(obj) after apply()');
+    assert.equal(MixinA.detect(obj), true, 'MixinA.detect(obj) after apply()');
   });
 
-  QUnit.test('detect() finds mixins on other mixins', function () {
+  QUnit.test('detect() finds mixins on other mixins', function (assert) {
     var MixinA = _emberMetal.Mixin.create({});
     var MixinB = _emberMetal.Mixin.create(MixinA);
-    equal(MixinA.detect(MixinB), true, 'MixinA is part of MixinB');
-    equal(MixinB.detect(MixinA), false, 'MixinB is not part of MixinA');
+    assert.equal(MixinA.detect(MixinB), true, 'MixinA is part of MixinB');
+    assert.equal(MixinB.detect(MixinA), false, 'MixinB is not part of MixinA');
   });
 
-  QUnit.test('detect handles null values', function () {
+  QUnit.test('detect handles null values', function (assert) {
     var MixinA = _emberMetal.Mixin.create();
-    equal(MixinA.detect(null), false);
+    assert.equal(MixinA.detect(null), false);
   });
 });
 enifed('ember-metal/tests/mixin/introspection_test', ['ember-utils', 'ember-metal'], function (_emberUtils, _emberMetal) {
@@ -40831,20 +40829,20 @@ enifed('ember-metal/tests/mixin/introspection_test', ['ember-utils', 'ember-meta
   var obj = void 0;
 
   QUnit.module('Basic introspection', {
-    setup: function () {
+    beforeEach: function () {
       obj = {};
       (0, _emberMetal.mixin)(obj, PrivateProperty, PublicProperty, PrivateMethod, PublicMethod, Combined);
     }
   });
 
-  QUnit.test('Ember.mixins()', function () {
+  QUnit.test('Ember.mixins()', function (assert) {
     function mapGuids(ary) {
       return ary.map(function (x) {
         return (0, _emberUtils.guidFor)(x);
       });
     }
 
-    deepEqual(mapGuids(_emberMetal.Mixin.mixins(obj)), mapGuids([PrivateProperty, PublicProperty, PrivateMethod, PublicMethod, Combined, BarProperties, BarMethods]), 'should return included mixins');
+    assert.deepEqual(mapGuids(_emberMetal.Mixin.mixins(obj)), mapGuids([PrivateProperty, PublicProperty, PrivateMethod, PublicMethod, Combined, BarProperties, BarMethods]), 'should return included mixins');
   });
 });
 enifed('ember-metal/tests/mixin/merged_properties_test', ['ember-runtime', 'ember-metal'], function (_emberRuntime, _emberMetal) {
@@ -40852,7 +40850,7 @@ enifed('ember-metal/tests/mixin/merged_properties_test', ['ember-runtime', 'embe
 
   QUnit.module('Mixin mergedProperties');
 
-  QUnit.test('defining mergedProperties should merge future version', function () {
+  QUnit.test('defining mergedProperties should merge future version', function (assert) {
     var MixinA = _emberMetal.Mixin.create({
       mergedProperties: ['foo'],
       foo: { a: true, b: true, c: true }
@@ -40863,10 +40861,10 @@ enifed('ember-metal/tests/mixin/merged_properties_test', ['ember-runtime', 'embe
     });
 
     var obj = (0, _emberMetal.mixin)({}, MixinA, MixinB);
-    deepEqual((0, _emberMetal.get)(obj, 'foo'), { a: true, b: true, c: true, d: true, e: true, f: true });
+    assert.deepEqual((0, _emberMetal.get)(obj, 'foo'), { a: true, b: true, c: true, d: true, e: true, f: true });
   });
 
-  QUnit.test('defining mergedProperties on future mixin should merged into past', function () {
+  QUnit.test('defining mergedProperties on future mixin should merged into past', function (assert) {
     var MixinA = _emberMetal.Mixin.create({
       foo: { a: true, b: true, c: true }
     });
@@ -40877,10 +40875,10 @@ enifed('ember-metal/tests/mixin/merged_properties_test', ['ember-runtime', 'embe
     });
 
     var obj = (0, _emberMetal.mixin)({}, MixinA, MixinB);
-    deepEqual((0, _emberMetal.get)(obj, 'foo'), { a: true, b: true, c: true, d: true, e: true, f: true });
+    assert.deepEqual((0, _emberMetal.get)(obj, 'foo'), { a: true, b: true, c: true, d: true, e: true, f: true });
   });
 
-  QUnit.test('defining mergedProperties with null properties should keep properties null', function () {
+  QUnit.test('defining mergedProperties with null properties should keep properties null', function (assert) {
     var MixinA = _emberMetal.Mixin.create({
       mergedProperties: ['foo'],
       foo: null
@@ -40891,10 +40889,10 @@ enifed('ember-metal/tests/mixin/merged_properties_test', ['ember-runtime', 'embe
     });
 
     var obj = (0, _emberMetal.mixin)({}, MixinA, MixinB);
-    equal((0, _emberMetal.get)(obj, 'foo'), null);
+    assert.equal((0, _emberMetal.get)(obj, 'foo'), null);
   });
 
-  QUnit.test('mergedProperties\' properties can get overwritten', function () {
+  QUnit.test('mergedProperties\' properties can get overwritten', function (assert) {
     var MixinA = _emberMetal.Mixin.create({
       mergedProperties: ['foo'],
       foo: { a: 1 }
@@ -40905,10 +40903,10 @@ enifed('ember-metal/tests/mixin/merged_properties_test', ['ember-runtime', 'embe
     });
 
     var obj = (0, _emberMetal.mixin)({}, MixinA, MixinB);
-    deepEqual((0, _emberMetal.get)(obj, 'foo'), { a: 2 });
+    assert.deepEqual((0, _emberMetal.get)(obj, 'foo'), { a: 2 });
   });
 
-  QUnit.test('mergedProperties should be concatenated', function () {
+  QUnit.test('mergedProperties should be concatenated', function (assert) {
     var MixinA = _emberMetal.Mixin.create({
       mergedProperties: ['foo'],
       foo: { a: true, b: true, c: true }
@@ -40925,12 +40923,12 @@ enifed('ember-metal/tests/mixin/merged_properties_test', ['ember-runtime', 'embe
     });
 
     var obj = (0, _emberMetal.mixin)({}, MixinA, MixinB, MixinC);
-    deepEqual((0, _emberMetal.get)(obj, 'mergedProperties'), ['foo', 'bar'], 'get mergedProperties');
-    deepEqual((0, _emberMetal.get)(obj, 'foo'), { a: true, b: true, c: true, d: true, e: true, f: true }, 'get foo');
-    deepEqual((0, _emberMetal.get)(obj, 'bar'), { a: true, l: true, e: true, x: true }, 'get bar');
+    assert.deepEqual((0, _emberMetal.get)(obj, 'mergedProperties'), ['foo', 'bar'], 'get mergedProperties');
+    assert.deepEqual((0, _emberMetal.get)(obj, 'foo'), { a: true, b: true, c: true, d: true, e: true, f: true }, 'get foo');
+    assert.deepEqual((0, _emberMetal.get)(obj, 'bar'), { a: true, l: true, e: true, x: true }, 'get bar');
   });
 
-  QUnit.test('mergedProperties should exist even if not explicitly set on create', function () {
+  QUnit.test('mergedProperties should exist even if not explicitly set on create', function (assert) {
     var AnObj = _emberRuntime.Object.extend({
       mergedProperties: ['options'],
       options: {
@@ -40947,11 +40945,11 @@ enifed('ember-metal/tests/mixin/merged_properties_test', ['ember-runtime', 'embe
       }
     });
 
-    equal((0, _emberMetal.get)(obj, 'options').a, 'A');
-    equal((0, _emberMetal.get)(obj, 'options').b.c, 'ccc');
+    assert.equal((0, _emberMetal.get)(obj, 'options').a, 'A');
+    assert.equal((0, _emberMetal.get)(obj, 'options').b.c, 'ccc');
   });
 
-  QUnit.test('defining mergedProperties at create time should not modify the prototype', function () {
+  QUnit.test('defining mergedProperties at create time should not modify the prototype', function (assert) {
     var AnObj = _emberRuntime.Object.extend({
       mergedProperties: ['options'],
       options: {
@@ -40970,18 +40968,18 @@ enifed('ember-metal/tests/mixin/merged_properties_test', ['ember-runtime', 'embe
       }
     });
 
-    equal((0, _emberMetal.get)(objA, 'options').a, 2);
-    equal((0, _emberMetal.get)(objB, 'options').a, 3);
+    assert.equal((0, _emberMetal.get)(objA, 'options').a, 2);
+    assert.equal((0, _emberMetal.get)(objB, 'options').a, 3);
   });
 
-  QUnit.test('mergedProperties\' overwriting methods can call _super', function () {
-    expect(4);
+  QUnit.test('mergedProperties\' overwriting methods can call _super', function (assert) {
+    assert.expect(4);
 
     var MixinA = _emberMetal.Mixin.create({
       mergedProperties: ['foo'],
       foo: {
         meth: function (a) {
-          equal(a, 'WOOT', '_super successfully called MixinA\'s `foo.meth` method');
+          assert.equal(a, 'WOOT', '_super successfully called MixinA\'s `foo.meth` method');
           return 'WAT';
         }
       }
@@ -40990,7 +40988,7 @@ enifed('ember-metal/tests/mixin/merged_properties_test', ['ember-runtime', 'embe
     var MixinB = _emberMetal.Mixin.create({
       foo: {
         meth: function () {
-          ok(true, 'MixinB\'s `foo.meth` method called');
+          assert.ok(true, 'MixinB\'s `foo.meth` method called');
           return this._super.apply(this, arguments);
         }
       }
@@ -40999,18 +40997,18 @@ enifed('ember-metal/tests/mixin/merged_properties_test', ['ember-runtime', 'embe
     var MixinC = _emberMetal.Mixin.create({
       foo: {
         meth: function (a) {
-          ok(true, 'MixinC\'s `foo.meth` method called');
+          assert.ok(true, 'MixinC\'s `foo.meth` method called');
           return this._super(a);
         }
       }
     });
 
     var obj = (0, _emberMetal.mixin)({}, MixinA, MixinB, MixinC);
-    equal(obj.foo.meth('WOOT'), 'WAT');
+    assert.equal(obj.foo.meth('WOOT'), 'WAT');
   });
 
-  QUnit.test('Merging an Array should raise an error', function () {
-    expect(1);
+  QUnit.test('Merging an Array should raise an error', function (assert) {
+    assert.expect(1);
 
     var MixinA = _emberMetal.Mixin.create({
       mergedProperties: ['foo'],
@@ -41031,7 +41029,7 @@ enifed('ember-metal/tests/mixin/method_test', ['ember-metal'], function (_emberM
 
   QUnit.module('Mixin Methods');
 
-  QUnit.test('defining simple methods', function () {
+  QUnit.test('defining simple methods', function (assert) {
     var MixinA = void 0,
         obj = void 0,
         props = void 0;
@@ -41050,11 +41048,11 @@ enifed('ember-metal/tests/mixin/method_test', ['ember-metal'], function (_emberM
     MixinA.apply(obj);
 
     // but should be defined
-    equal(props.publicMethod(), 'publicMethod', 'publicMethod is func');
-    equal(props._privateMethod(), 'privateMethod', 'privateMethod is func');
+    assert.equal(props.publicMethod(), 'publicMethod', 'publicMethod is func');
+    assert.equal(props._privateMethod(), 'privateMethod', 'privateMethod is func');
   });
 
-  QUnit.test('overriding public methods', function () {
+  QUnit.test('overriding public methods', function (assert) {
     var MixinA = void 0,
         MixinB = void 0,
         MixinD = void 0,
@@ -41087,16 +41085,16 @@ enifed('ember-metal/tests/mixin/method_test', ['ember-metal'], function (_emberM
 
     obj = {};
     MixinB.apply(obj);
-    equal(obj.publicMethod(), 'AB', 'should define super for A and B');
+    assert.equal(obj.publicMethod(), 'AB', 'should define super for A and B');
 
     obj = {};
     MixinD.apply(obj);
-    equal(obj.publicMethod(), 'AD', 'should define super for A and B');
+    assert.equal(obj.publicMethod(), 'AD', 'should define super for A and B');
 
     obj = {};
     MixinA.apply(obj);
     MixinF.apply(obj);
-    equal(obj.publicMethod(), 'AF', 'should define super for A and F');
+    assert.equal(obj.publicMethod(), 'AF', 'should define super for A and F');
 
     obj = {
       publicMethod: function () {
@@ -41104,10 +41102,10 @@ enifed('ember-metal/tests/mixin/method_test', ['ember-metal'], function (_emberM
       }
     };
     MixinF.apply(obj);
-    equal(obj.publicMethod(), 'objF', 'should define super for F');
+    assert.equal(obj.publicMethod(), 'objF', 'should define super for F');
   });
 
-  QUnit.test('overriding inherited objects', function () {
+  QUnit.test('overriding inherited objects', function (assert) {
     var cnt = 0;
     var MixinA = _emberMetal.Mixin.create({
       foo: function () {
@@ -41130,14 +41128,14 @@ enifed('ember-metal/tests/mixin/method_test', ['ember-metal'], function (_emberM
 
     cnt = 0;
     objB.foo();
-    equal(cnt, 2, 'should invoke both methods');
+    assert.equal(cnt, 2, 'should invoke both methods');
 
     cnt = 0;
     objA.foo();
-    equal(cnt, 1, 'should not screw w/ parent obj');
+    assert.equal(cnt, 1, 'should not screw w/ parent obj');
   });
 
-  QUnit.test('Including the same mixin more than once will only run once', function () {
+  QUnit.test('Including the same mixin more than once will only run once', function (assert) {
     var cnt = 0;
     var MixinA = _emberMetal.Mixin.create({
       foo: function () {
@@ -41170,10 +41168,10 @@ enifed('ember-metal/tests/mixin/method_test', ['ember-metal'], function (_emberM
     cnt = 0;
     obj.foo();
 
-    equal(cnt, 1, 'should invoke MixinA.foo one time');
+    assert.equal(cnt, 1, 'should invoke MixinA.foo one time');
   });
 
-  QUnit.test('_super from a single mixin with no superclass does not error', function () {
+  QUnit.test('_super from a single mixin with no superclass does not error', function (assert) {
     var MixinA = _emberMetal.Mixin.create({
       foo: function () {
         this._super.apply(this, arguments);
@@ -41184,10 +41182,10 @@ enifed('ember-metal/tests/mixin/method_test', ['ember-metal'], function (_emberM
     MixinA.apply(obj);
 
     obj.foo();
-    ok(true);
+    assert.ok(true);
   });
 
-  QUnit.test('_super from a first-of-two mixins with no superclass function does not error', function () {
+  QUnit.test('_super from a first-of-two mixins with no superclass function does not error', function (assert) {
     // _super was previously calling itself in the second assertion.
     // Use remaining count of calls to ensure it doesn't loop indefinitely.
     var remaining = 3;
@@ -41210,7 +41208,7 @@ enifed('ember-metal/tests/mixin/method_test', ['ember-metal'], function (_emberM
     MixinB.apply(obj);
 
     obj.foo();
-    ok(true);
+    assert.ok(true);
   });
 
   // ..........................................................
@@ -41219,7 +41217,7 @@ enifed('ember-metal/tests/mixin/method_test', ['ember-metal'], function (_emberM
 
   QUnit.module('Method Conflicts');
 
-  QUnit.test('overriding toString', function () {
+  QUnit.test('overriding toString', function (assert) {
     var MixinA = _emberMetal.Mixin.create({
       toString: function () {
         return 'FOO';
@@ -41228,7 +41226,7 @@ enifed('ember-metal/tests/mixin/method_test', ['ember-metal'], function (_emberM
 
     var obj = {};
     MixinA.apply(obj);
-    equal(obj.toString(), 'FOO', 'should override toString w/o error');
+    assert.equal(obj.toString(), 'FOO', 'should override toString w/o error');
 
     obj = {};
     (0, _emberMetal.mixin)(obj, {
@@ -41236,7 +41234,7 @@ enifed('ember-metal/tests/mixin/method_test', ['ember-metal'], function (_emberM
         return 'FOO';
       }
     });
-    equal(obj.toString(), 'FOO', 'should override toString w/o error');
+    assert.equal(obj.toString(), 'FOO', 'should override toString w/o error');
   });
 
   // ..........................................................
@@ -41245,7 +41243,7 @@ enifed('ember-metal/tests/mixin/method_test', ['ember-metal'], function (_emberM
 
   QUnit.module('system/mixin/method_test BUGS');
 
-  QUnit.test('applying several mixins at once with sup already defined causes infinite loop', function () {
+  QUnit.test('applying several mixins at once with sup already defined causes infinite loop', function (assert) {
     var cnt = 0;
     var MixinA = _emberMetal.Mixin.create({
       foo: function () {
@@ -41273,7 +41271,7 @@ enifed('ember-metal/tests/mixin/method_test', ['ember-metal'], function (_emberM
 
     cnt = 0;
     obj.foo();
-    equal(cnt, 3, 'should invoke all 3 methods');
+    assert.equal(cnt, 3, 'should invoke all 3 methods');
   });
 });
 enifed('ember-metal/tests/mixin/observer_test', ['internal-test-helpers', 'ember-metal'], function (_internalTestHelpers, _emberMetal) {
@@ -41281,7 +41279,7 @@ enifed('ember-metal/tests/mixin/observer_test', ['internal-test-helpers', 'ember
 
   QUnit.module('Mixin observer');
 
-  (0, _internalTestHelpers.testBoth)('global observer helper', function (get, set) {
+  (0, _internalTestHelpers.testBoth)('global observer helper', function (get, set, assert) {
     var MyMixin = _emberMetal.Mixin.create({
 
       count: 0,
@@ -41293,13 +41291,13 @@ enifed('ember-metal/tests/mixin/observer_test', ['internal-test-helpers', 'ember
     });
 
     var obj = (0, _emberMetal.mixin)({}, MyMixin);
-    equal(get(obj, 'count'), 0, 'should not invoke observer immediately');
+    assert.equal(get(obj, 'count'), 0, 'should not invoke observer immediately');
 
     set(obj, 'bar', 'BAZ');
-    equal(get(obj, 'count'), 1, 'should invoke observer after change');
+    assert.equal(get(obj, 'count'), 1, 'should invoke observer after change');
   });
 
-  (0, _internalTestHelpers.testBoth)('global observer helper takes multiple params', function (get, set) {
+  (0, _internalTestHelpers.testBoth)('global observer helper takes multiple params', function (get, set, assert) {
     var MyMixin = _emberMetal.Mixin.create({
 
       count: 0,
@@ -41311,14 +41309,14 @@ enifed('ember-metal/tests/mixin/observer_test', ['internal-test-helpers', 'ember
     });
 
     var obj = (0, _emberMetal.mixin)({}, MyMixin);
-    equal(get(obj, 'count'), 0, 'should not invoke observer immediately');
+    assert.equal(get(obj, 'count'), 0, 'should not invoke observer immediately');
 
     set(obj, 'bar', 'BAZ');
     set(obj, 'baz', 'BAZ');
-    equal(get(obj, 'count'), 2, 'should invoke observer after change');
+    assert.equal(get(obj, 'count'), 2, 'should invoke observer after change');
   });
 
-  (0, _internalTestHelpers.testBoth)('replacing observer should remove old observer', function (get, set) {
+  (0, _internalTestHelpers.testBoth)('replacing observer should remove old observer', function (get, set, assert) {
     var MyMixin = _emberMetal.Mixin.create({
 
       count: 0,
@@ -41336,16 +41334,16 @@ enifed('ember-metal/tests/mixin/observer_test', ['internal-test-helpers', 'ember
     });
 
     var obj = (0, _emberMetal.mixin)({}, MyMixin, Mixin2);
-    equal(get(obj, 'count'), 0, 'should not invoke observer immediately');
+    assert.equal(get(obj, 'count'), 0, 'should not invoke observer immediately');
 
     set(obj, 'bar', 'BAZ');
-    equal(get(obj, 'count'), 0, 'should not invoke observer after change');
+    assert.equal(get(obj, 'count'), 0, 'should not invoke observer after change');
 
     set(obj, 'baz', 'BAZ');
-    equal(get(obj, 'count'), 10, 'should invoke observer after change');
+    assert.equal(get(obj, 'count'), 10, 'should invoke observer after change');
   });
 
-  (0, _internalTestHelpers.testBoth)('observing chain with property before', function (get, set) {
+  (0, _internalTestHelpers.testBoth)('observing chain with property before', function (get, set, assert) {
     var obj2 = { baz: 'baz' };
 
     var MyMixin = _emberMetal.Mixin.create({
@@ -41357,13 +41355,13 @@ enifed('ember-metal/tests/mixin/observer_test', ['internal-test-helpers', 'ember
     });
 
     var obj = (0, _emberMetal.mixin)({}, MyMixin);
-    equal(get(obj, 'count'), 0, 'should not invoke observer immediately');
+    assert.equal(get(obj, 'count'), 0, 'should not invoke observer immediately');
 
     set(obj2, 'baz', 'BAZ');
-    equal(get(obj, 'count'), 1, 'should invoke observer after change');
+    assert.equal(get(obj, 'count'), 1, 'should invoke observer after change');
   });
 
-  (0, _internalTestHelpers.testBoth)('observing chain with property after', function (get, set) {
+  (0, _internalTestHelpers.testBoth)('observing chain with property after', function (get, set, assert) {
     var obj2 = { baz: 'baz' };
 
     var MyMixin = _emberMetal.Mixin.create({
@@ -41375,13 +41373,13 @@ enifed('ember-metal/tests/mixin/observer_test', ['internal-test-helpers', 'ember
     });
 
     var obj = (0, _emberMetal.mixin)({}, MyMixin);
-    equal(get(obj, 'count'), 0, 'should not invoke observer immediately');
+    assert.equal(get(obj, 'count'), 0, 'should not invoke observer immediately');
 
     set(obj2, 'baz', 'BAZ');
-    equal(get(obj, 'count'), 1, 'should invoke observer after change');
+    assert.equal(get(obj, 'count'), 1, 'should invoke observer after change');
   });
 
-  (0, _internalTestHelpers.testBoth)('observing chain with property in mixin applied later', function (get, set) {
+  (0, _internalTestHelpers.testBoth)('observing chain with property in mixin applied later', function (get, set, assert) {
     var obj2 = { baz: 'baz' };
 
     var MyMixin = _emberMetal.Mixin.create({
@@ -41395,16 +41393,16 @@ enifed('ember-metal/tests/mixin/observer_test', ['internal-test-helpers', 'ember
     var MyMixin2 = _emberMetal.Mixin.create({ bar: obj2 });
 
     var obj = (0, _emberMetal.mixin)({}, MyMixin);
-    equal(get(obj, 'count'), 0, 'should not invoke observer immediately');
+    assert.equal(get(obj, 'count'), 0, 'should not invoke observer immediately');
 
     MyMixin2.apply(obj);
-    equal(get(obj, 'count'), 0, 'should not invoke observer immediately');
+    assert.equal(get(obj, 'count'), 0, 'should not invoke observer immediately');
 
     set(obj2, 'baz', 'BAZ');
-    equal(get(obj, 'count'), 1, 'should invoke observer after change');
+    assert.equal(get(obj, 'count'), 1, 'should invoke observer after change');
   });
 
-  (0, _internalTestHelpers.testBoth)('observing chain with existing property', function (get, set) {
+  (0, _internalTestHelpers.testBoth)('observing chain with existing property', function (get, set, assert) {
     var obj2 = { baz: 'baz' };
 
     var MyMixin = _emberMetal.Mixin.create({
@@ -41415,13 +41413,13 @@ enifed('ember-metal/tests/mixin/observer_test', ['internal-test-helpers', 'ember
     });
 
     var obj = (0, _emberMetal.mixin)({ bar: obj2 }, MyMixin);
-    equal(get(obj, 'count'), 0, 'should not invoke observer immediately');
+    assert.equal(get(obj, 'count'), 0, 'should not invoke observer immediately');
 
     set(obj2, 'baz', 'BAZ');
-    equal(get(obj, 'count'), 1, 'should invoke observer after change');
+    assert.equal(get(obj, 'count'), 1, 'should invoke observer after change');
   });
 
-  (0, _internalTestHelpers.testBoth)('observing chain with property in mixin before', function (get, set) {
+  (0, _internalTestHelpers.testBoth)('observing chain with property in mixin before', function (get, set, assert) {
     var obj2 = { baz: 'baz' };
     var MyMixin2 = _emberMetal.Mixin.create({ bar: obj2 });
 
@@ -41433,13 +41431,13 @@ enifed('ember-metal/tests/mixin/observer_test', ['internal-test-helpers', 'ember
     });
 
     var obj = (0, _emberMetal.mixin)({}, MyMixin2, MyMixin);
-    equal(get(obj, 'count'), 0, 'should not invoke observer immediately');
+    assert.equal(get(obj, 'count'), 0, 'should not invoke observer immediately');
 
     set(obj2, 'baz', 'BAZ');
-    equal(get(obj, 'count'), 1, 'should invoke observer after change');
+    assert.equal(get(obj, 'count'), 1, 'should invoke observer after change');
   });
 
-  (0, _internalTestHelpers.testBoth)('observing chain with property in mixin after', function (get, set) {
+  (0, _internalTestHelpers.testBoth)('observing chain with property in mixin after', function (get, set, assert) {
     var obj2 = { baz: 'baz' };
     var MyMixin2 = _emberMetal.Mixin.create({ bar: obj2 });
 
@@ -41451,13 +41449,13 @@ enifed('ember-metal/tests/mixin/observer_test', ['internal-test-helpers', 'ember
     });
 
     var obj = (0, _emberMetal.mixin)({}, MyMixin, MyMixin2);
-    equal(get(obj, 'count'), 0, 'should not invoke observer immediately');
+    assert.equal(get(obj, 'count'), 0, 'should not invoke observer immediately');
 
     set(obj2, 'baz', 'BAZ');
-    equal(get(obj, 'count'), 1, 'should invoke observer after change');
+    assert.equal(get(obj, 'count'), 1, 'should invoke observer after change');
   });
 
-  (0, _internalTestHelpers.testBoth)('observing chain with overridden property', function (get, set) {
+  (0, _internalTestHelpers.testBoth)('observing chain with overridden property', function (get, set, assert) {
     var obj2 = { baz: 'baz' };
     var obj3 = { baz: 'foo' };
 
@@ -41471,16 +41469,16 @@ enifed('ember-metal/tests/mixin/observer_test', ['internal-test-helpers', 'ember
     });
 
     var obj = (0, _emberMetal.mixin)({ bar: obj2 }, MyMixin, MyMixin2);
-    equal(get(obj, 'count'), 0, 'should not invoke observer immediately');
+    assert.equal(get(obj, 'count'), 0, 'should not invoke observer immediately');
 
-    equal((0, _emberMetal.isWatching)(obj2, 'baz'), false, 'should not be watching baz');
-    equal((0, _emberMetal.isWatching)(obj3, 'baz'), true, 'should be watching baz');
+    assert.equal((0, _emberMetal.isWatching)(obj2, 'baz'), false, 'should not be watching baz');
+    assert.equal((0, _emberMetal.isWatching)(obj3, 'baz'), true, 'should be watching baz');
 
     set(obj2, 'baz', 'BAZ');
-    equal(get(obj, 'count'), 0, 'should not invoke observer after change');
+    assert.equal(get(obj, 'count'), 0, 'should not invoke observer after change');
 
     set(obj3, 'baz', 'BEAR');
-    equal(get(obj, 'count'), 1, 'should invoke observer after change');
+    assert.equal(get(obj, 'count'), 1, 'should invoke observer after change');
   });
 });
 enifed('ember-metal/tests/mixin/reopen_test', ['ember-runtime', 'ember-metal'], function (_emberRuntime, _emberMetal) {
@@ -41488,18 +41486,18 @@ enifed('ember-metal/tests/mixin/reopen_test', ['ember-runtime', 'ember-metal'], 
 
   QUnit.module('Ember.Mixin#reopen');
 
-  QUnit.test('using reopen() to add more properties to a simple', function () {
+  QUnit.test('using reopen() to add more properties to a simple', function (assert) {
     var MixinA = _emberMetal.Mixin.create({ foo: 'FOO', baz: 'BAZ' });
     MixinA.reopen({ bar: 'BAR', foo: 'FOO2' });
     var obj = {};
     MixinA.apply(obj);
 
-    equal((0, _emberMetal.get)(obj, 'foo'), 'FOO2', 'mixin() should override');
-    equal((0, _emberMetal.get)(obj, 'baz'), 'BAZ', 'preserve MixinA props');
-    equal((0, _emberMetal.get)(obj, 'bar'), 'BAR', 'include MixinB props');
+    assert.equal((0, _emberMetal.get)(obj, 'foo'), 'FOO2', 'mixin() should override');
+    assert.equal((0, _emberMetal.get)(obj, 'baz'), 'BAZ', 'preserve MixinA props');
+    assert.equal((0, _emberMetal.get)(obj, 'bar'), 'BAR', 'include MixinB props');
   });
 
-  QUnit.test('using reopen() and calling _super where there is not a super function does not cause infinite recursion', function () {
+  QUnit.test('using reopen() and calling _super where there is not a super function does not cause infinite recursion', function (assert) {
     var Taco = _emberRuntime.Object.extend({
       createBreakfast: function () {
         // There is no original createBreakfast function.
@@ -41527,7 +41525,7 @@ enifed('ember-metal/tests/mixin/reopen_test', ['ember-runtime', 'ember-metal'], 
       }
     });
 
-    equal(result, 'Breakfast!');
+    assert.equal(result, 'Breakfast!');
   });
 });
 enifed('ember-metal/tests/mixin/required_test', ['ember-metal', 'ember-environment'], function (_emberMetal, _emberEnvironment) {
@@ -41538,7 +41536,7 @@ enifed('ember-metal/tests/mixin/required_test', ['ember-metal', 'ember-environme
       obj = void 0;
   var originalEnvVal = void 0;
   QUnit.module('Module.required', {
-    setup: function () {
+    beforeEach: function () {
       originalEnvVal = _emberEnvironment.ENV._ENABLE_PROPERTY_REQUIRED_SUPPORT;
       _emberEnvironment.ENV._ENABLE_PROPERTY_REQUIRED_SUPPORT = true;
       expectDeprecation(function () {
@@ -41554,43 +41552,43 @@ enifed('ember-metal/tests/mixin/required_test', ['ember-metal', 'ember-environme
 
       obj = {};
     },
-    teardown: function () {
+    afterEach: function () {
       PartialMixin = FinalMixin = obj = null;
       _emberEnvironment.ENV._ENABLE_PROPERTY_REQUIRED_SUPPORT = originalEnvVal;
     }
   });
 
-  QUnit.test('applying a mixin to meet requirement', function () {
+  QUnit.test('applying a mixin to meet requirement', function (assert) {
     FinalMixin.apply(obj);
     PartialMixin.apply(obj);
-    equal((0, _emberMetal.get)(obj, 'foo'), 'FOO', 'should now be defined');
+    assert.equal((0, _emberMetal.get)(obj, 'foo'), 'FOO', 'should now be defined');
   });
 
-  QUnit.test('combined mixins to meet requirement', function () {
+  QUnit.test('combined mixins to meet requirement', function (assert) {
     _emberMetal.Mixin.create(PartialMixin, FinalMixin).apply(obj);
-    equal((0, _emberMetal.get)(obj, 'foo'), 'FOO', 'should now be defined');
+    assert.equal((0, _emberMetal.get)(obj, 'foo'), 'FOO', 'should now be defined');
   });
 
-  QUnit.test('merged mixin', function () {
+  QUnit.test('merged mixin', function (assert) {
     _emberMetal.Mixin.create(PartialMixin, { foo: 'FOO' }).apply(obj);
-    equal((0, _emberMetal.get)(obj, 'foo'), 'FOO', 'should now be defined');
+    assert.equal((0, _emberMetal.get)(obj, 'foo'), 'FOO', 'should now be defined');
   });
 
-  QUnit.test('define property on source object', function () {
+  QUnit.test('define property on source object', function (assert) {
     obj.foo = 'FOO';
     PartialMixin.apply(obj);
-    equal((0, _emberMetal.get)(obj, 'foo'), 'FOO', 'should now be defined');
+    assert.equal((0, _emberMetal.get)(obj, 'foo'), 'FOO', 'should now be defined');
   });
 
-  QUnit.test('using apply', function () {
+  QUnit.test('using apply', function (assert) {
     (0, _emberMetal.mixin)(obj, PartialMixin, { foo: 'FOO' });
-    equal((0, _emberMetal.get)(obj, 'foo'), 'FOO', 'should now be defined');
+    assert.equal((0, _emberMetal.get)(obj, 'foo'), 'FOO', 'should now be defined');
   });
 });
 enifed('ember-metal/tests/mixin/without_test', ['ember-metal'], function (_emberMetal) {
   'use strict';
 
-  QUnit.test('without should create a new mixin excluding named properties', function () {
+  QUnit.test('without should create a new mixin excluding named properties', function (assert) {
     var MixinA = _emberMetal.Mixin.create({
       foo: 'FOO',
       bar: 'BAR'
@@ -41601,8 +41599,8 @@ enifed('ember-metal/tests/mixin/without_test', ['ember-metal'], function (_ember
     var obj = {};
     MixinB.apply(obj);
 
-    equal(obj.foo, 'FOO', 'should defined foo');
-    equal(obj.bar, undefined, 'should not define bar');
+    assert.equal(obj.foo, 'FOO', 'should defined foo');
+    assert.equal(obj.bar, undefined, 'should not define bar');
   });
 });
 enifed('ember-metal/tests/observer_test', ['ember-environment', 'internal-test-helpers', 'ember-metal'], function (_emberEnvironment, _internalTestHelpers, _emberMetal) {
@@ -41626,20 +41624,20 @@ enifed('ember-metal/tests/observer_test', ['ember-environment', 'internal-test-h
     }, 'observer called without a function');
   });
 
-  (0, _internalTestHelpers.testBoth)('observer should fire when property is modified', function (get, set) {
+  (0, _internalTestHelpers.testBoth)('observer should fire when property is modified', function (get, set, assert) {
     var obj = {};
     var count = 0;
 
     (0, _emberMetal.addObserver)(obj, 'foo', function () {
-      equal(get(obj, 'foo'), 'bar', 'should invoke AFTER value changed');
+      assert.equal(get(obj, 'foo'), 'bar', 'should invoke AFTER value changed');
       count++;
     });
 
     set(obj, 'foo', 'bar');
-    equal(count, 1, 'should have invoked observer');
+    assert.equal(count, 1, 'should have invoked observer');
   });
 
-  (0, _internalTestHelpers.testBoth)('observer should fire when dependent property is modified', function (get, set) {
+  (0, _internalTestHelpers.testBoth)('observer should fire when dependent property is modified', function (get, set, assert) {
     var obj = { bar: 'bar' };
     (0, _emberMetal.defineProperty)(obj, 'foo', (0, _emberMetal.computed)(function () {
       return get(this, 'bar').toUpperCase();
@@ -41649,15 +41647,15 @@ enifed('ember-metal/tests/observer_test', ['ember-environment', 'internal-test-h
 
     var count = 0;
     (0, _emberMetal.addObserver)(obj, 'foo', function () {
-      equal(get(obj, 'foo'), 'BAZ', 'should have invoked after prop change');
+      assert.equal(get(obj, 'foo'), 'BAZ', 'should have invoked after prop change');
       count++;
     });
 
     set(obj, 'bar', 'baz');
-    equal(count, 1, 'should have invoked observer');
+    assert.equal(count, 1, 'should have invoked observer');
   });
 
-  (0, _internalTestHelpers.testBoth)('observer should continue to fire after dependent properties are accessed', function (get) {
+  (0, _internalTestHelpers.testBoth)('observer should continue to fire after dependent properties are accessed', function (get, set, assert) {
     var observerCount = 0,
         i;
     var obj = {};
@@ -41680,11 +41678,11 @@ enifed('ember-metal/tests/observer_test', ['ember-environment', 'internal-test-h
       (0, _emberMetal.propertyDidChange)(obj, 'prop');
     }
 
-    equal(observerCount, 10, 'should continue to fire indefinitely');
+    assert.equal(observerCount, 10, 'should continue to fire indefinitely');
   });
 
   if (_emberEnvironment.ENV.EXTEND_PROTOTYPES.Function) {
-    (0, _internalTestHelpers.testBoth)('observer added declaratively via brace expansion should fire when property changes', function (get, set) {
+    (0, _internalTestHelpers.testBoth)('observer added declaratively via brace expansion should fire when property changes', function (get, set, assert) {
       var obj = {};
       var count = 0;
 
@@ -41695,16 +41693,16 @@ enifed('ember-metal/tests/observer_test', ['ember-environment', 'internal-test-h
       });
 
       set(obj, 'foo', 'foo');
-      equal(count, 1, 'observer specified via brace expansion invoked on property change');
+      assert.equal(count, 1, 'observer specified via brace expansion invoked on property change');
 
       set(obj, 'bar', 'bar');
-      equal(count, 2, 'observer specified via brace expansion invoked on property change');
+      assert.equal(count, 2, 'observer specified via brace expansion invoked on property change');
 
       set(obj, 'baz', 'baz');
-      equal(count, 2, 'observer not invoked on unspecified property');
+      assert.equal(count, 2, 'observer not invoked on unspecified property');
     });
 
-    (0, _internalTestHelpers.testBoth)('observer specified declaratively via brace expansion should fire when dependent property changes', function (get, set) {
+    (0, _internalTestHelpers.testBoth)('observer specified declaratively via brace expansion should fire when dependent property changes', function (get, set, assert) {
       var obj = { baz: 'Initial' };
       var count = 0;
 
@@ -41725,14 +41723,14 @@ enifed('ember-metal/tests/observer_test', ['ember-environment', 'internal-test-h
       get(obj, 'foo');
       set(obj, 'baz', 'Baz');
       // fire once for foo, once for bar
-      equal(count, 2, 'observer specified via brace expansion invoked on dependent property change');
+      assert.equal(count, 2, 'observer specified via brace expansion invoked on dependent property change');
 
       set(obj, 'quux', 'Quux');
-      equal(count, 2, 'observer not fired on unspecified property');
+      assert.equal(count, 2, 'observer not fired on unspecified property');
     });
   }
 
-  (0, _internalTestHelpers.testBoth)('observers watching multiple properties via brace expansion should fire when the properties change', function (get, set) {
+  (0, _internalTestHelpers.testBoth)('observers watching multiple properties via brace expansion should fire when the properties change', function (get, set, assert) {
     var obj = {};
     var count = 0;
 
@@ -41743,16 +41741,16 @@ enifed('ember-metal/tests/observer_test', ['ember-environment', 'internal-test-h
     });
 
     set(obj, 'foo', 'foo');
-    equal(count, 1, 'observer specified via brace expansion invoked on property change');
+    assert.equal(count, 1, 'observer specified via brace expansion invoked on property change');
 
     set(obj, 'bar', 'bar');
-    equal(count, 2, 'observer specified via brace expansion invoked on property change');
+    assert.equal(count, 2, 'observer specified via brace expansion invoked on property change');
 
     set(obj, 'baz', 'baz');
-    equal(count, 2, 'observer not invoked on unspecified property');
+    assert.equal(count, 2, 'observer not invoked on unspecified property');
   });
 
-  (0, _internalTestHelpers.testBoth)('observers watching multiple properties via brace expansion should fire when dependent properties change', function (get, set) {
+  (0, _internalTestHelpers.testBoth)('observers watching multiple properties via brace expansion should fire when dependent properties change', function (get, set, assert) {
     var obj = { baz: 'Initial' };
     var count = 0;
 
@@ -41773,13 +41771,13 @@ enifed('ember-metal/tests/observer_test', ['ember-environment', 'internal-test-h
     get(obj, 'foo');
     set(obj, 'baz', 'Baz');
     // fire once for foo, once for bar
-    equal(count, 2, 'observer specified via brace expansion invoked on dependent property change');
+    assert.equal(count, 2, 'observer specified via brace expansion invoked on dependent property change');
 
     set(obj, 'quux', 'Quux');
-    equal(count, 2, 'observer not fired on unspecified property');
+    assert.equal(count, 2, 'observer not fired on unspecified property');
   });
 
-  (0, _internalTestHelpers.testBoth)('nested observers should fire in order', function (get, set) {
+  (0, _internalTestHelpers.testBoth)('nested observers should fire in order', function (get, set, assert) {
     var obj = { foo: 'foo', bar: 'bar' };
     var fooCount = 0;
     var barCount = 0;
@@ -41789,16 +41787,16 @@ enifed('ember-metal/tests/observer_test', ['ember-environment', 'internal-test-h
     });
     (0, _emberMetal.addObserver)(obj, 'bar', function () {
       set(obj, 'foo', 'BAZ');
-      equal(fooCount, 1, 'fooCount should have fired already');
+      assert.equal(fooCount, 1, 'fooCount should have fired already');
       barCount++;
     });
 
     set(obj, 'bar', 'BIFF');
-    equal(barCount, 1, 'barCount should have fired');
-    equal(fooCount, 1, 'foo should have fired');
+    assert.equal(barCount, 1, 'barCount should have fired');
+    assert.equal(fooCount, 1, 'foo should have fired');
   });
 
-  (0, _internalTestHelpers.testBoth)('removing an chain observer on change should not fail', function (get, set) {
+  (0, _internalTestHelpers.testBoth)('removing an chain observer on change should not fail', function (get, set, assert) {
     var foo = { bar: 'bar' };
     var obj1 = { foo: foo };
     var obj2 = { foo: foo };
@@ -41832,13 +41830,13 @@ enifed('ember-metal/tests/observer_test', ['ember-environment', 'internal-test-h
 
     set(foo, 'bar', 'baz');
 
-    equal(count1, 1, 'observer1 fired');
-    equal(count2, 1, 'observer2 fired');
-    equal(count3, 1, 'observer3 fired');
-    equal(count4, 0, 'observer4 did not fire');
+    assert.equal(count1, 1, 'observer1 fired');
+    assert.equal(count2, 1, 'observer2 fired');
+    assert.equal(count3, 1, 'observer3 fired');
+    assert.equal(count4, 0, 'observer4 did not fire');
   });
 
-  (0, _internalTestHelpers.testBoth)('removing an chain before observer on change should not fail', function (get, set) {
+  (0, _internalTestHelpers.testBoth)('removing an chain before observer on change should not fail', function (get, set, assert) {
     var foo = { bar: 'bar' };
     var obj1 = { foo: foo };
     var obj2 = { foo: foo };
@@ -41872,13 +41870,13 @@ enifed('ember-metal/tests/observer_test', ['ember-environment', 'internal-test-h
 
     set(foo, 'bar', 'baz');
 
-    equal(count1, 1, 'observer1 fired');
-    equal(count2, 1, 'observer2 fired');
-    equal(count3, 1, 'observer3 fired');
-    equal(count4, 0, 'observer4 did not fire');
+    assert.equal(count1, 1, 'observer1 fired');
+    assert.equal(count2, 1, 'observer2 fired');
+    assert.equal(count3, 1, 'observer3 fired');
+    assert.equal(count4, 0, 'observer4 did not fire');
   });
 
-  (0, _internalTestHelpers.testBoth)('suspending an observer should not fire during callback', function (get, set) {
+  (0, _internalTestHelpers.testBoth)('suspending an observer should not fire during callback', function (get, set, assert) {
     var obj = {};
     var target = void 0,
         otherTarget = void 0;
@@ -41902,9 +41900,9 @@ enifed('ember-metal/tests/observer_test', ['ember-environment', 'internal-test-h
 
     set(obj, 'foo', '1');
 
-    equal((0, _emberMetal._suspendObserver)(obj, 'foo', target, target.method, function () {
+    assert.equal((0, _emberMetal._suspendObserver)(obj, 'foo', target, target.method, function () {
       /*jshint validthis:true */
-      equal(this, target);
+      assert.equal(this, target);
 
       set(obj, 'foo', '2');
 
@@ -41913,91 +41911,11 @@ enifed('ember-metal/tests/observer_test', ['ember-environment', 'internal-test-h
 
     set(obj, 'foo', '3');
 
-    deepEqual(target.values, ['1', '3'], 'should invoke');
-    deepEqual(otherTarget.values, ['1', '2', '3'], 'should invoke');
+    assert.deepEqual(target.values, ['1', '3'], 'should invoke');
+    assert.deepEqual(otherTarget.values, ['1', '2', '3'], 'should invoke');
   });
 
-  (0, _internalTestHelpers.testBoth)('suspending an observer should not defer change notifications during callback', function (get, set) {
-    var obj = {};
-    var target = void 0,
-        otherTarget = void 0;
-
-    target = {
-      values: [],
-      method: function () {
-        this.values.push(get(obj, 'foo'));
-      }
-    };
-
-    otherTarget = {
-      values: [],
-      method: function () {
-        this.values.push(get(obj, 'foo'));
-      }
-    };
-
-    (0, _emberMetal.addObserver)(obj, 'foo', target, target.method);
-    (0, _emberMetal.addObserver)(obj, 'foo', otherTarget, otherTarget.method);
-
-    set(obj, 'foo', '1');
-
-    (0, _emberMetal.beginPropertyChanges)();
-    equal((0, _emberMetal._suspendObserver)(obj, 'foo', target, target.method, function () {
-      /*jshint validthis:true */
-      equal(this, target);
-
-      set(obj, 'foo', '2');
-
-      return 'result';
-    }), 'result');
-    (0, _emberMetal.endPropertyChanges)();
-
-    set(obj, 'foo', '3');
-
-    deepEqual(target.values, ['1', '3'], 'should invoke');
-    deepEqual(otherTarget.values, ['1', '2', '3'], 'should invoke');
-  });
-
-  (0, _internalTestHelpers.testBoth)('suspending observers should not fire during callback', function (get, set) {
-    var obj = {};
-    var target = void 0,
-        otherTarget = void 0;
-
-    target = {
-      values: [],
-      method: function () {
-        this.values.push(get(obj, 'foo'));
-      }
-    };
-
-    otherTarget = {
-      values: [],
-      method: function () {
-        this.values.push(get(obj, 'foo'));
-      }
-    };
-
-    (0, _emberMetal.addObserver)(obj, 'foo', target, target.method);
-    (0, _emberMetal.addObserver)(obj, 'foo', otherTarget, otherTarget.method);
-
-    set(obj, 'foo', '1');
-
-    equal((0, _emberMetal._suspendObservers)(obj, ['foo'], target, target.method, function () {
-      /*jshint validthis:true */
-      equal(this, target);
-
-      set(obj, 'foo', '2');
-
-      return 'result';
-    }), 'result');
-
-    set(obj, 'foo', '3');
-
-    deepEqual(target.values, ['1', '3'], 'should invoke');
-    deepEqual(otherTarget.values, ['1', '2', '3'], 'should invoke');
-  });
-
-  (0, _internalTestHelpers.testBoth)('suspending observers should not defer change notifications during callback', function (get, set) {
+  (0, _internalTestHelpers.testBoth)('suspending an observer should not defer change notifications during callback', function (get, set, assert) {
     var obj = {};
     var target = void 0,
         otherTarget = void 0;
@@ -42022,9 +41940,9 @@ enifed('ember-metal/tests/observer_test', ['ember-environment', 'internal-test-h
     set(obj, 'foo', '1');
 
     (0, _emberMetal.beginPropertyChanges)();
-    equal((0, _emberMetal._suspendObservers)(obj, ['foo'], target, target.method, function () {
+    assert.equal((0, _emberMetal._suspendObserver)(obj, 'foo', target, target.method, function () {
       /*jshint validthis:true */
-      equal(this, target);
+      assert.equal(this, target);
 
       set(obj, 'foo', '2');
 
@@ -42034,11 +41952,91 @@ enifed('ember-metal/tests/observer_test', ['ember-environment', 'internal-test-h
 
     set(obj, 'foo', '3');
 
-    deepEqual(target.values, ['1', '3'], 'should invoke');
-    deepEqual(otherTarget.values, ['1', '2', '3'], 'should invoke');
+    assert.deepEqual(target.values, ['1', '3'], 'should invoke');
+    assert.deepEqual(otherTarget.values, ['1', '2', '3'], 'should invoke');
   });
 
-  (0, _internalTestHelpers.testBoth)('deferring property change notifications', function (get, set) {
+  (0, _internalTestHelpers.testBoth)('suspending observers should not fire during callback', function (get, set, assert) {
+    var obj = {};
+    var target = void 0,
+        otherTarget = void 0;
+
+    target = {
+      values: [],
+      method: function () {
+        this.values.push(get(obj, 'foo'));
+      }
+    };
+
+    otherTarget = {
+      values: [],
+      method: function () {
+        this.values.push(get(obj, 'foo'));
+      }
+    };
+
+    (0, _emberMetal.addObserver)(obj, 'foo', target, target.method);
+    (0, _emberMetal.addObserver)(obj, 'foo', otherTarget, otherTarget.method);
+
+    set(obj, 'foo', '1');
+
+    assert.equal((0, _emberMetal._suspendObservers)(obj, ['foo'], target, target.method, function () {
+      /*jshint validthis:true */
+      assert.equal(this, target);
+
+      set(obj, 'foo', '2');
+
+      return 'result';
+    }), 'result');
+
+    set(obj, 'foo', '3');
+
+    assert.deepEqual(target.values, ['1', '3'], 'should invoke');
+    assert.deepEqual(otherTarget.values, ['1', '2', '3'], 'should invoke');
+  });
+
+  (0, _internalTestHelpers.testBoth)('suspending observers should not defer change notifications during callback', function (get, set, assert) {
+    var obj = {};
+    var target = void 0,
+        otherTarget = void 0;
+
+    target = {
+      values: [],
+      method: function () {
+        this.values.push(get(obj, 'foo'));
+      }
+    };
+
+    otherTarget = {
+      values: [],
+      method: function () {
+        this.values.push(get(obj, 'foo'));
+      }
+    };
+
+    (0, _emberMetal.addObserver)(obj, 'foo', target, target.method);
+    (0, _emberMetal.addObserver)(obj, 'foo', otherTarget, otherTarget.method);
+
+    set(obj, 'foo', '1');
+
+    (0, _emberMetal.beginPropertyChanges)();
+    assert.equal((0, _emberMetal._suspendObservers)(obj, ['foo'], target, target.method, function () {
+      /*jshint validthis:true */
+      assert.equal(this, target);
+
+      set(obj, 'foo', '2');
+
+      return 'result';
+    }), 'result');
+    (0, _emberMetal.endPropertyChanges)();
+
+    set(obj, 'foo', '3');
+
+    assert.deepEqual(target.values, ['1', '3'], 'should invoke');
+    assert.deepEqual(otherTarget.values, ['1', '2', '3'], 'should invoke');
+  });
+
+  (0, _internalTestHelpers.testBoth)('deferring property change notifications', function (get, set, assert) {
     var obj = { foo: 'foo' };
     var fooCount = 0;
 
@@ -42051,15 +42049,15 @@ enifed('ember-metal/tests/observer_test', ['ember-environment', 'internal-test-h
     set(obj, 'foo', 'BAZ');
     (0, _emberMetal.endPropertyChanges)(obj);
 
-    equal(fooCount, 1, 'foo should have fired once');
+    assert.equal(fooCount, 1, 'foo should have fired once');
   });
 
-  (0, _internalTestHelpers.testBoth)('deferring property change notifications safely despite exceptions', function (get, set) {
+  (0, _internalTestHelpers.testBoth)('deferring property change notifications safely despite exceptions', function (get, set, assert) {
     var obj = { foo: 'foo' };
     var fooCount = 0;
     var exc = new Error('Something unexpected happened!');
 
-    expect(2);
+    assert.expect(2);
     (0, _emberMetal.addObserver)(obj, 'foo', function () {
       fooCount++;
     });
@@ -42076,17 +42074,17 @@ enifed('ember-metal/tests/observer_test', ['ember-environment', 'internal-test-h
       }
     }
 
-    equal(fooCount, 1, 'foo should have fired once');
+    assert.equal(fooCount, 1, 'foo should have fired once');
 
     (0, _emberMetal.changeProperties)(function () {
       set(obj, 'foo', 'BIFF2');
       set(obj, 'foo', 'BAZ2');
     });
 
-    equal(fooCount, 2, 'foo should have fired again once');
+    assert.equal(fooCount, 2, 'foo should have fired again once');
   });
 
-  (0, _internalTestHelpers.testBoth)('deferring property change notifications will not defer before observers', function (get, set) {
+  (0, _internalTestHelpers.testBoth)('deferring property change notifications will not defer before observers', function (get, set, assert) {
     var obj = { foo: 'foo' };
     var fooCount = 0;
 
@@ -42096,14 +42094,14 @@ enifed('ember-metal/tests/observer_test', ['ember-environment', 'internal-test-h
 
     (0, _emberMetal.beginPropertyChanges)(obj);
     set(obj, 'foo', 'BIFF');
-    equal(fooCount, 1, 'should fire before observer immediately');
+    assert.equal(fooCount, 1, 'should fire before observer immediately');
     set(obj, 'foo', 'BAZ');
     (0, _emberMetal.endPropertyChanges)(obj);
 
-    equal(fooCount, 1, 'should not fire before observer twice');
+    assert.equal(fooCount, 1, 'should not fire before observer twice');
   });
 
-  (0, _internalTestHelpers.testBoth)('addObserver should propagate through prototype', function (get, set) {
+  (0, _internalTestHelpers.testBoth)('addObserver should propagate through prototype', function (get, set, assert) {
     var obj = { foo: 'foo', count: 0 };
     var obj2 = void 0;
 
@@ -42114,16 +42112,16 @@ enifed('ember-metal/tests/observer_test', ['ember-environment', 'internal-test-h
 
     set(obj2, 'foo', 'bar');
 
-    equal(obj2.count, 1, 'should have invoked observer on inherited');
-    equal(obj.count, 0, 'should not have invoked observer on parent');
+    assert.equal(obj2.count, 1, 'should have invoked observer on inherited');
+    assert.equal(obj.count, 0, 'should not have invoked observer on parent');
 
     obj2.count = 0;
     set(obj, 'foo', 'baz');
-    equal(obj.count, 1, 'should have invoked observer on parent');
-    equal(obj2.count, 0, 'should not have invoked observer on inherited');
+    assert.equal(obj.count, 1, 'should have invoked observer on parent');
+    assert.equal(obj2.count, 0, 'should not have invoked observer on inherited');
   });
 
-  (0, _internalTestHelpers.testBoth)('addObserver should respect targets with methods', function (get, set) {
+  (0, _internalTestHelpers.testBoth)('addObserver should respect targets with methods', function (get, set, assert) {
     var observed = { foo: 'foo' };
 
     var target1 = {
@@ -42131,10 +42129,10 @@ enifed('ember-metal/tests/observer_test', ['ember-environment', 'internal-test-h
 
       didChange: function (obj, keyName) {
         var value = get(obj, keyName);
-        equal(this, target1, 'should invoke with this');
-        equal(obj, observed, 'param1 should be observed object');
-        equal(keyName, 'foo', 'param2 should be keyName');
-        equal(value, 'BAZ', 'param3 should new value');
+        assert.equal(this, target1, 'should invoke with this');
+        assert.equal(obj, observed, 'param1 should be observed object');
+        assert.equal(keyName, 'foo', 'param2 should be keyName');
+        assert.equal(value, 'BAZ', 'param3 should new value');
         this.count++;
       }
     };
@@ -42144,10 +42142,10 @@ enifed('ember-metal/tests/observer_test', ['ember-environment', 'internal-test-h
 
       didChange: function (obj, keyName) {
         var value = get(obj, keyName);
-        equal(this, target2, 'should invoke with this');
-        equal(obj, observed, 'param1 should be observed object');
-        equal(keyName, 'foo', 'param2 should be keyName');
-        equal(value, 'BAZ', 'param3 should new value');
+        assert.equal(this, target2, 'should invoke with this');
+        assert.equal(obj, observed, 'param1 should be observed object');
+        assert.equal(keyName, 'foo', 'param2 should be keyName');
+        assert.equal(value, 'BAZ', 'param3 should new value');
         this.count++;
       }
     };
@@ -42156,11 +42154,11 @@ enifed('ember-metal/tests/observer_test', ['ember-environment', 'internal-test-h
     (0, _emberMetal.addObserver)(observed, 'foo', target2, target2.didChange);
 
     set(observed, 'foo', 'BAZ');
-    equal(target1.count, 1, 'target1 observer should have fired');
-    equal(target2.count, 1, 'target2 observer should have fired');
+    assert.equal(target1.count, 1, 'target1 observer should have fired');
+    assert.equal(target2.count, 1, 'target2 observer should have fired');
   });
 
-  (0, _internalTestHelpers.testBoth)('addObserver should allow multiple objects to observe a property', function (get, set) {
+  (0, _internalTestHelpers.testBoth)('addObserver should allow multiple objects to observe a property', function (get, set, assert) {
     var observed = { foo: 'foo' };
 
     var target1 = {
@@ -42183,8 +42181,8 @@ enifed('ember-metal/tests/observer_test', ['ember-environment', 'internal-test-h
     (0, _emberMetal.addObserver)(observed, 'foo', target2, 'didChange');
 
     set(observed, 'foo', 'BAZ');
-    equal(target1.count, 1, 'target1 observer should have fired');
-    equal(target2.count, 1, 'target2 observer should have fired');
+    assert.equal(target1.count, 1, 'target1 observer should have fired');
+    assert.equal(target2.count, 1, 'target2 observer should have fired');
   });
 
   // ..........................................................
@@ -42193,7 +42191,7 @@ enifed('ember-metal/tests/observer_test', ['ember-environment', 'internal-test-h
 
   QUnit.module('removeObserver');
 
-  (0, _internalTestHelpers.testBoth)('removing observer should stop firing', function (get, set) {
+  (0, _internalTestHelpers.testBoth)('removing observer should stop firing', function (get, set, assert) {
     var obj = {};
     var count = 0;
     function F() {
@@ -42202,15 +42200,15 @@ enifed('ember-metal/tests/observer_test', ['ember-environment', 'internal-test-h
     (0, _emberMetal.addObserver)(obj, 'foo', F);
 
     set(obj, 'foo', 'bar');
-    equal(count, 1, 'should have invoked observer');
+    assert.equal(count, 1, 'should have invoked observer');
 
     (0, _emberMetal.removeObserver)(obj, 'foo', F);
 
     set(obj, 'foo', 'baz');
-    equal(count, 1, 'removed observer shouldn\'t fire');
+    assert.equal(count, 1, 'removed observer shouldn\'t fire');
   });
 
-  (0, _internalTestHelpers.testBoth)('local observers can be removed', function (get, set) {
+  (0, _internalTestHelpers.testBoth)('local observers can be removed', function (get, set, assert) {
     var barObserved = 0;
 
     var MyMixin = _emberMetal.Mixin.create({
@@ -42227,17 +42225,17 @@ enifed('ember-metal/tests/observer_test', ['ember-environment', 'internal-test-h
     MyMixin.apply(obj);
 
     set(obj, 'bar', 'HI!');
-    equal(barObserved, 2, 'precond - observers should be fired');
+    assert.equal(barObserved, 2, 'precond - observers should be fired');
 
     (0, _emberMetal.removeObserver)(obj, 'bar', null, 'foo1');
 
     barObserved = 0;
     set(obj, 'bar', 'HI AGAIN!');
 
-    equal(barObserved, 1, 'removed observers should not be called');
+    assert.equal(barObserved, 1, 'removed observers should not be called');
   });
 
-  (0, _internalTestHelpers.testBoth)('removeObserver should respect targets with methods', function (get, set) {
+  (0, _internalTestHelpers.testBoth)('removeObserver should respect targets with methods', function (get, set, assert) {
     var observed = { foo: 'foo' };
 
     var target1 = {
@@ -42260,16 +42258,16 @@ enifed('ember-metal/tests/observer_test', ['ember-environment', 'internal-test-h
     (0, _emberMetal.addObserver)(observed, 'foo', target2, target2.didChange);
 
     set(observed, 'foo', 'BAZ');
-    equal(target1.count, 1, 'target1 observer should have fired');
-    equal(target2.count, 1, 'target2 observer should have fired');
+    assert.equal(target1.count, 1, 'target1 observer should have fired');
+    assert.equal(target2.count, 1, 'target2 observer should have fired');
 
     (0, _emberMetal.removeObserver)(observed, 'foo', target1, 'didChange');
     (0, _emberMetal.removeObserver)(observed, 'foo', target2, target2.didChange);
 
     target1.count = target2.count = 0;
     set(observed, 'foo', 'BAZ');
-    equal(target1.count, 0, 'target1 observer should not fire again');
-    equal(target2.count, 0, 'target2 observer should not fire again');
+    assert.equal(target1.count, 0, 'target1 observer should not fire again');
+    assert.equal(target2.count, 0, 'target2 observer should not fire again');
   });
 
   // ..........................................................
@@ -42278,20 +42276,20 @@ enifed('ember-metal/tests/observer_test', ['ember-environment', 'internal-test-h
 
   QUnit.module('_addBeforeObserver');
 
-  (0, _internalTestHelpers.testBoth)('observer should fire before a property is modified', function (get, set) {
+  (0, _internalTestHelpers.testBoth)('observer should fire before a property is modified', function (get, set, assert) {
     var obj = { foo: 'foo' };
     var count = 0;
 
     (0, _emberMetal._addBeforeObserver)(obj, 'foo', function () {
-      equal(get(obj, 'foo'), 'foo', 'should invoke before value changed');
+      assert.equal(get(obj, 'foo'), 'foo', 'should invoke before value changed');
       count++;
     });
 
     set(obj, 'foo', 'bar');
-    equal(count, 1, 'should have invoked observer');
+    assert.equal(count, 1, 'should have invoked observer');
   });
 
-  (0, _internalTestHelpers.testBoth)('observer should fire before dependent property is modified', function (get, set) {
+  (0, _internalTestHelpers.testBoth)('observer should fire before dependent property is modified', function (get, set, assert) {
     var obj = { bar: 'bar' };
     (0, _emberMetal.defineProperty)(obj, 'foo', (0, _emberMetal.computed)(function () {
       return get(this, 'bar').toUpperCase();
@@ -42301,15 +42299,15 @@ enifed('ember-metal/tests/observer_test', ['ember-environment', 'internal-test-h
 
     var count = 0;
     (0, _emberMetal._addBeforeObserver)(obj, 'foo', function () {
-      equal(get(obj, 'foo'), 'BAR', 'should have invoked after prop change');
+      assert.equal(get(obj, 'foo'), 'BAR', 'should have invoked after prop change');
       count++;
     });
 
     set(obj, 'bar', 'baz');
-    equal(count, 1, 'should have invoked observer');
+    assert.equal(count, 1, 'should have invoked observer');
   });
 
-  (0, _internalTestHelpers.testBoth)('before observer watching multiple properties via brace expansion should fire when properties change', function (get, set) {
+  (0, _internalTestHelpers.testBoth)('before observer watching multiple properties via brace expansion should fire when properties change', function (get, set, assert) {
     var obj = {};
     var count = 0;
 
@@ -42320,16 +42318,16 @@ enifed('ember-metal/tests/observer_test', ['ember-environment', 'internal-test-h
     });
 
     set(obj, 'foo', 'foo');
-    equal(count, 1, 'observer specified via brace expansion invoked on property change');
+    assert.equal(count, 1, 'observer specified via brace expansion invoked on property change');
 
     set(obj, 'bar', 'bar');
-    equal(count, 2, 'observer specified via brace expansion invoked on property change');
+    assert.equal(count, 2, 'observer specified via brace expansion invoked on property change');
 
     set(obj, 'baz', 'baz');
-    equal(count, 2, 'observer not invoked on unspecified property');
+    assert.equal(count, 2, 'observer not invoked on unspecified property');
   });
 
-  (0, _internalTestHelpers.testBoth)('before observer watching multiple properties via brace expansion should fire when dependent property changes', function (get, set) {
+  (0, _internalTestHelpers.testBoth)('before observer watching multiple properties via brace expansion should fire when dependent property changes', function (get, set, assert) {
     var obj = { baz: 'Initial' };
     var count = 0;
 
@@ -42350,13 +42348,13 @@ enifed('ember-metal/tests/observer_test', ['ember-environment', 'internal-test-h
     get(obj, 'foo');
     set(obj, 'baz', 'Baz');
     // fire once for foo, once for bar
-    equal(count, 2, 'observer specified via brace expansion invoked on dependent property change');
+    assert.equal(count, 2, 'observer specified via brace expansion invoked on dependent property change');
 
     set(obj, 'quux', 'Quux');
-    equal(count, 2, 'observer not fired on unspecified property');
+    assert.equal(count, 2, 'observer not fired on unspecified property');
   });
 
-  (0, _internalTestHelpers.testBoth)('_addBeforeObserver should propagate through prototype', function (get, set) {
+  (0, _internalTestHelpers.testBoth)('_addBeforeObserver should propagate through prototype', function (get, set, assert) {
     var obj = { foo: 'foo', count: 0 };
     var obj2 = void 0;
 
@@ -42366,16 +42364,16 @@ enifed('ember-metal/tests/observer_test', ['ember-environment', 'internal-test-h
     obj2 = Object.create(obj);
 
     set(obj2, 'foo', 'bar');
-    equal(obj2.count, 1, 'should have invoked observer on inherited');
-    equal(obj.count, 0, 'should not have invoked observer on parent');
+    assert.equal(obj2.count, 1, 'should have invoked observer on inherited');
+    assert.equal(obj.count, 0, 'should not have invoked observer on parent');
 
     obj2.count = 0;
     set(obj, 'foo', 'baz');
-    equal(obj.count, 1, 'should have invoked observer on parent');
-    equal(obj2.count, 0, 'should not have invoked observer on inherited');
+    assert.equal(obj.count, 1, 'should have invoked observer on parent');
+    assert.equal(obj2.count, 0, 'should not have invoked observer on inherited');
   });
 
-  (0, _internalTestHelpers.testBoth)('_addBeforeObserver should respect targets with methods', function (get, set) {
+  (0, _internalTestHelpers.testBoth)('_addBeforeObserver should respect targets with methods', function (get, set, assert) {
     var observed = { foo: 'foo' };
 
     var target1 = {
@@ -42383,10 +42381,10 @@ enifed('ember-metal/tests/observer_test', ['ember-environment', 'internal-test-h
 
       willChange: function (obj, keyName) {
         var value = get(obj, keyName);
-        equal(this, target1, 'should invoke with this');
-        equal(obj, observed, 'param1 should be observed object');
-        equal(keyName, 'foo', 'param2 should be keyName');
-        equal(value, 'foo', 'param3 should old value');
+        assert.equal(this, target1, 'should invoke with this');
+        assert.equal(obj, observed, 'param1 should be observed object');
+        assert.equal(keyName, 'foo', 'param2 should be keyName');
+        assert.equal(value, 'foo', 'param3 should old value');
         this.count++;
       }
     };
@@ -42396,10 +42394,10 @@ enifed('ember-metal/tests/observer_test', ['ember-environment', 'internal-test-h
 
       willChange: function (obj, keyName) {
         var value = get(obj, keyName);
-        equal(this, target2, 'should invoke with this');
-        equal(obj, observed, 'param1 should be observed object');
-        equal(keyName, 'foo', 'param2 should be keyName');
-        equal(value, 'foo', 'param3 should old value');
+        assert.equal(this, target2, 'should invoke with this');
+        assert.equal(obj, observed, 'param1 should be observed object');
+        assert.equal(keyName, 'foo', 'param2 should be keyName');
+        assert.equal(value, 'foo', 'param3 should old value');
         this.count++;
       }
     };
@@ -42408,8 +42406,8 @@ enifed('ember-metal/tests/observer_test', ['ember-environment', 'internal-test-h
     (0, _emberMetal._addBeforeObserver)(observed, 'foo', target2, target2.willChange);
 
     set(observed, 'foo', 'BAZ');
-    equal(target1.count, 1, 'target1 observer should have fired');
-    equal(target2.count, 1, 'target2 observer should have fired');
+    assert.equal(target1.count, 1, 'target1 observer should have fired');
+    assert.equal(target2.count, 1, 'target2 observer should have fired');
   });
 
   // ..........................................................
@@ -42420,7 +42418,7 @@ enifed('ember-metal/tests/observer_test', ['ember-environment', 'internal-test-h
       count = void 0;
 
   QUnit.module('addObserver - dependentkey with chained properties', {
-    setup: function () {
+    beforeEach: function () {
       obj = {
         foo: {
           bar: {
@@ -42442,12 +42440,12 @@ enifed('ember-metal/tests/observer_test', ['ember-environment', 'internal-test-h
 
       count = 0;
     },
-    teardown: function () {
+    afterEach: function () {
       obj = count = null;
     }
   });
 
-  (0, _internalTestHelpers.testBoth)('depending on a chain with a computed property', function (get, set) {
+  (0, _internalTestHelpers.testBoth)('depending on a chain with a computed property', function (get, set, assert) {
     (0, _emberMetal.defineProperty)(obj, 'computed', (0, _emberMetal.computed)(function () {
       return { foo: 'bar' };
     }));
@@ -42457,14 +42455,14 @@ enifed('ember-metal/tests/observer_test', ['ember-environment', 'internal-test-h
       changed++;
     });
 
-    equal((0, _emberMetal.cacheFor)(obj, 'computed'), undefined, 'addObserver should not compute CP');
+    assert.equal((0, _emberMetal.cacheFor)(obj, 'computed'), undefined, 'addObserver should not compute CP');
 
     set(obj, 'computed.foo', 'baz');
 
-    equal(changed, 1, 'should fire observer');
+    assert.equal(changed, 1, 'should fire observer');
   });
 
-  (0, _internalTestHelpers.testBoth)('depending on a simple chain', function (get, set) {
+  (0, _internalTestHelpers.testBoth)('depending on a simple chain', function (get, set, assert) {
     var val = void 0;
     (0, _emberMetal.addObserver)(obj, 'foo.bar.baz.biff', function (target, key) {
       val = get(target, key);
@@ -42472,36 +42470,36 @@ enifed('ember-metal/tests/observer_test', ['ember-environment', 'internal-test-h
     });
 
     set(get(obj, 'foo.bar.baz'), 'biff', 'BUZZ');
-    equal(val, 'BUZZ');
-    equal(count, 1);
+    assert.equal(val, 'BUZZ');
+    assert.equal(count, 1);
 
     set(get(obj, 'foo.bar'), 'baz', { biff: 'BLARG' });
-    equal(val, 'BLARG');
-    equal(count, 2);
+    assert.equal(val, 'BLARG');
+    assert.equal(count, 2);
 
     set(get(obj, 'foo'), 'bar', { baz: { biff: 'BOOM' } });
-    equal(val, 'BOOM');
-    equal(count, 3);
+    assert.equal(val, 'BOOM');
+    assert.equal(count, 3);
 
     set(obj, 'foo', { bar: { baz: { biff: 'BLARG' } } });
-    equal(val, 'BLARG');
-    equal(count, 4);
+    assert.equal(val, 'BLARG');
+    assert.equal(count, 4);
 
     set(get(obj, 'foo.bar.baz'), 'biff', 'BUZZ');
-    equal(val, 'BUZZ');
-    equal(count, 5);
+    assert.equal(val, 'BUZZ');
+    assert.equal(count, 5);
 
     var foo = get(obj, 'foo');
 
     set(obj, 'foo', 'BOO');
-    equal(val, undefined);
-    equal(count, 6);
+    assert.equal(val, undefined);
+    assert.equal(count, 6);
 
     set(foo.bar.baz, 'biff', 'BOOM');
-    equal(count, 6, 'should be not have invoked observer');
+    assert.equal(count, 6, 'should be not have invoked observer');
   });
 
-  (0, _internalTestHelpers.testBoth)('depending on a chain with a capitalized first key', function (get, set) {
+  (0, _internalTestHelpers.testBoth)('depending on a chain with a capitalized first key', function (get, set, assert) {
     var val = void 0;
 
     (0, _emberMetal.addObserver)(obj, 'Capital.foo.bar.baz.biff', function (target, key) {
@@ -42510,33 +42508,33 @@ enifed('ember-metal/tests/observer_test', ['ember-environment', 'internal-test-h
     });
 
     set(get(obj, 'Capital.foo.bar.baz'), 'biff', 'BUZZ');
-    equal(val, 'BUZZ');
-    equal(count, 1);
+    assert.equal(val, 'BUZZ');
+    assert.equal(count, 1);
 
     set(get(obj, 'Capital.foo.bar'), 'baz', { biff: 'BLARG' });
-    equal(val, 'BLARG');
-    equal(count, 2);
+    assert.equal(val, 'BLARG');
+    assert.equal(count, 2);
 
     set(get(obj, 'Capital.foo'), 'bar', { baz: { biff: 'BOOM' } });
-    equal(val, 'BOOM');
-    equal(count, 3);
+    assert.equal(val, 'BOOM');
+    assert.equal(count, 3);
 
     set(obj, 'Capital.foo', { bar: { baz: { biff: 'BLARG' } } });
-    equal(val, 'BLARG');
-    equal(count, 4);
+    assert.equal(val, 'BLARG');
+    assert.equal(count, 4);
 
     set(get(obj, 'Capital.foo.bar.baz'), 'biff', 'BUZZ');
-    equal(val, 'BUZZ');
-    equal(count, 5);
+    assert.equal(val, 'BUZZ');
+    assert.equal(count, 5);
 
     var foo = get(obj, 'foo');
 
     set(obj, 'Capital.foo', 'BOO');
-    equal(val, undefined);
-    equal(count, 6);
+    assert.equal(val, undefined);
+    assert.equal(count, 6);
 
     set(foo.bar.baz, 'biff', 'BOOM');
-    equal(count, 6, 'should be not have invoked observer');
+    assert.equal(count, 6, 'should be not have invoked observer');
   });
 
   QUnit.module('_removeBeforeObserver');
@@ -42547,7 +42545,7 @@ enifed('ember-metal/tests/observer_test', ['ember-environment', 'internal-test-h
 
   QUnit.module('props/observer_test - setting identical values');
 
-  (0, _internalTestHelpers.testBoth)('setting simple prop should not trigger', function (get, set) {
+  (0, _internalTestHelpers.testBoth)('setting simple prop should not trigger', function (get, set, assert) {
     var obj = { foo: 'bar' };
     var count = 0;
 
@@ -42556,19 +42554,19 @@ enifed('ember-metal/tests/observer_test', ['ember-environment', 'internal-test-h
     });
 
     set(obj, 'foo', 'bar');
-    equal(count, 0, 'should not trigger observer');
+    assert.equal(count, 0, 'should not trigger observer');
 
     set(obj, 'foo', 'baz');
-    equal(count, 1, 'should trigger observer');
+    assert.equal(count, 1, 'should trigger observer');
 
     set(obj, 'foo', 'baz');
-    equal(count, 1, 'should not trigger observer again');
+    assert.equal(count, 1, 'should not trigger observer again');
   });
 
   // The issue here is when a computed property is directly set with a value, then has a
   // dependent key change (which triggers a cache expiration and recomputation), observers will
   // not be fired if the CP setter is called with the last set value.
-  (0, _internalTestHelpers.testBoth)('setting a cached computed property whose value has changed should trigger', function (get, set) {
+  (0, _internalTestHelpers.testBoth)('setting a cached computed property whose value has changed should trigger', function (get, set, assert) {
     var obj = {};
 
     (0, _emberMetal.defineProperty)(obj, 'foo', (0, _emberMetal.computed)({
@@ -42587,22 +42585,22 @@ enifed('ember-metal/tests/observer_test', ['ember-environment', 'internal-test-h
     });
 
     set(obj, 'foo', 'bar');
-    equal(count, 1);
-    equal(get(obj, 'foo'), 'bar');
+    assert.equal(count, 1);
+    assert.equal(get(obj, 'foo'), 'bar');
 
     set(obj, 'baz', 'qux');
-    equal(count, 2);
-    equal(get(obj, 'foo'), 'qux');
+    assert.equal(count, 2);
+    assert.equal(get(obj, 'foo'), 'qux');
 
     get(obj, 'foo');
     set(obj, 'foo', 'bar');
-    equal(count, 3);
-    equal(get(obj, 'foo'), 'bar');
+    assert.equal(count, 3);
+    assert.equal(get(obj, 'foo'), 'bar');
   });
 
   QUnit.module('changeProperties');
 
-  (0, _internalTestHelpers.testBoth)('observers added/removed during changeProperties should do the right thing.', function (get, set) {
+  (0, _internalTestHelpers.testBoth)('observers added/removed during changeProperties should do the right thing.', function (get, set, assert) {
     var obj = {
       foo: 0
     };
@@ -42641,49 +42639,49 @@ enifed('ember-metal/tests/observer_test', ['ember-environment', 'internal-test-h
 
       set(obj, 'foo', 1);
 
-      equal(addedBeforeFirstChangeObserver.willChangeCount, 1, '_addBeforeObserver called before the first change invoked immediately');
-      equal(addedBeforeFirstChangeObserver.didChangeCount, 0, 'addObserver called before the first change is deferred');
+      assert.equal(addedBeforeFirstChangeObserver.willChangeCount, 1, '_addBeforeObserver called before the first change invoked immediately');
+      assert.equal(addedBeforeFirstChangeObserver.didChangeCount, 0, 'addObserver called before the first change is deferred');
 
       addedAfterFirstChangeObserver.add();
       removedBeforeLastChangeObserver.remove();
 
       set(obj, 'foo', 2);
 
-      equal(addedAfterFirstChangeObserver.willChangeCount, 1, '_addBeforeObserver called after the first change invoked immediately');
-      equal(addedAfterFirstChangeObserver.didChangeCount, 0, 'addObserver called after the first change is deferred');
+      assert.equal(addedAfterFirstChangeObserver.willChangeCount, 1, '_addBeforeObserver called after the first change invoked immediately');
+      assert.equal(addedAfterFirstChangeObserver.didChangeCount, 0, 'addObserver called after the first change is deferred');
 
       addedAfterLastChangeObserver.add();
       removedAfterLastChangeObserver.remove();
     });
 
-    equal(removedBeforeFirstChangeObserver.willChangeCount, 0, '_removeBeforeObserver called before the first change sees none');
-    equal(removedBeforeFirstChangeObserver.didChangeCount, 0, 'removeObserver called before the first change sees none');
-    equal(addedBeforeFirstChangeObserver.willChangeCount, 1, '_addBeforeObserver called before the first change sees only 1');
-    equal(addedBeforeFirstChangeObserver.didChangeCount, 1, 'addObserver called before the first change sees only 1');
-    equal(addedAfterFirstChangeObserver.willChangeCount, 1, '_addBeforeObserver called after the first change sees 1');
-    equal(addedAfterFirstChangeObserver.didChangeCount, 1, 'addObserver called after the first change sees 1');
-    equal(addedAfterLastChangeObserver.willChangeCount, 0, '_addBeforeObserver called after the last change sees none');
-    equal(addedAfterLastChangeObserver.didChangeCount, 0, 'addObserver called after the last change sees none');
-    equal(removedBeforeLastChangeObserver.willChangeCount, 1, '_removeBeforeObserver called before the last change still sees 1');
-    equal(removedBeforeLastChangeObserver.didChangeCount, 1, 'removeObserver called before the last change still sees 1');
-    equal(removedAfterLastChangeObserver.willChangeCount, 1, '_removeBeforeObserver called after the last change still sees 1');
-    equal(removedAfterLastChangeObserver.didChangeCount, 1, 'removeObserver called after the last change still sees 1');
+    assert.equal(removedBeforeFirstChangeObserver.willChangeCount, 0, '_removeBeforeObserver called before the first change sees none');
+    assert.equal(removedBeforeFirstChangeObserver.didChangeCount, 0, 'removeObserver called before the first change sees none');
+    assert.equal(addedBeforeFirstChangeObserver.willChangeCount, 1, '_addBeforeObserver called before the first change sees only 1');
+    assert.equal(addedBeforeFirstChangeObserver.didChangeCount, 1, 'addObserver called before the first change sees only 1');
+    assert.equal(addedAfterFirstChangeObserver.willChangeCount, 1, '_addBeforeObserver called after the first change sees 1');
+    assert.equal(addedAfterFirstChangeObserver.didChangeCount, 1, 'addObserver called after the first change sees 1');
+    assert.equal(addedAfterLastChangeObserver.willChangeCount, 0, '_addBeforeObserver called after the last change sees none');
+    assert.equal(addedAfterLastChangeObserver.didChangeCount, 0, 'addObserver called after the last change sees none');
+    assert.equal(removedBeforeLastChangeObserver.willChangeCount, 1, '_removeBeforeObserver called before the last change still sees 1');
+    assert.equal(removedBeforeLastChangeObserver.didChangeCount, 1, 'removeObserver called before the last change still sees 1');
+    assert.equal(removedAfterLastChangeObserver.willChangeCount, 1, '_removeBeforeObserver called after the last change still sees 1');
+    assert.equal(removedAfterLastChangeObserver.didChangeCount, 1, 'removeObserver called after the last change still sees 1');
   });
 
   QUnit.module('Keys behavior with observers');
 
-  (0, _internalTestHelpers.testBoth)('should not leak properties on the prototype', function () {
+  (0, _internalTestHelpers.testBoth)('should not leak properties on the prototype', function (get, set, assert) {
     function Beer() {}
     Beer.prototype.type = 'ipa';
 
     var beer = new Beer();
 
     (0, _emberMetal.addObserver)(beer, 'type', K);
-    deepEqual(Object.keys(beer), []);
+    assert.deepEqual(Object.keys(beer), []);
     (0, _emberMetal.removeObserver)(beer, 'type', K);
   });
 
-  (0, _internalTestHelpers.testBoth)('observing a non existent property', function (get, set) {
+  (0, _internalTestHelpers.testBoth)('observing a non existent property', function (get, set, assert) {
     function Beer() {}
     Beer.prototype.type = 'ipa';
 
@@ -42691,15 +42689,15 @@ enifed('ember-metal/tests/observer_test', ['ember-environment', 'internal-test-h
 
     (0, _emberMetal.addObserver)(beer, 'brand', K);
 
-    deepEqual(Object.keys(beer), []);
+    assert.deepEqual(Object.keys(beer), []);
 
     set(beer, 'brand', 'Corona');
-    deepEqual(Object.keys(beer), ['brand']);
+    assert.deepEqual(Object.keys(beer), ['brand']);
 
     (0, _emberMetal.removeObserver)(beer, 'brand', K);
   });
 
-  (0, _internalTestHelpers.testBoth)('with observers switched on and off', function () {
+  (0, _internalTestHelpers.testBoth)('with observers switched on and off', function (get, set, assert) {
     function Beer() {}
     Beer.prototype.type = 'ipa';
 
@@ -42708,10 +42706,10 @@ enifed('ember-metal/tests/observer_test', ['ember-environment', 'internal-test-h
     (0, _emberMetal.addObserver)(beer, 'type', K);
     (0, _emberMetal.removeObserver)(beer, 'type', K);
 
-    deepEqual(Object.keys(beer), []);
+    assert.deepEqual(Object.keys(beer), []);
   });
 
-  (0, _internalTestHelpers.testBoth)('observers switched on and off with setter in between', function (get, set) {
+  (0, _internalTestHelpers.testBoth)('observers switched on and off with setter in between', function (get, set, assert) {
     function Beer() {}
     Beer.prototype.type = 'ipa';
 
@@ -42721,10 +42719,10 @@ enifed('ember-metal/tests/observer_test', ['ember-environment', 'internal-test-h
     set(beer, 'type', 'ale');
     (0, _emberMetal.removeObserver)(beer, 'type', K);
 
-    deepEqual(Object.keys(beer), ['type']);
+    assert.deepEqual(Object.keys(beer), ['type']);
   });
 
-  (0, _internalTestHelpers.testBoth)('observer switched on and off and then setter', function (get, set) {
+  (0, _internalTestHelpers.testBoth)('observer switched on and off and then setter', function (get, set, assert) {
     function Beer() {}
     Beer.prototype.type = 'ipa';
 
@@ -42734,56 +42732,56 @@ enifed('ember-metal/tests/observer_test', ['ember-environment', 'internal-test-h
     (0, _emberMetal.removeObserver)(beer, 'type', K);
     set(beer, 'type', 'ale');
 
-    deepEqual(Object.keys(beer), ['type']);
+    assert.deepEqual(Object.keys(beer), ['type']);
   });
 
-  (0, _internalTestHelpers.testBoth)('observers switched on and off with setter in between (observed property is not shadowing)', function (get, set) {
+  (0, _internalTestHelpers.testBoth)('observers switched on and off with setter in between (observed property is not shadowing)', function (get, set, assert) {
     function Beer() {}
 
     var beer = new Beer();
     set(beer, 'type', 'ale');
-    deepEqual(Object.keys(beer), ['type'], 'only set');
+    assert.deepEqual(Object.keys(beer), ['type'], 'only set');
 
     var otherBeer = new Beer();
     (0, _emberMetal.addObserver)(otherBeer, 'type', K);
     set(otherBeer, 'type', 'ale');
-    deepEqual(Object.keys(otherBeer), ['type'], 'addObserver -> set');
+    assert.deepEqual(Object.keys(otherBeer), ['type'], 'addObserver -> set');
 
     var yetAnotherBeer = new Beer();
     (0, _emberMetal.addObserver)(yetAnotherBeer, 'type', K);
     set(yetAnotherBeer, 'type', 'ale');
     (0, _emberMetal.removeObserver)(beer, 'type', K);
-    deepEqual(Object.keys(yetAnotherBeer), ['type'], 'addObserver -> set -> removeObserver');
+    assert.deepEqual(Object.keys(yetAnotherBeer), ['type'], 'addObserver -> set -> removeObserver');
 
     var itsMyLastBeer = new Beer();
     set(itsMyLastBeer, 'type', 'ale');
     (0, _emberMetal.removeObserver)(beer, 'type', K);
-    deepEqual(Object.keys(itsMyLastBeer), ['type'], 'set -> removeObserver');
+    assert.deepEqual(Object.keys(itsMyLastBeer), ['type'], 'set -> removeObserver');
   });
 
-  (0, _internalTestHelpers.testBoth)('observers switched on and off with setter in between (observed property is shadowing one on the prototype)', function (get, set) {
+  (0, _internalTestHelpers.testBoth)('observers switched on and off with setter in between (observed property is shadowing one on the prototype)', function (get, set, assert) {
     function Beer() {}
     Beer.prototype.type = 'ipa';
 
     var beer = new Beer();
     set(beer, 'type', 'ale');
-    deepEqual(Object.keys(beer), ['type'], 'after set');
+    assert.deepEqual(Object.keys(beer), ['type'], 'after set');
 
     var otherBeer = new Beer();
     (0, _emberMetal.addObserver)(otherBeer, 'type', K);
     set(otherBeer, 'type', 'ale');
-    deepEqual(Object.keys(otherBeer), ['type'], 'addObserver -> set');
+    assert.deepEqual(Object.keys(otherBeer), ['type'], 'addObserver -> set');
 
     var yetAnotherBeer = new Beer();
     (0, _emberMetal.addObserver)(yetAnotherBeer, 'type', K);
     set(yetAnotherBeer, 'type', 'ale');
     (0, _emberMetal.removeObserver)(beer, 'type', K);
-    deepEqual(Object.keys(yetAnotherBeer), ['type'], 'addObserver -> set -> removeObserver');
+    assert.deepEqual(Object.keys(yetAnotherBeer), ['type'], 'addObserver -> set -> removeObserver');
 
     var itsMyLastBeer = new Beer();
     set(itsMyLastBeer, 'type', 'ale');
     (0, _emberMetal.removeObserver)(beer, 'type', K);
-    deepEqual(Object.keys(itsMyLastBeer), ['type'], 'set -> removeObserver');
+    assert.deepEqual(Object.keys(itsMyLastBeer), ['type'], 'set -> removeObserver');
   });
 });
 enifed('ember-metal/tests/performance_test', ['ember-babel', 'ember-metal', 'internal-test-helpers'], function (_emberBabel, _emberMetal, _internalTestHelpers) {
@@ -43502,7 +43500,7 @@ enifed('ember-metal/tests/run_loop/run_bind_test', ['ember-babel', 'ember-metal'
       var obj = {
         value: 0,
         increment: function (increment) {
-          ok(_emberMetal.run.currentRunLoop, 'expected a run-loop');
+          assert.ok(_emberMetal.run.currentRunLoop, 'expected a run-loop');
           return this.value += increment;
         }
       };
@@ -43730,7 +43728,7 @@ enifed('ember-metal/tests/run_loop/unwind_test', ['ember-babel', 'ember-metal', 
     _class.prototype['@test RunLoop unwinds despite unhandled exception'] = function (assert) {
       var initialRunLoop = _emberMetal.run.currentRunLoop;
 
-      throws(function () {
+      assert.throws(function () {
         (0, _emberMetal.run)(function () {
           _emberMetal.run.schedule('actions', function () {
             throw new _emberDebug.Error('boom!');
@@ -43805,21 +43803,21 @@ enifed('ember-metal/tests/watching/is_watching_test', ['ember-metal'], function 
 
   QUnit.module('isWatching');
 
-  function testObserver(setup, teardown) {
-    var key = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 'key';
+  function testObserver(assert, setup, teardown) {
+    var key = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 'key';
 
     var obj = {};
     function fn() {}
 
-    equal((0, _emberMetal.isWatching)(obj, key), false, 'precond - isWatching is false by default');
+    assert.equal((0, _emberMetal.isWatching)(obj, key), false, 'precond - isWatching is false by default');
     setup(obj, key, fn);
-    equal((0, _emberMetal.isWatching)(obj, key), true, 'isWatching is true when observers are added');
+    assert.equal((0, _emberMetal.isWatching)(obj, key), true, 'isWatching is true when observers are added');
     teardown(obj, key, fn);
-    equal((0, _emberMetal.isWatching)(obj, key), false, 'isWatching is false after observers are removed');
+    assert.equal((0, _emberMetal.isWatching)(obj, key), false, 'isWatching is false after observers are removed');
   }
 
-  QUnit.test('isWatching is true for regular local observers', function () {
-    testObserver(function (obj, key, fn) {
+  QUnit.test('isWatching is true for regular local observers', function (assert) {
+    testObserver(assert, function (obj, key, fn) {
       _emberMetal.Mixin.create({
         didChange: (0, _emberMetal.observer)(key, fn)
       }).apply(obj);
@@ -43828,24 +43826,24 @@ enifed('ember-metal/tests/watching/is_watching_test', ['ember-metal'], function 
     });
   });
 
-  QUnit.test('isWatching is true for nonlocal observers', function () {
-    testObserver(function (obj, key, fn) {
+  QUnit.test('isWatching is true for nonlocal observers', function (assert) {
+    testObserver(assert, function (obj, key, fn) {
       (0, _emberMetal.addObserver)(obj, key, obj, fn);
     }, function (obj, key, fn) {
       return (0, _emberMetal.removeObserver)(obj, key, obj, fn);
     });
   });
 
-  QUnit.test('isWatching is true for chained observers', function () {
-    testObserver(function (obj, key, fn) {
+  QUnit.test('isWatching is true for chained observers', function (assert) {
+    testObserver(assert, function (obj, key, fn) {
       (0, _emberMetal.addObserver)(obj, key + '.bar', obj, fn);
     }, function (obj, key, fn) {
       (0, _emberMetal.removeObserver)(obj, key + '.bar', obj, fn);
     });
   });
 
-  QUnit.test('isWatching is true for computed properties', function () {
-    testObserver(function (obj, key, fn) {
+  QUnit.test('isWatching is true for computed properties', function (assert) {
+    testObserver(assert, function (obj, key, fn) {
       (0, _emberMetal.defineProperty)(obj, 'computed', (0, _emberMetal.computed)(fn).property(key));
       (0, _emberMetal.get)(obj, 'computed');
     }, function (obj) {
@@ -43853,8 +43851,8 @@ enifed('ember-metal/tests/watching/is_watching_test', ['ember-metal'], function 
     });
   });
 
-  QUnit.test('isWatching is true for chained computed properties', function () {
-    testObserver(function (obj, key, fn) {
+  QUnit.test('isWatching is true for chained computed properties', function (assert) {
+    testObserver(assert, function (obj, key, fn) {
       (0, _emberMetal.defineProperty)(obj, 'computed', (0, _emberMetal.computed)(fn).property(key + '.bar'));
       (0, _emberMetal.get)(obj, 'computed');
     }, function (obj) {
@@ -43864,8 +43862,8 @@ enifed('ember-metal/tests/watching/is_watching_test', ['ember-metal'], function 
 
   // can't watch length on Array - it is special...
   // But you should be able to watch a length property of an object
-  QUnit.test('isWatching is true for \'length\' property on object', function () {
-    testObserver(function (obj, key, fn) {
+  QUnit.test('isWatching is true for \'length\' property on object', function (assert) {
+    testObserver(assert, function (obj, key, fn) {
       (0, _emberMetal.defineProperty)(obj, 'length', null, '26.2 miles');
       (0, _emberMetal.addObserver)(obj, 'length', obj, fn);
     }, function (obj, key, fn) {
@@ -43880,7 +43878,7 @@ enifed('ember-metal/tests/watching/unwatch_test', ['internal-test-helpers', 'emb
       didCount = void 0;
 
   QUnit.module('unwatch', {
-    setup: function () {
+    beforeEach: function () {
       willCount = didCount = 0;
     }
   });
@@ -43894,7 +43892,7 @@ enifed('ember-metal/tests/watching/unwatch_test', ['internal-test-helpers', 'emb
     });
   }
 
-  (0, _internalTestHelpers.testBoth)('unwatching a computed property - regular get/set', function (get, set) {
+  (0, _internalTestHelpers.testBoth)('unwatching a computed property - regular get/set', function (get, set, assert) {
     var obj = {};
 
     (0, _emberMetal.defineProperty)(obj, 'foo', (0, _emberMetal.computed)({
@@ -43910,83 +43908,83 @@ enifed('ember-metal/tests/watching/unwatch_test', ['internal-test-helpers', 'emb
 
     (0, _emberMetal.watch)(obj, 'foo');
     set(obj, 'foo', 'bar');
-    equal(willCount, 1, 'should have invoked willCount');
-    equal(didCount, 1, 'should have invoked didCount');
+    assert.equal(willCount, 1, 'should have invoked willCount');
+    assert.equal(didCount, 1, 'should have invoked didCount');
 
     (0, _emberMetal.unwatch)(obj, 'foo');
     willCount = didCount = 0;
     set(obj, 'foo', 'BAZ');
-    equal(willCount, 0, 'should NOT have invoked willCount');
-    equal(didCount, 0, 'should NOT have invoked didCount');
+    assert.equal(willCount, 0, 'should NOT have invoked willCount');
+    assert.equal(didCount, 0, 'should NOT have invoked didCount');
   });
 
-  (0, _internalTestHelpers.testBoth)('unwatching a regular property - regular get/set', function (get, set) {
+  (0, _internalTestHelpers.testBoth)('unwatching a regular property - regular get/set', function (get, set, assert) {
     var obj = { foo: 'BIFF' };
     addListeners(obj, 'foo');
 
     (0, _emberMetal.watch)(obj, 'foo');
     set(obj, 'foo', 'bar');
-    equal(willCount, 1, 'should have invoked willCount');
-    equal(didCount, 1, 'should have invoked didCount');
+    assert.equal(willCount, 1, 'should have invoked willCount');
+    assert.equal(didCount, 1, 'should have invoked didCount');
 
     (0, _emberMetal.unwatch)(obj, 'foo');
     willCount = didCount = 0;
     set(obj, 'foo', 'BAZ');
-    equal(willCount, 0, 'should NOT have invoked willCount');
-    equal(didCount, 0, 'should NOT have invoked didCount');
+    assert.equal(willCount, 0, 'should NOT have invoked willCount');
+    assert.equal(didCount, 0, 'should NOT have invoked didCount');
   });
 
-  QUnit.test('unwatching should be nested', function () {
+  QUnit.test('unwatching should be nested', function (assert) {
     var obj = { foo: 'BIFF' };
     addListeners(obj, 'foo');
 
     (0, _emberMetal.watch)(obj, 'foo');
     (0, _emberMetal.watch)(obj, 'foo');
     (0, _emberMetal.set)(obj, 'foo', 'bar');
-    equal(willCount, 1, 'should have invoked willCount');
-    equal(didCount, 1, 'should have invoked didCount');
+    assert.equal(willCount, 1, 'should have invoked willCount');
+    assert.equal(didCount, 1, 'should have invoked didCount');
 
     (0, _emberMetal.unwatch)(obj, 'foo');
     willCount = didCount = 0;
     (0, _emberMetal.set)(obj, 'foo', 'BAZ');
-    equal(willCount, 1, 'should NOT have invoked willCount');
-    equal(didCount, 1, 'should NOT have invoked didCount');
+    assert.equal(willCount, 1, 'should NOT have invoked willCount');
+    assert.equal(didCount, 1, 'should NOT have invoked didCount');
 
     (0, _emberMetal.unwatch)(obj, 'foo');
     willCount = didCount = 0;
     (0, _emberMetal.set)(obj, 'foo', 'BAZ');
-    equal(willCount, 0, 'should NOT have invoked willCount');
-    equal(didCount, 0, 'should NOT have invoked didCount');
+    assert.equal(willCount, 0, 'should NOT have invoked willCount');
+    assert.equal(didCount, 0, 'should NOT have invoked didCount');
   });
 
-  (0, _internalTestHelpers.testBoth)('unwatching "length" property on an object', function (get, set) {
+  (0, _internalTestHelpers.testBoth)('unwatching "length" property on an object', function (get, set, assert) {
     var obj = { foo: 'RUN' };
     addListeners(obj, 'length');
 
     // Can watch length when it is undefined
     (0, _emberMetal.watch)(obj, 'length');
     set(obj, 'length', '10k');
-    equal(willCount, 1, 'should have invoked willCount');
-    equal(didCount, 1, 'should have invoked didCount');
+    assert.equal(willCount, 1, 'should have invoked willCount');
+    assert.equal(didCount, 1, 'should have invoked didCount');
 
     // Should stop watching despite length now being defined (making object 'array-like')
     (0, _emberMetal.unwatch)(obj, 'length');
     willCount = didCount = 0;
     set(obj, 'length', '5k');
-    equal(willCount, 0, 'should NOT have invoked willCount');
-    equal(didCount, 0, 'should NOT have invoked didCount');
+    assert.equal(willCount, 0, 'should NOT have invoked willCount');
+    assert.equal(didCount, 0, 'should NOT have invoked didCount');
   });
 
-  (0, _internalTestHelpers.testBoth)('unwatching should not destroy non MANDATORY_SETTER descriptor', function () {
+  (0, _internalTestHelpers.testBoth)('unwatching should not destroy non MANDATORY_SETTER descriptor', function (get, set, assert) {
     var obj = { get foo() {
         return 'RUN';
       } };
 
-    equal(obj.foo, 'RUN', 'obj.foo');
+    assert.equal(obj.foo, 'RUN', 'obj.foo');
     (0, _emberMetal.watch)(obj, 'foo');
-    equal(obj.foo, 'RUN', 'obj.foo after watch');
+    assert.equal(obj.foo, 'RUN', 'obj.foo after watch');
     (0, _emberMetal.unwatch)(obj, 'foo');
-    equal(obj.foo, 'RUN', 'obj.foo after unwatch');
+    assert.equal(obj.foo, 'RUN', 'obj.foo after unwatch');
   });
 });
 enifed('ember-metal/tests/watching/watch_test', ['ember-environment', 'ember-metal', 'internal-test-helpers'], function (_emberEnvironment, _emberMetal, _internalTestHelpers) {
@@ -43999,7 +43997,7 @@ enifed('ember-metal/tests/watching/watch_test', ['ember-environment', 'ember-met
       originalLookup = void 0;
 
   QUnit.module('watch', {
-    setup: function () {
+    beforeEach: function () {
       willCount = didCount = 0;
       willKeys = [];
       didKeys = [];
@@ -44007,7 +44005,7 @@ enifed('ember-metal/tests/watching/watch_test', ['ember-environment', 'ember-met
       originalLookup = _emberEnvironment.context.lookup;
       _emberEnvironment.context.lookup = {};
     },
-    teardown: function () {
+    afterEach: function () {
       _emberEnvironment.context.lookup = originalLookup;
     }
   });
@@ -44023,7 +44021,7 @@ enifed('ember-metal/tests/watching/watch_test', ['ember-environment', 'ember-met
     });
   }
 
-  (0, _internalTestHelpers.testBoth)('watching a computed property', function (get, set) {
+  (0, _internalTestHelpers.testBoth)('watching a computed property', function (get, set, assert) {
     var obj = {};
     (0, _emberMetal.defineProperty)(obj, 'foo', (0, _emberMetal.computed)({
       get: function () {
@@ -44040,57 +44038,57 @@ enifed('ember-metal/tests/watching/watch_test', ['ember-environment', 'ember-met
 
     (0, _emberMetal.watch)(obj, 'foo');
     set(obj, 'foo', 'bar');
-    equal(willCount, 1, 'should have invoked willCount');
-    equal(didCount, 1, 'should have invoked didCount');
+    assert.equal(willCount, 1, 'should have invoked willCount');
+    assert.equal(didCount, 1, 'should have invoked didCount');
   });
 
-  (0, _internalTestHelpers.testBoth)('watching a regular defined property', function (get, set) {
+  (0, _internalTestHelpers.testBoth)('watching a regular defined property', function (get, set, assert) {
     var obj = { foo: 'baz' };
     addListeners(obj, 'foo');
 
     (0, _emberMetal.watch)(obj, 'foo');
-    equal(get(obj, 'foo'), 'baz', 'should have original prop');
+    assert.equal(get(obj, 'foo'), 'baz', 'should have original prop');
 
     set(obj, 'foo', 'bar');
-    equal(willCount, 1, 'should have invoked willCount');
-    equal(didCount, 1, 'should have invoked didCount');
+    assert.equal(willCount, 1, 'should have invoked willCount');
+    assert.equal(didCount, 1, 'should have invoked didCount');
 
-    equal(get(obj, 'foo'), 'bar', 'should get new value');
-    equal(obj.foo, 'bar', 'property should be accessible on obj');
+    assert.equal(get(obj, 'foo'), 'bar', 'should get new value');
+    assert.equal(obj.foo, 'bar', 'property should be accessible on obj');
   });
 
-  (0, _internalTestHelpers.testBoth)('watching a regular undefined property', function (get, set) {
+  (0, _internalTestHelpers.testBoth)('watching a regular undefined property', function (get, set, assert) {
     var obj = {};
     addListeners(obj, 'foo');
 
     (0, _emberMetal.watch)(obj, 'foo');
 
-    equal('foo' in obj, false, 'precond undefined');
+    assert.equal('foo' in obj, false, 'precond undefined');
 
     set(obj, 'foo', 'bar');
 
-    equal(willCount, 1, 'should have invoked willCount');
-    equal(didCount, 1, 'should have invoked didCount');
+    assert.equal(willCount, 1, 'should have invoked willCount');
+    assert.equal(didCount, 1, 'should have invoked didCount');
 
-    equal(get(obj, 'foo'), 'bar', 'should get new value');
-    equal(obj.foo, 'bar', 'property should be accessible on obj');
+    assert.equal(get(obj, 'foo'), 'bar', 'should get new value');
+    assert.equal(obj.foo, 'bar', 'property should be accessible on obj');
   });
 
-  (0, _internalTestHelpers.testBoth)('watches should inherit', function (get, set) {
+  (0, _internalTestHelpers.testBoth)('watches should inherit', function (get, set, assert) {
     var obj = { foo: 'baz' };
     var objB = Object.create(obj);
 
     addListeners(obj, 'foo');
     (0, _emberMetal.watch)(obj, 'foo');
-    equal(get(obj, 'foo'), 'baz', 'should have original prop');
+    assert.equal(get(obj, 'foo'), 'baz', 'should have original prop');
 
     set(obj, 'foo', 'bar');
     set(objB, 'foo', 'baz');
-    equal(willCount, 2, 'should have invoked willCount once only');
-    equal(didCount, 2, 'should have invoked didCount once only');
+    assert.equal(willCount, 2, 'should have invoked willCount once only');
+    assert.equal(didCount, 2, 'should have invoked didCount once only');
   });
 
-  QUnit.test('watching an object THEN defining it should work also', function () {
+  QUnit.test('watching an object THEN defining it should work also', function (assert) {
     var obj = {};
     addListeners(obj, 'foo');
 
@@ -44099,12 +44097,12 @@ enifed('ember-metal/tests/watching/watch_test', ['ember-environment', 'ember-met
     (0, _emberMetal.defineProperty)(obj, 'foo');
     (0, _emberMetal.set)(obj, 'foo', 'bar');
 
-    equal((0, _emberMetal.get)(obj, 'foo'), 'bar', 'should have set');
-    equal(willCount, 1, 'should have invoked willChange once');
-    equal(didCount, 1, 'should have invoked didChange once');
+    assert.equal((0, _emberMetal.get)(obj, 'foo'), 'bar', 'should have set');
+    assert.equal(willCount, 1, 'should have invoked willChange once');
+    assert.equal(didCount, 1, 'should have invoked didChange once');
   });
 
-  QUnit.test('watching a chain then defining the property', function () {
+  QUnit.test('watching a chain then defining the property', function (assert) {
     var obj = {};
     var foo = { bar: 'bar' };
     addListeners(obj, 'foo.bar');
@@ -44115,13 +44113,13 @@ enifed('ember-metal/tests/watching/watch_test', ['ember-environment', 'ember-met
     (0, _emberMetal.defineProperty)(obj, 'foo', undefined, foo);
     (0, _emberMetal.set)(foo, 'bar', 'baz');
 
-    deepEqual(willKeys, ['foo.bar', 'bar'], 'should have invoked willChange with bar, foo.bar');
-    deepEqual(didKeys, ['foo.bar', 'bar'], 'should have invoked didChange with bar, foo.bar');
-    equal(willCount, 2, 'should have invoked willChange twice');
-    equal(didCount, 2, 'should have invoked didChange twice');
+    assert.deepEqual(willKeys, ['foo.bar', 'bar'], 'should have invoked willChange with bar, foo.bar');
+    assert.deepEqual(didKeys, ['foo.bar', 'bar'], 'should have invoked didChange with bar, foo.bar');
+    assert.equal(willCount, 2, 'should have invoked willChange twice');
+    assert.equal(didCount, 2, 'should have invoked didChange twice');
   });
 
-  QUnit.test('watching a chain then defining the nested property', function () {
+  QUnit.test('watching a chain then defining the nested property', function (assert) {
     var bar = {};
     var obj = { foo: bar };
     var baz = { baz: 'baz' };
@@ -44133,26 +44131,26 @@ enifed('ember-metal/tests/watching/watch_test', ['ember-environment', 'ember-met
     (0, _emberMetal.defineProperty)(bar, 'bar', undefined, baz);
     (0, _emberMetal.set)(baz, 'baz', 'BOO');
 
-    deepEqual(willKeys, ['foo.bar.baz', 'baz'], 'should have invoked willChange with bar, foo.bar');
-    deepEqual(didKeys, ['foo.bar.baz', 'baz'], 'should have invoked didChange with bar, foo.bar');
-    equal(willCount, 2, 'should have invoked willChange twice');
-    equal(didCount, 2, 'should have invoked didChange twice');
+    assert.deepEqual(willKeys, ['foo.bar.baz', 'baz'], 'should have invoked willChange with bar, foo.bar');
+    assert.deepEqual(didKeys, ['foo.bar.baz', 'baz'], 'should have invoked didChange with bar, foo.bar');
+    assert.equal(willCount, 2, 'should have invoked willChange twice');
+    assert.equal(didCount, 2, 'should have invoked didChange twice');
   });
 
-  (0, _internalTestHelpers.testBoth)('watching an object value then unwatching should restore old value', function (get) {
+  (0, _internalTestHelpers.testBoth)('watching an object value then unwatching should restore old value', function (get, set, assert) {
     var obj = { foo: { bar: { baz: { biff: 'BIFF' } } } };
     addListeners(obj, 'foo.bar.baz.biff');
 
     (0, _emberMetal.watch)(obj, 'foo.bar.baz.biff');
 
     var foo = get(obj, 'foo');
-    equal(get(get(get(foo, 'bar'), 'baz'), 'biff'), 'BIFF', 'biff should exist');
+    assert.equal(get(get(get(foo, 'bar'), 'baz'), 'biff'), 'BIFF', 'biff should exist');
 
     (0, _emberMetal.unwatch)(obj, 'foo.bar.baz.biff');
-    equal(get(get(get(foo, 'bar'), 'baz'), 'biff'), 'BIFF', 'biff should exist');
+    assert.equal(get(get(get(foo, 'bar'), 'baz'), 'biff'), 'BIFF', 'biff should exist');
   });
 
-  QUnit.test('when watching another object, destroy should remove chain watchers from the other object', function () {
+  QUnit.test('when watching another object, destroy should remove chain watchers from the other object', function (assert) {
     var objA = {};
     var objB = { foo: 'bar' };
     objA.b = objB;
@@ -44163,48 +44161,48 @@ enifed('ember-metal/tests/watching/watch_test', ['ember-environment', 'ember-met
     var meta_objB = (0, _emberMetal.meta)(objB);
     var chainNode = (0, _emberMetal.meta)(objA).readableChains()._chains.b._chains.foo;
 
-    equal(meta_objB.peekWatching('foo'), 1, 'should be watching foo');
-    equal(meta_objB.readableChainWatchers().has('foo', chainNode), true, 'should have chain watcher');
+    assert.equal(meta_objB.peekWatching('foo'), 1, 'should be watching foo');
+    assert.equal(meta_objB.readableChainWatchers().has('foo', chainNode), true, 'should have chain watcher');
 
     (0, _emberMetal.deleteMeta)(objA);
 
-    equal(meta_objB.peekWatching('foo'), 0, 'should not be watching foo');
-    equal(meta_objB.readableChainWatchers().has('foo', chainNode), false, 'should not have chain watcher');
+    assert.equal(meta_objB.peekWatching('foo'), 0, 'should not be watching foo');
+    assert.equal(meta_objB.readableChainWatchers().has('foo', chainNode), false, 'should not have chain watcher');
   });
 
   // TESTS for length property
 
-  (0, _internalTestHelpers.testBoth)('watching "length" property on an object', function (get, set) {
+  (0, _internalTestHelpers.testBoth)('watching "length" property on an object', function (get, set, assert) {
     var obj = { length: '26.2 miles' };
     addListeners(obj, 'length');
 
     (0, _emberMetal.watch)(obj, 'length');
-    equal(get(obj, 'length'), '26.2 miles', 'should have original prop');
+    assert.equal(get(obj, 'length'), '26.2 miles', 'should have original prop');
 
     set(obj, 'length', '10k');
-    equal(willCount, 1, 'should have invoked willCount');
-    equal(didCount, 1, 'should have invoked didCount');
+    assert.equal(willCount, 1, 'should have invoked willCount');
+    assert.equal(didCount, 1, 'should have invoked didCount');
 
-    equal(get(obj, 'length'), '10k', 'should get new value');
-    equal(obj.length, '10k', 'property should be accessible on obj');
+    assert.equal(get(obj, 'length'), '10k', 'should get new value');
+    assert.equal(obj.length, '10k', 'property should be accessible on obj');
   });
 
-  (0, _internalTestHelpers.testBoth)('watching "length" property on an array', function (get, set) {
+  (0, _internalTestHelpers.testBoth)('watching "length" property on an array', function (get, set, assert) {
     var arr = [];
     addListeners(arr, 'length');
 
     (0, _emberMetal.watch)(arr, 'length');
-    equal(get(arr, 'length'), 0, 'should have original prop');
+    assert.equal(get(arr, 'length'), 0, 'should have original prop');
 
     set(arr, 'length', '10');
-    equal(willCount, 1, 'should NOT have invoked willCount');
-    equal(didCount, 1, 'should NOT have invoked didCount');
+    assert.equal(willCount, 1, 'should NOT have invoked willCount');
+    assert.equal(didCount, 1, 'should NOT have invoked didCount');
 
-    equal(get(arr, 'length'), 10, 'should get new value');
-    equal(arr.length, 10, 'property should be accessible on arr');
+    assert.equal(get(arr, 'length'), 10, 'should get new value');
+    assert.equal(arr.length, 10, 'property should be accessible on arr');
   });
 
-  (0, _internalTestHelpers.testBoth)('watch + ES5 getter', function (get) {
+  (0, _internalTestHelpers.testBoth)('watch + ES5 getter', function (get, set, assert) {
     var parent = { b: 1 };
     var child = {
       get b() {
@@ -44212,29 +44210,29 @@ enifed('ember-metal/tests/watching/watch_test', ['ember-environment', 'ember-met
       }
     };
 
-    equal(parent.b, 1, 'parent.b should be 1');
-    equal(child.b, 1, 'child.b should be 1');
-    equal(get(child, 'b'), 1, 'Ember.get(child, "b") should be 1');
+    assert.equal(parent.b, 1, 'parent.b should be 1');
+    assert.equal(child.b, 1, 'child.b should be 1');
+    assert.equal(get(child, 'b'), 1, 'Ember.get(child, "b") should be 1');
 
     (0, _emberMetal.watch)(child, 'b');
 
-    equal(parent.b, 1, 'parent.b should be 1 (after watch)');
-    equal(child.b, 1, 'child.b should be 1  (after watch)');
+    assert.equal(parent.b, 1, 'parent.b should be 1 (after watch)');
+    assert.equal(child.b, 1, 'child.b should be 1  (after watch)');
 
-    equal(get(child, 'b'), 1, 'Ember.get(child, "b") should be 1 (after watch)');
+    assert.equal(get(child, 'b'), 1, 'Ember.get(child, "b") should be 1 (after watch)');
   });
 
-  (0, _internalTestHelpers.testBoth)('watch + Ember.set + no-descriptor', function (get, set) {
+  (0, _internalTestHelpers.testBoth)('watch + Ember.set + no-descriptor', function (get, set, assert) {
     var child = {};
 
-    equal(child.b, undefined, 'child.b ');
-    equal(get(child, 'b'), undefined, 'Ember.get(child, "b")');
+    assert.equal(child.b, undefined, 'child.b ');
+    assert.equal(get(child, 'b'), undefined, 'Ember.get(child, "b")');
 
     (0, _emberMetal.watch)(child, 'b');
     set(child, 'b', 1);
 
-    equal(child.b, 1, 'child.b (after watch)');
-    equal(get(child, 'b'), 1, 'Ember.get(child, "b") (after watch)');
+    assert.equal(child.b, 1, 'child.b (after watch)');
+    assert.equal(get(child, 'b'), 1, 'Ember.get(child, "b") (after watch)');
   });
 });
 enifed('ember-routing/tests/ext/controller_test', ['ember-babel', 'ember-utils', 'ember-runtime', 'internal-test-helpers'], function (_emberBabel, _emberUtils, _emberRuntime, _internalTestHelpers) {
@@ -46506,7 +46504,7 @@ enifed('ember-runtime/tests/computed/computed_macros_test', ['ember-metal', 'emb
 
   QUnit.module('CP macros');
 
-  (0, _internalTestHelpers.testBoth)('Ember.computed.empty', function (get, set) {
+  (0, _internalTestHelpers.testBoth)('Ember.computed.empty', function (get, set, assert) {
     var obj = _object.default.extend({
       bestLannister: null,
       lannisters: null,
@@ -46517,17 +46515,17 @@ enifed('ember-runtime/tests/computed/computed_macros_test', ['ember-metal', 'emb
       lannisters: (0, _native_array.A)()
     });
 
-    equal(get(obj, 'bestLannisterUnspecified'), true, 'bestLannister initially empty');
-    equal(get(obj, 'noLannistersKnown'), true, 'lannisters initially empty');
+    assert.equal(get(obj, 'bestLannisterUnspecified'), true, 'bestLannister initially empty');
+    assert.equal(get(obj, 'noLannistersKnown'), true, 'lannisters initially empty');
 
     get(obj, 'lannisters').pushObject('Tyrion');
     set(obj, 'bestLannister', 'Tyrion');
 
-    equal(get(obj, 'bestLannisterUnspecified'), false, 'empty respects strings');
-    equal(get(obj, 'noLannistersKnown'), false, 'empty respects array mutations');
+    assert.equal(get(obj, 'bestLannisterUnspecified'), false, 'empty respects strings');
+    assert.equal(get(obj, 'noLannistersKnown'), false, 'empty respects array mutations');
   });
 
-  (0, _internalTestHelpers.testBoth)('Ember.computed.notEmpty', function (get, set) {
+  (0, _internalTestHelpers.testBoth)('Ember.computed.notEmpty', function (get, set, assert) {
     var obj = _object.default.extend({
       bestLannister: null,
       lannisters: null,
@@ -46538,44 +46536,44 @@ enifed('ember-runtime/tests/computed/computed_macros_test', ['ember-metal', 'emb
       lannisters: (0, _native_array.A)()
     });
 
-    equal(get(obj, 'bestLannisterSpecified'), false, 'bestLannister initially empty');
-    equal(get(obj, 'LannistersKnown'), false, 'lannisters initially empty');
+    assert.equal(get(obj, 'bestLannisterSpecified'), false, 'bestLannister initially empty');
+    assert.equal(get(obj, 'LannistersKnown'), false, 'lannisters initially empty');
 
     get(obj, 'lannisters').pushObject('Tyrion');
     set(obj, 'bestLannister', 'Tyrion');
 
-    equal(get(obj, 'bestLannisterSpecified'), true, 'empty respects strings');
-    equal(get(obj, 'LannistersKnown'), true, 'empty respects array mutations');
+    assert.equal(get(obj, 'bestLannisterSpecified'), true, 'empty respects strings');
+    assert.equal(get(obj, 'LannistersKnown'), true, 'empty respects array mutations');
   });
 
-  (0, _internalTestHelpers.testBoth)('computed.not', function (get) {
+  (0, _internalTestHelpers.testBoth)('computed.not', function (get, set, assert) {
     var obj = { foo: true };
     (0, _emberMetal.defineProperty)(obj, 'notFoo', (0, _computed_macros.not)('foo'));
-    equal(get(obj, 'notFoo'), false);
+    assert.equal(get(obj, 'notFoo'), false);
 
     obj = { foo: { bar: true } };
     (0, _emberMetal.defineProperty)(obj, 'notFoo', (0, _computed_macros.not)('foo.bar'));
-    equal(get(obj, 'notFoo'), false);
+    assert.equal(get(obj, 'notFoo'), false);
   });
 
-  (0, _internalTestHelpers.testBoth)('computed.empty', function (get, set) {
+  (0, _internalTestHelpers.testBoth)('computed.empty', function (get, set, assert) {
     var obj = { foo: [], bar: undefined, baz: null, quz: '' };
     (0, _emberMetal.defineProperty)(obj, 'fooEmpty', (0, _computed_macros.empty)('foo'));
     (0, _emberMetal.defineProperty)(obj, 'barEmpty', (0, _computed_macros.empty)('bar'));
     (0, _emberMetal.defineProperty)(obj, 'bazEmpty', (0, _computed_macros.empty)('baz'));
     (0, _emberMetal.defineProperty)(obj, 'quzEmpty', (0, _computed_macros.empty)('quz'));
 
-    equal(get(obj, 'fooEmpty'), true);
+    assert.equal(get(obj, 'fooEmpty'), true);
     set(obj, 'foo', [1]);
-    equal(get(obj, 'fooEmpty'), false);
-    equal(get(obj, 'barEmpty'), true);
-    equal(get(obj, 'bazEmpty'), true);
-    equal(get(obj, 'quzEmpty'), true);
+    assert.equal(get(obj, 'fooEmpty'), false);
+    assert.equal(get(obj, 'barEmpty'), true);
+    assert.equal(get(obj, 'bazEmpty'), true);
+    assert.equal(get(obj, 'quzEmpty'), true);
     set(obj, 'quz', 'asdf');
-    equal(get(obj, 'quzEmpty'), false);
+    assert.equal(get(obj, 'quzEmpty'), false);
   });
 
-  (0, _internalTestHelpers.testBoth)('computed.bool', function (get) {
+  (0, _internalTestHelpers.testBoth)('computed.bool', function (get, set, assert) {
     var obj = {
       foo: function () {},
       bar: 'asdf', baz: null, quz: false };
@@ -46583,13 +46581,13 @@ enifed('ember-runtime/tests/computed/computed_macros_test', ['ember-metal', 'emb
     (0, _emberMetal.defineProperty)(obj, 'barBool', (0, _computed_macros.bool)('bar'));
     (0, _emberMetal.defineProperty)(obj, 'bazBool', (0, _computed_macros.bool)('baz'));
     (0, _emberMetal.defineProperty)(obj, 'quzBool', (0, _computed_macros.bool)('quz'));
-    equal(get(obj, 'fooBool'), true);
-    equal(get(obj, 'barBool'), true);
-    equal(get(obj, 'bazBool'), false);
-    equal(get(obj, 'quzBool'), false);
+    assert.equal(get(obj, 'fooBool'), true);
+    assert.equal(get(obj, 'barBool'), true);
+    assert.equal(get(obj, 'bazBool'), false);
+    assert.equal(get(obj, 'quzBool'), false);
   });
 
-  (0, _internalTestHelpers.testBoth)('computed.alias', function (get, set) {
+  (0, _internalTestHelpers.testBoth)('computed.alias', function (get, set, assert) {
     var obj = { bar: 'asdf', baz: null, quz: false };
     (0, _emberMetal.defineProperty)(obj, 'bay', (0, _emberMetal.computed)(function () {
       return 'apple';
@@ -46600,25 +46598,25 @@ enifed('ember-runtime/tests/computed/computed_macros_test', ['ember-metal', 'emb
     (0, _emberMetal.defineProperty)(obj, 'quzAlias', (0, _emberMetal.alias)('quz'));
     (0, _emberMetal.defineProperty)(obj, 'bayAlias', (0, _emberMetal.alias)('bay'));
 
-    equal(get(obj, 'barAlias'), 'asdf');
-    equal(get(obj, 'bazAlias'), null);
-    equal(get(obj, 'quzAlias'), false);
-    equal(get(obj, 'bayAlias'), 'apple');
+    assert.equal(get(obj, 'barAlias'), 'asdf');
+    assert.equal(get(obj, 'bazAlias'), null);
+    assert.equal(get(obj, 'quzAlias'), false);
+    assert.equal(get(obj, 'bayAlias'), 'apple');
 
     set(obj, 'barAlias', 'newBar');
     set(obj, 'bazAlias', 'newBaz');
     set(obj, 'quzAlias', null);
 
-    equal(get(obj, 'barAlias'), 'newBar');
-    equal(get(obj, 'bazAlias'), 'newBaz');
-    equal(get(obj, 'quzAlias'), null);
+    assert.equal(get(obj, 'barAlias'), 'newBar');
+    assert.equal(get(obj, 'bazAlias'), 'newBaz');
+    assert.equal(get(obj, 'quzAlias'), null);
 
-    equal(get(obj, 'bar'), 'newBar');
-    equal(get(obj, 'baz'), 'newBaz');
-    equal(get(obj, 'quz'), null);
+    assert.equal(get(obj, 'bar'), 'newBar');
+    assert.equal(get(obj, 'baz'), 'newBaz');
+    assert.equal(get(obj, 'quz'), null);
   });
 
-  (0, _internalTestHelpers.testBoth)('computed.alias set', function (get, set) {
+  (0, _internalTestHelpers.testBoth)('computed.alias set', function (get, set, assert) {
     var obj = {};
     var constantValue = 'always `a`';
 
@@ -46632,250 +46630,250 @@ enifed('ember-runtime/tests/computed/computed_macros_test', ['ember-metal', 'emb
     }));
     (0, _emberMetal.defineProperty)(obj, 'aliased', (0, _emberMetal.alias)('original'));
 
-    equal(get(obj, 'original'), constantValue);
-    equal(get(obj, 'aliased'), constantValue);
+    assert.equal(get(obj, 'original'), constantValue);
+    assert.equal(get(obj, 'aliased'), constantValue);
 
     set(obj, 'aliased', 'should not set to this value');
 
-    equal(get(obj, 'original'), constantValue);
-    equal(get(obj, 'aliased'), constantValue);
+    assert.equal(get(obj, 'original'), constantValue);
+    assert.equal(get(obj, 'aliased'), constantValue);
   });
 
-  (0, _internalTestHelpers.testBoth)('computed.match', function (get, set) {
+  (0, _internalTestHelpers.testBoth)('computed.match', function (get, set, assert) {
     var obj = { name: 'Paul' };
     (0, _emberMetal.defineProperty)(obj, 'isPaul', (0, _computed_macros.match)('name', /Paul/));
 
-    equal(get(obj, 'isPaul'), true, 'is Paul');
+    assert.equal(get(obj, 'isPaul'), true, 'is Paul');
 
     set(obj, 'name', 'Pierre');
 
-    equal(get(obj, 'isPaul'), false, 'is not Paul anymore');
+    assert.equal(get(obj, 'isPaul'), false, 'is not Paul anymore');
   });
 
-  (0, _internalTestHelpers.testBoth)('computed.notEmpty', function (get, set) {
+  (0, _internalTestHelpers.testBoth)('computed.notEmpty', function (get, set, assert) {
     var obj = { items: [1] };
     (0, _emberMetal.defineProperty)(obj, 'hasItems', (0, _computed_macros.notEmpty)('items'));
 
-    equal(get(obj, 'hasItems'), true, 'is not empty');
+    assert.equal(get(obj, 'hasItems'), true, 'is not empty');
 
     set(obj, 'items', []);
 
-    equal(get(obj, 'hasItems'), false, 'is empty');
+    assert.equal(get(obj, 'hasItems'), false, 'is empty');
   });
 
-  (0, _internalTestHelpers.testBoth)('computed.equal', function (get, set) {
+  (0, _internalTestHelpers.testBoth)('computed.equal', function (get, set, assert) {
     var obj = { name: 'Paul' };
     (0, _emberMetal.defineProperty)(obj, 'isPaul', (0, _computed_macros.equal)('name', 'Paul'));
 
-    equal(get(obj, 'isPaul'), true, 'is Paul');
+    assert.equal(get(obj, 'isPaul'), true, 'is Paul');
 
     set(obj, 'name', 'Pierre');
 
-    equal(get(obj, 'isPaul'), false, 'is not Paul anymore');
+    assert.equal(get(obj, 'isPaul'), false, 'is not Paul anymore');
   });
 
-  (0, _internalTestHelpers.testBoth)('computed.gt', function (get, set) {
+  (0, _internalTestHelpers.testBoth)('computed.gt', function (get, set, assert) {
     var obj = { number: 2 };
     (0, _emberMetal.defineProperty)(obj, 'isGreaterThenOne', (0, _computed_macros.gt)('number', 1));
 
-    equal(get(obj, 'isGreaterThenOne'), true, 'is gt');
+    assert.equal(get(obj, 'isGreaterThenOne'), true, 'is gt');
 
     set(obj, 'number', 1);
 
-    equal(get(obj, 'isGreaterThenOne'), false, 'is not gt');
+    assert.equal(get(obj, 'isGreaterThenOne'), false, 'is not gt');
 
     set(obj, 'number', 0);
 
-    equal(get(obj, 'isGreaterThenOne'), false, 'is not gt');
+    assert.equal(get(obj, 'isGreaterThenOne'), false, 'is not gt');
   });
 
-  (0, _internalTestHelpers.testBoth)('computed.gte', function (get, set) {
+  (0, _internalTestHelpers.testBoth)('computed.gte', function (get, set, assert) {
     var obj = { number: 2 };
     (0, _emberMetal.defineProperty)(obj, 'isGreaterOrEqualThenOne', (0, _computed_macros.gte)('number', 1));
 
-    equal(get(obj, 'isGreaterOrEqualThenOne'), true, 'is gte');
+    assert.equal(get(obj, 'isGreaterOrEqualThenOne'), true, 'is gte');
 
     set(obj, 'number', 1);
 
-    equal(get(obj, 'isGreaterOrEqualThenOne'), true, 'is gte');
+    assert.equal(get(obj, 'isGreaterOrEqualThenOne'), true, 'is gte');
 
     set(obj, 'number', 0);
 
-    equal(get(obj, 'isGreaterOrEqualThenOne'), false, 'is not gte');
+    assert.equal(get(obj, 'isGreaterOrEqualThenOne'), false, 'is not gte');
   });
 
-  (0, _internalTestHelpers.testBoth)('computed.lt', function (get, set) {
+  (0, _internalTestHelpers.testBoth)('computed.lt', function (get, set, assert) {
     var obj = { number: 0 };
     (0, _emberMetal.defineProperty)(obj, 'isLesserThenOne', (0, _computed_macros.lt)('number', 1));
 
-    equal(get(obj, 'isLesserThenOne'), true, 'is lt');
+    assert.equal(get(obj, 'isLesserThenOne'), true, 'is lt');
 
     set(obj, 'number', 1);
 
-    equal(get(obj, 'isLesserThenOne'), false, 'is not lt');
+    assert.equal(get(obj, 'isLesserThenOne'), false, 'is not lt');
 
     set(obj, 'number', 2);
 
-    equal(get(obj, 'isLesserThenOne'), false, 'is not lt');
+    assert.equal(get(obj, 'isLesserThenOne'), false, 'is not lt');
   });
 
-  (0, _internalTestHelpers.testBoth)('computed.lte', function (get, set) {
+  (0, _internalTestHelpers.testBoth)('computed.lte', function (get, set, assert) {
     var obj = { number: 0 };
     (0, _emberMetal.defineProperty)(obj, 'isLesserOrEqualThenOne', (0, _computed_macros.lte)('number', 1));
 
-    equal(get(obj, 'isLesserOrEqualThenOne'), true, 'is lte');
+    assert.equal(get(obj, 'isLesserOrEqualThenOne'), true, 'is lte');
 
     set(obj, 'number', 1);
 
-    equal(get(obj, 'isLesserOrEqualThenOne'), true, 'is lte');
+    assert.equal(get(obj, 'isLesserOrEqualThenOne'), true, 'is lte');
 
     set(obj, 'number', 2);
 
-    equal(get(obj, 'isLesserOrEqualThenOne'), false, 'is not lte');
+    assert.equal(get(obj, 'isLesserOrEqualThenOne'), false, 'is not lte');
   });
 
-  (0, _internalTestHelpers.testBoth)('computed.and two properties', function (get, set) {
+  (0, _internalTestHelpers.testBoth)('computed.and two properties', function (get, set, assert) {
     var obj = { one: true, two: true };
     (0, _emberMetal.defineProperty)(obj, 'oneAndTwo', (0, _computed_macros.and)('one', 'two'));
 
-    equal(get(obj, 'oneAndTwo'), true, 'one and two');
+    assert.equal(get(obj, 'oneAndTwo'), true, 'one and two');
 
     set(obj, 'one', false);
 
-    equal(get(obj, 'oneAndTwo'), false, 'one and not two');
+    assert.equal(get(obj, 'oneAndTwo'), false, 'one and not two');
 
     set(obj, 'one', null);
     set(obj, 'two', 'Yes');
 
-    equal(get(obj, 'oneAndTwo'), null, 'returns falsy value as in &&');
+    assert.equal(get(obj, 'oneAndTwo'), null, 'returns falsy value as in &&');
 
     set(obj, 'one', true);
     set(obj, 'two', 2);
 
-    equal(get(obj, 'oneAndTwo'), 2, 'returns truthy value as in &&');
+    assert.equal(get(obj, 'oneAndTwo'), 2, 'returns truthy value as in &&');
   });
 
-  (0, _internalTestHelpers.testBoth)('computed.and three properties', function (get, set) {
+  (0, _internalTestHelpers.testBoth)('computed.and three properties', function (get, set, assert) {
     var obj = { one: true, two: true, three: true };
     (0, _emberMetal.defineProperty)(obj, 'oneTwoThree', (0, _computed_macros.and)('one', 'two', 'three'));
 
-    equal(get(obj, 'oneTwoThree'), true, 'one and two and three');
+    assert.equal(get(obj, 'oneTwoThree'), true, 'one and two and three');
 
     set(obj, 'one', false);
 
-    equal(get(obj, 'oneTwoThree'), false, 'one and not two and not three');
+    assert.equal(get(obj, 'oneTwoThree'), false, 'one and not two and not three');
 
     set(obj, 'one', true);
     set(obj, 'two', 2);
     set(obj, 'three', 3);
 
-    equal(get(obj, 'oneTwoThree'), 3, 'returns truthy value as in &&');
+    assert.equal(get(obj, 'oneTwoThree'), 3, 'returns truthy value as in &&');
   });
 
-  (0, _internalTestHelpers.testBoth)('computed.and expand properties', function (get, set) {
+  (0, _internalTestHelpers.testBoth)('computed.and expand properties', function (get, set, assert) {
     var obj = { one: true, two: true, three: true };
     (0, _emberMetal.defineProperty)(obj, 'oneTwoThree', (0, _computed_macros.and)('{one,two,three}'));
 
-    equal(get(obj, 'oneTwoThree'), true, 'one and two and three');
+    assert.equal(get(obj, 'oneTwoThree'), true, 'one and two and three');
 
     set(obj, 'one', false);
 
-    equal(get(obj, 'oneTwoThree'), false, 'one and not two and not three');
+    assert.equal(get(obj, 'oneTwoThree'), false, 'one and not two and not three');
 
     set(obj, 'one', true);
     set(obj, 'two', 2);
     set(obj, 'three', 3);
 
-    equal(get(obj, 'oneTwoThree'), 3, 'returns truthy value as in &&');
+    assert.equal(get(obj, 'oneTwoThree'), 3, 'returns truthy value as in &&');
   });
 
-  (0, _internalTestHelpers.testBoth)('computed.or two properties', function (get, set) {
+  (0, _internalTestHelpers.testBoth)('computed.or two properties', function (get, set, assert) {
     var obj = { one: true, two: true };
     (0, _emberMetal.defineProperty)(obj, 'oneOrTwo', (0, _computed_macros.or)('one', 'two'));
 
-    equal(get(obj, 'oneOrTwo'), true, 'one or two');
+    assert.equal(get(obj, 'oneOrTwo'), true, 'one or two');
 
     set(obj, 'one', false);
 
-    equal(get(obj, 'oneOrTwo'), true, 'one or two');
+    assert.equal(get(obj, 'oneOrTwo'), true, 'one or two');
 
     set(obj, 'two', false);
 
-    equal(get(obj, 'oneOrTwo'), false, 'nor one nor two');
+    assert.equal(get(obj, 'oneOrTwo'), false, 'nor one nor two');
 
     set(obj, 'two', null);
 
-    equal(get(obj, 'oneOrTwo'), null, 'returns last falsy value as in ||');
+    assert.equal(get(obj, 'oneOrTwo'), null, 'returns last falsy value as in ||');
 
     set(obj, 'two', true);
 
-    equal(get(obj, 'oneOrTwo'), true, 'one or two');
+    assert.equal(get(obj, 'oneOrTwo'), true, 'one or two');
 
     set(obj, 'one', 1);
 
-    equal(get(obj, 'oneOrTwo'), 1, 'returns truthy value as in ||');
+    assert.equal(get(obj, 'oneOrTwo'), 1, 'returns truthy value as in ||');
   });
 
-  (0, _internalTestHelpers.testBoth)('computed.or three properties', function (get, set) {
+  (0, _internalTestHelpers.testBoth)('computed.or three properties', function (get, set, assert) {
     var obj = { one: true, two: true, three: true };
     (0, _emberMetal.defineProperty)(obj, 'oneTwoThree', (0, _computed_macros.or)('one', 'two', 'three'));
 
-    equal(get(obj, 'oneTwoThree'), true, 'one or two or three');
+    assert.equal(get(obj, 'oneTwoThree'), true, 'one or two or three');
 
     set(obj, 'one', false);
 
-    equal(get(obj, 'oneTwoThree'), true, 'one or two or three');
+    assert.equal(get(obj, 'oneTwoThree'), true, 'one or two or three');
 
     set(obj, 'two', false);
 
-    equal(get(obj, 'oneTwoThree'), true, 'one or two or three');
+    assert.equal(get(obj, 'oneTwoThree'), true, 'one or two or three');
 
     set(obj, 'three', false);
 
-    equal(get(obj, 'oneTwoThree'), false, 'one or two or three');
+    assert.equal(get(obj, 'oneTwoThree'), false, 'one or two or three');
 
     set(obj, 'three', null);
 
-    equal(get(obj, 'oneTwoThree'), null, 'returns last falsy value as in ||');
+    assert.equal(get(obj, 'oneTwoThree'), null, 'returns last falsy value as in ||');
 
     set(obj, 'two', true);
 
-    equal(get(obj, 'oneTwoThree'), true, 'one or two or three');
+    assert.equal(get(obj, 'oneTwoThree'), true, 'one or two or three');
 
     set(obj, 'one', 1);
 
-    equal(get(obj, 'oneTwoThree'), 1, 'returns truthy value as in ||');
+    assert.equal(get(obj, 'oneTwoThree'), 1, 'returns truthy value as in ||');
   });
 
-  (0, _internalTestHelpers.testBoth)('computed.or expand properties', function (get, set) {
+  (0, _internalTestHelpers.testBoth)('computed.or expand properties', function (get, set, assert) {
     var obj = { one: true, two: true, three: true };
     (0, _emberMetal.defineProperty)(obj, 'oneTwoThree', (0, _computed_macros.or)('{one,two,three}'));
 
-    equal(get(obj, 'oneTwoThree'), true, 'one or two or three');
+    assert.equal(get(obj, 'oneTwoThree'), true, 'one or two or three');
 
     set(obj, 'one', false);
 
-    equal(get(obj, 'oneTwoThree'), true, 'one or two or three');
+    assert.equal(get(obj, 'oneTwoThree'), true, 'one or two or three');
 
     set(obj, 'two', false);
 
-    equal(get(obj, 'oneTwoThree'), true, 'one or two or three');
+    assert.equal(get(obj, 'oneTwoThree'), true, 'one or two or three');
 
     set(obj, 'three', false);
 
-    equal(get(obj, 'oneTwoThree'), false, 'one or two or three');
+    assert.equal(get(obj, 'oneTwoThree'), false, 'one or two or three');
 
     set(obj, 'three', null);
 
-    equal(get(obj, 'oneTwoThree'), null, 'returns last falsy value as in ||');
+    assert.equal(get(obj, 'oneTwoThree'), null, 'returns last falsy value as in ||');
 
     set(obj, 'two', true);
 
-    equal(get(obj, 'oneTwoThree'), true, 'one or two or three');
+    assert.equal(get(obj, 'oneTwoThree'), true, 'one or two or three');
 
     set(obj, 'one', 1);
 
-    equal(get(obj, 'oneTwoThree'), 1, 'returns truthy value as in ||');
+    assert.equal(get(obj, 'oneTwoThree'), 1, 'returns truthy value as in ||');
   });
 
   (0, _internalTestHelpers.testBoth)('computed.or and computed.and warn about dependent keys with spaces', function () {
@@ -46889,7 +46887,7 @@ enifed('ember-runtime/tests/computed/computed_macros_test', ['ember-metal', 'emb
     }, /Dependent keys passed to Ember\.computed\.and\(\) can't have spaces\./);
   });
 
-  (0, _internalTestHelpers.testBoth)('computed.oneWay', function (get, set) {
+  (0, _internalTestHelpers.testBoth)('computed.oneWay', function (get, set, assert) {
     var obj = {
       firstName: 'Teddy',
       lastName: 'Zeenny'
@@ -46897,23 +46895,23 @@ enifed('ember-runtime/tests/computed/computed_macros_test', ['ember-metal', 'emb
 
     (0, _emberMetal.defineProperty)(obj, 'nickName', (0, _computed_macros.oneWay)('firstName'));
 
-    equal(get(obj, 'firstName'), 'Teddy');
-    equal(get(obj, 'lastName'), 'Zeenny');
-    equal(get(obj, 'nickName'), 'Teddy');
+    assert.equal(get(obj, 'firstName'), 'Teddy');
+    assert.equal(get(obj, 'lastName'), 'Zeenny');
+    assert.equal(get(obj, 'nickName'), 'Teddy');
 
     set(obj, 'nickName', 'TeddyBear');
 
-    equal(get(obj, 'firstName'), 'Teddy');
-    equal(get(obj, 'lastName'), 'Zeenny');
+    assert.equal(get(obj, 'firstName'), 'Teddy');
+    assert.equal(get(obj, 'lastName'), 'Zeenny');
 
-    equal(get(obj, 'nickName'), 'TeddyBear');
+    assert.equal(get(obj, 'nickName'), 'TeddyBear');
 
     set(obj, 'firstName', 'TEDDDDDDDDYYY');
 
-    equal(get(obj, 'nickName'), 'TeddyBear');
+    assert.equal(get(obj, 'nickName'), 'TeddyBear');
   });
 
-  (0, _internalTestHelpers.testBoth)('computed.readOnly', function (get, set) {
+  (0, _internalTestHelpers.testBoth)('computed.readOnly', function (get, set, assert) {
     var obj = {
       firstName: 'Teddy',
       lastName: 'Zeenny'
@@ -46921,25 +46919,25 @@ enifed('ember-runtime/tests/computed/computed_macros_test', ['ember-metal', 'emb
 
     (0, _emberMetal.defineProperty)(obj, 'nickName', (0, _computed_macros.readOnly)('firstName'));
 
-    equal(get(obj, 'firstName'), 'Teddy');
-    equal(get(obj, 'lastName'), 'Zeenny');
-    equal(get(obj, 'nickName'), 'Teddy');
+    assert.equal(get(obj, 'firstName'), 'Teddy');
+    assert.equal(get(obj, 'lastName'), 'Zeenny');
+    assert.equal(get(obj, 'nickName'), 'Teddy');
 
-    throws(function () {
+    assert.throws(function () {
       set(obj, 'nickName', 'TeddyBear');
     }, / /);
 
-    equal(get(obj, 'firstName'), 'Teddy');
-    equal(get(obj, 'lastName'), 'Zeenny');
+    assert.equal(get(obj, 'firstName'), 'Teddy');
+    assert.equal(get(obj, 'lastName'), 'Zeenny');
 
-    equal(get(obj, 'nickName'), 'Teddy');
+    assert.equal(get(obj, 'nickName'), 'Teddy');
 
     set(obj, 'firstName', 'TEDDDDDDDDYYY');
 
-    equal(get(obj, 'nickName'), 'TEDDDDDDDDYYY');
+    assert.equal(get(obj, 'nickName'), 'TEDDDDDDDDYYY');
   });
 
-  (0, _internalTestHelpers.testBoth)('computed.deprecatingAlias', function (get, set) {
+  (0, _internalTestHelpers.testBoth)('computed.deprecatingAlias', function (get, set, assert) {
     var obj = { bar: 'asdf', baz: null, quz: false };
     (0, _emberMetal.defineProperty)(obj, 'bay', (0, _emberMetal.computed)(function () {
       return 'apple';
@@ -46951,19 +46949,19 @@ enifed('ember-runtime/tests/computed/computed_macros_test', ['ember-metal', 'emb
     (0, _emberMetal.defineProperty)(obj, 'bayAlias', (0, _computed_macros.deprecatingAlias)('bay'));
 
     expectDeprecation(function () {
-      equal(get(obj, 'barAlias'), 'asdf');
+      assert.equal(get(obj, 'barAlias'), 'asdf');
     }, 'Usage of `barAlias` is deprecated, use `bar` instead.');
 
     expectDeprecation(function () {
-      equal(get(obj, 'bazAlias'), null);
+      assert.equal(get(obj, 'bazAlias'), null);
     }, 'Usage of `bazAlias` is deprecated, use `baz` instead.');
 
     expectDeprecation(function () {
-      equal(get(obj, 'quzAlias'), false);
+      assert.equal(get(obj, 'quzAlias'), false);
     }, 'Usage of `quzAlias` is deprecated, use `quz` instead.');
 
     expectDeprecation(function () {
-      equal(get(obj, 'bayAlias'), 'apple');
+      assert.equal(get(obj, 'bayAlias'), 'apple');
     }, 'Usage of `bayAlias` is deprecated, use `bay` instead.');
 
     expectDeprecation(function () {
@@ -46978,13 +46976,13 @@ enifed('ember-runtime/tests/computed/computed_macros_test', ['ember-metal', 'emb
       set(obj, 'quzAlias', null);
     }, 'Usage of `quzAlias` is deprecated, use `quz` instead.');
 
-    equal(get(obj, 'barAlias'), 'newBar');
-    equal(get(obj, 'bazAlias'), 'newBaz');
-    equal(get(obj, 'quzAlias'), null);
+    assert.equal(get(obj, 'barAlias'), 'newBar');
+    assert.equal(get(obj, 'bazAlias'), 'newBaz');
+    assert.equal(get(obj, 'quzAlias'), null);
 
-    equal(get(obj, 'bar'), 'newBar');
-    equal(get(obj, 'baz'), 'newBaz');
-    equal(get(obj, 'quz'), null);
+    assert.equal(get(obj, 'bar'), 'newBar');
+    assert.equal(get(obj, 'baz'), 'newBaz');
+    assert.equal(get(obj, 'quz'), null);
   });
 });
 enifed('ember-runtime/tests/computed/reduce_computed_macros_test', ['ember-metal', 'internal-test-helpers', 'ember-runtime/system/object', 'ember-runtime/system/object_proxy', 'ember-runtime/computed/reduce_computed_macros', 'ember-runtime/utils', 'ember-runtime/system/native_array', 'ember-runtime/mixins/mutable_array'], function (_emberMetal, _internalTestHelpers, _object, _object_proxy, _reduce_computed_macros, _utils, _native_array, _mutable_array) {
@@ -46992,7 +46990,7 @@ enifed('ember-runtime/tests/computed/reduce_computed_macros_test', ['ember-metal
 
   var obj = void 0;
   QUnit.module('map', {
-    setup: function () {
+    beforeEach: function () {
       obj = _object.default.extend({
         mapped: (0, _reduce_computed_macros.map)('array.@each.v', function (item) {
           return item.v;
@@ -47006,30 +47004,30 @@ enifed('ember-runtime/tests/computed/reduce_computed_macros_test', ['ember-metal
         array: (0, _native_array.A)([{ v: 1 }, { v: 3 }, { v: 2 }, { v: 1 }])
       });
     },
-    teardown: function () {
+    afterEach: function () {
       (0, _emberMetal.run)(obj, 'destroy');
     }
   });
 
-  QUnit.test('map is readOnly', function () {
-    QUnit.throws(function () {
+  QUnit.test('map is readOnly', function (assert) {
+    assert.throws(function () {
       obj.set('mapped', 1);
     }, /Cannot set read-only property "mapped" on object:/);
   });
 
-  QUnit.test('it maps simple properties', function () {
-    deepEqual(obj.get('mapped'), [1, 3, 2, 1]);
+  QUnit.test('it maps simple properties', function (assert) {
+    assert.deepEqual(obj.get('mapped'), [1, 3, 2, 1]);
 
     obj.get('array').pushObject({ v: 5 });
 
-    deepEqual(obj.get('mapped'), [1, 3, 2, 1, 5]);
+    assert.deepEqual(obj.get('mapped'), [1, 3, 2, 1, 5]);
 
     (0, _mutable_array.removeAt)(obj.get('array'), 3);
 
-    deepEqual(obj.get('mapped'), [1, 3, 2, 5]);
+    assert.deepEqual(obj.get('mapped'), [1, 3, 2, 5]);
   });
 
-  QUnit.test('it maps simple unshifted properties', function () {
+  QUnit.test('it maps simple unshifted properties', function (assert) {
     var array = (0, _native_array.A)();
 
     obj = _object.default.extend({
@@ -47046,13 +47044,13 @@ enifed('ember-runtime/tests/computed/reduce_computed_macros_test', ['ember-metal
 
     array.popObject();
 
-    deepEqual(obj.get('mapped'), ['A', 'B'], 'properties unshifted in sequence are mapped correctly');
+    assert.deepEqual(obj.get('mapped'), ['A', 'B'], 'properties unshifted in sequence are mapped correctly');
   });
 
-  QUnit.test('it has the correct `this`', function () {
+  QUnit.test('it has the correct `this`', function (assert) {
     obj = _object.default.extend({
       mapped: (0, _reduce_computed_macros.map)('array', function (item) {
-        equal(this, obj, 'should have correct context');
+        assert.equal(this, obj, 'should have correct context');
         return this.upperCase(item);
       }),
       upperCase: function (string) {
@@ -47062,10 +47060,10 @@ enifed('ember-runtime/tests/computed/reduce_computed_macros_test', ['ember-metal
       array: ['a', 'b', 'c']
     });
 
-    deepEqual(obj.get('mapped'), ['A', 'B', 'C'], 'properties unshifted in sequence are mapped correctly');
+    assert.deepEqual(obj.get('mapped'), ['A', 'B', 'C'], 'properties unshifted in sequence are mapped correctly');
   });
 
-  QUnit.test('it passes the index to the callback', function () {
+  QUnit.test('it passes the index to the callback', function (assert) {
 
     obj = _object.default.extend({
       mapped: (0, _reduce_computed_macros.map)('array', function (item, index) {
@@ -47075,28 +47073,28 @@ enifed('ember-runtime/tests/computed/reduce_computed_macros_test', ['ember-metal
       array: ['a', 'b', 'c']
     });
 
-    deepEqual(obj.get('mapped'), [0, 1, 2], 'index is passed to callback correctly');
+    assert.deepEqual(obj.get('mapped'), [0, 1, 2], 'index is passed to callback correctly');
   });
 
-  QUnit.test('it maps objects', function () {
-    deepEqual(obj.get('mappedObjects'), [{ name: 'Robert' }, { name: 'Leanna' }]);
+  QUnit.test('it maps objects', function (assert) {
+    assert.deepEqual(obj.get('mappedObjects'), [{ name: 'Robert' }, { name: 'Leanna' }]);
 
     obj.get('arrayObjects').pushObject({
       v: { name: 'Eddard' }
     });
 
-    deepEqual(obj.get('mappedObjects'), [{ name: 'Robert' }, { name: 'Leanna' }, { name: 'Eddard' }]);
+    assert.deepEqual(obj.get('mappedObjects'), [{ name: 'Robert' }, { name: 'Leanna' }, { name: 'Eddard' }]);
 
     (0, _mutable_array.removeAt)(obj.get('arrayObjects'), 1);
 
-    deepEqual(obj.get('mappedObjects'), [{ name: 'Robert' }, { name: 'Eddard' }]);
+    assert.deepEqual(obj.get('mappedObjects'), [{ name: 'Robert' }, { name: 'Eddard' }]);
 
     (0, _emberMetal.set)(obj.get('arrayObjects')[0], 'v', { name: 'Stannis' });
 
-    deepEqual(obj.get('mappedObjects'), [{ name: 'Stannis' }, { name: 'Eddard' }]);
+    assert.deepEqual(obj.get('mappedObjects'), [{ name: 'Stannis' }, { name: 'Eddard' }]);
   });
 
-  QUnit.test('it maps unshifted objects with property observers', function () {
+  QUnit.test('it maps unshifted objects with property observers', function (assert) {
     var array = (0, _native_array.A)();
     var cObj = { v: 'c' };
 
@@ -47114,45 +47112,45 @@ enifed('ember-runtime/tests/computed/reduce_computed_macros_test', ['ember-metal
 
     (0, _emberMetal.set)(cObj, 'v', 'd');
 
-    deepEqual(array.mapBy('v'), ['a', 'b', 'd'], 'precond - unmapped array is correct');
-    deepEqual(obj.get('mapped'), ['A', 'B', 'D'], 'properties unshifted in sequence are mapped correctly');
+    assert.deepEqual(array.mapBy('v'), ['a', 'b', 'd'], 'precond - unmapped array is correct');
+    assert.deepEqual(obj.get('mapped'), ['A', 'B', 'D'], 'properties unshifted in sequence are mapped correctly');
   });
 
   QUnit.module('mapBy', {
-    setup: function () {
+    beforeEach: function () {
       obj = _object.default.extend({
         mapped: (0, _reduce_computed_macros.mapBy)('array', 'v')
       }).create({
         array: (0, _native_array.A)([{ v: 1 }, { v: 3 }, { v: 2 }, { v: 1 }])
       });
     },
-    teardown: function () {
+    afterEach: function () {
       (0, _emberMetal.run)(obj, 'destroy');
     }
   });
 
-  QUnit.test('mapBy is readOnly', function () {
-    QUnit.throws(function () {
+  QUnit.test('mapBy is readOnly', function (assert) {
+    assert.throws(function () {
       obj.set('mapped', 1);
     }, /Cannot set read-only property "mapped" on object:/);
   });
 
-  QUnit.test('it maps properties', function () {
-    deepEqual(obj.get('mapped'), [1, 3, 2, 1]);
+  QUnit.test('it maps properties', function (assert) {
+    assert.deepEqual(obj.get('mapped'), [1, 3, 2, 1]);
 
     obj.get('array').pushObject({ v: 5 });
 
-    deepEqual(obj.get('mapped'), [1, 3, 2, 1, 5]);
+    assert.deepEqual(obj.get('mapped'), [1, 3, 2, 1, 5]);
 
     (0, _mutable_array.removeAt)(obj.get('array'), 3);
 
-    deepEqual(obj.get('mapped'), [1, 3, 2, 5]);
+    assert.deepEqual(obj.get('mapped'), [1, 3, 2, 5]);
   });
 
-  QUnit.test('it is observable', function () {
+  QUnit.test('it is observable', function (assert) {
     var calls = 0;
 
-    deepEqual(obj.get('mapped'), [1, 3, 2, 1]);
+    assert.deepEqual(obj.get('mapped'), [1, 3, 2, 1]);
 
     (0, _emberMetal.addObserver)(obj, 'mapped.@each', function () {
       return calls++;
@@ -47160,11 +47158,11 @@ enifed('ember-runtime/tests/computed/reduce_computed_macros_test', ['ember-metal
 
     obj.get('array').pushObject({ v: 5 });
 
-    equal(calls, 1, 'mapBy is observable');
+    assert.equal(calls, 1, 'mapBy is observable');
   });
 
   QUnit.module('filter', {
-    setup: function () {
+    beforeEach: function () {
       obj = _object.default.extend({
         filtered: (0, _reduce_computed_macros.filter)('array', function (item) {
           return item % 2 === 0;
@@ -47173,22 +47171,22 @@ enifed('ember-runtime/tests/computed/reduce_computed_macros_test', ['ember-metal
         array: (0, _native_array.A)([1, 2, 3, 4, 5, 6, 7, 8])
       });
     },
-    teardown: function () {
+    afterEach: function () {
       (0, _emberMetal.run)(obj, 'destroy');
     }
   });
 
-  QUnit.test('filter is readOnly', function () {
-    QUnit.throws(function () {
+  QUnit.test('filter is readOnly', function (assert) {
+    assert.throws(function () {
       obj.set('filtered', 1);
     }, /Cannot set read-only property "filtered" on object:/);
   });
 
-  QUnit.test('it filters according to the specified filter function', function () {
-    deepEqual(obj.get('filtered'), [2, 4, 6, 8], 'filter filters by the specified function');
+  QUnit.test('it filters according to the specified filter function', function (assert) {
+    assert.deepEqual(obj.get('filtered'), [2, 4, 6, 8], 'filter filters by the specified function');
   });
 
-  QUnit.test('it passes the index to the callback', function () {
+  QUnit.test('it passes the index to the callback', function (assert) {
     obj = _object.default.extend({
       filtered: (0, _reduce_computed_macros.filter)('array', function (item, index) {
         return index === 1;
@@ -47197,13 +47195,13 @@ enifed('ember-runtime/tests/computed/reduce_computed_macros_test', ['ember-metal
       array: ['a', 'b', 'c']
     });
 
-    deepEqual((0, _emberMetal.get)(obj, 'filtered'), ['b'], 'index is passed to callback correctly');
+    assert.deepEqual((0, _emberMetal.get)(obj, 'filtered'), ['b'], 'index is passed to callback correctly');
   });
 
-  QUnit.test('it has the correct `this`', function () {
+  QUnit.test('it has the correct `this`', function (assert) {
     obj = _object.default.extend({
       filtered: (0, _reduce_computed_macros.filter)('array', function (item, index) {
-        equal(this, obj);
+        assert.equal(this, obj);
         return this.isOne(index);
       }),
       isOne: function (value) {
@@ -47213,10 +47211,10 @@ enifed('ember-runtime/tests/computed/reduce_computed_macros_test', ['ember-metal
       array: ['a', 'b', 'c']
     });
 
-    deepEqual((0, _emberMetal.get)(obj, 'filtered'), ['b'], 'index is passed to callback correctly');
+    assert.deepEqual((0, _emberMetal.get)(obj, 'filtered'), ['b'], 'index is passed to callback correctly');
   });
 
-  QUnit.test('it passes the array to the callback', function () {
+  QUnit.test('it passes the array to the callback', function (assert) {
     obj = _object.default.extend({
       filtered: (0, _reduce_computed_macros.filter)('array', function (item, index, array) {
         return index === (0, _emberMetal.get)(array, 'length') - 2;
@@ -47225,44 +47223,44 @@ enifed('ember-runtime/tests/computed/reduce_computed_macros_test', ['ember-metal
       array: (0, _native_array.A)(['a', 'b', 'c'])
     });
 
-    deepEqual(obj.get('filtered'), ['b'], 'array is passed to callback correctly');
+    assert.deepEqual(obj.get('filtered'), ['b'], 'array is passed to callback correctly');
   });
 
-  QUnit.test('it caches properly', function () {
+  QUnit.test('it caches properly', function (assert) {
     var array = obj.get('array');
 
     var filtered = obj.get('filtered');
-    ok(filtered === obj.get('filtered'));
+    assert.ok(filtered === obj.get('filtered'));
 
     array.addObject(11);
     var newFiltered = obj.get('filtered');
 
-    ok(filtered !== newFiltered);
+    assert.ok(filtered !== newFiltered);
 
-    ok(obj.get('filtered') === newFiltered);
+    assert.ok(obj.get('filtered') === newFiltered);
   });
 
-  QUnit.test('it updates as the array is modified', function () {
+  QUnit.test('it updates as the array is modified', function (assert) {
     var array = obj.get('array');
 
-    deepEqual(obj.get('filtered'), [2, 4, 6, 8], 'precond - filtered array is initially correct');
+    assert.deepEqual(obj.get('filtered'), [2, 4, 6, 8], 'precond - filtered array is initially correct');
 
     array.addObject(11);
-    deepEqual(obj.get('filtered'), [2, 4, 6, 8], 'objects not passing the filter are not added');
+    assert.deepEqual(obj.get('filtered'), [2, 4, 6, 8], 'objects not passing the filter are not added');
 
     array.addObject(12);
-    deepEqual(obj.get('filtered'), [2, 4, 6, 8, 12], 'objects passing the filter are added');
+    assert.deepEqual(obj.get('filtered'), [2, 4, 6, 8, 12], 'objects passing the filter are added');
 
     array.removeObject(3);
     array.removeObject(4);
 
-    deepEqual(obj.get('filtered'), [2, 6, 8, 12], 'objects removed from the dependent array are removed from the computed array');
+    assert.deepEqual(obj.get('filtered'), [2, 6, 8, 12], 'objects removed from the dependent array are removed from the computed array');
   });
 
-  QUnit.test('the dependent array can be cleared one at a time', function () {
+  QUnit.test('the dependent array can be cleared one at a time', function (assert) {
     var array = (0, _emberMetal.get)(obj, 'array');
 
-    deepEqual(obj.get('filtered'), [2, 4, 6, 8], 'precond - filtered array is initially correct');
+    assert.deepEqual(obj.get('filtered'), [2, 4, 6, 8], 'precond - filtered array is initially correct');
 
     // clear 1-8 but in a random order
     array.removeObject(3);
@@ -47274,26 +47272,26 @@ enifed('ember-runtime/tests/computed/reduce_computed_macros_test', ['ember-metal
     array.removeObject(5);
     array.removeObject(7);
 
-    deepEqual(obj.get('filtered'), [], 'filtered array cleared correctly');
+    assert.deepEqual(obj.get('filtered'), [], 'filtered array cleared correctly');
   });
 
-  QUnit.test('the dependent array can be `clear`ed directly (#3272)', function () {
-    deepEqual(obj.get('filtered'), [2, 4, 6, 8], 'precond - filtered array is initially correct');
+  QUnit.test('the dependent array can be `clear`ed directly (#3272)', function (assert) {
+    assert.deepEqual(obj.get('filtered'), [2, 4, 6, 8], 'precond - filtered array is initially correct');
 
     obj.get('array').clear();
 
-    deepEqual(obj.get('filtered'), [], 'filtered array cleared correctly');
+    assert.deepEqual(obj.get('filtered'), [], 'filtered array cleared correctly');
   });
 
-  QUnit.test('it updates as the array is replaced', function () {
-    deepEqual(obj.get('filtered'), [2, 4, 6, 8], 'precond - filtered array is initially correct');
+  QUnit.test('it updates as the array is replaced', function (assert) {
+    assert.deepEqual(obj.get('filtered'), [2, 4, 6, 8], 'precond - filtered array is initially correct');
 
     obj.set('array', [20, 21, 22, 23, 24]);
 
-    deepEqual(obj.get('filtered'), [20, 22, 24], 'computed array is updated when array is changed');
+    assert.deepEqual(obj.get('filtered'), [20, 22, 24], 'computed array is updated when array is changed');
   });
 
-  QUnit.test('it updates properly on @each with {} dependencies', function () {
+  QUnit.test('it updates properly on @each with {} dependencies', function (assert) {
     var item = _object.default.create({ prop: true });
 
     obj = _object.default.extend({
@@ -47304,15 +47302,15 @@ enifed('ember-runtime/tests/computed/reduce_computed_macros_test', ['ember-metal
       items: (0, _native_array.A)([item])
     });
 
-    deepEqual(obj.get('filtered'), [item]);
+    assert.deepEqual(obj.get('filtered'), [item]);
 
     item.set('prop', false);
 
-    deepEqual(obj.get('filtered'), []);
+    assert.deepEqual(obj.get('filtered'), []);
   });
 
   QUnit.module('filterBy', {
-    setup: function () {
+    beforeEach: function () {
       obj = _object.default.extend({
         a1s: (0, _reduce_computed_macros.filterBy)('array', 'a', 1),
         as: (0, _reduce_computed_macros.filterBy)('array', 'a'),
@@ -47321,20 +47319,20 @@ enifed('ember-runtime/tests/computed/reduce_computed_macros_test', ['ember-metal
         array: (0, _native_array.A)([{ name: 'one', a: 1, b: false }, { name: 'two', a: 2, b: false }, { name: 'three', a: 1, b: true }, { name: 'four', b: true }])
       });
     },
-    teardown: function () {
+    afterEach: function () {
       (0, _emberMetal.run)(obj, 'destroy');
     }
   });
 
-  QUnit.test('filterBy is readOnly', function () {
-    QUnit.throws(function () {
+  QUnit.test('filterBy is readOnly', function (assert) {
+    assert.throws(function () {
       obj.set('as', 1);
     }, /Cannot set read-only property "as" on object:/);
   });
 
-  QUnit.test('properties can be filtered by truthiness', function () {
-    deepEqual(obj.get('as').mapBy('name'), ['one', 'two', 'three'], 'properties can be filtered by existence');
-    deepEqual(obj.get('bs').mapBy('name'), ['three', 'four'], 'booleans can be filtered');
+  QUnit.test('properties can be filtered by truthiness', function (assert) {
+    assert.deepEqual(obj.get('as').mapBy('name'), ['one', 'two', 'three'], 'properties can be filtered by existence');
+    assert.deepEqual(obj.get('bs').mapBy('name'), ['three', 'four'], 'booleans can be filtered');
 
     (0, _emberMetal.set)(obj.get('array')[0], 'a', undefined);
     (0, _emberMetal.set)(obj.get('array')[3], 'a', true);
@@ -47342,43 +47340,43 @@ enifed('ember-runtime/tests/computed/reduce_computed_macros_test', ['ember-metal
     (0, _emberMetal.set)(obj.get('array')[0], 'b', true);
     (0, _emberMetal.set)(obj.get('array')[3], 'b', false);
 
-    deepEqual(obj.get('as').mapBy('name'), ['two', 'three', 'four'], 'arrays computed by filter property respond to property changes');
-    deepEqual(obj.get('bs').mapBy('name'), ['one', 'three'], 'arrays computed by filtered property respond to property changes');
+    assert.deepEqual(obj.get('as').mapBy('name'), ['two', 'three', 'four'], 'arrays computed by filter property respond to property changes');
+    assert.deepEqual(obj.get('bs').mapBy('name'), ['one', 'three'], 'arrays computed by filtered property respond to property changes');
 
     obj.get('array').pushObject({ name: 'five', a: 6, b: true });
 
-    deepEqual(obj.get('as').mapBy('name'), ['two', 'three', 'four', 'five'], 'arrays computed by filter property respond to added objects');
-    deepEqual(obj.get('bs').mapBy('name'), ['one', 'three', 'five'], 'arrays computed by filtered property respond to added objects');
+    assert.deepEqual(obj.get('as').mapBy('name'), ['two', 'three', 'four', 'five'], 'arrays computed by filter property respond to added objects');
+    assert.deepEqual(obj.get('bs').mapBy('name'), ['one', 'three', 'five'], 'arrays computed by filtered property respond to added objects');
 
     obj.get('array').popObject();
 
-    deepEqual(obj.get('as').mapBy('name'), ['two', 'three', 'four'], 'arrays computed by filter property respond to removed objects');
-    deepEqual(obj.get('bs').mapBy('name'), ['one', 'three'], 'arrays computed by filtered property respond to removed objects');
+    assert.deepEqual(obj.get('as').mapBy('name'), ['two', 'three', 'four'], 'arrays computed by filter property respond to removed objects');
+    assert.deepEqual(obj.get('bs').mapBy('name'), ['one', 'three'], 'arrays computed by filtered property respond to removed objects');
 
     obj.set('array', [{ name: 'six', a: 12, b: true }]);
 
-    deepEqual(obj.get('as').mapBy('name'), ['six'], 'arrays computed by filter property respond to array changes');
-    deepEqual(obj.get('bs').mapBy('name'), ['six'], 'arrays computed by filtered property respond to array changes');
+    assert.deepEqual(obj.get('as').mapBy('name'), ['six'], 'arrays computed by filter property respond to array changes');
+    assert.deepEqual(obj.get('bs').mapBy('name'), ['six'], 'arrays computed by filtered property respond to array changes');
   });
 
-  QUnit.test('properties can be filtered by values', function () {
-    deepEqual(obj.get('a1s').mapBy('name'), ['one', 'three'], 'properties can be filtered by matching value');
+  QUnit.test('properties can be filtered by values', function (assert) {
+    assert.deepEqual(obj.get('a1s').mapBy('name'), ['one', 'three'], 'properties can be filtered by matching value');
 
     obj.get('array').pushObject({ name: 'five', a: 1 });
 
-    deepEqual(obj.get('a1s').mapBy('name'), ['one', 'three', 'five'], 'arrays computed by matching value respond to added objects');
+    assert.deepEqual(obj.get('a1s').mapBy('name'), ['one', 'three', 'five'], 'arrays computed by matching value respond to added objects');
 
     obj.get('array').popObject();
 
-    deepEqual(obj.get('a1s').mapBy('name'), ['one', 'three'], 'arrays computed by matching value respond to removed objects');
+    assert.deepEqual(obj.get('a1s').mapBy('name'), ['one', 'three'], 'arrays computed by matching value respond to removed objects');
 
     (0, _emberMetal.set)(obj.get('array')[1], 'a', 1);
     (0, _emberMetal.set)(obj.get('array')[2], 'a', 2);
 
-    deepEqual(obj.get('a1s').mapBy('name'), ['one', 'two'], 'arrays computed by matching value respond to modified properties');
+    assert.deepEqual(obj.get('a1s').mapBy('name'), ['one', 'two'], 'arrays computed by matching value respond to modified properties');
   });
 
-  QUnit.test('properties values can be replaced', function () {
+  QUnit.test('properties values can be replaced', function (assert) {
     obj = _object.default.extend({
       a1s: (0, _reduce_computed_macros.filterBy)('array', 'a', 1),
       a1bs: (0, _reduce_computed_macros.filterBy)('a1s', 'b')
@@ -47386,11 +47384,11 @@ enifed('ember-runtime/tests/computed/reduce_computed_macros_test', ['ember-metal
       array: []
     });
 
-    deepEqual(obj.get('a1bs').mapBy('name'), [], 'properties can be filtered by matching value');
+    assert.deepEqual(obj.get('a1bs').mapBy('name'), [], 'properties can be filtered by matching value');
 
     (0, _emberMetal.set)(obj, 'array', [{ name: 'item1', a: 1, b: true }]);
 
-    deepEqual(obj.get('a1bs').mapBy('name'), ['item1'], 'properties can be filtered by matching value');
+    assert.deepEqual(obj.get('a1bs').mapBy('name'), ['item1'], 'properties can be filtered by matching value');
   });
 
   [['uniq', _reduce_computed_macros.uniq], ['union', _reduce_computed_macros.union]].forEach(function (tuple) {
@@ -47398,7 +47396,7 @@ enifed('ember-runtime/tests/computed/reduce_computed_macros_test', ['ember-metal
         macro = tuple[1];
 
     QUnit.module('computed.' + name, {
-      setup: function () {
+      beforeEach: function () {
         obj = _object.default.extend({
           union: macro('array', 'array2', 'array3')
         }).create({
@@ -47407,73 +47405,73 @@ enifed('ember-runtime/tests/computed/reduce_computed_macros_test', ['ember-metal
           array3: (0, _native_array.A)([1, 8, 10])
         });
       },
-      teardown: function () {
+      afterEach: function () {
         (0, _emberMetal.run)(obj, 'destroy');
       }
     });
 
-    QUnit.test(name + ' is readOnly', function () {
-      QUnit.throws(function () {
+    QUnit.test(name + ' is readOnly', function (assert) {
+      assert.throws(function () {
         obj.set('union', 1);
       }, /Cannot set read-only property "union" on object:/);
     });
 
-    QUnit.test('does not include duplicates', function () {
+    QUnit.test('does not include duplicates', function (assert) {
       var array = obj.get('array');
       var array2 = obj.get('array2');
 
-      deepEqual(obj.get('union').sort(function (x, y) {
+      assert.deepEqual(obj.get('union').sort(function (x, y) {
         return x - y;
       }), [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], name + ' does not include duplicates');
 
       array.pushObject(8);
 
-      deepEqual(obj.get('union').sort(function (x, y) {
+      assert.deepEqual(obj.get('union').sort(function (x, y) {
         return x - y;
       }), [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], name + ' does not add existing items');
 
       array.pushObject(11);
 
-      deepEqual(obj.get('union').sort(function (x, y) {
+      assert.deepEqual(obj.get('union').sort(function (x, y) {
         return x - y;
       }), [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11], name + ' adds new items');
 
       (0, _mutable_array.removeAt)(array2, 6); // remove 7
 
-      deepEqual(obj.get('union').sort(function (x, y) {
+      assert.deepEqual(obj.get('union').sort(function (x, y) {
         return x - y;
       }), [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11], name + ' does not remove items that are still in the dependent array');
 
       array2.removeObject(7);
 
-      deepEqual(obj.get('union').sort(function (x, y) {
+      assert.deepEqual(obj.get('union').sort(function (x, y) {
         return x - y;
       }), [1, 2, 3, 4, 5, 6, 8, 9, 10, 11], name + ' removes items when their last instance is gone');
     });
 
-    QUnit.test('has set-union semantics', function () {
+    QUnit.test('has set-union semantics', function (assert) {
       var array = obj.get('array');
 
-      deepEqual(obj.get('union').sort(function (x, y) {
+      assert.deepEqual(obj.get('union').sort(function (x, y) {
         return x - y;
       }), [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], name + ' is initially correct');
 
       array.removeObject(6);
 
-      deepEqual(obj.get('union').sort(function (x, y) {
+      assert.deepEqual(obj.get('union').sort(function (x, y) {
         return x - y;
       }), [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], 'objects are not removed if they exist in other dependent arrays');
 
       array.clear();
 
-      deepEqual(obj.get('union').sort(function (x, y) {
+      assert.deepEqual(obj.get('union').sort(function (x, y) {
         return x - y;
       }), [1, 4, 5, 6, 7, 8, 9, 10], 'objects are removed when they are no longer in any dependent array');
     });
   });
 
   QUnit.module('computed.uniqBy', {
-    setup: function () {
+    beforeEach: function () {
       obj = _object.default.extend({
         list: null,
         uniqueById: (0, _reduce_computed_macros.uniqBy)('list', 'id')
@@ -47481,21 +47479,21 @@ enifed('ember-runtime/tests/computed/reduce_computed_macros_test', ['ember-metal
         list: (0, _native_array.A)([{ id: 1, value: 'one' }, { id: 2, value: 'two' }, { id: 1, value: 'one' }])
       });
     },
-    teardown: function () {
+    afterEach: function () {
       (0, _emberMetal.run)(obj, 'destroy');
     }
   });
 
-  QUnit.test('uniqBy is readOnly', function () {
-    QUnit.throws(function () {
+  QUnit.test('uniqBy is readOnly', function (assert) {
+    assert.throws(function () {
       obj.set('uniqueById', 1);
     }, /Cannot set read-only property "uniqueById" on object:/);
   });
-  QUnit.test('does not include duplicates', function () {
-    deepEqual(obj.get('uniqueById'), [{ id: 1, value: 'one' }, { id: 2, value: 'two' }]);
+  QUnit.test('does not include duplicates', function (assert) {
+    assert.deepEqual(obj.get('uniqueById'), [{ id: 1, value: 'one' }, { id: 2, value: 'two' }]);
   });
 
-  QUnit.test('it does not share state among instances', function () {
+  QUnit.test('it does not share state among instances', function (assert) {
     var MyObject = _object.default.extend({
       list: [],
       uniqueByName: (0, _reduce_computed_macros.uniqBy)('list', 'name')
@@ -47503,33 +47501,33 @@ enifed('ember-runtime/tests/computed/reduce_computed_macros_test', ['ember-metal
     var a = MyObject.create({ list: [{ name: 'bob' }, { name: 'mitch' }, { name: 'mitch' }] });
     var b = MyObject.create({ list: [{ name: 'warren' }, { name: 'mitch' }] });
 
-    deepEqual(a.get('uniqueByName'), [{ name: 'bob' }, { name: 'mitch' }]);
+    assert.deepEqual(a.get('uniqueByName'), [{ name: 'bob' }, { name: 'mitch' }]);
     // Making sure that 'mitch' appears
-    deepEqual(b.get('uniqueByName'), [{ name: 'warren' }, { name: 'mitch' }]);
+    assert.deepEqual(b.get('uniqueByName'), [{ name: 'warren' }, { name: 'mitch' }]);
   });
 
-  QUnit.test('it handles changes to the dependent array', function () {
+  QUnit.test('it handles changes to the dependent array', function (assert) {
     obj.get('list').pushObject({ id: 3, value: 'three' });
 
-    deepEqual(obj.get('uniqueById'), [{ id: 1, value: 'one' }, { id: 2, value: 'two' }, { id: 3, value: 'three' }], 'The list includes three');
+    assert.deepEqual(obj.get('uniqueById'), [{ id: 1, value: 'one' }, { id: 2, value: 'two' }, { id: 3, value: 'three' }], 'The list includes three');
 
     obj.get('list').pushObject({ id: 3, value: 'three' });
 
-    deepEqual(obj.get('uniqueById'), [{ id: 1, value: 'one' }, { id: 2, value: 'two' }, { id: 3, value: 'three' }], 'The list does not include a duplicate three');
+    assert.deepEqual(obj.get('uniqueById'), [{ id: 1, value: 'one' }, { id: 2, value: 'two' }, { id: 3, value: 'three' }], 'The list does not include a duplicate three');
   });
 
-  QUnit.test('it returns an empty array when computed on a non-array', function () {
+  QUnit.test('it returns an empty array when computed on a non-array', function (assert) {
     var MyObject = _object.default.extend({
       list: null,
       uniq: (0, _reduce_computed_macros.uniqBy)('list', 'name')
     });
     var a = MyObject.create({ list: 'not an array' });
 
-    deepEqual(a.get('uniq'), []);
+    assert.deepEqual(a.get('uniq'), []);
   });
 
   QUnit.module('computed.intersect', {
-    setup: function () {
+    beforeEach: function () {
       obj = _object.default.extend({
         intersection: (0, _reduce_computed_macros.intersect)('array', 'array2', 'array3')
       }).create({
@@ -47538,54 +47536,54 @@ enifed('ember-runtime/tests/computed/reduce_computed_macros_test', ['ember-metal
         array3: (0, _native_array.A)([3, 5, 6, 7, 8])
       });
     },
-    teardown: function () {
+    afterEach: function () {
       (0, _emberMetal.run)(obj, 'destroy');
     }
   });
 
-  QUnit.test('intersect is readOnly', function () {
-    QUnit.throws(function () {
+  QUnit.test('intersect is readOnly', function (assert) {
+    assert.throws(function () {
       obj.set('intersection', 1);
     }, /Cannot set read-only property "intersection" on object:/);
   });
 
-  QUnit.test('it has set-intersection semantics', function () {
+  QUnit.test('it has set-intersection semantics', function (assert) {
     var array2 = obj.get('array2');
     var array3 = obj.get('array3');
 
-    deepEqual(obj.get('intersection').sort(function (x, y) {
+    assert.deepEqual(obj.get('intersection').sort(function (x, y) {
       return x - y;
     }), [3, 5], 'intersection is initially correct');
 
     array2.shiftObject();
 
-    deepEqual(obj.get('intersection').sort(function (x, y) {
+    assert.deepEqual(obj.get('intersection').sort(function (x, y) {
       return x - y;
     }), [3, 5], 'objects are not removed when they are still in all dependent arrays');
 
     array2.shiftObject();
 
-    deepEqual(obj.get('intersection').sort(function (x, y) {
+    assert.deepEqual(obj.get('intersection').sort(function (x, y) {
       return x - y;
     }), [3, 5], 'objects are not removed when they are still in all dependent arrays');
 
     array2.shiftObject();
 
-    deepEqual(obj.get('intersection'), [5], 'objects are removed once they are gone from all dependent arrays');
+    assert.deepEqual(obj.get('intersection'), [5], 'objects are removed once they are gone from all dependent arrays');
 
     array2.pushObject(1);
 
-    deepEqual(obj.get('intersection'), [5], 'objects are not added as long as they are missing from any dependent array');
+    assert.deepEqual(obj.get('intersection'), [5], 'objects are not added as long as they are missing from any dependent array');
 
     array3.pushObject(1);
 
-    deepEqual(obj.get('intersection').sort(function (x, y) {
+    assert.deepEqual(obj.get('intersection').sort(function (x, y) {
       return x - y;
     }), [1, 5], 'objects added once they belong to all dependent arrays');
   });
 
   QUnit.module('setDiff', {
-    setup: function () {
+    beforeEach: function () {
       obj = _object.default.extend({
         diff: (0, _reduce_computed_macros.setDiff)('array', 'array2')
       }).create({
@@ -47593,13 +47591,13 @@ enifed('ember-runtime/tests/computed/reduce_computed_macros_test', ['ember-metal
         array2: (0, _native_array.A)([3, 4, 5, 10])
       });
     },
-    teardown: function () {
+    afterEach: function () {
       (0, _emberMetal.run)(obj, 'destroy');
     }
   });
 
-  QUnit.test('setDiff is readOnly', function () {
-    QUnit.throws(function () {
+  QUnit.test('setDiff is readOnly', function (assert) {
+    assert.throws(function () {
       obj.set('diff', 1);
     }, /Cannot set read-only property "diff" on object:/);
   });
@@ -47625,84 +47623,84 @@ enifed('ember-runtime/tests/computed/reduce_computed_macros_test', ['ember-metal
     }, /\`Ember\.computed\.setDiff\` requires exactly two dependent arrays/, 'setDiff requires two dependent arrays');
   });
 
-  QUnit.test('it has set-diff semantics', function () {
+  QUnit.test('it has set-diff semantics', function (assert) {
     var array1 = obj.get('array');
     var array2 = obj.get('array2');
 
-    deepEqual(obj.get('diff').sort(function (x, y) {
+    assert.deepEqual(obj.get('diff').sort(function (x, y) {
       return x - y;
     }), [1, 2, 6, 7], 'set-diff is initially correct');
 
     array2.popObject();
 
-    deepEqual(obj.get('diff').sort(function (x, y) {
+    assert.deepEqual(obj.get('diff').sort(function (x, y) {
       return x - y;
     }), [1, 2, 6, 7], 'removing objects from the remove set has no effect if the object is not in the keep set');
 
     array2.shiftObject();
 
-    deepEqual(obj.get('diff').sort(function (x, y) {
+    assert.deepEqual(obj.get('diff').sort(function (x, y) {
       return x - y;
     }), [1, 2, 3, 6, 7], 'removing objects from the remove set adds them if they\'re in the keep set');
 
     array1.removeObject(3);
 
-    deepEqual(obj.get('diff').sort(function (x, y) {
+    assert.deepEqual(obj.get('diff').sort(function (x, y) {
       return x - y;
     }), [1, 2, 6, 7], 'removing objects from the keep array removes them from the computed array');
 
     array1.pushObject(5);
 
-    deepEqual(obj.get('diff').sort(function (x, y) {
+    assert.deepEqual(obj.get('diff').sort(function (x, y) {
       return x - y;
     }), [1, 2, 6, 7], 'objects added to the keep array that are in the remove array are not added to the computed array');
 
     array1.pushObject(22);
 
-    deepEqual(obj.get('diff').sort(function (x, y) {
+    assert.deepEqual(obj.get('diff').sort(function (x, y) {
       return x - y;
     }), [1, 2, 6, 7, 22], 'objects added to the keep array not in the remove array are added to the computed array');
   });
 
   function commonSortTests() {
-    QUnit.test('arrays are initially sorted', function () {
-      deepEqual(obj.get('sortedItems').mapBy('fname'), ['Cersei', 'Jaime', 'Bran', 'Robb'], 'array is initially sorted');
+    QUnit.test('arrays are initially sorted', function (assert) {
+      assert.deepEqual(obj.get('sortedItems').mapBy('fname'), ['Cersei', 'Jaime', 'Bran', 'Robb'], 'array is initially sorted');
     });
 
-    QUnit.test('default sort order is correct', function () {
-      deepEqual(obj.get('sortedItems').mapBy('fname'), ['Cersei', 'Jaime', 'Bran', 'Robb'], 'array is initially sorted');
+    QUnit.test('default sort order is correct', function (assert) {
+      assert.deepEqual(obj.get('sortedItems').mapBy('fname'), ['Cersei', 'Jaime', 'Bran', 'Robb'], 'array is initially sorted');
     });
 
-    QUnit.test('changing the dependent array updates the sorted array', function () {
-      deepEqual(obj.get('sortedItems').mapBy('fname'), ['Cersei', 'Jaime', 'Bran', 'Robb'], 'precond - array is initially sorted');
+    QUnit.test('changing the dependent array updates the sorted array', function (assert) {
+      assert.deepEqual(obj.get('sortedItems').mapBy('fname'), ['Cersei', 'Jaime', 'Bran', 'Robb'], 'precond - array is initially sorted');
 
       obj.set('items', [{ fname: 'Roose', lname: 'Bolton' }, { fname: 'Theon', lname: 'Greyjoy' }, { fname: 'Ramsey', lname: 'Bolton' }, { fname: 'Stannis', lname: 'Baratheon' }]);
 
-      deepEqual(obj.get('sortedItems').mapBy('fname'), ['Stannis', 'Ramsey', 'Roose', 'Theon'], 'changing dependent array updates sorted array');
+      assert.deepEqual(obj.get('sortedItems').mapBy('fname'), ['Stannis', 'Ramsey', 'Roose', 'Theon'], 'changing dependent array updates sorted array');
     });
 
-    QUnit.test('adding to the dependent array updates the sorted array', function () {
+    QUnit.test('adding to the dependent array updates the sorted array', function (assert) {
       var items = obj.get('items');
 
-      deepEqual(obj.get('sortedItems').mapBy('fname'), ['Cersei', 'Jaime', 'Bran', 'Robb'], 'precond - array is initially sorted');
+      assert.deepEqual(obj.get('sortedItems').mapBy('fname'), ['Cersei', 'Jaime', 'Bran', 'Robb'], 'precond - array is initially sorted');
 
       items.pushObject({
         fname: 'Tyrion',
         lname: 'Lannister'
       });
 
-      deepEqual(obj.get('sortedItems').mapBy('fname'), ['Cersei', 'Jaime', 'Tyrion', 'Bran', 'Robb'], 'Adding to the dependent array updates the sorted array');
+      assert.deepEqual(obj.get('sortedItems').mapBy('fname'), ['Cersei', 'Jaime', 'Tyrion', 'Bran', 'Robb'], 'Adding to the dependent array updates the sorted array');
     });
 
-    QUnit.test('removing from the dependent array updates the sorted array', function () {
-      deepEqual(obj.get('sortedItems').mapBy('fname'), ['Cersei', 'Jaime', 'Bran', 'Robb'], 'precond - array is initially sorted');
+    QUnit.test('removing from the dependent array updates the sorted array', function (assert) {
+      assert.deepEqual(obj.get('sortedItems').mapBy('fname'), ['Cersei', 'Jaime', 'Bran', 'Robb'], 'precond - array is initially sorted');
 
       obj.get('items').popObject();
 
-      deepEqual(obj.get('sortedItems').mapBy('fname'), ['Cersei', 'Jaime', 'Robb'], 'Removing from the dependent array updates the sorted array');
+      assert.deepEqual(obj.get('sortedItems').mapBy('fname'), ['Cersei', 'Jaime', 'Robb'], 'Removing from the dependent array updates the sorted array');
     });
 
-    QUnit.test('distinct items may be sort-equal, although their relative order will not be guaranteed', function () {
+    QUnit.test('distinct items may be sort-equal, although their relative order will not be guaranteed', function (assert) {
       // We recreate jaime and "Cersei" here only for test stability: we want
       // their guid-ordering to be deterministic
       var jaimeInDisguise = {
@@ -47720,18 +47718,18 @@ enifed('ember-runtime/tests/computed/reduce_computed_macros_test', ['ember-metal
       }]);
       items.replace(1, 1, [jaimeInDisguise]);
 
-      deepEqual(obj.get('sortedItems').mapBy('fname'), ['Cersei', 'Jaime', 'Bran', 'Robb'], 'precond - array is initially sorted');
+      assert.deepEqual(obj.get('sortedItems').mapBy('fname'), ['Cersei', 'Jaime', 'Bran', 'Robb'], 'precond - array is initially sorted');
 
       (0, _emberMetal.set)(jaimeInDisguise, 'fname', 'Jaime');
 
-      deepEqual(obj.get('sortedItems').mapBy('fname'), ['Jaime', 'Jaime', 'Bran', 'Robb'], 'sorted array is updated');
+      assert.deepEqual(obj.get('sortedItems').mapBy('fname'), ['Jaime', 'Jaime', 'Bran', 'Robb'], 'sorted array is updated');
 
       (0, _emberMetal.set)(jaimeInDisguise, 'fname', 'Cersei');
 
-      deepEqual(obj.get('sortedItems').mapBy('fname'), ['Cersei', 'Jaime', 'Bran', 'Robb'], 'sorted array is updated');
+      assert.deepEqual(obj.get('sortedItems').mapBy('fname'), ['Cersei', 'Jaime', 'Bran', 'Robb'], 'sorted array is updated');
     });
 
-    QUnit.test('guid sort-order fallback with a search proxy is not confused by non-search ObjectProxys', function () {
+    QUnit.test('guid sort-order fallback with a search proxy is not confused by non-search ObjectProxys', function (assert) {
       var tyrion = {
         fname: 'Tyrion',
         lname: 'Lannister'
@@ -47747,16 +47745,16 @@ enifed('ember-runtime/tests/computed/reduce_computed_macros_test', ['ember-metal
 
       items.pushObject(tyrion);
 
-      deepEqual(obj.get('sortedItems').mapBy('fname'), ['Cersei', 'Jaime', 'Tyrion', 'Bran', 'Robb']);
+      assert.deepEqual(obj.get('sortedItems').mapBy('fname'), ['Cersei', 'Jaime', 'Tyrion', 'Bran', 'Robb']);
 
       items.pushObject(tyrionInDisguise);
 
-      deepEqual(obj.get('sortedItems').mapBy('fname'), ['Yollo', 'Cersei', 'Jaime', 'Tyrion', 'Bran', 'Robb']);
+      assert.deepEqual(obj.get('sortedItems').mapBy('fname'), ['Yollo', 'Cersei', 'Jaime', 'Tyrion', 'Bran', 'Robb']);
     });
   }
 
   QUnit.module('sort - sortProperties', {
-    setup: function () {
+    beforeEach: function () {
       obj = _object.default.extend({
         sortedItems: (0, _reduce_computed_macros.sort)('items', 'itemSorting')
       }).create({
@@ -47764,111 +47762,111 @@ enifed('ember-runtime/tests/computed/reduce_computed_macros_test', ['ember-metal
         items: (0, _native_array.A)([{ fname: 'Jaime', lname: 'Lannister', age: 34 }, { fname: 'Cersei', lname: 'Lannister', age: 34 }, { fname: 'Robb', lname: 'Stark', age: 16 }, { fname: 'Bran', lname: 'Stark', age: 8 }])
       });
     },
-    teardown: function () {
+    afterEach: function () {
       (0, _emberMetal.run)(obj, 'destroy');
     }
   });
 
-  QUnit.test('sort is readOnly', function () {
-    QUnit.throws(function () {
+  QUnit.test('sort is readOnly', function (assert) {
+    assert.throws(function () {
       obj.set('sortedItems', 1);
     }, /Cannot set read-only property "sortedItems" on object:/);
   });
 
   commonSortTests();
 
-  QUnit.test('updating sort properties detaches observers for old sort properties', function () {
+  QUnit.test('updating sort properties detaches observers for old sort properties', function (assert) {
     var objectToRemove = obj.get('items')[3];
 
-    deepEqual(obj.get('sortedItems').mapBy('fname'), ['Cersei', 'Jaime', 'Bran', 'Robb'], 'precond - array is initially sorted');
+    assert.deepEqual(obj.get('sortedItems').mapBy('fname'), ['Cersei', 'Jaime', 'Bran', 'Robb'], 'precond - array is initially sorted');
 
     obj.set('itemSorting', (0, _native_array.A)(['fname:desc']));
 
-    deepEqual(obj.get('sortedItems').mapBy('fname'), ['Robb', 'Jaime', 'Cersei', 'Bran'], 'after updating sort properties array is updated');
+    assert.deepEqual(obj.get('sortedItems').mapBy('fname'), ['Robb', 'Jaime', 'Cersei', 'Bran'], 'after updating sort properties array is updated');
 
     obj.get('items').removeObject(objectToRemove);
 
-    deepEqual(obj.get('sortedItems').mapBy('fname'), ['Robb', 'Jaime', 'Cersei'], 'after removing item array is updated');
+    assert.deepEqual(obj.get('sortedItems').mapBy('fname'), ['Robb', 'Jaime', 'Cersei'], 'after removing item array is updated');
 
     (0, _emberMetal.set)(objectToRemove, 'lname', 'Updated-Stark');
 
-    deepEqual(obj.get('sortedItems').mapBy('fname'), ['Robb', 'Jaime', 'Cersei'], 'after changing removed item array is not updated');
+    assert.deepEqual(obj.get('sortedItems').mapBy('fname'), ['Robb', 'Jaime', 'Cersei'], 'after changing removed item array is not updated');
   });
 
-  QUnit.test('sort works if array property is null (non array value) on first evaluation of computed prop', function () {
+  QUnit.test('sort works if array property is null (non array value) on first evaluation of computed prop', function (assert) {
     obj.set('items', null);
-    deepEqual(obj.get('sortedItems'), []);
+    assert.deepEqual(obj.get('sortedItems'), []);
     obj.set('items', (0, _native_array.A)([{ fname: 'Cersei', lname: 'Lanister' }]));
-    deepEqual(obj.get('sortedItems'), [{ fname: 'Cersei', lname: 'Lanister' }]);
+    assert.deepEqual(obj.get('sortedItems'), [{ fname: 'Cersei', lname: 'Lanister' }]);
   });
 
-  QUnit.test('updating sort properties updates the sorted array', function () {
-    deepEqual(obj.get('sortedItems').mapBy('fname'), ['Cersei', 'Jaime', 'Bran', 'Robb'], 'precond - array is initially sorted');
+  QUnit.test('updating sort properties updates the sorted array', function (assert) {
+    assert.deepEqual(obj.get('sortedItems').mapBy('fname'), ['Cersei', 'Jaime', 'Bran', 'Robb'], 'precond - array is initially sorted');
 
     obj.set('itemSorting', (0, _native_array.A)(['fname:desc']));
 
-    deepEqual(obj.get('sortedItems').mapBy('fname'), ['Robb', 'Jaime', 'Cersei', 'Bran'], 'after updating sort properties array is updated');
+    assert.deepEqual(obj.get('sortedItems').mapBy('fname'), ['Robb', 'Jaime', 'Cersei', 'Bran'], 'after updating sort properties array is updated');
   });
 
-  QUnit.test('updating sort properties invalidates the sorted array', function () {
+  QUnit.test('updating sort properties invalidates the sorted array', function (assert) {
     var sortProps = obj.get('itemSorting');
 
-    deepEqual(obj.get('sortedItems').mapBy('fname'), ['Cersei', 'Jaime', 'Bran', 'Robb'], 'precond - array is initially sorted');
+    assert.deepEqual(obj.get('sortedItems').mapBy('fname'), ['Cersei', 'Jaime', 'Bran', 'Robb'], 'precond - array is initially sorted');
 
     sortProps.clear();
     sortProps.pushObject('fname');
 
-    deepEqual(obj.get('sortedItems').mapBy('fname'), ['Bran', 'Cersei', 'Jaime', 'Robb'], 'after updating sort properties array is updated');
+    assert.deepEqual(obj.get('sortedItems').mapBy('fname'), ['Bran', 'Cersei', 'Jaime', 'Robb'], 'after updating sort properties array is updated');
   });
 
-  QUnit.test('updating new sort properties invalidates the sorted array', function () {
-    deepEqual(obj.get('sortedItems').mapBy('fname'), ['Cersei', 'Jaime', 'Bran', 'Robb'], 'precond - array is initially sorted');
+  QUnit.test('updating new sort properties invalidates the sorted array', function (assert) {
+    assert.deepEqual(obj.get('sortedItems').mapBy('fname'), ['Cersei', 'Jaime', 'Bran', 'Robb'], 'precond - array is initially sorted');
 
     obj.set('itemSorting', (0, _native_array.A)(['age:desc', 'fname:asc']));
 
-    deepEqual(obj.get('sortedItems').mapBy('fname'), ['Cersei', 'Jaime', 'Robb', 'Bran'], 'precond - array is correct after item sorting is changed');
+    assert.deepEqual(obj.get('sortedItems').mapBy('fname'), ['Cersei', 'Jaime', 'Robb', 'Bran'], 'precond - array is correct after item sorting is changed');
 
     (0, _emberMetal.set)(obj.get('items')[1], 'age', 29);
 
-    deepEqual(obj.get('sortedItems').mapBy('fname'), ['Jaime', 'Cersei', 'Robb', 'Bran'], 'after updating sort properties array is updated');
+    assert.deepEqual(obj.get('sortedItems').mapBy('fname'), ['Jaime', 'Cersei', 'Robb', 'Bran'], 'after updating sort properties array is updated');
   });
 
-  QUnit.test('sort direction defaults to ascending', function () {
-    deepEqual(obj.get('sortedItems').mapBy('fname'), ['Cersei', 'Jaime', 'Bran', 'Robb']);
+  QUnit.test('sort direction defaults to ascending', function (assert) {
+    assert.deepEqual(obj.get('sortedItems').mapBy('fname'), ['Cersei', 'Jaime', 'Bran', 'Robb']);
   });
 
-  QUnit.test('sort direction defaults to ascending (with sort property change)', function () {
-    deepEqual(obj.get('sortedItems').mapBy('fname'), ['Cersei', 'Jaime', 'Bran', 'Robb'], 'precond - array is initially sorted');
+  QUnit.test('sort direction defaults to ascending (with sort property change)', function (assert) {
+    assert.deepEqual(obj.get('sortedItems').mapBy('fname'), ['Cersei', 'Jaime', 'Bran', 'Robb'], 'precond - array is initially sorted');
 
     obj.set('itemSorting', (0, _native_array.A)(['fname']));
 
-    deepEqual(obj.get('sortedItems').mapBy('fname'), ['Bran', 'Cersei', 'Jaime', 'Robb'], 'sort direction defaults to ascending');
+    assert.deepEqual(obj.get('sortedItems').mapBy('fname'), ['Bran', 'Cersei', 'Jaime', 'Robb'], 'sort direction defaults to ascending');
   });
 
-  QUnit.test('updating an item\'s sort properties updates the sorted array', function () {
+  QUnit.test('updating an item\'s sort properties updates the sorted array', function (assert) {
     var tyrionInDisguise = obj.get('items')[1];
 
-    deepEqual(obj.get('sortedItems').mapBy('fname'), ['Cersei', 'Jaime', 'Bran', 'Robb'], 'precond - array is initially sorted');
+    assert.deepEqual(obj.get('sortedItems').mapBy('fname'), ['Cersei', 'Jaime', 'Bran', 'Robb'], 'precond - array is initially sorted');
 
     (0, _emberMetal.set)(tyrionInDisguise, 'fname', 'Tyrion');
 
-    deepEqual(obj.get('sortedItems').mapBy('fname'), ['Jaime', 'Tyrion', 'Bran', 'Robb'], 'updating an item\'s sort properties updates the sorted array');
+    assert.deepEqual(obj.get('sortedItems').mapBy('fname'), ['Jaime', 'Tyrion', 'Bran', 'Robb'], 'updating an item\'s sort properties updates the sorted array');
   });
 
-  QUnit.test('updating several of an item\'s sort properties updated the sorted array', function () {
+  QUnit.test('updating several of an item\'s sort properties updated the sorted array', function (assert) {
     var sansaInDisguise = obj.get('items')[1];
 
-    deepEqual(obj.get('sortedItems').mapBy('fname'), ['Cersei', 'Jaime', 'Bran', 'Robb'], 'precond - array is initially sorted');
+    assert.deepEqual(obj.get('sortedItems').mapBy('fname'), ['Cersei', 'Jaime', 'Bran', 'Robb'], 'precond - array is initially sorted');
 
     (0, _emberMetal.setProperties)(sansaInDisguise, {
       fname: 'Sansa',
       lname: 'Stark'
     });
 
-    deepEqual(obj.get('sortedItems').mapBy('fname'), ['Jaime', 'Bran', 'Robb', 'Sansa'], 'updating an item\'s sort properties updates the sorted array');
+    assert.deepEqual(obj.get('sortedItems').mapBy('fname'), ['Jaime', 'Bran', 'Robb', 'Sansa'], 'updating an item\'s sort properties updates the sorted array');
   });
 
-  QUnit.test('updating an item\'s sort properties does not error when binary search does a self compare (#3273)', function () {
+  QUnit.test('updating an item\'s sort properties does not error when binary search does a self compare (#3273)', function (assert) {
     var jaime = {
       name: 'Jaime',
       status: 1
@@ -47886,18 +47884,18 @@ enifed('ember-runtime/tests/computed/reduce_computed_macros_test', ['ember-metal
       people: [jaime, cersei]
     });
 
-    deepEqual(obj.get('sortedPeople'), [jaime, cersei], 'precond - array is initially sorted');
+    assert.deepEqual(obj.get('sortedPeople'), [jaime, cersei], 'precond - array is initially sorted');
 
     (0, _emberMetal.set)(cersei, 'status', 3);
 
-    deepEqual(obj.get('sortedPeople'), [jaime, cersei], 'array is sorted correctly');
+    assert.deepEqual(obj.get('sortedPeople'), [jaime, cersei], 'array is sorted correctly');
 
     (0, _emberMetal.set)(cersei, 'status', 2);
 
-    deepEqual(obj.get('sortedPeople'), [jaime, cersei], 'array is sorted correctly');
+    assert.deepEqual(obj.get('sortedPeople'), [jaime, cersei], 'array is sorted correctly');
   });
 
-  QUnit.test('array observers do not leak', function () {
+  QUnit.test('array observers do not leak', function (assert) {
 
     var sortProps = (0, _native_array.A)(['name']);
     var jaime = _object.default.extend({
@@ -47914,13 +47912,13 @@ enifed('ember-runtime/tests/computed/reduce_computed_macros_test', ['ember-metal
       sortProps.pushObject({
         name: 'Anna'
       });
-      ok(true);
+      assert.ok(true);
     } catch (e) {
-      ok(false, e);
+      assert.ok(false, e);
     }
   });
 
-  QUnit.test('property paths in sort properties update the sorted array', function () {
+  QUnit.test('property paths in sort properties update the sorted array', function (assert) {
     var jaime = {
       relatedObj: { status: 1, firstName: 'Jaime', lastName: 'Lannister' }
     };
@@ -47940,34 +47938,34 @@ enifed('ember-runtime/tests/computed/reduce_computed_macros_test', ['ember-metal
       people: [jaime, cersei, sansa]
     });
 
-    deepEqual(obj.get('sortedPeople'), [jaime, cersei, sansa], 'precond - array is initially sorted');
+    assert.deepEqual(obj.get('sortedPeople'), [jaime, cersei, sansa], 'precond - array is initially sorted');
 
     (0, _emberMetal.set)(cersei, 'status', 3);
 
-    deepEqual(obj.get('sortedPeople'), [jaime, cersei, sansa], 'array is sorted correctly');
+    assert.deepEqual(obj.get('sortedPeople'), [jaime, cersei, sansa], 'array is sorted correctly');
 
     (0, _emberMetal.set)(cersei, 'status', 1);
 
-    deepEqual(obj.get('sortedPeople'), [jaime, cersei, sansa], 'array is sorted correctly');
+    assert.deepEqual(obj.get('sortedPeople'), [jaime, cersei, sansa], 'array is sorted correctly');
 
     sansa.set('status', 1);
 
-    deepEqual(obj.get('sortedPeople'), [jaime, cersei, sansa], 'array is sorted correctly');
+    assert.deepEqual(obj.get('sortedPeople'), [jaime, cersei, sansa], 'array is sorted correctly');
 
     obj.set('sortProps', ['relatedObj.firstName']);
 
-    deepEqual(obj.get('sortedPeople'), [cersei, jaime, sansa], 'array is sorted correctly');
+    assert.deepEqual(obj.get('sortedPeople'), [cersei, jaime, sansa], 'array is sorted correctly');
   });
 
-  QUnit.test('if the dependentKey is neither an array nor object, it will return an empty array', function () {
+  QUnit.test('if the dependentKey is neither an array nor object, it will return an empty array', function (assert) {
     (0, _emberMetal.set)(obj, 'items', null);
-    ok((0, _utils.isArray)(obj.get('sortedItems')), 'returns an empty arrays');
+    assert.ok((0, _utils.isArray)(obj.get('sortedItems')), 'returns an empty arrays');
 
     (0, _emberMetal.set)(obj, 'array', undefined);
-    ok((0, _utils.isArray)(obj.get('sortedItems')), 'returns an empty arrays');
+    assert.ok((0, _utils.isArray)(obj.get('sortedItems')), 'returns an empty arrays');
 
     (0, _emberMetal.set)(obj, 'array', 'not an array');
-    ok((0, _utils.isArray)(obj.get('sortedItems')), 'returns an empty arrays');
+    assert.ok((0, _utils.isArray)(obj.get('sortedItems')), 'returns an empty arrays');
   });
 
   function sortByLnameFname(a, b) {
@@ -47992,22 +47990,22 @@ enifed('ember-runtime/tests/computed/reduce_computed_macros_test', ['ember-metal
   }
 
   QUnit.module('sort - sort function', {
-    setup: function () {
+    beforeEach: function () {
       obj = _object.default.extend({
         sortedItems: (0, _reduce_computed_macros.sort)('items.@each.fname', sortByLnameFname)
       }).create({
         items: (0, _native_array.A)([{ fname: 'Jaime', lname: 'Lannister', age: 34 }, { fname: 'Cersei', lname: 'Lannister', age: 34 }, { fname: 'Robb', lname: 'Stark', age: 16 }, { fname: 'Bran', lname: 'Stark', age: 8 }])
       });
     },
-    teardown: function () {
+    afterEach: function () {
       (0, _emberMetal.run)(obj, 'destroy');
     }
   });
 
-  QUnit.test('sort has correct `this`', function () {
+  QUnit.test('sort has correct `this`', function (assert) {
     var obj = _object.default.extend({
       sortedItems: (0, _reduce_computed_macros.sort)('items.@each.fname', function (a, b) {
-        equal(this, obj, 'expected the object to be `this`');
+        assert.equal(this, obj, 'expected the object to be `this`');
         return this.sortByLastName(a, b);
       }),
       sortByLastName: function (a, b) {
@@ -48020,42 +48018,42 @@ enifed('ember-runtime/tests/computed/reduce_computed_macros_test', ['ember-metal
     obj.get('sortedItems');
   });
 
-  QUnit.test('sort (with function) is readOnly', function () {
-    QUnit.throws(function () {
+  QUnit.test('sort (with function) is readOnly', function (assert) {
+    assert.throws(function () {
       obj.set('sortedItems', 1);
     }, /Cannot set read-only property "sortedItems" on object:/);
   });
 
   commonSortTests();
 
-  QUnit.test('changing item properties specified via @each triggers a resort of the modified item', function () {
+  QUnit.test('changing item properties specified via @each triggers a resort of the modified item', function (assert) {
     var items = (0, _emberMetal.get)(obj, 'items');
 
     var tyrionInDisguise = items[1];
 
-    deepEqual(obj.get('sortedItems').mapBy('fname'), ['Cersei', 'Jaime', 'Bran', 'Robb'], 'precond - array is initially sorted');
+    assert.deepEqual(obj.get('sortedItems').mapBy('fname'), ['Cersei', 'Jaime', 'Bran', 'Robb'], 'precond - array is initially sorted');
 
     (0, _emberMetal.set)(tyrionInDisguise, 'fname', 'Tyrion');
 
-    deepEqual(obj.get('sortedItems').mapBy('fname'), ['Jaime', 'Tyrion', 'Bran', 'Robb'], 'updating a specified property on an item resorts it');
+    assert.deepEqual(obj.get('sortedItems').mapBy('fname'), ['Jaime', 'Tyrion', 'Bran', 'Robb'], 'updating a specified property on an item resorts it');
   });
 
-  QUnit.test('changing item properties not specified via @each does not trigger a resort', function () {
+  QUnit.test('changing item properties not specified via @each does not trigger a resort', function (assert) {
     var items = obj.get('items');
     var cersei = items[1];
 
-    deepEqual(obj.get('sortedItems').mapBy('fname'), ['Cersei', 'Jaime', 'Bran', 'Robb'], 'precond - array is initially sorted');
+    assert.deepEqual(obj.get('sortedItems').mapBy('fname'), ['Cersei', 'Jaime', 'Bran', 'Robb'], 'precond - array is initially sorted');
 
     (0, _emberMetal.set)(cersei, 'lname', 'Stark'); // plot twist! (possibly not canon)
 
     // The array has become unsorted.  If your sort function is sensitive to
     // properties, they *must* be specified as dependent item property keys or
     // we'll be doing binary searches on unsorted arrays.
-    deepEqual(obj.get('sortedItems').mapBy('fname'), ['Cersei', 'Jaime', 'Bran', 'Robb'], 'updating an unspecified property on an item does not resort it');
+    assert.deepEqual(obj.get('sortedItems').mapBy('fname'), ['Cersei', 'Jaime', 'Bran', 'Robb'], 'updating an unspecified property on an item does not resort it');
   });
 
   QUnit.module('sort - stability', {
-    setup: function () {
+    beforeEach: function () {
       obj = _object.default.extend({
         sortProps: ['count', 'name'],
         sortedItems: (0, _reduce_computed_macros.sort)('items', 'sortProps')
@@ -48063,22 +48061,22 @@ enifed('ember-runtime/tests/computed/reduce_computed_macros_test', ['ember-metal
         items: [{ name: 'A', count: 1, thing: 4 }, { name: 'B', count: 1, thing: 3 }, { name: 'C', count: 1, thing: 2 }, { name: 'D', count: 1, thing: 4 }]
       });
     },
-    teardown: function () {
+    afterEach: function () {
       (0, _emberMetal.run)(obj, 'destroy');
     }
   });
 
-  QUnit.test('sorts correctly as only one property changes', function () {
-    deepEqual(obj.get('sortedItems').mapBy('name'), ['A', 'B', 'C', 'D'], 'initial');
+  QUnit.test('sorts correctly as only one property changes', function (assert) {
+    assert.deepEqual(obj.get('sortedItems').mapBy('name'), ['A', 'B', 'C', 'D'], 'initial');
 
     (0, _emberMetal.set)(obj.get('items')[3], 'count', 2);
 
-    deepEqual(obj.get('sortedItems').mapBy('name'), ['A', 'B', 'C', 'D'], 'final');
+    assert.deepEqual(obj.get('sortedItems').mapBy('name'), ['A', 'B', 'C', 'D'], 'final');
   });
 
   var klass = void 0;
   QUnit.module('sort - concurrency', {
-    setup: function () {
+    beforeEach: function () {
       klass = _object.default.extend({
         sortProps: ['count'],
         sortedItems: (0, _reduce_computed_macros.sort)('items', 'sortProps'),
@@ -48090,61 +48088,61 @@ enifed('ember-runtime/tests/computed/reduce_computed_macros_test', ['ember-metal
         items: (0, _native_array.A)([{ name: 'A', count: 1, thing: 4, id: 1 }, { name: 'B', count: 2, thing: 3, id: 2 }, { name: 'C', count: 3, thing: 2, id: 3 }, { name: 'D', count: 4, thing: 1, id: 4 }])
       });
     },
-    teardown: function () {
+    afterEach: function () {
       (0, _emberMetal.run)(obj, 'destroy');
     }
   });
 
-  QUnit.test('sorts correctly after mutation to the sort properties', function () {
+  QUnit.test('sorts correctly after mutation to the sort properties', function (assert) {
     var sorted = obj.get('sortedItems');
-    deepEqual(sorted.mapBy('name'), ['A', 'B', 'C', 'D'], 'initial');
+    assert.deepEqual(sorted.mapBy('name'), ['A', 'B', 'C', 'D'], 'initial');
 
     (0, _emberMetal.set)(obj.get('items')[1], 'count', 5);
     (0, _emberMetal.set)(obj.get('items')[2], 'count', 6);
 
-    deepEqual(obj.get('sortedItems').mapBy('name'), ['A', 'D', 'B', 'C'], 'final');
+    assert.deepEqual(obj.get('sortedItems').mapBy('name'), ['A', 'D', 'B', 'C'], 'final');
   });
 
-  QUnit.test('sort correctly after mutation to the sort', function () {
-    deepEqual(obj.get('customSortedItems').mapBy('name'), ['A', 'B', 'C', 'D'], 'initial');
+  QUnit.test('sort correctly after mutation to the sort', function (assert) {
+    assert.deepEqual(obj.get('customSortedItems').mapBy('name'), ['A', 'B', 'C', 'D'], 'initial');
 
     (0, _emberMetal.set)(obj.get('items')[1], 'count', 5);
     (0, _emberMetal.set)(obj.get('items')[2], 'count', 6);
 
-    deepEqual(obj.get('customSortedItems').mapBy('name'), ['A', 'D', 'B', 'C'], 'final');
+    assert.deepEqual(obj.get('customSortedItems').mapBy('name'), ['A', 'D', 'B', 'C'], 'final');
 
-    deepEqual(obj.get('sortedItems').mapBy('name'), ['A', 'D', 'B', 'C'], 'final');
+    assert.deepEqual(obj.get('sortedItems').mapBy('name'), ['A', 'D', 'B', 'C'], 'final');
   });
 
-  QUnit.test('sort correctly on multiple instances of the same class', function () {
+  QUnit.test('sort correctly on multiple instances of the same class', function (assert) {
     var obj2 = klass.create({
       items: (0, _native_array.A)([{ name: 'W', count: 23, thing: 4 }, { name: 'X', count: 24, thing: 3 }, { name: 'Y', count: 25, thing: 2 }, { name: 'Z', count: 26, thing: 1 }])
     });
 
-    deepEqual(obj2.get('sortedItems').mapBy('name'), ['W', 'X', 'Y', 'Z'], 'initial');
-    deepEqual(obj.get('sortedItems').mapBy('name'), ['A', 'B', 'C', 'D'], 'initial');
+    assert.deepEqual(obj2.get('sortedItems').mapBy('name'), ['W', 'X', 'Y', 'Z'], 'initial');
+    assert.deepEqual(obj.get('sortedItems').mapBy('name'), ['A', 'B', 'C', 'D'], 'initial');
 
     (0, _emberMetal.set)(obj.get('items')[1], 'count', 5);
     (0, _emberMetal.set)(obj.get('items')[2], 'count', 6);
     (0, _emberMetal.set)(obj2.get('items')[1], 'count', 27);
     (0, _emberMetal.set)(obj2.get('items')[2], 'count', 28);
 
-    deepEqual(obj.get('sortedItems').mapBy('name'), ['A', 'D', 'B', 'C'], 'final');
-    deepEqual(obj2.get('sortedItems').mapBy('name'), ['W', 'Z', 'X', 'Y'], 'final');
+    assert.deepEqual(obj.get('sortedItems').mapBy('name'), ['A', 'D', 'B', 'C'], 'final');
+    assert.deepEqual(obj2.get('sortedItems').mapBy('name'), ['W', 'Z', 'X', 'Y'], 'final');
 
     obj.set('sortProps', ['thing']);
 
-    deepEqual(obj.get('sortedItems').mapBy('name'), ['D', 'C', 'B', 'A'], 'final');
+    assert.deepEqual(obj.get('sortedItems').mapBy('name'), ['D', 'C', 'B', 'A'], 'final');
 
     obj2.notifyPropertyChange('sortedItems'); // invalidate to flush, to get DK refreshed
     obj2.get('sortedItems'); // flush to get updated DK
 
     obj2.set('items.firstObject.count', 9999);
 
-    deepEqual(obj2.get('sortedItems').mapBy('name'), ['Z', 'X', 'Y', 'W'], 'final');
+    assert.deepEqual(obj2.get('sortedItems').mapBy('name'), ['Z', 'X', 'Y', 'W'], 'final');
   });
 
-  QUnit.test('sort correctly when multiple sorts are chained on the same instance of a class', function () {
+  QUnit.test('sort correctly when multiple sorts are chained on the same instance of a class', function (assert) {
     var obj2 = klass.extend({
       items: (0, _emberMetal.computed)('sibling.sortedItems.[]', function () {
         return this.get('sibling.sortedItems');
@@ -48172,114 +48170,114 @@ enifed('ember-runtime/tests/computed/reduce_computed_macros_test', ['ember-metal
     └───────────┘                            ┗━━━━━━━━━━━┛                              ┗━━━━━━━━━━━━┛
      */
 
-    deepEqual(obj.get('sortedItems').mapBy('name'), ['A', 'B', 'C', 'D'], 'obj.sortedItems.name should be sorted alpha');
-    deepEqual(obj2.get('sortedItems').mapBy('name'), ['A', 'B', 'C', 'D'], 'obj2.sortedItems.name should be sorted alpha');
+    assert.deepEqual(obj.get('sortedItems').mapBy('name'), ['A', 'B', 'C', 'D'], 'obj.sortedItems.name should be sorted alpha');
+    assert.deepEqual(obj2.get('sortedItems').mapBy('name'), ['A', 'B', 'C', 'D'], 'obj2.sortedItems.name should be sorted alpha');
 
     (0, _emberMetal.set)(obj.get('items')[1], 'count', 5);
     (0, _emberMetal.set)(obj.get('items')[2], 'count', 6);
 
-    deepEqual(obj.get('sortedItems').mapBy('name'), ['A', 'D', 'B', 'C'], 'obj.sortedItems.name should now have changed');
-    deepEqual(obj2.get('sortedItems').mapBy('name'), ['A', 'D', 'B', 'C'], 'obj2.sortedItems.name should still mirror sortedItems2');
+    assert.deepEqual(obj.get('sortedItems').mapBy('name'), ['A', 'D', 'B', 'C'], 'obj.sortedItems.name should now have changed');
+    assert.deepEqual(obj2.get('sortedItems').mapBy('name'), ['A', 'D', 'B', 'C'], 'obj2.sortedItems.name should still mirror sortedItems2');
 
     obj.set('sortProps', ['thing']);
     obj2.set('sortProps', ['id']);
 
-    deepEqual(obj2.get('sortedItems').mapBy('name'), ['A', 'B', 'C', 'D'], 'we now sort obj2 by id, so we expect a b c d');
-    deepEqual(obj.get('sortedItems').mapBy('name'), ['D', 'C', 'B', 'A'], 'we now sort obj by thing');
+    assert.deepEqual(obj2.get('sortedItems').mapBy('name'), ['A', 'B', 'C', 'D'], 'we now sort obj2 by id, so we expect a b c d');
+    assert.deepEqual(obj.get('sortedItems').mapBy('name'), ['D', 'C', 'B', 'A'], 'we now sort obj by thing');
   });
 
   QUnit.module('max', {
-    setup: function () {
+    beforeEach: function () {
       obj = _object.default.extend({
         max: (0, _reduce_computed_macros.max)('items')
       }).create({
         items: (0, _native_array.A)([1, 2, 3])
       });
     },
-    teardown: function () {
+    afterEach: function () {
       (0, _emberMetal.run)(obj, 'destroy');
     }
   });
 
-  QUnit.test('max is readOnly', function () {
-    QUnit.throws(function () {
+  QUnit.test('max is readOnly', function (assert) {
+    assert.throws(function () {
       obj.set('max', 1);
     }, /Cannot set read-only property "max" on object:/);
   });
 
-  QUnit.test('max tracks the max number as objects are added', function () {
-    equal(obj.get('max'), 3, 'precond - max is initially correct');
+  QUnit.test('max tracks the max number as objects are added', function (assert) {
+    assert.equal(obj.get('max'), 3, 'precond - max is initially correct');
 
     var items = obj.get('items');
 
     items.pushObject(5);
 
-    equal(obj.get('max'), 5, 'max updates when a larger number is added');
+    assert.equal(obj.get('max'), 5, 'max updates when a larger number is added');
 
     items.pushObject(2);
 
-    equal(obj.get('max'), 5, 'max does not update when a smaller number is added');
+    assert.equal(obj.get('max'), 5, 'max does not update when a smaller number is added');
   });
 
-  QUnit.test('max recomputes when the current max is removed', function () {
-    equal(obj.get('max'), 3, 'precond - max is initially correct');
+  QUnit.test('max recomputes when the current max is removed', function (assert) {
+    assert.equal(obj.get('max'), 3, 'precond - max is initially correct');
 
     obj.get('items').removeObject(2);
 
-    equal(obj.get('max'), 3, 'max is unchanged when a non-max item is removed');
+    assert.equal(obj.get('max'), 3, 'max is unchanged when a non-max item is removed');
 
     obj.get('items').removeObject(3);
 
-    equal(obj.get('max'), 1, 'max is recomputed when the current max is removed');
+    assert.equal(obj.get('max'), 1, 'max is recomputed when the current max is removed');
   });
 
   QUnit.module('min', {
-    setup: function () {
+    beforeEach: function () {
       obj = _object.default.extend({
         min: (0, _reduce_computed_macros.min)('items')
       }).create({
         items: (0, _native_array.A)([1, 2, 3])
       });
     },
-    teardown: function () {
+    afterEach: function () {
       (0, _emberMetal.run)(obj, 'destroy');
     }
   });
 
-  QUnit.test('min is readOnly', function () {
-    QUnit.throws(function () {
+  QUnit.test('min is readOnly', function (assert) {
+    assert.throws(function () {
       obj.set('min', 1);
     }, /Cannot set read-only property "min" on object:/);
   });
 
-  QUnit.test('min tracks the min number as objects are added', function () {
-    equal(obj.get('min'), 1, 'precond - min is initially correct');
+  QUnit.test('min tracks the min number as objects are added', function (assert) {
+    assert.equal(obj.get('min'), 1, 'precond - min is initially correct');
 
     obj.get('items').pushObject(-2);
 
-    equal(obj.get('min'), -2, 'min updates when a smaller number is added');
+    assert.equal(obj.get('min'), -2, 'min updates when a smaller number is added');
 
     obj.get('items').pushObject(2);
 
-    equal(obj.get('min'), -2, 'min does not update when a larger number is added');
+    assert.equal(obj.get('min'), -2, 'min does not update when a larger number is added');
   });
 
-  QUnit.test('min recomputes when the current min is removed', function () {
+  QUnit.test('min recomputes when the current min is removed', function (assert) {
     var items = obj.get('items');
 
-    equal(obj.get('min'), 1, 'precond - min is initially correct');
+    assert.equal(obj.get('min'), 1, 'precond - min is initially correct');
 
     items.removeObject(2);
 
-    equal(obj.get('min'), 1, 'min is unchanged when a non-min item is removed');
+    assert.equal(obj.get('min'), 1, 'min is unchanged when a non-min item is removed');
 
     items.removeObject(1);
 
-    equal(obj.get('min'), 3, 'min is recomputed when the current min is removed');
+    assert.equal(obj.get('min'), 3, 'min is recomputed when the current min is removed');
   });
 
   QUnit.module('Ember.arrayComputed - mixed sugar', {
-    setup: function () {
+    beforeEach: function () {
       obj = _object.default.extend({
         lannisters: (0, _reduce_computed_macros.filterBy)('items', 'lname', 'Lannister'),
         lannisterSorting: (0, _native_array.A)(['fname']),
@@ -48292,35 +48290,35 @@ enifed('ember-runtime/tests/computed/reduce_computed_macros_test', ['ember-metal
         items: (0, _native_array.A)([{ fname: 'Jaime', lname: 'Lannister', age: 34 }, { fname: 'Cersei', lname: 'Lannister', age: 34 }, { fname: 'Robb', lname: 'Stark', age: 16 }, { fname: 'Bran', lname: 'Stark', age: 8 }])
       });
     },
-    teardown: function () {
+    afterEach: function () {
       (0, _emberMetal.run)(obj, 'destroy');
     }
   });
 
-  QUnit.test('filtering and sorting can be combined', function () {
+  QUnit.test('filtering and sorting can be combined', function (assert) {
     var items = obj.get('items');
 
-    deepEqual(obj.get('sortedLannisters').mapBy('fname'), ['Cersei', 'Jaime'], 'precond - array is initially filtered and sorted');
+    assert.deepEqual(obj.get('sortedLannisters').mapBy('fname'), ['Cersei', 'Jaime'], 'precond - array is initially filtered and sorted');
 
     items.pushObject({ fname: 'Tywin', lname: 'Lannister' });
     items.pushObject({ fname: 'Lyanna', lname: 'Stark' });
     items.pushObject({ fname: 'Gerion', lname: 'Lannister' });
 
-    deepEqual(obj.get('sortedLannisters').mapBy('fname'), ['Cersei', 'Gerion', 'Jaime', 'Tywin'], 'updates propagate to array');
+    assert.deepEqual(obj.get('sortedLannisters').mapBy('fname'), ['Cersei', 'Gerion', 'Jaime', 'Tywin'], 'updates propagate to array');
   });
 
-  QUnit.test('filtering, sorting and reduce (max) can be combined', function () {
+  QUnit.test('filtering, sorting and reduce (max) can be combined', function (assert) {
     var items = obj.get('items');
 
-    equal(16, obj.get('oldestStarkAge'), 'precond - end of chain is initially correct');
+    assert.equal(16, obj.get('oldestStarkAge'), 'precond - end of chain is initially correct');
 
     items.pushObject({ fname: 'Rickon', lname: 'Stark', age: 5 });
 
-    equal(16, obj.get('oldestStarkAge'), 'chain is updated correctly');
+    assert.equal(16, obj.get('oldestStarkAge'), 'chain is updated correctly');
 
     items.pushObject({ fname: 'Eddard', lname: 'Stark', age: 35 });
 
-    equal(35, obj.get('oldestStarkAge'), 'chain is updated correctly');
+    assert.equal(35, obj.get('oldestStarkAge'), 'chain is updated correctly');
   });
 
   function todo(name, priority) {
@@ -48341,7 +48339,7 @@ enifed('ember-runtime/tests/computed/reduce_computed_macros_test', ['ember-metal
   }
 
   QUnit.module('Ember.arrayComputed - chains', {
-    setup: function () {
+    beforeEach: function () {
       obj = _object.default.extend({
         sorted: (0, _reduce_computed_macros.sort)('todos.@each.priority', priorityComparator),
         filtered: (0, _reduce_computed_macros.filter)('sorted.@each.priority', evenPriorities)
@@ -48349,26 +48347,26 @@ enifed('ember-runtime/tests/computed/reduce_computed_macros_test', ['ember-metal
         todos: (0, _native_array.A)([todo('E', 4), todo('D', 3), todo('C', 2), todo('B', 1), todo('A', 0)])
       });
     },
-    teardown: function () {
+    afterEach: function () {
       (0, _emberMetal.run)(obj, 'destroy');
     }
   });
 
-  QUnit.test('it can filter and sort when both depend on the same item property', function () {
-    deepEqual(obj.get('todos').mapBy('name'), ['E', 'D', 'C', 'B', 'A'], 'precond - todos initially correct');
-    deepEqual(obj.get('sorted').mapBy('name'), ['A', 'B', 'C', 'D', 'E'], 'precond - sorted initially correct');
-    deepEqual(obj.get('filtered').mapBy('name'), ['A', 'C', 'E'], 'precond - filtered initially correct');
+  QUnit.test('it can filter and sort when both depend on the same item property', function (assert) {
+    assert.deepEqual(obj.get('todos').mapBy('name'), ['E', 'D', 'C', 'B', 'A'], 'precond - todos initially correct');
+    assert.deepEqual(obj.get('sorted').mapBy('name'), ['A', 'B', 'C', 'D', 'E'], 'precond - sorted initially correct');
+    assert.deepEqual(obj.get('filtered').mapBy('name'), ['A', 'C', 'E'], 'precond - filtered initially correct');
 
     (0, _emberMetal.set)(obj.get('todos')[1], 'priority', 6);
 
-    deepEqual(obj.get('todos').mapBy('name'), ['E', 'D', 'C', 'B', 'A'], 'precond - todos remain correct');
-    deepEqual(obj.get('sorted').mapBy('name'), ['A', 'B', 'C', 'E', 'D'], 'precond - sorted updated correctly');
-    deepEqual(obj.get('filtered').mapBy('name'), ['A', 'C', 'E', 'D'], 'filtered updated correctly');
+    assert.deepEqual(obj.get('todos').mapBy('name'), ['E', 'D', 'C', 'B', 'A'], 'precond - todos remain correct');
+    assert.deepEqual(obj.get('sorted').mapBy('name'), ['A', 'B', 'C', 'E', 'D'], 'precond - sorted updated correctly');
+    assert.deepEqual(obj.get('filtered').mapBy('name'), ['A', 'C', 'E', 'D'], 'filtered updated correctly');
   });
 
   var userFnCalls = void 0;
   QUnit.module('Chaining array and reduced CPs', {
-    setup: function () {
+    beforeEach: function () {
       userFnCalls = 0;
       obj = _object.default.extend({
         mapped: (0, _reduce_computed_macros.mapBy)('array', 'v'),
@@ -48380,13 +48378,13 @@ enifed('ember-runtime/tests/computed/reduce_computed_macros_test', ['ember-metal
         array: (0, _native_array.A)([{ v: 1 }, { v: 3 }, { v: 2 }, { v: 1 }])
       });
     },
-    teardown: function () {
+    afterEach: function () {
       (0, _emberMetal.run)(obj, 'destroy');
     }
   });
 
-  QUnit.test('it computes interdependent array computed properties', function () {
-    equal(obj.get('max'), 3, 'sanity - it properly computes the maximum value');
+  QUnit.test('it computes interdependent array computed properties', function (assert) {
+    assert.equal(obj.get('max'), 3, 'sanity - it properly computes the maximum value');
 
     var calls = 0;
 
@@ -48396,71 +48394,71 @@ enifed('ember-runtime/tests/computed/reduce_computed_macros_test', ['ember-metal
 
     obj.get('array').pushObject({ v: 5 });
 
-    equal(obj.get('max'), 5, 'maximum value is updated correctly');
-    equal(userFnCalls, 1, 'object defined observers fire');
-    equal(calls, 1, 'runtime created observers fire');
+    assert.equal(obj.get('max'), 5, 'maximum value is updated correctly');
+    assert.equal(userFnCalls, 1, 'object defined observers fire');
+    assert.equal(calls, 1, 'runtime created observers fire');
   });
 
   QUnit.module('sum', {
-    setup: function () {
+    beforeEach: function () {
       obj = _object.default.extend({
         total: (0, _reduce_computed_macros.sum)('array')
       }).create({
         array: (0, _native_array.A)([1, 2, 3])
       });
     },
-    teardown: function () {
+    afterEach: function () {
       (0, _emberMetal.run)(obj, 'destroy');
     }
   });
 
-  QUnit.test('sum is readOnly', function () {
-    QUnit.throws(function () {
+  QUnit.test('sum is readOnly', function (assert) {
+    assert.throws(function () {
       obj.set('total', 1);
     }, /Cannot set read-only property "total" on object:/);
   });
-  QUnit.test('sums the values in the dependentKey', function () {
-    equal(obj.get('total'), 6, 'sums the values');
+  QUnit.test('sums the values in the dependentKey', function (assert) {
+    assert.equal(obj.get('total'), 6, 'sums the values');
   });
 
-  QUnit.test('if the dependentKey is neither an array nor object, it will return `0`', function () {
+  QUnit.test('if the dependentKey is neither an array nor object, it will return `0`', function (assert) {
     (0, _emberMetal.set)(obj, 'array', null);
-    equal((0, _emberMetal.get)(obj, 'total'), 0, 'returns 0');
+    assert.equal((0, _emberMetal.get)(obj, 'total'), 0, 'returns 0');
 
     (0, _emberMetal.set)(obj, 'array', undefined);
-    equal((0, _emberMetal.get)(obj, 'total'), 0, 'returns 0');
+    assert.equal((0, _emberMetal.get)(obj, 'total'), 0, 'returns 0');
 
     (0, _emberMetal.set)(obj, 'array', 'not an array');
-    equal((0, _emberMetal.get)(obj, 'total'), 0, 'returns 0');
+    assert.equal((0, _emberMetal.get)(obj, 'total'), 0, 'returns 0');
   });
 
-  QUnit.test('updates when array is modified', function () {
+  QUnit.test('updates when array is modified', function (assert) {
     obj.get('array').pushObject(1);
 
-    equal(obj.get('total'), 7, 'recomputed when elements are added');
+    assert.equal(obj.get('total'), 7, 'recomputed when elements are added');
 
     obj.get('array').popObject();
 
-    equal(obj.get('total'), 6, 'recomputes when elements are removed');
+    assert.equal(obj.get('total'), 6, 'recomputes when elements are removed');
   });
 
   QUnit.module('collect');
 
-  (0, _internalTestHelpers.testBoth)('works', function (get, set) {
+  (0, _internalTestHelpers.testBoth)('works', function (get, set, assert) {
     var obj = { one: 'foo', two: 'bar', three: null };
     (0, _emberMetal.defineProperty)(obj, 'all', (0, _reduce_computed_macros.collect)('one', 'two', 'three', 'four'));
 
-    deepEqual(get(obj, 'all'), ['foo', 'bar', null, null], 'have all of them');
+    assert.deepEqual(get(obj, 'all'), ['foo', 'bar', null, null], 'have all of them');
 
     set(obj, 'four', true);
 
-    deepEqual(get(obj, 'all'), ['foo', 'bar', null, true], 'have all of them');
+    assert.deepEqual(get(obj, 'all'), ['foo', 'bar', null, true], 'have all of them');
 
     var a = [];
     set(obj, 'one', 0);
     set(obj, 'three', a);
 
-    deepEqual(get(obj, 'all'), [0, 'bar', a, true], 'have all of them');
+    assert.deepEqual(get(obj, 'all'), [0, 'bar', a, true], 'have all of them');
   });
 });
 enifed('ember-runtime/tests/controllers/controller_test', ['ember-runtime/controllers/controller', 'ember-runtime/system/service', 'ember-metal', 'ember-runtime/system/object', 'ember-runtime/inject', 'internal-test-helpers'], function (_controller, _service, _emberMetal, _object, _inject, _internalTestHelpers) {
@@ -48470,12 +48468,12 @@ enifed('ember-runtime/tests/controllers/controller_test', ['ember-runtime/contro
 
   QUnit.module('Controller event handling');
 
-  QUnit.test('Action can be handled by a function on actions object', function () {
-    expect(1);
+  QUnit.test('Action can be handled by a function on actions object', function (assert) {
+    assert.expect(1);
     var TestController = _controller.default.extend({
       actions: {
         poke: function () {
-          ok(true, 'poked');
+          assert.ok(true, 'poked');
         }
       }
     });
@@ -48483,12 +48481,12 @@ enifed('ember-runtime/tests/controllers/controller_test', ['ember-runtime/contro
     controller.send('poke');
   });
 
-  QUnit.test('A handled action can be bubbled to the target for continued processing', function () {
-    expect(2);
+  QUnit.test('A handled action can be bubbled to the target for continued processing', function (assert) {
+    assert.expect(2);
     var TestController = _controller.default.extend({
       actions: {
         poke: function () {
-          ok(true, 'poked 1');
+          assert.ok(true, 'poked 1');
           return true;
         }
       }
@@ -48498,7 +48496,7 @@ enifed('ember-runtime/tests/controllers/controller_test', ['ember-runtime/contro
       target: _controller.default.extend({
         actions: {
           poke: function () {
-            ok(true, 'poked 2');
+            assert.ok(true, 'poked 2');
           }
         }
       }).create()
@@ -48506,16 +48504,16 @@ enifed('ember-runtime/tests/controllers/controller_test', ['ember-runtime/contro
     controller.send('poke');
   });
 
-  QUnit.test('Action can be handled by a superclass\' actions object', function () {
-    expect(4);
+  QUnit.test('Action can be handled by a superclass\' actions object', function (assert) {
+    assert.expect(4);
 
     var SuperController = _controller.default.extend({
       actions: {
         foo: function () {
-          ok(true, 'foo');
+          assert.ok(true, 'foo');
         },
         bar: function (msg) {
-          equal(msg, 'HELLO');
+          assert.equal(msg, 'HELLO');
         }
       }
     });
@@ -48523,7 +48521,7 @@ enifed('ember-runtime/tests/controllers/controller_test', ['ember-runtime/contro
     var BarControllerMixin = _emberMetal.Mixin.create({
       actions: {
         bar: function (msg) {
-          equal(msg, 'HELLO');
+          assert.equal(msg, 'HELLO');
           this._super(msg);
         }
       }
@@ -48532,7 +48530,7 @@ enifed('ember-runtime/tests/controllers/controller_test', ['ember-runtime/contro
     var IndexController = SuperController.extend(BarControllerMixin, {
       actions: {
         baz: function () {
-          ok(true, 'baz');
+          assert.ok(true, 'baz');
         }
       }
     });
@@ -48547,19 +48545,19 @@ enifed('ember-runtime/tests/controllers/controller_test', ['ember-runtime/contro
 
   QUnit.module('Controller Content -> Model Alias');
 
-  QUnit.test('`content` is a deprecated alias of `model`', function () {
-    expect(2);
+  QUnit.test('`content` is a deprecated alias of `model`', function (assert) {
+    assert.expect(2);
     var controller = _controller.default.extend({
       model: 'foo-bar'
     }).create();
 
     expectDeprecation(function () {
-      equal(controller.get('content'), 'foo-bar', 'content is an alias of model');
+      assert.equal(controller.get('content'), 'foo-bar', 'content is an alias of model');
     });
   });
 
-  QUnit.test('`content` is not moved to `model` when `model` is unset', function () {
-    expect(2);
+  QUnit.test('`content` is not moved to `model` when `model` is unset', function (assert) {
+    assert.expect(2);
     var controller = void 0;
 
     ignoreDeprecation(function () {
@@ -48568,23 +48566,23 @@ enifed('ember-runtime/tests/controllers/controller_test', ['ember-runtime/contro
       }).create();
     });
 
-    notEqual(controller.get('model'), 'foo-bar', 'model is set properly');
-    equal(controller.get('content'), 'foo-bar', 'content is not set properly');
+    assert.notEqual(controller.get('model'), 'foo-bar', 'model is set properly');
+    assert.equal(controller.get('content'), 'foo-bar', 'content is not set properly');
   });
 
-  QUnit.test('specifying `content` (without `model` specified) does not result in deprecation', function () {
-    expect(2);
+  QUnit.test('specifying `content` (without `model` specified) does not result in deprecation', function (assert) {
+    assert.expect(2);
     expectNoDeprecation();
 
     var controller = _controller.default.extend({
       content: 'foo-bar'
     }).create();
 
-    equal((0, _emberMetal.get)(controller, 'content'), 'foo-bar');
+    assert.equal((0, _emberMetal.get)(controller, 'content'), 'foo-bar');
   });
 
-  QUnit.test('specifying `content` (with `model` specified) does not result in deprecation', function () {
-    expect(3);
+  QUnit.test('specifying `content` (with `model` specified) does not result in deprecation', function (assert) {
+    assert.expect(3);
     expectNoDeprecation();
 
     var controller = _controller.default.extend({
@@ -48592,8 +48590,8 @@ enifed('ember-runtime/tests/controllers/controller_test', ['ember-runtime/contro
       model: 'blammo'
     }).create();
 
-    equal((0, _emberMetal.get)(controller, 'content'), 'foo-bar');
-    equal((0, _emberMetal.get)(controller, 'model'), 'blammo');
+    assert.equal((0, _emberMetal.get)(controller, 'content'), 'foo-bar');
+    assert.equal((0, _emberMetal.get)(controller, 'model'), 'blammo');
   });
 
   QUnit.module('Controller injected properties');
@@ -48615,7 +48613,7 @@ enifed('ember-runtime/tests/controllers/controller_test', ['ember-runtime/contro
     });
   }
 
-  QUnit.test('controllers can be injected into controllers', function () {
+  QUnit.test('controllers can be injected into controllers', function (assert) {
     var owner = (0, _internalTestHelpers.buildOwner)();
 
     owner.register('controller:post', _controller.default.extend({
@@ -48627,10 +48625,10 @@ enifed('ember-runtime/tests/controllers/controller_test', ['ember-runtime/contro
     var postController = owner.lookup('controller:post');
     var postsController = owner.lookup('controller:posts');
 
-    equal(postsController, postController.get('postsController'), 'controller.posts is injected');
+    assert.equal(postsController, postController.get('postsController'), 'controller.posts is injected');
   });
 
-  QUnit.test('services can be injected into controllers', function () {
+  QUnit.test('services can be injected into controllers', function (assert) {
     var owner = (0, _internalTestHelpers.buildOwner)();
 
     owner.register('controller:application', _controller.default.extend({
@@ -48642,7 +48640,7 @@ enifed('ember-runtime/tests/controllers/controller_test', ['ember-runtime/contro
     var appController = owner.lookup('controller:application');
     var authService = owner.lookup('service:auth');
 
-    equal(authService, appController.get('authService'), 'service.auth is injected');
+    assert.equal(authService, appController.get('authService'), 'service.auth is injected');
   });
 });
 enifed('ember-runtime/tests/core/compare_test', ['ember-runtime/utils', 'ember-runtime/system/object', 'ember-runtime/compare', 'ember-runtime/mixins/comparable'], function (_utils, _object, _compare, _comparable) {
@@ -48658,7 +48656,7 @@ enifed('ember-runtime/tests/core/compare_test', ['ember-runtime/utils', 'ember-r
   });
 
   QUnit.module('Ember.compare()', {
-    setup: function () {
+    beforeEach: function () {
       data[0] = null;
       data[1] = false;
       data[2] = true;
@@ -48680,7 +48678,7 @@ enifed('ember-runtime/tests/core/compare_test', ['ember-runtime/utils', 'ember-r
     }
   });
 
-  QUnit.test('ordering should work', function () {
+  QUnit.test('ordering should work', function (assert) {
     var suspect = void 0,
         comparable = void 0,
         failureMessage = void 0,
@@ -48690,19 +48688,19 @@ enifed('ember-runtime/tests/core/compare_test', ['ember-runtime/utils', 'ember-r
     for (suspectIndex = 0; suspectIndex < data.length; suspectIndex++) {
       suspect = data[suspectIndex];
 
-      equal((0, _compare.default)(suspect, suspect), 0, suspectIndex + ' should equal itself');
+      assert.equal((0, _compare.default)(suspect, suspect), 0, suspectIndex + ' should equal itself');
 
       for (comparableIndex = suspectIndex + 1; comparableIndex < data.length; comparableIndex++) {
         comparable = data[comparableIndex];
 
         failureMessage = 'data[' + suspectIndex + '] (' + (0, _utils.typeOf)(suspect) + ') should be smaller than data[' + comparableIndex + '] (' + (0, _utils.typeOf)(comparable) + ')';
 
-        equal((0, _compare.default)(suspect, comparable), -1, failureMessage);
+        assert.equal((0, _compare.default)(suspect, comparable), -1, failureMessage);
       }
     }
   });
 
-  QUnit.test('comparables should return values in the range of -1, 0, 1', function () {
+  QUnit.test('comparables should return values in the range of -1, 0, 1', function (assert) {
     var negOne = Comp.create({
       val: -1
     });
@@ -48715,13 +48713,13 @@ enifed('ember-runtime/tests/core/compare_test', ['ember-runtime/utils', 'ember-r
       val: 1
     });
 
-    equal((0, _compare.default)(negOne, 'a'), -1, 'First item comparable - returns -1 (not negated)');
-    equal((0, _compare.default)(zero, 'b'), 0, 'First item comparable - returns  0 (not negated)');
-    equal((0, _compare.default)(one, 'c'), 1, 'First item comparable - returns  1 (not negated)');
+    assert.equal((0, _compare.default)(negOne, 'a'), -1, 'First item comparable - returns -1 (not negated)');
+    assert.equal((0, _compare.default)(zero, 'b'), 0, 'First item comparable - returns  0 (not negated)');
+    assert.equal((0, _compare.default)(one, 'c'), 1, 'First item comparable - returns  1 (not negated)');
 
-    equal((0, _compare.default)('a', negOne), 1, 'Second item comparable - returns -1 (negated)');
-    equal((0, _compare.default)('b', zero), 0, 'Second item comparable - returns  0 (negated)');
-    equal((0, _compare.default)('c', one), -1, 'Second item comparable - returns  1 (negated)');
+    assert.equal((0, _compare.default)('a', negOne), 1, 'Second item comparable - returns -1 (negated)');
+    assert.equal((0, _compare.default)('b', zero), 0, 'Second item comparable - returns  0 (negated)');
+    assert.equal((0, _compare.default)('c', one), -1, 'Second item comparable - returns  1 (negated)');
   });
 });
 enifed('ember-runtime/tests/core/copy_test', ['ember-runtime/copy'], function (_copy) {
@@ -48729,31 +48727,31 @@ enifed('ember-runtime/tests/core/copy_test', ['ember-runtime/copy'], function (_
 
   QUnit.module('Ember Copy Method');
 
-  QUnit.test('Ember.copy null', function () {
+  QUnit.test('Ember.copy null', function (assert) {
 
-    equal((0, _copy.default)({ field: null }, true).field, null, 'null should still be null');
+    assert.equal((0, _copy.default)({ field: null }, true).field, null, 'null should still be null');
   });
 
-  QUnit.test('Ember.copy date', function () {
+  QUnit.test('Ember.copy date', function (assert) {
     var date = new Date(2014, 7, 22);
     var dateCopy = (0, _copy.default)(date);
 
-    equal(date.getTime(), dateCopy.getTime(), 'dates should be equivalent');
+    assert.equal(date.getTime(), dateCopy.getTime(), 'dates should be equivalent');
   });
 
-  QUnit.test('Ember.copy null prototype object', function () {
+  QUnit.test('Ember.copy null prototype object', function (assert) {
     var obj = Object.create(null);
 
     obj.foo = 'bar';
 
-    equal((0, _copy.default)(obj).foo, 'bar', 'bar should still be bar');
+    assert.equal((0, _copy.default)(obj).foo, 'bar', 'bar should still be bar');
   });
 
-  QUnit.test('Ember.copy Array', function () {
+  QUnit.test('Ember.copy Array', function (assert) {
     var array = [1, null, new Date(2015, 9, 9), 'four'];
     var arrayCopy = (0, _copy.default)(array);
 
-    deepEqual(array, arrayCopy, 'array content cloned successfully in new array');
+    assert.deepEqual(array, arrayCopy, 'array content cloned successfully in new array');
   });
 });
 enifed('ember-runtime/tests/core/isEqual_test', ['ember-runtime/is-equal'], function (_isEqual) {
@@ -48761,36 +48759,36 @@ enifed('ember-runtime/tests/core/isEqual_test', ['ember-runtime/is-equal'], func
 
   QUnit.module('isEqual');
 
-  QUnit.test('undefined and null', function () {
-    ok((0, _isEqual.default)(undefined, undefined), 'undefined is equal to undefined');
-    ok(!(0, _isEqual.default)(undefined, null), 'undefined is not equal to null');
-    ok((0, _isEqual.default)(null, null), 'null is equal to null');
-    ok(!(0, _isEqual.default)(null, undefined), 'null is not equal to undefined');
+  QUnit.test('undefined and null', function (assert) {
+    assert.ok((0, _isEqual.default)(undefined, undefined), 'undefined is equal to undefined');
+    assert.ok(!(0, _isEqual.default)(undefined, null), 'undefined is not equal to null');
+    assert.ok((0, _isEqual.default)(null, null), 'null is equal to null');
+    assert.ok(!(0, _isEqual.default)(null, undefined), 'null is not equal to undefined');
   });
 
-  QUnit.test('strings should be equal', function () {
-    ok(!(0, _isEqual.default)('Hello', 'Hi'), 'different Strings are unequal');
-    ok((0, _isEqual.default)('Hello', 'Hello'), 'same Strings are equal');
+  QUnit.test('strings should be equal', function (assert) {
+    assert.ok(!(0, _isEqual.default)('Hello', 'Hi'), 'different Strings are unequal');
+    assert.ok((0, _isEqual.default)('Hello', 'Hello'), 'same Strings are equal');
   });
 
-  QUnit.test('numericals should be equal', function () {
-    ok((0, _isEqual.default)(24, 24), 'same numbers are equal');
-    ok(!(0, _isEqual.default)(24, 21), 'different numbers are inequal');
+  QUnit.test('numericals should be equal', function (assert) {
+    assert.ok((0, _isEqual.default)(24, 24), 'same numbers are equal');
+    assert.ok(!(0, _isEqual.default)(24, 21), 'different numbers are inequal');
   });
 
-  QUnit.test('dates should be equal', function () {
-    ok((0, _isEqual.default)(new Date(1985, 7, 22), new Date(1985, 7, 22)), 'same dates are equal');
-    ok(!(0, _isEqual.default)(new Date(2014, 7, 22), new Date(1985, 7, 22)), 'different dates are not equal');
+  QUnit.test('dates should be equal', function (assert) {
+    assert.ok((0, _isEqual.default)(new Date(1985, 7, 22), new Date(1985, 7, 22)), 'same dates are equal');
+    assert.ok(!(0, _isEqual.default)(new Date(2014, 7, 22), new Date(1985, 7, 22)), 'different dates are not equal');
   });
 
-  QUnit.test('array should be equal', function () {
+  QUnit.test('array should be equal', function (assert) {
     // NOTE: We don't test for array contents -- that would be too expensive.
-    ok(!(0, _isEqual.default)([1, 2], [1, 2]), 'two array instances with the same values should not be equal');
-    ok(!(0, _isEqual.default)([1, 2], [1]), 'two array instances with different values should not be equal');
+    assert.ok(!(0, _isEqual.default)([1, 2], [1, 2]), 'two array instances with the same values should not be equal');
+    assert.ok(!(0, _isEqual.default)([1, 2], [1]), 'two array instances with different values should not be equal');
   });
 
-  QUnit.test('first object implements isEqual should use it', function () {
-    ok((0, _isEqual.default)({
+  QUnit.test('first object implements isEqual should use it', function (assert) {
+    assert.ok((0, _isEqual.default)({
       isEqual: function () {
         return true;
       }
@@ -48801,7 +48799,7 @@ enifed('ember-runtime/tests/core/isEqual_test', ['ember-runtime/is-equal'], func
         return false;
       }
     };
-    equal((0, _isEqual.default)(obj, obj), false, 'should return false because isEqual returns false');
+    assert.equal((0, _isEqual.default)(obj, obj), false, 'should return false because isEqual returns false');
   });
 });
 enifed('ember-runtime/tests/core/is_array_test', ['ember-runtime/utils', 'ember-runtime/system/native_array', 'ember-runtime/system/array_proxy', 'ember-environment'], function (_utils, _native_array, _array_proxy, _emberEnvironment) {
@@ -48811,27 +48809,27 @@ enifed('ember-runtime/tests/core/is_array_test', ['ember-runtime/utils', 'ember-
 
   var global = undefined;
 
-  QUnit.test('Ember.isArray', function () {
+  QUnit.test('Ember.isArray', function (assert) {
     var arrayProxy = _array_proxy.default.create({ content: (0, _native_array.A)() });
 
-    equal((0, _utils.isArray)([1, 2, 3]), true, '[1,2,3]');
-    equal((0, _utils.isArray)(23), false, '23');
-    equal((0, _utils.isArray)(['Hello', 'Hi']), true, '["Hello", "Hi"]');
-    equal((0, _utils.isArray)('Hello'), false, '"Hello"');
-    equal((0, _utils.isArray)({}), false, '{}');
-    equal((0, _utils.isArray)({ length: 12 }), true, '{ length: 12 }');
-    equal((0, _utils.isArray)({ length: 'yes' }), false, '{ length: "yes" }');
-    equal((0, _utils.isArray)(global), false, 'global');
-    equal((0, _utils.isArray)(function () {}), false, 'function() {}');
-    equal((0, _utils.isArray)(arrayProxy), true, '[]');
+    assert.equal((0, _utils.isArray)([1, 2, 3]), true, '[1,2,3]');
+    assert.equal((0, _utils.isArray)(23), false, '23');
+    assert.equal((0, _utils.isArray)(['Hello', 'Hi']), true, '["Hello", "Hi"]');
+    assert.equal((0, _utils.isArray)('Hello'), false, '"Hello"');
+    assert.equal((0, _utils.isArray)({}), false, '{}');
+    assert.equal((0, _utils.isArray)({ length: 12 }), true, '{ length: 12 }');
+    assert.equal((0, _utils.isArray)({ length: 'yes' }), false, '{ length: "yes" }');
+    assert.equal((0, _utils.isArray)(global), false, 'global');
+    assert.equal((0, _utils.isArray)(function () {}), false, 'function() {}');
+    assert.equal((0, _utils.isArray)(arrayProxy), true, '[]');
   });
 
   if (_emberEnvironment.environment.window && typeof _emberEnvironment.environment.window.FileList === 'function') {
-    QUnit.test('Ember.isArray(fileList)', function () {
+    QUnit.test('Ember.isArray(fileList)', function (assert) {
       var fileListElement = document.createElement('input');
       fileListElement.type = 'file';
       var fileList = fileListElement.files;
-      equal((0, _utils.isArray)(fileList), false, 'fileList');
+      assert.equal((0, _utils.isArray)(fileList), false, 'fileList');
     });
   }
 });
@@ -48840,10 +48838,10 @@ enifed('ember-runtime/tests/core/is_empty_test', ['ember-metal', 'ember-runtime/
 
   QUnit.module('Ember.isEmpty');
 
-  QUnit.test('Ember.isEmpty', function () {
+  QUnit.test('Ember.isEmpty', function (assert) {
     var arrayProxy = _array_proxy.default.create({ content: (0, _native_array.A)() });
 
-    equal(true, (0, _emberMetal.isEmpty)(arrayProxy), 'for an ArrayProxy that has empty content');
+    assert.equal(true, (0, _emberMetal.isEmpty)(arrayProxy), 'for an ArrayProxy that has empty content');
   });
 });
 enifed('ember-runtime/tests/core/type_of_test', ['ember-runtime/utils', 'ember-runtime/system/object', 'ember-environment'], function (_utils, _object, _emberEnvironment) {
@@ -48851,7 +48849,7 @@ enifed('ember-runtime/tests/core/type_of_test', ['ember-runtime/utils', 'ember-r
 
   QUnit.module('Ember Type Checking');
 
-  QUnit.test('Ember.typeOf', function () {
+  QUnit.test('Ember.typeOf', function (assert) {
     var MockedDate = function () {};
     MockedDate.prototype = new Date();
 
@@ -48863,33 +48861,33 @@ enifed('ember-runtime/tests/core/type_of_test', ['ember-runtime/utils', 'ember-r
       method: function () {}
     });
 
-    equal((0, _utils.typeOf)(), 'undefined', 'undefined');
-    equal((0, _utils.typeOf)(null), 'null', 'null');
-    equal((0, _utils.typeOf)('Cyril'), 'string', 'Cyril');
-    equal((0, _utils.typeOf)(101), 'number', '101');
-    equal((0, _utils.typeOf)(true), 'boolean', 'true');
-    equal((0, _utils.typeOf)([1, 2, 90]), 'array', '[1,2,90]');
-    equal((0, _utils.typeOf)(/abc/), 'regexp', '/abc/');
-    equal((0, _utils.typeOf)(date), 'date', 'new Date()');
-    equal((0, _utils.typeOf)(mockedDate), 'date', 'mocked date');
-    equal((0, _utils.typeOf)(error), 'error', 'error');
-    equal((0, _utils.typeOf)({ a: 'b' }), 'object', 'object');
-    equal((0, _utils.typeOf)(undefined), 'undefined', 'item of type undefined');
-    equal((0, _utils.typeOf)(null), 'null', 'item of type null');
-    equal((0, _utils.typeOf)([1, 2, 3]), 'array', 'item of type array');
-    equal((0, _utils.typeOf)({}), 'object', 'item of type object');
-    equal((0, _utils.typeOf)(instance), 'instance', 'item of type instance');
-    equal((0, _utils.typeOf)(instance.method), 'function', 'item of type function');
-    equal((0, _utils.typeOf)(_object.default.extend()), 'class', 'item of type class');
-    equal((0, _utils.typeOf)(new Error()), 'error', 'item of type error');
+    assert.equal((0, _utils.typeOf)(), 'undefined', 'undefined');
+    assert.equal((0, _utils.typeOf)(null), 'null', 'null');
+    assert.equal((0, _utils.typeOf)('Cyril'), 'string', 'Cyril');
+    assert.equal((0, _utils.typeOf)(101), 'number', '101');
+    assert.equal((0, _utils.typeOf)(true), 'boolean', 'true');
+    assert.equal((0, _utils.typeOf)([1, 2, 90]), 'array', '[1,2,90]');
+    assert.equal((0, _utils.typeOf)(/abc/), 'regexp', '/abc/');
+    assert.equal((0, _utils.typeOf)(date), 'date', 'new Date()');
+    assert.equal((0, _utils.typeOf)(mockedDate), 'date', 'mocked date');
+    assert.equal((0, _utils.typeOf)(error), 'error', 'error');
+    assert.equal((0, _utils.typeOf)({ a: 'b' }), 'object', 'object');
+    assert.equal((0, _utils.typeOf)(undefined), 'undefined', 'item of type undefined');
+    assert.equal((0, _utils.typeOf)(null), 'null', 'item of type null');
+    assert.equal((0, _utils.typeOf)([1, 2, 3]), 'array', 'item of type array');
+    assert.equal((0, _utils.typeOf)({}), 'object', 'item of type object');
+    assert.equal((0, _utils.typeOf)(instance), 'instance', 'item of type instance');
+    assert.equal((0, _utils.typeOf)(instance.method), 'function', 'item of type function');
+    assert.equal((0, _utils.typeOf)(_object.default.extend()), 'class', 'item of type class');
+    assert.equal((0, _utils.typeOf)(new Error()), 'error', 'item of type error');
   });
 
   if (_emberEnvironment.environment.window && typeof _emberEnvironment.environment.window.FileList === 'function') {
-    QUnit.test('Ember.typeOf(fileList)', function () {
+    QUnit.test('Ember.typeOf(fileList)', function (assert) {
       var fileListElement = document.createElement('input');
       fileListElement.type = 'file';
       var fileList = fileListElement.files;
-      equal((0, _utils.typeOf)(fileList), 'filelist', 'item of type filelist');
+      assert.equal((0, _utils.typeOf)(fileList), 'filelist', 'item of type filelist');
     });
   }
 });
@@ -48898,9 +48896,9 @@ enifed('ember-runtime/tests/ext/function_test', ['ember-environment', 'ember-met
 
   QUnit.module('Function.prototype.observes() helper');
 
-  (0, _internalTestHelpers.testBoth)('global observer helper takes multiple params', function (get, set) {
+  (0, _internalTestHelpers.testBoth)('global observer helper takes multiple params', function (get, set, assert) {
     if (!_emberEnvironment.ENV.EXTEND_PROTOTYPES.Function) {
-      ok('undefined' === typeof Function.prototype.observes, 'Function.prototype helper disabled');
+      assert.ok('undefined' === typeof Function.prototype.observes, 'Function.prototype helper disabled');
       return;
     }
 
@@ -48915,18 +48913,18 @@ enifed('ember-runtime/tests/ext/function_test', ['ember-environment', 'ember-met
     });
 
     var obj = (0, _emberMetal.mixin)({}, MyMixin);
-    equal(get(obj, 'count'), 0, 'should not invoke observer immediately');
+    assert.equal(get(obj, 'count'), 0, 'should not invoke observer immediately');
 
     set(obj, 'bar', 'BAZ');
     set(obj, 'baz', 'BAZ');
-    equal(get(obj, 'count'), 2, 'should invoke observer after change');
+    assert.equal(get(obj, 'count'), 2, 'should invoke observer after change');
   });
 
   QUnit.module('Function.prototype.on() helper');
 
-  (0, _internalTestHelpers.testBoth)('sets up an event listener, and can trigger the function on multiple events', function (get, set) {
+  (0, _internalTestHelpers.testBoth)('sets up an event listener, and can trigger the function on multiple events', function (get, set, assert) {
     if (!_emberEnvironment.ENV.EXTEND_PROTOTYPES.Function) {
-      ok('undefined' === typeof Function.prototype.on, 'Function.prototype helper disabled');
+      assert.ok('undefined' === typeof Function.prototype.on, 'Function.prototype helper disabled');
       return;
     }
 
@@ -48941,16 +48939,16 @@ enifed('ember-runtime/tests/ext/function_test', ['ember-environment', 'ember-met
     });
 
     var obj = (0, _emberMetal.mixin)({}, _evented.default, MyMixin);
-    equal(get(obj, 'count'), 0, 'should not invoke listener immediately');
+    assert.equal(get(obj, 'count'), 0, 'should not invoke listener immediately');
 
     obj.trigger('bar');
     obj.trigger('baz');
-    equal(get(obj, 'count'), 2, 'should invoke listeners when events trigger');
+    assert.equal(get(obj, 'count'), 2, 'should invoke listeners when events trigger');
   });
 
-  (0, _internalTestHelpers.testBoth)('can be chained with observes', function (get, set) {
+  (0, _internalTestHelpers.testBoth)('can be chained with observes', function (get, set, assert) {
     if (!_emberEnvironment.ENV.EXTEND_PROTOTYPES.Function) {
-      ok('Function.prototype helper disabled');
+      assert.ok('Function.prototype helper disabled');
       return;
     }
 
@@ -48964,18 +48962,18 @@ enifed('ember-runtime/tests/ext/function_test', ['ember-environment', 'ember-met
     });
 
     var obj = (0, _emberMetal.mixin)({}, _evented.default, MyMixin);
-    equal(get(obj, 'count'), 0, 'should not invoke listener immediately');
+    assert.equal(get(obj, 'count'), 0, 'should not invoke listener immediately');
 
     set(obj, 'bay', 'BAY');
     obj.trigger('bar');
-    equal(get(obj, 'count'), 2, 'should invoke observer and listener');
+    assert.equal(get(obj, 'count'), 2, 'should invoke observer and listener');
   });
 
   QUnit.module('Function.prototype.property() helper');
 
-  (0, _internalTestHelpers.testBoth)('sets up a ComputedProperty', function (get, set) {
+  (0, _internalTestHelpers.testBoth)('sets up a ComputedProperty', function (get, set, assert) {
     if (!_emberEnvironment.ENV.EXTEND_PROTOTYPES.Function) {
-      ok('undefined' === typeof Function.prototype.property, 'Function.prototype helper disabled');
+      assert.ok('undefined' === typeof Function.prototype.property, 'Function.prototype helper disabled');
       return;
     }
 
@@ -48988,13 +48986,13 @@ enifed('ember-runtime/tests/ext/function_test', ['ember-environment', 'ember-met
     });
 
     var obj = MyClass.create({ firstName: 'Fred', lastName: 'Flinstone' });
-    equal(get(obj, 'fullName'), 'Fred Flinstone', 'should return the computed value');
+    assert.equal(get(obj, 'fullName'), 'Fred Flinstone', 'should return the computed value');
 
     set(obj, 'firstName', 'Wilma');
-    equal(get(obj, 'fullName'), 'Wilma Flinstone', 'should return the new computed value');
+    assert.equal(get(obj, 'fullName'), 'Wilma Flinstone', 'should return the new computed value');
 
     set(obj, 'lastName', '');
-    equal(get(obj, 'fullName'), 'Wilma ', 'should return the new computed value');
+    assert.equal(get(obj, 'fullName'), 'Wilma ', 'should return the new computed value');
   });
 });
 enifed('ember-runtime/tests/ext/mixin_test', ['ember-metal'], function (_emberMetal) {
@@ -49002,7 +49000,7 @@ enifed('ember-runtime/tests/ext/mixin_test', ['ember-metal'], function (_emberMe
 
   QUnit.module('system/mixin/binding_test');
 
-  QUnit.test('Defining a property ending in Binding should setup binding when applied', function () {
+  QUnit.test('Defining a property ending in Binding should setup binding when applied', function (assert) {
     var MyMixin = _emberMetal.Mixin.create({
       fooBinding: 'bar.baz'
     });
@@ -49017,11 +49015,11 @@ enifed('ember-runtime/tests/ext/mixin_test', ['ember-metal'], function (_emberMe
       }, deprecationMessage);
     });
 
-    ok((0, _emberMetal.get)(obj, 'fooBinding') instanceof _emberMetal.Binding, 'should be a binding object');
-    equal((0, _emberMetal.get)(obj, 'foo'), 'BIFF', 'binding should be created and synced');
+    assert.ok((0, _emberMetal.get)(obj, 'fooBinding') instanceof _emberMetal.Binding, 'should be a binding object');
+    assert.equal((0, _emberMetal.get)(obj, 'foo'), 'BIFF', 'binding should be created and synced');
   });
 
-  QUnit.test('Defining a property ending in Binding should apply to prototype children', function () {
+  QUnit.test('Defining a property ending in Binding should apply to prototype children', function (assert) {
     var MyMixin = (0, _emberMetal.run)(function () {
       return _emberMetal.Mixin.create({
         fooBinding: 'bar.baz'
@@ -49043,8 +49041,8 @@ enifed('ember-runtime/tests/ext/mixin_test', ['ember-metal'], function (_emberMe
       return (0, _emberMetal.set)((0, _emberMetal.get)(obj2, 'bar'), 'baz', 'BARG');
     });
 
-    ok((0, _emberMetal.get)(obj2, 'fooBinding') instanceof _emberMetal.Binding, 'should be a binding object');
-    equal((0, _emberMetal.get)(obj2, 'foo'), 'BARG', 'binding should be created and synced');
+    assert.ok((0, _emberMetal.get)(obj2, 'fooBinding') instanceof _emberMetal.Binding, 'should be a binding object');
+    assert.equal((0, _emberMetal.get)(obj2, 'foo'), 'BARG', 'binding should be created and synced');
   });
 });
 enifed('ember-runtime/tests/ext/rsvp_test', ['ember-metal', 'ember-runtime/ext/rsvp', 'ember-debug'], function (_emberMetal, _rsvp, _emberDebug) {
@@ -49053,12 +49051,12 @@ enifed('ember-runtime/tests/ext/rsvp_test', ['ember-metal', 'ember-runtime/ext/r
   var ORIGINAL_ONERROR = (0, _emberMetal.getOnerror)();
 
   QUnit.module('Ember.RSVP', {
-    teardown: function () {
+    afterEach: function () {
       (0, _emberMetal.setOnerror)(ORIGINAL_ONERROR);
     }
   });
 
-  QUnit.test('Ensure that errors thrown from within a promise are sent to the console', function () {
+  QUnit.test('Ensure that errors thrown from within a promise are sent to the console', function (assert) {
     var error = new Error('Error thrown in a promise for testing purposes.');
 
     try {
@@ -49067,53 +49065,53 @@ enifed('ember-runtime/tests/ext/rsvp_test', ['ember-metal', 'ember-runtime/ext/r
           throw error;
         });
       });
-      ok(false, 'expected assertion to be thrown');
+      assert.ok(false, 'expected assertion to be thrown');
     } catch (e) {
-      equal(e, error, 'error was re-thrown');
+      assert.equal(e, error, 'error was re-thrown');
     }
   });
 
-  QUnit.test('TransitionAborted errors are not re-thrown', function () {
-    expect(1);
+  QUnit.test('TransitionAborted errors are not re-thrown', function (assert) {
+    assert.expect(1);
 
 
     (0, _emberMetal.run)(_rsvp.default, 'reject', { name: 'TransitionAborted' });
 
-    ok(true, 'did not throw an error when dealing with TransitionAborted');
+    assert.ok(true, 'did not throw an error when dealing with TransitionAborted');
   });
 
-  QUnit.test('Can reject with non-Error object', function () {
+  QUnit.test('Can reject with non-Error object', function (assert) {
     var wasEmberTesting = (0, _emberDebug.isTesting)();
     (0, _emberDebug.setTesting)(false);
-    expect(1);
+    assert.expect(1);
 
     try {
       (0, _emberMetal.run)(_rsvp.default, 'reject', 'foo');
     } catch (e) {
-      equal(e, 'foo', 'should throw with rejection message');
+      assert.equal(e, 'foo', 'should throw with rejection message');
     } finally {
       (0, _emberDebug.setTesting)(wasEmberTesting);
     }
   });
 
-  QUnit.test('Can reject with no arguments', function () {
+  QUnit.test('Can reject with no arguments', function (assert) {
     var wasEmberTesting = (0, _emberDebug.isTesting)();
     (0, _emberDebug.setTesting)(false);
-    expect(1);
+    assert.expect(1);
 
     try {
       (0, _emberMetal.run)(_rsvp.default, 'reject');
     } catch (e) {
-      ok(false, 'should not throw');
+      assert.ok(false, 'should not throw');
     } finally {
       (0, _emberDebug.setTesting)(wasEmberTesting);
     }
 
-    ok(true);
+    assert.ok(true);
   });
 
-  QUnit.test('rejections like jqXHR which have errorThrown property work', function () {
-    expect(2);
+  QUnit.test('rejections like jqXHR which have errorThrown property work', function (assert) {
+    assert.expect(2);
 
     var wasEmberTesting = (0, _emberDebug.isTesting)(),
         actualError,
@@ -49123,8 +49121,8 @@ enifed('ember-runtime/tests/ext/rsvp_test', ['ember-metal', 'ember-runtime/ext/r
     try {
       (0, _emberDebug.setTesting)(false);
       (0, _emberMetal.setOnerror)(function (error) {
-        equal(error, actualError, 'expected the real error on the jqXHR');
-        equal(error.__reason_with_error_thrown__, jqXHR, 'also retains a helpful reference to the rejection reason');
+        assert.equal(error, actualError, 'expected the real error on the jqXHR');
+        assert.equal(error.__reason_with_error_thrown__, jqXHR, 'also retains a helpful reference to the rejection reason');
       });
 
       actualError = new Error('OMG what really happened');
@@ -49140,8 +49138,8 @@ enifed('ember-runtime/tests/ext/rsvp_test', ['ember-metal', 'ember-runtime/ext/r
     }
   });
 
-  QUnit.test('rejections where the errorThrown is a string should wrap the sting in an error object', function () {
-    expect(2);
+  QUnit.test('rejections where the errorThrown is a string should wrap the sting in an error object', function (assert) {
+    assert.expect(2);
 
     var wasEmberTesting = (0, _emberDebug.isTesting)(),
         actualError,
@@ -49151,8 +49149,8 @@ enifed('ember-runtime/tests/ext/rsvp_test', ['ember-metal', 'ember-runtime/ext/r
     try {
       (0, _emberDebug.setTesting)(false);
       (0, _emberMetal.setOnerror)(function (error) {
-        equal(error.message, actualError, 'expected the real error on the jqXHR');
-        equal(error.__reason_with_error_thrown__, jqXHR, 'also retains a helpful reference to the rejection reason');
+        assert.equal(error.message, actualError, 'expected the real error on the jqXHR');
+        assert.equal(error.__reason_with_error_thrown__, jqXHR, 'also retains a helpful reference to the rejection reason');
       });
 
       actualError = 'OMG what really happened';
@@ -49169,7 +49167,7 @@ enifed('ember-runtime/tests/ext/rsvp_test', ['ember-metal', 'ember-runtime/ext/r
   });
 
   QUnit.test('rejections can be serialized to JSON', function (assert) {
-    expect(2);
+    assert.expect(2);
 
     var wasEmberTesting = (0, _emberDebug.isTesting)(),
         jqXHR;
@@ -49207,45 +49205,45 @@ enifed('ember-runtime/tests/ext/rsvp_test', ['ember-metal', 'ember-runtime/ext/r
     });
   }
 
-  QUnit.test('unambigiously unhandled rejection', function () {
-    QUnit.throws(function () {
+  QUnit.test('unambigiously unhandled rejection', function (assert) {
+    assert.throws(function () {
       (0, _emberMetal.run)(function () {
         _rsvp.default.Promise.reject(reason);
       }); // something is funky, we should likely assert
     }, reason);
   });
 
-  QUnit.test('sync handled', function () {
+  QUnit.test('sync handled', function (assert) {
     (0, _emberMetal.run)(function () {
       _rsvp.default.Promise.reject(reason).catch(function () {});
     }); // handled, we shouldn't need to assert.
-    ok(true, 'reached end of test');
+    assert.ok(true, 'reached end of test');
   });
 
-  QUnit.test('handled within the same micro-task (via Ember.RVP.Promise)', function () {
+  QUnit.test('handled within the same micro-task (via Ember.RVP.Promise)', function (assert) {
     (0, _emberMetal.run)(function () {
       var rejection = _rsvp.default.Promise.reject(reason);
       _rsvp.default.Promise.resolve(1).then(function () {
         return rejection.catch(function () {});
       });
     }); // handled, we shouldn't need to assert.
-    ok(true, 'reached end of test');
+    assert.ok(true, 'reached end of test');
   });
 
-  QUnit.test('handled within the same micro-task (via direct run-loop)', function () {
+  QUnit.test('handled within the same micro-task (via direct run-loop)', function (assert) {
     (0, _emberMetal.run)(function () {
       var rejection = _rsvp.default.Promise.reject(reason);
       _emberMetal.run.schedule('afterRender', function () {
         return rejection.catch(function () {});
       });
     }); // handled, we shouldn't need to assert.
-    ok(true, 'reached end of test');
+    assert.ok(true, 'reached end of test');
   });
 
-  QUnit.test('handled in the next microTask queue flush (run.next)', function () {
-    expect(2);
+  QUnit.test('handled in the next microTask queue flush (run.next)', function (assert) {
+    assert.expect(2);
 
-    QUnit.throws(function () {
+    assert.throws(function () {
       (0, _emberMetal.run)(function () {
         var rejection = _rsvp.default.Promise.reject(reason);
 
@@ -49253,7 +49251,7 @@ enifed('ember-runtime/tests/ext/rsvp_test', ['ember-metal', 'ember-runtime/ext/r
         _emberMetal.run.next(function () {
           QUnit.start();
           rejection.catch(function () {});
-          ok(true, 'reached end of test');
+          assert.ok(true, 'reached end of test');
         });
       });
     }, reason);
@@ -49262,7 +49260,7 @@ enifed('ember-runtime/tests/ext/rsvp_test', ['ember-metal', 'ember-runtime/ext/r
     // this is very likely an issue.
   });
 
-  QUnit.test('handled in the same microTask Queue flush do to data locality', function () {
+  QUnit.test('handled in the same microTask Queue flush do to data locality', function (assert) {
     // an ambiguous scenario, this may or may not assert
     // it depends on the locality of `user#1`
     var store = {
@@ -49277,10 +49275,10 @@ enifed('ember-runtime/tests/ext/rsvp_test', ['ember-metal', 'ember-runtime/ext/r
       });
     });
 
-    ok(true, 'reached end of test');
+    assert.ok(true, 'reached end of test');
   });
 
-  QUnit.test('handled in a different microTask Queue flush do to data locality', function () {
+  QUnit.test('handled in a different microTask Queue flush do to data locality', function (assert) {
     // an ambiguous scenario, this may or may not assert
     // it depends on the locality of `user#1`
     var store = {
@@ -49288,24 +49286,24 @@ enifed('ember-runtime/tests/ext/rsvp_test', ['ember-metal', 'ember-runtime/ext/r
         return ajax();
       }
     };
-    QUnit.throws(function () {
+    assert.throws(function () {
       (0, _emberMetal.run)(function () {
         var rejection = _rsvp.default.Promise.reject(reason);
         store.find('user', 1).then(function () {
           rejection.catch(function () {});
-          ok(true, 'reached end of test');
+          assert.ok(true, 'reached end of test');
         });
       });
     }, reason);
   });
 
-  QUnit.test('handled in the next microTask queue flush (ajax example)', function () {
-    QUnit.throws(function () {
+  QUnit.test('handled in the next microTask queue flush (ajax example)', function (assert) {
+    assert.throws(function () {
       (0, _emberMetal.run)(function () {
         var rejection = _rsvp.default.Promise.reject(reason);
         ajax('/something/').then(function () {
           rejection.catch(function () {});
-          ok(true, 'reached end of test');
+          assert.ok(true, 'reached end of test');
         });
       });
     }, reason);
@@ -49325,9 +49323,9 @@ enifed('ember-runtime/tests/inject_test', ['ember-metal', 'ember-runtime/inject'
   if (!EmberDev.runningProdBuild) {
     // this check is done via an assertion which is stripped from
     // production builds
-    QUnit.test('injection type validation is run when first looked up', function () {
+    QUnit.test('injection type validation is run when first looked up', function (assert) {
       (0, _inject.createInjectionHelper)('foo', function () {
-        ok(true, 'should call validation method');
+        assert.ok(true, 'should call validation method');
       });
 
       var owner = (0, _internalTestHelpers.buildOwner)();
@@ -49341,11 +49339,11 @@ enifed('ember-runtime/tests/inject_test', ['ember-metal', 'ember-runtime/inject'
       owner.register('foo:bar', _object.default.extend());
       owner.register('foo:baz', _object.default.extend());
 
-      expect(1);
+      assert.expect(1);
       owner.lookup('foo:main');
     });
 
-    QUnit.test('attempting to inject a nonexistent container key should error', function () {
+    QUnit.test('attempting to inject a nonexistent container key should error', function (assert) {
       var owner = (0, _internalTestHelpers.buildOwner)();
       var AnObject = _object.default.extend({
         foo: new _emberMetal.InjectedProperty('bar', 'baz')
@@ -49353,7 +49351,7 @@ enifed('ember-runtime/tests/inject_test', ['ember-metal', 'ember-runtime/inject'
 
       owner.register('foo:main', AnObject);
 
-      throws(function () {
+      assert.throws(function () {
         owner.lookup('foo:main');
       }, /Attempting to inject an unknown injection: 'bar:baz'/);
     });
@@ -49375,7 +49373,7 @@ enifed('ember-runtime/tests/legacy_1x/mixins/observable/chained_test', ['ember-m
 
   QUnit.module('Ember.Observable - Observing with @each');
 
-  QUnit.test('chained observers on enumerable properties are triggered when the observed property of any item changes', function () {
+  QUnit.test('chained observers on enumerable properties are triggered when the observed property of any item changes', function (assert) {
     var family = _object.default.create({ momma: null });
     var momma = _object.default.create({ children: [] });
 
@@ -49396,19 +49394,19 @@ enifed('ember-runtime/tests/legacy_1x/mixins/observable/chained_test', ['ember-m
     (0, _emberMetal.run)(function () {
       return (0, _emberMetal.get)(momma, 'children').setEach('name', 'Juan');
     });
-    equal(observerFiredCount, 3, 'observer fired after changing child names');
+    assert.equal(observerFiredCount, 3, 'observer fired after changing child names');
 
     observerFiredCount = 0;
     (0, _emberMetal.run)(function () {
       return (0, _emberMetal.get)(momma, 'children').pushObject(child4);
     });
-    equal(observerFiredCount, 1, 'observer fired after adding a new item');
+    assert.equal(observerFiredCount, 1, 'observer fired after adding a new item');
 
     observerFiredCount = 0;
     (0, _emberMetal.run)(function () {
       return (0, _emberMetal.set)(child4, 'name', 'Herbert');
     });
-    equal(observerFiredCount, 1, 'observer fired after changing property on new object');
+    assert.equal(observerFiredCount, 1, 'observer fired after changing property on new object');
 
     (0, _emberMetal.set)(momma, 'children', []);
 
@@ -49416,7 +49414,7 @@ enifed('ember-runtime/tests/legacy_1x/mixins/observable/chained_test', ['ember-m
     (0, _emberMetal.run)(function () {
       return (0, _emberMetal.set)(child1, 'name', 'Hanna');
     });
-    equal(observerFiredCount, 0, 'observer did not fire after removing changing property on a removed object');
+    assert.equal(observerFiredCount, 0, 'observer did not fire after removing changing property on a removed object');
   });
 });
 enifed('ember-runtime/tests/legacy_1x/mixins/observable/observable_test', ['ember-environment', 'ember-metal', 'ember-runtime/system/string', 'ember-runtime/system/object', 'ember-runtime/mixins/observable', 'ember-runtime/system/native_array'], function (_emberEnvironment, _emberMetal, _string, _object, _observable, _native_array) {
@@ -49458,7 +49456,7 @@ enifed('ember-runtime/tests/legacy_1x/mixins/observable/observable_test', ['embe
   //
 
   QUnit.module('object.get()', {
-    setup: function () {
+    beforeEach: function () {
       object = ObservableObject.extend(_observable.default, {
         computed: (0, _emberMetal.computed)(function () {
           return 'value';
@@ -49479,33 +49477,33 @@ enifed('ember-runtime/tests/legacy_1x/mixins/observable/observable_test', ['embe
     }
   });
 
-  QUnit.test('should get normal properties', function () {
-    equal(object.get('normal'), 'value');
+  QUnit.test('should get normal properties', function (assert) {
+    assert.equal(object.get('normal'), 'value');
   });
 
-  QUnit.test('should call computed properties and return their result', function () {
-    equal(object.get('computed'), 'value');
+  QUnit.test('should call computed properties and return their result', function (assert) {
+    assert.equal(object.get('computed'), 'value');
   });
 
-  QUnit.test('should return the function for a non-computed property', function () {
+  QUnit.test('should return the function for a non-computed property', function (assert) {
     var value = object.get('method');
-    equal(typeof value, 'function');
+    assert.equal(typeof value, 'function');
   });
 
-  QUnit.test('should return null when property value is null', function () {
-    equal(object.get('nullProperty'), null);
+  QUnit.test('should return null when property value is null', function (assert) {
+    assert.equal(object.get('nullProperty'), null);
   });
 
-  QUnit.test('should call unknownProperty when value is undefined', function () {
-    equal(object.get('unknown'), 'unknown');
-    equal(object.lastUnknownProperty, 'unknown');
+  QUnit.test('should call unknownProperty when value is undefined', function (assert) {
+    assert.equal(object.get('unknown'), 'unknown');
+    assert.equal(object.lastUnknownProperty, 'unknown');
   });
 
   // ..........................................................
   // Ember.GET()
   //
   QUnit.module('Ember.get()', {
-    setup: function () {
+    beforeEach: function () {
       objectA = ObservableObject.extend({
         computed: (0, _emberMetal.computed)(function () {
           return 'value';
@@ -49531,34 +49529,34 @@ enifed('ember-runtime/tests/legacy_1x/mixins/observable/observable_test', ['embe
     }
   });
 
-  QUnit.test('should get normal properties on Ember.Observable', function () {
-    equal((0, _emberMetal.get)(objectA, 'normal'), 'value');
+  QUnit.test('should get normal properties on Ember.Observable', function (assert) {
+    assert.equal((0, _emberMetal.get)(objectA, 'normal'), 'value');
   });
 
-  QUnit.test('should call computed properties on Ember.Observable and return their result', function () {
-    equal((0, _emberMetal.get)(objectA, 'computed'), 'value');
+  QUnit.test('should call computed properties on Ember.Observable and return their result', function (assert) {
+    assert.equal((0, _emberMetal.get)(objectA, 'computed'), 'value');
   });
 
-  QUnit.test('should return the function for a non-computed property on Ember.Observable', function () {
+  QUnit.test('should return the function for a non-computed property on Ember.Observable', function (assert) {
     var value = (0, _emberMetal.get)(objectA, 'method');
-    equal(typeof value, 'function');
+    assert.equal(typeof value, 'function');
   });
 
-  QUnit.test('should return null when property value is null on Ember.Observable', function () {
-    equal((0, _emberMetal.get)(objectA, 'nullProperty'), null);
+  QUnit.test('should return null when property value is null on Ember.Observable', function (assert) {
+    assert.equal((0, _emberMetal.get)(objectA, 'nullProperty'), null);
   });
 
-  QUnit.test('should call unknownProperty when value is undefined on Ember.Observable', function () {
-    equal((0, _emberMetal.get)(objectA, 'unknown'), 'unknown');
-    equal(objectA.lastUnknownProperty, 'unknown');
+  QUnit.test('should call unknownProperty when value is undefined on Ember.Observable', function (assert) {
+    assert.equal((0, _emberMetal.get)(objectA, 'unknown'), 'unknown');
+    assert.equal(objectA.lastUnknownProperty, 'unknown');
   });
 
-  QUnit.test('should get normal properties on standard objects', function () {
-    equal((0, _emberMetal.get)(objectB, 'normal'), 'value');
+  QUnit.test('should get normal properties on standard objects', function (assert) {
+    assert.equal((0, _emberMetal.get)(objectB, 'normal'), 'value');
   });
 
-  QUnit.test('should return null when property is null on standard objects', function () {
-    equal((0, _emberMetal.get)(objectB, 'nullProperty'), null);
+  QUnit.test('should return null when property is null on standard objects', function (assert) {
+    assert.equal((0, _emberMetal.get)(objectB, 'nullProperty'), null);
   });
 
   /*
@@ -49577,7 +49575,7 @@ enifed('ember-runtime/tests/legacy_1x/mixins/observable/observable_test', ['embe
 
   QUnit.module('Ember.get() with paths');
 
-  QUnit.test('should return a property at a given path relative to the passed object', function () {
+  QUnit.test('should return a property at a given path relative to the passed object', function (assert) {
     var foo = ObservableObject.create({
       bar: ObservableObject.extend({
         baz: (0, _emberMetal.computed)(function () {
@@ -49586,12 +49584,12 @@ enifed('ember-runtime/tests/legacy_1x/mixins/observable/observable_test', ['embe
       }).create()
     });
 
-    equal((0, _emberMetal.get)(foo, 'bar.baz'), 'blargh');
+    assert.equal((0, _emberMetal.get)(foo, 'bar.baz'), 'blargh');
   });
 
-  QUnit.test('should return a property at a given path relative to the passed object - JavaScript hash', function () {
+  QUnit.test('should return a property at a given path relative to the passed object - JavaScript hash', function (assert) {
 
-    equal((0, _emberMetal.get)({
+    assert.equal((0, _emberMetal.get)({
       bar: {
         baz: 'blargh'
       }
@@ -49603,7 +49601,7 @@ enifed('ember-runtime/tests/legacy_1x/mixins/observable/observable_test', ['embe
   //
 
   QUnit.module('object.set()', {
-    setup: function () {
+    beforeEach: function () {
       object = ObservableObject.extend({
         computed: (0, _emberMetal.computed)({
           get: function () {
@@ -49645,41 +49643,41 @@ enifed('ember-runtime/tests/legacy_1x/mixins/observable/observable_test', ['embe
     }
   });
 
-  QUnit.test('should change normal properties and return the value', function () {
+  QUnit.test('should change normal properties and return the value', function (assert) {
     var ret = object.set('normal', 'changed');
-    equal(object.get('normal'), 'changed');
-    equal(ret, 'changed');
+    assert.equal(object.get('normal'), 'changed');
+    assert.equal(ret, 'changed');
   });
 
-  QUnit.test('should call computed properties passing value and return the value', function () {
+  QUnit.test('should call computed properties passing value and return the value', function (assert) {
     var ret = object.set('computed', 'changed');
-    equal(object.get('_computed'), 'changed');
-    equal(ret, 'changed');
+    assert.equal(object.get('_computed'), 'changed');
+    assert.equal(ret, 'changed');
   });
 
-  QUnit.test('should change normal properties when passing undefined', function () {
+  QUnit.test('should change normal properties when passing undefined', function (assert) {
     var ret = object.set('normal', undefined);
-    equal(object.get('normal'), undefined);
-    equal(ret, undefined);
+    assert.equal(object.get('normal'), undefined);
+    assert.equal(ret, undefined);
   });
 
-  QUnit.test('should replace the function for a non-computed property and return the value', function () {
+  QUnit.test('should replace the function for a non-computed property and return the value', function (assert) {
     var ret = object.set('method', 'changed');
-    equal(object.get('_method'), 'method'); // make sure this was NOT run
-    ok(typeof object.get('method') !== 'function');
-    equal(ret, 'changed');
+    assert.equal(object.get('_method'), 'method'); // make sure this was NOT run
+    assert.ok(typeof object.get('method') !== 'function');
+    assert.equal(ret, 'changed');
   });
 
-  QUnit.test('should replace prover when property value is null', function () {
+  QUnit.test('should replace prover when property value is null', function (assert) {
     var ret = object.set('nullProperty', 'changed');
-    equal(object.get('nullProperty'), 'changed');
-    equal(ret, 'changed');
+    assert.equal(object.get('nullProperty'), 'changed');
+    assert.equal(ret, 'changed');
   });
 
-  QUnit.test('should call unknownProperty with value when property is undefined', function () {
+  QUnit.test('should call unknownProperty with value when property is undefined', function (assert) {
     var ret = object.set('unknown', 'changed');
-    equal(object.get('_unknown'), 'changed');
-    equal(ret, 'changed');
+    assert.equal(object.get('_unknown'), 'changed');
+    assert.equal(ret, 'changed');
   });
 
   // ..........................................................
@@ -49687,7 +49685,7 @@ enifed('ember-runtime/tests/legacy_1x/mixins/observable/observable_test', ['embe
   //
 
   QUnit.module('Computed properties', {
-    setup: function () {
+    beforeEach: function () {
       lookup = _emberEnvironment.context.lookup = {};
 
       object = ObservableObject.extend({
@@ -49781,41 +49779,41 @@ enifed('ember-runtime/tests/legacy_1x/mixins/observable/observable_test', ['embe
         state: 'on'
       });
     },
-    teardown: function () {
+    afterEach: function () {
       _emberEnvironment.context.lookup = originalLookup;
     }
   });
 
-  QUnit.test('getting values should call function return value', function () {
+  QUnit.test('getting values should call function return value', function (assert) {
     // get each property twice. Verify return.
     var keys = (0, _string.w)('computed computedCached dependent dependentFront dependentCached');
 
     keys.forEach(function (key) {
-      equal(object.get(key), key, 'Try #1: object.get(' + key + ') should run function');
-      equal(object.get(key), key, 'Try #2: object.get(' + key + ') should run function');
+      assert.equal(object.get(key), key, 'Try #1: object.get(' + key + ') should run function');
+      assert.equal(object.get(key), key, 'Try #2: object.get(' + key + ') should run function');
     });
 
     // verify each call count.  cached should only be called once
     (0, _string.w)('computedCalls dependentFrontCalls dependentCalls').forEach(function (key) {
-      equal(object[key].length, 2, 'non-cached property ' + key + ' should be called 2x');
+      assert.equal(object[key].length, 2, 'non-cached property ' + key + ' should be called 2x');
     });
 
     (0, _string.w)('computedCachedCalls dependentCachedCalls').forEach(function (key) {
-      equal(object[key].length, 1, 'non-cached property ' + key + ' should be called 1x');
+      assert.equal(object[key].length, 1, 'non-cached property ' + key + ' should be called 1x');
     });
   });
 
-  QUnit.test('setting values should call function return value', function () {
+  QUnit.test('setting values should call function return value', function (assert) {
     // get each property twice. Verify return.
     var keys = (0, _string.w)('computed dependent dependentFront computedCached dependentCached');
     var values = (0, _string.w)('value1 value2');
 
     keys.forEach(function (key) {
-      equal(object.set(key, values[0]), values[0], 'Try #1: object.set(' + key + ', ' + values[0] + ') should run function');
+      assert.equal(object.set(key, values[0]), values[0], 'Try #1: object.set(' + key + ', ' + values[0] + ') should run function');
 
-      equal(object.set(key, values[1]), values[1], 'Try #2: object.set(' + key + ', ' + values[1] + ') should run function');
+      assert.equal(object.set(key, values[1]), values[1], 'Try #2: object.set(' + key + ', ' + values[1] + ') should run function');
 
-      equal(object.set(key, values[1]), values[1], 'Try #3: object.set(' + key + ', ' + values[1] + ') should not run function since it is setting same value as before');
+      assert.equal(object.set(key, values[1]), values[1], 'Try #3: object.set(' + key + ', ' + values[1] + ') should not run function since it is setting same value as before');
     });
 
     // verify each call count.  cached should only be called once
@@ -49826,14 +49824,14 @@ enifed('ember-runtime/tests/legacy_1x/mixins/observable/observable_test', ['embe
       // Cached properties first check their cached value before setting the
       // property. Other properties blindly call set.
       expectedLength = 3;
-      equal(calls.length, expectedLength, 'set(' + key + ') should be called the right amount of times');
+      assert.equal(calls.length, expectedLength, 'set(' + key + ') should be called the right amount of times');
       for (idx = 0; idx < 2; idx++) {
-        equal(calls[idx], values[idx], 'call #' + (idx + 1) + ' to set(' + key + ') should have passed value ' + values[idx]);
+        assert.equal(calls[idx], values[idx], 'call #' + (idx + 1) + ' to set(' + key + ') should have passed value ' + values[idx]);
       }
     });
   });
 
-  QUnit.test('notify change should clear cache', function () {
+  QUnit.test('notify change should clear cache', function (assert) {
     // call get several times to collect call count
     object.get('computedCached'); // should run func
     object.get('computedCached'); // should not run func
@@ -49841,77 +49839,77 @@ enifed('ember-runtime/tests/legacy_1x/mixins/observable/observable_test', ['embe
     object.propertyWillChange('computedCached').propertyDidChange('computedCached');
 
     object.get('computedCached'); // should run again
-    equal(object.computedCachedCalls.length, 2, 'should have invoked method 2x');
+    assert.equal(object.computedCachedCalls.length, 2, 'should have invoked method 2x');
   });
 
-  QUnit.test('change dependent should clear cache', function () {
+  QUnit.test('change dependent should clear cache', function (assert) {
     // call get several times to collect call count
     var ret1 = object.get('inc'); // should run func
-    equal(object.get('inc'), ret1, 'multiple calls should not run cached prop');
+    assert.equal(object.get('inc'), ret1, 'multiple calls should not run cached prop');
 
     object.set('changer', 'bar');
 
-    equal(object.get('inc'), ret1 + 1, 'should increment after dependent key changes'); // should run again
+    assert.equal(object.get('inc'), ret1 + 1, 'should increment after dependent key changes'); // should run again
   });
 
-  QUnit.test('just notifying change of dependent should clear cache', function () {
+  QUnit.test('just notifying change of dependent should clear cache', function (assert) {
     // call get several times to collect call count
     var ret1 = object.get('inc'); // should run func
-    equal(object.get('inc'), ret1, 'multiple calls should not run cached prop');
+    assert.equal(object.get('inc'), ret1, 'multiple calls should not run cached prop');
 
     object.notifyPropertyChange('changer');
 
-    equal(object.get('inc'), ret1 + 1, 'should increment after dependent key changes'); // should run again
+    assert.equal(object.get('inc'), ret1 + 1, 'should increment after dependent key changes'); // should run again
   });
 
-  QUnit.test('changing dependent should clear nested cache', function () {
+  QUnit.test('changing dependent should clear nested cache', function (assert) {
     // call get several times to collect call count
     var ret1 = object.get('nestedInc'); // should run func
-    equal(object.get('nestedInc'), ret1, 'multiple calls should not run cached prop');
+    assert.equal(object.get('nestedInc'), ret1, 'multiple calls should not run cached prop');
 
     object.set('changer', 'bar');
 
-    equal(object.get('nestedInc'), ret1 + 1, 'should increment after dependent key changes'); // should run again
+    assert.equal(object.get('nestedInc'), ret1 + 1, 'should increment after dependent key changes'); // should run again
   });
 
-  QUnit.test('just notifying change of dependent should clear nested cache', function () {
+  QUnit.test('just notifying change of dependent should clear nested cache', function (assert) {
     // call get several times to collect call count
     var ret1 = object.get('nestedInc'); // should run func
-    equal(object.get('nestedInc'), ret1, 'multiple calls should not run cached prop');
+    assert.equal(object.get('nestedInc'), ret1, 'multiple calls should not run cached prop');
 
     object.notifyPropertyChange('changer');
 
-    equal(object.get('nestedInc'), ret1 + 1, 'should increment after dependent key changes'); // should run again
+    assert.equal(object.get('nestedInc'), ret1 + 1, 'should increment after dependent key changes'); // should run again
   });
 
   // This verifies a specific bug encountered where observers for computed
   // properties would fire before their prop caches were cleared.
-  QUnit.test('change dependent should clear cache when observers of dependent are called', function () {
+  QUnit.test('change dependent should clear cache when observers of dependent are called', function (assert) {
     // call get several times to collect call count
     var ret1 = object.get('inc'); // should run func
-    equal(object.get('inc'), ret1, 'multiple calls should not run cached prop');
+    assert.equal(object.get('inc'), ret1, 'multiple calls should not run cached prop');
 
     // add observer to verify change...
     object.addObserver('inc', this, function () {
-      equal(object.get('inc'), ret1 + 1, 'should increment after dependent key changes'); // should run again
+      assert.equal(object.get('inc'), ret1 + 1, 'should increment after dependent key changes'); // should run again
     });
 
     // now run
     object.set('changer', 'bar');
   });
 
-  QUnit.test('setting one of two computed properties that depend on a third property should clear the kvo cache', function () {
+  QUnit.test('setting one of two computed properties that depend on a third property should clear the kvo cache', function (assert) {
     // we have to call set twice to fill up the cache
     object.set('isOff', true);
     object.set('isOn', true);
 
     // setting isOff to true should clear the kvo cache
     object.set('isOff', true);
-    equal(object.get('isOff'), true, 'object.isOff should be true');
-    equal(object.get('isOn'), false, 'object.isOn should be false');
+    assert.equal(object.get('isOff'), true, 'object.isOff should be true');
+    assert.equal(object.get('isOn'), false, 'object.isOn should be false');
   });
 
-  QUnit.test('dependent keys should be able to be specified as property paths', function () {
+  QUnit.test('dependent keys should be able to be specified as property paths', function (assert) {
     var depObj = ObservableObject.extend({
       menuPrice: (0, _emberMetal.computed)(function () {
         return this.get('menu.price');
@@ -49922,14 +49920,14 @@ enifed('ember-runtime/tests/legacy_1x/mixins/observable/observable_test', ['embe
       })
     });
 
-    equal(depObj.get('menuPrice'), 5, 'precond - initial value returns 5');
+    assert.equal(depObj.get('menuPrice'), 5, 'precond - initial value returns 5');
 
     depObj.set('menu.price', 6);
 
-    equal(depObj.get('menuPrice'), 6, 'cache is properly invalidated after nested property changes');
+    assert.equal(depObj.get('menuPrice'), 6, 'cache is properly invalidated after nested property changes');
   });
 
-  QUnit.test('nested dependent keys should propagate after they update', function () {
+  QUnit.test('nested dependent keys should propagate after they update', function (assert) {
     var bindObj;
     (0, _emberMetal.run)(function () {
       lookup.DepObj = ObservableObject.extend({
@@ -49951,13 +49949,13 @@ enifed('ember-runtime/tests/legacy_1x/mixins/observable/observable_test', ['embe
       }, /`Ember.Binding` is deprecated/);
     });
 
-    equal(bindObj.get('price'), 5, 'precond - binding propagates');
+    assert.equal(bindObj.get('price'), 5, 'precond - binding propagates');
 
     (0, _emberMetal.run)(function () {
       lookup.DepObj.set('restaurant.menu.price', 10);
     });
 
-    equal(bindObj.get('price'), 10, 'binding propagates after a nested dependent keys updates');
+    assert.equal(bindObj.get('price'), 10, 'binding propagates after a nested dependent keys updates');
 
     (0, _emberMetal.run)(function () {
       lookup.DepObj.set('restaurant.menu', ObservableObject.create({
@@ -49965,11 +49963,11 @@ enifed('ember-runtime/tests/legacy_1x/mixins/observable/observable_test', ['embe
       }));
     });
 
-    equal(bindObj.get('price'), 15, 'binding propagates after a middle dependent keys updates');
+    assert.equal(bindObj.get('price'), 15, 'binding propagates after a middle dependent keys updates');
   });
 
-  QUnit.test('cacheable nested dependent keys should clear after their dependencies update', function () {
-    ok(true);
+  QUnit.test('cacheable nested dependent keys should clear after their dependencies update', function (assert) {
+    assert.ok(true);
 
     var DepObj;
 
@@ -49987,18 +49985,18 @@ enifed('ember-runtime/tests/legacy_1x/mixins/observable/observable_test', ['embe
       });
     });
 
-    equal(DepObj.get('price'), 5, 'precond - computed property is correct');
+    assert.equal(DepObj.get('price'), 5, 'precond - computed property is correct');
 
     (0, _emberMetal.run)(function () {
       DepObj.set('restaurant.menu.price', 10);
     });
-    equal(DepObj.get('price'), 10, 'cacheable computed properties are invalidated even if no run loop occurred');
+    assert.equal(DepObj.get('price'), 10, 'cacheable computed properties are invalidated even if no run loop occurred');
 
     (0, _emberMetal.run)(function () {
       DepObj.set('restaurant.menu.price', 20);
     });
-    equal(DepObj.get('price'), 20, 'cacheable computed properties are invalidated after a second get before a run loop');
-    equal(DepObj.get('price'), 20, 'precond - computed properties remain correct after a run loop');
+    assert.equal(DepObj.get('price'), 20, 'cacheable computed properties are invalidated after a second get before a run loop');
+    assert.equal(DepObj.get('price'), 20, 'precond - computed properties remain correct after a run loop');
 
     (0, _emberMetal.run)(function () {
       DepObj.set('restaurant.menu', ObservableObject.create({
@@ -50006,7 +50004,7 @@ enifed('ember-runtime/tests/legacy_1x/mixins/observable/observable_test', ['embe
       }));
     });
 
-    equal(DepObj.get('price'), 15, 'cacheable computed properties are invalidated after a middle property changes');
+    assert.equal(DepObj.get('price'), 15, 'cacheable computed properties are invalidated after a middle property changes');
 
     (0, _emberMetal.run)(function () {
       DepObj.set('restaurant.menu', ObservableObject.create({
@@ -50014,7 +50012,7 @@ enifed('ember-runtime/tests/legacy_1x/mixins/observable/observable_test', ['embe
       }));
     });
 
-    equal(DepObj.get('price'), 25, 'cacheable computed properties are invalidated after a middle property changes again, before a run loop');
+    assert.equal(DepObj.get('price'), 25, 'cacheable computed properties are invalidated after a middle property changes again, before a run loop');
   });
 
   // ..........................................................
@@ -50022,7 +50020,7 @@ enifed('ember-runtime/tests/legacy_1x/mixins/observable/observable_test', ['embe
   //
 
   QUnit.module('Observable objects & object properties ', {
-    setup: function () {
+    beforeEach: function () {
       object = ObservableObject.extend({
         getEach: function () {
           var keys = ['normal', 'abnormal'],
@@ -50056,22 +50054,22 @@ enifed('ember-runtime/tests/legacy_1x/mixins/observable/observable_test', ['embe
     }
   });
 
-  QUnit.test('incrementProperty and decrementProperty', function () {
+  QUnit.test('incrementProperty and decrementProperty', function (assert) {
     var newValue = object.incrementProperty('numberVal');
 
-    equal(25, newValue, 'numerical value incremented');
+    assert.equal(25, newValue, 'numerical value incremented');
     object.numberVal = 24;
     newValue = object.decrementProperty('numberVal');
-    equal(23, newValue, 'numerical value decremented');
+    assert.equal(23, newValue, 'numerical value decremented');
     object.numberVal = 25;
     newValue = object.incrementProperty('numberVal', 5);
-    equal(30, newValue, 'numerical value incremented by specified increment');
+    assert.equal(30, newValue, 'numerical value incremented by specified increment');
     object.numberVal = 25;
     newValue = object.incrementProperty('numberVal', -5);
-    equal(20, newValue, 'minus numerical value incremented by specified increment');
+    assert.equal(20, newValue, 'minus numerical value incremented by specified increment');
     object.numberVal = 25;
     newValue = object.incrementProperty('numberVal', 0);
-    equal(25, newValue, 'zero numerical value incremented by specified increment');
+    assert.equal(25, newValue, 'zero numerical value incremented by specified increment');
 
     expectAssertion(function () {
       newValue = object.incrementProperty('numberVal', 0 - void 0); // Increment by NaN
@@ -50085,17 +50083,17 @@ enifed('ember-runtime/tests/legacy_1x/mixins/observable/observable_test', ['embe
       newValue = object.incrementProperty('numberVal', 1 / 0); // Increment by Infinity
     }, /Must pass a numeric value to incrementProperty/i);
 
-    equal(25, newValue, 'Attempting to increment by non-numeric values should not increment value');
+    assert.equal(25, newValue, 'Attempting to increment by non-numeric values should not increment value');
 
     object.numberVal = 25;
     newValue = object.decrementProperty('numberVal', 5);
-    equal(20, newValue, 'numerical value decremented by specified increment');
+    assert.equal(20, newValue, 'numerical value decremented by specified increment');
     object.numberVal = 25;
     newValue = object.decrementProperty('numberVal', -5);
-    equal(30, newValue, 'minus numerical value decremented by specified increment');
+    assert.equal(30, newValue, 'minus numerical value decremented by specified increment');
     object.numberVal = 25;
     newValue = object.decrementProperty('numberVal', 0);
-    equal(25, newValue, 'zero numerical value decremented by specified increment');
+    assert.equal(25, newValue, 'zero numerical value decremented by specified increment');
 
     expectAssertion(function () {
       newValue = object.decrementProperty('numberVal', 0 - void 0); // Decrement by NaN
@@ -50109,22 +50107,22 @@ enifed('ember-runtime/tests/legacy_1x/mixins/observable/observable_test', ['embe
       newValue = object.decrementProperty('numberVal', 1 / 0); // Decrement by Infinity
     }, /Must pass a numeric value to decrementProperty/i);
 
-    equal(25, newValue, 'Attempting to decrement by non-numeric values should not decrement value');
+    assert.equal(25, newValue, 'Attempting to decrement by non-numeric values should not decrement value');
   });
 
-  QUnit.test('toggle function, should be boolean', function () {
-    equal(object.toggleProperty('toggleVal', true, false), object.get('toggleVal'));
-    equal(object.toggleProperty('toggleVal', true, false), object.get('toggleVal'));
-    equal(object.toggleProperty('toggleVal', undefined, undefined), object.get('toggleVal'));
+  QUnit.test('toggle function, should be boolean', function (assert) {
+    assert.equal(object.toggleProperty('toggleVal', true, false), object.get('toggleVal'));
+    assert.equal(object.toggleProperty('toggleVal', true, false), object.get('toggleVal'));
+    assert.equal(object.toggleProperty('toggleVal', undefined, undefined), object.get('toggleVal'));
   });
 
-  QUnit.test('should notify array observer when array changes', function () {
+  QUnit.test('should notify array observer when array changes', function (assert) {
     (0, _emberMetal.get)(object, 'normalArray').replace(0, 0, [6]);
-    equal(object.abnormal, 'notifiedObserver', 'observer should be notified');
+    assert.equal(object.abnormal, 'notifiedObserver', 'observer should be notified');
   });
 
   QUnit.module('object.addObserver()', {
-    setup: function () {
+    beforeEach: function () {
       ObjectC = ObservableObject.create({
         objectE: ObservableObject.create({
           propertyVal: 'chainedProperty'
@@ -50148,23 +50146,23 @@ enifed('ember-runtime/tests/legacy_1x/mixins/observable/observable_test', ['embe
     }
   });
 
-  QUnit.test('should register an observer for a property', function () {
+  QUnit.test('should register an observer for a property', function (assert) {
     ObjectC.addObserver('normal', ObjectC, 'action');
     ObjectC.set('normal', 'newValue');
-    equal(ObjectC.normal1, 'newZeroValue');
+    assert.equal(ObjectC.normal1, 'newZeroValue');
   });
 
-  QUnit.test('should register an observer for a property - Special case of chained property', function () {
+  QUnit.test('should register an observer for a property - Special case of chained property', function (assert) {
     ObjectC.addObserver('objectE.propertyVal', ObjectC, 'chainedObserver');
     ObjectC.objectE.set('propertyVal', 'chainedPropertyValue');
-    equal('chainedPropertyObserved', ObjectC.normal2);
+    assert.equal('chainedPropertyObserved', ObjectC.normal2);
     ObjectC.normal2 = 'dependentValue';
     ObjectC.set('objectE', '');
-    equal('chainedPropertyObserved', ObjectC.normal2);
+    assert.equal('chainedPropertyObserved', ObjectC.normal2);
   });
 
   QUnit.module('object.removeObserver()', {
-    setup: function () {
+    beforeEach: function () {
       ObjectD = ObservableObject.create({
         objectF: ObservableObject.create({
           propertyVal: 'chainedProperty'
@@ -50203,30 +50201,30 @@ enifed('ember-runtime/tests/legacy_1x/mixins/observable/observable_test', ['embe
     }
   });
 
-  QUnit.test('should unregister an observer for a property', function () {
+  QUnit.test('should unregister an observer for a property', function (assert) {
     ObjectD.addObserver('normal', ObjectD, 'addAction');
     ObjectD.set('normal', 'newValue');
-    equal(ObjectD.normal1, 'newZeroValue');
+    assert.equal(ObjectD.normal1, 'newZeroValue');
 
     ObjectD.set('normal1', 'zeroValue');
 
     ObjectD.removeObserver('normal', ObjectD, 'addAction');
     ObjectD.set('normal', 'newValue');
-    equal(ObjectD.normal1, 'zeroValue');
+    assert.equal(ObjectD.normal1, 'zeroValue');
   });
 
-  QUnit.test('should unregister an observer for a property - special case when key has a \'.\' in it.', function () {
+  QUnit.test('should unregister an observer for a property - special case when key has a \'.\' in it.', function (assert) {
     ObjectD.addObserver('objectF.propertyVal', ObjectD, 'removeChainedObserver');
     ObjectD.objectF.set('propertyVal', 'chainedPropertyValue');
     ObjectD.removeObserver('objectF.propertyVal', ObjectD, 'removeChainedObserver');
     ObjectD.normal2 = 'dependentValue';
     ObjectD.objectF.set('propertyVal', 'removedPropertyValue');
-    equal('dependentValue', ObjectD.normal2);
+    assert.equal('dependentValue', ObjectD.normal2);
     ObjectD.set('objectF', '');
-    equal('dependentValue', ObjectD.normal2);
+    assert.equal('dependentValue', ObjectD.normal2);
   });
 
-  QUnit.test('removing an observer inside of an observer shouldn’t cause any problems', function () {
+  QUnit.test('removing an observer inside of an observer shouldn’t cause any problems', function (assert) {
     // The observable system should be protected against clients removing
     // observers in the middle of observer notification.
     var encounteredError = false;
@@ -50240,11 +50238,11 @@ enifed('ember-runtime/tests/legacy_1x/mixins/observable/observable_test', ['embe
     } catch (e) {
       encounteredError = true;
     }
-    equal(encounteredError, false);
+    assert.equal(encounteredError, false);
   });
 
   QUnit.module('Bind function', {
-    setup: function () {
+    beforeEach: function () {
       objectA = ObservableObject.create({
         name: 'Sproutcore',
         location: 'Timbaktu'
@@ -50264,12 +50262,12 @@ enifed('ember-runtime/tests/legacy_1x/mixins/observable/observable_test', ['embe
         }
       };
     },
-    teardown: function () {
+    afterEach: function () {
       _emberEnvironment.context.lookup = originalLookup;
     }
   });
 
-  QUnit.test('should bind property with method parameter as undefined', function () {
+  QUnit.test('should bind property with method parameter as undefined', function (assert) {
     // creating binding
     (0, _emberMetal.run)(function () {
       expectDeprecation(function () {
@@ -50283,14 +50281,14 @@ enifed('ember-runtime/tests/legacy_1x/mixins/observable/observable_test', ['embe
     });
 
     // support new-style bindings if available
-    equal('changedValue', objectA.get('name'), 'objectA.name is bound');
+    assert.equal('changedValue', objectA.get('name'), 'objectA.name is bound');
   });
 
   // ..........................................................
   // SPECIAL CASES
   //
 
-  QUnit.test('changing chained observer object to null should not raise exception', function () {
+  QUnit.test('changing chained observer object to null should not raise exception', function (assert) {
     var obj = ObservableObject.create({
       foo: ObservableObject.create({
         bar: ObservableObject.create({ bat: 'BAT' })
@@ -50306,8 +50304,8 @@ enifed('ember-runtime/tests/legacy_1x/mixins/observable/observable_test', ['embe
       obj.foo.set('bar', null);
     });
 
-    equal(callCount, 1, 'changing bar should trigger observer');
-    expect(1);
+    assert.equal(callCount, 1, 'changing bar should trigger observer');
+    assert.expect(1);
   });
 });
 enifed('ember-runtime/tests/legacy_1x/mixins/observable/observersForKey_test', ['ember-metal', 'ember-runtime/system/object', 'ember-runtime/mixins/observable'], function (_emberMetal, _object, _observable) {
@@ -50335,7 +50333,7 @@ enifed('ember-runtime/tests/legacy_1x/mixins/observable/observersForKey_test', [
 
   QUnit.module('object.observesForKey()');
 
-  QUnit.test('should get observers', function () {
+  QUnit.test('should get observers', function (assert) {
     var o1 = ObservableObject.create({ foo: 100 });
     var o2 = ObservableObject.create({
       func: function () {}
@@ -50345,16 +50343,16 @@ enifed('ember-runtime/tests/legacy_1x/mixins/observable/observersForKey_test', [
     });
     var observers = null;
 
-    equal((0, _emberMetal.get)(o1.observersForKey('foo'), 'length'), 0, 'o1.observersForKey should return empty array');
+    assert.equal((0, _emberMetal.get)(o1.observersForKey('foo'), 'length'), 0, 'o1.observersForKey should return empty array');
 
     o1.addObserver('foo', o2, o2.func);
     o1.addObserver('foo', o3, o3.func);
 
     observers = o1.observersForKey('foo');
 
-    equal((0, _emberMetal.get)(observers, 'length'), 2, 'o2.observersForKey should return an array with length 2');
-    equal(observers[0][0], o2, 'first item in observers array should be o2');
-    equal(observers[1][0], o3, 'second item in observers array should be o3');
+    assert.equal((0, _emberMetal.get)(observers, 'length'), 2, 'o2.observersForKey should return an array with length 2');
+    assert.equal(observers[0][0], o2, 'first item in observers array should be o2');
+    assert.equal(observers[1][0], o3, 'second item in observers array should be o3');
   });
 });
 enifed('ember-runtime/tests/legacy_1x/mixins/observable/propertyChanges_test', ['ember-runtime/system/object', 'ember-runtime/mixins/observable', 'ember-metal'], function (_object, _observable, _emberMetal) {
@@ -50382,7 +50380,7 @@ enifed('ember-runtime/tests/legacy_1x/mixins/observable/propertyChanges_test', [
   var ObjectA = void 0;
 
   QUnit.module('object.propertyChanges', {
-    setup: function () {
+    beforeEach: function () {
       ObjectA = ObservableObject.extend({
         action: (0, _emberMetal.observer)('foo', function () {
           this.set('prop', 'changedPropValue');
@@ -50410,7 +50408,7 @@ enifed('ember-runtime/tests/legacy_1x/mixins/observable/propertyChanges_test', [
     }
   });
 
-  QUnit.test('should observe the changes within the nested begin / end property changes', function () {
+  QUnit.test('should observe the changes within the nested begin / end property changes', function (assert) {
     //start the outer nest
     ObjectA.beginPropertyChanges();
 
@@ -50418,36 +50416,36 @@ enifed('ember-runtime/tests/legacy_1x/mixins/observable/propertyChanges_test', [
     ObjectA.beginPropertyChanges();
     ObjectA.set('foo', 'changeFooValue');
 
-    equal(ObjectA.prop, 'propValue');
+    assert.equal(ObjectA.prop, 'propValue');
     ObjectA.endPropertyChanges();
 
     //end inner nest
     ObjectA.set('prop', 'changePropValue');
-    equal(ObjectA.newFoo, 'newFooValue');
+    assert.equal(ObjectA.newFoo, 'newFooValue');
 
     //close the outer nest
     ObjectA.endPropertyChanges();
 
-    equal(ObjectA.prop, 'changedPropValue');
-    equal(ObjectA.newFoo, 'changedNewFooValue');
+    assert.equal(ObjectA.prop, 'changedPropValue');
+    assert.equal(ObjectA.newFoo, 'changedNewFooValue');
   });
 
-  QUnit.test('should observe the changes within the begin and end property changes', function () {
+  QUnit.test('should observe the changes within the begin and end property changes', function (assert) {
     ObjectA.beginPropertyChanges();
     ObjectA.set('foo', 'changeFooValue');
 
-    equal(ObjectA.prop, 'propValue');
+    assert.equal(ObjectA.prop, 'propValue');
     ObjectA.endPropertyChanges();
 
-    equal(ObjectA.prop, 'changedPropValue');
+    assert.equal(ObjectA.prop, 'changedPropValue');
   });
 
-  QUnit.test('should indicate that the property of an object has just changed', function () {
+  QUnit.test('should indicate that the property of an object has just changed', function (assert) {
     // indicate that property of foo will change to its subscribers
     ObjectA.propertyWillChange('foo');
 
     //Value of the prop is unchanged yet as this will be changed when foo changes
-    equal(ObjectA.prop, 'propValue');
+    assert.equal(ObjectA.prop, 'propValue');
 
     //change the value of foo.
     ObjectA.set('foo', 'changeFooValue');
@@ -50456,20 +50454,20 @@ enifed('ember-runtime/tests/legacy_1x/mixins/observable/propertyChanges_test', [
     ObjectA.propertyDidChange('foo', null);
 
     // Values of prop has just changed
-    equal(ObjectA.prop, 'changedPropValue');
+    assert.equal(ObjectA.prop, 'changedPropValue');
   });
 
-  QUnit.test('should notify that the property of an object has changed', function () {
+  QUnit.test('should notify that the property of an object has changed', function (assert) {
     // Notify to its subscriber that the values of 'newFoo' will be changed. In this
     // case the observer is "newProp". Therefore this will call the notifyAction function
     // and value of "newProp" will be changed.
     ObjectA.notifyPropertyChange('newFoo', 'fooValue');
 
     //value of newProp changed.
-    equal(ObjectA.newProp, 'changedNewPropValue');
+    assert.equal(ObjectA.newProp, 'changedNewPropValue');
   });
 
-  QUnit.test('should invalidate function property cache when notifyPropertyChange is called', function () {
+  QUnit.test('should invalidate function property cache when notifyPropertyChange is called', function (assert) {
     var a = ObservableObject.extend({
       b: (0, _emberMetal.computed)({
         get: function () {
@@ -50485,12 +50483,12 @@ enifed('ember-runtime/tests/legacy_1x/mixins/observable/propertyChanges_test', [
     });
 
     a.set('b', 'foo');
-    equal(a.get('b'), 'foo', 'should have set the correct value for property b');
+    assert.equal(a.get('b'), 'foo', 'should have set the correct value for property b');
 
     a._b = 'bar';
     a.notifyPropertyChange('b');
     a.set('b', 'foo');
-    equal(a.get('b'), 'foo', 'should have invalidated the cache so that the newly set value is actually set');
+    assert.equal(a.get('b'), 'foo', 'should have invalidated the cache so that the newly set value is actually set');
   });
 });
 enifed('ember-runtime/tests/legacy_1x/system/binding_test', ['ember-environment', 'ember-metal', 'ember-runtime/system/object'], function (_emberEnvironment, _emberMetal, _object) {
@@ -50544,7 +50542,7 @@ enifed('ember-runtime/tests/legacy_1x/system/binding_test', ['ember-environment'
   var lookup = void 0;
 
   QUnit.module('basic object binding', {
-    setup: function () {
+    beforeEach: function () {
       fromObject = _object.default.create({ value: 'start' });
       toObject = _object.default.create({ value: 'end' });
       root = { fromObject: fromObject, toObject: toObject };
@@ -50556,27 +50554,27 @@ enifed('ember-runtime/tests/legacy_1x/system/binding_test', ['ember-environment'
     }
   });
 
-  QUnit.test('binding should have synced on connect', function () {
-    equal((0, _emberMetal.get)(toObject, 'value'), 'start', 'toObject.value should match fromObject.value');
+  QUnit.test('binding should have synced on connect', function (assert) {
+    assert.equal((0, _emberMetal.get)(toObject, 'value'), 'start', 'toObject.value should match fromObject.value');
   });
 
-  QUnit.test('fromObject change should propagate to toObject only after flush', function () {
+  QUnit.test('fromObject change should propagate to toObject only after flush', function (assert) {
     (0, _emberMetal.run)(function () {
       (0, _emberMetal.set)(fromObject, 'value', 'change');
-      equal((0, _emberMetal.get)(toObject, 'value'), 'start');
+      assert.equal((0, _emberMetal.get)(toObject, 'value'), 'start');
     });
-    equal((0, _emberMetal.get)(toObject, 'value'), 'change');
+    assert.equal((0, _emberMetal.get)(toObject, 'value'), 'change');
   });
 
-  QUnit.test('toObject change should propagate to fromObject only after flush', function () {
+  QUnit.test('toObject change should propagate to fromObject only after flush', function (assert) {
     (0, _emberMetal.run)(function () {
       (0, _emberMetal.set)(toObject, 'value', 'change');
-      equal((0, _emberMetal.get)(fromObject, 'value'), 'start');
+      assert.equal((0, _emberMetal.get)(fromObject, 'value'), 'start');
     });
-    equal((0, _emberMetal.get)(fromObject, 'value'), 'change');
+    assert.equal((0, _emberMetal.get)(fromObject, 'value'), 'change');
   });
 
-  QUnit.test('deferred observing during bindings', function () {
+  QUnit.test('deferred observing during bindings', function (assert) {
     // setup special binding
     fromObject = _object.default.create({
       value1: 'value1',
@@ -50585,8 +50583,8 @@ enifed('ember-runtime/tests/legacy_1x/system/binding_test', ['ember-environment'
 
     toObject = _object.default.extend({
       observer: (0, _emberMetal.observer)('value1', 'value2', function () {
-        equal((0, _emberMetal.get)(this, 'value1'), 'CHANGED', 'value1 when observer fires');
-        equal((0, _emberMetal.get)(this, 'value2'), 'CHANGED', 'value2 when observer fires');
+        assert.equal((0, _emberMetal.get)(this, 'value1'), 'CHANGED', 'value1 when observer fires');
+        assert.equal((0, _emberMetal.get)(this, 'value2'), 'CHANGED', 'value2 when observer fires');
         this.callCount++;
       })
     }).create({
@@ -50612,15 +50610,15 @@ enifed('ember-runtime/tests/legacy_1x/system/binding_test', ['ember-environment'
       (0, _emberMetal.set)(fromObject, 'value2', 'CHANGED');
     });
 
-    equal(toObject.callCount, 2, 'should call observer twice');
+    assert.equal(toObject.callCount, 2, 'should call observer twice');
   });
 
-  QUnit.test('binding disconnection actually works', function () {
+  QUnit.test('binding disconnection actually works', function (assert) {
     binding.disconnect(root);
     (0, _emberMetal.run)(function () {
       (0, _emberMetal.set)(fromObject, 'value', 'change');
     });
-    equal((0, _emberMetal.get)(toObject, 'value'), 'start');
+    assert.equal((0, _emberMetal.get)(toObject, 'value'), 'start');
   });
 
   var first = void 0,
@@ -50632,7 +50630,7 @@ enifed('ember-runtime/tests/legacy_1x/system/binding_test', ['ember-environment'
   //
 
   QUnit.module('chained binding', {
-    setup: function () {
+    beforeEach: function () {
       (0, _emberMetal.run)(function () {
         first = _object.default.create({ output: 'first' });
 
@@ -50658,22 +50656,22 @@ enifed('ember-runtime/tests/legacy_1x/system/binding_test', ['ember-environment'
         }, /`Ember\.Binding` is deprecated./);
       });
     },
-    teardown: function () {
+    afterEach: function () {
       _emberMetal.run.cancelTimers();
     }
   });
 
-  QUnit.test('changing first output should propagate to third after flush', function () {
+  QUnit.test('changing first output should propagate to third after flush', function (assert) {
     (0, _emberMetal.run)(function () {
       (0, _emberMetal.set)(first, 'output', 'change');
-      equal('change', (0, _emberMetal.get)(first, 'output'), 'first.output');
-      ok('change' !== (0, _emberMetal.get)(third, 'input'), 'third.input');
+      assert.equal('change', (0, _emberMetal.get)(first, 'output'), 'first.output');
+      assert.ok('change' !== (0, _emberMetal.get)(third, 'input'), 'third.input');
     });
 
-    equal('change', (0, _emberMetal.get)(first, 'output'), 'first.output');
-    equal('change', (0, _emberMetal.get)(second, 'input'), 'second.input');
-    equal('change', (0, _emberMetal.get)(second, 'output'), 'second.output');
-    equal('change', (0, _emberMetal.get)(third, 'input'), 'third.input');
+    assert.equal('change', (0, _emberMetal.get)(first, 'output'), 'first.output');
+    assert.equal('change', (0, _emberMetal.get)(second, 'input'), 'second.input');
+    assert.equal('change', (0, _emberMetal.get)(second, 'output'), 'second.output');
+    assert.equal('change', (0, _emberMetal.get)(third, 'input'), 'third.input');
   });
 
   // ..........................................................
@@ -50681,7 +50679,7 @@ enifed('ember-runtime/tests/legacy_1x/system/binding_test', ['ember-environment'
   //
 
   QUnit.module('Custom Binding', {
-    setup: function () {
+    beforeEach: function () {
       _emberEnvironment.context.lookup = lookup = {};
 
       Bon1 = _object.default.extend({
@@ -50701,14 +50699,14 @@ enifed('ember-runtime/tests/legacy_1x/system/binding_test', ['ember-environment'
         Bon1: Bon1
       };
     },
-    teardown: function () {
+    afterEach: function () {
       _emberEnvironment.context.lookup = originalLookup;
       Bon1 = bon2 = TestNamespace = null;
       _emberMetal.run.cancelTimers();
     }
   });
 
-  QUnit.test('two bindings to the same value should sync in the order they are initialized', function () {
+  QUnit.test('two bindings to the same value should sync in the order they are initialized', function (assert) {
     _emberMetal.run.begin();
 
     var a = _object.default.create({
@@ -50737,9 +50735,9 @@ enifed('ember-runtime/tests/legacy_1x/system/binding_test', ['ember-environment'
 
     _emberMetal.run.end();
 
-    equal((0, _emberMetal.get)(a, 'foo'), 'bar', 'a.foo should not change');
-    equal((0, _emberMetal.get)(b, 'foo'), 'bar', 'a.foo should propagate up to b.foo');
-    equal((0, _emberMetal.get)(b.c, 'foo'), 'bar', 'a.foo should propagate up to b.c.foo');
+    assert.equal((0, _emberMetal.get)(a, 'foo'), 'bar', 'a.foo should not change');
+    assert.equal((0, _emberMetal.get)(b, 'foo'), 'bar', 'a.foo should propagate up to b.foo');
+    assert.equal((0, _emberMetal.get)(b.c, 'foo'), 'bar', 'a.foo should propagate up to b.c.foo');
   });
 
   // ..........................................................
@@ -50747,7 +50745,7 @@ enifed('ember-runtime/tests/legacy_1x/system/binding_test', ['ember-environment'
   //
 
   QUnit.module('propertyNameBinding with longhand', {
-    setup: function () {
+    beforeEach: function () {
       _emberEnvironment.context.lookup = lookup = {};
 
       lookup['TestNamespace'] = TestNamespace = {};
@@ -50766,38 +50764,38 @@ enifed('ember-runtime/tests/legacy_1x/system/binding_test', ['ember-environment'
         }, /`Ember\.Binding` is deprecated./);
       });
     },
-    teardown: function () {
+    afterEach: function () {
       TestNamespace = undefined;
       _emberEnvironment.context.lookup = originalLookup;
     }
   });
 
-  QUnit.test('works with full path', function () {
+  QUnit.test('works with full path', function (assert) {
     (0, _emberMetal.run)(function () {
       return (0, _emberMetal.set)(TestNamespace.fromObject, 'value', 'updatedValue');
     });
 
-    equal((0, _emberMetal.get)(TestNamespace.toObject, 'value'), 'updatedValue');
+    assert.equal((0, _emberMetal.get)(TestNamespace.toObject, 'value'), 'updatedValue');
 
     (0, _emberMetal.run)(function () {
       return (0, _emberMetal.set)(TestNamespace.fromObject, 'value', 'newerValue');
     });
 
-    equal((0, _emberMetal.get)(TestNamespace.toObject, 'value'), 'newerValue');
+    assert.equal((0, _emberMetal.get)(TestNamespace.toObject, 'value'), 'newerValue');
   });
 
-  QUnit.test('works with local path', function () {
+  QUnit.test('works with local path', function (assert) {
     (0, _emberMetal.run)(function () {
       return (0, _emberMetal.set)(TestNamespace.toObject, 'localValue', 'updatedValue');
     });
 
-    equal((0, _emberMetal.get)(TestNamespace.toObject, 'relative'), 'updatedValue');
+    assert.equal((0, _emberMetal.get)(TestNamespace.toObject, 'relative'), 'updatedValue');
 
     (0, _emberMetal.run)(function () {
       return (0, _emberMetal.set)(TestNamespace.toObject, 'localValue', 'newerValue');
     });
 
-    equal((0, _emberMetal.get)(TestNamespace.toObject, 'relative'), 'newerValue');
+    assert.equal((0, _emberMetal.get)(TestNamespace.toObject, 'relative'), 'newerValue');
   });
 });
 enifed('ember-runtime/tests/legacy_1x/system/object/base_test', ['ember-metal', 'ember-runtime/system/object'], function (_emberMetal, _object) {
@@ -50829,7 +50827,7 @@ enifed('ember-runtime/tests/legacy_1x/system/object/base_test', ['ember-metal', 
       obj1 = void 0; // global variables
 
   QUnit.module('A new EmberObject instance', {
-    setup: function () {
+    beforeEach: function () {
       obj = _object.default.create({
         foo: 'bar',
         total: 12345,
@@ -50845,29 +50843,29 @@ enifed('ember-runtime/tests/legacy_1x/system/object/base_test', ['ember-metal', 
         }
       });
     },
-    teardown: function () {
+    afterEach: function () {
       obj = undefined;
     }
   });
 
-  QUnit.test('Should return its properties when requested using EmberObject#get', function () {
-    equal((0, _emberMetal.get)(obj, 'foo'), 'bar');
-    equal((0, _emberMetal.get)(obj, 'total'), 12345);
+  QUnit.test('Should return its properties when requested using EmberObject#get', function (assert) {
+    assert.equal((0, _emberMetal.get)(obj, 'foo'), 'bar');
+    assert.equal((0, _emberMetal.get)(obj, 'total'), 12345);
   });
 
-  QUnit.test('Should allow changing of those properties by calling EmberObject#set', function () {
-    equal((0, _emberMetal.get)(obj, 'foo'), 'bar');
-    equal((0, _emberMetal.get)(obj, 'total'), 12345);
+  QUnit.test('Should allow changing of those properties by calling EmberObject#set', function (assert) {
+    assert.equal((0, _emberMetal.get)(obj, 'foo'), 'bar');
+    assert.equal((0, _emberMetal.get)(obj, 'total'), 12345);
 
     (0, _emberMetal.set)(obj, 'foo', 'Chunky Bacon');
     (0, _emberMetal.set)(obj, 'total', 12);
 
-    equal((0, _emberMetal.get)(obj, 'foo'), 'Chunky Bacon');
-    equal((0, _emberMetal.get)(obj, 'total'), 12);
+    assert.equal((0, _emberMetal.get)(obj, 'foo'), 'Chunky Bacon');
+    assert.equal((0, _emberMetal.get)(obj, 'total'), 12);
   });
 
   QUnit.module('EmberObject superclass and subclasses', {
-    setup: function () {
+    beforeEach: function () {
       obj = _object.default.extend({
         method1: function () {
           return 'hello';
@@ -50875,20 +50873,20 @@ enifed('ember-runtime/tests/legacy_1x/system/object/base_test', ['ember-metal', 
       });
       obj1 = obj.extend();
     },
-    teardown: function () {
+    afterEach: function () {
       obj = undefined;
       obj1 = undefined;
     }
   });
 
-  QUnit.test('Checking the detect() function on an object and its subclass', function () {
-    equal(obj.detect(obj1), true);
-    equal(obj1.detect(obj), false);
+  QUnit.test('Checking the detect() function on an object and its subclass', function (assert) {
+    assert.equal(obj.detect(obj1), true);
+    assert.equal(obj1.detect(obj), false);
   });
 
-  QUnit.test('Checking the detectInstance() function on an object and its subclass', function () {
-    ok(_object.default.detectInstance(obj.create()));
-    ok(obj.detectInstance(obj.create()));
+  QUnit.test('Checking the detectInstance() function on an object and its subclass', function (assert) {
+    assert.ok(_object.default.detectInstance(obj.create()));
+    assert.ok(obj.detectInstance(obj.create()));
   });
 });
 enifed('ember-runtime/tests/legacy_1x/system/object/bindings_test', ['ember-environment', 'ember-metal', 'ember-runtime/system/object'], function (_emberEnvironment, _emberMetal, _object) {
@@ -50919,7 +50917,7 @@ enifed('ember-runtime/tests/legacy_1x/system/object/bindings_test', ['ember-envi
       lookup = void 0;
 
   QUnit.module('bind() method', {
-    setup: function () {
+    beforeEach: function () {
       _emberEnvironment.context.lookup = lookup = {};
 
       testObject = _object.default.create({
@@ -50938,13 +50936,13 @@ enifed('ember-runtime/tests/legacy_1x/system/object/bindings_test', ['ember-envi
         testObject: testObject
       };
     },
-    teardown: function () {
+    afterEach: function () {
       testObject = fromObject = null;
       _emberEnvironment.context.lookup = originalLookup;
     }
   });
 
-  QUnit.test('bind(TestNamespace.fromObject.bar) should follow absolute path', function () {
+  QUnit.test('bind(TestNamespace.fromObject.bar) should follow absolute path', function (assert) {
     (0, _emberMetal.run)(function () {
       expectDeprecation(function () {
         // create binding
@@ -50955,10 +50953,10 @@ enifed('ember-runtime/tests/legacy_1x/system/object/bindings_test', ['ember-envi
       (0, _emberMetal.set)(fromObject, 'bar', 'changedValue');
     });
 
-    equal('changedValue', (0, _emberMetal.get)(testObject, 'foo'), 'testObject.foo');
+    assert.equal('changedValue', (0, _emberMetal.get)(testObject, 'foo'), 'testObject.foo');
   });
 
-  QUnit.test('bind(.bar) should bind to relative path', function () {
+  QUnit.test('bind(.bar) should bind to relative path', function (assert) {
     (0, _emberMetal.run)(function () {
       expectDeprecation(function () {
         // create binding
@@ -50969,11 +50967,11 @@ enifed('ember-runtime/tests/legacy_1x/system/object/bindings_test', ['ember-envi
       (0, _emberMetal.set)(testObject, 'bar', 'changedValue');
     });
 
-    equal('changedValue', (0, _emberMetal.get)(testObject, 'foo'), 'testObject.foo');
+    assert.equal('changedValue', (0, _emberMetal.get)(testObject, 'foo'), 'testObject.foo');
   });
 
   QUnit.module('fooBinding method', {
-    setup: function () {
+    beforeEach: function () {
       _emberEnvironment.context.lookup = lookup = {};
 
       TestObject = _object.default.extend({
@@ -50992,7 +50990,7 @@ enifed('ember-runtime/tests/legacy_1x/system/object/bindings_test', ['ember-envi
         testObject: TestObject
       };
     },
-    teardown: function () {
+    afterEach: function () {
       _emberEnvironment.context.lookup = originalLookup;
       TestObject = fromObject = null;
       //  delete TestNamespace;
@@ -51001,7 +50999,7 @@ enifed('ember-runtime/tests/legacy_1x/system/object/bindings_test', ['ember-envi
 
   var deprecationMessage = /`Ember.Binding` is deprecated/;
 
-  QUnit.test('fooBinding: TestNamespace.fromObject.bar should follow absolute path', function () {
+  QUnit.test('fooBinding: TestNamespace.fromObject.bar should follow absolute path', function (assert) {
     (0, _emberMetal.run)(function () {
       expectDeprecation(function () {
         // create binding
@@ -51014,10 +51012,10 @@ enifed('ember-runtime/tests/legacy_1x/system/object/bindings_test', ['ember-envi
       (0, _emberMetal.set)(fromObject, 'bar', 'changedValue');
     });
 
-    equal('changedValue', (0, _emberMetal.get)(testObject, 'foo'), 'testObject.foo');
+    assert.equal('changedValue', (0, _emberMetal.get)(testObject, 'foo'), 'testObject.foo');
   });
 
-  QUnit.test('fooBinding: .bar should bind to relative path', function () {
+  QUnit.test('fooBinding: .bar should bind to relative path', function (assert) {
     (0, _emberMetal.run)(function () {
       expectDeprecation(function () {
         // create binding
@@ -51030,10 +51028,10 @@ enifed('ember-runtime/tests/legacy_1x/system/object/bindings_test', ['ember-envi
       (0, _emberMetal.set)(testObject, 'bar', 'changedValue');
     });
 
-    equal('changedValue', (0, _emberMetal.get)(testObject, 'foo'), 'testObject.foo');
+    assert.equal('changedValue', (0, _emberMetal.get)(testObject, 'foo'), 'testObject.foo');
   });
 
-  QUnit.test('fooBinding: should disconnect bindings when destroyed', function () {
+  QUnit.test('fooBinding: should disconnect bindings when destroyed', function (assert) {
     (0, _emberMetal.run)(function () {
       expectDeprecation(function () {
         // create binding
@@ -51045,7 +51043,7 @@ enifed('ember-runtime/tests/legacy_1x/system/object/bindings_test', ['ember-envi
       (0, _emberMetal.set)(TestNamespace.fromObject, 'bar', 'BAZ');
     });
 
-    equal((0, _emberMetal.get)(testObject, 'foo'), 'BAZ', 'binding should have synced');
+    assert.equal((0, _emberMetal.get)(testObject, 'foo'), 'BAZ', 'binding should have synced');
 
     (0, _emberMetal.run)(function () {
       return testObject.destroy();
@@ -51055,7 +51053,7 @@ enifed('ember-runtime/tests/legacy_1x/system/object/bindings_test', ['ember-envi
       return (0, _emberMetal.set)(TestNamespace.fromObject, 'bar', 'BIFF');
     });
 
-    ok((0, _emberMetal.get)(testObject, 'foo') !== 'bar', 'binding should not have synced');
+    assert.ok((0, _emberMetal.get)(testObject, 'foo') !== 'bar', 'binding should not have synced');
   });
 });
 enifed('ember-runtime/tests/legacy_1x/system/object/concatenated_test', ['ember-metal', 'ember-runtime/system/object'], function (_emberMetal, _object) {
@@ -51080,7 +51078,7 @@ enifed('ember-runtime/tests/legacy_1x/system/object/concatenated_test', ['ember-
   var klass = void 0;
 
   QUnit.module('EmberObject Concatenated Properties', {
-    setup: function () {
+    beforeEach: function () {
       klass = _object.default.extend({
         concatenatedProperties: ['values', 'functions'],
         values: ['a', 'b', 'c'],
@@ -51089,7 +51087,7 @@ enifed('ember-runtime/tests/legacy_1x/system/object/concatenated_test', ['ember-
     }
   });
 
-  QUnit.test('concatenates instances', function () {
+  QUnit.test('concatenates instances', function (assert) {
     var obj = klass.create({
       values: ['d', 'e', 'f']
     });
@@ -51097,10 +51095,10 @@ enifed('ember-runtime/tests/legacy_1x/system/object/concatenated_test', ['ember-
     var values = (0, _emberMetal.get)(obj, 'values');
     var expected = ['a', 'b', 'c', 'd', 'e', 'f'];
 
-    deepEqual(values, expected, 'should concatenate values property (expected: ' + expected + ', got: ' + values + ')');
+    assert.deepEqual(values, expected, 'should concatenate values property (expected: ' + expected + ', got: ' + values + ')');
   });
 
-  QUnit.test('concatenates subclasses', function () {
+  QUnit.test('concatenates subclasses', function (assert) {
     var subKlass = klass.extend({
       values: ['d', 'e', 'f']
     });
@@ -51109,10 +51107,10 @@ enifed('ember-runtime/tests/legacy_1x/system/object/concatenated_test', ['ember-
     var values = (0, _emberMetal.get)(obj, 'values');
     var expected = ['a', 'b', 'c', 'd', 'e', 'f'];
 
-    deepEqual(values, expected, 'should concatenate values property (expected: ' + expected + ', got: ' + values + ')');
+    assert.deepEqual(values, expected, 'should concatenate values property (expected: ' + expected + ', got: ' + values + ')');
   });
 
-  QUnit.test('concatenates reopen', function () {
+  QUnit.test('concatenates reopen', function (assert) {
     klass.reopen({
       values: ['d', 'e', 'f']
     });
@@ -51121,10 +51119,10 @@ enifed('ember-runtime/tests/legacy_1x/system/object/concatenated_test', ['ember-
     var values = (0, _emberMetal.get)(obj, 'values');
     var expected = ['a', 'b', 'c', 'd', 'e', 'f'];
 
-    deepEqual(values, expected, 'should concatenate values property (expected: ' + expected + ', got: ' + values + ')');
+    assert.deepEqual(values, expected, 'should concatenate values property (expected: ' + expected + ', got: ' + values + ')');
   });
 
-  QUnit.test('concatenates mixin', function () {
+  QUnit.test('concatenates mixin', function (assert) {
     var subKlass = klass.extend({
       values: ['d', 'e']
     }, {
@@ -51135,10 +51133,10 @@ enifed('ember-runtime/tests/legacy_1x/system/object/concatenated_test', ['ember-
     var values = (0, _emberMetal.get)(obj, 'values');
     var expected = ['a', 'b', 'c', 'd', 'e', 'f'];
 
-    deepEqual(values, expected, 'should concatenate values property (expected: ' + expected + ', got: ' + values + ')');
+    assert.deepEqual(values, expected, 'should concatenate values property (expected: ' + expected + ', got: ' + values + ')');
   });
 
-  QUnit.test('concatenates reopen, subclass, and instance', function () {
+  QUnit.test('concatenates reopen, subclass, and instance', function (assert) {
     klass.reopen({ values: ['d'] });
     var subKlass = klass.extend({ values: ['e'] });
     var obj = subKlass.create({ values: ['f'] });
@@ -51146,10 +51144,10 @@ enifed('ember-runtime/tests/legacy_1x/system/object/concatenated_test', ['ember-
     var values = (0, _emberMetal.get)(obj, 'values');
     var expected = ['a', 'b', 'c', 'd', 'e', 'f'];
 
-    deepEqual(values, expected, 'should concatenate values property (expected: ' + expected + ', got: ' + values + ')');
+    assert.deepEqual(values, expected, 'should concatenate values property (expected: ' + expected + ', got: ' + values + ')');
   });
 
-  QUnit.test('concatenates subclasses when the values are functions', function () {
+  QUnit.test('concatenates subclasses when the values are functions', function (assert) {
     var subKlass = klass.extend({
       functions: K
     });
@@ -51158,7 +51156,7 @@ enifed('ember-runtime/tests/legacy_1x/system/object/concatenated_test', ['ember-
     var values = (0, _emberMetal.get)(obj, 'functions');
     var expected = [K, K];
 
-    deepEqual(values, expected, 'should concatenate functions property (expected: ' + expected + ', got: ' + values + ')');
+    assert.deepEqual(values, expected, 'should concatenate functions property (expected: ' + expected + ', got: ' + values + ')');
   });
 });
 enifed('ember-runtime/tests/legacy_1x/system/run_loop_test', ['ember-metal', 'ember-runtime/mixins/observable', 'ember-runtime/system/object'], function (_emberMetal, _observable, _object) {
@@ -51181,7 +51179,7 @@ enifed('ember-runtime/tests/legacy_1x/system/run_loop_test', ['ember-metal', 'em
   var MyApp = void 0;
 
   QUnit.module('System:run_loop() - chained binding', {
-    setup: function () {
+    beforeEach: function () {
       MyApp = {};
       MyApp.first = _object.default.extend(_observable.default).create({
         output: 'MyApp.first'
@@ -51204,7 +51202,7 @@ enifed('ember-runtime/tests/legacy_1x/system/run_loop_test', ['ember-metal', 'em
 
   var deprecationMessage = /`Ember.Binding` is deprecated/;
 
-  QUnit.test('Should propagate bindings after the RunLoop completes (using Ember.RunLoop)', function () {
+  QUnit.test('Should propagate bindings after the RunLoop completes (using Ember.RunLoop)', function (assert) {
     (0, _emberMetal.run)(function () {
       //Binding of output of MyApp.first object to input of MyApp.second object
       expectDeprecation(function () {
@@ -51224,20 +51222,20 @@ enifed('ember-runtime/tests/legacy_1x/system/run_loop_test', ['ember-metal', 'em
       MyApp.first.set('output', 'change');
 
       //Changes the output of the MyApp.first object
-      equal(MyApp.first.get('output'), 'change');
+      assert.equal(MyApp.first.get('output'), 'change');
 
       //since binding has not taken into effect the value still remains as change.
-      equal(MyApp.second.get('output'), 'MyApp.first');
+      assert.equal(MyApp.second.get('output'), 'MyApp.first');
     }); // allows bindings to trigger...
 
     //Value of the output variable changed to 'change'
-    equal(MyApp.first.get('output'), 'change');
+    assert.equal(MyApp.first.get('output'), 'change');
 
     //Since binding triggered after the end loop the value changed to 'change'.
-    equal(MyApp.second.get('output'), 'change');
+    assert.equal(MyApp.second.get('output'), 'change');
   });
 
-  QUnit.test('Should propagate bindings after the RunLoop completes', function () {
+  QUnit.test('Should propagate bindings after the RunLoop completes', function (assert) {
     (0, _emberMetal.run)(function () {
       //Binding of output of MyApp.first object to input of MyApp.second object
       expectDeprecation(function () {
@@ -51256,17 +51254,17 @@ enifed('ember-runtime/tests/legacy_1x/system/run_loop_test', ['ember-metal', 'em
       MyApp.first.set('output', 'change');
 
       //Changes the output of the MyApp.first object
-      equal(MyApp.first.get('output'), 'change');
+      assert.equal(MyApp.first.get('output'), 'change');
 
       //since binding has not taken into effect the value still remains as change.
-      equal(MyApp.second.get('output'), 'MyApp.first');
+      assert.equal(MyApp.second.get('output'), 'MyApp.first');
     });
 
     //Value of the output variable changed to 'change'
-    equal(MyApp.first.get('output'), 'change');
+    assert.equal(MyApp.first.get('output'), 'change');
 
     //Since binding triggered after the end loop the value changed to 'change'.
-    equal(MyApp.second.get('output'), 'change');
+    assert.equal(MyApp.second.get('output'), 'change');
   });
 });
 enifed('ember-runtime/tests/main_test', ['ember-runtime/index'], function (_index) {
@@ -51274,7 +51272,7 @@ enifed('ember-runtime/tests/main_test', ['ember-runtime/index'], function (_inde
 
   QUnit.module('ember-runtime/main');
 
-  QUnit.test('Ember.computed.collect', function () {
+  QUnit.test('Ember.computed.collect', function (assert) {
     var MyObj = _index.Object.extend({
       props: (0, _index.collect)('foo', 'bar', 'baz')
     });
@@ -51287,7 +51285,7 @@ enifed('ember-runtime/tests/main_test', ['ember-runtime/index'], function (_inde
 
     var propsValue = myObj.get('props');
 
-    deepEqual(propsValue, [3, 5, 'asdf']);
+    assert.deepEqual(propsValue, [3, 5, 'asdf']);
   });
 });
 enifed('ember-runtime/tests/mixins/array_test', ['ember-metal', 'internal-test-helpers', 'ember-runtime/tests/suites/array', 'ember-runtime/system/object', 'ember-runtime/mixins/array', 'ember-runtime/system/native_array'], function (_emberMetal, _internalTestHelpers, _array, _object, _array2, _native_array) {
@@ -51342,29 +51340,29 @@ enifed('ember-runtime/tests/mixins/array_test', ['ember-metal', 'internal-test-h
     }
   }).run();
 
-  QUnit.test('the return value of slice has Ember.Array applied', function () {
+  QUnit.test('the return value of slice has Ember.Array applied', function (assert) {
     var x = _object.default.extend(_array2.default).create({
       length: 0
     });
     var y = x.slice(1);
-    equal(_array2.default.detect(y), true, 'mixin should be applied');
+    assert.equal(_array2.default.detect(y), true, 'mixin should be applied');
   });
 
-  QUnit.test('slice supports negative index arguments', function () {
+  QUnit.test('slice supports negative index arguments', function (assert) {
     var testArray = new TestArray([1, 2, 3, 4]);
 
-    deepEqual(testArray.slice(-2), [3, 4], 'slice(-2)');
-    deepEqual(testArray.slice(-2, -1), [3], 'slice(-2, -1');
-    deepEqual(testArray.slice(-2, -2), [], 'slice(-2, -2)');
-    deepEqual(testArray.slice(-1, -2), [], 'slice(-1, -2)');
+    assert.deepEqual(testArray.slice(-2), [3, 4], 'slice(-2)');
+    assert.deepEqual(testArray.slice(-2, -1), [3], 'slice(-2, -1');
+    assert.deepEqual(testArray.slice(-2, -2), [], 'slice(-2, -2)');
+    assert.deepEqual(testArray.slice(-1, -2), [], 'slice(-1, -2)');
 
-    deepEqual(testArray.slice(-4, 1), [1], 'slice(-4, 1)');
-    deepEqual(testArray.slice(-4, 5), [1, 2, 3, 4], 'slice(-4, 5)');
-    deepEqual(testArray.slice(-4), [1, 2, 3, 4], 'slice(-4)');
+    assert.deepEqual(testArray.slice(-4, 1), [1], 'slice(-4, 1)');
+    assert.deepEqual(testArray.slice(-4, 5), [1, 2, 3, 4], 'slice(-4, 5)');
+    assert.deepEqual(testArray.slice(-4), [1, 2, 3, 4], 'slice(-4)');
 
-    deepEqual(testArray.slice(0, -1), [1, 2, 3], 'slice(0, -1)');
-    deepEqual(testArray.slice(0, -4), [], 'slice(0, -4)');
-    deepEqual(testArray.slice(0, -3), [1], 'slice(0, -3)');
+    assert.deepEqual(testArray.slice(0, -1), [1, 2, 3], 'slice(0, -1)');
+    assert.deepEqual(testArray.slice(0, -4), [], 'slice(0, -4)');
+    assert.deepEqual(testArray.slice(0, -3), [1], 'slice(0, -3)');
   });
 
   // ..........................................................
@@ -51389,7 +51387,7 @@ enifed('ember-runtime/tests/mixins/array_test', ['ember-metal', 'internal-test-h
 
   QUnit.module('mixins/array/arrayContent[Will|Did]Change');
 
-  QUnit.test('should notify observers of []', function () {
+  QUnit.test('should notify observers of []', function (assert) {
     obj = DummyArray.extend({
       enumerablePropertyDidChange: (0, _emberMetal.observer)('[]', function () {
         this._count++;
@@ -51398,12 +51396,12 @@ enifed('ember-runtime/tests/mixins/array_test', ['ember-metal', 'internal-test-h
       _count: 0
     });
 
-    equal(obj._count, 0, 'should not have invoked yet');
+    assert.equal(obj._count, 0, 'should not have invoked yet');
 
     (0, _array2.arrayContentWillChange)(obj, 0, 1, 1);
     (0, _array2.arrayContentDidChange)(obj, 0, 1, 1);
 
-    equal(obj._count, 1, 'should have invoked');
+    assert.equal(obj._count, 1, 'should have invoked');
   });
 
   // ..........................................................
@@ -51411,7 +51409,7 @@ enifed('ember-runtime/tests/mixins/array_test', ['ember-metal', 'internal-test-h
   //
 
   QUnit.module('notify observers of length', {
-    setup: function () {
+    beforeEach: function (assert) {
       obj = DummyArray.extend({
         lengthDidChange: (0, _emberMetal.observer)('length', function () {
           this._after++;
@@ -51420,36 +51418,36 @@ enifed('ember-runtime/tests/mixins/array_test', ['ember-metal', 'internal-test-h
         _after: 0
       });
 
-      equal(obj._after, 0, 'should not have fired yet');
+      assert.equal(obj._after, 0, 'should not have fired yet');
     },
-    teardown: function () {
+    afterEach: function () {
       obj = null;
     }
   });
 
-  QUnit.test('should notify observers when call with no params', function () {
+  QUnit.test('should notify observers when call with no params', function (assert) {
     (0, _array2.arrayContentWillChange)(obj);
-    equal(obj._after, 0);
+    assert.equal(obj._after, 0);
 
     (0, _array2.arrayContentDidChange)(obj);
-    equal(obj._after, 1);
+    assert.equal(obj._after, 1);
   });
 
   // API variation that included items only
-  QUnit.test('should not notify when passed lengths are same', function () {
+  QUnit.test('should not notify when passed lengths are same', function (assert) {
     (0, _array2.arrayContentWillChange)(obj, 0, 1, 1);
-    equal(obj._after, 0);
+    assert.equal(obj._after, 0);
 
     (0, _array2.arrayContentDidChange)(obj, 0, 1, 1);
-    equal(obj._after, 0);
+    assert.equal(obj._after, 0);
   });
 
-  QUnit.test('should notify when passed lengths are different', function () {
+  QUnit.test('should notify when passed lengths are different', function (assert) {
     (0, _array2.arrayContentWillChange)(obj, 0, 1, 2);
-    equal(obj._after, 0);
+    assert.equal(obj._after, 0);
 
     (0, _array2.arrayContentDidChange)(obj, 0, 1, 2);
-    equal(obj._after, 1);
+    assert.equal(obj._after, 1);
   });
 
   // ..........................................................
@@ -51457,16 +51455,16 @@ enifed('ember-runtime/tests/mixins/array_test', ['ember-metal', 'internal-test-h
   //
 
   QUnit.module('notify array observers', {
-    setup: function () {
+    beforeEach: function (assert) {
       obj = DummyArray.create();
 
       observer = _object.default.extend({
         arrayWillChange: function () {
-          equal(this._before, null); // should only call once
+          assert.equal(this._before, null); // should only call once
           this._before = Array.prototype.slice.call(arguments);
         },
         arrayDidChange: function () {
-          equal(this._after, null); // should only call once
+          assert.equal(this._after, null); // should only call once
           this._after = Array.prototype.slice.call(arguments);
         }
       }).create({
@@ -51476,43 +51474,43 @@ enifed('ember-runtime/tests/mixins/array_test', ['ember-metal', 'internal-test-h
 
       (0, _array2.addArrayObserver)(obj, observer);
     },
-    teardown: function () {
+    afterEach: function () {
       obj = observer = null;
     }
   });
 
-  QUnit.test('should notify enumerable observers when called with no params', function () {
+  QUnit.test('should notify enumerable observers when called with no params', function (assert) {
     (0, _array2.arrayContentWillChange)(obj);
-    deepEqual(observer._before, [obj, 0, -1, -1]);
+    assert.deepEqual(observer._before, [obj, 0, -1, -1]);
 
     (0, _array2.arrayContentDidChange)(obj);
-    deepEqual(observer._after, [obj, 0, -1, -1]);
+    assert.deepEqual(observer._after, [obj, 0, -1, -1]);
   });
 
   // API variation that included items only
-  QUnit.test('should notify when called with same length items', function () {
+  QUnit.test('should notify when called with same length items', function (assert) {
     (0, _array2.arrayContentWillChange)(obj, 0, 1, 1);
-    deepEqual(observer._before, [obj, 0, 1, 1]);
+    assert.deepEqual(observer._before, [obj, 0, 1, 1]);
 
     (0, _array2.arrayContentDidChange)(obj, 0, 1, 1);
-    deepEqual(observer._after, [obj, 0, 1, 1]);
+    assert.deepEqual(observer._after, [obj, 0, 1, 1]);
   });
 
-  QUnit.test('should notify when called with diff length items', function () {
+  QUnit.test('should notify when called with diff length items', function (assert) {
     (0, _array2.arrayContentWillChange)(obj, 0, 2, 1);
-    deepEqual(observer._before, [obj, 0, 2, 1]);
+    assert.deepEqual(observer._before, [obj, 0, 2, 1]);
 
     (0, _array2.arrayContentDidChange)(obj, 0, 2, 1);
-    deepEqual(observer._after, [obj, 0, 2, 1]);
+    assert.deepEqual(observer._after, [obj, 0, 2, 1]);
   });
 
-  QUnit.test('removing enumerable observer should disable', function () {
+  QUnit.test('removing enumerable observer should disable', function (assert) {
     (0, _array2.removeArrayObserver)(obj, observer);
     (0, _array2.arrayContentWillChange)(obj);
-    deepEqual(observer._before, null);
+    assert.deepEqual(observer._before, null);
 
     (0, _array2.arrayContentDidChange)(obj);
-    deepEqual(observer._after, null);
+    assert.deepEqual(observer._after, null);
   });
 
   // ..........................................................
@@ -51520,16 +51518,16 @@ enifed('ember-runtime/tests/mixins/array_test', ['ember-metal', 'internal-test-h
   //
 
   QUnit.module('notify enumerable observers as well', {
-    setup: function () {
+    beforeEach: function (assert) {
       obj = DummyArray.create();
 
       observer = _object.default.extend({
         enumerableWillChange: function () {
-          equal(this._before, null); // should only call once
+          assert.equal(this._before, null); // should only call once
           this._before = Array.prototype.slice.call(arguments);
         },
         enumerableDidChange: function () {
-          equal(this._after, null); // should only call once
+          assert.equal(this._after, null); // should only call once
           this._after = Array.prototype.slice.call(arguments);
         }
       }).create({
@@ -51539,43 +51537,43 @@ enifed('ember-runtime/tests/mixins/array_test', ['ember-metal', 'internal-test-h
 
       obj.addEnumerableObserver(observer);
     },
-    teardown: function () {
+    afterEach: function () {
       obj = observer = null;
     }
   });
 
-  QUnit.test('should notify enumerable observers when called with no params', function () {
+  QUnit.test('should notify enumerable observers when called with no params', function (assert) {
     (0, _array2.arrayContentWillChange)(obj);
-    deepEqual(observer._before, [obj, null, null], 'before');
+    assert.deepEqual(observer._before, [obj, null, null], 'before');
 
     (0, _array2.arrayContentDidChange)(obj);
-    deepEqual(observer._after, [obj, null, null], 'after');
+    assert.deepEqual(observer._after, [obj, null, null], 'after');
   });
 
   // API variation that included items only
-  QUnit.test('should notify when called with same length items', function () {
+  QUnit.test('should notify when called with same length items', function (assert) {
     (0, _array2.arrayContentWillChange)(obj, 0, 1, 1);
-    deepEqual(observer._before, [obj, ['ITEM-0'], 1], 'before');
+    assert.deepEqual(observer._before, [obj, ['ITEM-0'], 1], 'before');
 
     (0, _array2.arrayContentDidChange)(obj, 0, 1, 1);
-    deepEqual(observer._after, [obj, 1, ['ITEM-0']], 'after');
+    assert.deepEqual(observer._after, [obj, 1, ['ITEM-0']], 'after');
   });
 
-  QUnit.test('should notify when called with diff length items', function () {
+  QUnit.test('should notify when called with diff length items', function (assert) {
     (0, _array2.arrayContentWillChange)(obj, 0, 2, 1);
-    deepEqual(observer._before, [obj, ['ITEM-0', 'ITEM-1'], 1], 'before');
+    assert.deepEqual(observer._before, [obj, ['ITEM-0', 'ITEM-1'], 1], 'before');
 
     (0, _array2.arrayContentDidChange)(obj, 0, 2, 1);
-    deepEqual(observer._after, [obj, 2, ['ITEM-0']], 'after');
+    assert.deepEqual(observer._after, [obj, 2, ['ITEM-0']], 'after');
   });
 
-  QUnit.test('removing enumerable observer should disable', function () {
+  QUnit.test('removing enumerable observer should disable', function (assert) {
     obj.removeEnumerableObserver(observer);
     (0, _array2.arrayContentWillChange)(obj);
-    deepEqual(observer._before, null, 'before');
+    assert.deepEqual(observer._before, null, 'before');
 
     (0, _array2.arrayContentDidChange)(obj);
-    deepEqual(observer._after, null, 'after');
+    assert.deepEqual(observer._after, null, 'after');
   });
 
   // ..........................................................
@@ -51585,15 +51583,15 @@ enifed('ember-runtime/tests/mixins/array_test', ['ember-metal', 'internal-test-h
   var ary = void 0;
 
   QUnit.module('EmberArray.@each support', {
-    setup: function () {
+    beforeEach: function () {
       ary = new TestArray([{ isDone: true, desc: 'Todo 1' }, { isDone: false, desc: 'Todo 2' }, { isDone: true, desc: 'Todo 3' }, { isDone: false, desc: 'Todo 4' }]);
     },
-    teardown: function () {
+    afterEach: function () {
       ary = null;
     }
   });
 
-  QUnit.test('adding an object should notify (@each.isDone)', function () {
+  QUnit.test('adding an object should notify (@each.isDone)', function (assert) {
     var called = 0;
 
     var observerObject = _object.default.create({
@@ -51609,18 +51607,18 @@ enifed('ember-runtime/tests/mixins/array_test', ['ember-metal', 'internal-test-h
       isDone: false
     }));
 
-    equal(called, 1, 'calls observer when object is pushed');
+    assert.equal(called, 1, 'calls observer when object is pushed');
   });
 
-  QUnit.test('@each is readOnly', function () {
-    expect(1);
+  QUnit.test('@each is readOnly', function (assert) {
+    assert.expect(1);
 
-    throws(function () {
+    assert.throws(function () {
       (0, _emberMetal.set)(ary, '@each', 'foo');
     }, /Cannot set read-only property "@each"/);
   });
 
-  QUnit.test('using @each to observe arrays that does not return objects raise error', function () {
+  QUnit.test('using @each to observe arrays that does not return objects raise error', function (assert) {
     var called = 0;
 
     var observerObject = _object.default.create({
@@ -51644,10 +51642,10 @@ enifed('ember-runtime/tests/mixins/array_test', ['ember-metal', 'internal-test-h
       }));
     }, /When using @each to observe the array/);
 
-    equal(called, 0, 'not calls observer when object is pushed');
+    assert.equal(called, 0, 'not calls observer when object is pushed');
   });
 
-  QUnit.test('modifying the array should also indicate the isDone prop itself has changed', function () {
+  QUnit.test('modifying the array should also indicate the isDone prop itself has changed', function (assert) {
     // NOTE: we never actually get the '@each.isDone' property here.  This is
     // important because it tests the case where we don't have an isDone
     // EachArray materialized but just want to know when the property has
@@ -51663,16 +51661,16 @@ enifed('ember-runtime/tests/mixins/array_test', ['ember-metal', 'internal-test-h
     count = 0;
     var item = (0, _array2.objectAt)(ary, 2);
     (0, _emberMetal.set)(item, 'isDone', !(0, _emberMetal.get)(item, 'isDone'));
-    equal(count, 1, '@each.isDone should have notified');
+    assert.equal(count, 1, '@each.isDone should have notified');
   });
 
-  QUnit.test('`objectAt` returns correct object', function () {
+  QUnit.test('`objectAt` returns correct object', function (assert) {
     var arr = ['first', 'second', 'third', 'fourth'];
-    equal((0, _array2.objectAt)(arr, 2), 'third');
-    equal((0, _array2.objectAt)(arr, 4), undefined);
+    assert.equal((0, _array2.objectAt)(arr, 2), 'third');
+    assert.equal((0, _array2.objectAt)(arr, 4), undefined);
   });
 
-  (0, _internalTestHelpers.testBoth)('should be clear caches for computed properties that have dependent keys on arrays that are changed after object initialization', function (get, set) {
+  (0, _internalTestHelpers.testBoth)('should be clear caches for computed properties that have dependent keys on arrays that are changed after object initialization', function (get, set, assert) {
     var obj = _object.default.extend({
       init: function () {
         this._super.apply(this, arguments);
@@ -51685,13 +51683,13 @@ enifed('ember-runtime/tests/mixins/array_test', ['ember-metal', 'internal-test-h
     }).create();
 
     get(obj, 'resources').pushObject(_object.default.create({ common: 'HI!' }));
-    equal('HI!', get(obj, 'common'));
+    assert.equal('HI!', get(obj, 'common'));
 
     set((0, _array2.objectAt)(get(obj, 'resources'), 0), 'common', 'BYE!');
-    equal('BYE!', get(obj, 'common'));
+    assert.equal('BYE!', get(obj, 'common'));
   });
 
-  (0, _internalTestHelpers.testBoth)('observers that contain @each in the path should fire only once the first time they are accessed', function (get, set) {
+  (0, _internalTestHelpers.testBoth)('observers that contain @each in the path should fire only once the first time they are accessed', function (get, set, assert) {
     var count = 0;
 
     var obj = _object.default.extend({
@@ -51711,7 +51709,7 @@ enifed('ember-runtime/tests/mixins/array_test', ['ember-metal', 'internal-test-h
     // Observer fires third time when property on an object is changed
     set((0, _array2.objectAt)(get(obj, 'resources'), 0), 'common', 'BYE!');
 
-    equal(count, 2, 'observers should only be called once');
+    assert.equal(count, 2, 'observers should only be called once');
   });
 });
 enifed('ember-runtime/tests/mixins/comparable_test', ['ember-metal', 'ember-runtime/system/object', 'ember-runtime/compare', 'ember-runtime/mixins/comparable'], function (_emberMetal, _object, _compare, _comparable) {
@@ -51733,24 +51731,24 @@ enifed('ember-runtime/tests/mixins/comparable_test', ['ember-metal', 'ember-runt
       r2 = void 0;
 
   QUnit.module('Comparable', {
-    setup: function () {
+    beforeEach: function () {
       r1 = Rectangle.create({ length: 6, width: 12 });
       r2 = Rectangle.create({ length: 6, width: 13 });
     }
   });
 
-  QUnit.test('should be comparable and return the correct result', function () {
-    equal(_comparable.default.detect(r1), true);
-    equal((0, _compare.default)(r1, r1), 0);
-    equal((0, _compare.default)(r1, r2), -1);
-    equal((0, _compare.default)(r2, r1), 1);
+  QUnit.test('should be comparable and return the correct result', function (assert) {
+    assert.equal(_comparable.default.detect(r1), true);
+    assert.equal((0, _compare.default)(r1, r1), 0);
+    assert.equal((0, _compare.default)(r1, r2), -1);
+    assert.equal((0, _compare.default)(r2, r1), 1);
   });
 });
 enifed('ember-runtime/tests/mixins/container_proxy_test', ['ember-utils', 'container', 'ember-runtime/mixins/container_proxy', 'ember-runtime/system/object'], function (_emberUtils, _container, _container_proxy, _object) {
   'use strict';
 
   QUnit.module('ember-runtime/mixins/container_proxy', {
-    setup: function () {
+    beforeEach: function () {
       this.Owner = _object.default.extend(_container_proxy.default);
       this.instance = this.Owner.create();
 
@@ -51860,31 +51858,31 @@ enifed('ember-runtime/tests/mixins/enumerable_test', ['ember-runtime/tests/suite
 
   QUnit.module('Ember.Enumerable');
 
-  QUnit.test('should apply Ember.Array to return value of map', function () {
+  QUnit.test('should apply Ember.Array to return value of map', function (assert) {
     var x = _object.default.extend(_enumerable2.default).create();
     var y = x.map(K);
-    equal(_array.default.detect(y), true, 'should have mixin applied');
+    assert.equal(_array.default.detect(y), true, 'should have mixin applied');
   });
 
-  QUnit.test('should apply Ember.Array to return value of filter', function () {
+  QUnit.test('should apply Ember.Array to return value of filter', function (assert) {
     var x = _object.default.extend(_enumerable2.default).create();
     var y = x.filter(K);
-    equal(_array.default.detect(y), true, 'should have mixin applied');
+    assert.equal(_array.default.detect(y), true, 'should have mixin applied');
   });
 
-  QUnit.test('should apply Ember.Array to return value of invoke', function () {
+  QUnit.test('should apply Ember.Array to return value of invoke', function (assert) {
     var x = _object.default.extend(_enumerable2.default).create();
     var y = x.invoke(K);
-    equal(_array.default.detect(y), true, 'should have mixin applied');
+    assert.equal(_array.default.detect(y), true, 'should have mixin applied');
   });
 
-  QUnit.test('should apply Ember.Array to return value of toArray', function () {
+  QUnit.test('should apply Ember.Array to return value of toArray', function (assert) {
     var x = _object.default.extend(_enumerable2.default).create();
     var y = x.toArray(K);
-    equal(_array.default.detect(y), true, 'should have mixin applied');
+    assert.equal(_array.default.detect(y), true, 'should have mixin applied');
   });
 
-  QUnit.test('should apply Ember.Array to return value of without', function () {
+  QUnit.test('should apply Ember.Array to return value of without', function (assert) {
     var X = _object.default.extend(_enumerable2.default, {
       contains: function () {
         return true;
@@ -51896,16 +51894,16 @@ enifed('ember-runtime/tests/mixins/enumerable_test', ['ember-runtime/tests/suite
 
     var x = X.create();
     var y = x.without(K);
-    equal(_array.default.detect(y), true, 'should have mixin applied');
+    assert.equal(_array.default.detect(y), true, 'should have mixin applied');
   });
 
-  QUnit.test('should apply Ember.Array to return value of uniq', function () {
+  QUnit.test('should apply Ember.Array to return value of uniq', function (assert) {
     var x = _object.default.extend(_enumerable2.default).create();
     var y = x.uniq(K);
-    equal(_array.default.detect(y), true, 'should have mixin applied');
+    assert.equal(_array.default.detect(y), true, 'should have mixin applied');
   });
 
-  QUnit.test('any', function () {
+  QUnit.test('any', function (assert) {
     var kittens = (0, _native_array.A)([{
       color: 'white'
     }, {
@@ -51918,21 +51916,21 @@ enifed('ember-runtime/tests/mixins/enumerable_test', ['ember-runtime/tests/suite
     });
     var foundWhite2 = kittens.isAny('color', 'white');
 
-    equal(foundWhite, true);
-    equal(foundWhite2, true);
+    assert.equal(foundWhite, true);
+    assert.equal(foundWhite2, true);
   });
 
-  QUnit.test('any with NaN', function () {
+  QUnit.test('any with NaN', function (assert) {
     var numbers = (0, _native_array.A)([1, 2, NaN, 4]);
 
     var hasNaN = numbers.any(function (n) {
       return isNaN(n);
     });
 
-    equal(hasNaN, true, 'works when matching NaN');
+    assert.equal(hasNaN, true, 'works when matching NaN');
   });
 
-  QUnit.test('every', function () {
+  QUnit.test('every', function (assert) {
     var allColorsKittens = (0, _native_array.A)([{
       color: 'white'
     }, {
@@ -51953,22 +51951,22 @@ enifed('ember-runtime/tests/mixins/enumerable_test', ['ember-runtime/tests/suite
     };
 
     allWhite = allColorsKittens.every(whiteKittenPredicate);
-    equal(allWhite, false);
+    assert.equal(allWhite, false);
 
     allWhite = allWhiteKittens.every(whiteKittenPredicate);
-    equal(allWhite, true);
+    assert.equal(allWhite, true);
 
     allWhite = allColorsKittens.isEvery('color', 'white');
-    equal(allWhite, false);
+    assert.equal(allWhite, false);
 
     allWhite = allWhiteKittens.isEvery('color', 'white');
-    equal(allWhite, true);
+    assert.equal(allWhite, true);
   });
 
-  QUnit.test('should throw an error passing a second argument to includes', function () {
+  QUnit.test('should throw an error passing a second argument to includes', function (assert) {
     var x = _object.default.extend(_enumerable2.default).create();
 
-    equal(x.includes('any'), false);
+    assert.equal(x.includes('any'), false);
     expectAssertion(function () {
       x.includes('any', 1);
     }, /Enumerable#includes cannot accept a second argument "startAt" as enumerable items are unordered./);
@@ -51993,7 +51991,7 @@ enifed('ember-runtime/tests/mixins/enumerable_test', ['ember-runtime/tests/suite
 
   QUnit.module('mixins/enumerable/enumerableContentDidChange');
 
-  QUnit.test('should notify observers of []', function () {
+  QUnit.test('should notify observers of []', function (assert) {
     var obj = _object.default.extend(_enumerable2.default, {
       nextObject: function () {},
       // avoid exceptions
@@ -52005,10 +52003,10 @@ enifed('ember-runtime/tests/mixins/enumerable_test', ['ember-runtime/tests/suite
       _count: 0
     });
 
-    equal(obj._count, 0, 'should not have invoked yet');
+    assert.equal(obj._count, 0, 'should not have invoked yet');
     obj.enumerableContentWillChange();
     obj.enumerableContentDidChange();
-    equal(obj._count, 1, 'should have invoked');
+    assert.equal(obj._count, 1, 'should have invoked');
   });
 
   // ..........................................................
@@ -52016,7 +52014,7 @@ enifed('ember-runtime/tests/mixins/enumerable_test', ['ember-runtime/tests/suite
   //
 
   QUnit.module('notify observers of length', {
-    setup: function () {
+    beforeEach: function (assert) {
       obj = DummyEnum.extend({
         lengthDidChange: (0, _emberMetal.observer)('length', function () {
           this._after++;
@@ -52025,59 +52023,59 @@ enifed('ember-runtime/tests/mixins/enumerable_test', ['ember-runtime/tests/suite
         _after: 0
       });
 
-      equal(obj._after, 0, 'should not have fired yet');
+      assert.equal(obj._after, 0, 'should not have fired yet');
     },
-    teardown: function () {
+    afterEach: function () {
       obj = null;
     }
   });
 
-  QUnit.test('should notify observers when call with no params', function () {
+  QUnit.test('should notify observers when call with no params', function (assert) {
     obj.enumerableContentWillChange();
-    equal(obj._after, 0);
+    assert.equal(obj._after, 0);
 
     obj.enumerableContentDidChange();
-    equal(obj._after, 1);
+    assert.equal(obj._after, 1);
   });
 
   // API variation that included items only
-  QUnit.test('should not notify when passed arrays of same length', function () {
+  QUnit.test('should not notify when passed arrays of same length', function (assert) {
     var added = ['foo'];
     var removed = ['bar'];
 
     obj.enumerableContentWillChange(removed, added);
-    equal(obj._after, 0);
+    assert.equal(obj._after, 0);
 
     obj.enumerableContentDidChange(removed, added);
-    equal(obj._after, 0);
+    assert.equal(obj._after, 0);
   });
 
-  QUnit.test('should notify when passed arrays of different length', function () {
+  QUnit.test('should notify when passed arrays of different length', function (assert) {
     var added = ['foo'];
     var removed = ['bar', 'baz'];
 
     obj.enumerableContentWillChange(removed, added);
-    equal(obj._after, 0);
+    assert.equal(obj._after, 0);
 
     obj.enumerableContentDidChange(removed, added);
-    equal(obj._after, 1);
+    assert.equal(obj._after, 1);
   });
 
   // API variation passes indexes only
-  QUnit.test('should not notify when passed with indexes', function () {
+  QUnit.test('should not notify when passed with indexes', function (assert) {
     obj.enumerableContentWillChange(1, 1);
-    equal(obj._after, 0);
+    assert.equal(obj._after, 0);
 
     obj.enumerableContentDidChange(1, 1);
-    equal(obj._after, 0);
+    assert.equal(obj._after, 0);
   });
 
-  QUnit.test('should notify when passed old index API with delta', function () {
+  QUnit.test('should notify when passed old index API with delta', function (assert) {
     obj.enumerableContentWillChange(1, 2);
-    equal(obj._after, 0);
+    assert.equal(obj._after, 0);
 
     obj.enumerableContentDidChange(1, 2);
-    equal(obj._after, 1);
+    assert.equal(obj._after, 1);
   });
 
   // ..........................................................
@@ -52085,16 +52083,16 @@ enifed('ember-runtime/tests/mixins/enumerable_test', ['ember-runtime/tests/suite
   //
 
   QUnit.module('notify enumerable observers', {
-    setup: function () {
+    beforeEach: function (assert) {
       obj = DummyEnum.create();
 
       observer = _object.default.extend({
         enumerableWillChange: function () {
-          equal(this._before, null); // should only call once
+          assert.equal(this._before, null); // should only call once
           this._before = Array.prototype.slice.call(arguments);
         },
         enumerableDidChange: function () {
-          equal(this._after, null); // should only call once
+          assert.equal(this._after, null); // should only call once
           this._after = Array.prototype.slice.call(arguments);
         }
       }).create({
@@ -52104,57 +52102,57 @@ enifed('ember-runtime/tests/mixins/enumerable_test', ['ember-runtime/tests/suite
 
       obj.addEnumerableObserver(observer);
     },
-    teardown: function () {
+    afterEach: function () {
       obj = observer = null;
     }
   });
 
-  QUnit.test('should notify enumerable observers when called with no params', function () {
+  QUnit.test('should notify enumerable observers when called with no params', function (assert) {
     obj.enumerableContentWillChange();
-    deepEqual(observer._before, [obj, null, null]);
+    assert.deepEqual(observer._before, [obj, null, null]);
 
     obj.enumerableContentDidChange();
-    deepEqual(observer._after, [obj, null, null]);
+    assert.deepEqual(observer._after, [obj, null, null]);
   });
 
   // API variation that included items only
-  QUnit.test('should notify when called with same length items', function () {
+  QUnit.test('should notify when called with same length items', function (assert) {
     var added = ['foo'];
     var removed = ['bar'];
 
     obj.enumerableContentWillChange(removed, added);
-    deepEqual(observer._before, [obj, removed, added]);
+    assert.deepEqual(observer._before, [obj, removed, added]);
 
     obj.enumerableContentDidChange(removed, added);
-    deepEqual(observer._after, [obj, removed, added]);
+    assert.deepEqual(observer._after, [obj, removed, added]);
   });
 
-  QUnit.test('should notify when called with diff length items', function () {
+  QUnit.test('should notify when called with diff length items', function (assert) {
     var added = ['foo', 'baz'];
     var removed = ['bar'];
 
     obj.enumerableContentWillChange(removed, added);
-    deepEqual(observer._before, [obj, removed, added]);
+    assert.deepEqual(observer._before, [obj, removed, added]);
 
     obj.enumerableContentDidChange(removed, added);
-    deepEqual(observer._after, [obj, removed, added]);
+    assert.deepEqual(observer._after, [obj, removed, added]);
   });
 
-  QUnit.test('should not notify when passed with indexes only', function () {
+  QUnit.test('should not notify when passed with indexes only', function (assert) {
     obj.enumerableContentWillChange(1, 2);
-    deepEqual(observer._before, [obj, 1, 2]);
+    assert.deepEqual(observer._before, [obj, 1, 2]);
 
     obj.enumerableContentDidChange(1, 2);
-    deepEqual(observer._after, [obj, 1, 2]);
+    assert.deepEqual(observer._after, [obj, 1, 2]);
   });
 
-  QUnit.test('removing enumerable observer should disable', function () {
+  QUnit.test('removing enumerable observer should disable', function (assert) {
     obj.removeEnumerableObserver(observer);
     obj.enumerableContentWillChange();
-    deepEqual(observer._before, null);
+    assert.deepEqual(observer._before, null);
 
     obj.enumerableContentDidChange();
-    deepEqual(observer._after, null);
+    assert.deepEqual(observer._after, null);
   });
 });
 enifed('ember-runtime/tests/mixins/mutable_array_test', ['ember-metal', 'ember-runtime/tests/suites/mutable_array', 'ember-runtime/mixins/mutable_array', 'ember-runtime/system/object', 'ember-runtime/system/native_array', 'ember-runtime/mixins/array'], function (_emberMetal, _mutable_array, _mutable_array2, _object, _native_array, _array) {
@@ -52283,7 +52281,7 @@ enifed('ember-runtime/tests/mixins/observable_test', ['ember-metal', 'internal-t
 
   QUnit.module('mixins/observable');
 
-  QUnit.test('should be able to use getProperties to get a POJO of provided keys', function () {
+  QUnit.test('should be able to use getProperties to get a POJO of provided keys', function (assert) {
     var obj = _object.default.create({
       firstName: 'Steve',
       lastName: 'Jobs',
@@ -52291,11 +52289,11 @@ enifed('ember-runtime/tests/mixins/observable_test', ['ember-metal', 'internal-t
     });
 
     var pojo = obj.getProperties('firstName', 'lastName');
-    equal('Steve', pojo.firstName);
-    equal('Jobs', pojo.lastName);
+    assert.equal('Steve', pojo.firstName);
+    assert.equal('Jobs', pojo.lastName);
   });
 
-  QUnit.test('should be able to use getProperties with array parameter to get a POJO of provided keys', function () {
+  QUnit.test('should be able to use getProperties with array parameter to get a POJO of provided keys', function (assert) {
     var obj = _object.default.create({
       firstName: 'Steve',
       lastName: 'Jobs',
@@ -52303,11 +52301,11 @@ enifed('ember-runtime/tests/mixins/observable_test', ['ember-metal', 'internal-t
     });
 
     var pojo = obj.getProperties(['firstName', 'lastName']);
-    equal('Steve', pojo.firstName);
-    equal('Jobs', pojo.lastName);
+    assert.equal('Steve', pojo.firstName);
+    assert.equal('Jobs', pojo.lastName);
   });
 
-  QUnit.test('should be able to use setProperties to set multiple properties at once', function () {
+  QUnit.test('should be able to use setProperties to set multiple properties at once', function (assert) {
     var obj = _object.default.create({
       firstName: 'Steve',
       lastName: 'Jobs',
@@ -52315,11 +52313,11 @@ enifed('ember-runtime/tests/mixins/observable_test', ['ember-metal', 'internal-t
     });
 
     obj.setProperties({ firstName: 'Tim', lastName: 'Cook' });
-    equal('Tim', obj.get('firstName'));
-    equal('Cook', obj.get('lastName'));
+    assert.equal('Tim', obj.get('firstName'));
+    assert.equal('Cook', obj.get('lastName'));
   });
 
-  (0, _internalTestHelpers.testBoth)('calling setProperties completes safely despite exceptions', function () {
+  (0, _internalTestHelpers.testBoth)('calling setProperties completes safely despite exceptions', function (get, set, assert) {
     var exc = new Error('Something unexpected happened!');
     var obj = _object.default.extend({
       companyName: (0, _emberMetal.computed)({
@@ -52353,10 +52351,10 @@ enifed('ember-runtime/tests/mixins/observable_test', ['ember-metal', 'internal-t
       }
     }
 
-    equal(firstNameChangedCount, 1, 'firstName should have fired once');
+    assert.equal(firstNameChangedCount, 1, 'firstName should have fired once');
   });
 
-  (0, _internalTestHelpers.testBoth)('should be able to retrieve cached values of computed properties without invoking the computed property', function (get) {
+  (0, _internalTestHelpers.testBoth)('should be able to retrieve cached values of computed properties without invoking the computed property', function (get, set, assert) {
     var obj = _object.default.extend({
       foo: (0, _emberMetal.computed)(function () {
         return 'foo';
@@ -52365,21 +52363,21 @@ enifed('ember-runtime/tests/mixins/observable_test', ['ember-metal', 'internal-t
       bar: 'bar'
     });
 
-    equal(obj.cacheFor('foo'), undefined, 'should return undefined if no value has been cached');
+    assert.equal(obj.cacheFor('foo'), undefined, 'should return undefined if no value has been cached');
     get(obj, 'foo');
 
-    equal(get(obj, 'foo'), 'foo', 'precond - should cache the value');
-    equal(obj.cacheFor('foo'), 'foo', 'should return the cached value after it is invoked');
+    assert.equal(get(obj, 'foo'), 'foo', 'precond - should cache the value');
+    assert.equal(obj.cacheFor('foo'), 'foo', 'should return the cached value after it is invoked');
 
-    equal(obj.cacheFor('bar'), undefined, 'returns undefined if the value is not a computed property');
+    assert.equal(obj.cacheFor('bar'), undefined, 'returns undefined if the value is not a computed property');
   });
 
-  QUnit.test('incrementProperty should work even if value is number in string', function () {
+  QUnit.test('incrementProperty should work even if value is number in string', function (assert) {
     var obj = _object.default.create({
       age: '24'
     });
     obj.incrementProperty('age');
-    equal(25, obj.get('age'));
+    assert.equal(25, obj.get('age'));
   });
 });
 enifed('ember-runtime/tests/mixins/promise_proxy_test', ['ember-metal', 'ember-runtime/system/object_proxy', 'ember-runtime/mixins/promise_proxy', 'ember-runtime/ext/rsvp', 'rsvp'], function (_emberMetal, _object_proxy, _promise_proxy, _rsvp, _rsvp2) {
@@ -52387,23 +52385,23 @@ enifed('ember-runtime/tests/mixins/promise_proxy_test', ['ember-metal', 'ember-r
 
   var ObjectPromiseProxy = void 0;
 
-  QUnit.test('present on ember namespace', function () {
-    ok(_promise_proxy.default, 'expected PromiseProxyMixin to exist');
+  QUnit.test('present on ember namespace', function (assert) {
+    assert.ok(_promise_proxy.default, 'expected PromiseProxyMixin to exist');
   });
 
   QUnit.module('Ember.PromiseProxy - ObjectProxy', {
-    setup: function () {
+    beforeEach: function () {
       ObjectPromiseProxy = _object_proxy.default.extend(_promise_proxy.default);
     },
-    teardown: function () {
+    afterEach: function () {
       _rsvp2.on('error', _rsvp.onerrorDefault);
     }
   });
 
-  QUnit.test('no promise, invoking then should raise', function () {
+  QUnit.test('no promise, invoking then should raise', function (assert) {
     var proxy = ObjectPromiseProxy.create();
 
-    throws(function () {
+    assert.throws(function () {
       proxy.then(function () {
         return this;
       }, function () {
@@ -52412,7 +52410,7 @@ enifed('ember-runtime/tests/mixins/promise_proxy_test', ['ember-metal', 'ember-r
     }, new RegExp('PromiseProxy\'s promise must be set'));
   });
 
-  QUnit.test('fulfillment', function () {
+  QUnit.test('fulfillment', function (assert) {
     var value = {
       firstName: 'stef',
       lastName: 'penner'
@@ -52433,49 +52431,49 @@ enifed('ember-runtime/tests/mixins/promise_proxy_test', ['ember-metal', 'ember-r
       return didRejectCount++;
     });
 
-    equal((0, _emberMetal.get)(proxy, 'content'), undefined, 'expects the proxy to have no content');
-    equal((0, _emberMetal.get)(proxy, 'reason'), undefined, 'expects the proxy to have no reason');
-    equal((0, _emberMetal.get)(proxy, 'isPending'), true, 'expects the proxy to indicate that it is loading');
-    equal((0, _emberMetal.get)(proxy, 'isSettled'), false, 'expects the proxy to indicate that it is not settled');
-    equal((0, _emberMetal.get)(proxy, 'isRejected'), false, 'expects the proxy to indicate that it is not rejected');
-    equal((0, _emberMetal.get)(proxy, 'isFulfilled'), false, 'expects the proxy to indicate that it is not fulfilled');
+    assert.equal((0, _emberMetal.get)(proxy, 'content'), undefined, 'expects the proxy to have no content');
+    assert.equal((0, _emberMetal.get)(proxy, 'reason'), undefined, 'expects the proxy to have no reason');
+    assert.equal((0, _emberMetal.get)(proxy, 'isPending'), true, 'expects the proxy to indicate that it is loading');
+    assert.equal((0, _emberMetal.get)(proxy, 'isSettled'), false, 'expects the proxy to indicate that it is not settled');
+    assert.equal((0, _emberMetal.get)(proxy, 'isRejected'), false, 'expects the proxy to indicate that it is not rejected');
+    assert.equal((0, _emberMetal.get)(proxy, 'isFulfilled'), false, 'expects the proxy to indicate that it is not fulfilled');
 
-    equal(didFulfillCount, 0, 'should not yet have been fulfilled');
-    equal(didRejectCount, 0, 'should not yet have been rejected');
-
-    (0, _emberMetal.run)(deferred, 'resolve', value);
-
-    equal(didFulfillCount, 1, 'should have been fulfilled');
-    equal(didRejectCount, 0, 'should not have been rejected');
-
-    equal((0, _emberMetal.get)(proxy, 'content'), value, 'expects the proxy to have content');
-    equal((0, _emberMetal.get)(proxy, 'reason'), undefined, 'expects the proxy to still have no reason');
-    equal((0, _emberMetal.get)(proxy, 'isPending'), false, 'expects the proxy to indicate that it is no longer loading');
-    equal((0, _emberMetal.get)(proxy, 'isSettled'), true, 'expects the proxy to indicate that it is settled');
-    equal((0, _emberMetal.get)(proxy, 'isRejected'), false, 'expects the proxy to indicate that it is not rejected');
-    equal((0, _emberMetal.get)(proxy, 'isFulfilled'), true, 'expects the proxy to indicate that it is fulfilled');
+    assert.equal(didFulfillCount, 0, 'should not yet have been fulfilled');
+    assert.equal(didRejectCount, 0, 'should not yet have been rejected');
 
     (0, _emberMetal.run)(deferred, 'resolve', value);
 
-    equal(didFulfillCount, 1, 'should still have been only fulfilled once');
-    equal(didRejectCount, 0, 'should still not have been rejected');
+    assert.equal(didFulfillCount, 1, 'should have been fulfilled');
+    assert.equal(didRejectCount, 0, 'should not have been rejected');
+
+    assert.equal((0, _emberMetal.get)(proxy, 'content'), value, 'expects the proxy to have content');
+    assert.equal((0, _emberMetal.get)(proxy, 'reason'), undefined, 'expects the proxy to still have no reason');
+    assert.equal((0, _emberMetal.get)(proxy, 'isPending'), false, 'expects the proxy to indicate that it is no longer loading');
+    assert.equal((0, _emberMetal.get)(proxy, 'isSettled'), true, 'expects the proxy to indicate that it is settled');
+    assert.equal((0, _emberMetal.get)(proxy, 'isRejected'), false, 'expects the proxy to indicate that it is not rejected');
+    assert.equal((0, _emberMetal.get)(proxy, 'isFulfilled'), true, 'expects the proxy to indicate that it is fulfilled');
+
+    (0, _emberMetal.run)(deferred, 'resolve', value);
+
+    assert.equal(didFulfillCount, 1, 'should still have been only fulfilled once');
+    assert.equal(didRejectCount, 0, 'should still not have been rejected');
 
     (0, _emberMetal.run)(deferred, 'reject', value);
 
-    equal(didFulfillCount, 1, 'should still have been only fulfilled once');
-    equal(didRejectCount, 0, 'should still not have been rejected');
+    assert.equal(didFulfillCount, 1, 'should still have been only fulfilled once');
+    assert.equal(didRejectCount, 0, 'should still not have been rejected');
 
-    equal((0, _emberMetal.get)(proxy, 'content'), value, 'expects the proxy to have still have same content');
-    equal((0, _emberMetal.get)(proxy, 'reason'), undefined, 'expects the proxy still to have no reason');
-    equal((0, _emberMetal.get)(proxy, 'isPending'), false, 'expects the proxy to indicate that it is no longer loading');
-    equal((0, _emberMetal.get)(proxy, 'isSettled'), true, 'expects the proxy to indicate that it is settled');
-    equal((0, _emberMetal.get)(proxy, 'isRejected'), false, 'expects the proxy to indicate that it is not rejected');
-    equal((0, _emberMetal.get)(proxy, 'isFulfilled'), true, 'expects the proxy to indicate that it is fulfilled');
+    assert.equal((0, _emberMetal.get)(proxy, 'content'), value, 'expects the proxy to have still have same content');
+    assert.equal((0, _emberMetal.get)(proxy, 'reason'), undefined, 'expects the proxy still to have no reason');
+    assert.equal((0, _emberMetal.get)(proxy, 'isPending'), false, 'expects the proxy to indicate that it is no longer loading');
+    assert.equal((0, _emberMetal.get)(proxy, 'isSettled'), true, 'expects the proxy to indicate that it is settled');
+    assert.equal((0, _emberMetal.get)(proxy, 'isRejected'), false, 'expects the proxy to indicate that it is not rejected');
+    assert.equal((0, _emberMetal.get)(proxy, 'isFulfilled'), true, 'expects the proxy to indicate that it is fulfilled');
 
     // rest of the promise semantics are tested in directly in RSVP
   });
 
-  QUnit.test('rejection', function () {
+  QUnit.test('rejection', function (assert) {
     var reason = new Error('failure');
     var deferred = _rsvp2.defer();
     var proxy = ObjectPromiseProxy.create({
@@ -52491,48 +52489,48 @@ enifed('ember-runtime/tests/mixins/promise_proxy_test', ['ember-metal', 'ember-r
       return didRejectCount++;
     });
 
-    equal((0, _emberMetal.get)(proxy, 'content'), undefined, 'expects the proxy to have no content');
-    equal((0, _emberMetal.get)(proxy, 'reason'), undefined, 'expects the proxy to have no reason');
-    equal((0, _emberMetal.get)(proxy, 'isPending'), true, 'expects the proxy to indicate that it is loading');
-    equal((0, _emberMetal.get)(proxy, 'isSettled'), false, 'expects the proxy to indicate that it is not settled');
-    equal((0, _emberMetal.get)(proxy, 'isRejected'), false, 'expects the proxy to indicate that it is not rejected');
-    equal((0, _emberMetal.get)(proxy, 'isFulfilled'), false, 'expects the proxy to indicate that it is not fulfilled');
+    assert.equal((0, _emberMetal.get)(proxy, 'content'), undefined, 'expects the proxy to have no content');
+    assert.equal((0, _emberMetal.get)(proxy, 'reason'), undefined, 'expects the proxy to have no reason');
+    assert.equal((0, _emberMetal.get)(proxy, 'isPending'), true, 'expects the proxy to indicate that it is loading');
+    assert.equal((0, _emberMetal.get)(proxy, 'isSettled'), false, 'expects the proxy to indicate that it is not settled');
+    assert.equal((0, _emberMetal.get)(proxy, 'isRejected'), false, 'expects the proxy to indicate that it is not rejected');
+    assert.equal((0, _emberMetal.get)(proxy, 'isFulfilled'), false, 'expects the proxy to indicate that it is not fulfilled');
 
-    equal(didFulfillCount, 0, 'should not yet have been fulfilled');
-    equal(didRejectCount, 0, 'should not yet have been rejected');
-
-    (0, _emberMetal.run)(deferred, 'reject', reason);
-
-    equal(didFulfillCount, 0, 'should not yet have been fulfilled');
-    equal(didRejectCount, 1, 'should have been rejected');
-
-    equal((0, _emberMetal.get)(proxy, 'content'), undefined, 'expects the proxy to have no content');
-    equal((0, _emberMetal.get)(proxy, 'reason'), reason, 'expects the proxy to have a reason');
-    equal((0, _emberMetal.get)(proxy, 'isPending'), false, 'expects the proxy to indicate that it is not longer loading');
-    equal((0, _emberMetal.get)(proxy, 'isSettled'), true, 'expects the proxy to indicate that it is settled');
-    equal((0, _emberMetal.get)(proxy, 'isRejected'), true, 'expects the proxy to indicate that it is  rejected');
-    equal((0, _emberMetal.get)(proxy, 'isFulfilled'), false, 'expects the proxy to indicate that it is not fulfilled');
+    assert.equal(didFulfillCount, 0, 'should not yet have been fulfilled');
+    assert.equal(didRejectCount, 0, 'should not yet have been rejected');
 
     (0, _emberMetal.run)(deferred, 'reject', reason);
 
-    equal(didFulfillCount, 0, 'should stll not yet have been fulfilled');
-    equal(didRejectCount, 1, 'should still remain rejected');
+    assert.equal(didFulfillCount, 0, 'should not yet have been fulfilled');
+    assert.equal(didRejectCount, 1, 'should have been rejected');
+
+    assert.equal((0, _emberMetal.get)(proxy, 'content'), undefined, 'expects the proxy to have no content');
+    assert.equal((0, _emberMetal.get)(proxy, 'reason'), reason, 'expects the proxy to have a reason');
+    assert.equal((0, _emberMetal.get)(proxy, 'isPending'), false, 'expects the proxy to indicate that it is not longer loading');
+    assert.equal((0, _emberMetal.get)(proxy, 'isSettled'), true, 'expects the proxy to indicate that it is settled');
+    assert.equal((0, _emberMetal.get)(proxy, 'isRejected'), true, 'expects the proxy to indicate that it is  rejected');
+    assert.equal((0, _emberMetal.get)(proxy, 'isFulfilled'), false, 'expects the proxy to indicate that it is not fulfilled');
+
+    (0, _emberMetal.run)(deferred, 'reject', reason);
+
+    assert.equal(didFulfillCount, 0, 'should stll not yet have been fulfilled');
+    assert.equal(didRejectCount, 1, 'should still remain rejected');
 
     (0, _emberMetal.run)(deferred, 'resolve', 1);
 
-    equal(didFulfillCount, 0, 'should stll not yet have been fulfilled');
-    equal(didRejectCount, 1, 'should still remain rejected');
+    assert.equal(didFulfillCount, 0, 'should stll not yet have been fulfilled');
+    assert.equal(didRejectCount, 1, 'should still remain rejected');
 
-    equal((0, _emberMetal.get)(proxy, 'content'), undefined, 'expects the proxy to have no content');
-    equal((0, _emberMetal.get)(proxy, 'reason'), reason, 'expects the proxy to have a reason');
-    equal((0, _emberMetal.get)(proxy, 'isPending'), false, 'expects the proxy to indicate that it is not longer loading');
-    equal((0, _emberMetal.get)(proxy, 'isSettled'), true, 'expects the proxy to indicate that it is settled');
-    equal((0, _emberMetal.get)(proxy, 'isRejected'), true, 'expects the proxy to indicate that it is  rejected');
-    equal((0, _emberMetal.get)(proxy, 'isFulfilled'), false, 'expects the proxy to indicate that it is not fulfilled');
+    assert.equal((0, _emberMetal.get)(proxy, 'content'), undefined, 'expects the proxy to have no content');
+    assert.equal((0, _emberMetal.get)(proxy, 'reason'), reason, 'expects the proxy to have a reason');
+    assert.equal((0, _emberMetal.get)(proxy, 'isPending'), false, 'expects the proxy to indicate that it is not longer loading');
+    assert.equal((0, _emberMetal.get)(proxy, 'isSettled'), true, 'expects the proxy to indicate that it is settled');
+    assert.equal((0, _emberMetal.get)(proxy, 'isRejected'), true, 'expects the proxy to indicate that it is  rejected');
+    assert.equal((0, _emberMetal.get)(proxy, 'isFulfilled'), false, 'expects the proxy to indicate that it is not fulfilled');
   });
 
   // https://github.com/emberjs/ember.js/issues/15694
-  QUnit.test('rejection without specifying reason', function () {
+  QUnit.test('rejection without specifying reason', function (assert) {
     var deferred = _rsvp2.defer();
     var proxy = ObjectPromiseProxy.create({
       promise: deferred.promise
@@ -52547,31 +52545,31 @@ enifed('ember-runtime/tests/mixins/promise_proxy_test', ['ember-metal', 'ember-r
       return didRejectCount++;
     });
 
-    equal((0, _emberMetal.get)(proxy, 'content'), undefined, 'expects the proxy to have no content');
-    equal((0, _emberMetal.get)(proxy, 'reason'), undefined, 'expects the proxy to have no reason');
-    equal((0, _emberMetal.get)(proxy, 'isPending'), true, 'expects the proxy to indicate that it is loading');
-    equal((0, _emberMetal.get)(proxy, 'isSettled'), false, 'expects the proxy to indicate that it is not settled');
-    equal((0, _emberMetal.get)(proxy, 'isRejected'), false, 'expects the proxy to indicate that it is not rejected');
-    equal((0, _emberMetal.get)(proxy, 'isFulfilled'), false, 'expects the proxy to indicate that it is not fulfilled');
+    assert.equal((0, _emberMetal.get)(proxy, 'content'), undefined, 'expects the proxy to have no content');
+    assert.equal((0, _emberMetal.get)(proxy, 'reason'), undefined, 'expects the proxy to have no reason');
+    assert.equal((0, _emberMetal.get)(proxy, 'isPending'), true, 'expects the proxy to indicate that it is loading');
+    assert.equal((0, _emberMetal.get)(proxy, 'isSettled'), false, 'expects the proxy to indicate that it is not settled');
+    assert.equal((0, _emberMetal.get)(proxy, 'isRejected'), false, 'expects the proxy to indicate that it is not rejected');
+    assert.equal((0, _emberMetal.get)(proxy, 'isFulfilled'), false, 'expects the proxy to indicate that it is not fulfilled');
 
-    equal(didFulfillCount, 0, 'should not yet have been fulfilled');
-    equal(didRejectCount, 0, 'should not yet have been rejected');
+    assert.equal(didFulfillCount, 0, 'should not yet have been fulfilled');
+    assert.equal(didRejectCount, 0, 'should not yet have been rejected');
 
     (0, _emberMetal.run)(deferred, 'reject');
 
-    equal(didFulfillCount, 0, 'should not yet have been fulfilled');
-    equal(didRejectCount, 1, 'should have been rejected');
+    assert.equal(didFulfillCount, 0, 'should not yet have been fulfilled');
+    assert.equal(didRejectCount, 1, 'should have been rejected');
 
-    equal((0, _emberMetal.get)(proxy, 'content'), undefined, 'expects the proxy to have no content');
-    equal((0, _emberMetal.get)(proxy, 'reason'), undefined, 'expects the proxy to have a reason');
-    equal((0, _emberMetal.get)(proxy, 'isPending'), false, 'expects the proxy to indicate that it is not longer loading');
-    equal((0, _emberMetal.get)(proxy, 'isSettled'), true, 'expects the proxy to indicate that it is settled');
-    equal((0, _emberMetal.get)(proxy, 'isRejected'), true, 'expects the proxy to indicate that it is  rejected');
-    equal((0, _emberMetal.get)(proxy, 'isFulfilled'), false, 'expects the proxy to indicate that it is not fulfilled');
+    assert.equal((0, _emberMetal.get)(proxy, 'content'), undefined, 'expects the proxy to have no content');
+    assert.equal((0, _emberMetal.get)(proxy, 'reason'), undefined, 'expects the proxy to have a reason');
+    assert.equal((0, _emberMetal.get)(proxy, 'isPending'), false, 'expects the proxy to indicate that it is not longer loading');
+    assert.equal((0, _emberMetal.get)(proxy, 'isSettled'), true, 'expects the proxy to indicate that it is settled');
+    assert.equal((0, _emberMetal.get)(proxy, 'isRejected'), true, 'expects the proxy to indicate that it is  rejected');
+    assert.equal((0, _emberMetal.get)(proxy, 'isFulfilled'), false, 'expects the proxy to indicate that it is not fulfilled');
   });
 
-  QUnit.test('unhandled rejects still propagate to RSVP.on(\'error\', ...) ', function () {
-    expect(1);
+  QUnit.test('unhandled rejects still propagate to RSVP.on(\'error\', ...) ', function (assert) {
+    assert.expect(1);
 
     _rsvp2.on('error', onerror);
     _rsvp2.off('error', _rsvp.onerrorDefault);
@@ -52586,7 +52584,7 @@ enifed('ember-runtime/tests/mixins/promise_proxy_test', ['ember-metal', 'ember-r
     proxy.get('promise');
 
     function onerror(reason) {
-      equal(reason, expectedReason, 'expected reason');
+      assert.equal(reason, expectedReason, 'expected reason');
     }
 
     _rsvp2.on('error', onerror);
@@ -52603,7 +52601,7 @@ enifed('ember-runtime/tests/mixins/promise_proxy_test', ['ember-metal', 'ember-r
     _rsvp2.off('error', onerror);
   });
 
-  QUnit.test('should work with promise inheritance', function () {
+  QUnit.test('should work with promise inheritance', function (assert) {
     function PromiseSubclass() {
       _rsvp2.Promise.apply(this, arguments);
     }
@@ -52615,42 +52613,42 @@ enifed('ember-runtime/tests/mixins/promise_proxy_test', ['ember-metal', 'ember-r
       promise: new PromiseSubclass(function () {})
     });
 
-    ok(proxy.then() instanceof PromiseSubclass, 'promise proxy respected inheritance');
+    assert.ok(proxy.then() instanceof PromiseSubclass, 'promise proxy respected inheritance');
   });
 
-  QUnit.test('should reset isFulfilled and isRejected when promise is reset', function () {
+  QUnit.test('should reset isFulfilled and isRejected when promise is reset', function (assert) {
     var deferred = _rsvp.default.defer();
 
     var proxy = ObjectPromiseProxy.create({
       promise: deferred.promise
     });
 
-    equal((0, _emberMetal.get)(proxy, 'isPending'), true, 'expects the proxy to indicate that it is loading');
-    equal((0, _emberMetal.get)(proxy, 'isSettled'), false, 'expects the proxy to indicate that it is not settled');
-    equal((0, _emberMetal.get)(proxy, 'isRejected'), false, 'expects the proxy to indicate that it is not rejected');
-    equal((0, _emberMetal.get)(proxy, 'isFulfilled'), false, 'expects the proxy to indicate that it is not fulfilled');
+    assert.equal((0, _emberMetal.get)(proxy, 'isPending'), true, 'expects the proxy to indicate that it is loading');
+    assert.equal((0, _emberMetal.get)(proxy, 'isSettled'), false, 'expects the proxy to indicate that it is not settled');
+    assert.equal((0, _emberMetal.get)(proxy, 'isRejected'), false, 'expects the proxy to indicate that it is not rejected');
+    assert.equal((0, _emberMetal.get)(proxy, 'isFulfilled'), false, 'expects the proxy to indicate that it is not fulfilled');
 
     (0, _emberMetal.run)(deferred, 'resolve');
 
-    equal((0, _emberMetal.get)(proxy, 'isPending'), false, 'expects the proxy to indicate that it is no longer loading');
-    equal((0, _emberMetal.get)(proxy, 'isSettled'), true, 'expects the proxy to indicate that it is settled');
-    equal((0, _emberMetal.get)(proxy, 'isRejected'), false, 'expects the proxy to indicate that it is not rejected');
-    equal((0, _emberMetal.get)(proxy, 'isFulfilled'), true, 'expects the proxy to indicate that it is fulfilled');
+    assert.equal((0, _emberMetal.get)(proxy, 'isPending'), false, 'expects the proxy to indicate that it is no longer loading');
+    assert.equal((0, _emberMetal.get)(proxy, 'isSettled'), true, 'expects the proxy to indicate that it is settled');
+    assert.equal((0, _emberMetal.get)(proxy, 'isRejected'), false, 'expects the proxy to indicate that it is not rejected');
+    assert.equal((0, _emberMetal.get)(proxy, 'isFulfilled'), true, 'expects the proxy to indicate that it is fulfilled');
 
     var anotherDeferred = _rsvp.default.defer();
     proxy.set('promise', anotherDeferred.promise);
 
-    equal((0, _emberMetal.get)(proxy, 'isPending'), true, 'expects the proxy to indicate that it is loading');
-    equal((0, _emberMetal.get)(proxy, 'isSettled'), false, 'expects the proxy to indicate that it is not settled');
-    equal((0, _emberMetal.get)(proxy, 'isRejected'), false, 'expects the proxy to indicate that it is not rejected');
-    equal((0, _emberMetal.get)(proxy, 'isFulfilled'), false, 'expects the proxy to indicate that it is not fulfilled');
+    assert.equal((0, _emberMetal.get)(proxy, 'isPending'), true, 'expects the proxy to indicate that it is loading');
+    assert.equal((0, _emberMetal.get)(proxy, 'isSettled'), false, 'expects the proxy to indicate that it is not settled');
+    assert.equal((0, _emberMetal.get)(proxy, 'isRejected'), false, 'expects the proxy to indicate that it is not rejected');
+    assert.equal((0, _emberMetal.get)(proxy, 'isFulfilled'), false, 'expects the proxy to indicate that it is not fulfilled');
 
     (0, _emberMetal.run)(anotherDeferred, 'reject');
 
-    equal((0, _emberMetal.get)(proxy, 'isPending'), false, 'expects the proxy to indicate that it is not longer loading');
-    equal((0, _emberMetal.get)(proxy, 'isSettled'), true, 'expects the proxy to indicate that it is settled');
-    equal((0, _emberMetal.get)(proxy, 'isRejected'), true, 'expects the proxy to indicate that it is  rejected');
-    equal((0, _emberMetal.get)(proxy, 'isFulfilled'), false, 'expects the proxy to indicate that it is not fulfilled');
+    assert.equal((0, _emberMetal.get)(proxy, 'isPending'), false, 'expects the proxy to indicate that it is not longer loading');
+    assert.equal((0, _emberMetal.get)(proxy, 'isSettled'), true, 'expects the proxy to indicate that it is settled');
+    assert.equal((0, _emberMetal.get)(proxy, 'isRejected'), true, 'expects the proxy to indicate that it is  rejected');
+    assert.equal((0, _emberMetal.get)(proxy, 'isFulfilled'), false, 'expects the proxy to indicate that it is not fulfilled');
   });
 
   QUnit.test('should have content when isFulfilled is set', function () {
@@ -52667,7 +52665,7 @@ enifed('ember-runtime/tests/mixins/promise_proxy_test', ['ember-metal', 'ember-r
     (0, _emberMetal.run)(deferred, 'resolve', true);
   });
 
-  QUnit.test('should have reason when isRejected is set', function () {
+  QUnit.test('should have reason when isRejected is set', function (assert) {
     var error = new Error('Y U REJECT?!?');
     var deferred = _rsvp.default.defer();
 
@@ -52682,11 +52680,11 @@ enifed('ember-runtime/tests/mixins/promise_proxy_test', ['ember-metal', 'ember-r
     try {
       (0, _emberMetal.run)(deferred, 'reject', error);
     } catch (e) {
-      equal(e, error);
+      assert.equal(e, error);
     }
   });
 
-  QUnit.test('should not error if promise is resolved after proxy has been destroyed', function () {
+  QUnit.test('should not error if promise is resolved after proxy has been destroyed', function (assert) {
     var deferred = _rsvp.default.defer();
 
     var proxy = ObjectPromiseProxy.create({
@@ -52699,10 +52697,10 @@ enifed('ember-runtime/tests/mixins/promise_proxy_test', ['ember-metal', 'ember-r
 
     (0, _emberMetal.run)(deferred, 'resolve', true);
 
-    ok(true, 'resolving the promise after the proxy has been destroyed does not raise an error');
+    assert.ok(true, 'resolving the promise after the proxy has been destroyed does not raise an error');
   });
 
-  QUnit.test('should not error if promise is rejected after proxy has been destroyed', function () {
+  QUnit.test('should not error if promise is rejected after proxy has been destroyed', function (assert) {
     var deferred = _rsvp.default.defer();
 
     var proxy = ObjectPromiseProxy.create({
@@ -52715,10 +52713,10 @@ enifed('ember-runtime/tests/mixins/promise_proxy_test', ['ember-metal', 'ember-r
 
     (0, _emberMetal.run)(deferred, 'reject', 'some reason');
 
-    ok(true, 'rejecting the promise after the proxy has been destroyed does not raise an error');
+    assert.ok(true, 'rejecting the promise after the proxy has been destroyed does not raise an error');
   });
 
-  QUnit.test('promise chain is not broken if promised is resolved after proxy has been destroyed', function () {
+  QUnit.test('promise chain is not broken if promised is resolved after proxy has been destroyed', function (assert) {
     var deferred = _rsvp.default.defer();
     var expectedValue = {};
     var receivedValue = void 0;
@@ -52737,11 +52735,11 @@ enifed('ember-runtime/tests/mixins/promise_proxy_test', ['ember-metal', 'ember-r
 
     (0, _emberMetal.run)(deferred, 'resolve', expectedValue);
 
-    equal(didResolveCount, 1, 'callback called');
-    equal(receivedValue, expectedValue, 'passed value is the value the promise was resolved with');
+    assert.equal(didResolveCount, 1, 'callback called');
+    assert.equal(receivedValue, expectedValue, 'passed value is the value the promise was resolved with');
   });
 
-  QUnit.test('promise chain is not broken if promised is rejected after proxy has been destroyed', function () {
+  QUnit.test('promise chain is not broken if promised is rejected after proxy has been destroyed', function (assert) {
     var deferred = _rsvp.default.defer();
     var expectedReason = 'some reason';
     var receivedReason = void 0;
@@ -52760,8 +52758,8 @@ enifed('ember-runtime/tests/mixins/promise_proxy_test', ['ember-metal', 'ember-r
 
     (0, _emberMetal.run)(deferred, 'reject', expectedReason);
 
-    equal(didRejectCount, 1, 'callback called');
-    equal(receivedReason, expectedReason, 'passed reason is the reason the promise was rejected for');
+    assert.equal(didRejectCount, 1, 'callback called');
+    assert.equal(receivedReason, expectedReason, 'passed reason is the reason the promise was rejected for');
   });
 });
 enifed('ember-runtime/tests/mixins/target_action_support_test', ['ember-environment', 'ember-runtime/system/object', 'ember-runtime/mixins/target_action_support'], function (_emberEnvironment, _object, _target_action_support) {
@@ -52771,64 +52769,64 @@ enifed('ember-runtime/tests/mixins/target_action_support_test', ['ember-environm
   var lookup = void 0;
 
   QUnit.module('TargetActionSupport', {
-    setup: function () {
+    beforeEach: function () {
       _emberEnvironment.context.lookup = lookup = {};
     },
-    teardown: function () {
+    afterEach: function () {
       _emberEnvironment.context.lookup = originalLookup;
     }
   });
 
-  QUnit.test('it should return false if no target or action are specified', function () {
-    expect(1);
+  QUnit.test('it should return false if no target or action are specified', function (assert) {
+    assert.expect(1);
 
     var obj = _object.default.extend(_target_action_support.default).create();
 
-    ok(false === obj.triggerAction(), 'no target or action was specified');
+    assert.ok(false === obj.triggerAction(), 'no target or action was specified');
   });
 
-  QUnit.test('it should support actions specified as strings', function () {
-    expect(2);
+  QUnit.test('it should support actions specified as strings', function (assert) {
+    assert.expect(2);
 
     var obj = _object.default.extend(_target_action_support.default).create({
       target: _object.default.create({
         anEvent: function () {
-          ok(true, 'anEvent method was called');
+          assert.ok(true, 'anEvent method was called');
         }
       }),
 
       action: 'anEvent'
     });
 
-    ok(true === obj.triggerAction(), 'a valid target and action were specified');
+    assert.ok(true === obj.triggerAction(), 'a valid target and action were specified');
   });
 
-  QUnit.test('it should invoke the send() method on objects that implement it', function () {
-    expect(3);
+  QUnit.test('it should invoke the send() method on objects that implement it', function (assert) {
+    assert.expect(3);
 
     var obj = _object.default.extend(_target_action_support.default).create({
       target: _object.default.create({
         send: function (evt, context) {
-          equal(evt, 'anEvent', 'send() method was invoked with correct event name');
-          equal(context, obj, 'send() method was invoked with correct context');
+          assert.equal(evt, 'anEvent', 'send() method was invoked with correct event name');
+          assert.equal(context, obj, 'send() method was invoked with correct context');
         }
       }),
 
       action: 'anEvent'
     });
 
-    ok(true === obj.triggerAction(), 'a valid target and action were specified');
+    assert.ok(true === obj.triggerAction(), 'a valid target and action were specified');
   });
 
-  QUnit.test('it should find targets specified using a property path', function () {
-    expect(2);
+  QUnit.test('it should find targets specified using a property path', function (assert) {
+    assert.expect(2);
 
     var Test = {};
     lookup.Test = Test;
 
     Test.targetObj = _object.default.create({
       anEvent: function () {
-        ok(true, 'anEvent method was called on global object');
+        assert.ok(true, 'anEvent method was called on global object');
       }
     });
 
@@ -52837,25 +52835,25 @@ enifed('ember-runtime/tests/mixins/target_action_support_test', ['ember-environm
       action: 'anEvent'
     });
 
-    ok(true === myObj.triggerAction(), 'a valid target and action were specified');
+    assert.ok(true === myObj.triggerAction(), 'a valid target and action were specified');
   });
 
-  QUnit.test('it should use an actionContext object specified as a property on the object', function () {
-    expect(2);
+  QUnit.test('it should use an actionContext object specified as a property on the object', function (assert) {
+    assert.expect(2);
     var obj = _object.default.extend(_target_action_support.default).create({
       action: 'anEvent',
       actionContext: {},
       target: _object.default.create({
         anEvent: function (ctx) {
-          ok(obj.actionContext === ctx, 'anEvent method was called with the expected context');
+          assert.ok(obj.actionContext === ctx, 'anEvent method was called with the expected context');
         }
       })
     });
-    ok(true === obj.triggerAction(), 'a valid target and action were specified');
+    assert.ok(true === obj.triggerAction(), 'a valid target and action were specified');
   });
 
-  QUnit.test('it should raise a deprecation warning when targetObject is specified and used', function () {
-    expect(4);
+  QUnit.test('it should raise a deprecation warning when targetObject is specified and used', function (assert) {
+    assert.expect(4);
     var obj = void 0;
     expectDeprecation(function () {
       obj = _object.default.extend(_target_action_support.default).create({
@@ -52863,19 +52861,19 @@ enifed('ember-runtime/tests/mixins/target_action_support_test', ['ember-environm
         actionContext: {},
         targetObject: _object.default.create({
           anEvent: function (ctx) {
-            ok(obj.actionContext === ctx, 'anEvent method was called with the expected context');
+            assert.ok(obj.actionContext === ctx, 'anEvent method was called with the expected context');
           }
         })
       });
     }, /Usage of `targetObject` is deprecated. Please use `target` instead./);
-    ok(true === obj.triggerAction(), 'a valid targetObject and action were specified');
+    assert.ok(true === obj.triggerAction(), 'a valid targetObject and action were specified');
     expectDeprecation(function () {
       return obj.get('targetObject');
     }, /Usage of `targetObject` is deprecated. Please use `target` instead./);
   });
 
-  QUnit.test('it should find an actionContext specified as a property path', function () {
-    expect(2);
+  QUnit.test('it should find an actionContext specified as a property path', function (assert) {
+    assert.expect(2);
 
     var Test = {};
     lookup.Test = Test;
@@ -52886,84 +52884,84 @@ enifed('ember-runtime/tests/mixins/target_action_support_test', ['ember-environm
       actionContext: 'Test.aContext',
       target: _object.default.create({
         anEvent: function (ctx) {
-          ok(Test.aContext === ctx, 'anEvent method was called with the expected context');
+          assert.ok(Test.aContext === ctx, 'anEvent method was called with the expected context');
         }
       })
     });
 
-    ok(true === obj.triggerAction(), 'a valid target and action were specified');
+    assert.ok(true === obj.triggerAction(), 'a valid target and action were specified');
   });
 
-  QUnit.test('it should use the target specified in the argument', function () {
-    expect(2);
+  QUnit.test('it should use the target specified in the argument', function (assert) {
+    assert.expect(2);
     var targetObj = _object.default.create({
       anEvent: function () {
-        ok(true, 'anEvent method was called');
+        assert.ok(true, 'anEvent method was called');
       }
     });
     var obj = _object.default.extend(_target_action_support.default).create({
       action: 'anEvent'
     });
 
-    ok(true === obj.triggerAction({ target: targetObj }), 'a valid target and action were specified');
+    assert.ok(true === obj.triggerAction({ target: targetObj }), 'a valid target and action were specified');
   });
 
-  QUnit.test('it should use the action specified in the argument', function () {
-    expect(2);
+  QUnit.test('it should use the action specified in the argument', function (assert) {
+    assert.expect(2);
 
     var obj = _object.default.extend(_target_action_support.default).create({
       target: _object.default.create({
         anEvent: function () {
-          ok(true, 'anEvent method was called');
+          assert.ok(true, 'anEvent method was called');
         }
       })
     });
-    ok(true === obj.triggerAction({ action: 'anEvent' }), 'a valid target and action were specified');
+    assert.ok(true === obj.triggerAction({ action: 'anEvent' }), 'a valid target and action were specified');
   });
 
-  QUnit.test('it should use the actionContext specified in the argument', function () {
-    expect(2);
+  QUnit.test('it should use the actionContext specified in the argument', function (assert) {
+    assert.expect(2);
     var context = {};
     var obj = _object.default.extend(_target_action_support.default).create({
       target: _object.default.create({
         anEvent: function (ctx) {
-          ok(context === ctx, 'anEvent method was called with the expected context');
+          assert.ok(context === ctx, 'anEvent method was called with the expected context');
         }
       }),
       action: 'anEvent'
     });
 
-    ok(true === obj.triggerAction({ actionContext: context }), 'a valid target and action were specified');
+    assert.ok(true === obj.triggerAction({ actionContext: context }), 'a valid target and action were specified');
   });
 
-  QUnit.test('it should allow multiple arguments from actionContext', function () {
-    expect(3);
+  QUnit.test('it should allow multiple arguments from actionContext', function (assert) {
+    assert.expect(3);
     var param1 = 'someParam';
     var param2 = 'someOtherParam';
     var obj = _object.default.extend(_target_action_support.default).create({
       target: _object.default.create({
         anEvent: function (first, second) {
-          ok(first === param1, 'anEvent method was called with the expected first argument');
-          ok(second === param2, 'anEvent method was called with the expected second argument');
+          assert.ok(first === param1, 'anEvent method was called with the expected first argument');
+          assert.ok(second === param2, 'anEvent method was called with the expected second argument');
         }
       }),
       action: 'anEvent'
     });
 
-    ok(true === obj.triggerAction({ actionContext: [param1, param2] }), 'a valid target and action were specified');
+    assert.ok(true === obj.triggerAction({ actionContext: [param1, param2] }), 'a valid target and action were specified');
   });
 
-  QUnit.test('it should use a null value specified in the actionContext argument', function () {
-    expect(2);
+  QUnit.test('it should use a null value specified in the actionContext argument', function (assert) {
+    assert.expect(2);
     var obj = _object.default.extend(_target_action_support.default).create({
       target: _object.default.create({
         anEvent: function (ctx) {
-          ok(null === ctx, 'anEvent method was called with the expected context (null)');
+          assert.ok(null === ctx, 'anEvent method was called with the expected context (null)');
         }
       }),
       action: 'anEvent'
     });
-    ok(true === obj.triggerAction({ actionContext: null }), 'a valid target and action were specified');
+    assert.ok(true === obj.triggerAction({ actionContext: null }), 'a valid target and action were specified');
   });
 });
 enifed('ember-runtime/tests/suites/array', ['exports', 'ember-runtime/tests/suites/enumerable', 'ember-runtime/tests/suites/array/indexOf', 'ember-runtime/tests/suites/array/lastIndexOf', 'ember-runtime/tests/suites/array/objectAt', 'ember-runtime/tests/suites/array/includes', 'ember-runtime/mixins/array'], function (exports, _enumerable, _indexOf, _lastIndexOf, _objectAt, _includes, _array) {
@@ -56089,8 +56087,8 @@ enifed('ember-runtime/tests/system/application/base_test', ['ember-runtime/syste
 
   QUnit.module('Ember.Application');
 
-  QUnit.test('Ember.Application should be a subclass of Ember.Namespace', function () {
-    ok(_namespace.default.detect(_application.default), 'Ember.Application subclass of Ember.Namespace');
+  QUnit.test('Ember.Application should be a subclass of Ember.Namespace', function (assert) {
+    assert.ok(_namespace.default.detect(_application.default), 'Ember.Application subclass of Ember.Namespace');
   });
 });
 enifed('ember-runtime/tests/system/array_proxy/arranged_content_test', ['ember-metal', 'ember-runtime/system/array_proxy', 'ember-runtime/system/native_array', 'ember-runtime/mixins/array'], function (_emberMetal, _array_proxy, _native_array, _array) {
@@ -56099,7 +56097,7 @@ enifed('ember-runtime/tests/system/array_proxy/arranged_content_test', ['ember-m
   var array = void 0;
 
   QUnit.module('ArrayProxy - arrangedContent', {
-    setup: function () {
+    beforeEach: function () {
       (0, _emberMetal.run)(function () {
         array = _array_proxy.default.extend({
           arrangedContent: (0, _emberMetal.computed)('content.[]', function () {
@@ -56119,237 +56117,237 @@ enifed('ember-runtime/tests/system/array_proxy/arranged_content_test', ['ember-m
         });
       });
     },
-    teardown: function () {
+    afterEach: function () {
       (0, _emberMetal.run)(function () {
         return array.destroy();
       });
     }
   });
 
-  QUnit.test('addObject - adds to end of \'content\' if not present', function () {
+  QUnit.test('addObject - adds to end of \'content\' if not present', function (assert) {
     (0, _emberMetal.run)(function () {
       return array.addObject(3);
     });
 
-    deepEqual(array.get('content'), [1, 2, 4, 5, 3], 'adds to end of content');
-    deepEqual(array.get('arrangedContent'), [5, 4, 3, 2, 1], 'arrangedContent stays sorted');
+    assert.deepEqual(array.get('content'), [1, 2, 4, 5, 3], 'adds to end of content');
+    assert.deepEqual(array.get('arrangedContent'), [5, 4, 3, 2, 1], 'arrangedContent stays sorted');
 
     (0, _emberMetal.run)(function () {
       return array.addObject(1);
     });
 
-    deepEqual(array.get('content'), [1, 2, 4, 5, 3], 'does not add existing number to content');
+    assert.deepEqual(array.get('content'), [1, 2, 4, 5, 3], 'does not add existing number to content');
   });
 
-  QUnit.test('addObjects - adds to end of \'content\' if not present', function () {
+  QUnit.test('addObjects - adds to end of \'content\' if not present', function (assert) {
     (0, _emberMetal.run)(function () {
       return array.addObjects([1, 3, 6]);
     });
 
-    deepEqual(array.get('content'), [1, 2, 4, 5, 3, 6], 'adds to end of content');
-    deepEqual(array.get('arrangedContent'), [6, 5, 4, 3, 2, 1], 'arrangedContent stays sorted');
+    assert.deepEqual(array.get('content'), [1, 2, 4, 5, 3, 6], 'adds to end of content');
+    assert.deepEqual(array.get('arrangedContent'), [6, 5, 4, 3, 2, 1], 'arrangedContent stays sorted');
   });
 
-  QUnit.test('compact - returns arrangedContent without nulls and undefined', function () {
+  QUnit.test('compact - returns arrangedContent without nulls and undefined', function (assert) {
     (0, _emberMetal.run)(function () {
       return array.set('content', (0, _native_array.A)([1, 3, null, 2, undefined]));
     });
 
-    deepEqual(array.compact(), [3, 2, 1]);
+    assert.deepEqual(array.compact(), [3, 2, 1]);
   });
 
-  QUnit.test('indexOf - returns index of object in arrangedContent', function () {
-    equal(array.indexOf(4), 1, 'returns arranged index');
+  QUnit.test('indexOf - returns index of object in arrangedContent', function (assert) {
+    assert.equal(array.indexOf(4), 1, 'returns arranged index');
   });
 
-  QUnit.test('insertAt - raises, indeterminate behavior', function () {
-    throws(function () {
+  QUnit.test('insertAt - raises, indeterminate behavior', function (assert) {
+    assert.throws(function () {
       return (0, _emberMetal.run)(function () {
         return array.insertAt(2, 3);
       });
     });
   });
 
-  QUnit.test('lastIndexOf - returns last index of object in arrangedContent', function () {
+  QUnit.test('lastIndexOf - returns last index of object in arrangedContent', function (assert) {
     (0, _emberMetal.run)(function () {
       return array.pushObject(4);
     });
 
-    equal(array.lastIndexOf(4), 2, 'returns last arranged index');
+    assert.equal(array.lastIndexOf(4), 2, 'returns last arranged index');
   });
 
-  QUnit.test('nextObject - returns object at index in arrangedContent', function () {
-    equal(array.nextObject(1), 4, 'returns object at index');
+  QUnit.test('nextObject - returns object at index in arrangedContent', function (assert) {
+    assert.equal(array.nextObject(1), 4, 'returns object at index');
   });
 
-  QUnit.test('objectAt - returns object at index in arrangedContent', function () {
-    equal((0, _array.objectAt)(array, 1), 4, 'returns object at index');
+  QUnit.test('objectAt - returns object at index in arrangedContent', function (assert) {
+    assert.equal((0, _array.objectAt)(array, 1), 4, 'returns object at index');
   });
 
   // Not sure if we need a specific test for it, since it's internal
-  QUnit.test('objectAtContent - returns object at index in arrangedContent', function () {
-    equal(array.objectAtContent(1), 4, 'returns object at index');
+  QUnit.test('objectAtContent - returns object at index in arrangedContent', function (assert) {
+    assert.equal(array.objectAtContent(1), 4, 'returns object at index');
   });
 
-  QUnit.test('objectsAt - returns objects at indices in arrangedContent', function () {
-    deepEqual(array.objectsAt([0, 2, 4]), [5, 2, undefined], 'returns objects at indices');
+  QUnit.test('objectsAt - returns objects at indices in arrangedContent', function (assert) {
+    assert.deepEqual(array.objectsAt([0, 2, 4]), [5, 2, undefined], 'returns objects at indices');
   });
 
-  QUnit.test('popObject - removes last object in arrangedContent', function () {
+  QUnit.test('popObject - removes last object in arrangedContent', function (assert) {
     var popped = void 0;
     (0, _emberMetal.run)(function () {
       return popped = array.popObject();
     });
-    equal(popped, 1, 'returns last object');
-    deepEqual(array.get('content'), [2, 4, 5], 'removes from content');
+    assert.equal(popped, 1, 'returns last object');
+    assert.deepEqual(array.get('content'), [2, 4, 5], 'removes from content');
   });
 
-  QUnit.test('pushObject - adds to end of content even if it already exists', function () {
+  QUnit.test('pushObject - adds to end of content even if it already exists', function (assert) {
     (0, _emberMetal.run)(function () {
       return array.pushObject(1);
     });
-    deepEqual(array.get('content'), [1, 2, 4, 5, 1], 'adds to end of content');
+    assert.deepEqual(array.get('content'), [1, 2, 4, 5, 1], 'adds to end of content');
   });
 
-  QUnit.test('pushObjects - adds multiple to end of content even if it already exists', function () {
+  QUnit.test('pushObjects - adds multiple to end of content even if it already exists', function (assert) {
     (0, _emberMetal.run)(function () {
       return array.pushObjects([1, 2, 4]);
     });
-    deepEqual(array.get('content'), [1, 2, 4, 5, 1, 2, 4], 'adds to end of content');
+    assert.deepEqual(array.get('content'), [1, 2, 4, 5, 1, 2, 4], 'adds to end of content');
   });
 
-  QUnit.test('removeAt - removes from index in arrangedContent', function () {
+  QUnit.test('removeAt - removes from index in arrangedContent', function (assert) {
     (0, _emberMetal.run)(function () {
       return array.removeAt(1, 2);
     });
-    deepEqual(array.get('content'), [1, 5]);
+    assert.deepEqual(array.get('content'), [1, 5]);
   });
 
-  QUnit.test('removeObject - removes object from content', function () {
+  QUnit.test('removeObject - removes object from content', function (assert) {
     (0, _emberMetal.run)(function () {
       return array.removeObject(2);
     });
-    deepEqual(array.get('content'), [1, 4, 5]);
+    assert.deepEqual(array.get('content'), [1, 4, 5]);
   });
 
-  QUnit.test('removeObjects - removes objects from content', function () {
+  QUnit.test('removeObjects - removes objects from content', function (assert) {
     (0, _emberMetal.run)(function () {
       return array.removeObjects([2, 4, 6]);
     });
-    deepEqual(array.get('content'), [1, 5]);
+    assert.deepEqual(array.get('content'), [1, 5]);
   });
 
-  QUnit.test('replace - raises, indeterminate behavior', function () {
-    throws(function () {
+  QUnit.test('replace - raises, indeterminate behavior', function (assert) {
+    assert.throws(function () {
       return (0, _emberMetal.run)(function () {
         return array.replace(1, 2, [3]);
       });
     });
   });
 
-  QUnit.test('replaceContent - does a standard array replace on content', function () {
+  QUnit.test('replaceContent - does a standard array replace on content', function (assert) {
     (0, _emberMetal.run)(function () {
       return array.replaceContent(1, 2, [3]);
     });
-    deepEqual(array.get('content'), [1, 3, 5]);
+    assert.deepEqual(array.get('content'), [1, 3, 5]);
   });
 
-  QUnit.test('reverseObjects - raises, use Sortable#sortAscending', function () {
-    throws(function () {
+  QUnit.test('reverseObjects - raises, use Sortable#sortAscending', function (assert) {
+    assert.throws(function () {
       return (0, _emberMetal.run)(function () {
         return array.reverseObjects();
       });
     });
   });
 
-  QUnit.test('setObjects - replaces entire content', function () {
+  QUnit.test('setObjects - replaces entire content', function (assert) {
     (0, _emberMetal.run)(function () {
       return array.setObjects([6, 7, 8]);
     });
-    deepEqual(array.get('content'), [6, 7, 8], 'replaces content');
+    assert.deepEqual(array.get('content'), [6, 7, 8], 'replaces content');
   });
 
-  QUnit.test('shiftObject - removes from start of arrangedContent', function () {
+  QUnit.test('shiftObject - removes from start of arrangedContent', function (assert) {
     var shifted = (0, _emberMetal.run)(function () {
       return array.shiftObject();
     });
 
-    equal(shifted, 5, 'returns first object');
-    deepEqual(array.get('content'), [1, 2, 4], 'removes object from content');
+    assert.equal(shifted, 5, 'returns first object');
+    assert.deepEqual(array.get('content'), [1, 2, 4], 'removes object from content');
   });
 
-  QUnit.test('slice - returns a slice of the arrangedContent', function () {
-    deepEqual(array.slice(1, 3), [4, 2], 'returns sliced arrangedContent');
+  QUnit.test('slice - returns a slice of the arrangedContent', function (assert) {
+    assert.deepEqual(array.slice(1, 3), [4, 2], 'returns sliced arrangedContent');
   });
 
-  QUnit.test('toArray - returns copy of arrangedContent', function () {
-    deepEqual(array.toArray(), [5, 4, 2, 1]);
+  QUnit.test('toArray - returns copy of arrangedContent', function (assert) {
+    assert.deepEqual(array.toArray(), [5, 4, 2, 1]);
   });
 
-  QUnit.test('unshiftObject - adds to start of content', function () {
+  QUnit.test('unshiftObject - adds to start of content', function (assert) {
     (0, _emberMetal.run)(function () {
       return array.unshiftObject(6);
     });
-    deepEqual(array.get('content'), [6, 1, 2, 4, 5], 'adds to start of content');
+    assert.deepEqual(array.get('content'), [6, 1, 2, 4, 5], 'adds to start of content');
   });
 
-  QUnit.test('unshiftObjects - adds to start of content', function () {
+  QUnit.test('unshiftObjects - adds to start of content', function (assert) {
     (0, _emberMetal.run)(function () {
       array.unshiftObjects([6, 7]);
     });
-    deepEqual(array.get('content'), [6, 7, 1, 2, 4, 5], 'adds to start of content');
+    assert.deepEqual(array.get('content'), [6, 7, 1, 2, 4, 5], 'adds to start of content');
   });
 
-  QUnit.test('without - returns arrangedContent without object', function () {
-    deepEqual(array.without(2), [5, 4, 1], 'returns arranged without object');
+  QUnit.test('without - returns arrangedContent without object', function (assert) {
+    assert.deepEqual(array.without(2), [5, 4, 1], 'returns arranged without object');
   });
 
-  QUnit.test('lastObject - returns last arranged object', function () {
-    equal(array.get('lastObject'), 1, 'returns last arranged object');
+  QUnit.test('lastObject - returns last arranged object', function (assert) {
+    assert.equal(array.get('lastObject'), 1, 'returns last arranged object');
   });
 
-  QUnit.test('firstObject - returns first arranged object', function () {
-    equal(array.get('firstObject'), 5, 'returns first arranged object');
+  QUnit.test('firstObject - returns first arranged object', function (assert) {
+    assert.equal(array.get('firstObject'), 5, 'returns first arranged object');
   });
 
   QUnit.module('ArrayProxy - arrangedContent matching content', {
-    setup: function () {
+    beforeEach: function () {
       (0, _emberMetal.run)(function () {
         array = _array_proxy.default.create({
           content: (0, _native_array.A)([1, 2, 4, 5])
         });
       });
     },
-    teardown: function () {
+    afterEach: function () {
       (0, _emberMetal.run)(function () {
         array.destroy();
       });
     }
   });
 
-  QUnit.test('insertAt - inserts object at specified index', function () {
+  QUnit.test('insertAt - inserts object at specified index', function (assert) {
     (0, _emberMetal.run)(function () {
       array.insertAt(2, 3);
     });
-    deepEqual(array.get('content'), [1, 2, 3, 4, 5]);
+    assert.deepEqual(array.get('content'), [1, 2, 3, 4, 5]);
   });
 
-  QUnit.test('replace - does a standard array replace', function () {
+  QUnit.test('replace - does a standard array replace', function (assert) {
     (0, _emberMetal.run)(function () {
       array.replace(1, 2, [3]);
     });
-    deepEqual(array.get('content'), [1, 3, 5]);
+    assert.deepEqual(array.get('content'), [1, 3, 5]);
   });
 
-  QUnit.test('reverseObjects - reverses content', function () {
+  QUnit.test('reverseObjects - reverses content', function (assert) {
     (0, _emberMetal.run)(function () {
       array.reverseObjects();
     });
-    deepEqual(array.get('content'), [5, 4, 2, 1]);
+    assert.deepEqual(array.get('content'), [5, 4, 2, 1]);
   });
 
   QUnit.module('ArrayProxy - arrangedContent with transforms', {
-    setup: function () {
+    beforeEach: function () {
       (0, _emberMetal.run)(function () {
         array = _array_proxy.default.extend({
           arrangedContent: (0, _emberMetal.computed)(function () {
@@ -56374,94 +56372,94 @@ enifed('ember-runtime/tests/system/array_proxy/arranged_content_test', ['ember-m
         });
       });
     },
-    teardown: function () {
+    afterEach: function () {
       (0, _emberMetal.run)(function () {
         array.destroy();
       });
     }
   });
 
-  QUnit.test('indexOf - returns index of object in arrangedContent', function () {
-    equal(array.indexOf('4'), 1, 'returns arranged index');
+  QUnit.test('indexOf - returns index of object in arrangedContent', function (assert) {
+    assert.equal(array.indexOf('4'), 1, 'returns arranged index');
   });
 
-  QUnit.test('lastIndexOf - returns last index of object in arrangedContent', function () {
+  QUnit.test('lastIndexOf - returns last index of object in arrangedContent', function (assert) {
     (0, _emberMetal.run)(function () {
       array.pushObject(4);
     });
-    equal(array.lastIndexOf('4'), 2, 'returns last arranged index');
+    assert.equal(array.lastIndexOf('4'), 2, 'returns last arranged index');
   });
 
-  QUnit.test('nextObject - returns object at index in arrangedContent', function () {
-    equal(array.nextObject(1), '4', 'returns object at index');
+  QUnit.test('nextObject - returns object at index in arrangedContent', function (assert) {
+    assert.equal(array.nextObject(1), '4', 'returns object at index');
   });
 
-  QUnit.test('objectAt - returns object at index in arrangedContent', function () {
-    equal((0, _array.objectAt)(array, 1), '4', 'returns object at index');
+  QUnit.test('objectAt - returns object at index in arrangedContent', function (assert) {
+    assert.equal((0, _array.objectAt)(array, 1), '4', 'returns object at index');
   });
 
   // Not sure if we need a specific test for it, since it's internal
-  QUnit.test('objectAtContent - returns object at index in arrangedContent', function () {
-    equal(array.objectAtContent(1), '4', 'returns object at index');
+  QUnit.test('objectAtContent - returns object at index in arrangedContent', function (assert) {
+    assert.equal(array.objectAtContent(1), '4', 'returns object at index');
   });
 
-  QUnit.test('objectsAt - returns objects at indices in arrangedContent', function () {
-    deepEqual(array.objectsAt([0, 2, 4]), ['5', '2', undefined], 'returns objects at indices');
+  QUnit.test('objectsAt - returns objects at indices in arrangedContent', function (assert) {
+    assert.deepEqual(array.objectsAt([0, 2, 4]), ['5', '2', undefined], 'returns objects at indices');
   });
 
-  QUnit.test('popObject - removes last object in arrangedContent', function () {
+  QUnit.test('popObject - removes last object in arrangedContent', function (assert) {
     var popped = void 0;
     (0, _emberMetal.run)(function () {
       popped = array.popObject();
     });
-    equal(popped, '1', 'returns last object');
-    deepEqual(array.get('content'), [2, 4, 5], 'removes from content');
+    assert.equal(popped, '1', 'returns last object');
+    assert.deepEqual(array.get('content'), [2, 4, 5], 'removes from content');
   });
 
-  QUnit.test('removeObject - removes object from content', function () {
+  QUnit.test('removeObject - removes object from content', function (assert) {
     (0, _emberMetal.run)(function () {
       array.removeObject('2');
     });
-    deepEqual(array.get('content'), [1, 4, 5]);
+    assert.deepEqual(array.get('content'), [1, 4, 5]);
   });
 
-  QUnit.test('removeObjects - removes objects from content', function () {
+  QUnit.test('removeObjects - removes objects from content', function (assert) {
     (0, _emberMetal.run)(function () {
       array.removeObjects(['2', '4', '6']);
     });
-    deepEqual(array.get('content'), [1, 5]);
+    assert.deepEqual(array.get('content'), [1, 5]);
   });
 
-  QUnit.test('shiftObject - removes from start of arrangedContent', function () {
+  QUnit.test('shiftObject - removes from start of arrangedContent', function (assert) {
     var shifted = void 0;
     (0, _emberMetal.run)(function () {
       shifted = array.shiftObject();
     });
-    equal(shifted, '5', 'returns first object');
-    deepEqual(array.get('content'), [1, 2, 4], 'removes object from content');
+    assert.equal(shifted, '5', 'returns first object');
+    assert.deepEqual(array.get('content'), [1, 2, 4], 'removes object from content');
   });
 
-  QUnit.test('slice - returns a slice of the arrangedContent', function () {
-    deepEqual(array.slice(1, 3), ['4', '2'], 'returns sliced arrangedContent');
+  QUnit.test('slice - returns a slice of the arrangedContent', function (assert) {
+    assert.deepEqual(array.slice(1, 3), ['4', '2'], 'returns sliced arrangedContent');
   });
 
-  QUnit.test('toArray - returns copy of arrangedContent', function () {
-    deepEqual(array.toArray(), ['5', '4', '2', '1']);
+  QUnit.test('toArray - returns copy of arrangedContent', function (assert) {
+    assert.deepEqual(array.toArray(), ['5', '4', '2', '1']);
   });
 
-  QUnit.test('without - returns arrangedContent without object', function () {
-    deepEqual(array.without('2'), ['5', '4', '1'], 'returns arranged without object');
+  QUnit.test('without - returns arrangedContent without object', function (assert) {
+    assert.deepEqual(array.without('2'), ['5', '4', '1'], 'returns arranged without object');
   });
 
-  QUnit.test('lastObject - returns last arranged object', function () {
-    equal(array.get('lastObject'), '1', 'returns last arranged object');
+  QUnit.test('lastObject - returns last arranged object', function (assert) {
+    assert.equal(array.get('lastObject'), '1', 'returns last arranged object');
   });
 
-  QUnit.test('firstObject - returns first arranged object', function () {
-    equal(array.get('firstObject'), '5', 'returns first arranged object');
+  QUnit.test('firstObject - returns first arranged object', function (assert) {
+    assert.equal(array.get('firstObject'), '5', 'returns first arranged object');
   });
 
-  QUnit.test('arrangedContentArray{Will,Did}Change are called when the arranged content changes', function () {
+  QUnit.test('arrangedContentArray{Will,Did}Change are called when the arranged content changes', function (assert) {
     // The behavior covered by this test may change in the future if we decide
     // that built-in array methods are not overridable.
 
@@ -56480,14 +56478,14 @@ enifed('ember-runtime/tests/system/array_proxy/arranged_content_test', ['ember-m
       }
     }).create({ content: content });
 
-    equal(willChangeCallCount, 0);
-    equal(didChangeCallCount, 0);
+    assert.equal(willChangeCallCount, 0);
+    assert.equal(didChangeCallCount, 0);
 
     content.pushObject(4);
     content.pushObject(5);
 
-    equal(willChangeCallCount, 2);
-    equal(didChangeCallCount, 2);
+    assert.equal(willChangeCallCount, 2);
+    assert.equal(didChangeCallCount, 2);
   });
 });
 enifed('ember-runtime/tests/system/array_proxy/content_change_test', ['ember-metal', 'ember-runtime/computed/computed_macros', 'ember-runtime/system/array_proxy', 'ember-runtime/system/native_array'], function (_emberMetal, _computed_macros, _array_proxy, _native_array) {
@@ -56495,26 +56493,26 @@ enifed('ember-runtime/tests/system/array_proxy/content_change_test', ['ember-met
 
   QUnit.module('ArrayProxy - content change');
 
-  QUnit.test('should update length for null content', function () {
+  QUnit.test('should update length for null content', function (assert) {
     var proxy = _array_proxy.default.create({
       content: (0, _native_array.A)([1, 2, 3])
     });
 
-    equal(proxy.get('length'), 3, 'precond - length is 3');
+    assert.equal(proxy.get('length'), 3, 'precond - length is 3');
 
     proxy.set('content', null);
 
-    equal(proxy.get('length'), 0, 'length updates');
+    assert.equal(proxy.get('length'), 0, 'length updates');
   });
 
-  QUnit.test('should update length for null content when there is a computed property watching length', function () {
+  QUnit.test('should update length for null content when there is a computed property watching length', function (assert) {
     var proxy = _array_proxy.default.extend({
       isEmpty: (0, _computed_macros.not)('length')
     }).create({
       content: (0, _native_array.A)([1, 2, 3])
     });
 
-    equal(proxy.get('length'), 3, 'precond - length is 3');
+    assert.equal(proxy.get('length'), 3, 'precond - length is 3');
 
     // Consume computed property that depends on length
     proxy.get('isEmpty');
@@ -56522,58 +56520,58 @@ enifed('ember-runtime/tests/system/array_proxy/content_change_test', ['ember-met
     // update content
     proxy.set('content', null);
 
-    equal(proxy.get('length'), 0, 'length updates');
+    assert.equal(proxy.get('length'), 0, 'length updates');
   });
 
-  QUnit.test('The `arrangedContentWillChange` method is invoked before `content` is changed.', function () {
+  QUnit.test('The `arrangedContentWillChange` method is invoked before `content` is changed.', function (assert) {
     var callCount = 0;
     var expectedLength = void 0;
 
     var proxy = _array_proxy.default.extend({
       arrangedContentWillChange: function () {
-        equal(this.get('arrangedContent.length'), expectedLength, 'hook should be invoked before array has changed');
+        assert.equal(this.get('arrangedContent.length'), expectedLength, 'hook should be invoked before array has changed');
         callCount++;
       }
     }).create({ content: (0, _native_array.A)([1, 2, 3]) });
 
     proxy.pushObject(4);
-    equal(callCount, 0, 'pushing content onto the array doesn\'t trigger it');
+    assert.equal(callCount, 0, 'pushing content onto the array doesn\'t trigger it');
 
     proxy.get('content').pushObject(5);
-    equal(callCount, 0, 'pushing content onto the content array doesn\'t trigger it');
+    assert.equal(callCount, 0, 'pushing content onto the content array doesn\'t trigger it');
 
     expectedLength = 5;
     proxy.set('content', (0, _native_array.A)(['a', 'b']));
-    equal(callCount, 1, 'replacing the content array triggers the hook');
+    assert.equal(callCount, 1, 'replacing the content array triggers the hook');
   });
 
-  QUnit.test('The `arrangedContentDidChange` method is invoked after `content` is changed.', function () {
+  QUnit.test('The `arrangedContentDidChange` method is invoked after `content` is changed.', function (assert) {
     var callCount = 0;
     var expectedLength = void 0;
 
     var proxy = _array_proxy.default.extend({
       arrangedContentDidChange: function () {
-        equal(this.get('arrangedContent.length'), expectedLength, 'hook should be invoked after array has changed');
+        assert.equal(this.get('arrangedContent.length'), expectedLength, 'hook should be invoked after array has changed');
         callCount++;
       }
     }).create({
       content: (0, _native_array.A)([1, 2, 3])
     });
 
-    equal(callCount, 0, 'hook is not called after creating the object');
+    assert.equal(callCount, 0, 'hook is not called after creating the object');
 
     proxy.pushObject(4);
-    equal(callCount, 0, 'pushing content onto the array doesn\'t trigger it');
+    assert.equal(callCount, 0, 'pushing content onto the array doesn\'t trigger it');
 
     proxy.get('content').pushObject(5);
-    equal(callCount, 0, 'pushing content onto the content array doesn\'t trigger it');
+    assert.equal(callCount, 0, 'pushing content onto the content array doesn\'t trigger it');
 
     expectedLength = 2;
     proxy.set('content', (0, _native_array.A)(['a', 'b']));
-    equal(callCount, 1, 'replacing the content array triggers the hook');
+    assert.equal(callCount, 1, 'replacing the content array triggers the hook');
   });
 
-  QUnit.test('The ArrayProxy doesn\'t explode when assigned a destroyed object', function () {
+  QUnit.test('The ArrayProxy doesn\'t explode when assigned a destroyed object', function (assert) {
     var proxy1 = _array_proxy.default.create();
     var proxy2 = _array_proxy.default.create();
 
@@ -56583,10 +56581,10 @@ enifed('ember-runtime/tests/system/array_proxy/content_change_test', ['ember-met
 
     (0, _emberMetal.set)(proxy2, 'content', proxy1);
 
-    ok(true, 'No exception was raised');
+    assert.ok(true, 'No exception was raised');
   });
 
-  QUnit.test('arrayContent{Will,Did}Change are called when the content changes', function () {
+  QUnit.test('arrayContent{Will,Did}Change are called when the content changes', function (assert) {
     // The behavior covered by this test may change in the future if we decide
     // that built-in array methods are not overridable.
 
@@ -56605,14 +56603,14 @@ enifed('ember-runtime/tests/system/array_proxy/content_change_test', ['ember-met
       }
     }).create({ content: content });
 
-    equal(willChangeCallCount, 0);
-    equal(didChangeCallCount, 0);
+    assert.equal(willChangeCallCount, 0);
+    assert.equal(didChangeCallCount, 0);
 
     content.pushObject(4);
     content.pushObject(5);
 
-    equal(willChangeCallCount, 2);
-    equal(didChangeCallCount, 2);
+    assert.equal(willChangeCallCount, 2);
+    assert.equal(didChangeCallCount, 2);
   });
 });
 enifed('ember-runtime/tests/system/array_proxy/content_update_test', ['ember-metal', 'ember-runtime/system/array_proxy', 'ember-runtime/system/native_array'], function (_emberMetal, _array_proxy, _native_array) {
@@ -56620,7 +56618,7 @@ enifed('ember-runtime/tests/system/array_proxy/content_update_test', ['ember-met
 
   QUnit.module('Ember.ArrayProxy - content update');
 
-  QUnit.test('The `contentArrayDidChange` method is invoked after `content` is updated.', function () {
+  QUnit.test('The `contentArrayDidChange` method is invoked after `content` is updated.', function (assert) {
     var observerCalled = false;
     var proxy = _array_proxy.default.extend({
       arrangedContent: (0, _emberMetal.computed)('content', function () {
@@ -56637,7 +56635,7 @@ enifed('ember-runtime/tests/system/array_proxy/content_update_test', ['ember-met
 
     proxy.pushObject(1);
 
-    ok(observerCalled, 'contentArrayDidChange is invoked');
+    assert.ok(observerCalled, 'contentArrayDidChange is invoked');
   });
 });
 enifed('ember-runtime/tests/system/array_proxy/length_test', ['ember-runtime/system/array_proxy', 'ember-runtime/system/object', 'ember-metal', 'ember-runtime/system/native_array'], function (_array_proxy, _object, _emberMetal, _native_array) {
@@ -56645,7 +56643,7 @@ enifed('ember-runtime/tests/system/array_proxy/length_test', ['ember-runtime/sys
 
   QUnit.module('Ember.ArrayProxy - content change (length)');
 
-  QUnit.test('array proxy + aliasedProperty complex test', function () {
+  QUnit.test('array proxy + aliasedProperty complex test', function (assert) {
     var aCalled = void 0,
         bCalled = void 0,
         cCalled = void 0,
@@ -56679,27 +56677,27 @@ enifed('ember-runtime/tests/system/array_proxy/length_test', ['ember-runtime/sys
       content: (0, _native_array.A)(['red', 'yellow', 'blue'])
     }));
 
-    equal(obj.get('colors.content.length'), 3);
-    equal(obj.get('colors.length'), 3);
-    equal(obj.get('length'), 3);
+    assert.equal(obj.get('colors.content.length'), 3);
+    assert.equal(obj.get('colors.length'), 3);
+    assert.equal(obj.get('length'), 3);
 
-    equal(aCalled, 1, 'expected observer `length` to be called ONCE');
-    equal(bCalled, 1, 'expected observer `colors.length` to be called ONCE');
-    equal(cCalled, 1, 'expected observer `colors.content.length` to be called ONCE');
-    equal(dCalled, 1, 'expected observer `colors.[]` to be called ONCE');
-    equal(eCalled, 1, 'expected observer `colors.content.[]` to be called ONCE');
+    assert.equal(aCalled, 1, 'expected observer `length` to be called ONCE');
+    assert.equal(bCalled, 1, 'expected observer `colors.length` to be called ONCE');
+    assert.equal(cCalled, 1, 'expected observer `colors.content.length` to be called ONCE');
+    assert.equal(dCalled, 1, 'expected observer `colors.[]` to be called ONCE');
+    assert.equal(eCalled, 1, 'expected observer `colors.content.[]` to be called ONCE');
 
     obj.get('colors').pushObjects(['green', 'red']);
 
-    equal(obj.get('colors.content.length'), 5);
-    equal(obj.get('colors.length'), 5);
-    equal(obj.get('length'), 5);
+    assert.equal(obj.get('colors.content.length'), 5);
+    assert.equal(obj.get('colors.length'), 5);
+    assert.equal(obj.get('length'), 5);
 
-    equal(aCalled, 2, 'expected observer `length` to be called TWICE');
-    equal(bCalled, 2, 'expected observer `colors.length` to be called TWICE');
-    equal(cCalled, 2, 'expected observer `colors.content.length` to be called TWICE');
-    equal(dCalled, 2, 'expected observer `colors.[]` to be called TWICE');
-    equal(eCalled, 2, 'expected observer `colors.content.[]` to be called TWICE');
+    assert.equal(aCalled, 2, 'expected observer `length` to be called TWICE');
+    assert.equal(bCalled, 2, 'expected observer `colors.length` to be called TWICE');
+    assert.equal(cCalled, 2, 'expected observer `colors.content.length` to be called TWICE');
+    assert.equal(dCalled, 2, 'expected observer `colors.[]` to be called TWICE');
+    assert.equal(eCalled, 2, 'expected observer `colors.content.[]` to be called TWICE');
   });
 });
 enifed('ember-runtime/tests/system/array_proxy/suite_test', ['ember-runtime/tests/suites/mutable_array', 'ember-runtime/system/array_proxy', 'ember-metal', 'ember-runtime/system/native_array'], function (_mutable_array, _array_proxy, _emberMetal, _native_array) {
@@ -56731,36 +56729,36 @@ enifed('ember-runtime/tests/system/array_proxy/watching_and_listening_test', ['e
 
   QUnit.module('ArrayProxy - watching and listening');
 
-  QUnit.test('setting \'content\' adds listeners correctly', function () {
+  QUnit.test('setting \'content\' adds listeners correctly', function (assert) {
     var content = (0, _native_array.A)();
     var proxy = _array_proxy.default.create();
 
-    deepEqual(sortedListenersFor(content, '@array:before'), []);
-    deepEqual(sortedListenersFor(content, '@array:change'), []);
+    assert.deepEqual(sortedListenersFor(content, '@array:before'), []);
+    assert.deepEqual(sortedListenersFor(content, '@array:change'), []);
 
     proxy.set('content', content);
 
-    deepEqual(sortedListenersFor(content, '@array:before'), [[proxy, 'contentArrayWillChange'], [proxy, 'arrangedContentArrayWillChange']]);
-    deepEqual(sortedListenersFor(content, '@array:change'), [[proxy, 'contentArrayDidChange'], [proxy, 'arrangedContentArrayDidChange']]);
+    assert.deepEqual(sortedListenersFor(content, '@array:before'), [[proxy, 'contentArrayWillChange'], [proxy, 'arrangedContentArrayWillChange']]);
+    assert.deepEqual(sortedListenersFor(content, '@array:change'), [[proxy, 'contentArrayDidChange'], [proxy, 'arrangedContentArrayDidChange']]);
   });
 
-  QUnit.test('changing \'content\' adds and removes listeners correctly', function () {
+  QUnit.test('changing \'content\' adds and removes listeners correctly', function (assert) {
     var content1 = (0, _native_array.A)();
     var content2 = (0, _native_array.A)();
     var proxy = _array_proxy.default.create({ content: content1 });
 
-    deepEqual(sortedListenersFor(content1, '@array:before'), [[proxy, 'contentArrayWillChange'], [proxy, 'arrangedContentArrayWillChange']]);
-    deepEqual(sortedListenersFor(content1, '@array:change'), [[proxy, 'contentArrayDidChange'], [proxy, 'arrangedContentArrayDidChange']]);
+    assert.deepEqual(sortedListenersFor(content1, '@array:before'), [[proxy, 'contentArrayWillChange'], [proxy, 'arrangedContentArrayWillChange']]);
+    assert.deepEqual(sortedListenersFor(content1, '@array:change'), [[proxy, 'contentArrayDidChange'], [proxy, 'arrangedContentArrayDidChange']]);
 
     proxy.set('content', content2);
 
-    deepEqual(sortedListenersFor(content1, '@array:before'), []);
-    deepEqual(sortedListenersFor(content1, '@array:change'), []);
-    deepEqual(sortedListenersFor(content2, '@array:before'), [[proxy, 'contentArrayWillChange'], [proxy, 'arrangedContentArrayWillChange']]);
-    deepEqual(sortedListenersFor(content2, '@array:change'), [[proxy, 'contentArrayDidChange'], [proxy, 'arrangedContentArrayDidChange']]);
+    assert.deepEqual(sortedListenersFor(content1, '@array:before'), []);
+    assert.deepEqual(sortedListenersFor(content1, '@array:change'), []);
+    assert.deepEqual(sortedListenersFor(content2, '@array:before'), [[proxy, 'contentArrayWillChange'], [proxy, 'arrangedContentArrayWillChange']]);
+    assert.deepEqual(sortedListenersFor(content2, '@array:change'), [[proxy, 'contentArrayDidChange'], [proxy, 'arrangedContentArrayDidChange']]);
   });
 
-  QUnit.test('regression test for https://github.com/emberjs/ember.js/issues/12475', function () {
+  QUnit.test('regression test for https://github.com/emberjs/ember.js/issues/12475', function (assert) {
     var item1a = { id: 1 };
     var item1b = { id: 2 };
     var item1c = { id: 3 };
@@ -56785,34 +56783,34 @@ enifed('ember-runtime/tests/system/array_proxy/watching_and_listening_test', ['e
 
     // The EachProxy has not yet been consumed. Only the manually added
     // observers are watching.
-    equal((0, _emberMetal.watcherCount)(item1a, 'id'), 1);
-    equal((0, _emberMetal.watcherCount)(item1b, 'id'), 1);
-    equal((0, _emberMetal.watcherCount)(item1c, 'id'), 1);
+    assert.equal((0, _emberMetal.watcherCount)(item1a, 'id'), 1);
+    assert.equal((0, _emberMetal.watcherCount)(item1b, 'id'), 1);
+    assert.equal((0, _emberMetal.watcherCount)(item1c, 'id'), 1);
 
     // Consume the each proxy. This causes the EachProxy to add two observers
     // per item: one for "before" events and one for "after" events.
-    deepEqual((0, _emberMetal.get)(obj, 'ids'), [1, 2, 3]);
+    assert.deepEqual((0, _emberMetal.get)(obj, 'ids'), [1, 2, 3]);
 
     // For each item, the two each proxy observers and one manual added observer
     // are watching.
-    equal((0, _emberMetal.watcherCount)(item1a, 'id'), 3);
-    equal((0, _emberMetal.watcherCount)(item1b, 'id'), 3);
-    equal((0, _emberMetal.watcherCount)(item1c, 'id'), 3);
+    assert.equal((0, _emberMetal.watcherCount)(item1a, 'id'), 3);
+    assert.equal((0, _emberMetal.watcherCount)(item1b, 'id'), 3);
+    assert.equal((0, _emberMetal.watcherCount)(item1c, 'id'), 3);
 
     // This should be a no-op because observers do not fire if the value
     // 1. is an object and 2. is the same as the old value.
     proxy.set('content', content1);
 
-    equal((0, _emberMetal.watcherCount)(item1a, 'id'), 3);
-    equal((0, _emberMetal.watcherCount)(item1b, 'id'), 3);
-    equal((0, _emberMetal.watcherCount)(item1c, 'id'), 3);
+    assert.equal((0, _emberMetal.watcherCount)(item1a, 'id'), 3);
+    assert.equal((0, _emberMetal.watcherCount)(item1b, 'id'), 3);
+    assert.equal((0, _emberMetal.watcherCount)(item1c, 'id'), 3);
 
     // This is repeated to catch the regression. It should still be a no-op.
     proxy.set('content', content1);
 
-    equal((0, _emberMetal.watcherCount)(item1a, 'id'), 3);
-    equal((0, _emberMetal.watcherCount)(item1b, 'id'), 3);
-    equal((0, _emberMetal.watcherCount)(item1c, 'id'), 3);
+    assert.equal((0, _emberMetal.watcherCount)(item1a, 'id'), 3);
+    assert.equal((0, _emberMetal.watcherCount)(item1b, 'id'), 3);
+    assert.equal((0, _emberMetal.watcherCount)(item1c, 'id'), 3);
 
     // Set the content to a new array with completely different items and
     // repeat the process.
@@ -56827,29 +56825,29 @@ enifed('ember-runtime/tests/system/array_proxy/watching_and_listening_test', ['e
 
     proxy.set('content', content2);
 
-    deepEqual((0, _emberMetal.get)(obj, 'ids'), [4, 5, 6]);
+    assert.deepEqual((0, _emberMetal.get)(obj, 'ids'), [4, 5, 6]);
 
-    equal((0, _emberMetal.watcherCount)(item2a, 'id'), 3);
-    equal((0, _emberMetal.watcherCount)(item2b, 'id'), 3);
-    equal((0, _emberMetal.watcherCount)(item2c, 'id'), 3);
+    assert.equal((0, _emberMetal.watcherCount)(item2a, 'id'), 3);
+    assert.equal((0, _emberMetal.watcherCount)(item2b, 'id'), 3);
+    assert.equal((0, _emberMetal.watcherCount)(item2c, 'id'), 3);
 
     // Ensure that the observers added by the EachProxy on all items in the
     // first content array have been torn down.
-    equal((0, _emberMetal.watcherCount)(item1a, 'id'), 1);
-    equal((0, _emberMetal.watcherCount)(item1b, 'id'), 1);
-    equal((0, _emberMetal.watcherCount)(item1c, 'id'), 1);
+    assert.equal((0, _emberMetal.watcherCount)(item1a, 'id'), 1);
+    assert.equal((0, _emberMetal.watcherCount)(item1b, 'id'), 1);
+    assert.equal((0, _emberMetal.watcherCount)(item1c, 'id'), 1);
 
     proxy.set('content', content2);
 
-    equal((0, _emberMetal.watcherCount)(item2a, 'id'), 3);
-    equal((0, _emberMetal.watcherCount)(item2b, 'id'), 3);
-    equal((0, _emberMetal.watcherCount)(item2c, 'id'), 3);
+    assert.equal((0, _emberMetal.watcherCount)(item2a, 'id'), 3);
+    assert.equal((0, _emberMetal.watcherCount)(item2b, 'id'), 3);
+    assert.equal((0, _emberMetal.watcherCount)(item2c, 'id'), 3);
 
     proxy.set('content', content2);
 
-    equal((0, _emberMetal.watcherCount)(item2a, 'id'), 3);
-    equal((0, _emberMetal.watcherCount)(item2b, 'id'), 3);
-    equal((0, _emberMetal.watcherCount)(item2c, 'id'), 3);
+    assert.equal((0, _emberMetal.watcherCount)(item2a, 'id'), 3);
+    assert.equal((0, _emberMetal.watcherCount)(item2b, 'id'), 3);
+    assert.equal((0, _emberMetal.watcherCount)(item2c, 'id'), 3);
   });
 });
 enifed('ember-runtime/tests/system/core_object_test', ['ember-runtime/system/core_object', 'ember-metal'], function (_core_object, _emberMetal) {
@@ -56857,17 +56855,17 @@ enifed('ember-runtime/tests/system/core_object_test', ['ember-runtime/system/cor
 
   QUnit.module('Ember.CoreObject');
 
-  QUnit.test('works with new (one arg)', function () {
+  QUnit.test('works with new (one arg)', function (assert) {
     var obj = new _core_object.default({
       firstName: 'Stef',
       lastName: 'Penner'
     });
 
-    equal(obj.firstName, 'Stef');
-    equal(obj.lastName, 'Penner');
+    assert.equal(obj.firstName, 'Stef');
+    assert.equal(obj.lastName, 'Penner');
   });
 
-  QUnit.test('works with new (> 1 arg)', function () {
+  QUnit.test('works with new (> 1 arg)', function (assert) {
     var obj = new _core_object.default({
       firstName: 'Stef',
       lastName: 'Penner'
@@ -56875,13 +56873,13 @@ enifed('ember-runtime/tests/system/core_object_test', ['ember-runtime/system/cor
       other: 'name'
     });
 
-    equal(obj.firstName, 'Stef');
-    equal(obj.lastName, 'Penner');
+    assert.equal(obj.firstName, 'Stef');
+    assert.equal(obj.lastName, 'Penner');
 
-    equal(obj.other, undefined); // doesn't support multiple pojo' to the constructor
+    assert.equal(obj.other, undefined); // doesn't support multiple pojo' to the constructor
   });
 
-  QUnit.test('toString should be not be added as a property when calling toString()', function () {
+  QUnit.test('toString should be not be added as a property when calling toString()', function (assert) {
     var obj = new _core_object.default({
       firstName: 'Foo',
       lastName: 'Bar'
@@ -56889,10 +56887,10 @@ enifed('ember-runtime/tests/system/core_object_test', ['ember-runtime/system/cor
 
     obj.toString();
 
-    notOk(obj.hasOwnProperty('toString'), 'Calling toString() should not create a toString class property');
+    assert.notOk(obj.hasOwnProperty('toString'), 'Calling toString() should not create a toString class property');
   });
 
-  QUnit.test('[POST_INIT] invoked during construction', function () {
+  QUnit.test('[POST_INIT] invoked during construction', function (assert) {
     var _CoreObject$extend;
 
     var callCount = 0;
@@ -56900,14 +56898,14 @@ enifed('ember-runtime/tests/system/core_object_test', ['ember-runtime/system/cor
       callCount++;
     }, _CoreObject$extend));
 
-    equal(callCount, 0);
+    assert.equal(callCount, 0);
 
     Obj.create();
 
-    equal(callCount, 1);
+    assert.equal(callCount, 1);
   });
 
-  QUnit.test('[POST_INIT] invoked before finishChains', function () {
+  QUnit.test('[POST_INIT] invoked before finishChains', function (assert) {
     var _CoreObject$extend2;
 
     var callCount = 0;
@@ -56918,22 +56916,22 @@ enifed('ember-runtime/tests/system/core_object_test', ['ember-runtime/system/cor
       callCount++;
     }), _CoreObject$extend2));
 
-    equal(callCount, 0);
+    assert.equal(callCount, 0);
 
     var obj = Obj.create();
 
-    equal(callCount, 0);
+    assert.equal(callCount, 0);
 
     (0, _emberMetal.set)(obj, 'hi', 2);
 
-    equal(callCount, 1);
+    assert.equal(callCount, 1);
   });
 });
 enifed('ember-runtime/tests/system/lazy_load_test', ['ember-metal', 'ember-runtime/system/lazy_load'], function (_emberMetal, _lazy_load) {
   'use strict';
 
   QUnit.module('Lazy Loading', {
-    teardown: function () {
+    afterEach: function () {
       var keys = Object.keys(_lazy_load._loaded),
           i;
       for (i = 0; i < keys.length; i++) {
@@ -56942,7 +56940,7 @@ enifed('ember-runtime/tests/system/lazy_load_test', ['ember-metal', 'ember-runti
     }
   });
 
-  QUnit.test('if a load hook is registered, it is executed when runLoadHooks are exected', function () {
+  QUnit.test('if a load hook is registered, it is executed when runLoadHooks are exected', function (assert) {
     var count = 0;
 
     (0, _emberMetal.run)(function () {
@@ -56955,10 +56953,10 @@ enifed('ember-runtime/tests/system/lazy_load_test', ['ember-metal', 'ember-runti
       (0, _lazy_load.runLoadHooks)('__test_hook__', 1);
     });
 
-    equal(count, 1, 'the object was passed into the load hook');
+    assert.equal(count, 1, 'the object was passed into the load hook');
   });
 
-  QUnit.test('if runLoadHooks was already run, it executes newly added hooks immediately', function () {
+  QUnit.test('if runLoadHooks was already run, it executes newly added hooks immediately', function (assert) {
     var count = 0;
     (0, _emberMetal.run)(function () {
       (0, _lazy_load.onLoad)('__test_hook__', function (object) {
@@ -56977,10 +56975,10 @@ enifed('ember-runtime/tests/system/lazy_load_test', ['ember-metal', 'ember-runti
       });
     });
 
-    equal(count, 1, 'the original object was passed into the load hook');
+    assert.equal(count, 1, 'the original object was passed into the load hook');
   });
 
-  QUnit.test('hooks in ENV.EMBER_LOAD_HOOKS[\'hookName\'] get executed', function () {
+  QUnit.test('hooks in ENV.EMBER_LOAD_HOOKS[\'hookName\'] get executed', function (assert) {
     // Note that the necessary code to perform this test is run before
     // the Ember lib is loaded in tests/index.html
 
@@ -56988,16 +56986,16 @@ enifed('ember-runtime/tests/system/lazy_load_test', ['ember-metal', 'ember-runti
       (0, _lazy_load.runLoadHooks)('__before_ember_test_hook__', 1);
     });
 
-    equal(window.ENV.__test_hook_count__, 1, 'the object was passed into the load hook');
+    assert.equal(window.ENV.__test_hook_count__, 1, 'the object was passed into the load hook');
   });
 
   if (typeof window === 'object' && typeof window.dispatchEvent === 'function' && typeof CustomEvent === 'function') {
-    QUnit.test('load hooks trigger a custom event', function () {
+    QUnit.test('load hooks trigger a custom event', function (assert) {
       var eventObject = 'super duper awesome events';
 
       window.addEventListener('__test_hook_for_events__', function (e) {
-        ok(true, 'custom event was fired');
-        equal(e.detail, eventObject, 'event details are provided properly');
+        assert.ok(true, 'custom event was fired');
+        assert.equal(e.detail, eventObject, 'event details are provided properly');
       });
 
       (0, _emberMetal.run)(function () {
@@ -57013,12 +57011,12 @@ enifed('ember-runtime/tests/system/namespace/base_test', ['ember-environment', '
   var lookup = void 0;
 
   QUnit.module('Namespace', {
-    setup: function () {
+    beforeEach: function () {
       (0, _namespace.setSearchDisabled)(false);
 
       lookup = _emberEnvironment.context.lookup = {};
     },
-    teardown: function () {
+    afterEach: function () {
       (0, _namespace.setSearchDisabled)(false);
 
       for (var prop in lookup) {
@@ -57031,33 +57029,33 @@ enifed('ember-runtime/tests/system/namespace/base_test', ['ember-environment', '
     }
   });
 
-  QUnit.test('Namespace should be a subclass of EmberObject', function () {
-    ok(_object.default.detect(_namespace.default));
+  QUnit.test('Namespace should be a subclass of EmberObject', function (assert) {
+    assert.ok(_object.default.detect(_namespace.default));
   });
 
-  QUnit.test('Namespace should be duck typed', function () {
-    ok((0, _emberMetal.get)(_namespace.default.create(), 'isNamespace'), 'isNamespace property is true');
+  QUnit.test('Namespace should be duck typed', function (assert) {
+    assert.ok((0, _emberMetal.get)(_namespace.default.create(), 'isNamespace'), 'isNamespace property is true');
   });
 
-  QUnit.test('Namespace is found and named', function () {
+  QUnit.test('Namespace is found and named', function (assert) {
     var nsA = lookup.NamespaceA = _namespace.default.create();
-    equal(nsA.toString(), 'NamespaceA', 'namespaces should have a name if they are on lookup');
+    assert.equal(nsA.toString(), 'NamespaceA', 'namespaces should have a name if they are on lookup');
 
     var nsB = lookup.NamespaceB = _namespace.default.create();
-    equal(nsB.toString(), 'NamespaceB', 'namespaces work if created after the first namespace processing pass');
+    assert.equal(nsB.toString(), 'NamespaceB', 'namespaces work if created after the first namespace processing pass');
   });
 
-  QUnit.test('Classes under an Namespace are properly named', function () {
+  QUnit.test('Classes under an Namespace are properly named', function (assert) {
     var nsA = lookup.NamespaceA = _namespace.default.create();
     nsA.Foo = _object.default.extend();
-    equal(nsA.Foo.toString(), 'NamespaceA.Foo', 'Classes pick up their parent namespace');
+    assert.equal(nsA.Foo.toString(), 'NamespaceA.Foo', 'Classes pick up their parent namespace');
 
     nsA.Bar = _object.default.extend();
-    equal(nsA.Bar.toString(), 'NamespaceA.Bar', 'New Classes get the naming treatment too');
+    assert.equal(nsA.Bar.toString(), 'NamespaceA.Bar', 'New Classes get the naming treatment too');
 
     var nsB = lookup.NamespaceB = _namespace.default.create();
     nsB.Foo = _object.default.extend();
-    equal(nsB.Foo.toString(), 'NamespaceB.Foo', 'Classes in new namespaces get the naming treatment');
+    assert.equal(nsB.Foo.toString(), 'NamespaceB.Foo', 'Classes in new namespaces get the naming treatment');
   });
 
   //test("Classes under Ember are properly named", function() {
@@ -57066,12 +57064,12 @@ enifed('ember-runtime/tests/system/namespace/base_test', ['ember-environment', '
   //  equal(Ember.TestObject.toString(), "Ember.TestObject", "class under Ember is given a string representation");
   //});
 
-  QUnit.test('Lowercase namespaces are no longer supported', function () {
+  QUnit.test('Lowercase namespaces are no longer supported', function (assert) {
     var nsC = lookup.namespaceC = _namespace.default.create();
-    equal(nsC.toString(), undefined);
+    assert.equal(nsC.toString(), undefined);
   });
 
-  QUnit.test('A namespace can be assigned a custom name', function () {
+  QUnit.test('A namespace can be assigned a custom name', function (assert) {
     var nsA = _namespace.default.create({
       name: 'NamespaceA'
     });
@@ -57083,11 +57081,11 @@ enifed('ember-runtime/tests/system/namespace/base_test', ['ember-environment', '
     nsA.Foo = _object.default.extend();
     nsB.Foo = _object.default.extend();
 
-    equal(nsA.Foo.toString(), 'NamespaceA.Foo', 'The namespace\'s name is used when the namespace is not in the lookup object');
-    equal(nsB.Foo.toString(), 'CustomNamespaceB.Foo', 'The namespace\'s name is used when the namespace is in the lookup object');
+    assert.equal(nsA.Foo.toString(), 'NamespaceA.Foo', 'The namespace\'s name is used when the namespace is not in the lookup object');
+    assert.equal(nsB.Foo.toString(), 'CustomNamespaceB.Foo', 'The namespace\'s name is used when the namespace is in the lookup object');
   });
 
-  QUnit.test('Calling namespace.nameClasses() eagerly names all classes', function () {
+  QUnit.test('Calling namespace.nameClasses() eagerly names all classes', function (assert) {
     (0, _namespace.setSearchDisabled)(true);
 
     var namespace = lookup.NS = _namespace.default.create();
@@ -57097,41 +57095,41 @@ enifed('ember-runtime/tests/system/namespace/base_test', ['ember-environment', '
 
     _namespace.default.processAll();
 
-    equal(namespace.ClassA.toString(), 'NS.ClassA');
-    equal(namespace.ClassB.toString(), 'NS.ClassB');
+    assert.equal(namespace.ClassA.toString(), 'NS.ClassA');
+    assert.equal(namespace.ClassB.toString(), 'NS.ClassB');
   });
 
-  QUnit.test('A namespace can be looked up by its name', function () {
+  QUnit.test('A namespace can be looked up by its name', function (assert) {
     var NS = lookup.NS = _namespace.default.create();
     var UI = lookup.UI = _namespace.default.create();
     var CF = lookup.CF = _namespace.default.create();
 
-    equal(_namespace.default.byName('NS'), NS);
-    equal(_namespace.default.byName('UI'), UI);
-    equal(_namespace.default.byName('CF'), CF);
+    assert.equal(_namespace.default.byName('NS'), NS);
+    assert.equal(_namespace.default.byName('UI'), UI);
+    assert.equal(_namespace.default.byName('CF'), CF);
   });
 
-  QUnit.test('A nested namespace can be looked up by its name', function () {
+  QUnit.test('A nested namespace can be looked up by its name', function (assert) {
     var UI = lookup.UI = _namespace.default.create();
     UI.Nav = _namespace.default.create();
 
-    equal(_namespace.default.byName('UI.Nav'), UI.Nav);
+    assert.equal(_namespace.default.byName('UI.Nav'), UI.Nav);
   });
 
-  QUnit.test('Destroying a namespace before caching lookup removes it from the list of namespaces', function () {
+  QUnit.test('Destroying a namespace before caching lookup removes it from the list of namespaces', function (assert) {
     var CF = lookup.CF = _namespace.default.create();
 
     (0, _emberMetal.run)(CF, 'destroy');
-    equal(_namespace.default.byName('CF'), undefined, 'namespace can not be found after destroyed');
+    assert.equal(_namespace.default.byName('CF'), undefined, 'namespace can not be found after destroyed');
   });
 
-  QUnit.test('Destroying a namespace after looking up removes it from the list of namespaces', function () {
+  QUnit.test('Destroying a namespace after looking up removes it from the list of namespaces', function (assert) {
     var CF = lookup.CF = _namespace.default.create();
 
-    equal(_namespace.default.byName('CF'), CF, 'precondition - namespace can be looked up by name');
+    assert.equal(_namespace.default.byName('CF'), CF, 'precondition - namespace can be looked up by name');
 
     (0, _emberMetal.run)(CF, 'destroy');
-    equal(_namespace.default.byName('CF'), undefined, 'namespace can not be found after destroyed');
+    assert.equal(_namespace.default.byName('CF'), undefined, 'namespace can not be found after destroyed');
   });
 });
 enifed('ember-runtime/tests/system/native_array/a_test', ['ember-runtime/mixins/array', 'ember-runtime/system/native_array'], function (_array, _native_array) {
@@ -57139,12 +57137,12 @@ enifed('ember-runtime/tests/system/native_array/a_test', ['ember-runtime/mixins/
 
   QUnit.module('Ember.A');
 
-  QUnit.test('Ember.A', function () {
-    deepEqual((0, _native_array.A)([1, 2]), [1, 2], 'array values were not be modified');
-    deepEqual((0, _native_array.A)(), [], 'returned an array with no arguments');
-    deepEqual((0, _native_array.A)(null), [], 'returned an array with a null argument');
-    ok(_array.default.detect((0, _native_array.A)()), 'returned an ember array');
-    ok(_array.default.detect((0, _native_array.A)([1, 2])), 'returned an ember array');
+  QUnit.test('Ember.A', function (assert) {
+    assert.deepEqual((0, _native_array.A)([1, 2]), [1, 2], 'array values were not be modified');
+    assert.deepEqual((0, _native_array.A)(), [], 'returned an array with no arguments');
+    assert.deepEqual((0, _native_array.A)(null), [], 'returned an array with a null argument');
+    assert.ok(_array.default.detect((0, _native_array.A)()), 'returned an ember array');
+    assert.ok(_array.default.detect((0, _native_array.A)([1, 2])), 'returned an ember array');
   });
 });
 enifed('ember-runtime/tests/system/native_array/copyable_suite_test', ['ember-utils', 'ember-runtime/system/native_array', 'ember-runtime/tests/suites/copyable'], function (_emberUtils, _native_array, _copyable) {
@@ -57175,13 +57173,13 @@ enifed('ember-runtime/tests/system/native_array/copyable_suite_test', ['ember-ut
 
   QUnit.module('NativeArray Copyable');
 
-  QUnit.test('deep copy is respected', function () {
+  QUnit.test('deep copy is respected', function (assert) {
     var array = (0, _native_array.A)([{ id: 1 }, { id: 2 }, { id: 3 }]);
 
     var copiedArray = array.copy(true);
 
-    deepEqual(copiedArray, array, 'copied array is equivalent');
-    ok(copiedArray[0] !== array[0], 'objects inside should be unique');
+    assert.deepEqual(copiedArray, array, 'copied array is equivalent');
+    assert.ok(copiedArray[0] !== array[0], 'objects inside should be unique');
   });
 });
 enifed('ember-runtime/tests/system/native_array/replace_test', ['ember-runtime/system/native_array'], function (_native_array) {
@@ -57195,8 +57193,8 @@ enifed('ember-runtime/tests/system/native_array/replace_test', ['ember-runtime/s
     }, 'The third argument to replace needs to be an array.');
   });
 
-  QUnit.test('it does not raise an assertion if third parameter is not passed', function () {
-    deepEqual((0, _native_array.A)([1, 2, 3]).replace(1, 2), (0, _native_array.A)([1]), 'no assertion raised');
+  QUnit.test('it does not raise an assertion if third parameter is not passed', function (assert) {
+    assert.deepEqual((0, _native_array.A)([1, 2, 3]).replace(1, 2), (0, _native_array.A)([1]), 'no assertion raised');
   });
 });
 enifed('ember-runtime/tests/system/native_array/suite_test', ['ember-runtime/system/native_array', 'ember-runtime/tests/suites/mutable_array'], function (_native_array, _mutable_array) {
@@ -57225,17 +57223,17 @@ enifed('ember-runtime/tests/system/object/computed_test', ['ember-metal', 'inter
 
   QUnit.module('EmberObject computed property');
 
-  (0, _internalTestHelpers.testWithDefault)('computed property on instance', function (get) {
+  (0, _internalTestHelpers.testWithDefault)('computed property on instance', function (get, set, assert) {
     var MyClass = _object.default.extend({
       foo: (0, _emberMetal.computed)(function () {
         return 'FOO';
       })
     });
 
-    equal(get(new MyClass(), 'foo'), 'FOO');
+    assert.equal(get(new MyClass(), 'foo'), 'FOO');
   });
 
-  (0, _internalTestHelpers.testWithDefault)('computed property on subclass', function (get) {
+  (0, _internalTestHelpers.testWithDefault)('computed property on subclass', function (get, set, assert) {
     var MyClass = _object.default.extend({
       foo: (0, _emberMetal.computed)(function () {
         return 'FOO';
@@ -57248,10 +57246,10 @@ enifed('ember-runtime/tests/system/object/computed_test', ['ember-metal', 'inter
       })
     });
 
-    equal(get(new Subclass(), 'foo'), 'BAR');
+    assert.equal(get(new Subclass(), 'foo'), 'BAR');
   });
 
-  (0, _internalTestHelpers.testWithDefault)('replacing computed property with regular val', function (get) {
+  (0, _internalTestHelpers.testWithDefault)('replacing computed property with regular val', function (get, set, assert) {
     var MyClass = _object.default.extend({
       foo: (0, _emberMetal.computed)(function () {
         return 'FOO';
@@ -57262,10 +57260,10 @@ enifed('ember-runtime/tests/system/object/computed_test', ['ember-metal', 'inter
       foo: 'BAR'
     });
 
-    equal(get(new Subclass(), 'foo'), 'BAR');
+    assert.equal(get(new Subclass(), 'foo'), 'BAR');
   });
 
-  (0, _internalTestHelpers.testWithDefault)('complex depndent keys', function (get, set) {
+  (0, _internalTestHelpers.testWithDefault)('complex depndent keys', function (get, set, assert) {
     var MyClass = _object.default.extend({
       init: function () {
         this._super.apply(this, arguments);
@@ -57288,21 +57286,21 @@ enifed('ember-runtime/tests/system/object/computed_test', ['ember-metal', 'inter
     var obj1 = new MyClass();
     var obj2 = new Subclass();
 
-    equal(get(obj1, 'foo'), 'BIFF 1');
-    equal(get(obj2, 'foo'), 'BIFF 21');
+    assert.equal(get(obj1, 'foo'), 'BIFF 1');
+    assert.equal(get(obj2, 'foo'), 'BIFF 21');
 
     set(get(obj1, 'bar'), 'baz', 'BLARG');
 
-    equal(get(obj1, 'foo'), 'BLARG 2');
-    equal(get(obj2, 'foo'), 'BIFF 21');
+    assert.equal(get(obj1, 'foo'), 'BLARG 2');
+    assert.equal(get(obj2, 'foo'), 'BIFF 21');
 
     set(get(obj2, 'bar'), 'baz', 'BOOM');
 
-    equal(get(obj1, 'foo'), 'BLARG 2');
-    equal(get(obj2, 'foo'), 'BOOM 22');
+    assert.equal(get(obj1, 'foo'), 'BLARG 2');
+    assert.equal(get(obj2, 'foo'), 'BOOM 22');
   });
 
-  (0, _internalTestHelpers.testWithDefault)('complex dependent keys changing complex dependent keys', function (get, set) {
+  (0, _internalTestHelpers.testWithDefault)('complex dependent keys changing complex dependent keys', function (get, set, assert) {
     var MyClass = _object.default.extend({
       init: function () {
         this._super.apply(this, arguments);
@@ -57333,21 +57331,21 @@ enifed('ember-runtime/tests/system/object/computed_test', ['ember-metal', 'inter
 
     var obj2 = new Subclass();
 
-    equal(get(obj2, 'foo'), 'BIFF2 1');
+    assert.equal(get(obj2, 'foo'), 'BIFF2 1');
 
     set(get(obj2, 'bar'), 'baz', 'BLARG');
-    equal(get(obj2, 'foo'), 'BIFF2 1', 'should not invalidate property');
+    assert.equal(get(obj2, 'foo'), 'BIFF2 1', 'should not invalidate property');
 
     set(get(obj2, 'bar2'), 'baz', 'BLARG');
-    equal(get(obj2, 'foo'), 'BLARG 2', 'should invalidate property');
+    assert.equal(get(obj2, 'foo'), 'BLARG 2', 'should invalidate property');
   });
 
-  QUnit.test('can retrieve metadata for a computed property', function () {
+  QUnit.test('can retrieve metadata for a computed property', function (assert) {
     var MyClass = _object.default.extend({
       computedProperty: (0, _emberMetal.computed)(function () {}).meta({ key: 'keyValue' })
     });
 
-    equal((0, _emberMetal.get)(MyClass.metaForProperty('computedProperty'), 'key'), 'keyValue', 'metadata saved on the computed property can be retrieved');
+    assert.equal((0, _emberMetal.get)(MyClass.metaForProperty('computedProperty'), 'key'), 'keyValue', 'metadata saved on the computed property can be retrieved');
 
     var ClassWithNoMetadata = _object.default.extend({
       computedProperty: (0, _emberMetal.computed)(function () {}).volatile(),
@@ -57355,7 +57353,7 @@ enifed('ember-runtime/tests/system/object/computed_test', ['ember-metal', 'inter
       staticProperty: 12
     });
 
-    equal(typeof ClassWithNoMetadata.metaForProperty('computedProperty'), 'object', 'returns empty hash if no metadata has been saved');
+    assert.equal(typeof ClassWithNoMetadata.metaForProperty('computedProperty'), 'object', 'returns empty hash if no metadata has been saved');
 
     expectAssertion(function () {
       ClassWithNoMetadata.metaForProperty('nonexistentProperty');
@@ -57366,7 +57364,7 @@ enifed('ember-runtime/tests/system/object/computed_test', ['ember-metal', 'inter
     }, 'metaForProperty() could not find a computed property with key \'staticProperty\'.');
   });
 
-  QUnit.test('can iterate over a list of computed properties for a class', function () {
+  QUnit.test('can iterate over a list of computed properties for a class', function (assert) {
     var MyClass = _object.default.extend({
       foo: (0, _emberMetal.computed)(function () {}),
 
@@ -57391,7 +57389,7 @@ enifed('ember-runtime/tests/system/object/computed_test', ['ember-metal', 'inter
       list.push(name);
     });
 
-    deepEqual(list.sort(), ['bar', 'foo', 'qux'], 'watched and unwatched computed properties are iterated');
+    assert.deepEqual(list.sort(), ['bar', 'foo', 'qux'], 'watched and unwatched computed properties are iterated');
 
     list = [];
 
@@ -57399,16 +57397,16 @@ enifed('ember-runtime/tests/system/object/computed_test', ['ember-metal', 'inter
       list.push(name);
 
       if (name === 'bat') {
-        deepEqual(meta, { iAmBat: true });
+        assert.deepEqual(meta, { iAmBat: true });
       } else {
-        deepEqual(meta, {});
+        assert.deepEqual(meta, {});
       }
     });
 
-    deepEqual(list.sort(), ['bar', 'bat', 'baz', 'foo', 'qux'], 'all inherited properties are included');
+    assert.deepEqual(list.sort(), ['bar', 'bat', 'baz', 'foo', 'qux'], 'all inherited properties are included');
   });
 
-  QUnit.test('list of properties updates when an additional property is added (such cache busting)', function () {
+  QUnit.test('list of properties updates when an additional property is added (such cache busting)', function (assert) {
     var MyClass = _object.default.extend({
       foo: (0, _emberMetal.computed)(K),
 
@@ -57423,7 +57421,7 @@ enifed('ember-runtime/tests/system/object/computed_test', ['ember-metal', 'inter
       list.push(name);
     });
 
-    deepEqual(list.sort(), ['bar', 'foo'].sort(), 'expected two computed properties');
+    assert.deepEqual(list.sort(), ['bar', 'foo'].sort(), 'expected two computed properties');
 
     MyClass.reopen({
       baz: (0, _emberMetal.computed)(K)
@@ -57437,10 +57435,10 @@ enifed('ember-runtime/tests/system/object/computed_test', ['ember-metal', 'inter
       list.push(name);
     });
 
-    deepEqual(list.sort(), ['bar', 'foo', 'baz'].sort(), 'expected three computed properties');
+    assert.deepEqual(list.sort(), ['bar', 'foo', 'baz'].sort(), 'expected three computed properties');
   });
 
-  QUnit.test('Calling _super in call outside the immediate function of a CP getter works', function () {
+  QUnit.test('Calling _super in call outside the immediate function of a CP getter works', function (assert) {
 
     var MyClass = _object.default.extend({
       foo: (0, _emberMetal.computed)(function () {
@@ -57458,10 +57456,10 @@ enifed('ember-runtime/tests/system/object/computed_test', ['ember-metal', 'inter
       })
     });
 
-    ok((0, _emberMetal.get)(SubClass.create(), 'foo'), 'FOO', 'super value is fetched');
+    assert.ok((0, _emberMetal.get)(SubClass.create(), 'foo'), 'FOO', 'super value is fetched');
   });
 
-  QUnit.test('Calling _super in apply outside the immediate function of a CP getter works', function () {
+  QUnit.test('Calling _super in apply outside the immediate function of a CP getter works', function (assert) {
 
     var MyClass = _object.default.extend({
       foo: (0, _emberMetal.computed)(function () {
@@ -57479,10 +57477,10 @@ enifed('ember-runtime/tests/system/object/computed_test', ['ember-metal', 'inter
       })
     });
 
-    ok((0, _emberMetal.get)(SubClass.create(), 'foo'), 'FOO', 'super value is fetched');
+    assert.ok((0, _emberMetal.get)(SubClass.create(), 'foo'), 'FOO', 'super value is fetched');
   });
 
-  QUnit.test('observing computed.reads prop and overriding it in create() works', function () {
+  QUnit.test('observing computed.reads prop and overriding it in create() works', function (assert) {
     var Obj = _object.default.extend({
       name: _emberMetal.computed.reads('model.name'),
       nameDidChange: (0, _emberMetal.observer)('name', function () {})
@@ -57491,8 +57489,8 @@ enifed('ember-runtime/tests/system/object/computed_test', ['ember-metal', 'inter
     var obj1 = Obj.create({ name: '1' });
     var obj2 = Obj.create({ name: '2' });
 
-    equal(obj1.get('name'), '1');
-    equal(obj2.get('name'), '2');
+    assert.equal(obj1.get('name'), '1');
+    assert.equal(obj2.get('name'), '2');
   });
 });
 enifed('ember-runtime/tests/system/object/create_test', ['ember-metal', 'ember-runtime/system/object'], function (_emberMetal, _object) {
@@ -57500,12 +57498,12 @@ enifed('ember-runtime/tests/system/object/create_test', ['ember-metal', 'ember-r
 
   QUnit.module('EmberObject.create', {});
 
-  QUnit.test('simple properties are set', function () {
+  QUnit.test('simple properties are set', function (assert) {
     var o = _object.default.create({ ohai: 'there' });
-    equal(o.get('ohai'), 'there');
+    assert.equal(o.get('ohai'), 'there');
   });
 
-  QUnit.test('calls computed property setters', function () {
+  QUnit.test('calls computed property setters', function (assert) {
     var MyClass = _object.default.extend({
       foo: (0, _emberMetal.computed)({
         get: function () {
@@ -57518,10 +57516,10 @@ enifed('ember-runtime/tests/system/object/create_test', ['ember-metal', 'ember-r
     });
 
     var o = MyClass.create({ foo: 'bar' });
-    equal(o.get('foo'), 'bar');
+    assert.equal(o.get('foo'), 'bar');
   });
 
-  QUnit.test('allows bindings to be defined', function () {
+  QUnit.test('allows bindings to be defined', function (assert) {
     var obj = void 0;
 
     var deprecationMessage = /`Ember.Binding` is deprecated/;
@@ -57533,10 +57531,10 @@ enifed('ember-runtime/tests/system/object/create_test', ['ember-metal', 'ember-r
       });
     }, deprecationMessage);
 
-    equal(obj.get('bar'), 'foo', 'The binding value is correct');
+    assert.equal(obj.get('bar'), 'foo', 'The binding value is correct');
   });
 
-  QUnit.test('calls setUnknownProperty if defined', function () {
+  QUnit.test('calls setUnknownProperty if defined', function (assert) {
     var setUnknownPropertyCalled = false;
 
     var MyClass = _object.default.extend({
@@ -57546,7 +57544,7 @@ enifed('ember-runtime/tests/system/object/create_test', ['ember-metal', 'ember-r
     });
 
     MyClass.create({ foo: 'bar' });
-    ok(setUnknownPropertyCalled, 'setUnknownProperty was called');
+    assert.ok(setUnknownPropertyCalled, 'setUnknownProperty was called');
   });
 
   QUnit.test('throws if you try to define a computed property', function () {
@@ -57579,11 +57577,11 @@ enifed('ember-runtime/tests/system/object/create_test', ['ember-metal', 'ember-r
     }, 'Ember.Object.create no longer supports mixing in other definitions, use .extend & .create separately instead.');
   });
 
-  QUnit.test('inherits properties from passed in EmberObject', function () {
+  QUnit.test('inherits properties from passed in EmberObject', function (assert) {
     var baseObj = _object.default.create({ foo: 'bar' });
     var secondaryObj = _object.default.create(baseObj);
 
-    equal(secondaryObj.foo, baseObj.foo, 'Em.O.create inherits properties from EmberObject parameter');
+    assert.equal(secondaryObj.foo, baseObj.foo, 'Em.O.create inherits properties from EmberObject parameter');
   });
 
   QUnit.test('throws if you try to pass anything a string as a parameter', function () {
@@ -57593,20 +57591,20 @@ enifed('ember-runtime/tests/system/object/create_test', ['ember-metal', 'ember-r
     }, 'Ember.Object.create only accepts objects.');
   });
 
-  QUnit.test('EmberObject.create can take undefined as a parameter', function () {
+  QUnit.test('EmberObject.create can take undefined as a parameter', function (assert) {
     var o = _object.default.create(undefined);
-    deepEqual(_object.default.create(), o);
+    assert.deepEqual(_object.default.create(), o);
   });
 
-  QUnit.test('EmberObject.create can take null as a parameter', function () {
+  QUnit.test('EmberObject.create can take null as a parameter', function (assert) {
     var o = _object.default.create(null);
-    deepEqual(_object.default.create(), o);
+    assert.deepEqual(_object.default.create(), o);
   });
 
-  QUnit.test('EmberObject.create avoids allocating a binding map when not necessary', function () {
+  QUnit.test('EmberObject.create avoids allocating a binding map when not necessary', function (assert) {
     var o = _object.default.create();
     var m = (0, _emberMetal.meta)(o);
-    ok(!m.peekBindings(), 'A binding map is not allocated');
+    assert.ok(!m.peekBindings(), 'A binding map is not allocated');
   });
 });
 enifed('ember-runtime/tests/system/object/destroy_test', ['ember-metal', 'internal-test-helpers', 'ember-runtime/system/object'], function (_emberMetal, _internalTestHelpers, _object) {
@@ -57614,23 +57612,23 @@ enifed('ember-runtime/tests/system/object/destroy_test', ['ember-metal', 'intern
 
   QUnit.module('ember-runtime/system/object/destroy_test');
 
-  (0, _internalTestHelpers.testBoth)('should schedule objects to be destroyed at the end of the run loop', function (get /*, set */) {
+  (0, _internalTestHelpers.testBoth)('should schedule objects to be destroyed at the end of the run loop', function (get, set, assert) {
     var obj = _object.default.create();
     var meta = void 0;
 
     (0, _emberMetal.run)(function () {
       obj.destroy();
       meta = (0, _emberMetal.peekMeta)(obj);
-      ok(meta, 'meta is not destroyed immediately');
-      ok(get(obj, 'isDestroying'), 'object is marked as destroying immediately');
-      ok(!get(obj, 'isDestroyed'), 'object is not destroyed immediately');
+      assert.ok(meta, 'meta is not destroyed immediately');
+      assert.ok(get(obj, 'isDestroying'), 'object is marked as destroying immediately');
+      assert.ok(!get(obj, 'isDestroyed'), 'object is not destroyed immediately');
     });
 
     meta = (0, _emberMetal.peekMeta)(obj);
-    ok(get(obj, 'isDestroyed'), 'object is destroyed after run loop finishes');
+    assert.ok(get(obj, 'isDestroyed'), 'object is destroyed after run loop finishes');
   });
 
-  QUnit.test('observers should not fire after an object has been destroyed', function () {
+  QUnit.test('observers should not fire after an object has been destroyed', function (assert) {
     var count = 0;
     var obj = _object.default.extend({
       fooDidChange: (0, _emberMetal.observer)('foo', function () {
@@ -57640,7 +57638,7 @@ enifed('ember-runtime/tests/system/object/destroy_test', ['ember-metal', 'intern
 
     obj.set('foo', 'bar');
 
-    equal(count, 1, 'observer was fired once');
+    assert.equal(count, 1, 'observer was fired once');
 
     (0, _emberMetal.run)(function () {
       (0, _emberMetal.beginPropertyChanges)();
@@ -57649,10 +57647,10 @@ enifed('ember-runtime/tests/system/object/destroy_test', ['ember-metal', 'intern
       (0, _emberMetal.endPropertyChanges)();
     });
 
-    equal(count, 1, 'observer was not called after object was destroyed');
+    assert.equal(count, 1, 'observer was not called after object was destroyed');
   });
 
-  QUnit.test('destroyed objects should not see each others changes during teardown but a long lived object should', function () {
+  QUnit.test('destroyed objects should not see each others changes during teardown but a long lived object should', function (assert) {
     var shouldChange = 0;
     var shouldNotChange = 0;
 
@@ -57726,11 +57724,11 @@ enifed('ember-runtime/tests/system/object/destroy_test', ['ember-metal', 'intern
       }
     });
 
-    equal(shouldNotChange, 0, 'destroyed graph objs should not see change in willDestroy');
-    equal(shouldChange, 1, 'long lived should see change in willDestroy');
+    assert.equal(shouldNotChange, 0, 'destroyed graph objs should not see change in willDestroy');
+    assert.equal(shouldChange, 1, 'long lived should see change in willDestroy');
   });
 
-  QUnit.test('bindings should be synced when are updated in the willDestroy hook', function () {
+  QUnit.test('bindings should be synced when are updated in the willDestroy hook', function (assert) {
     var bar = _object.default.create({
       value: false,
       willDestroy: function () {
@@ -57751,13 +57749,13 @@ enifed('ember-runtime/tests/system/object/destroy_test', ['ember-metal', 'intern
       }, deprecationMessage);
     });
 
-    ok(bar.get('value') === false, 'the initial value has been bound');
+    assert.ok(bar.get('value') === false, 'the initial value has been bound');
 
     (0, _emberMetal.run)(function () {
       return bar.destroy();
     });
 
-    ok(foo.get('value'), 'foo is synced when the binding is updated in the willDestroy hook');
+    assert.ok(foo.get('value'), 'foo is synced when the binding is updated in the willDestroy hook');
   });
 });
 enifed('ember-runtime/tests/system/object/detectInstance_test', ['ember-runtime/system/object'], function (_object) {
@@ -57765,7 +57763,7 @@ enifed('ember-runtime/tests/system/object/detectInstance_test', ['ember-runtime/
 
   QUnit.module('system/object/detectInstance');
 
-  QUnit.test('detectInstance detects instances correctly', function () {
+  QUnit.test('detectInstance detects instances correctly', function (assert) {
     var A = _object.default.extend();
     var B = A.extend();
     var C = A.extend();
@@ -57775,25 +57773,25 @@ enifed('ember-runtime/tests/system/object/detectInstance_test', ['ember-runtime/
     var b = B.create();
     var c = C.create();
 
-    ok(_object.default.detectInstance(o), 'o is an instance of EmberObject');
-    ok(_object.default.detectInstance(a), 'a is an instance of EmberObject');
-    ok(_object.default.detectInstance(b), 'b is an instance of EmberObject');
-    ok(_object.default.detectInstance(c), 'c is an instance of EmberObject');
+    assert.ok(_object.default.detectInstance(o), 'o is an instance of EmberObject');
+    assert.ok(_object.default.detectInstance(a), 'a is an instance of EmberObject');
+    assert.ok(_object.default.detectInstance(b), 'b is an instance of EmberObject');
+    assert.ok(_object.default.detectInstance(c), 'c is an instance of EmberObject');
 
-    ok(!A.detectInstance(o), 'o is not an instance of A');
-    ok(A.detectInstance(a), 'a is an instance of A');
-    ok(A.detectInstance(b), 'b is an instance of A');
-    ok(A.detectInstance(c), 'c is an instance of A');
+    assert.ok(!A.detectInstance(o), 'o is not an instance of A');
+    assert.ok(A.detectInstance(a), 'a is an instance of A');
+    assert.ok(A.detectInstance(b), 'b is an instance of A');
+    assert.ok(A.detectInstance(c), 'c is an instance of A');
 
-    ok(!B.detectInstance(o), 'o is not an instance of B');
-    ok(!B.detectInstance(a), 'a is not an instance of B');
-    ok(B.detectInstance(b), 'b is an instance of B');
-    ok(!B.detectInstance(c), 'c is not an instance of B');
+    assert.ok(!B.detectInstance(o), 'o is not an instance of B');
+    assert.ok(!B.detectInstance(a), 'a is not an instance of B');
+    assert.ok(B.detectInstance(b), 'b is an instance of B');
+    assert.ok(!B.detectInstance(c), 'c is not an instance of B');
 
-    ok(!C.detectInstance(o), 'o is not an instance of C');
-    ok(!C.detectInstance(a), 'a is not an instance of C');
-    ok(!C.detectInstance(b), 'b is not an instance of C');
-    ok(C.detectInstance(c), 'c is an instance of C');
+    assert.ok(!C.detectInstance(o), 'o is not an instance of C');
+    assert.ok(!C.detectInstance(a), 'a is not an instance of C');
+    assert.ok(!C.detectInstance(b), 'b is not an instance of C');
+    assert.ok(C.detectInstance(c), 'c is an instance of C');
   });
 });
 enifed('ember-runtime/tests/system/object/detect_test', ['ember-runtime/system/object'], function (_object) {
@@ -57801,30 +57799,30 @@ enifed('ember-runtime/tests/system/object/detect_test', ['ember-runtime/system/o
 
   QUnit.module('system/object/detect');
 
-  QUnit.test('detect detects classes correctly', function () {
+  QUnit.test('detect detects classes correctly', function (assert) {
     var A = _object.default.extend();
     var B = A.extend();
     var C = A.extend();
 
-    ok(_object.default.detect(_object.default), 'EmberObject is an EmberObject class');
-    ok(_object.default.detect(A), 'A is an EmberObject class');
-    ok(_object.default.detect(B), 'B is an EmberObject class');
-    ok(_object.default.detect(C), 'C is an EmberObject class');
+    assert.ok(_object.default.detect(_object.default), 'EmberObject is an EmberObject class');
+    assert.ok(_object.default.detect(A), 'A is an EmberObject class');
+    assert.ok(_object.default.detect(B), 'B is an EmberObject class');
+    assert.ok(_object.default.detect(C), 'C is an EmberObject class');
 
-    ok(!A.detect(_object.default), 'EmberObject is not an A class');
-    ok(A.detect(A), 'A is an A class');
-    ok(A.detect(B), 'B is an A class');
-    ok(A.detect(C), 'C is an A class');
+    assert.ok(!A.detect(_object.default), 'EmberObject is not an A class');
+    assert.ok(A.detect(A), 'A is an A class');
+    assert.ok(A.detect(B), 'B is an A class');
+    assert.ok(A.detect(C), 'C is an A class');
 
-    ok(!B.detect(_object.default), 'EmberObject is not a B class');
-    ok(!B.detect(A), 'A is not a B class');
-    ok(B.detect(B), 'B is a B class');
-    ok(!B.detect(C), 'C is not a B class');
+    assert.ok(!B.detect(_object.default), 'EmberObject is not a B class');
+    assert.ok(!B.detect(A), 'A is not a B class');
+    assert.ok(B.detect(B), 'B is a B class');
+    assert.ok(!B.detect(C), 'C is not a B class');
 
-    ok(!C.detect(_object.default), 'EmberObject is not a C class');
-    ok(!C.detect(A), 'A is not a C class');
-    ok(!C.detect(B), 'B is not a C class');
-    ok(C.detect(C), 'C is a C class');
+    assert.ok(!C.detect(_object.default), 'EmberObject is not a C class');
+    assert.ok(!C.detect(A), 'A is not a C class');
+    assert.ok(!C.detect(B), 'B is not a C class');
+    assert.ok(C.detect(C), 'C is a C class');
   });
 });
 enifed('ember-runtime/tests/system/object/es-compatibility-test', ['ember-babel', 'ember-runtime/system/object', 'ember-metal'], function (_emberBabel, _object, _emberMetal) {
@@ -58035,7 +58033,7 @@ enifed('ember-runtime/tests/system/object/events_test', ['ember-runtime/system/o
 
   QUnit.module('Object events');
 
-  QUnit.test('a listener can be added to an object', function () {
+  QUnit.test('a listener can be added to an object', function (assert) {
     var count = 0;
 
 
@@ -58046,14 +58044,14 @@ enifed('ember-runtime/tests/system/object/events_test', ['ember-runtime/system/o
     });
     obj.trigger('event!');
 
-    equal(count, 1, 'the event was triggered');
+    assert.equal(count, 1, 'the event was triggered');
 
     obj.trigger('event!');
 
-    equal(count, 2, 'the event was triggered');
+    assert.equal(count, 2, 'the event was triggered');
   });
 
-  QUnit.test('a listener can be added and removed automatically the first time it is triggered', function () {
+  QUnit.test('a listener can be added and removed automatically the first time it is triggered', function (assert) {
     var count = 0;
 
 
@@ -58064,14 +58062,14 @@ enifed('ember-runtime/tests/system/object/events_test', ['ember-runtime/system/o
     });
     obj.trigger('event!');
 
-    equal(count, 1, 'the event was triggered');
+    assert.equal(count, 1, 'the event was triggered');
 
     obj.trigger('event!');
 
-    equal(count, 1, 'the event was not triggered again');
+    assert.equal(count, 1, 'the event was not triggered again');
   });
 
-  QUnit.test('triggering an event can have arguments', function () {
+  QUnit.test('triggering an event can have arguments', function (assert) {
     var self = void 0,
         args = void 0;
 
@@ -58084,11 +58082,11 @@ enifed('ember-runtime/tests/system/object/events_test', ['ember-runtime/system/o
 
     obj.trigger('event!', 'foo', 'bar');
 
-    deepEqual(args, ['foo', 'bar']);
-    equal(self, obj);
+    assert.deepEqual(args, ['foo', 'bar']);
+    assert.equal(self, obj);
   });
 
-  QUnit.test('a listener can be added and removed automatically and have arguments', function () {
+  QUnit.test('a listener can be added and removed automatically and have arguments', function (assert) {
     var self = void 0,
         args = void 0;
     var count = 0;
@@ -58103,18 +58101,18 @@ enifed('ember-runtime/tests/system/object/events_test', ['ember-runtime/system/o
 
     obj.trigger('event!', 'foo', 'bar');
 
-    deepEqual(args, ['foo', 'bar']);
-    equal(self, obj);
-    equal(count, 1, 'the event is triggered once');
+    assert.deepEqual(args, ['foo', 'bar']);
+    assert.equal(self, obj);
+    assert.equal(count, 1, 'the event is triggered once');
 
     obj.trigger('event!', 'baz', 'bat');
 
-    deepEqual(args, ['foo', 'bar']);
-    equal(count, 1, 'the event was not triggered again');
-    equal(self, obj);
+    assert.deepEqual(args, ['foo', 'bar']);
+    assert.equal(count, 1, 'the event was not triggered again');
+    assert.equal(self, obj);
   });
 
-  QUnit.test('binding an event can specify a different target', function () {
+  QUnit.test('binding an event can specify a different target', function (assert) {
     var self = void 0,
         args = void 0;
 
@@ -58128,11 +58126,11 @@ enifed('ember-runtime/tests/system/object/events_test', ['ember-runtime/system/o
 
     obj.trigger('event!', 'foo', 'bar');
 
-    deepEqual(args, ['foo', 'bar']);
-    equal(self, target);
+    assert.deepEqual(args, ['foo', 'bar']);
+    assert.equal(self, target);
   });
 
-  QUnit.test('a listener registered with one can take method as string and can be added with different target', function () {
+  QUnit.test('a listener registered with one can take method as string and can be added with different target', function (assert) {
     var count = 0;
     var target = {};
     target.fn = function () {
@@ -58144,14 +58142,14 @@ enifed('ember-runtime/tests/system/object/events_test', ['ember-runtime/system/o
     obj.one('event!', target, 'fn');
     obj.trigger('event!');
 
-    equal(count, 1, 'the event was triggered');
+    assert.equal(count, 1, 'the event was triggered');
 
     obj.trigger('event!');
 
-    equal(count, 1, 'the event was not triggered again');
+    assert.equal(count, 1, 'the event was not triggered again');
   });
 
-  QUnit.test('a listener registered with one can be removed with off', function () {
+  QUnit.test('a listener registered with one can be removed with off', function (assert) {
     var obj = _object.default.extend(_evented.default, {
       F: function () {}
     }).create();
@@ -58160,26 +58158,26 @@ enifed('ember-runtime/tests/system/object/events_test', ['ember-runtime/system/o
     obj.one('event!', F);
     obj.one('event!', obj, 'F');
 
-    equal(obj.has('event!'), true, 'has events');
+    assert.equal(obj.has('event!'), true, 'has events');
 
     obj.off('event!', F);
     obj.off('event!', obj, 'F');
 
-    equal(obj.has('event!'), false, 'has no more events');
+    assert.equal(obj.has('event!'), false, 'has no more events');
   });
 
-  QUnit.test('adding and removing listeners should be chainable', function () {
+  QUnit.test('adding and removing listeners should be chainable', function (assert) {
     var obj = _object.default.extend(_evented.default).create();
     var F = function () {};
 
     var ret = obj.on('event!', F);
-    equal(ret, obj, '#on returns self');
+    assert.equal(ret, obj, '#on returns self');
 
     ret = obj.off('event!', F);
-    equal(ret, obj, '#off returns self');
+    assert.equal(ret, obj, '#off returns self');
 
     ret = obj.one('event!', F);
-    equal(ret, obj, '#one returns self');
+    assert.equal(ret, obj, '#one returns self');
   });
 });
 enifed('ember-runtime/tests/system/object/extend_test', ['ember-metal', 'ember-runtime/system/object'], function (_emberMetal, _object) {
@@ -58187,22 +58185,22 @@ enifed('ember-runtime/tests/system/object/extend_test', ['ember-metal', 'ember-r
 
   QUnit.module('EmberObject.extend');
 
-  QUnit.test('Basic extend', function () {
+  QUnit.test('Basic extend', function (assert) {
     var SomeClass = _object.default.extend({ foo: 'BAR' });
-    ok(SomeClass.isClass, 'A class has isClass of true');
+    assert.ok(SomeClass.isClass, 'A class has isClass of true');
     var obj = new SomeClass();
-    equal(obj.foo, 'BAR');
+    assert.equal(obj.foo, 'BAR');
   });
 
-  QUnit.test('Sub-subclass', function () {
+  QUnit.test('Sub-subclass', function (assert) {
     var SomeClass = _object.default.extend({ foo: 'BAR' });
     var AnotherClass = SomeClass.extend({ bar: 'FOO' });
     var obj = new AnotherClass();
-    equal(obj.foo, 'BAR');
-    equal(obj.bar, 'FOO');
+    assert.equal(obj.foo, 'BAR');
+    assert.equal(obj.bar, 'FOO');
   });
 
-  QUnit.test('Overriding a method several layers deep', function () {
+  QUnit.test('Overriding a method several layers deep', function (assert) {
     var SomeClass = _object.default.extend({
       fooCnt: 0,
       foo: function () {
@@ -58234,8 +58232,8 @@ enifed('ember-runtime/tests/system/object/extend_test', ['ember-metal', 'ember-r
     var obj = new FinalClass();
     obj.foo();
     obj.bar();
-    equal(obj.fooCnt, 2, 'should invoke both');
-    equal(obj.barCnt, 2, 'should invoke both');
+    assert.equal(obj.fooCnt, 2, 'should invoke both');
+    assert.equal(obj.barCnt, 2, 'should invoke both');
 
     // Try overriding on create also
     obj = FinalClass.extend({
@@ -58247,23 +58245,23 @@ enifed('ember-runtime/tests/system/object/extend_test', ['ember-metal', 'ember-r
 
     obj.foo();
     obj.bar();
-    equal(obj.fooCnt, 3, 'should invoke final as well');
-    equal(obj.barCnt, 2, 'should invoke both');
+    assert.equal(obj.fooCnt, 3, 'should invoke final as well');
+    assert.equal(obj.barCnt, 2, 'should invoke both');
   });
 
-  QUnit.test('With concatenatedProperties', function () {
+  QUnit.test('With concatenatedProperties', function (assert) {
     var SomeClass = _object.default.extend({ things: 'foo', concatenatedProperties: ['things'] });
     var AnotherClass = SomeClass.extend({ things: 'bar' });
     var YetAnotherClass = SomeClass.extend({ things: 'baz' });
     var some = new SomeClass();
     var another = new AnotherClass();
     var yetAnother = new YetAnotherClass();
-    deepEqual(some.get('things'), ['foo'], 'base class should have just its value');
-    deepEqual(another.get('things'), ['foo', 'bar'], 'subclass should have base class\' and its own');
-    deepEqual(yetAnother.get('things'), ['foo', 'baz'], 'subclass should have base class\' and its own');
+    assert.deepEqual(some.get('things'), ['foo'], 'base class should have just its value');
+    assert.deepEqual(another.get('things'), ['foo', 'bar'], 'subclass should have base class\' and its own');
+    assert.deepEqual(yetAnother.get('things'), ['foo', 'baz'], 'subclass should have base class\' and its own');
   });
 
-  QUnit.test('With concatenatedProperties class properties', function () {
+  QUnit.test('With concatenatedProperties class properties', function (assert) {
     var SomeClass = _object.default.extend();
     SomeClass.reopenClass({
       concatenatedProperties: ['things'],
@@ -58276,9 +58274,9 @@ enifed('ember-runtime/tests/system/object/extend_test', ['ember-metal', 'ember-r
     var some = new SomeClass();
     var another = new AnotherClass();
     var yetAnother = new YetAnotherClass();
-    deepEqual((0, _emberMetal.get)(some.constructor, 'things'), ['foo'], 'base class should have just its value');
-    deepEqual((0, _emberMetal.get)(another.constructor, 'things'), ['foo', 'bar'], 'subclass should have base class\' and its own');
-    deepEqual((0, _emberMetal.get)(yetAnother.constructor, 'things'), ['foo', 'baz'], 'subclass should have base class\' and its own');
+    assert.deepEqual((0, _emberMetal.get)(some.constructor, 'things'), ['foo'], 'base class should have just its value');
+    assert.deepEqual((0, _emberMetal.get)(another.constructor, 'things'), ['foo', 'bar'], 'subclass should have base class\' and its own');
+    assert.deepEqual((0, _emberMetal.get)(yetAnother.constructor, 'things'), ['foo', 'baz'], 'subclass should have base class\' and its own');
   });
 
   QUnit.test('Overriding a computed property with an observer', function (assert) {
@@ -58314,7 +58312,7 @@ enifed('ember-runtime/tests/system/object/observer_test', ['ember-metal', 'inter
 
   QUnit.module('EmberObject observer');
 
-  (0, _internalTestHelpers.testBoth)('observer on class', function (get, set) {
+  (0, _internalTestHelpers.testBoth)('observer on class', function (get, set, assert) {
     var MyClass = _object.default.extend({
       count: 0,
 
@@ -58324,13 +58322,13 @@ enifed('ember-runtime/tests/system/object/observer_test', ['ember-metal', 'inter
     });
 
     var obj = new MyClass();
-    equal(get(obj, 'count'), 0, 'should not invoke observer immediately');
+    assert.equal(get(obj, 'count'), 0, 'should not invoke observer immediately');
 
     set(obj, 'bar', 'BAZ');
-    equal(get(obj, 'count'), 1, 'should invoke observer after change');
+    assert.equal(get(obj, 'count'), 1, 'should invoke observer after change');
   });
 
-  (0, _internalTestHelpers.testBoth)('observer on subclass', function (get, set) {
+  (0, _internalTestHelpers.testBoth)('observer on subclass', function (get, set, assert) {
     var MyClass = _object.default.extend({
       count: 0,
 
@@ -58346,16 +58344,16 @@ enifed('ember-runtime/tests/system/object/observer_test', ['ember-metal', 'inter
     });
 
     var obj = new Subclass();
-    equal(get(obj, 'count'), 0, 'should not invoke observer immediately');
+    assert.equal(get(obj, 'count'), 0, 'should not invoke observer immediately');
 
     set(obj, 'bar', 'BAZ');
-    equal(get(obj, 'count'), 0, 'should not invoke observer after change');
+    assert.equal(get(obj, 'count'), 0, 'should not invoke observer after change');
 
     set(obj, 'baz', 'BAZ');
-    equal(get(obj, 'count'), 1, 'should invoke observer after change');
+    assert.equal(get(obj, 'count'), 1, 'should invoke observer after change');
   });
 
-  (0, _internalTestHelpers.testBoth)('observer on instance', function (get, set) {
+  (0, _internalTestHelpers.testBoth)('observer on instance', function (get, set, assert) {
     var obj = _object.default.extend({
       foo: (0, _emberMetal.observer)('bar', function () {
         set(this, 'count', get(this, 'count') + 1);
@@ -58364,13 +58362,13 @@ enifed('ember-runtime/tests/system/object/observer_test', ['ember-metal', 'inter
       count: 0
     });
 
-    equal(get(obj, 'count'), 0, 'should not invoke observer immediately');
+    assert.equal(get(obj, 'count'), 0, 'should not invoke observer immediately');
 
     set(obj, 'bar', 'BAZ');
-    equal(get(obj, 'count'), 1, 'should invoke observer after change');
+    assert.equal(get(obj, 'count'), 1, 'should invoke observer after change');
   });
 
-  (0, _internalTestHelpers.testBoth)('observer on instance overriding class', function (get, set) {
+  (0, _internalTestHelpers.testBoth)('observer on instance overriding class', function (get, set, assert) {
     var MyClass = _object.default.extend({
       count: 0,
 
@@ -58386,16 +58384,16 @@ enifed('ember-runtime/tests/system/object/observer_test', ['ember-metal', 'inter
       })
     }).create();
 
-    equal(get(obj, 'count'), 0, 'should not invoke observer immediately');
+    assert.equal(get(obj, 'count'), 0, 'should not invoke observer immediately');
 
     set(obj, 'bar', 'BAZ');
-    equal(get(obj, 'count'), 0, 'should not invoke observer after change');
+    assert.equal(get(obj, 'count'), 0, 'should not invoke observer after change');
 
     set(obj, 'baz', 'BAZ');
-    equal(get(obj, 'count'), 1, 'should invoke observer after change');
+    assert.equal(get(obj, 'count'), 1, 'should invoke observer after change');
   });
 
-  (0, _internalTestHelpers.testBoth)('observer should not fire after being destroyed', function (get, set) {
+  (0, _internalTestHelpers.testBoth)('observer should not fire after being destroyed', function (get, set, assert) {
     var obj = _object.default.extend({
       count: 0,
       foo: (0, _emberMetal.observer)('bar', function () {
@@ -58403,7 +58401,7 @@ enifed('ember-runtime/tests/system/object/observer_test', ['ember-metal', 'inter
       })
     }).create();
 
-    equal(get(obj, 'count'), 0, 'precond - should not invoke observer immediately');
+    assert.equal(get(obj, 'count'), 0, 'precond - should not invoke observer immediately');
 
     (0, _emberMetal.run)(function () {
       return obj.destroy();
@@ -58413,14 +58411,14 @@ enifed('ember-runtime/tests/system/object/observer_test', ['ember-metal', 'inter
       set(obj, 'bar', 'BAZ');
     }, 'calling set on destroyed object: ' + obj + '.bar = BAZ');
 
-    equal(get(obj, 'count'), 0, 'should not invoke observer after change');
+    assert.equal(get(obj, 'count'), 0, 'should not invoke observer after change');
   });
   // ..........................................................
   // COMPLEX PROPERTIES
   //
 
 
-  (0, _internalTestHelpers.testBoth)('chain observer on class', function (get, set) {
+  (0, _internalTestHelpers.testBoth)('chain observer on class', function (get, set, assert) {
     var MyClass = _object.default.extend({
       count: 0,
 
@@ -58437,19 +58435,19 @@ enifed('ember-runtime/tests/system/object/observer_test', ['ember-metal', 'inter
       bar: { baz: 'biff2' }
     });
 
-    equal(get(obj1, 'count'), 0, 'should not invoke yet');
-    equal(get(obj2, 'count'), 0, 'should not invoke yet');
+    assert.equal(get(obj1, 'count'), 0, 'should not invoke yet');
+    assert.equal(get(obj2, 'count'), 0, 'should not invoke yet');
 
     set(get(obj1, 'bar'), 'baz', 'BIFF1');
-    equal(get(obj1, 'count'), 1, 'should invoke observer on obj1');
-    equal(get(obj2, 'count'), 0, 'should not invoke yet');
+    assert.equal(get(obj1, 'count'), 1, 'should invoke observer on obj1');
+    assert.equal(get(obj2, 'count'), 0, 'should not invoke yet');
 
     set(get(obj2, 'bar'), 'baz', 'BIFF2');
-    equal(get(obj1, 'count'), 1, 'should not invoke again');
-    equal(get(obj2, 'count'), 1, 'should invoke observer on obj2');
+    assert.equal(get(obj1, 'count'), 1, 'should not invoke again');
+    assert.equal(get(obj2, 'count'), 1, 'should invoke observer on obj2');
   });
 
-  (0, _internalTestHelpers.testBoth)('chain observer on class', function (get, set) {
+  (0, _internalTestHelpers.testBoth)('chain observer on class', function (get, set, assert) {
     var MyClass = _object.default.extend({
       count: 0,
 
@@ -58471,23 +58469,23 @@ enifed('ember-runtime/tests/system/object/observer_test', ['ember-metal', 'inter
       bar2: { baz: 'biff3' }
     });
 
-    equal(get(obj1, 'count'), 0, 'should not invoke yet');
-    equal(get(obj2, 'count'), 0, 'should not invoke yet');
+    assert.equal(get(obj1, 'count'), 0, 'should not invoke yet');
+    assert.equal(get(obj2, 'count'), 0, 'should not invoke yet');
 
     set(get(obj1, 'bar'), 'baz', 'BIFF1');
-    equal(get(obj1, 'count'), 1, 'should invoke observer on obj1');
-    equal(get(obj2, 'count'), 0, 'should not invoke yet');
+    assert.equal(get(obj1, 'count'), 1, 'should invoke observer on obj1');
+    assert.equal(get(obj2, 'count'), 0, 'should not invoke yet');
 
     set(get(obj2, 'bar'), 'baz', 'BIFF2');
-    equal(get(obj1, 'count'), 1, 'should not invoke again');
-    equal(get(obj2, 'count'), 0, 'should not invoke yet');
+    assert.equal(get(obj1, 'count'), 1, 'should not invoke again');
+    assert.equal(get(obj2, 'count'), 0, 'should not invoke yet');
 
     set(get(obj2, 'bar2'), 'baz', 'BIFF3');
-    equal(get(obj1, 'count'), 1, 'should not invoke again');
-    equal(get(obj2, 'count'), 1, 'should invoke observer on obj2');
+    assert.equal(get(obj1, 'count'), 1, 'should not invoke again');
+    assert.equal(get(obj2, 'count'), 1, 'should invoke observer on obj2');
   });
 
-  (0, _internalTestHelpers.testBoth)('chain observer on class that has a reference to an uninitialized object will finish chains that reference it', function (get, set) {
+  (0, _internalTestHelpers.testBoth)('chain observer on class that has a reference to an uninitialized object will finish chains that reference it', function (get, set, assert) {
     var changed = false;
 
     var ChildClass = _object.default.extend({
@@ -58510,15 +58508,15 @@ enifed('ember-runtime/tests/system/object/observer_test', ['ember-metal', 'inter
 
     var parent = new ParentClass();
 
-    equal(changed, false, 'precond');
+    assert.equal(changed, false, 'precond');
 
     set(parent, 'one.two', 'new');
 
-    equal(changed, true, 'child should have been notified of change to path');
+    assert.equal(changed, true, 'child should have been notified of change to path');
 
     set(parent, 'one', { two: 'newer' });
 
-    equal(changed, true, 'child should have been notified of change to path');
+    assert.equal(changed, true, 'child should have been notified of change to path');
   });
 });
 enifed('ember-runtime/tests/system/object/reopenClass_test', ['ember-metal', 'ember-runtime/system/object'], function (_emberMetal, _object) {
@@ -58526,7 +58524,7 @@ enifed('ember-runtime/tests/system/object/reopenClass_test', ['ember-metal', 'em
 
   QUnit.module('system/object/reopenClass');
 
-  QUnit.test('adds new properties to subclass', function () {
+  QUnit.test('adds new properties to subclass', function (assert) {
     var Subclass = _object.default.extend();
     Subclass.reopenClass({
       foo: function () {
@@ -58536,11 +58534,11 @@ enifed('ember-runtime/tests/system/object/reopenClass_test', ['ember-metal', 'em
       bar: 'BAR'
     });
 
-    equal(Subclass.foo(), 'FOO', 'Adds method');
-    equal((0, _emberMetal.get)(Subclass, 'bar'), 'BAR', 'Adds property');
+    assert.equal(Subclass.foo(), 'FOO', 'Adds method');
+    assert.equal((0, _emberMetal.get)(Subclass, 'bar'), 'BAR', 'Adds property');
   });
 
-  QUnit.test('class properties inherited by subclasses', function () {
+  QUnit.test('class properties inherited by subclasses', function (assert) {
     var Subclass = _object.default.extend();
     Subclass.reopenClass({
       foo: function () {
@@ -58552,8 +58550,8 @@ enifed('ember-runtime/tests/system/object/reopenClass_test', ['ember-metal', 'em
 
     var SubSub = Subclass.extend();
 
-    equal(SubSub.foo(), 'FOO', 'Adds method');
-    equal((0, _emberMetal.get)(SubSub, 'bar'), 'BAR', 'Adds property');
+    assert.equal(SubSub.foo(), 'FOO', 'Adds method');
+    assert.equal((0, _emberMetal.get)(SubSub, 'bar'), 'BAR', 'Adds property');
   });
 });
 enifed('ember-runtime/tests/system/object/reopen_test', ['ember-metal', 'ember-runtime/system/object'], function (_emberMetal, _object) {
@@ -58561,7 +58559,7 @@ enifed('ember-runtime/tests/system/object/reopen_test', ['ember-metal', 'ember-r
 
   QUnit.module('system/core_object/reopen');
 
-  QUnit.test('adds new properties to subclass instance', function () {
+  QUnit.test('adds new properties to subclass instance', function (assert) {
     var Subclass = _object.default.extend();
     Subclass.reopen({
       foo: function () {
@@ -58571,11 +58569,11 @@ enifed('ember-runtime/tests/system/object/reopen_test', ['ember-metal', 'ember-r
       bar: 'BAR'
     });
 
-    equal(new Subclass().foo(), 'FOO', 'Adds method');
-    equal((0, _emberMetal.get)(new Subclass(), 'bar'), 'BAR', 'Adds property');
+    assert.equal(new Subclass().foo(), 'FOO', 'Adds method');
+    assert.equal((0, _emberMetal.get)(new Subclass(), 'bar'), 'BAR', 'Adds property');
   });
 
-  QUnit.test('reopened properties inherited by subclasses', function () {
+  QUnit.test('reopened properties inherited by subclasses', function (assert) {
     var Subclass = _object.default.extend();
     var SubSub = Subclass.extend();
 
@@ -58587,11 +58585,11 @@ enifed('ember-runtime/tests/system/object/reopen_test', ['ember-metal', 'ember-r
       bar: 'BAR'
     });
 
-    equal(new SubSub().foo(), 'FOO', 'Adds method');
-    equal((0, _emberMetal.get)(new SubSub(), 'bar'), 'BAR', 'Adds property');
+    assert.equal(new SubSub().foo(), 'FOO', 'Adds method');
+    assert.equal((0, _emberMetal.get)(new SubSub(), 'bar'), 'BAR', 'Adds property');
   });
 
-  QUnit.test('allows reopening already instantiated classes', function () {
+  QUnit.test('allows reopening already instantiated classes', function (assert) {
     var Subclass = _object.default.extend();
 
     Subclass.create();
@@ -58600,7 +58598,7 @@ enifed('ember-runtime/tests/system/object/reopen_test', ['ember-metal', 'ember-r
       trololol: true
     });
 
-    equal(Subclass.create().get('trololol'), true, 'reopen works');
+    assert.equal(Subclass.create().get('trololol'), true, 'reopen works');
   });
 });
 enifed('ember-runtime/tests/system/object/strict-mode-test', ['ember-runtime/system/object'], function (_object) {
@@ -58608,7 +58606,7 @@ enifed('ember-runtime/tests/system/object/strict-mode-test', ['ember-runtime/sys
 
   QUnit.module('strict mode tests');
 
-  QUnit.test('__superWrapper does not throw errors in strict mode', function () {
+  QUnit.test('__superWrapper does not throw errors in strict mode', function (assert) {
     var Foo = _object.default.extend({
       blah: function () {
         return 'foo';
@@ -58628,7 +58626,7 @@ enifed('ember-runtime/tests/system/object/strict-mode-test', ['ember-runtime/sys
 
     var bar = Bar.create();
 
-    equal(bar.callBlah(), 'bar', 'can call local function without call/apply');
+    assert.equal(bar.callBlah(), 'bar', 'can call local function without call/apply');
   });
 });
 enifed('ember-runtime/tests/system/object/subclasses_test', ['ember-metal', 'ember-runtime/system/object'], function (_emberMetal, _object) {
@@ -58636,7 +58634,7 @@ enifed('ember-runtime/tests/system/object/subclasses_test', ['ember-metal', 'emb
 
   QUnit.module('system/object/subclasses');
 
-  QUnit.test('chains should copy forward to subclasses when prototype created', function () {
+  QUnit.test('chains should copy forward to subclasses when prototype created', function (assert) {
     var ObjectWithChains = void 0,
         objWithChains = void 0,
         SubWithChains = void 0,
@@ -58674,11 +58672,11 @@ enifed('ember-runtime/tests/system/object/subclasses_test', ['ember-metal', 'emb
         subSub = SubSub.create();
       }, deprecationMessage);
     });
-    equal(subSub.get('greeting'), 'hi world');
+    assert.equal(subSub.get('greeting'), 'hi world');
     (0, _emberMetal.run)(function () {
       return objWithChains.set('obj.hi', 'hello');
     });
-    equal(subSub.get('greeting'), 'hello world');
+    assert.equal(subSub.get('greeting'), 'hello world');
   });
 });
 enifed('ember-runtime/tests/system/object/toString_test', ['ember-utils', 'ember-environment', 'ember-runtime/system/object', 'ember-runtime/system/namespace'], function (_emberUtils, _emberEnvironment, _object, _namespace) {
@@ -58688,19 +58686,19 @@ enifed('ember-runtime/tests/system/object/toString_test', ['ember-utils', 'ember
   var lookup = void 0;
 
   QUnit.module('system/object/toString', {
-    setup: function () {
+    beforeEach: function () {
       _emberEnvironment.context.lookup = lookup = {};
     },
-    teardown: function () {
+    afterEach: function () {
       _emberEnvironment.context.lookup = originalLookup;
     }
   });
 
-  QUnit.test('NAME_KEY slot is present on Class', function () {
-    ok(_object.default.extend().hasOwnProperty(_emberUtils.NAME_KEY), 'Ember Class\'s have a NAME_KEY slot');
+  QUnit.test('NAME_KEY slot is present on Class', function (assert) {
+    assert.ok(_object.default.extend().hasOwnProperty(_emberUtils.NAME_KEY), 'Ember Class\'s have a NAME_KEY slot');
   });
 
-  QUnit.test('toString() returns the same value if called twice', function () {
+  QUnit.test('toString() returns the same value if called twice', function (assert) {
     var Foo = _namespace.default.create();
     Foo.toString = function () {
       return 'Foo';
@@ -58708,18 +58706,18 @@ enifed('ember-runtime/tests/system/object/toString_test', ['ember-utils', 'ember
 
     Foo.Bar = _object.default.extend();
 
-    equal(Foo.Bar.toString(), 'Foo.Bar');
-    equal(Foo.Bar.toString(), 'Foo.Bar');
+    assert.equal(Foo.Bar.toString(), 'Foo.Bar');
+    assert.equal(Foo.Bar.toString(), 'Foo.Bar');
 
     var obj = Foo.Bar.create();
 
-    equal(obj.toString(), '<Foo.Bar:' + (0, _emberUtils.guidFor)(obj) + '>');
-    equal(obj.toString(), '<Foo.Bar:' + (0, _emberUtils.guidFor)(obj) + '>');
+    assert.equal(obj.toString(), '<Foo.Bar:' + (0, _emberUtils.guidFor)(obj) + '>');
+    assert.equal(obj.toString(), '<Foo.Bar:' + (0, _emberUtils.guidFor)(obj) + '>');
 
-    equal(Foo.Bar.toString(), 'Foo.Bar');
+    assert.equal(Foo.Bar.toString(), 'Foo.Bar');
   });
 
-  QUnit.test('toString on a class returns a useful value when nested in a namespace', function () {
+  QUnit.test('toString on a class returns a useful value when nested in a namespace', function (assert) {
     var obj = void 0;
 
     var Foo = _namespace.default.create();
@@ -58728,46 +58726,46 @@ enifed('ember-runtime/tests/system/object/toString_test', ['ember-utils', 'ember
     };
 
     Foo.Bar = _object.default.extend();
-    equal(Foo.Bar.toString(), 'Foo.Bar');
+    assert.equal(Foo.Bar.toString(), 'Foo.Bar');
 
     obj = Foo.Bar.create();
-    equal(obj.toString(), '<Foo.Bar:' + (0, _emberUtils.guidFor)(obj) + '>');
+    assert.equal(obj.toString(), '<Foo.Bar:' + (0, _emberUtils.guidFor)(obj) + '>');
 
     Foo.Baz = Foo.Bar.extend();
-    equal(Foo.Baz.toString(), 'Foo.Baz');
+    assert.equal(Foo.Baz.toString(), 'Foo.Baz');
 
     obj = Foo.Baz.create();
-    equal(obj.toString(), '<Foo.Baz:' + (0, _emberUtils.guidFor)(obj) + '>');
+    assert.equal(obj.toString(), '<Foo.Baz:' + (0, _emberUtils.guidFor)(obj) + '>');
 
     obj = Foo.Bar.create();
-    equal(obj.toString(), '<Foo.Bar:' + (0, _emberUtils.guidFor)(obj) + '>');
+    assert.equal(obj.toString(), '<Foo.Bar:' + (0, _emberUtils.guidFor)(obj) + '>');
   });
 
-  QUnit.test('toString on a namespace finds the namespace in lookup', function () {
+  QUnit.test('toString on a namespace finds the namespace in lookup', function (assert) {
     var Foo = lookup.Foo = _namespace.default.create();
 
-    equal(Foo.toString(), 'Foo');
+    assert.equal(Foo.toString(), 'Foo');
   });
 
-  QUnit.test('toString on a namespace finds the namespace in lookup', function () {
+  QUnit.test('toString on a namespace finds the namespace in lookup', function (assert) {
     var Foo = lookup.Foo = _namespace.default.create();
     var obj = void 0;
 
     Foo.Bar = _object.default.extend();
 
-    equal(Foo.Bar.toString(), 'Foo.Bar');
+    assert.equal(Foo.Bar.toString(), 'Foo.Bar');
 
     obj = Foo.Bar.create();
-    equal(obj.toString(), '<Foo.Bar:' + (0, _emberUtils.guidFor)(obj) + '>');
+    assert.equal(obj.toString(), '<Foo.Bar:' + (0, _emberUtils.guidFor)(obj) + '>');
   });
 
-  QUnit.test('toString on a namespace falls back to modulePrefix, if defined', function () {
+  QUnit.test('toString on a namespace falls back to modulePrefix, if defined', function (assert) {
     var Foo = _namespace.default.create({ modulePrefix: 'foo' });
 
-    equal(Foo.toString(), 'foo');
+    assert.equal(Foo.toString(), 'foo');
   });
 
-  QUnit.test('toString includes toStringExtension if defined', function () {
+  QUnit.test('toString includes toStringExtension if defined', function (assert) {
     var Foo = _object.default.extend({
       toStringExtension: function () {
         return 'fooey';
@@ -58781,8 +58779,8 @@ enifed('ember-runtime/tests/system/object/toString_test', ['ember-utils', 'ember
     Foo[_emberUtils.NAME_KEY] = 'Foo';
     Bar[_emberUtils.NAME_KEY] = 'Bar';
 
-    equal(bar.toString(), '<Bar:' + (0, _emberUtils.guidFor)(bar) + '>', 'does not include toStringExtension part');
-    equal(foo.toString(), '<Foo:' + (0, _emberUtils.guidFor)(foo) + ':fooey>', 'Includes toStringExtension result');
+    assert.equal(bar.toString(), '<Bar:' + (0, _emberUtils.guidFor)(bar) + '>', 'does not include toStringExtension part');
+    assert.equal(foo.toString(), '<Foo:' + (0, _emberUtils.guidFor)(foo) + ':fooey>', 'Includes toStringExtension result');
   });
 });
 enifed('ember-runtime/tests/system/object_proxy_test', ['ember-metal', 'internal-test-helpers', 'ember-runtime/system/object_proxy'], function (_emberMetal, _internalTestHelpers, _object_proxy) {
@@ -58790,7 +58788,7 @@ enifed('ember-runtime/tests/system/object_proxy_test', ['ember-metal', 'internal
 
   QUnit.module('ObjectProxy');
 
-  (0, _internalTestHelpers.testBoth)('should not proxy properties passed to create', function (get) {
+  (0, _internalTestHelpers.testBoth)('should not proxy properties passed to create', function (get, set, assert) {
     var Proxy = _object_proxy.default.extend({
       cp: (0, _emberMetal.computed)({
         get: function () {
@@ -58807,11 +58805,11 @@ enifed('ember-runtime/tests/system/object_proxy_test', ['ember-metal', 'internal
       cp: 'Bar'
     });
 
-    equal(get(proxy, 'prop'), 'Foo', 'should not have tried to proxy set');
-    equal(proxy._cp, 'Bar', 'should use CP setter');
+    assert.equal(get(proxy, 'prop'), 'Foo', 'should not have tried to proxy set');
+    assert.equal(proxy._cp, 'Bar', 'should use CP setter');
   });
 
-  (0, _internalTestHelpers.testBoth)('should proxy properties to content', function (get, set) {
+  (0, _internalTestHelpers.testBoth)('should proxy properties to content', function (get, set, assert) {
     var content = {
       firstName: 'Tom',
       lastName: 'Dale',
@@ -58821,29 +58819,29 @@ enifed('ember-runtime/tests/system/object_proxy_test', ['ember-metal', 'internal
     };
     var proxy = _object_proxy.default.create();
 
-    equal(get(proxy, 'firstName'), undefined, 'get on proxy without content should return undefined');
+    assert.equal(get(proxy, 'firstName'), undefined, 'get on proxy without content should return undefined');
     expectAssertion(function () {
       set(proxy, 'firstName', 'Foo');
     }, /Cannot delegate set\('firstName', Foo\) to the 'content'/i);
 
     set(proxy, 'content', content);
 
-    equal(get(proxy, 'firstName'), 'Tom', 'get on proxy with content should forward to content');
-    equal(get(proxy, 'lastName'), 'Dale', 'get on proxy with content should forward to content');
-    equal(get(proxy, 'foo'), 'foo unknown', 'get on proxy with content should forward to content');
+    assert.equal(get(proxy, 'firstName'), 'Tom', 'get on proxy with content should forward to content');
+    assert.equal(get(proxy, 'lastName'), 'Dale', 'get on proxy with content should forward to content');
+    assert.equal(get(proxy, 'foo'), 'foo unknown', 'get on proxy with content should forward to content');
 
     set(proxy, 'lastName', 'Huda');
 
-    equal(get(content, 'lastName'), 'Huda', 'content should have new value from set on proxy');
-    equal(get(proxy, 'lastName'), 'Huda', 'proxy should have new value from set on proxy');
+    assert.equal(get(content, 'lastName'), 'Huda', 'content should have new value from set on proxy');
+    assert.equal(get(proxy, 'lastName'), 'Huda', 'proxy should have new value from set on proxy');
 
     set(proxy, 'content', { firstName: 'Yehuda', lastName: 'Katz' });
 
-    equal(get(proxy, 'firstName'), 'Yehuda', 'proxy should reflect updated content');
-    equal(get(proxy, 'lastName'), 'Katz', 'proxy should reflect updated content');
+    assert.equal(get(proxy, 'firstName'), 'Yehuda', 'proxy should reflect updated content');
+    assert.equal(get(proxy, 'lastName'), 'Katz', 'proxy should reflect updated content');
   });
 
-  (0, _internalTestHelpers.testBoth)('should work with watched properties', function (get, set) {
+  (0, _internalTestHelpers.testBoth)('should work with watched properties', function (get, set, assert) {
     var content1 = { firstName: 'Tom', lastName: 'Dale' };
     var content2 = { firstName: 'Yehuda', lastName: 'Katz' };
     var count = 0;
@@ -58869,48 +58867,48 @@ enifed('ember-runtime/tests/system/object_proxy_test', ['ember-metal', 'internal
     });
 
     // proxy without content returns undefined
-    equal(get(proxy, 'fullName'), undefined);
+    assert.equal(get(proxy, 'fullName'), undefined);
 
     // setting content causes all watched properties to change
     set(proxy, 'content', content1);
     // both dependent keys changed
-    equal(count, 2);
-    equal(last, 'Tom Dale');
+    assert.equal(count, 2);
+    assert.equal(last, 'Tom Dale');
 
     // setting property in content causes proxy property to change
     set(content1, 'lastName', 'Huda');
-    equal(count, 3);
-    equal(last, 'Tom Huda');
+    assert.equal(count, 3);
+    assert.equal(last, 'Tom Huda');
 
     // replacing content causes all watched properties to change
     set(proxy, 'content', content2);
     // both dependent keys changed
-    equal(count, 5);
-    equal(last, 'Yehuda Katz');
+    assert.equal(count, 5);
+    assert.equal(last, 'Yehuda Katz');
     // content1 is no longer watched
-    ok(!(0, _emberMetal.isWatching)(content1, 'firstName'), 'not watching firstName');
-    ok(!(0, _emberMetal.isWatching)(content1, 'lastName'), 'not watching lastName');
+    assert.ok(!(0, _emberMetal.isWatching)(content1, 'firstName'), 'not watching firstName');
+    assert.ok(!(0, _emberMetal.isWatching)(content1, 'lastName'), 'not watching lastName');
 
     // setting property in new content
     set(content2, 'firstName', 'Tomhuda');
-    equal(last, 'Tomhuda Katz');
-    equal(count, 6);
+    assert.equal(last, 'Tomhuda Katz');
+    assert.equal(count, 6);
 
     // setting property in proxy syncs with new content
     set(proxy, 'lastName', 'Katzdale');
-    equal(count, 7);
-    equal(last, 'Tomhuda Katzdale');
-    equal(get(content2, 'firstName'), 'Tomhuda');
-    equal(get(content2, 'lastName'), 'Katzdale');
+    assert.equal(count, 7);
+    assert.equal(last, 'Tomhuda Katzdale');
+    assert.equal(get(content2, 'firstName'), 'Tomhuda');
+    assert.equal(get(content2, 'lastName'), 'Katzdale');
   });
 
-  QUnit.test('set and get should work with paths', function () {
+  QUnit.test('set and get should work with paths', function (assert) {
     var proxy = _object_proxy.default.create({ content: { foo: { bar: 'baz' } } });
     var count = 0;
 
     proxy.set('foo.bar', 'hello');
-    equal(proxy.get('foo.bar'), 'hello');
-    equal(proxy.get('content.foo.bar'), 'hello');
+    assert.equal(proxy.get('foo.bar'), 'hello');
+    assert.equal(proxy.get('content.foo.bar'), 'hello');
 
     proxy.addObserver('foo.bar', function () {
       count++;
@@ -58918,12 +58916,12 @@ enifed('ember-runtime/tests/system/object_proxy_test', ['ember-metal', 'internal
 
     proxy.set('foo.bar', 'bye');
 
-    equal(count, 1);
-    equal(proxy.get('foo.bar'), 'bye');
-    equal(proxy.get('content.foo.bar'), 'bye');
+    assert.equal(count, 1);
+    assert.equal(proxy.get('foo.bar'), 'bye');
+    assert.equal(proxy.get('content.foo.bar'), 'bye');
   });
 
-  (0, _internalTestHelpers.testBoth)('should transition between watched and unwatched strategies', function (get, set) {
+  (0, _internalTestHelpers.testBoth)('should transition between watched and unwatched strategies', function (get, set, assert) {
     var content = { foo: 'foo' };
     var proxy = _object_proxy.default.create({ content: content });
     var count = 0;
@@ -58932,53 +58930,53 @@ enifed('ember-runtime/tests/system/object_proxy_test', ['ember-metal', 'internal
       count++;
     }
 
-    equal(get(proxy, 'foo'), 'foo');
+    assert.equal(get(proxy, 'foo'), 'foo');
 
     set(content, 'foo', 'bar');
 
-    equal(get(proxy, 'foo'), 'bar');
+    assert.equal(get(proxy, 'foo'), 'bar');
 
     set(proxy, 'foo', 'foo');
 
-    equal(get(content, 'foo'), 'foo');
-    equal(get(proxy, 'foo'), 'foo');
+    assert.equal(get(content, 'foo'), 'foo');
+    assert.equal(get(proxy, 'foo'), 'foo');
 
     (0, _emberMetal.addObserver)(proxy, 'foo', observer);
 
-    equal(count, 0);
-    equal(get(proxy, 'foo'), 'foo');
+    assert.equal(count, 0);
+    assert.equal(get(proxy, 'foo'), 'foo');
 
     set(content, 'foo', 'bar');
 
-    equal(count, 1);
-    equal(get(proxy, 'foo'), 'bar');
+    assert.equal(count, 1);
+    assert.equal(get(proxy, 'foo'), 'bar');
 
     set(proxy, 'foo', 'foo');
 
-    equal(count, 2);
-    equal(get(content, 'foo'), 'foo');
-    equal(get(proxy, 'foo'), 'foo');
+    assert.equal(count, 2);
+    assert.equal(get(content, 'foo'), 'foo');
+    assert.equal(get(proxy, 'foo'), 'foo');
 
     (0, _emberMetal.removeObserver)(proxy, 'foo', observer);
 
     set(content, 'foo', 'bar');
 
-    equal(get(proxy, 'foo'), 'bar');
+    assert.equal(get(proxy, 'foo'), 'bar');
 
     set(proxy, 'foo', 'foo');
 
-    equal(get(content, 'foo'), 'foo');
-    equal(get(proxy, 'foo'), 'foo');
+    assert.equal(get(content, 'foo'), 'foo');
+    assert.equal(get(proxy, 'foo'), 'foo');
   });
 
-  (0, _internalTestHelpers.testBoth)('setting `undefined` to a proxied content property should override its existing value', function (get, set) {
+  (0, _internalTestHelpers.testBoth)('setting `undefined` to a proxied content property should override its existing value', function (get, set, assert) {
     var proxyObject = _object_proxy.default.create({
       content: {
         prop: 'emberjs'
       }
     });
     set(proxyObject, 'prop', undefined);
-    equal(get(proxyObject, 'prop'), undefined, 'sets the `undefined` value to the proxied content');
+    assert.equal(get(proxyObject, 'prop'), undefined, 'sets the `undefined` value to the proxied content');
   });
 });
 enifed('ember-runtime/tests/system/string/camelize_test', ['ember-environment', 'ember-runtime/system/string'], function (_emberEnvironment, _string) {
@@ -58987,16 +58985,16 @@ enifed('ember-runtime/tests/system/string/camelize_test', ['ember-environment', 
   QUnit.module('EmberStringUtils.camelize');
 
   if (!_emberEnvironment.ENV.EXTEND_PROTOTYPES.String) {
-    QUnit.test('String.prototype.camelize is not modified without EXTEND_PROTOTYPES', function () {
-      ok('undefined' === typeof String.prototype.camelize, 'String.prototype helper disabled');
+    QUnit.test('String.prototype.camelize is not modified without EXTEND_PROTOTYPES', function (assert) {
+      assert.ok('undefined' === typeof String.prototype.camelize, 'String.prototype helper disabled');
     });
   }
 
   function test(given, expected, description) {
-    QUnit.test(description, function () {
-      deepEqual((0, _string.camelize)(given), expected);
+    QUnit.test(description, function (assert) {
+      assert.deepEqual((0, _string.camelize)(given), expected);
       if (_emberEnvironment.ENV.EXTEND_PROTOTYPES.String) {
-        deepEqual(given.camelize(), expected);
+        assert.deepEqual(given.camelize(), expected);
       }
     });
   }
@@ -59017,16 +59015,16 @@ enifed('ember-runtime/tests/system/string/capitalize_test', ['ember-environment'
   QUnit.module('EmberStringUtils.capitalize');
 
   if (!_emberEnvironment.ENV.EXTEND_PROTOTYPES.String) {
-    QUnit.test('String.prototype.capitalize is not modified without EXTEND_PROTOTYPES', function () {
-      ok('undefined' === typeof String.prototype.capitalize, 'String.prototype helper disabled');
+    QUnit.test('String.prototype.capitalize is not modified without EXTEND_PROTOTYPES', function (assert) {
+      assert.ok('undefined' === typeof String.prototype.capitalize, 'String.prototype helper disabled');
     });
   }
 
   function test(given, expected, description) {
-    QUnit.test(description, function () {
-      deepEqual((0, _string.capitalize)(given), expected);
+    QUnit.test(description, function (assert) {
+      assert.deepEqual((0, _string.capitalize)(given), expected);
       if (_emberEnvironment.ENV.EXTEND_PROTOTYPES.String) {
-        deepEqual(given.capitalize(), expected);
+        assert.deepEqual(given.capitalize(), expected);
       }
     });
   }
@@ -59047,16 +59045,16 @@ enifed('ember-runtime/tests/system/string/classify_test', ['ember-environment', 
   QUnit.module('EmberStringUtils.classify');
 
   if (!_emberEnvironment.ENV.EXTEND_PROTOTYPES.String) {
-    QUnit.test('String.prototype.classify is not modified without EXTEND_PROTOTYPES', function () {
-      ok('undefined' === typeof String.prototype.classify, 'String.prototype helper disabled');
+    QUnit.test('String.prototype.classify is not modified without EXTEND_PROTOTYPES', function (assert) {
+      assert.ok('undefined' === typeof String.prototype.classify, 'String.prototype helper disabled');
     });
   }
 
   function test(given, expected, description) {
-    QUnit.test(description, function () {
-      deepEqual((0, _string.classify)(given), expected);
+    QUnit.test(description, function (assert) {
+      assert.deepEqual((0, _string.classify)(given), expected);
       if (_emberEnvironment.ENV.EXTEND_PROTOTYPES.String) {
-        deepEqual(given.classify(), expected);
+        assert.deepEqual(given.classify(), expected);
       }
     });
   }
@@ -59083,16 +59081,16 @@ enifed('ember-runtime/tests/system/string/dasherize_test', ['ember-environment',
   QUnit.module('EmberStringUtils.dasherize');
 
   if (!_emberEnvironment.ENV.EXTEND_PROTOTYPES.String) {
-    QUnit.test('String.prototype.dasherize is not modified without EXTEND_PROTOTYPES', function () {
-      ok('undefined' === typeof String.prototype.dasherize, 'String.prototype helper disabled');
+    QUnit.test('String.prototype.dasherize is not modified without EXTEND_PROTOTYPES', function (assert) {
+      assert.ok('undefined' === typeof String.prototype.dasherize, 'String.prototype helper disabled');
     });
   }
 
   function test(given, expected, description) {
-    QUnit.test(description, function () {
-      deepEqual((0, _string.dasherize)(given), expected);
+    QUnit.test(description, function (assert) {
+      assert.deepEqual((0, _string.dasherize)(given), expected);
       if (_emberEnvironment.ENV.EXTEND_PROTOTYPES.String) {
-        deepEqual(given.dasherize(), expected);
+        assert.deepEqual(given.dasherize(), expected);
       }
     });
   }
@@ -59112,16 +59110,16 @@ enifed('ember-runtime/tests/system/string/decamelize_test', ['ember-environment'
   QUnit.module('EmberStringUtils.decamelize');
 
   if (!_emberEnvironment.ENV.EXTEND_PROTOTYPES.String) {
-    QUnit.test('String.prototype.decamelize is not modified without EXTEND_PROTOTYPES', function () {
-      ok('undefined' === typeof String.prototype.decamelize, 'String.prototype helper disabled');
+    QUnit.test('String.prototype.decamelize is not modified without EXTEND_PROTOTYPES', function (assert) {
+      assert.ok('undefined' === typeof String.prototype.decamelize, 'String.prototype helper disabled');
     });
   }
 
   function test(given, expected, description) {
-    QUnit.test(description, function () {
-      deepEqual((0, _string.decamelize)(given), expected);
+    QUnit.test(description, function (assert) {
+      assert.deepEqual((0, _string.decamelize)(given), expected);
       if (_emberEnvironment.ENV.EXTEND_PROTOTYPES.String) {
-        deepEqual(given.decamelize(), expected);
+        assert.deepEqual(given.decamelize(), expected);
       }
     });
   }
@@ -59142,7 +59140,7 @@ enifed('ember-runtime/tests/system/string/loc_test', ['ember-metal', 'ember-envi
   var oldString = void 0;
 
   QUnit.module('EmberStringUtils.loc', {
-    setup: function () {
+    beforeEach: function () {
       oldString = _emberMetal.default.STRINGS;
       _emberMetal.default.STRINGS = {
         '_Hello World': 'Bonjour le monde',
@@ -59151,22 +59149,22 @@ enifed('ember-runtime/tests/system/string/loc_test', ['ember-metal', 'ember-envi
         '_Hello %@# %@#': 'Bonjour %@2 %@1'
       };
     },
-    teardown: function () {
+    afterEach: function () {
       _emberMetal.default.STRINGS = oldString;
     }
   });
 
   if (!_emberEnvironment.ENV.EXTEND_PROTOTYPES.String) {
-    QUnit.test('String.prototype.loc is not available without EXTEND_PROTOTYPES', function () {
-      ok('undefined' === typeof String.prototype.loc, 'String.prototype helper disabled');
+    QUnit.test('String.prototype.loc is not available without EXTEND_PROTOTYPES', function (assert) {
+      assert.ok('undefined' === typeof String.prototype.loc, 'String.prototype helper disabled');
     });
   }
 
   function test(given, args, expected, description) {
-    QUnit.test(description, function () {
-      equal((0, _string.loc)(given, args), expected);
+    QUnit.test(description, function (assert) {
+      assert.equal((0, _string.loc)(given, args), expected);
       if (_emberEnvironment.ENV.EXTEND_PROTOTYPES.String) {
-        equal(given.loc.apply(given, args), expected);
+        assert.equal(given.loc.apply(given, args), expected);
       }
     });
   }
@@ -59176,9 +59174,9 @@ enifed('ember-runtime/tests/system/string/loc_test', ['ember-metal', 'ember-envi
   test('_Hello %@# %@#', ['John', 'Doe'], 'Bonjour Doe John', 'loc(\'_Hello %@# %@#\', [\'John\', \'Doe\']) => \'Bonjour Doe John\'');
   test('_Not In Strings', [], '_Not In Strings', 'loc(\'_Not In Strings\') => \'_Not In Strings\'');
 
-  QUnit.test('works with argument form', function () {
-    equal((0, _string.loc)('_Hello %@', 'John'), 'Bonjour John');
-    equal((0, _string.loc)('_Hello %@ %@', ['John'], 'Doe'), 'Bonjour [John] Doe');
+  QUnit.test('works with argument form', function (assert) {
+    assert.equal((0, _string.loc)('_Hello %@', 'John'), 'Bonjour John');
+    assert.equal((0, _string.loc)('_Hello %@ %@', ['John'], 'Doe'), 'Bonjour [John] Doe');
   });
 });
 enifed('ember-runtime/tests/system/string/underscore_test', ['ember-environment', 'ember-runtime/system/string'], function (_emberEnvironment, _string) {
@@ -59187,16 +59185,16 @@ enifed('ember-runtime/tests/system/string/underscore_test', ['ember-environment'
   QUnit.module('EmberStringUtils.underscore');
 
   if (!_emberEnvironment.ENV.EXTEND_PROTOTYPES.String) {
-    QUnit.test('String.prototype.underscore is not available without EXTEND_PROTOTYPES', function () {
-      ok('undefined' === typeof String.prototype.underscore, 'String.prototype helper disabled');
+    QUnit.test('String.prototype.underscore is not available without EXTEND_PROTOTYPES', function (assert) {
+      assert.ok('undefined' === typeof String.prototype.underscore, 'String.prototype helper disabled');
     });
   }
 
   function test(given, expected, description) {
-    QUnit.test(description, function () {
-      deepEqual((0, _string.underscore)(given), expected);
+    QUnit.test(description, function (assert) {
+      assert.deepEqual((0, _string.underscore)(given), expected);
       if (_emberEnvironment.ENV.EXTEND_PROTOTYPES.String) {
-        deepEqual(given.underscore(), expected);
+        assert.deepEqual(given.underscore(), expected);
       }
     });
   }
@@ -59215,16 +59213,16 @@ enifed('ember-runtime/tests/system/string/w_test', ['ember-environment', 'ember-
   QUnit.module('EmberStringUtils.w');
 
   if (!_emberEnvironment.ENV.EXTEND_PROTOTYPES.String) {
-    QUnit.test('String.prototype.w is not available without EXTEND_PROTOTYPES', function () {
-      ok('undefined' === typeof String.prototype.w, 'String.prototype helper disabled');
+    QUnit.test('String.prototype.w is not available without EXTEND_PROTOTYPES', function (assert) {
+      assert.ok('undefined' === typeof String.prototype.w, 'String.prototype helper disabled');
     });
   }
 
   function test(given, expected, description) {
-    QUnit.test(description, function () {
-      deepEqual((0, _string.w)(given), expected);
+    QUnit.test(description, function (assert) {
+      assert.deepEqual((0, _string.w)(given), expected);
       if (_emberEnvironment.ENV.EXTEND_PROTOTYPES.String) {
-        deepEqual(given.w(), expected);
+        assert.deepEqual(given.w(), expected);
       }
     });
   }
@@ -76705,17 +76703,20 @@ enifed("internal-test-helpers/ember-dev/setup-qunit", ["exports"], function (exp
 
     qunitGlobal.module = function (name, _options) {
       var options = _options || {};
-      var originalSetup = options.setup || function () {};
-      var originalTeardown = options.teardown || function () {};
+      var originalSetup = options.setup || options.beforeEach || function () {};
+      var originalTeardown = options.teardown || options.afterEach || function () {};
 
-      options.setup = function () {
+      delete options.setup;
+      delete options.teardown;
+
+      options.beforeEach = function () {
         assertion.reset();
         assertion.inject();
 
         return originalSetup.apply(this, arguments);
       };
 
-      options.teardown = function () {
+      options.afterEach = function () {
         var result = originalTeardown.apply(this, arguments);
 
         assertion.assert();
@@ -77283,7 +77284,7 @@ enifed('internal-test-helpers/matchers', ['exports'], function (exports) {
     }, _ref;
   }
 });
-enifed('internal-test-helpers/module-for', ['exports', 'ember-debug', 'internal-test-helpers/apply-mixins'], function (exports, _emberDebug, _applyMixins) {
+enifed('internal-test-helpers/module-for', ['exports', 'ember-debug', 'internal-test-helpers/apply-mixins', 'rsvp'], function (exports, _emberDebug, _applyMixins, _rsvp) {
   'use strict';
 
   exports.default = function (description, TestClass) {
@@ -77293,14 +77294,34 @@ enifed('internal-test-helpers/module-for', ['exports', 'ember-debug', 'internal-
         _key;
 
     QUnit.module(description, {
-      setup: function () {
+      beforeEach: function () {
         context = new TestClass();
         if (context.beforeEach) {
           return context.beforeEach();
         }
       },
-      teardown: function () {
-        return context.teardown();
+      afterEach: function () {
+        var promises = [];
+        if (context.teardown) {
+          promises.push(context.teardown());
+        }
+        if (context.afterEach) {
+          promises.push(context.afterEach());
+        }
+
+        // this seems odd, but actually saves significant time
+        // in the test suite
+        //
+        // returning a promise from a QUnit test always adds a 13ms
+        // delay to the test, this filtering prevents returning a
+        // promise when it is not needed
+        //
+        // Remove after we can update to QUnit that includes
+        // https://github.com/qunitjs/qunit/pull/1246
+        var filteredPromises = promises.filter(Boolean);
+        if (filteredPromises.length > 0) {
+          return (0, _rsvp.all)(filteredPromises);
+        }
       }
     });
 
@@ -77431,7 +77452,7 @@ enifed('internal-test-helpers/test-cases/abstract-application', ['exports', 'emb
       });
     };
 
-    AbstractApplicationTestCase.prototype.teardown = function () {
+    AbstractApplicationTestCase.prototype.afterEach = function () {
       (0, _run.runDestroy)(this.applicationInstance);
       (0, _run.runDestroy)(this.application);
 
@@ -77527,7 +77548,7 @@ enifed('internal-test-helpers/test-cases/abstract-rendering', ['exports', 'ember
 
     AbstractRenderingTestCase.prototype.getResolver = function () {};
 
-    AbstractRenderingTestCase.prototype.teardown = function () {
+    AbstractRenderingTestCase.prototype.afterEach = function () {
       try {
         if (this.component) {
           (0, _run.runDestroy)(this.component);
@@ -77673,6 +77694,8 @@ enifed('internal-test-helpers/test-cases/abstract', ['exports', 'ember-babel', '
     }
 
     AbstractTestCase.prototype.teardown = function () {};
+
+    AbstractTestCase.prototype.afterEach = function () {};
 
     AbstractTestCase.prototype.runTask = function (callback) {
       return (0, _emberMetal.run)(callback);
@@ -77965,9 +77988,9 @@ enifed('internal-test-helpers/test-cases/default-resolver-application', ['export
       return application;
     };
 
-    ApplicationTestCase.prototype.teardown = function () {
-      _AbstractApplicationT.prototype.teardown.call(this);
+    ApplicationTestCase.prototype.afterEach = function () {
       (0, _emberGlimmer.setTemplates)({});
+      return _AbstractApplicationT.prototype.afterEach.call(this);
     };
 
     ApplicationTestCase.prototype.transitionTo = function () {
@@ -78246,13 +78269,13 @@ enifed('internal-test-helpers/test-groups', ['exports', 'ember-environment', 'em
       return x[y] = z;
     }
 
-    QUnit.test(testname + ' using getFromEmberMetal()/Ember.set()', function () {
-      callback(emberget, emberset);
+    QUnit.test(testname + ' using getFromEmberMetal()/Ember.set()', function (assert) {
+      callback(emberget, emberset, assert);
     });
 
-    QUnit.test(testname + ' using accessors', function () {
+    QUnit.test(testname + ' using accessors', function (assert) {
       if (_emberEnvironment.ENV.USES_ACCESSORS) {
-        callback(aget, aset);
+        callback(aget, aset, assert);
       } else {
         ok('SKIPPING ACCESSORS');
       }
@@ -78278,25 +78301,25 @@ enifed('internal-test-helpers/test-groups', ['exports', 'ember-environment', 'em
       return x[y] = z;
     }
 
-    QUnit.test(testname + ' using obj.get()', function () {
-      callback(emberget, emberset);
+    QUnit.test(testname + ' using obj.get()', function (assert) {
+      callback(emberget, emberset, assert);
     });
 
-    QUnit.test(testname + ' using obj.getWithDefault()', function () {
-      callback(getwithdefault, emberset);
+    QUnit.test(testname + ' using obj.getWithDefault()', function (assert) {
+      callback(getwithdefault, emberset, assert);
     });
 
-    QUnit.test(testname + ' using getFromEmberMetal()', function () {
-      callback(emberget, emberset);
+    QUnit.test(testname + ' using getFromEmberMetal()', function (assert) {
+      callback(emberget, emberset, assert);
     });
 
-    QUnit.test(testname + ' using Ember.getWithDefault()', function () {
-      callback(embergetwithdefault, emberset);
+    QUnit.test(testname + ' using Ember.getWithDefault()', function (assert) {
+      callback(embergetwithdefault, emberset, assert);
     });
 
-    QUnit.test(testname + ' using accessors', function () {
+    QUnit.test(testname + ' using accessors', function (assert) {
       if (_emberEnvironment.ENV.USES_ACCESSORS) {
-        callback(aget, aset);
+        callback(aget, aset, assert);
       } else {
         ok('SKIPPING ACCESSORS');
       }
