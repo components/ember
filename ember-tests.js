@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.0.0-canary+a8ee02e0
+ * @version   3.0.0-canary+7fd33bca
  */
 
 /*globals process */
@@ -312,11 +312,11 @@ enifed('container/tests/container_test', ['ember-babel', 'ember-utils', 'ember/f
       assert.equal(container.lookup('template:foo'), template);
     };
 
-    _class.prototype['@test A failed lookup returns undefined'] = function testAFailedLookupReturnsUndefined() {
+    _class.prototype['@test A failed lookup returns undefined'] = function testAFailedLookupReturnsUndefined(assert) {
       var registry = new _container.Registry();
       var container = registry.container();
 
-      equal(container.lookup('doesnot:exist'), undefined);
+      assert.equal(container.lookup('doesnot:exist'), undefined);
     };
 
     _class.prototype['@test An invalid factory throws an error'] = function testAnInvalidFactoryThrowsAnError(assert) {
@@ -1392,8 +1392,8 @@ enifed('container/tests/registry_test', ['ember-babel', 'container', 'internal-t
 
       var resolver = {
         knownForType: function (type) {
-          ok(true, 'knownForType called on the resolver');
-          equal(type, 'foo', 'the type was passed through');
+          assert.ok(true, 'knownForType called on the resolver');
+          assert.equal(type, 'foo', 'the type was passed through');
 
           return { 'foo:yorp': true };
         }
@@ -2120,57 +2120,59 @@ enifed('ember-application/tests/system/application_test', ['ember-babel', 'ember
       assert.strictEqual(application.resolveRegistration('application:main'), application, 'application:main is registered');
       assert.deepEqual(application.registeredOptionsForType('component'), { singleton: false }, 'optionsForType \'component\'');
       assert.deepEqual(application.registeredOptionsForType('view'), { singleton: false }, 'optionsForType \'view\'');
-      (0, _registryCheck.verifyRegistration)(application, 'controller:basic');
-      (0, _registryCheck.verifyRegistration)(application, '-view-registry:main');
-      (0, _registryCheck.verifyInjection)(application, 'view', '_viewRegistry', '-view-registry:main');
-      (0, _registryCheck.verifyInjection)(application, 'route', '_topLevelViewTemplate', 'template:-outlet');
-      (0, _registryCheck.verifyRegistration)(application, 'route:basic');
-      (0, _registryCheck.verifyRegistration)(application, 'event_dispatcher:main');
-      (0, _registryCheck.verifyInjection)(application, 'router:main', 'namespace', 'application:main');
-      (0, _registryCheck.verifyInjection)(application, 'view:-outlet', 'namespace', 'application:main');
 
-      (0, _registryCheck.verifyRegistration)(application, 'location:auto');
-      (0, _registryCheck.verifyRegistration)(application, 'location:hash');
-      (0, _registryCheck.verifyRegistration)(application, 'location:history');
-      (0, _registryCheck.verifyRegistration)(application, 'location:none');
+      (0, _registryCheck.verifyRegistration)(assert, application, 'controller:basic');
+      (0, _registryCheck.verifyRegistration)(assert, application, '-view-registry:main');
+      (0, _registryCheck.verifyInjection)(assert, application, 'view', '_viewRegistry', '-view-registry:main');
+      (0, _registryCheck.verifyInjection)(assert, application, 'route', '_topLevelViewTemplate', 'template:-outlet');
+      (0, _registryCheck.verifyRegistration)(assert, application, 'route:basic');
+      (0, _registryCheck.verifyRegistration)(assert, application, 'event_dispatcher:main');
+      (0, _registryCheck.verifyInjection)(assert, application, 'router:main', 'namespace', 'application:main');
+      (0, _registryCheck.verifyInjection)(assert, application, 'view:-outlet', 'namespace', 'application:main');
 
-      (0, _registryCheck.verifyInjection)(application, 'controller', 'target', 'router:main');
-      (0, _registryCheck.verifyInjection)(application, 'controller', 'namespace', 'application:main');
+      (0, _registryCheck.verifyRegistration)(assert, application, 'location:auto');
+      (0, _registryCheck.verifyRegistration)(assert, application, 'location:hash');
+      (0, _registryCheck.verifyRegistration)(assert, application, 'location:history');
+      (0, _registryCheck.verifyRegistration)(assert, application, 'location:none');
 
-      (0, _registryCheck.verifyRegistration)(application, (0, _container.privatize)(_templateObject));
-      (0, _registryCheck.verifyInjection)(application, 'router', '_bucketCache', (0, _container.privatize)(_templateObject));
-      (0, _registryCheck.verifyInjection)(application, 'route', '_bucketCache', (0, _container.privatize)(_templateObject));
+      (0, _registryCheck.verifyInjection)(assert, application, 'controller', 'target', 'router:main');
+      (0, _registryCheck.verifyInjection)(assert, application, 'controller', 'namespace', 'application:main');
 
-      (0, _registryCheck.verifyInjection)(application, 'route', 'router', 'router:main');
+      (0, _registryCheck.verifyRegistration)(assert, application, (0, _container.privatize)(_templateObject));
+      (0, _registryCheck.verifyInjection)(assert, application, 'router', '_bucketCache', (0, _container.privatize)(_templateObject));
+      (0, _registryCheck.verifyInjection)(assert, application, 'route', '_bucketCache', (0, _container.privatize)(_templateObject));
 
-      (0, _registryCheck.verifyRegistration)(application, 'component:-text-field');
-      (0, _registryCheck.verifyRegistration)(application, 'component:-text-area');
-      (0, _registryCheck.verifyRegistration)(application, 'component:-checkbox');
-      (0, _registryCheck.verifyRegistration)(application, 'component:link-to');
+      (0, _registryCheck.verifyInjection)(assert, application, 'route', 'router', 'router:main');
 
-      (0, _registryCheck.verifyRegistration)(application, 'service:-routing');
-      (0, _registryCheck.verifyInjection)(application, 'service:-routing', 'router', 'router:main');
+      (0, _registryCheck.verifyRegistration)(assert, application, 'component:-text-field');
+      (0, _registryCheck.verifyRegistration)(assert, application, 'component:-text-area');
+      (0, _registryCheck.verifyRegistration)(assert, application, 'component:-checkbox');
+      (0, _registryCheck.verifyRegistration)(assert, application, 'component:link-to');
+
+      (0, _registryCheck.verifyRegistration)(assert, application, 'service:-routing');
+      (0, _registryCheck.verifyInjection)(assert, application, 'service:-routing', 'router', 'router:main');
 
       // DEBUGGING
-      (0, _registryCheck.verifyRegistration)(application, 'resolver-for-debugging:main');
-      (0, _registryCheck.verifyInjection)(application, 'container-debug-adapter:main', 'resolver', 'resolver-for-debugging:main');
-      (0, _registryCheck.verifyInjection)(application, 'data-adapter:main', 'containerDebugAdapter', 'container-debug-adapter:main');
-      (0, _registryCheck.verifyRegistration)(application, 'container-debug-adapter:main');
-      (0, _registryCheck.verifyRegistration)(application, 'component-lookup:main');
+      (0, _registryCheck.verifyRegistration)(assert, application, 'resolver-for-debugging:main');
+      (0, _registryCheck.verifyInjection)(assert, application, 'container-debug-adapter:main', 'resolver', 'resolver-for-debugging:main');
+      (0, _registryCheck.verifyInjection)(assert, application, 'data-adapter:main', 'containerDebugAdapter', 'container-debug-adapter:main');
+      (0, _registryCheck.verifyRegistration)(assert, application, 'container-debug-adapter:main');
+      (0, _registryCheck.verifyRegistration)(assert, application, 'component-lookup:main');
 
-      (0, _registryCheck.verifyRegistration)(application, 'service:-glimmer-environment');
-      (0, _registryCheck.verifyRegistration)(application, 'service:-dom-changes');
-      (0, _registryCheck.verifyRegistration)(application, 'service:-dom-tree-construction');
-      (0, _registryCheck.verifyInjection)(application, 'service:-glimmer-environment', 'appendOperations', 'service:-dom-tree-construction');
-      (0, _registryCheck.verifyInjection)(application, 'service:-glimmer-environment', 'updateOperations', 'service:-dom-changes');
-      (0, _registryCheck.verifyInjection)(application, 'renderer', 'env', 'service:-glimmer-environment');
-      (0, _registryCheck.verifyRegistration)(application, 'view:-outlet');
-      (0, _registryCheck.verifyRegistration)(application, 'renderer:-dom');
-      (0, _registryCheck.verifyRegistration)(application, 'renderer:-inert');
-      (0, _registryCheck.verifyRegistration)(application, (0, _container.privatize)(_templateObject2));
-      (0, _registryCheck.verifyRegistration)(application, 'template:-outlet');
-      (0, _registryCheck.verifyInjection)(application, 'view:-outlet', 'template', 'template:-outlet');
-      (0, _registryCheck.verifyInjection)(application, 'template', 'env', 'service:-glimmer-environment');
+      (0, _registryCheck.verifyRegistration)(assert, application, 'service:-glimmer-environment');
+      (0, _registryCheck.verifyRegistration)(assert, application, 'service:-dom-changes');
+      (0, _registryCheck.verifyRegistration)(assert, application, 'service:-dom-tree-construction');
+      (0, _registryCheck.verifyInjection)(assert, application, 'service:-glimmer-environment', 'appendOperations', 'service:-dom-tree-construction');
+      (0, _registryCheck.verifyInjection)(assert, application, 'service:-glimmer-environment', 'updateOperations', 'service:-dom-changes');
+      (0, _registryCheck.verifyInjection)(assert, application, 'renderer', 'env', 'service:-glimmer-environment');
+      (0, _registryCheck.verifyRegistration)(assert, application, 'view:-outlet');
+      (0, _registryCheck.verifyRegistration)(assert, application, 'renderer:-dom');
+      (0, _registryCheck.verifyRegistration)(assert, application, 'renderer:-inert');
+      (0, _registryCheck.verifyRegistration)(assert, application, (0, _container.privatize)(_templateObject2));
+      (0, _registryCheck.verifyRegistration)(assert, application, 'template:-outlet');
+      (0, _registryCheck.verifyInjection)(assert, application, 'view:-outlet', 'template', 'template:-outlet');
+      (0, _registryCheck.verifyInjection)(assert, application, 'template', 'env', 'service:-glimmer-environment');
+
       assert.deepEqual(application.registeredOptionsForType('helper'), { instantiate: false }, 'optionsForType \'helper\'');
     };
 
@@ -2300,7 +2302,7 @@ enifed('ember-application/tests/system/application_test', ['ember-babel', 'ember
         var app = _this15.createApplication({}, MyApplication);
 
         registerRoute(app, 'application', function () {
-          return ok(true, 'normal route is activated');
+          return assert.ok(true, 'normal route is activated');
         });
       });
     };
@@ -3621,13 +3623,13 @@ enifed('ember-application/tests/system/engine_instance_initializers_test', ['emb
       });
     };
 
-    _class.prototype['@test initializers are passed an engine instance'] = function testInitializersArePassedAnEngineInstance() {
+    _class.prototype['@test initializers are passed an engine instance'] = function testInitializersArePassedAnEngineInstance(assert) {
       MyEngine = _engine.default.extend();
 
       MyEngine.instanceInitializer({
         name: 'initializer',
         initialize: function (instance) {
-          ok(instance instanceof _engineInstance.default, 'initialize is passed an engine instance');
+          assert.ok(instance instanceof _engineInstance.default, 'initialize is passed an engine instance');
         }
       });
 
@@ -3636,7 +3638,7 @@ enifed('ember-application/tests/system/engine_instance_initializers_test', ['emb
       return myEngineInstance.boot();
     };
 
-    _class.prototype['@test initializers can be registered in a specified order'] = function testInitializersCanBeRegisteredInASpecifiedOrder() {
+    _class.prototype['@test initializers can be registered in a specified order'] = function testInitializersCanBeRegisteredInASpecifiedOrder(assert) {
       var order = [];
 
       MyEngine = _engine.default.extend();
@@ -3693,11 +3695,11 @@ enifed('ember-application/tests/system/engine_instance_initializers_test', ['emb
       myEngineInstance = buildEngineInstance(myEngine);
 
       return myEngineInstance.boot().then(function () {
-        deepEqual(order, ['first', 'second', 'third', 'fourth', 'fifth', 'sixth']);
+        assert.deepEqual(order, ['first', 'second', 'third', 'fourth', 'fifth', 'sixth']);
       });
     };
 
-    _class.prototype['@test initializers can be registered in a specified order as an array'] = function testInitializersCanBeRegisteredInASpecifiedOrderAsAnArray() {
+    _class.prototype['@test initializers can be registered in a specified order as an array'] = function testInitializersCanBeRegisteredInASpecifiedOrderAsAnArray(assert) {
       var order = [];
       MyEngine = _engine.default.extend();
 
@@ -3753,11 +3755,11 @@ enifed('ember-application/tests/system/engine_instance_initializers_test', ['emb
       myEngineInstance = buildEngineInstance(myEngine);
 
       return myEngineInstance.boot().then(function () {
-        deepEqual(order, ['first', 'second', 'third', 'fourth', 'fifth', 'sixth']);
+        assert.deepEqual(order, ['first', 'second', 'third', 'fourth', 'fifth', 'sixth']);
       });
     };
 
-    _class.prototype['@test initializers can have multiple dependencies'] = function testInitializersCanHaveMultipleDependencies() {
+    _class.prototype['@test initializers can have multiple dependencies'] = function testInitializersCanHaveMultipleDependencies(assert) {
       var order = [];
 
       MyEngine = _engine.default.extend();
@@ -3807,14 +3809,14 @@ enifed('ember-application/tests/system/engine_instance_initializers_test', ['emb
       myEngineInstance = buildEngineInstance(myEngine);
 
       return myEngineInstance.boot().then(function () {
-        ok(order.indexOf(a.name) < order.indexOf(b.name), 'a < b');
-        ok(order.indexOf(b.name) < order.indexOf(c.name), 'b < c');
-        ok(order.indexOf(b.name) < order.indexOf(afterB.name), 'b < afterB');
-        ok(order.indexOf(c.name) < order.indexOf(afterC.name), 'c < afterC');
+        assert.ok(order.indexOf(a.name) < order.indexOf(b.name), 'a < b');
+        assert.ok(order.indexOf(b.name) < order.indexOf(c.name), 'b < c');
+        assert.ok(order.indexOf(b.name) < order.indexOf(afterB.name), 'b < afterB');
+        assert.ok(order.indexOf(c.name) < order.indexOf(afterC.name), 'c < afterC');
       });
     };
 
-    _class.prototype['@test initializers set on Engine subclasses should not be shared between engines'] = function testInitializersSetOnEngineSubclassesShouldNotBeSharedBetweenEngines() {
+    _class.prototype['@test initializers set on Engine subclasses should not be shared between engines'] = function testInitializersSetOnEngineSubclassesShouldNotBeSharedBetweenEngines(assert) {
       var firstInitializerRunCount = 0;
       var secondInitializerRunCount = 0;
       var FirstEngine = _engine.default.extend();
@@ -3843,15 +3845,15 @@ enifed('ember-application/tests/system/engine_instance_initializers_test', ['emb
       firstEngineInstance = buildEngineInstance(firstEngine);
 
       return firstEngineInstance.boot().then(function () {
-        equal(firstInitializerRunCount, 1, 'first initializer only was run');
-        equal(secondInitializerRunCount, 0, 'first initializer only was run');
+        assert.equal(firstInitializerRunCount, 1, 'first initializer only was run');
+        assert.equal(secondInitializerRunCount, 0, 'first initializer only was run');
 
         secondEngine = SecondEngine.create();
         secondEngineInstance = buildEngineInstance(secondEngine);
         return secondEngineInstance.boot();
       }).then(function () {
-        equal(firstInitializerRunCount, 1, 'second initializer only was run');
-        equal(secondInitializerRunCount, 1, 'second initializer only was run');
+        assert.equal(firstInitializerRunCount, 1, 'second initializer only was run');
+        assert.equal(secondInitializerRunCount, 1, 'second initializer only was run');
 
         (0, _emberMetal.run)(function () {
           firstEngineInstance.destroy();
@@ -3863,7 +3865,7 @@ enifed('ember-application/tests/system/engine_instance_initializers_test', ['emb
       });
     };
 
-    _class.prototype['@test initializers are concatenated'] = function testInitializersAreConcatenated() {
+    _class.prototype['@test initializers are concatenated'] = function testInitializersAreConcatenated(assert) {
       var firstInitializerRunCount = 0;
       var secondInitializerRunCount = 0;
       var FirstEngine = _engine.default.extend();
@@ -3891,16 +3893,16 @@ enifed('ember-application/tests/system/engine_instance_initializers_test', ['emb
           secondEngineInstance = void 0;
 
       return firstEngineInstance.boot().then(function () {
-        equal(firstInitializerRunCount, 1, 'first initializer only was run when base class created');
-        equal(secondInitializerRunCount, 0, 'second initializer was not run when first base class created');
+        assert.equal(firstInitializerRunCount, 1, 'first initializer only was run when base class created');
+        assert.equal(secondInitializerRunCount, 0, 'second initializer was not run when first base class created');
         firstInitializerRunCount = 0;
 
         secondEngine = SecondEngine.create();
         secondEngineInstance = buildEngineInstance(secondEngine);
         return secondEngineInstance.boot();
       }).then(function () {
-        equal(firstInitializerRunCount, 1, 'first initializer was run when subclass created');
-        equal(secondInitializerRunCount, 1, 'second initializers was run when subclass created');
+        assert.equal(firstInitializerRunCount, 1, 'first initializer was run when subclass created');
+        assert.equal(secondInitializerRunCount, 1, 'second initializers was run when subclass created');
 
         (0, _emberMetal.run)(function () {
           firstEngineInstance.destroy();
@@ -3912,8 +3914,8 @@ enifed('ember-application/tests/system/engine_instance_initializers_test', ['emb
       });
     };
 
-    _class.prototype['@test initializers are per-engine'] = function testInitializersArePerEngine() {
-      expect(2);
+    _class.prototype['@test initializers are per-engine'] = function testInitializersArePerEngine(assert) {
+      assert.expect(2);
 
       var FirstEngine = _engine.default.extend();
 
@@ -3935,11 +3937,11 @@ enifed('ember-application/tests/system/engine_instance_initializers_test', ['emb
         initialize: function () {}
       });
 
-      ok(true, 'Two engines can have initializers named the same.');
+      assert.ok(true, 'Two engines can have initializers named the same.');
     };
 
-    _class.prototype['@test initializers are executed in their own context'] = function testInitializersAreExecutedInTheirOwnContext() {
-      expect(1);
+    _class.prototype['@test initializers are executed in their own context'] = function testInitializersAreExecutedInTheirOwnContext(assert) {
+      assert.expect(1);
 
       var MyEngine = _engine.default.extend();
 
@@ -3947,7 +3949,7 @@ enifed('ember-application/tests/system/engine_instance_initializers_test', ['emb
         name: 'coolInitializer',
         myProperty: 'cool',
         initialize: function () {
-          equal(this.myProperty, 'cool', 'should have access to its own context');
+          assert.equal(this.myProperty, 'cool', 'should have access to its own context');
         }
       });
 
@@ -4161,41 +4163,41 @@ enifed('ember-application/tests/system/engine_test', ['ember-babel', 'ember-envi
       assert.strictEqual(engine.resolveRegistration('application:main'), engine, 'application:main is registered');
       assert.deepEqual(engine.registeredOptionsForType('component'), { singleton: false }, 'optionsForType \'component\'');
       assert.deepEqual(engine.registeredOptionsForType('view'), { singleton: false }, 'optionsForType \'view\'');
-      (0, _registryCheck.verifyRegistration)(engine, 'controller:basic');
-      (0, _registryCheck.verifyInjection)(engine, 'view', '_viewRegistry', '-view-registry:main');
-      (0, _registryCheck.verifyInjection)(engine, 'route', '_topLevelViewTemplate', 'template:-outlet');
-      (0, _registryCheck.verifyInjection)(engine, 'view:-outlet', 'namespace', 'application:main');
+      (0, _registryCheck.verifyRegistration)(assert, engine, 'controller:basic');
+      (0, _registryCheck.verifyInjection)(assert, engine, 'view', '_viewRegistry', '-view-registry:main');
+      (0, _registryCheck.verifyInjection)(assert, engine, 'route', '_topLevelViewTemplate', 'template:-outlet');
+      (0, _registryCheck.verifyInjection)(assert, engine, 'view:-outlet', 'namespace', 'application:main');
 
-      (0, _registryCheck.verifyInjection)(engine, 'controller', 'target', 'router:main');
-      (0, _registryCheck.verifyInjection)(engine, 'controller', 'namespace', 'application:main');
+      (0, _registryCheck.verifyInjection)(assert, engine, 'controller', 'target', 'router:main');
+      (0, _registryCheck.verifyInjection)(assert, engine, 'controller', 'namespace', 'application:main');
 
-      (0, _registryCheck.verifyInjection)(engine, 'router', '_bucketCache', (0, _container.privatize)(_templateObject));
-      (0, _registryCheck.verifyInjection)(engine, 'route', '_bucketCache', (0, _container.privatize)(_templateObject));
+      (0, _registryCheck.verifyInjection)(assert, engine, 'router', '_bucketCache', (0, _container.privatize)(_templateObject));
+      (0, _registryCheck.verifyInjection)(assert, engine, 'route', '_bucketCache', (0, _container.privatize)(_templateObject));
 
-      (0, _registryCheck.verifyInjection)(engine, 'route', 'router', 'router:main');
+      (0, _registryCheck.verifyInjection)(assert, engine, 'route', 'router', 'router:main');
 
-      (0, _registryCheck.verifyRegistration)(engine, 'component:-text-field');
-      (0, _registryCheck.verifyRegistration)(engine, 'component:-text-area');
-      (0, _registryCheck.verifyRegistration)(engine, 'component:-checkbox');
-      (0, _registryCheck.verifyRegistration)(engine, 'component:link-to');
+      (0, _registryCheck.verifyRegistration)(assert, engine, 'component:-text-field');
+      (0, _registryCheck.verifyRegistration)(assert, engine, 'component:-text-area');
+      (0, _registryCheck.verifyRegistration)(assert, engine, 'component:-checkbox');
+      (0, _registryCheck.verifyRegistration)(assert, engine, 'component:link-to');
 
-      (0, _registryCheck.verifyRegistration)(engine, 'service:-routing');
-      (0, _registryCheck.verifyInjection)(engine, 'service:-routing', 'router', 'router:main');
+      (0, _registryCheck.verifyRegistration)(assert, engine, 'service:-routing');
+      (0, _registryCheck.verifyInjection)(assert, engine, 'service:-routing', 'router', 'router:main');
 
       // DEBUGGING
-      (0, _registryCheck.verifyRegistration)(engine, 'resolver-for-debugging:main');
-      (0, _registryCheck.verifyInjection)(engine, 'container-debug-adapter:main', 'resolver', 'resolver-for-debugging:main');
-      (0, _registryCheck.verifyInjection)(engine, 'data-adapter:main', 'containerDebugAdapter', 'container-debug-adapter:main');
-      (0, _registryCheck.verifyRegistration)(engine, 'container-debug-adapter:main');
-      (0, _registryCheck.verifyRegistration)(engine, 'component-lookup:main');
+      (0, _registryCheck.verifyRegistration)(assert, engine, 'resolver-for-debugging:main');
+      (0, _registryCheck.verifyInjection)(assert, engine, 'container-debug-adapter:main', 'resolver', 'resolver-for-debugging:main');
+      (0, _registryCheck.verifyInjection)(assert, engine, 'data-adapter:main', 'containerDebugAdapter', 'container-debug-adapter:main');
+      (0, _registryCheck.verifyRegistration)(assert, engine, 'container-debug-adapter:main');
+      (0, _registryCheck.verifyRegistration)(assert, engine, 'component-lookup:main');
 
-      (0, _registryCheck.verifyInjection)(engine, 'service:-dom-changes', 'document', 'service:-document');
-      (0, _registryCheck.verifyInjection)(engine, 'service:-dom-tree-construction', 'document', 'service:-document');
-      (0, _registryCheck.verifyRegistration)(engine, 'view:-outlet');
-      (0, _registryCheck.verifyRegistration)(engine, (0, _container.privatize)(_templateObject2));
-      (0, _registryCheck.verifyRegistration)(engine, 'template:-outlet');
-      (0, _registryCheck.verifyInjection)(engine, 'view:-outlet', 'template', 'template:-outlet');
-      (0, _registryCheck.verifyInjection)(engine, 'template', 'env', 'service:-glimmer-environment');
+      (0, _registryCheck.verifyInjection)(assert, engine, 'service:-dom-changes', 'document', 'service:-document');
+      (0, _registryCheck.verifyInjection)(assert, engine, 'service:-dom-tree-construction', 'document', 'service:-document');
+      (0, _registryCheck.verifyRegistration)(assert, engine, 'view:-outlet');
+      (0, _registryCheck.verifyRegistration)(assert, engine, (0, _container.privatize)(_templateObject2));
+      (0, _registryCheck.verifyRegistration)(assert, engine, 'template:-outlet');
+      (0, _registryCheck.verifyInjection)(assert, engine, 'view:-outlet', 'template', 'template:-outlet');
+      (0, _registryCheck.verifyInjection)(assert, engine, 'template', 'env', 'service:-glimmer-environment');
       assert.deepEqual(engine.registeredOptionsForType('helper'), { instantiate: false }, 'optionsForType \'helper\'');
     };
 
@@ -4915,7 +4917,7 @@ enifed('ember-application/tests/system/instance_initializers_test', ['ember-babe
       assert.equal(secondInitializerRunCount, 1, 'second initializer only was run');
     };
 
-    _class.prototype['@test initializers are concatenated'] = function () {
+    _class.prototype['@test initializers are concatenated'] = function (assert) {
       var _this9 = this;
 
       var firstInitializerRunCount = 0;
@@ -4941,16 +4943,16 @@ enifed('ember-application/tests/system/instance_initializers_test', ['ember-babe
         return _this9.createApplication({}, FirstApp);
       });
 
-      equal(firstInitializerRunCount, 1, 'first initializer only was run when base class created');
-      equal(secondInitializerRunCount, 0, 'first initializer only was run when base class created');
+      assert.equal(firstInitializerRunCount, 1, 'first initializer only was run when base class created');
+      assert.equal(secondInitializerRunCount, 0, 'first initializer only was run when base class created');
 
       firstInitializerRunCount = 0;
       this.runTask(function () {
         return _this9.createSecondApplication({}, SecondApp);
       });
 
-      equal(firstInitializerRunCount, 1, 'first initializer was run when subclass created');
-      equal(secondInitializerRunCount, 1, 'second initializers was run when subclass created');
+      assert.equal(firstInitializerRunCount, 1, 'first initializer was run when subclass created');
+      assert.equal(secondInitializerRunCount, 1, 'second initializers was run when subclass created');
     };
 
     _class.prototype['@test initializers are per-app'] = function (assert) {
@@ -5482,7 +5484,7 @@ enifed('ember-application/tests/system/reset_test', ['ember-babel', 'ember-metal
 
       assert.strictEqual(firstController, secondController, 'controllers looked up in succession should be the same instance');
 
-      ok(firstController.isDestroying, 'controllers are destroyed when their application is reset');
+      assert.ok(firstController.isDestroying, 'controllers are destroyed when their application is reset');
 
       assert.notStrictEqual(firstController, thirdController, 'controllers looked up after the application is reset should not be the same instance');
     };
@@ -6195,11 +6197,11 @@ enifed('ember-application/tests/test-helpers/registry-check', ['exports'], funct
 
   exports.verifyRegistration = verifyRegistration;
   exports.verifyInjection = verifyInjection;
-  function verifyRegistration(owner, fullName) {
-    ok(owner.resolveRegistration(fullName), 'has registration: ' + fullName);
+  function verifyRegistration(assert, owner, fullName) {
+    assert.ok(owner.resolveRegistration(fullName), 'has registration: ' + fullName);
   }
 
-  function verifyInjection(owner, fullName, property, injectionName) {
+  function verifyInjection(assert, owner, fullName, property, injectionName) {
     var registry = owner.__registry__;
     var injections = void 0;
 
@@ -6221,7 +6223,7 @@ enifed('ember-application/tests/test-helpers/registry-check', ['exports'], funct
       }
     }
 
-    ok(hasInjection, 'has injection: ' + fullName + '.' + property + ' = ' + injectionName);
+    assert.ok(hasInjection, 'has injection: ' + fullName + '.' + property + ' = ' + injectionName);
   }
 });
 QUnit.module('ESLint | ember-application/tests/test-helpers/registry-check.js');
@@ -6727,7 +6729,7 @@ enifed('ember-debug/tests/main_test', ['ember-babel', 'ember-environment', 'embe
         return true;
       });
 
-      ok(true, 'assertions were not thrown');
+      assert.ok(true, 'assertions were not thrown');
     };
 
     _class.prototype['@test Ember.assert does not throw if second argument is falsy'] = function testEmberAssertDoesNotThrowIfSecondArgumentIsFalsy(assert) {
@@ -6751,7 +6753,7 @@ enifed('ember-debug/tests/main_test', ['ember-babel', 'ember-environment', 'embe
     };
 
     _class.prototype['@test Ember.deprecate does not throw a deprecation at log and silence'] = function testEmberDeprecateDoesNotThrowADeprecationAtLogAndSilence(assert) {
-      expect(4);
+      assert.expect(4);
       var id = 'ABC';
       var until = 'forever';
       var shouldThrow = false;
@@ -6805,7 +6807,7 @@ enifed('ember-debug/tests/main_test', ['ember-babel', 'ember-environment', 'embe
     };
 
     _class.prototype['@test Ember.deprecate without options triggers an assertion'] = function testEmberDeprecateWithoutOptionsTriggersAnAssertion(assert) {
-      expect(2);
+      assert.expect(2);
       _emberEnvironment.ENV._ENABLE_DEPRECATION_OPTIONS_SUPPORT = false;
 
       assert.throws(function () {
@@ -6832,7 +6834,7 @@ enifed('ember-debug/tests/main_test', ['ember-babel', 'ember-environment', 'embe
     };
 
     _class.prototype['@test Ember.deprecate without options.id triggers an assertion'] = function testEmberDeprecateWithoutOptionsIdTriggersAnAssertion(assert) {
-      expect(1);
+      assert.expect(1);
       _emberEnvironment.ENV._ENABLE_DEPRECATION_OPTIONS_SUPPORT = false;
 
       assert.throws(function () {
@@ -6855,7 +6857,7 @@ enifed('ember-debug/tests/main_test', ['ember-babel', 'ember-environment', 'embe
     };
 
     _class.prototype['@test Ember.deprecate without options.until triggers an assertion'] = function testEmberDeprecateWithoutOptionsUntilTriggersAnAssertion(assert) {
-      expect(1);
+      assert.expect(1);
       _emberEnvironment.ENV._ENABLE_DEPRECATION_OPTIONS_SUPPORT = false;
 
       assert.throws(function () {
@@ -7224,7 +7226,7 @@ enifed('ember-extension-support/tests/data_adapter_test', ['ember-babel', 'ember
       return (0, _emberBabel.possibleConstructorReturn)(this, _ApplicationTestCase.apply(this, arguments));
     }
 
-    _class.prototype['@test Model types added'] = function testModelTypesAdded() {
+    _class.prototype['@test Model types added'] = function testModelTypesAdded(assert) {
       var _this2 = this;
 
       this.add('data-adapter:main', DataAdapter.extend({
@@ -7241,24 +7243,24 @@ enifed('ember-extension-support/tests/data_adapter_test', ['ember-babel', 'ember
         var adapter = _this2.applicationInstance.lookup('data-adapter:main');
 
         function modelTypesAdded(types) {
-          equal(types.length, 1);
+          assert.equal(types.length, 1);
           var postType = types[0];
-          equal(postType.name, 'post', 'Correctly sets the name');
-          equal(postType.count, 3, 'Correctly sets the record count');
-          strictEqual(postType.object, PostClass, 'Correctly sets the object');
-          deepEqual(postType.columns, [{ name: 'title', desc: 'Title' }], 'Correctly sets the columns');
+          assert.equal(postType.name, 'post', 'Correctly sets the name');
+          assert.equal(postType.count, 3, 'Correctly sets the record count');
+          assert.strictEqual(postType.object, PostClass, 'Correctly sets the object');
+          assert.deepEqual(postType.columns, [{ name: 'title', desc: 'Title' }], 'Correctly sets the columns');
         }
 
         adapter.watchModelTypes(modelTypesAdded);
       });
     };
 
-    _class.prototype['@test getRecords gets a model name as second argument'] = function testGetRecordsGetsAModelNameAsSecondArgument() {
+    _class.prototype['@test getRecords gets a model name as second argument'] = function testGetRecordsGetsAModelNameAsSecondArgument(assert) {
       var _this3 = this;
 
       this.add('data-adapter:main', DataAdapter.extend({
         getRecords: function (klass, name) {
-          equal(name, 'post');
+          assert.equal(name, 'post');
           return (0, _emberRuntime.A)();
         }
       }));
@@ -7270,7 +7272,7 @@ enifed('ember-extension-support/tests/data_adapter_test', ['ember-babel', 'ember
       });
     };
 
-    _class.prototype['@test Model types added with custom container-debug-adapter'] = function testModelTypesAddedWithCustomContainerDebugAdapter() {
+    _class.prototype['@test Model types added with custom container-debug-adapter'] = function testModelTypesAddedWithCustomContainerDebugAdapter(assert) {
       var _this4 = this;
 
       var StubContainerDebugAdapter = _emberRuntime.Object.extend({
@@ -7296,19 +7298,19 @@ enifed('ember-extension-support/tests/data_adapter_test', ['ember-babel', 'ember
         var adapter = _this4.applicationInstance.lookup('data-adapter:main');
 
         function modelTypesAdded(types) {
-          equal(types.length, 1);
+          assert.equal(types.length, 1);
           var postType = types[0];
-          equal(postType.name, 'post', 'Correctly sets the name');
-          equal(postType.count, 3, 'Correctly sets the record count');
-          strictEqual(postType.object, PostClass, 'Correctly sets the object');
-          deepEqual(postType.columns, [{ name: 'title', desc: 'Title' }], 'Correctly sets the columns');
+          assert.equal(postType.name, 'post', 'Correctly sets the name');
+          assert.equal(postType.count, 3, 'Correctly sets the record count');
+          assert.strictEqual(postType.object, PostClass, 'Correctly sets the object');
+          assert.deepEqual(postType.columns, [{ name: 'title', desc: 'Title' }], 'Correctly sets the columns');
         }
 
         adapter.watchModelTypes(modelTypesAdded);
       });
     };
 
-    _class.prototype['@test Model Types Updated'] = function testModelTypesUpdated() {
+    _class.prototype['@test Model Types Updated'] = function testModelTypesUpdated(assert) {
       var _this5 = this;
 
       var records = (0, _emberRuntime.A)([1, 2, 3]);
@@ -7330,17 +7332,17 @@ enifed('ember-extension-support/tests/data_adapter_test', ['ember-babel', 'ember
 
         function modelTypesUpdated(types) {
           var postType = types[0];
-          equal(postType.count, 4, 'Correctly updates the count');
+          assert.equal(postType.count, 4, 'Correctly updates the count');
         }
 
         adapter.watchModelTypes(modelTypesAdded, modelTypesUpdated);
       });
     };
 
-    _class.prototype['@test Model Types Updated but Unchanged Do not Trigger Callbacks'] = function testModelTypesUpdatedButUnchangedDoNotTriggerCallbacks() {
+    _class.prototype['@test Model Types Updated but Unchanged Do not Trigger Callbacks'] = function testModelTypesUpdatedButUnchangedDoNotTriggerCallbacks(assert) {
       var _this6 = this;
 
-      expect(0);
+      assert.expect(0);
       var records = (0, _emberRuntime.A)([1, 2, 3]);
       this.add('data-adapter:main', DataAdapter.extend({
         getRecords: function () {
@@ -7359,14 +7361,14 @@ enifed('ember-extension-support/tests/data_adapter_test', ['ember-babel', 'ember
         }
 
         function modelTypesUpdated() {
-          ok(false, "modelTypesUpdated should not be triggered if the array didn't change");
+          assert.ok(false, "modelTypesUpdated should not be triggered if the array didn't change");
         }
 
         adapter.watchModelTypes(modelTypesAdded, modelTypesUpdated);
       });
     };
 
-    _class.prototype['@test Records Added'] = function testRecordsAdded() {
+    _class.prototype['@test Records Added'] = function testRecordsAdded(assert) {
       var _this7 = this;
 
       var countAdded = 1;
@@ -7394,10 +7396,10 @@ enifed('ember-extension-support/tests/data_adapter_test', ['ember-babel', 'ember
 
         function recordsAdded(records) {
           var record = records[0];
-          equal(record.color, 'blue', 'Sets the color correctly');
-          deepEqual(record.columnValues, { title: 'Post ' + countAdded }, 'Sets the column values correctly');
-          deepEqual(record.searchKeywords, ['Post ' + countAdded], 'Sets search keywords correctly');
-          strictEqual(record.object, post, 'Sets the object to the record instance');
+          assert.equal(record.color, 'blue', 'Sets the color correctly');
+          assert.deepEqual(record.columnValues, { title: 'Post ' + countAdded }, 'Sets the column values correctly');
+          assert.deepEqual(record.searchKeywords, ['Post ' + countAdded], 'Sets search keywords correctly');
+          assert.strictEqual(record.object, post, 'Sets the object to the record instance');
         }
 
         adapter.watchRecords('post', recordsAdded);
@@ -7407,7 +7409,7 @@ enifed('ember-extension-support/tests/data_adapter_test', ['ember-babel', 'ember
       });
     };
 
-    _class.prototype['@test Observes and releases a record correctly'] = function testObservesAndReleasesARecordCorrectly() {
+    _class.prototype['@test Observes and releases a record correctly'] = function testObservesAndReleasesARecordCorrectly(assert) {
       var _this8 = this;
 
       var updatesCalled = 0;
@@ -7443,17 +7445,17 @@ enifed('ember-extension-support/tests/data_adapter_test', ['ember-babel', 'ember
 
         function recordsUpdated(records) {
           updatesCalled++;
-          equal(records[0].columnValues.title, 'Post Modified');
+          assert.equal(records[0].columnValues.title, 'Post Modified');
         }
 
         var release = adapter.watchRecords('post', recordsAdded, recordsUpdated);
         release();
         (0, _emberMetal.set)(post, 'title', 'New Title');
-        equal(updatesCalled, 1, 'Release function removes observers');
+        assert.equal(updatesCalled, 1, 'Release function removes observers');
       });
     };
 
-    _class.prototype['@test _nameToClass does not error when not found'] = function test_nameToClassDoesNotErrorWhenNotFound() {
+    _class.prototype['@test _nameToClass does not error when not found'] = function test_nameToClassDoesNotErrorWhenNotFound(assert) {
       var _this9 = this;
 
       this.add('data-adapter:main', DataAdapter);
@@ -7463,7 +7465,7 @@ enifed('ember-extension-support/tests/data_adapter_test', ['ember-babel', 'ember
 
         var klass = adapter._nameToClass('foo');
 
-        equal(klass, undefined, 'returns undefined');
+        assert.equal(klass, undefined, 'returns undefined');
       });
     };
 
@@ -10366,9 +10368,9 @@ enifed('ember-glimmer/tests/integration/components/attrs-lookup-test', ['ember-b
           var attrFirst = this.getAttr('first');
           var attrSecond = this.getAttr('second');
 
-          equal(rootFirstPositional, attrFirstPositional, 'root property matches attrs value');
-          equal(rootFirst, attrFirst, 'root property matches attrs value');
-          equal(rootSecond, attrSecond, 'root property matches attrs value');
+          assert.equal(rootFirstPositional, attrFirstPositional, 'root property matches attrs value');
+          assert.equal(rootFirst, attrFirst, 'root property matches attrs value');
+          assert.equal(rootSecond, attrSecond, 'root property matches attrs value');
         }
       });
 
@@ -14651,54 +14653,54 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
       this.assertStableRerender();
     };
 
-    _class.prototype['@test hasBlock expression in an attribute'] = function testHasBlockExpressionInAnAttribute() {
+    _class.prototype['@test hasBlock expression in an attribute'] = function testHasBlockExpressionInAnAttribute(assert) {
       this.registerComponent('check-attr', {
         template: '<button name={{hasBlock}}></button>'
       });
 
       this.render((0, _abstractTestCase.strip)(_templateObject33));
 
-      (0, _testHelpers.equalsElement)(this.$('button')[0], 'button', { name: 'false' }, '');
-      (0, _testHelpers.equalsElement)(this.$('button')[1], 'button', { name: 'true' }, '');
+      (0, _testHelpers.equalsElement)(assert, this.$('button')[0], 'button', { name: 'false' }, '');
+      (0, _testHelpers.equalsElement)(assert, this.$('button')[1], 'button', { name: 'true' }, '');
 
       this.assertStableRerender();
     };
 
-    _class.prototype['@test hasBlock inverse expression in an attribute'] = function testHasBlockInverseExpressionInAnAttribute() {
+    _class.prototype['@test hasBlock inverse expression in an attribute'] = function testHasBlockInverseExpressionInAnAttribute(assert) {
       this.registerComponent('check-attr', {
         template: '<button name={{hasBlock "inverse"}}></button>'
       }, '');
 
       this.render((0, _abstractTestCase.strip)(_templateObject34));
 
-      (0, _testHelpers.equalsElement)(this.$('button')[0], 'button', { name: 'false' }, '');
-      (0, _testHelpers.equalsElement)(this.$('button')[1], 'button', { name: 'true' }, '');
+      (0, _testHelpers.equalsElement)(assert, this.$('button')[0], 'button', { name: 'false' }, '');
+      (0, _testHelpers.equalsElement)(assert, this.$('button')[1], 'button', { name: 'true' }, '');
 
       this.assertStableRerender();
     };
 
-    _class.prototype['@test hasBlockParams expression in an attribute'] = function testHasBlockParamsExpressionInAnAttribute() {
+    _class.prototype['@test hasBlockParams expression in an attribute'] = function testHasBlockParamsExpressionInAnAttribute(assert) {
       this.registerComponent('check-attr', {
         template: '<button name={{hasBlockParams}}></button>'
       });
 
       this.render((0, _abstractTestCase.strip)(_templateObject35));
 
-      (0, _testHelpers.equalsElement)(this.$('button')[0], 'button', { name: 'false' }, '');
-      (0, _testHelpers.equalsElement)(this.$('button')[1], 'button', { name: 'true' }, '');
+      (0, _testHelpers.equalsElement)(assert, this.$('button')[0], 'button', { name: 'false' }, '');
+      (0, _testHelpers.equalsElement)(assert, this.$('button')[1], 'button', { name: 'true' }, '');
 
       this.assertStableRerender();
     };
 
-    _class.prototype['@test hasBlockParams inverse expression in an attribute'] = function testHasBlockParamsInverseExpressionInAnAttribute() {
+    _class.prototype['@test hasBlockParams inverse expression in an attribute'] = function testHasBlockParamsInverseExpressionInAnAttribute(assert) {
       this.registerComponent('check-attr', {
         template: '<button name={{hasBlockParams "inverse"}}></button>'
       }, '');
 
       this.render((0, _abstractTestCase.strip)(_templateObject35));
 
-      (0, _testHelpers.equalsElement)(this.$('button')[0], 'button', { name: 'false' }, '');
-      (0, _testHelpers.equalsElement)(this.$('button')[1], 'button', { name: 'false' }, '');
+      (0, _testHelpers.equalsElement)(assert, this.$('button')[0], 'button', { name: 'false' }, '');
+      (0, _testHelpers.equalsElement)(assert, this.$('button')[1], 'button', { name: 'false' }, '');
 
       this.assertStableRerender();
     };
@@ -25029,7 +25031,7 @@ enifed('ember-glimmer/tests/integration/helpers/custom-helper-test', ['ember-bab
       this.assertText('Who overcomes by force hath overcome but half his foe');
     };
 
-    _class.prototype['@test class-based helper used in subexpression is destroyed'] = function testClassBasedHelperUsedInSubexpressionIsDestroyed() {
+    _class.prototype['@test class-based helper used in subexpression is destroyed'] = function testClassBasedHelperUsedInSubexpressionIsDestroyed(assert) {
       var destroyCount = 0;
 
       this.registerHelper('dynamic-segment', {
@@ -25056,7 +25058,7 @@ enifed('ember-glimmer/tests/integration/helpers/custom-helper-test', ['ember-bab
 
       (0, _internalTestHelpers.runDestroy)(this.component);
 
-      equal(destroyCount, 1, 'destroy is called after a view is destroyed');
+      assert.equal(destroyCount, 1, 'destroy is called after a view is destroyed');
     };
 
     _class.prototype['@test simple helper can be invoked manually via `owner.factoryFor(...).create().compute()'] = function testSimpleHelperCanBeInvokedManuallyViaOwnerFactoryForCreateCompute(assert) {
@@ -25977,7 +25979,7 @@ enifed('ember-glimmer/tests/integration/helpers/element-action-test', ['ember-ba
       this.assert.equal(editHandlerWasCalled, true, 'the event handler was called');
     };
 
-    _class2.prototype['@test it should unregister event handlers when an element action is removed'] = function testItShouldUnregisterEventHandlersWhenAnElementActionIsRemoved() {
+    _class2.prototype['@test it should unregister event handlers when an element action is removed'] = function testItShouldUnregisterEventHandlersWhenAnElementActionIsRemoved(assert) {
       var _this19 = this;
 
       var ExampleComponent = _helpers.Component.extend({
@@ -25993,39 +25995,39 @@ enifed('ember-glimmer/tests/integration/helpers/element-action-test', ['ember-ba
 
       this.render('{{example-component isActive=isActive}}', { isActive: true });
 
-      equal(this.$('a[data-ember-action]').length, 1, 'The element is rendered');
+      assert.equal(this.$('a[data-ember-action]').length, 1, 'The element is rendered');
 
       var actionId = void 0;
 
       actionId = getActionIds(this.$('a[data-ember-action]').get(0))[0];
 
-      ok(_emberViews.ActionManager.registeredActions[actionId], 'An action is registered');
+      assert.ok(_emberViews.ActionManager.registeredActions[actionId], 'An action is registered');
 
       this.runTask(function () {
         return _this19.rerender();
       });
 
-      equal(this.$('a[data-ember-action]').length, 1, 'The element is still present');
+      assert.equal(this.$('a[data-ember-action]').length, 1, 'The element is still present');
 
-      ok(_emberViews.ActionManager.registeredActions[actionId], 'The action is still registered');
+      assert.ok(_emberViews.ActionManager.registeredActions[actionId], 'The action is still registered');
 
       this.runTask(function () {
         return (0, _emberMetal.set)(_this19.context, 'isActive', false);
       });
 
-      strictEqual(this.$('a[data-ember-action]').length, 0, 'The element is removed');
+      assert.strictEqual(this.$('a[data-ember-action]').length, 0, 'The element is removed');
 
-      ok(!_emberViews.ActionManager.registeredActions[actionId], 'The action is unregistered');
+      assert.ok(!_emberViews.ActionManager.registeredActions[actionId], 'The action is unregistered');
 
       this.runTask(function () {
         return (0, _emberMetal.set)(_this19.context, 'isActive', true);
       });
 
-      equal(this.$('a[data-ember-action]').length, 1, 'The element is rendered');
+      assert.equal(this.$('a[data-ember-action]').length, 1, 'The element is rendered');
 
       actionId = getActionIds(this.$('a[data-ember-action]').get(0))[0];
 
-      ok(_emberViews.ActionManager.registeredActions[actionId], 'A new action is registered');
+      assert.ok(_emberViews.ActionManager.registeredActions[actionId], 'A new action is registered');
     };
 
     _class2.prototype['@test it should capture events from child elements and allow them to trigger the action'] = function testItShouldCaptureEventsFromChildElementsAndAllowThemToTriggerTheAction() {
@@ -30787,45 +30789,45 @@ enifed('ember-glimmer/tests/integration/helpers/text-area-test', ['ember-babel',
       return (0, _emberBabel.possibleConstructorReturn)(this, _TextAreaRenderingTes.apply(this, arguments));
     }
 
-    _class.prototype['@test Should insert a textarea'] = function testShouldInsertATextarea() {
+    _class.prototype['@test Should insert a textarea'] = function testShouldInsertATextarea(assert) {
       this.render('{{textarea}}');
 
-      equal(this.$('textarea').length, 1);
+      assert.equal(this.$('textarea').length, 1);
 
       this.assertStableRerender();
     };
 
-    _class.prototype['@test Should respect disabled'] = function testShouldRespectDisabled() {
+    _class.prototype['@test Should respect disabled'] = function testShouldRespectDisabled(assert) {
       this.render('{{textarea disabled=disabled}}', {
         disabled: true
       });
-      ok(this.$('textarea').is(':disabled'));
+      assert.ok(this.$('textarea').is(':disabled'));
     };
 
-    _class.prototype['@test Should respect disabled when false'] = function testShouldRespectDisabledWhenFalse() {
+    _class.prototype['@test Should respect disabled when false'] = function testShouldRespectDisabledWhenFalse(assert) {
       this.render('{{textarea disabled=disabled}}', {
         disabled: false
       });
-      ok(this.$('textarea').is(':not(:disabled)'));
+      assert.ok(this.$('textarea').is(':not(:disabled)'));
     };
 
-    _class.prototype['@test Should become disabled when the context changes'] = function testShouldBecomeDisabledWhenTheContextChanges() {
+    _class.prototype['@test Should become disabled when the context changes'] = function testShouldBecomeDisabledWhenTheContextChanges(assert) {
       var _this4 = this;
 
       this.render('{{textarea disabled=disabled}}');
-      ok(this.$('textarea').is(':not(:disabled)'));
+      assert.ok(this.$('textarea').is(':not(:disabled)'));
 
       this.assertStableRerender();
 
       this.runTask(function () {
         return (0, _emberMetal.set)(_this4.context, 'disabled', true);
       });
-      ok(this.$('textarea').is(':disabled'));
+      assert.ok(this.$('textarea').is(':disabled'));
 
       this.runTask(function () {
         return (0, _emberMetal.set)(_this4.context, 'disabled', false);
       });
-      ok(this.$('textarea').is(':not(:disabled)'));
+      assert.ok(this.$('textarea').is(':not(:disabled)'));
     };
 
     _class.prototype['@test Should bind its contents to the specified value'] = function testShouldBindItsContentsToTheSpecifiedValue() {
@@ -31913,7 +31915,7 @@ enifed('ember-glimmer/tests/integration/helpers/yield-test', ['ember-babel', 'em
       this.assertText('OuterOuter');
     };
 
-    _class.prototype['@test yield should not introduce a view'] = function testYieldShouldNotIntroduceAView() {
+    _class.prototype['@test yield should not introduce a view'] = function testYieldShouldNotIntroduceAView(assert) {
       var ParentCompComponent = _helpers.Component.extend({ isParentComponent: true });
 
       var ChildCompComponent = _helpers.Component.extend({
@@ -31921,7 +31923,7 @@ enifed('ember-glimmer/tests/integration/helpers/yield-test', ['ember-babel', 'em
           this._super();
           var parentView = this.get('parentView');
 
-          ok(parentView.get('isParentComponent'));
+          assert.ok(parentView.get('isParentComponent'));
         }
       });
 
@@ -47255,7 +47257,7 @@ enifed('ember-routing/tests/location/hash_location_test', ['ember-babel', 'ember
     };
 
     _class.prototype['@test HashLocation.replaceURL() correctly replaces to the path with a page reload'] = function testHashLocationReplaceURLCorrectlyReplacesToThePathWithAPageReload(assert) {
-      expect(2);
+      assert.expect(2);
 
       createLocation({
         _location: {
@@ -47271,7 +47273,7 @@ enifed('ember-routing/tests/location/hash_location_test', ['ember-babel', 'ember
     };
 
     _class.prototype['@test HashLocation.onUpdateURL callback executes as expected'] = function testHashLocationOnUpdateURLCallbackExecutesAsExpected(assert) {
-      expect(1);
+      assert.expect(1);
 
       createLocation({
         _location: mockBrowserLocation('/#/foo/bar')
@@ -47287,7 +47289,7 @@ enifed('ember-routing/tests/location/hash_location_test', ['ember-babel', 'ember
     };
 
     _class.prototype['@test HashLocation.onUpdateURL doesn\'t execute callback if lastSetURL === path'] = function testHashLocationOnUpdateURLDoesnTExecuteCallbackIfLastSetURLPath(assert) {
-      expect(0);
+      assert.expect(0);
 
       createLocation({
         _location: {
@@ -47312,7 +47314,7 @@ enifed('ember-routing/tests/location/hash_location_test', ['ember-babel', 'ember
     };
 
     _class.prototype['@test HashLocation.willDestroy() cleans up hashchange event listener'] = function testHashLocationWillDestroyCleansUpHashchangeEventListener(assert) {
-      expect(1);
+      assert.expect(1);
 
       createLocation({}, assert);
 
@@ -48564,8 +48566,8 @@ enifed('ember-routing/tests/system/route_test', ['ember-babel', 'ember-utils', '
       assert.deepEqual(route.serialize(model, ['post_id']), { post_id: 3 }, 'serialized correctly');
     };
 
-    _class2.prototype['@test returns undefined if model is not set'] = function testReturnsUndefinedIfModelIsNotSet() {
-      equal(route.serialize(undefined, ['post_id']), undefined, 'serialized correctly');
+    _class2.prototype['@test returns undefined if model is not set'] = function testReturnsUndefinedIfModelIsNotSet(assert) {
+      assert.equal(route.serialize(undefined, ['post_id']), undefined, 'serialized correctly');
     };
 
     return _class2;
@@ -48979,7 +48981,7 @@ enifed('ember-routing/tests/system/router_test', ['ember-babel', 'ember-utils', 
       assert.equal(routePath('foo', 'foo.bar', 'foo.bar.baz'), 'foo.bar.baz');
       assert.equal(routePath('foo', 'foo.bar', 'foo.bar.baz.wow'), 'foo.bar.baz.wow');
       assert.equal(routePath('foo', 'foo.bar.baz.wow'), 'foo.bar.baz.wow');
-      equal(routePath('foo.bar', 'bar.baz.wow'), 'foo.bar.baz.wow');
+      assert.equal(routePath('foo.bar', 'bar.baz.wow'), 'foo.bar.baz.wow');
 
       // This makes no sense, not trying to handle it, just
       // making sure it doesn't go boom.
@@ -52168,12 +52170,8 @@ enifed('ember-runtime/tests/ext/rsvp_test', ['ember-metal', 'ember-runtime/ext/r
   QUnit.module('Ember.test: rejection assertions');
 
   function ajax() {
-    return _rsvp.default.Promise(function (resolve) {
-      QUnit.stop();
-      setTimeout(function () {
-        QUnit.start();
-        resolve();
-      }, 0); // fake true / foreign async
+    return new _rsvp.default.Promise(function (resolve) {
+      setTimeout(resolve, 0); // fake true / foreign async
     });
   }
 
@@ -52214,16 +52212,16 @@ enifed('ember-runtime/tests/ext/rsvp_test', ['ember-metal', 'ember-runtime/ext/r
 
   QUnit.test('handled in the next microTask queue flush (run.next)', function (assert) {
     assert.expect(2);
+    var done = assert.async();
 
     assert.throws(function () {
       (0, _emberMetal.run)(function () {
         var rejection = _rsvp.default.Promise.reject(reason);
 
-        QUnit.stop();
         _emberMetal.run.next(function () {
-          QUnit.start();
           rejection.catch(function () {});
           assert.ok(true, 'reached end of test');
+          done();
         });
       });
     }, reason);
@@ -52251,6 +52249,7 @@ enifed('ember-runtime/tests/ext/rsvp_test', ['ember-metal', 'ember-runtime/ext/r
   });
 
   QUnit.test('handled in a different microTask Queue flush do to data locality', function (assert) {
+    var done = assert.async();
     // an ambiguous scenario, this may or may not assert
     // it depends on the locality of `user#1`
     var store = {
@@ -52264,18 +52263,22 @@ enifed('ember-runtime/tests/ext/rsvp_test', ['ember-metal', 'ember-runtime/ext/r
         store.find('user', 1).then(function () {
           rejection.catch(function () {});
           assert.ok(true, 'reached end of test');
+          done();
         });
       });
     }, reason);
   });
 
   QUnit.test('handled in the next microTask queue flush (ajax example)', function (assert) {
+    var done = assert.async();
+
     assert.throws(function () {
       (0, _emberMetal.run)(function () {
         var rejection = _rsvp.default.Promise.reject(reason);
-        ajax('/something/').then(function () {
+        ajax().then(function () {
           rejection.catch(function () {});
           assert.ok(true, 'reached end of test');
+          done();
         });
       });
     }, reason);
@@ -59412,20 +59415,20 @@ enifed('ember-runtime/tests/suites/suite', ['exports', 'ember-utils', 'ember-run
         opts = {};
       }
 
-      var setup = opts.setup;
-      var teardown = opts.teardown;
+      var setup = opts.setup || opts.beforeEach;
+      var teardown = opts.teardown || opts.afterEach;
       this.reopen({
         run: function () {
           this._super.apply(this, arguments);
           var title = (0, _emberMetal.get)(this, 'name') + ': ' + desc;
           var ctx = this;
           QUnit.module(title, {
-            setup: function () {
+            beforeEach: function () {
               if (setup) {
                 setup.call(ctx);
               }
             },
-            teardown: function () {
+            afterEach: function () {
               if (teardown) {
                 teardown.call(ctx);
               }
@@ -59443,8 +59446,8 @@ enifed('ember-runtime/tests/suites/suite', ['exports', 'ember-utils', 'ember-run
           if (!func) {
             QUnit.test(name); // output warning
           } else {
-            QUnit.test(name, function () {
-              return func.call(ctx);
+            QUnit.test(name, function (assert) {
+              return func.call(ctx, assert);
             });
           }
         }
@@ -64785,7 +64788,7 @@ enifed('ember-testing/tests/adapters/qunit_test', ['ember-babel', 'ember-metal',
 
   var adapter;
 
-  (0, _internalTestHelpers.moduleFor)('ember-testing QUnitAdapter', function (_AbstractTestCase) {
+  (0, _internalTestHelpers.moduleFor)('ember-testing QUnitAdapter: QUnit 1.x', function (_AbstractTestCase) {
     (0, _emberBabel.inherits)(_class, _AbstractTestCase);
 
     function _class() {
@@ -64842,6 +64845,56 @@ enifed('ember-testing/tests/adapters/qunit_test', ['ember-babel', 'ember-metal',
     };
 
     return _class;
+  }(_internalTestHelpers.AbstractTestCase));
+
+  (0, _internalTestHelpers.moduleFor)('ember-testing QUnitAdapter: QUnit 2.x', function (_AbstractTestCase2) {
+    (0, _emberBabel.inherits)(_class2, _AbstractTestCase2);
+
+    function _class2() {
+      (0, _emberBabel.classCallCheck)(this, _class2);
+
+      var _this2 = (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase2.call(this));
+
+      _this2.originalStart = QUnit.start;
+      _this2.originalStop = QUnit.stop;
+
+      delete QUnit.start;
+      delete QUnit.stop;
+
+      adapter = new _qunit.default();
+      return _this2;
+    }
+
+    _class2.prototype.teardown = function teardown() {
+      (0, _emberMetal.run)(adapter, adapter.destroy);
+
+      QUnit.start = this.originalStart;
+      QUnit.stop = this.originalStop;
+    };
+
+    _class2.prototype['@test asyncStart waits for asyncEnd to finish a test'] = function testAsyncStartWaitsForAsyncEndToFinishATest(assert) {
+      adapter.asyncStart();
+
+      setTimeout(function () {
+        assert.ok(true);
+        adapter.asyncEnd();
+      }, 50);
+    };
+
+    _class2.prototype['@test asyncStart waits for equal numbers of asyncEnd to finish a test'] = function testAsyncStartWaitsForEqualNumbersOfAsyncEndToFinishATest(assert) {
+      var adapter = _qunit.default.create();
+
+      adapter.asyncStart();
+      adapter.asyncStart();
+      adapter.asyncEnd();
+
+      setTimeout(function () {
+        assert.ok(true);
+        adapter.asyncEnd();
+      }, 50);
+    };
+
+    return _class2;
   }(_internalTestHelpers.AbstractTestCase));
 });
 QUnit.module('ESLint | ember-testing/tests/adapters/qunit_test.js');
@@ -65733,7 +65786,7 @@ enifed('ember-testing/tests/helpers_test', ['ember-babel', 'internal-test-helper
       assert.expect(1);
 
       return this.application.testHelpers.wait().then(function () {
-        ok(true, 'should not error without `visit`');
+        assert.ok(true, 'should not error without `visit`');
       });
     };
 
@@ -67482,7 +67535,7 @@ enifed('ember/tests/application_lifecycle_test', ['ember-babel', 'internal-test-
       return application;
     };
 
-    _class2.prototype['@test Destroying a route after the router does create an undestroyed \'toplevelView\''] = function () {
+    _class2.prototype['@test Destroying a route after the router does create an undestroyed \'toplevelView\''] = function (assert) {
       var _this4 = this;
 
       this.runTask(function () {
@@ -67497,17 +67550,17 @@ enifed('ember/tests/application_lifecycle_test', ['ember-babel', 'internal-test-
       this.runTask(function () {
         return router.destroy();
       });
-      equal(router._toplevelView, null, 'the toplevelView was cleared');
+      assert.equal(router._toplevelView, null, 'the toplevelView was cleared');
 
       this.runTask(function () {
         return route.destroy();
       });
-      equal(router._toplevelView, null, 'the toplevelView was not reinitialized');
+      assert.equal(router._toplevelView, null, 'the toplevelView was not reinitialized');
 
       this.runTask(function () {
         return _this4.application.destroy();
       });
-      equal(router._toplevelView, null, 'the toplevelView was not reinitialized');
+      assert.equal(router._toplevelView, null, 'the toplevelView was not reinitialized');
     };
 
     _class2.prototype['@test initializers can augment an applications customEvents hash'] = function (assert) {
@@ -67724,7 +67777,7 @@ enifed('ember/tests/component_context_test', ['ember-babel', 'ember-runtime', 'e
       });
     };
 
-    _class.prototype['@test Components trigger actions in the parents context when called from within a block'] = function testComponentsTriggerActionsInTheParentsContextWhenCalledFromWithinABlock() {
+    _class.prototype['@test Components trigger actions in the parents context when called from within a block'] = function testComponentsTriggerActionsInTheParentsContextWhenCalledFromWithinABlock(assert) {
       var _this8 = this;
 
       this.addTemplate('application', '\n      <div id=\'wrapper\'>\n        {{#my-component}}\n          <a href=\'#\' id=\'fizzbuzz\' {{action \'fizzbuzz\'}}>Fizzbuzz</a>\n        {{/my-component}}\n      </div>\n    ');
@@ -67732,7 +67785,7 @@ enifed('ember/tests/component_context_test', ['ember-babel', 'ember-runtime', 'e
       this.add('controller:application', _emberRuntime.Controller.extend({
         actions: {
           fizzbuzz: function () {
-            ok(true, 'action triggered on parent');
+            assert.ok(true, 'action triggered on parent');
           }
         }
       }));
@@ -67743,7 +67796,7 @@ enifed('ember/tests/component_context_test', ['ember-babel', 'ember-runtime', 'e
       });
     };
 
-    _class.prototype['@test Components trigger actions in the components context when called from within its template'] = function testComponentsTriggerActionsInTheComponentsContextWhenCalledFromWithinItsTemplate() {
+    _class.prototype['@test Components trigger actions in the components context when called from within its template'] = function testComponentsTriggerActionsInTheComponentsContextWhenCalledFromWithinItsTemplate(assert) {
       var _this9 = this;
 
       this.addTemplate('application', '\n      <div id=\'wrapper\'>{{#my-component}}{{text}}{{/my-component}}</div>\n    ');
@@ -67751,7 +67804,7 @@ enifed('ember/tests/component_context_test', ['ember-babel', 'ember-runtime', 'e
       this.add('controller:application', _emberRuntime.Controller.extend({
         actions: {
           fizzbuzz: function () {
-            ok(false, 'action on the wrong context');
+            assert.ok(false, 'action on the wrong context');
           }
         }
       }));
@@ -67759,7 +67812,7 @@ enifed('ember/tests/component_context_test', ['ember-babel', 'ember-runtime', 'e
         ComponentClass: _emberGlimmer.Component.extend({
           actions: {
             fizzbuzz: function () {
-              ok(true, 'action triggered on component');
+              assert.ok(true, 'action triggered on component');
             }
           }
         }),
@@ -68054,12 +68107,12 @@ enifed('ember/tests/error_handler_test', ['ember', 'ember-metal'], function (_em
   var WINDOW_ONERROR = void 0;
 
   QUnit.module('error_handler', {
-    setup: function () {
+    beforeEach: function () {
       // capturing this outside of module scope to ensure we grab
       // the test frameworks own window.onerror to reset it
       WINDOW_ONERROR = window.onerror;
     },
-    teardown: function () {
+    afterEach: function () {
       _ember.default.onerror = ONERROR;
       _ember.default.testing = TESTING;
       window.onerror = WINDOW_ONERROR;
@@ -68085,12 +68138,12 @@ enifed('ember/tests/error_handler_test', ['ember', 'ember-metal'], function (_em
     });
   }
 
-  test('by default there is no onerror - sync run', function (assert) {
+  QUnit.test('by default there is no onerror - sync run', function (assert) {
     assert.strictEqual(_ember.default.onerror, undefined, 'precond - there should be no Ember.onerror set by default');
     assert.throws(runThatThrowsSync, Error, 'errors thrown sync are catchable');
   });
 
-  test('when Ember.onerror (which rethrows) is registered - sync run', function (assert) {
+  QUnit.test('when Ember.onerror (which rethrows) is registered - sync run', function (assert) {
     assert.expect(2);
     _ember.default.onerror = function (error) {
       assert.ok(true, 'onerror called');
@@ -68099,7 +68152,7 @@ enifed('ember/tests/error_handler_test', ['ember', 'ember-metal'], function (_em
     assert.throws(runThatThrowsSync, Error, 'error is thrown');
   });
 
-  test('when Ember.onerror (which does not rethrow) is registered - sync run', function (assert) {
+  QUnit.test('when Ember.onerror (which does not rethrow) is registered - sync run', function (assert) {
     assert.expect(2);
     _ember.default.onerror = function () {
       assert.ok(true, 'onerror called');
@@ -68109,7 +68162,7 @@ enifed('ember/tests/error_handler_test', ['ember', 'ember-metal'], function (_em
   });
 
   if (true) {
-    test('when Ember.Test.adapter is registered and error is thrown - sync run', function (assert) {
+    QUnit.test('when Ember.Test.adapter is registered and error is thrown - sync run', function (assert) {
       assert.expect(1);
 
       _ember.default.Test.adapter = {
@@ -68121,7 +68174,7 @@ enifed('ember/tests/error_handler_test', ['ember', 'ember-metal'], function (_em
       assert.throws(runThatThrowsSync, Error);
     });
 
-    test('when both Ember.onerror (which rethrows) and Ember.Test.adapter are registered - sync run', function (assert) {
+    QUnit.test('when both Ember.onerror (which rethrows) and Ember.Test.adapter are registered - sync run', function (assert) {
       assert.expect(2);
 
       _ember.default.Test.adapter = {
@@ -68138,7 +68191,7 @@ enifed('ember/tests/error_handler_test', ['ember', 'ember-metal'], function (_em
       assert.throws(runThatThrowsSync, Error, 'error is thrown');
     });
 
-    test('when both Ember.onerror (which does not rethrow) and Ember.Test.adapter are registered - sync run', function (assert) {
+    QUnit.test('when both Ember.onerror (which does not rethrow) and Ember.Test.adapter are registered - sync run', function (assert) {
       assert.expect(2);
 
       _ember.default.Test.adapter = {
@@ -68195,7 +68248,7 @@ enifed('ember/tests/error_handler_test', ['ember', 'ember-metal'], function (_em
       }, 20);
     });
 
-    test('when both Ember.onerror and Ember.Test.adapter are registered - async run', function (assert) {
+    QUnit.test('when both Ember.onerror and Ember.Test.adapter are registered - async run', function (assert) {
       assert.expect(1);
       var done = assert.async();
 
@@ -68352,7 +68405,7 @@ enifed('ember/tests/error_handler_test', ['ember', 'ember-metal'], function (_em
   function generateRSVPErrorHandlingTests(message, generatePromise) {
     var timeout = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 10;
 
-    test(message + ' when Ember.onerror which does not rethrow is present - rsvp', function (assert) {
+    QUnit.test(message + ' when Ember.onerror which does not rethrow is present - rsvp', function (assert) {
       assert.expect(1);
 
       var thrown = new Error('the error');
@@ -68369,7 +68422,7 @@ enifed('ember/tests/error_handler_test', ['ember', 'ember-metal'], function (_em
       });
     });
 
-    test(message + ' when Ember.onerror which does rethrow is present - rsvp', function (assert) {
+    QUnit.test(message + ' when Ember.onerror which does rethrow is present - rsvp', function (assert) {
       assert.expect(2);
 
       var thrown = new Error('the error');
@@ -68399,7 +68452,7 @@ enifed('ember/tests/error_handler_test', ['ember', 'ember-metal'], function (_em
       });
     });
 
-    test(message + ' when Ember.onerror which does not rethrow is present (Ember.testing = false) - rsvp', function (assert) {
+    QUnit.test(message + ' when Ember.onerror which does not rethrow is present (Ember.testing = false) - rsvp', function (assert) {
       assert.expect(1);
 
       _ember.default.testing = false;
@@ -68417,7 +68470,7 @@ enifed('ember/tests/error_handler_test', ['ember', 'ember-metal'], function (_em
       });
     });
 
-    test(message + ' when Ember.onerror which does rethrow is present (Ember.testing = false) - rsvp', function (assert) {
+    QUnit.test(message + ' when Ember.onerror which does rethrow is present (Ember.testing = false) - rsvp', function (assert) {
       assert.expect(2);
 
       _ember.default.testing = false;
@@ -68449,7 +68502,7 @@ enifed('ember/tests/error_handler_test', ['ember', 'ember-metal'], function (_em
     });
 
     if (true) {
-      test(message + ' when Ember.Test.adapter without `exception` method is present - rsvp', function (assert) {
+      QUnit.test(message + ' when Ember.Test.adapter without `exception` method is present - rsvp', function (assert) {
         assert.expect(1);
 
         var thrown = new Error('the error');
@@ -68478,7 +68531,7 @@ enifed('ember/tests/error_handler_test', ['ember', 'ember-metal'], function (_em
         });
       });
 
-      test(message + ' when both Ember.onerror and Ember.Test.adapter without `exception` method are present - rsvp', function (assert) {
+      QUnit.test(message + ' when both Ember.onerror and Ember.Test.adapter without `exception` method are present - rsvp', function (assert) {
         assert.expect(1);
 
         var thrown = new Error('the error');
@@ -68504,7 +68557,7 @@ enifed('ember/tests/error_handler_test', ['ember', 'ember-metal'], function (_em
         });
       });
 
-      test(message + ' when Ember.Test.adapter is present - rsvp', function (assert) {
+      QUnit.test(message + ' when Ember.Test.adapter is present - rsvp', function (assert) {
         assert.expect(1);
 
         var thrown = new Error('the error');
@@ -68523,7 +68576,7 @@ enifed('ember/tests/error_handler_test', ['ember', 'ember-metal'], function (_em
         });
       });
 
-      test(message + ' when both Ember.onerror and Ember.Test.adapter are present - rsvp', function (assert) {
+      QUnit.test(message + ' when both Ember.onerror and Ember.Test.adapter are present - rsvp', function (assert) {
         assert.expect(1);
 
         var thrown = new Error('the error');
@@ -68546,7 +68599,7 @@ enifed('ember/tests/error_handler_test', ['ember', 'ember-metal'], function (_em
         });
       });
 
-      test(message + ' when both Ember.onerror and Ember.Test.adapter are present - rsvp', function (assert) {
+      QUnit.test(message + ' when both Ember.onerror and Ember.Test.adapter are present - rsvp', function (assert) {
         assert.expect(2);
 
         var thrown = new Error('the error');
@@ -69138,7 +69191,7 @@ enifed('ember/tests/helpers/link_to_test', ['ember-babel', 'internal-test-helper
       assert.equal(normalizeUrl(this.$('#item a').attr('href')), '/about');
     };
 
-    _class4.prototype['@test The {{link-to}} helper supports custom, nested, current-when'] = function () {
+    _class4.prototype['@test The {{link-to}} helper supports custom, nested, current-when'] = function (assert) {
       this.router.map(function () {
         this.route('index', { path: '/' }, function () {
           this.route('about');
@@ -69152,7 +69205,7 @@ enifed('ember/tests/helpers/link_to_test', ['ember-babel', 'internal-test-helper
 
       this.visit('/about');
 
-      equal(this.$('#other-link.active').length, 1, 'The link is active since current-when is a parent route');
+      assert.equal(this.$('#other-link.active').length, 1, 'The link is active since current-when is a parent route');
     };
 
     _class4.prototype['@test The {{link-to}} helper does not disregard current-when when it is given explicitly for a route'] = function (assert) {
@@ -69433,7 +69486,7 @@ enifed('ember/tests/helpers/link_to_test', ['ember-babel', 'internal-test-helper
       assert.equal(event.isDefaultPrevented(), false, 'should not preventDefault');
     };
 
-    _class4.prototype['@test the {{link-to}} helper does not call preventDefault if \'preventDefault=boundFalseyThing\' is passed as an option'] = function () {
+    _class4.prototype['@test the {{link-to}} helper does not call preventDefault if \'preventDefault=boundFalseyThing\' is passed as an option'] = function (assert) {
       this.router.map(function () {
         this.route('about');
       });
@@ -69449,7 +69502,7 @@ enifed('ember/tests/helpers/link_to_test', ['ember-babel', 'internal-test-helper
       var event = _emberViews.jQuery.Event('click');
       this.$('#about-link').trigger(event);
 
-      equal(event.isDefaultPrevented(), false, 'should not preventDefault');
+      assert.equal(event.isDefaultPrevented(), false, 'should not preventDefault');
     };
 
     _class4.prototype['@test The {{link-to}} helper does not call preventDefault if \'target\' attribute is provided'] = function (assert) {
@@ -69463,7 +69516,7 @@ enifed('ember/tests/helpers/link_to_test', ['ember-babel', 'internal-test-helper
       assert.equal(event.isDefaultPrevented(), false, 'should not preventDefault when target attribute is specified');
     };
 
-    _class4.prototype['@test The {{link-to}} helper should preventDefault when \'target = _self\''] = function () {
+    _class4.prototype['@test The {{link-to}} helper should preventDefault when \'target = _self\''] = function (assert) {
       this.addTemplate('index', '\n      <h3>Home</h3>\n      {{#link-to \'index\' id=\'self-link\' target=\'_self\'}}Self{{/link-to}}\n    ');
 
       this.visit('/');
@@ -69471,7 +69524,7 @@ enifed('ember/tests/helpers/link_to_test', ['ember-babel', 'internal-test-helper
       var event = _emberViews.jQuery.Event('click');
       this.$('#self-link').trigger(event);
 
-      equal(event.isDefaultPrevented(), true, 'should preventDefault when target attribute is `_self`');
+      assert.equal(event.isDefaultPrevented(), true, 'should preventDefault when target attribute is `_self`');
     };
 
     _class4.prototype['@test The {{link-to}} helper should not transition if target is not equal to _self or empty'] = function (assert) {
@@ -69641,7 +69694,7 @@ enifed('ember/tests/helpers/link_to_test', ['ember-babel', 'internal-test-helper
       this.visit('/');
 
       var linksEqual = function (links, expected) {
-        equal(links.length, expected.length, 'Has correct number of links');
+        assert.equal(links.length, expected.length, 'Has correct number of links');
 
         var idx = void 0;
         for (idx = 0; idx < links.length; idx++) {
@@ -71223,40 +71276,40 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
     (0, _emberMetal.run)(App, 'advanceReadiness');
   }
 
-  function handleURL(path) {
+  function handleURL(assert, path) {
     return (0, _emberMetal.run)(function () {
       return router.handleURL(path).then(function (value) {
-        ok(true, 'url: `' + path + '` was handled');
+        assert.ok(true, 'url: `' + path + '` was handled');
         return value;
       }, function (reason) {
-        ok(false, 'failed to visit:`' + path + '` reason: `' + QUnit.jsDump.parse(reason));
+        assert.ok(false, 'failed to visit:`' + path + '` reason: `' + QUnit.jsDump.parse(reason));
         throw reason;
       });
     });
   }
 
-  function handleURLAborts(path) {
+  function handleURLAborts(assert, path) {
     (0, _emberMetal.run)(function () {
       router.handleURL(path).then(function () {
-        ok(false, 'url: `' + path + '` was NOT to be handled');
+        assert.ok(false, 'url: `' + path + '` was NOT to be handled');
       }, function (reason) {
-        ok(reason && reason.message === 'TransitionAborted', 'url: `' + path + '` was to be aborted');
+        assert.ok(reason && reason.message === 'TransitionAborted', 'url: `' + path + '` was to be aborted');
       });
     });
   }
 
-  function handleURLRejectsWith(path, expectedReason) {
+  function handleURLRejectsWith(assert, path, expectedReason) {
     (0, _emberMetal.run)(function () {
       router.handleURL(path).then(function () {
-        ok(false, 'expected handleURLing: `' + path + '` to fail');
+        assert.ok(false, 'expected handleURLing: `' + path + '` to fail');
       }, function (reason) {
-        equal(reason, expectedReason);
+        assert.equal(reason, expectedReason);
       });
     });
   }
 
   QUnit.module('Basic Routing', {
-    setup: function () {
+    beforeEach: function () {
       (0, _emberMetal.run)(function () {
         App = _emberApplication.Application.create({
           name: 'App',
@@ -71287,7 +71340,7 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
         _emberEnvironment.ENV._ENABLE_RENDER_SUPPORT = true;
       });
     },
-    teardown: function () {
+    afterEach: function () {
       (0, _emberMetal.run)(function () {
         App.destroy();
         App = null;
@@ -71299,7 +71352,7 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
     }
   });
 
-  QUnit.test('The route controller specified via controllerName is used in render', function () {
+  QUnit.test('The route controller specified via controllerName is used in render', function (assert) {
     Router.map(function () {
       this.route('home', { path: '/' });
     });
@@ -71319,11 +71372,11 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
 
     bootApplication();
 
-    deepEqual(container.lookup('route:home').controller, container.lookup('controller:myController'), 'route controller is set by controllerName');
-    equal((0, _emberViews.jQuery)('p', '#qunit-fixture').text(), 'alternative home: foo', 'The homepage template was rendered with data from the custom controller');
+    assert.deepEqual(container.lookup('route:home').controller, container.lookup('controller:myController'), 'route controller is set by controllerName');
+    assert.equal((0, _emberViews.jQuery)('p', '#qunit-fixture').text(), 'alternative home: foo', 'The homepage template was rendered with data from the custom controller');
   });
 
-  QUnit.test('The route controller specified via controllerName is used in render even when a controller with the routeName is available', function () {
+  QUnit.test('The route controller specified via controllerName is used in render even when a controller with the routeName is available', function (assert) {
     Router.map(function () {
       this.route('home', { path: '/' });
     });
@@ -71344,11 +71397,11 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
 
     bootApplication();
 
-    deepEqual(container.lookup('route:home').controller, container.lookup('controller:myController'), 'route controller is set by controllerName');
-    equal((0, _emberViews.jQuery)('p', '#qunit-fixture').text(), 'home: myController', 'The homepage template was rendered with data from the custom controller');
+    assert.deepEqual(container.lookup('route:home').controller, container.lookup('controller:myController'), 'route controller is set by controllerName');
+    assert.equal((0, _emberViews.jQuery)('p', '#qunit-fixture').text(), 'home: myController', 'The homepage template was rendered with data from the custom controller');
   });
 
-  QUnit.test('The Homepage with a `setupController` hook modifying other controllers', function () {
+  QUnit.test('The Homepage with a `setupController` hook modifying other controllers', function (assert) {
     Router.map(function () {
       this.route('home', { path: '/' });
     });
@@ -71363,10 +71416,10 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
 
     bootApplication();
 
-    equal((0, _emberViews.jQuery)('ul li', '#qunit-fixture').eq(2).text(), 'Sunday: Noon to 6pm', 'The template was rendered with the hours context');
+    assert.equal((0, _emberViews.jQuery)('ul li', '#qunit-fixture').eq(2).text(), 'Sunday: Noon to 6pm', 'The template was rendered with the hours context');
   });
 
-  QUnit.test('The Homepage with a computed context that does not get overridden', function () {
+  QUnit.test('The Homepage with a computed context that does not get overridden', function (assert) {
     Router.map(function () {
       this.route('home', { path: '/' });
     });
@@ -71381,10 +71434,10 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
 
     bootApplication();
 
-    equal((0, _emberViews.jQuery)('ul li', '#qunit-fixture').eq(2).text(), 'Sunday: Noon to 6pm', 'The template was rendered with the context intact');
+    assert.equal((0, _emberViews.jQuery)('ul li', '#qunit-fixture').eq(2).text(), 'Sunday: Noon to 6pm', 'The template was rendered with the context intact');
   });
 
-  QUnit.test('The Homepage getting its controller context via model', function () {
+  QUnit.test('The Homepage getting its controller context via model', function (assert) {
     Router.map(function () {
       this.route('home', { path: '/' });
     });
@@ -71394,7 +71447,7 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
         return (0, _emberRuntime.A)(['Monday through Friday: 9am to 5pm', 'Saturday: Noon to Midnight', 'Sunday: Noon to 6pm']);
       },
       setupController: function (controller, model) {
-        equal(this.controllerFor('home'), controller);
+        assert.equal(this.controllerFor('home'), controller);
 
         (0, _emberMetal.set)(this.controllerFor('home'), 'hours', model);
       }
@@ -71404,10 +71457,10 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
 
     bootApplication();
 
-    equal((0, _emberViews.jQuery)('ul li', '#qunit-fixture').eq(2).text(), 'Sunday: Noon to 6pm', 'The template was rendered with the hours context');
+    assert.equal((0, _emberViews.jQuery)('ul li', '#qunit-fixture').eq(2).text(), 'Sunday: Noon to 6pm', 'The template was rendered with the hours context');
   });
 
-  QUnit.test('The Specials Page getting its controller context by deserializing the params hash', function () {
+  QUnit.test('The Specials Page getting its controller context by deserializing the params hash', function (assert) {
     Router.map(function () {
       this.route('home', { path: '/' });
       this.route('special', { path: '/specials/:menu_item_id' });
@@ -71430,12 +71483,12 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
 
     registry.register('controller:special', _emberRuntime.Controller.extend());
 
-    handleURL('/specials/1');
+    handleURL(assert, '/specials/1');
 
-    equal((0, _emberViews.jQuery)('p', '#qunit-fixture').text(), '1', 'The model was used to render the template');
+    assert.equal((0, _emberViews.jQuery)('p', '#qunit-fixture').text(), '1', 'The model was used to render the template');
   });
 
-  QUnit.test('The Specials Page defaults to looking models up via `find`', function () {
+  QUnit.test('The Specials Page defaults to looking models up via `find`', function (assert) {
     Router.map(function () {
       this.route('home', { path: '/' });
       this.route('special', { path: '/specials/:menu_item_id' });
@@ -71462,12 +71515,12 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
 
     registry.register('controller:special', _emberRuntime.Controller.extend());
 
-    handleURL('/specials/1');
+    handleURL(assert, '/specials/1');
 
-    equal((0, _emberViews.jQuery)('p', '#qunit-fixture').text(), '1', 'The model was used to render the template');
+    assert.equal((0, _emberViews.jQuery)('p', '#qunit-fixture').text(), '1', 'The model was used to render the template');
   });
 
-  QUnit.test('The Special Page returning a promise puts the app into a loading state until the promise is resolved', function () {
+  QUnit.test('The Special Page returning a promise puts the app into a loading state until the promise is resolved', function (assert) {
     Router.map(function () {
       this.route('home', { path: '/' });
       this.route('special', { path: '/specials/:menu_item_id' });
@@ -71503,18 +71556,18 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
 
     registry.register('controller:special', _emberRuntime.Controller.extend());
 
-    handleURL('/specials/1');
+    handleURL(assert, '/specials/1');
 
-    equal((0, _emberViews.jQuery)('p', '#qunit-fixture').text(), 'LOADING!', 'The app is in the loading state');
+    assert.equal((0, _emberViews.jQuery)('p', '#qunit-fixture').text(), 'LOADING!', 'The app is in the loading state');
 
     (0, _emberMetal.run)(function () {
       return resolve(menuItem);
     });
 
-    equal((0, _emberViews.jQuery)('p', '#qunit-fixture').text(), '1', 'The app is now in the specials state');
+    assert.equal((0, _emberViews.jQuery)('p', '#qunit-fixture').text(), '1', 'The app is now in the specials state');
   });
 
-  QUnit.test('The loading state doesn\'t get entered for promises that resolve on the same run loop', function () {
+  QUnit.test('The loading state doesn\'t get entered for promises that resolve on the same run loop', function (assert) {
     Router.map(function () {
       this.route('home', { path: '/' });
       this.route('special', { path: '/specials/:menu_item_id' });
@@ -71529,7 +71582,7 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
 
     App.LoadingRoute = _emberRouting.Route.extend({
       enter: function () {
-        ok(false, 'LoadingRoute shouldn\'t have been entered.');
+        assert.ok(false, 'LoadingRoute shouldn\'t have been entered.');
       }
     });
 
@@ -71547,48 +71600,12 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
 
     registry.register('controller:special', _emberRuntime.Controller.extend());
 
-    handleURL('/specials/1');
+    handleURL(assert, '/specials/1');
 
-    equal((0, _emberViews.jQuery)('p', '#qunit-fixture').text(), '1', 'The app is now in the specials state');
+    assert.equal((0, _emberViews.jQuery)('p', '#qunit-fixture').text(), '1', 'The app is now in the specials state');
   });
 
-  /*
-  asyncTest("The Special page returning an error fires the error hook on SpecialRoute", function() {
-    Router.map(function() {
-      this.route("home", { path: "/" });
-      this.route("special", { path: "/specials/:menu_item_id" });
-    });
-  
-    let menuItem;
-  
-    App.MenuItem = Ember.Object.extend();
-    App.MenuItem.reopenClass({
-      find: function(id) {
-        menuItem = App.MenuItem.create({ id: id });
-        run.later(function() { menuItem.resolve(menuItem); }, 1);
-        return menuItem;
-      }
-    });
-  
-    App.SpecialRoute = Route.extend({
-      setup: function() {
-        throw 'Setup error';
-      },
-      actions: {
-        error: function(reason) {
-          equal(reason, 'Setup error');
-          QUnit.start();
-        }
-      }
-    });
-  
-    bootApplication();
-  
-    handleURLRejectsWith('/specials/1', 'Setup error');
-  });
-  */
-
-  QUnit.test('The Special page returning an error invokes SpecialRoute\'s error handler', function () {
+  QUnit.test('The Special page returning an error invokes SpecialRoute\'s error handler', function (assert) {
     Router.map(function () {
       this.route('home', { path: '/' });
       this.route('special', { path: '/specials/:menu_item_id' });
@@ -71617,7 +71634,7 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
 
       actions: {
         error: function (reason) {
-          equal(reason, 'Setup error', 'SpecialRoute#error received the error thrown from setup');
+          assert.equal(reason, 'Setup error', 'SpecialRoute#error received the error thrown from setup');
           return true;
         }
       }
@@ -71625,15 +71642,15 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
 
     bootApplication();
 
-    handleURLRejectsWith('/specials/1', 'Setup error');
+    handleURLRejectsWith(assert, '/specials/1', 'Setup error');
 
     (0, _emberMetal.run)(function () {
       return resolve(menuItem);
     });
   });
 
-  var testOverridableErrorHandler = function (handlersName) {
-    expect(2);
+  QUnit.test('ApplicationRoute\'s default error handler can be overridden', function (assert) {
+    assert.expect(2);
 
     Router.map(function () {
       this.route('home', { path: '/' });
@@ -71653,15 +71670,14 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
       }
     });
 
-    var attrs = {};
-    attrs[handlersName] = {
-      error: function (reason) {
-        equal(reason, 'Setup error', 'error was correctly passed to custom ApplicationRoute handler');
-        return true;
+    App.ApplicationRoute = _emberRouting.Route.extend({
+      actions: {
+        error: function (reason) {
+          assert.equal(reason, 'Setup error', 'error was correctly passed to custom ApplicationRoute handler');
+          return true;
+        }
       }
-    };
-
-    App.ApplicationRoute = _emberRouting.Route.extend(attrs);
+    });
 
     App.SpecialRoute = _emberRouting.Route.extend({
       setup: function () {
@@ -71671,19 +71687,16 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
 
     bootApplication();
 
-    handleURLRejectsWith('/specials/1', 'Setup error');
+    handleURLRejectsWith(assert, '/specials/1', 'Setup error');
 
     (0, _emberMetal.run)(function () {
       return resolve(menuItem);
     });
-  };
-
-  QUnit.test('ApplicationRoute\'s default error handler can be overridden', function () {
-    testOverridableErrorHandler('actions');
   });
 
-  QUnit.asyncTest('Moving from one page to another triggers the correct callbacks', function () {
-    expect(3);
+  QUnit.test('Moving from one page to another triggers the correct callbacks', function (assert) {
+    assert.expect(3);
+    var done = assert.async();
 
     Router.map(function () {
       this.route('home', { path: '/' });
@@ -71706,11 +71719,11 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
 
     registry.register('controller:special', _emberRuntime.Controller.extend());
 
-    var transition = handleURL('/');
+    var transition = handleURL(assert, '/');
 
     (0, _emberMetal.run)(function () {
       transition.then(function () {
-        equal((0, _emberViews.jQuery)('h3', '#qunit-fixture').text(), 'Home', 'The app is now in the initial state');
+        assert.equal((0, _emberViews.jQuery)('h3', '#qunit-fixture').text(), 'Home', 'The app is now in the initial state');
 
         var promiseContext = App.MenuItem.create({ id: 1 });
         _emberMetal.run.later(function () {
@@ -71719,13 +71732,14 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
 
         return router.transitionTo('special', promiseContext);
       }).then(function () {
-        deepEqual(router.location.path, '/specials/1');
-        QUnit.start();
+        assert.deepEqual(router.location.path, '/specials/1');
+        done();
       });
     });
   });
 
-  QUnit.asyncTest('Nested callbacks are not exited when moving to siblings', function () {
+  QUnit.test('Nested callbacks are not exited when moving to siblings', function (assert) {
+    var done = assert.async();
     Router.map(function () {
       this.route('root', { path: '/' }, function () {
         this.route('special', { path: '/specials/:menu_item_id', resetNamespace: true });
@@ -71794,11 +71808,11 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
 
     registry.register('controller:special', _emberRuntime.Controller.extend());
 
-    equal((0, _emberViews.jQuery)('h3', '#qunit-fixture').text(), 'Home', 'The app is now in the initial state');
-    equal(rootSetup, 1, 'The root setup was triggered');
-    equal(rootRender, 1, 'The root render was triggered');
-    equal(rootSerialize, 0, 'The root serialize was not called');
-    equal(rootModel, 1, 'The root model was called');
+    assert.equal((0, _emberViews.jQuery)('h3', '#qunit-fixture').text(), 'Home', 'The app is now in the initial state');
+    assert.equal(rootSetup, 1, 'The root setup was triggered');
+    assert.equal(rootRender, 1, 'The root render was triggered');
+    assert.equal(rootSerialize, 0, 'The root serialize was not called');
+    assert.equal(rootModel, 1, 'The root model was called');
 
     router = container.lookup('router:main');
 
@@ -71809,22 +71823,24 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
       }, 1);
 
       router.transitionTo('special', menuItem).then(function () {
-        equal(rootSetup, 1, 'The root setup was not triggered again');
-        equal(rootRender, 1, 'The root render was not triggered again');
-        equal(rootSerialize, 0, 'The root serialize was not called');
+        assert.equal(rootSetup, 1, 'The root setup was not triggered again');
+        assert.equal(rootRender, 1, 'The root render was not triggered again');
+        assert.equal(rootSerialize, 0, 'The root serialize was not called');
 
         // TODO: Should this be changed?
-        equal(rootModel, 1, 'The root model was called again');
+        assert.equal(rootModel, 1, 'The root model was called again');
 
-        deepEqual(router.location.path, '/specials/1');
-        equal(currentPath, 'root.special');
+        assert.deepEqual(router.location.path, '/specials/1');
+        assert.equal(currentPath, 'root.special');
 
-        QUnit.start();
+        done();
       });
     });
   });
 
-  QUnit.asyncTest('Events are triggered on the controller if a matching action name is implemented', function () {
+  QUnit.test('Events are triggered on the controller if a matching action name is implemented', function (assert) {
+    var done = assert.async();
+
     Router.map(function () {
       this.route('home', { path: '/' });
     });
@@ -71850,9 +71866,9 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
     var controller = _emberRuntime.Controller.extend({
       actions: {
         showStuff: function (context) {
-          ok(stateIsNotCalled, 'an event on the state is not triggered');
-          deepEqual(context, { name: 'Tom Dale' }, 'an event with context is passed');
-          QUnit.start();
+          assert.ok(stateIsNotCalled, 'an event on the state is not triggered');
+          assert.deepEqual(context, { name: 'Tom Dale' }, 'an event with context is passed');
+          done();
         }
       }
     });
@@ -71864,7 +71880,8 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
     (0, _emberViews.jQuery)('#qunit-fixture a').click();
   });
 
-  QUnit.asyncTest('Events are triggered on the current state when defined in `actions` object', function () {
+  QUnit.test('Events are triggered on the current state when defined in `actions` object', function (assert) {
+    var done = assert.async();
     Router.map(function () {
       this.route('home', { path: '/' });
     });
@@ -71879,10 +71896,10 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
 
       actions: {
         showStuff: function (obj) {
-          ok(this instanceof App.HomeRoute, 'the handler is an App.HomeRoute');
+          assert.ok(this instanceof App.HomeRoute, 'the handler is an App.HomeRoute');
           // Using Ember.copy removes any private Ember vars which older IE would be confused by
-          deepEqual((0, _emberRuntime.copy)(obj, true), { name: 'Tom Dale' }, 'the context is correct');
-          QUnit.start();
+          assert.deepEqual((0, _emberRuntime.copy)(obj, true), { name: 'Tom Dale' }, 'the context is correct');
+          done();
         }
       }
     });
@@ -71894,7 +71911,9 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
     (0, _emberViews.jQuery)('#qunit-fixture a').click();
   });
 
-  QUnit.asyncTest('Events defined in `actions` object are triggered on the current state when routes are nested', function () {
+  QUnit.test('Events defined in `actions` object are triggered on the current state when routes are nested', function (assert) {
+    var done = assert.async();
+
     Router.map(function () {
       this.route('root', { path: '/' }, function () {
         this.route('index', { path: '/' });
@@ -71906,10 +71925,10 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
     App.RootRoute = _emberRouting.Route.extend({
       actions: {
         showStuff: function (obj) {
-          ok(this instanceof App.RootRoute, 'the handler is an App.HomeRoute');
+          assert.ok(this instanceof App.RootRoute, 'the handler is an App.HomeRoute');
           // Using Ember.copy removes any private Ember vars which older IE would be confused by
-          deepEqual((0, _emberRuntime.copy)(obj, true), { name: 'Tom Dale' }, 'the context is correct');
-          QUnit.start();
+          assert.deepEqual((0, _emberRuntime.copy)(obj, true), { name: 'Tom Dale' }, 'the context is correct');
+          done();
         }
       }
     });
@@ -71927,16 +71946,16 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
     (0, _emberViews.jQuery)('#qunit-fixture a').click();
   });
 
-  QUnit.test('Events can be handled by inherited event handlers', function () {
-    expect(4);
+  QUnit.test('Events can be handled by inherited event handlers', function (assert) {
+    assert.expect(4);
 
     App.SuperRoute = _emberRouting.Route.extend({
       actions: {
         foo: function () {
-          ok(true, 'foo');
+          assert.ok(true, 'foo');
         },
         bar: function (msg) {
-          equal(msg, 'HELLO');
+          assert.equal(msg, 'HELLO');
         }
       }
     });
@@ -71944,7 +71963,7 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
     App.RouteMixin = _emberMetal.Mixin.create({
       actions: {
         bar: function (msg) {
-          equal(msg, 'HELLO');
+          assert.equal(msg, 'HELLO');
           this._super(msg);
         }
       }
@@ -71953,7 +71972,7 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
     App.IndexRoute = App.SuperRoute.extend(App.RouteMixin, {
       actions: {
         baz: function () {
-          ok(true, 'baz');
+          assert.ok(true, 'baz');
         }
       }
     });
@@ -71965,7 +71984,9 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
     router.send('baz');
   });
 
-  QUnit.asyncTest('Actions are not triggered on the controller if a matching action name is implemented as a method', function () {
+  QUnit.test('Actions are not triggered on the controller if a matching action name is implemented as a method', function (assert) {
+    var done = assert.async();
+
     Router.map(function () {
       this.route('home', { path: '/' });
     });
@@ -71981,9 +72002,9 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
 
       actions: {
         showStuff: function (context) {
-          ok(stateIsNotCalled, 'an event on the state is not triggered');
-          deepEqual(context, { name: 'Tom Dale' }, 'an event with context is passed');
-          QUnit.start();
+          assert.ok(stateIsNotCalled, 'an event on the state is not triggered');
+          assert.deepEqual(context, { name: 'Tom Dale' }, 'an event with context is passed');
+          done();
         }
       }
     });
@@ -71993,7 +72014,7 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
     var controller = _emberRuntime.Controller.extend({
       showStuff: function () {
         stateIsNotCalled = false;
-        ok(stateIsNotCalled, 'an event on the state is not triggered');
+        assert.ok(stateIsNotCalled, 'an event on the state is not triggered');
       }
     });
 
@@ -72004,7 +72025,8 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
     (0, _emberViews.jQuery)('#qunit-fixture a').click();
   });
 
-  QUnit.asyncTest('actions can be triggered with multiple arguments', function () {
+  QUnit.test('actions can be triggered with multiple arguments', function (assert) {
+    var done = assert.async();
     Router.map(function () {
       this.route('root', { path: '/' }, function () {
         this.route('index', { path: '/' });
@@ -72017,11 +72039,11 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
     App.RootRoute = _emberRouting.Route.extend({
       actions: {
         showStuff: function (obj1, obj2) {
-          ok(this instanceof App.RootRoute, 'the handler is an App.HomeRoute');
+          assert.ok(this instanceof App.RootRoute, 'the handler is an App.HomeRoute');
           // Using Ember.copy removes any private Ember vars which older IE would be confused by
-          deepEqual((0, _emberRuntime.copy)(obj1, true), { name: 'Tilde' }, 'the first context is correct');
-          deepEqual((0, _emberRuntime.copy)(obj2, true), { name: 'Tom Dale' }, 'the second context is correct');
-          QUnit.start();
+          assert.deepEqual((0, _emberRuntime.copy)(obj1, true), { name: 'Tilde' }, 'the first context is correct');
+          assert.deepEqual((0, _emberRuntime.copy)(obj2, true), { name: 'Tom Dale' }, 'the second context is correct');
+          done();
         }
       }
     });
@@ -72038,7 +72060,7 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
     (0, _emberViews.jQuery)('#qunit-fixture a').click();
   });
 
-  QUnit.test('transitioning multiple times in a single run loop only sets the URL once', function () {
+  QUnit.test('transitioning multiple times in a single run loop only sets the URL once', function (assert) {
     Router.map(function () {
       this.route('root', { path: '/' });
       this.route('foo');
@@ -72054,19 +72076,19 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
       (0, _emberMetal.set)(this, 'path', path);
     };
 
-    equal(urlSetCount, 0);
+    assert.equal(urlSetCount, 0);
 
     (0, _emberMetal.run)(function () {
       router.transitionTo('foo');
       router.transitionTo('bar');
     });
 
-    equal(urlSetCount, 1);
-    equal(router.get('location').getURL(), '/bar');
+    assert.equal(urlSetCount, 1);
+    assert.equal(router.get('location').getURL(), '/bar');
   });
 
-  QUnit.test('navigating away triggers a url property change', function () {
-    expect(3);
+  QUnit.test('navigating away triggers a url property change', function (assert) {
+    assert.expect(3);
 
     Router.map(function () {
       this.route('root', { path: '/' });
@@ -72078,7 +72100,7 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
 
     (0, _emberMetal.run)(function () {
       (0, _emberMetal.addObserver)(router, 'url', function () {
-        ok(true, 'url change event was fired');
+        assert.ok(true, 'url change event was fired');
       });
     });
 
@@ -72087,7 +72109,7 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
     });
   });
 
-  QUnit.test('using replaceWith calls location.replaceURL if available', function () {
+  QUnit.test('using replaceWith calls location.replaceURL if available', function (assert) {
     var setCount = 0;
     var replaceCount = 0;
 
@@ -72111,19 +72133,19 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
 
     bootApplication();
 
-    equal(setCount, 0);
-    equal(replaceCount, 0);
+    assert.equal(setCount, 0);
+    assert.equal(replaceCount, 0);
 
     (0, _emberMetal.run)(function () {
       return router.replaceWith('foo');
     });
 
-    equal(setCount, 0, 'should not call setURL');
-    equal(replaceCount, 1, 'should call replaceURL once');
-    equal(router.get('location').getURL(), '/foo');
+    assert.equal(setCount, 0, 'should not call setURL');
+    assert.equal(replaceCount, 1, 'should call replaceURL once');
+    assert.equal(router.get('location').getURL(), '/foo');
   });
 
-  QUnit.test('using replaceWith calls setURL if location.replaceURL is not defined', function () {
+  QUnit.test('using replaceWith calls setURL if location.replaceURL is not defined', function (assert) {
     var setCount = 0;
 
     Router.reopen({
@@ -72142,18 +72164,18 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
 
     bootApplication();
 
-    equal(setCount, 0);
+    assert.equal(setCount, 0);
 
     (0, _emberMetal.run)(function () {
       return router.replaceWith('foo');
     });
 
-    equal(setCount, 1, 'should call setURL once');
-    equal(router.get('location').getURL(), '/foo');
+    assert.equal(setCount, 1, 'should call setURL once');
+    assert.equal(router.get('location').getURL(), '/foo');
   });
 
-  QUnit.test('Route inherits model from parent route', function () {
-    expect(9);
+  QUnit.test('Route inherits model from parent route', function (assert) {
+    assert.expect(9);
 
     Router.map(function () {
       this.route('the_post', { path: '/posts/:post_id' }, function () {
@@ -72193,7 +72215,7 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
       afterModel: function (post /*, transition */) {
         var parent_model = this.modelFor('thePost');
 
-        equal(post, parent_model);
+        assert.equal(post, parent_model);
       }
     });
 
@@ -72207,24 +72229,24 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
       afterModel: function (share /*, transition */) {
         var parent_model = this.modelFor('shares');
 
-        equal(share, parent_model);
+        assert.equal(share, parent_model);
       }
     });
 
     bootApplication();
 
-    handleURL('/posts/1/comments');
-    handleURL('/posts/1/shares/1');
+    handleURL(assert, '/posts/1/comments');
+    handleURL(assert, '/posts/1/shares/1');
 
-    handleURL('/posts/2/comments');
-    handleURL('/posts/2/shares/2');
+    handleURL(assert, '/posts/2/comments');
+    handleURL(assert, '/posts/2/shares/2');
 
-    handleURL('/posts/3/comments');
-    handleURL('/posts/3/shares/3');
+    handleURL(assert, '/posts/3/comments');
+    handleURL(assert, '/posts/3/shares/3');
   });
 
-  QUnit.test('Routes with { resetNamespace: true } inherits model from parent route', function () {
-    expect(6);
+  QUnit.test('Routes with { resetNamespace: true } inherits model from parent route', function (assert) {
+    assert.expect(6);
 
     Router.map(function () {
       this.route('the_post', { path: '/posts/:post_id' }, function () {
@@ -72252,19 +72274,19 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
       afterModel: function (post /*, transition */) {
         var parent_model = this.modelFor('thePost');
 
-        equal(post, parent_model);
+        assert.equal(post, parent_model);
       }
     });
 
     bootApplication();
 
-    handleURL('/posts/1/comments');
-    handleURL('/posts/2/comments');
-    handleURL('/posts/3/comments');
+    handleURL(assert, '/posts/1/comments');
+    handleURL(assert, '/posts/2/comments');
+    handleURL(assert, '/posts/3/comments');
   });
 
-  QUnit.test('It is possible to get the model from a parent route', function () {
-    expect(9);
+  QUnit.test('It is possible to get the model from a parent route', function (assert) {
+    assert.expect(9);
 
     Router.map(function () {
       this.route('the_post', { path: '/posts/:post_id' }, function () {
@@ -72292,24 +72314,24 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
     App.CommentsRoute = _emberRouting.Route.extend({
       model: function () {
         // Allow both underscore / camelCase format.
-        equal(this.modelFor('thePost'), currentPost);
-        equal(this.modelFor('the_post'), currentPost);
+        assert.equal(this.modelFor('thePost'), currentPost);
+        assert.equal(this.modelFor('the_post'), currentPost);
       }
     });
 
     bootApplication();
 
     currentPost = post1;
-    handleURL('/posts/1/comments');
+    handleURL(assert, '/posts/1/comments');
 
     currentPost = post2;
-    handleURL('/posts/2/comments');
+    handleURL(assert, '/posts/2/comments');
 
     currentPost = post3;
-    handleURL('/posts/3/comments');
+    handleURL(assert, '/posts/3/comments');
   });
 
-  QUnit.test('A redirection hook is provided', function () {
+  QUnit.test('A redirection hook is provided', function (assert) {
     Router.map(function () {
       this.route('choose', { path: '/' });
       this.route('home');
@@ -72333,13 +72355,13 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
 
     bootApplication();
 
-    equal(chooseFollowed, 0, 'The choose route wasn\'t entered since a transition occurred');
-    equal((0, _emberViews.jQuery)('h3:contains(Hours)', '#qunit-fixture').length, 1, 'The home template was rendered');
-    equal((0, _emberUtils.getOwner)(router).lookup('controller:application').get('currentPath'), 'home');
+    assert.equal(chooseFollowed, 0, 'The choose route wasn\'t entered since a transition occurred');
+    assert.equal((0, _emberViews.jQuery)('h3:contains(Hours)', '#qunit-fixture').length, 1, 'The home template was rendered');
+    assert.equal((0, _emberUtils.getOwner)(router).lookup('controller:application').get('currentPath'), 'home');
   });
 
-  QUnit.test('Redirecting from the middle of a route aborts the remainder of the routes', function () {
-    expect(3);
+  QUnit.test('Redirecting from the middle of a route aborts the remainder of the routes', function (assert) {
+    assert.expect(3);
 
     Router.map(function () {
       this.route('home');
@@ -72355,26 +72377,26 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
         this.transitionTo('home');
       },
       setupController: function () {
-        ok(false, 'Should transition before setupController');
+        assert.ok(false, 'Should transition before setupController');
       }
     });
 
     App.BarBazRoute = _emberRouting.Route.extend({
       enter: function () {
-        ok(false, 'Should abort transition getting to next route');
+        assert.ok(false, 'Should abort transition getting to next route');
       }
     });
 
     bootApplication();
 
-    handleURLAborts('/foo/bar/baz');
+    handleURLAborts(assert, '/foo/bar/baz');
 
-    equal((0, _emberUtils.getOwner)(router).lookup('controller:application').get('currentPath'), 'home');
-    equal(router.get('location').getURL(), '/home');
+    assert.equal((0, _emberUtils.getOwner)(router).lookup('controller:application').get('currentPath'), 'home');
+    assert.equal(router.get('location').getURL(), '/home');
   });
 
-  QUnit.test('Redirecting to the current target in the middle of a route does not abort initial routing', function () {
-    expect(5);
+  QUnit.test('Redirecting to the current target in the middle of a route does not abort initial routing', function (assert) {
+    assert.expect(5);
 
     Router.map(function () {
       this.route('home');
@@ -72393,26 +72415,26 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
         });
       },
       setupController: function () {
-        ok(true, 'Should still invoke bar\'s setupController');
+        assert.ok(true, 'Should still invoke bar\'s setupController');
       }
     });
 
     App.BarBazRoute = _emberRouting.Route.extend({
       setupController: function () {
-        ok(true, 'Should still invoke bar.baz\'s setupController');
+        assert.ok(true, 'Should still invoke bar.baz\'s setupController');
       }
     });
 
     bootApplication();
 
-    handleURL('/foo/bar/baz');
+    handleURL(assert, '/foo/bar/baz');
 
-    equal((0, _emberUtils.getOwner)(router).lookup('controller:application').get('currentPath'), 'foo.bar.baz');
-    equal(successCount, 1, 'transitionTo success handler was called once');
+    assert.equal((0, _emberUtils.getOwner)(router).lookup('controller:application').get('currentPath'), 'foo.bar.baz');
+    assert.equal(successCount, 1, 'transitionTo success handler was called once');
   });
 
-  QUnit.test('Redirecting to the current target with a different context aborts the remainder of the routes', function () {
-    expect(4);
+  QUnit.test('Redirecting to the current target with a different context aborts the remainder of the routes', function (assert) {
+    assert.expect(4);
 
     Router.map(function () {
       this.route('home');
@@ -72430,7 +72452,7 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
     App.BarRoute = _emberRouting.Route.extend({
       afterModel: function () {
         if (count++ > 10) {
-          ok(false, 'infinite loop');
+          assert.ok(false, 'infinite loop');
         } else {
           this.transitionTo('bar.baz', model);
         }
@@ -72439,19 +72461,19 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
 
     App.BarBazRoute = _emberRouting.Route.extend({
       setupController: function () {
-        ok(true, 'Should still invoke setupController');
+        assert.ok(true, 'Should still invoke setupController');
       }
     });
 
     bootApplication();
 
-    handleURLAborts('/foo/bar/1/baz');
+    handleURLAborts(assert, '/foo/bar/1/baz');
 
-    equal((0, _emberUtils.getOwner)(router).lookup('controller:application').get('currentPath'), 'foo.bar.baz');
-    equal(router.get('location').getURL(), '/foo/bar/2/baz');
+    assert.equal((0, _emberUtils.getOwner)(router).lookup('controller:application').get('currentPath'), 'foo.bar.baz');
+    assert.equal(router.get('location').getURL(), '/foo/bar/2/baz');
   });
 
-  QUnit.test('Transitioning from a parent event does not prevent currentPath from being set', function () {
+  QUnit.test('Transitioning from a parent event does not prevent currentPath from being set', function (assert) {
     Router.map(function () {
       this.route('foo', function () {
         this.route('bar', { resetNamespace: true }, function () {
@@ -72473,20 +72495,20 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
 
     var applicationController = (0, _emberUtils.getOwner)(router).lookup('controller:application');
 
-    handleURL('/foo/bar/baz');
+    handleURL(assert, '/foo/bar/baz');
 
-    equal(applicationController.get('currentPath'), 'foo.bar.baz');
+    assert.equal(applicationController.get('currentPath'), 'foo.bar.baz');
 
     (0, _emberMetal.run)(function () {
       return router.send('goToQux');
     });
 
-    equal(applicationController.get('currentPath'), 'foo.qux');
-    equal(router.get('location').getURL(), '/foo/qux');
+    assert.equal(applicationController.get('currentPath'), 'foo.qux');
+    assert.equal(router.get('location').getURL(), '/foo/qux');
   });
 
-  QUnit.test('Generated names can be customized when providing routes with dot notation', function () {
-    expect(4);
+  QUnit.test('Generated names can be customized when providing routes with dot notation', function (assert) {
+    assert.expect(4);
 
     (0, _emberGlimmer.setTemplate)('index', (0, _emberTemplateCompiler.compile)('<div>Index</div>'));
     (0, _emberGlimmer.setTemplate)('application', (0, _emberTemplateCompiler.compile)('<h1>Home</h1><div class=\'main\'>{{outlet}}</div>'));
@@ -72504,14 +72526,14 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
 
     App.FooRoute = _emberRouting.Route.extend({
       renderTemplate: function () {
-        ok(true, 'FooBarRoute was called');
+        assert.ok(true, 'FooBarRoute was called');
         return this._super.apply(this, arguments);
       }
     });
 
     App.BarBazRoute = _emberRouting.Route.extend({
       renderTemplate: function () {
-        ok(true, 'BarBazRoute was called');
+        assert.ok(true, 'BarBazRoute was called');
         return this._super.apply(this, arguments);
       }
     });
@@ -72526,12 +72548,12 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
 
     bootApplication();
 
-    handleURL('/top/middle/bottom');
+    handleURL(assert, '/top/middle/bottom');
 
-    equal((0, _emberViews.jQuery)('.main .middle .bottom p', '#qunit-fixture').text(), 'BarBazBottom!', 'The templates were rendered into their appropriate parents');
+    assert.equal((0, _emberViews.jQuery)('.main .middle .bottom p', '#qunit-fixture').text(), 'BarBazBottom!', 'The templates were rendered into their appropriate parents');
   });
 
-  QUnit.test('Child routes render into their parent route\'s template by default', function () {
+  QUnit.test('Child routes render into their parent route\'s template by default', function (assert) {
     (0, _emberGlimmer.setTemplate)('index', (0, _emberTemplateCompiler.compile)('<div>Index</div>'));
     (0, _emberGlimmer.setTemplate)('application', (0, _emberTemplateCompiler.compile)('<h1>Home</h1><div class=\'main\'>{{outlet}}</div>'));
     (0, _emberGlimmer.setTemplate)('top', (0, _emberTemplateCompiler.compile)('<div class=\'middle\'>{{outlet}}</div>'));
@@ -72548,12 +72570,12 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
 
     bootApplication();
 
-    handleURL('/top/middle/bottom');
+    handleURL(assert, '/top/middle/bottom');
 
-    equal((0, _emberViews.jQuery)('.main .middle .bottom p', '#qunit-fixture').text(), 'Bottom!', 'The templates were rendered into their appropriate parents');
+    assert.equal((0, _emberViews.jQuery)('.main .middle .bottom p', '#qunit-fixture').text(), 'Bottom!', 'The templates were rendered into their appropriate parents');
   });
 
-  QUnit.test('Child routes render into specified template', function () {
+  QUnit.test('Child routes render into specified template', function (assert) {
     (0, _emberGlimmer.setTemplate)('index', (0, _emberTemplateCompiler.compile)('<div>Index</div>'));
     (0, _emberGlimmer.setTemplate)('application', (0, _emberTemplateCompiler.compile)('<h1>Home</h1><div class=\'main\'>{{outlet}}</div>'));
     (0, _emberGlimmer.setTemplate)('top', (0, _emberTemplateCompiler.compile)('<div class=\'middle\'>{{outlet}}</div>'));
@@ -72576,13 +72598,13 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
 
     bootApplication();
 
-    handleURL('/top/middle/bottom');
+    handleURL(assert, '/top/middle/bottom');
 
-    equal((0, _emberViews.jQuery)('.main .middle .bottom p', '#qunit-fixture').length, 0, 'should not render into the middle template');
-    equal((0, _emberViews.jQuery)('.main .middle > p', '#qunit-fixture').text(), 'Bottom!', 'The template was rendered into the top template');
+    assert.equal((0, _emberViews.jQuery)('.main .middle .bottom p', '#qunit-fixture').length, 0, 'should not render into the middle template');
+    assert.equal((0, _emberViews.jQuery)('.main .middle > p', '#qunit-fixture').text(), 'Bottom!', 'The template was rendered into the top template');
   });
 
-  QUnit.test('Rendering into specified template with slash notation', function () {
+  QUnit.test('Rendering into specified template with slash notation', function (assert) {
     (0, _emberGlimmer.setTemplate)('person/profile', (0, _emberTemplateCompiler.compile)('profile {{outlet}}'));
     (0, _emberGlimmer.setTemplate)('person/details', (0, _emberTemplateCompiler.compile)('details!'));
 
@@ -72599,10 +72621,10 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
 
     bootApplication();
 
-    equal((0, _emberViews.jQuery)('#qunit-fixture:contains(profile details!)').length, 1, 'The templates were rendered');
+    assert.equal((0, _emberViews.jQuery)('#qunit-fixture:contains(profile details!)').length, 1, 'The templates were rendered');
   });
 
-  QUnit.test('Parent route context change', function () {
+  QUnit.test('Parent route context change', function (assert) {
     var editCount = 0;
     var editedPostIds = (0, _emberRuntime.A)();
 
@@ -72658,7 +72680,7 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
 
     bootApplication();
 
-    handleURL('/posts/1');
+    handleURL(assert, '/posts/1');
 
     (0, _emberMetal.run)(function () {
       return router.send('editPost');
@@ -72670,11 +72692,11 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
       return router.send('editPost');
     });
 
-    equal(editCount, 2, 'set up the edit route twice without failure');
-    deepEqual(editedPostIds, ['1', '2'], 'modelFor posts.post returns the right context');
+    assert.equal(editCount, 2, 'set up the edit route twice without failure');
+    assert.deepEqual(editedPostIds, ['1', '2'], 'modelFor posts.post returns the right context');
   });
 
-  QUnit.test('Router accounts for rootURL on page load when using history location', function () {
+  QUnit.test('Router accounts for rootURL on page load when using history location', function (assert) {
     var rootURL = window.location.pathname + '/app';
     var postsTemplateRendered = false;
     var setHistory = void 0,
@@ -72724,18 +72746,18 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
 
     bootApplication();
 
-    ok(postsTemplateRendered, 'Posts route successfully stripped from rootURL');
+    assert.ok(postsTemplateRendered, 'Posts route successfully stripped from rootURL');
   });
 
-  QUnit.test('The rootURL is passed properly to the location implementation', function () {
-    expect(1);
+  QUnit.test('The rootURL is passed properly to the location implementation', function (assert) {
+    assert.expect(1);
     var rootURL = '/blahzorz';
     var HistoryTestLocation = void 0;
 
     HistoryTestLocation = _emberRouting.HistoryLocation.extend({
       rootURL: 'this is not the URL you are looking for',
       initState: function () {
-        equal(this.get('rootURL'), rootURL);
+        assert.equal(this.get('rootURL'), rootURL);
       }
     });
 
@@ -72750,7 +72772,7 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
     bootApplication();
   });
 
-  QUnit.test('Only use route rendered into main outlet for default into property on child', function () {
+  QUnit.test('Only use route rendered into main outlet for default into property on child', function (assert) {
     (0, _emberGlimmer.setTemplate)('application', (0, _emberTemplateCompiler.compile)('{{outlet \'menu\'}}{{outlet}}'));
     (0, _emberGlimmer.setTemplate)('posts', (0, _emberTemplateCompiler.compile)('{{outlet}}'));
     (0, _emberGlimmer.setTemplate)('posts/index', (0, _emberTemplateCompiler.compile)('<p class="posts-index">postsIndex</p>'));
@@ -72772,13 +72794,13 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
 
     bootApplication();
 
-    handleURL('/posts');
+    handleURL(assert, '/posts');
 
-    equal((0, _emberViews.jQuery)('div.posts-menu:contains(postsMenu)', '#qunit-fixture').length, 1, 'The posts/menu template was rendered');
-    equal((0, _emberViews.jQuery)('p.posts-index:contains(postsIndex)', '#qunit-fixture').length, 1, 'The posts/index template was rendered');
+    assert.equal((0, _emberViews.jQuery)('div.posts-menu:contains(postsMenu)', '#qunit-fixture').length, 1, 'The posts/menu template was rendered');
+    assert.equal((0, _emberViews.jQuery)('p.posts-index:contains(postsIndex)', '#qunit-fixture').length, 1, 'The posts/index template was rendered');
   });
 
-  QUnit.test('Generating a URL should not affect currentModel', function () {
+  QUnit.test('Generating a URL should not affect currentModel', function (assert) {
     Router.map(function () {
       this.route('post', { path: '/posts/:post_id' });
     });
@@ -72796,18 +72818,18 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
 
     bootApplication();
 
-    handleURL('/posts/1');
+    handleURL(assert, '/posts/1');
 
     var route = container.lookup('route:post');
-    equal(route.modelFor('post'), posts[1]);
+    assert.equal(route.modelFor('post'), posts[1]);
 
     var url = router.generate('post', posts[2]);
-    equal(url, '/posts/2');
+    assert.equal(url, '/posts/2');
 
-    equal(route.modelFor('post'), posts[1]);
+    assert.equal(route.modelFor('post'), posts[1]);
   });
 
-  QUnit.test('Generated route should be an instance of App.Route if provided', function () {
+  QUnit.test('Generated route should be an instance of App.Route if provided', function (assert) {
     var generatedRoute = void 0;
 
     Router.map(function () {
@@ -72818,14 +72840,14 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
 
     bootApplication();
 
-    handleURL('/posts');
+    handleURL(assert, '/posts');
 
     generatedRoute = container.lookup('route:posts');
 
-    ok(generatedRoute instanceof App.Route, 'should extend the correct route');
+    assert.ok(generatedRoute instanceof App.Route, 'should extend the correct route');
   });
 
-  QUnit.test('Nested index route is not overridden by parent\'s implicit index route', function () {
+  QUnit.test('Nested index route is not overridden by parent\'s implicit index route', function (assert) {
     Router.map(function () {
       this.route('posts', function () {
         this.route('index', { path: ':category' });
@@ -72838,10 +72860,10 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
       return router.transitionTo('posts', { category: 'emberjs' });
     });
 
-    deepEqual(router.location.path, '/posts/emberjs');
+    assert.deepEqual(router.location.path, '/posts/emberjs');
   });
 
-  QUnit.test('Application template does not duplicate when re-rendered', function () {
+  QUnit.test('Application template does not duplicate when re-rendered', function (assert) {
     (0, _emberGlimmer.setTemplate)('application', (0, _emberTemplateCompiler.compile)('<h3>I Render Once</h3>{{outlet}}'));
 
     Router.map(function () {
@@ -72857,12 +72879,12 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
     bootApplication();
 
     // should cause application template to re-render
-    handleURL('/posts');
+    handleURL(assert, '/posts');
 
-    equal((0, _emberViews.jQuery)('h3:contains(I Render Once)').length, 1);
+    assert.equal((0, _emberViews.jQuery)('h3:contains(I Render Once)').length, 1);
   });
 
-  QUnit.test('Child routes should render inside the application template if the application template causes a redirect', function () {
+  QUnit.test('Child routes should render inside the application template if the application template causes a redirect', function (assert) {
     (0, _emberGlimmer.setTemplate)('application', (0, _emberTemplateCompiler.compile)('<h3>App</h3> {{outlet}}'));
     (0, _emberGlimmer.setTemplate)('posts', (0, _emberTemplateCompiler.compile)('posts'));
 
@@ -72879,10 +72901,10 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
 
     bootApplication();
 
-    equal((0, _emberViews.jQuery)('#qunit-fixture').text(), 'App posts');
+    assert.equal((0, _emberViews.jQuery)('#qunit-fixture').text(), 'App posts');
   });
 
-  QUnit.test('The template is not re-rendered when the route\'s context changes', function () {
+  QUnit.test('The template is not re-rendered when the route\'s context changes', function (assert) {
     Router.map(function () {
       this.route('page', { path: '/page/:name' });
     });
@@ -72904,25 +72926,25 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
 
     bootApplication();
 
-    handleURL('/page/first');
+    handleURL(assert, '/page/first');
 
-    equal((0, _emberViews.jQuery)('p', '#qunit-fixture').text(), 'first');
-    equal(insertionCount, 1);
+    assert.equal((0, _emberViews.jQuery)('p', '#qunit-fixture').text(), 'first');
+    assert.equal(insertionCount, 1);
 
-    handleURL('/page/second');
+    handleURL(assert, '/page/second');
 
-    equal((0, _emberViews.jQuery)('p', '#qunit-fixture').text(), 'second');
-    equal(insertionCount, 1, 'view should have inserted only once');
+    assert.equal((0, _emberViews.jQuery)('p', '#qunit-fixture').text(), 'second');
+    assert.equal(insertionCount, 1, 'view should have inserted only once');
 
     (0, _emberMetal.run)(function () {
       return router.transitionTo('page', _emberRuntime.Object.create({ name: 'third' }));
     });
 
-    equal((0, _emberViews.jQuery)('p', '#qunit-fixture').text(), 'third');
-    equal(insertionCount, 1, 'view should still have inserted only once');
+    assert.equal((0, _emberViews.jQuery)('p', '#qunit-fixture').text(), 'third');
+    assert.equal(insertionCount, 1, 'view should still have inserted only once');
   });
 
-  QUnit.test('The template is not re-rendered when two routes present the exact same template & controller', function () {
+  QUnit.test('The template is not re-rendered when two routes present the exact same template & controller', function (assert) {
     Router.map(function () {
       this.route('first');
       this.route('second');
@@ -72959,37 +72981,37 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
 
     bootApplication();
 
-    handleURL('/first');
+    handleURL(assert, '/first');
 
-    equal((0, _emberViews.jQuery)('p', '#qunit-fixture').text(), 'This is the first message');
-    equal(insertionCount, 1, 'expected one assertion');
+    assert.equal((0, _emberViews.jQuery)('p', '#qunit-fixture').text(), 'This is the first message');
+    assert.equal(insertionCount, 1, 'expected one assertion');
 
     // Transition by URL
-    handleURL('/second');
+    handleURL(assert, '/second');
 
-    equal((0, _emberViews.jQuery)('p', '#qunit-fixture').text(), 'This is the second message');
-    equal(insertionCount, 1, 'expected one assertion');
+    assert.equal((0, _emberViews.jQuery)('p', '#qunit-fixture').text(), 'This is the second message');
+    assert.equal(insertionCount, 1, 'expected one assertion');
 
     // Then transition directly by route name
     (0, _emberMetal.run)(function () {
       router.transitionTo('third').then(function () {
-        ok(true, 'expected transition');
+        assert.ok(true, 'expected transition');
       }, function (reason) {
-        ok(false, 'unexpected transition failure: ', QUnit.jsDump.parse(reason));
+        assert.ok(false, 'unexpected transition failure: ', QUnit.jsDump.parse(reason));
       });
     });
 
-    equal((0, _emberViews.jQuery)('p', '#qunit-fixture').text(), 'This is the third message');
-    equal(insertionCount, 1, 'expected one assertion');
+    assert.equal((0, _emberViews.jQuery)('p', '#qunit-fixture').text(), 'This is the third message');
+    assert.equal(insertionCount, 1, 'expected one assertion');
 
     // Lastly transition to a different view, with the same controller and template
-    handleURL('/fourth');
-    equal(insertionCount, 1, 'expected one assertion');
+    handleURL(assert, '/fourth');
+    assert.equal(insertionCount, 1, 'expected one assertion');
 
-    equal((0, _emberViews.jQuery)('p', '#qunit-fixture').text(), 'This is the fourth message');
+    assert.equal((0, _emberViews.jQuery)('p', '#qunit-fixture').text(), 'This is the fourth message');
   });
 
-  QUnit.test('ApplicationRoute with model does not proxy the currentPath', function () {
+  QUnit.test('ApplicationRoute with model does not proxy the currentPath', function (assert) {
     var model = {};
     var currentPath = void 0;
 
@@ -73007,12 +73029,12 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
 
     bootApplication();
 
-    equal(currentPath, 'index', 'currentPath is index');
-    equal('currentPath' in model, false, 'should have defined currentPath on controller');
+    assert.equal(currentPath, 'index', 'currentPath is index');
+    assert.equal('currentPath' in model, false, 'should have defined currentPath on controller');
   });
 
-  QUnit.test('Promises encountered on app load put app into loading state until resolved', function () {
-    expect(2);
+  QUnit.test('Promises encountered on app load put app into loading state until resolved', function (assert) {
+    assert.expect(2);
 
     var deferred = _emberRuntime.RSVP.defer();
 
@@ -73027,12 +73049,12 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
 
     bootApplication();
 
-    equal((0, _emberViews.jQuery)('p', '#qunit-fixture').text(), 'LOADING', 'The loading state is displaying.');
+    assert.equal((0, _emberViews.jQuery)('p', '#qunit-fixture').text(), 'LOADING', 'The loading state is displaying.');
     (0, _emberMetal.run)(deferred.resolve);
-    equal((0, _emberViews.jQuery)('p', '#qunit-fixture').text(), 'INDEX', 'The index route is display.');
+    assert.equal((0, _emberViews.jQuery)('p', '#qunit-fixture').text(), 'INDEX', 'The index route is display.');
   });
 
-  QUnit.test('Route should tear down multiple outlets', function () {
+  QUnit.test('Route should tear down multiple outlets', function (assert) {
     (0, _emberGlimmer.setTemplate)('application', (0, _emberTemplateCompiler.compile)('{{outlet \'menu\'}}{{outlet}}{{outlet \'footer\'}}'));
     (0, _emberGlimmer.setTemplate)('posts', (0, _emberTemplateCompiler.compile)('{{outlet}}'));
     (0, _emberGlimmer.setTemplate)('users', (0, _emberTemplateCompiler.compile)('users'));
@@ -73063,17 +73085,17 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
 
     bootApplication();
 
-    handleURL('/posts');
+    handleURL(assert, '/posts');
 
-    equal((0, _emberViews.jQuery)('div.posts-menu:contains(postsMenu)', '#qunit-fixture').length, 1, 'The posts/menu template was rendered');
-    equal((0, _emberViews.jQuery)('p.posts-index:contains(postsIndex)', '#qunit-fixture').length, 1, 'The posts/index template was rendered');
-    equal((0, _emberViews.jQuery)('div.posts-footer:contains(postsFooter)', '#qunit-fixture').length, 1, 'The posts/footer template was rendered');
+    assert.equal((0, _emberViews.jQuery)('div.posts-menu:contains(postsMenu)', '#qunit-fixture').length, 1, 'The posts/menu template was rendered');
+    assert.equal((0, _emberViews.jQuery)('p.posts-index:contains(postsIndex)', '#qunit-fixture').length, 1, 'The posts/index template was rendered');
+    assert.equal((0, _emberViews.jQuery)('div.posts-footer:contains(postsFooter)', '#qunit-fixture').length, 1, 'The posts/footer template was rendered');
 
-    handleURL('/users');
+    handleURL(assert, '/users');
 
-    equal((0, _emberViews.jQuery)('div.posts-menu:contains(postsMenu)', '#qunit-fixture').length, 0, 'The posts/menu template was removed');
-    equal((0, _emberViews.jQuery)('p.posts-index:contains(postsIndex)', '#qunit-fixture').length, 0, 'The posts/index template was removed');
-    equal((0, _emberViews.jQuery)('div.posts-footer:contains(postsFooter)', '#qunit-fixture').length, 0, 'The posts/footer template was removed');
+    assert.equal((0, _emberViews.jQuery)('div.posts-menu:contains(postsMenu)', '#qunit-fixture').length, 0, 'The posts/menu template was removed');
+    assert.equal((0, _emberViews.jQuery)('p.posts-index:contains(postsIndex)', '#qunit-fixture').length, 0, 'The posts/index template was removed');
+    assert.equal((0, _emberViews.jQuery)('div.posts-footer:contains(postsFooter)', '#qunit-fixture').length, 0, 'The posts/footer template was removed');
   });
 
   QUnit.test('Route will assert if you try to explicitly render {into: ...} a missing template', function () {
@@ -73094,7 +73116,7 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
     }, 'You attempted to render into \'nonexistent\' but it was not found');
   });
 
-  QUnit.test('Route supports clearing outlet explicitly', function () {
+  QUnit.test('Route supports clearing outlet explicitly', function (assert) {
     (0, _emberGlimmer.setTemplate)('application', (0, _emberTemplateCompiler.compile)('{{outlet}}{{outlet \'modal\'}}'));
     (0, _emberGlimmer.setTemplate)('posts', (0, _emberTemplateCompiler.compile)('{{outlet}}'));
     (0, _emberGlimmer.setTemplate)('users', (0, _emberTemplateCompiler.compile)('users'));
@@ -73136,50 +73158,50 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
 
     bootApplication();
 
-    handleURL('/posts');
+    handleURL(assert, '/posts');
 
-    equal((0, _emberViews.jQuery)('div.posts-index:contains(postsIndex)', '#qunit-fixture').length, 1, 'The posts/index template was rendered');
+    assert.equal((0, _emberViews.jQuery)('div.posts-index:contains(postsIndex)', '#qunit-fixture').length, 1, 'The posts/index template was rendered');
 
     (0, _emberMetal.run)(function () {
       return router.send('showModal');
     });
 
-    equal((0, _emberViews.jQuery)('div.posts-modal:contains(postsModal)', '#qunit-fixture').length, 1, 'The posts/modal template was rendered');
+    assert.equal((0, _emberViews.jQuery)('div.posts-modal:contains(postsModal)', '#qunit-fixture').length, 1, 'The posts/modal template was rendered');
 
     (0, _emberMetal.run)(function () {
       return router.send('showExtra');
     });
 
-    equal((0, _emberViews.jQuery)('div.posts-extra:contains(postsExtra)', '#qunit-fixture').length, 1, 'The posts/extra template was rendered');
+    assert.equal((0, _emberViews.jQuery)('div.posts-extra:contains(postsExtra)', '#qunit-fixture').length, 1, 'The posts/extra template was rendered');
 
     (0, _emberMetal.run)(function () {
       return router.send('hideModal');
     });
 
-    equal((0, _emberViews.jQuery)('div.posts-modal:contains(postsModal)', '#qunit-fixture').length, 0, 'The posts/modal template was removed');
+    assert.equal((0, _emberViews.jQuery)('div.posts-modal:contains(postsModal)', '#qunit-fixture').length, 0, 'The posts/modal template was removed');
 
     (0, _emberMetal.run)(function () {
       return router.send('hideExtra');
     });
 
-    equal((0, _emberViews.jQuery)('div.posts-extra:contains(postsExtra)', '#qunit-fixture').length, 0, 'The posts/extra template was removed');
+    assert.equal((0, _emberViews.jQuery)('div.posts-extra:contains(postsExtra)', '#qunit-fixture').length, 0, 'The posts/extra template was removed');
     (0, _emberMetal.run)(function () {
       router.send('showModal');
     });
-    equal((0, _emberViews.jQuery)('div.posts-modal:contains(postsModal)', '#qunit-fixture').length, 1, 'The posts/modal template was rendered');
+    assert.equal((0, _emberViews.jQuery)('div.posts-modal:contains(postsModal)', '#qunit-fixture').length, 1, 'The posts/modal template was rendered');
     (0, _emberMetal.run)(function () {
       router.send('showExtra');
     });
-    equal((0, _emberViews.jQuery)('div.posts-extra:contains(postsExtra)', '#qunit-fixture').length, 1, 'The posts/extra template was rendered');
+    assert.equal((0, _emberViews.jQuery)('div.posts-extra:contains(postsExtra)', '#qunit-fixture').length, 1, 'The posts/extra template was rendered');
 
-    handleURL('/users');
+    handleURL(assert, '/users');
 
-    equal((0, _emberViews.jQuery)('div.posts-index:contains(postsIndex)', '#qunit-fixture').length, 0, 'The posts/index template was removed');
-    equal((0, _emberViews.jQuery)('div.posts-modal:contains(postsModal)', '#qunit-fixture').length, 0, 'The posts/modal template was removed');
-    equal((0, _emberViews.jQuery)('div.posts-extra:contains(postsExtra)', '#qunit-fixture').length, 0, 'The posts/extra template was removed');
+    assert.equal((0, _emberViews.jQuery)('div.posts-index:contains(postsIndex)', '#qunit-fixture').length, 0, 'The posts/index template was removed');
+    assert.equal((0, _emberViews.jQuery)('div.posts-modal:contains(postsModal)', '#qunit-fixture').length, 0, 'The posts/modal template was removed');
+    assert.equal((0, _emberViews.jQuery)('div.posts-extra:contains(postsExtra)', '#qunit-fixture').length, 0, 'The posts/extra template was removed');
   });
 
-  QUnit.test('Route supports clearing outlet using string parameter', function () {
+  QUnit.test('Route supports clearing outlet using string parameter', function (assert) {
     (0, _emberGlimmer.setTemplate)('application', (0, _emberTemplateCompiler.compile)('{{outlet}}{{outlet \'modal\'}}'));
     (0, _emberGlimmer.setTemplate)('posts', (0, _emberTemplateCompiler.compile)('{{outlet}}'));
     (0, _emberGlimmer.setTemplate)('users', (0, _emberTemplateCompiler.compile)('users'));
@@ -73207,30 +73229,30 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
 
     bootApplication();
 
-    handleURL('/posts');
+    handleURL(assert, '/posts');
 
-    equal((0, _emberViews.jQuery)('div.posts-index:contains(postsIndex)', '#qunit-fixture').length, 1, 'The posts/index template was rendered');
+    assert.equal((0, _emberViews.jQuery)('div.posts-index:contains(postsIndex)', '#qunit-fixture').length, 1, 'The posts/index template was rendered');
 
     (0, _emberMetal.run)(function () {
       return router.send('showModal');
     });
 
-    equal((0, _emberViews.jQuery)('div.posts-modal:contains(postsModal)', '#qunit-fixture').length, 1, 'The posts/modal template was rendered');
+    assert.equal((0, _emberViews.jQuery)('div.posts-modal:contains(postsModal)', '#qunit-fixture').length, 1, 'The posts/modal template was rendered');
 
     (0, _emberMetal.run)(function () {
       return router.send('hideModal');
     });
 
-    equal((0, _emberViews.jQuery)('div.posts-modal:contains(postsModal)', '#qunit-fixture').length, 0, 'The posts/modal template was removed');
+    assert.equal((0, _emberViews.jQuery)('div.posts-modal:contains(postsModal)', '#qunit-fixture').length, 0, 'The posts/modal template was removed');
 
-    handleURL('/users');
+    handleURL(assert, '/users');
 
-    equal((0, _emberViews.jQuery)('div.posts-index:contains(postsIndex)', '#qunit-fixture').length, 0, 'The posts/index template was removed');
-    equal((0, _emberViews.jQuery)('div.posts-modal:contains(postsModal)', '#qunit-fixture').length, 0, 'The posts/modal template was removed');
+    assert.equal((0, _emberViews.jQuery)('div.posts-index:contains(postsIndex)', '#qunit-fixture').length, 0, 'The posts/index template was removed');
+    assert.equal((0, _emberViews.jQuery)('div.posts-modal:contains(postsModal)', '#qunit-fixture').length, 0, 'The posts/modal template was removed');
   });
 
-  QUnit.test('Route silently fails when cleaning an outlet from an inactive view', function () {
-    expect(1); // handleURL
+  QUnit.test('Route silently fails when cleaning an outlet from an inactive view', function (assert) {
+    assert.expect(1); // handleURL
 
     (0, _emberGlimmer.setTemplate)('application', (0, _emberTemplateCompiler.compile)('{{outlet}}'));
     (0, _emberGlimmer.setTemplate)('posts', (0, _emberTemplateCompiler.compile)('{{outlet \'modal\'}}'));
@@ -73256,7 +73278,7 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
 
     bootApplication();
 
-    handleURL('/posts');
+    handleURL(assert, '/posts');
 
     (0, _emberMetal.run)(function () {
       return router.send('showModal');
@@ -73269,10 +73291,10 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
     });
   });
 
-  QUnit.test('Router `willTransition` hook passes in cancellable transition', function () {
+  QUnit.test('Router `willTransition` hook passes in cancellable transition', function (assert) {
     // Should hit willTransition 3 times, once for the initial route, and then 2 more times
     // for the two handleURL calls below
-    expect(3);
+    assert.expect(3);
 
     Router.map(function () {
       this.route('nork');
@@ -73285,26 +73307,26 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
         this.on('willTransition', this.testWillTransitionHook);
       },
       testWillTransitionHook: function (transition, url) {
-        ok(true, 'willTransition was called ' + url);
+        assert.ok(true, 'willTransition was called ' + url);
         transition.abort();
       }
     });
 
     App.LoadingRoute = _emberRouting.Route.extend({
       activate: function () {
-        ok(false, 'LoadingRoute was not entered');
+        assert.ok(false, 'LoadingRoute was not entered');
       }
     });
 
     App.NorkRoute = _emberRouting.Route.extend({
       activate: function () {
-        ok(false, 'NorkRoute was not entered');
+        assert.ok(false, 'NorkRoute was not entered');
       }
     });
 
     App.AboutRoute = _emberRouting.Route.extend({
       activate: function () {
-        ok(false, 'AboutRoute was not entered');
+        assert.ok(false, 'AboutRoute was not entered');
       }
     });
 
@@ -73315,8 +73337,8 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
     (0, _emberMetal.run)(router, 'handleURL', '/about');
   });
 
-  QUnit.test('Aborting/redirecting the transition in `willTransition` prevents LoadingRoute from being entered', function () {
-    expect(8);
+  QUnit.test('Aborting/redirecting the transition in `willTransition` prevents LoadingRoute from being entered', function (assert) {
+    assert.expect(8);
 
     Router.map(function () {
       this.route('nork');
@@ -73328,7 +73350,7 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
     App.IndexRoute = _emberRouting.Route.extend({
       actions: {
         willTransition: function (transition) {
-          ok(true, 'willTransition was called');
+          assert.ok(true, 'willTransition was called');
           if (redirect) {
             // router.js won't refire `willTransition` for this redirect
             this.transitionTo('about');
@@ -73343,22 +73365,22 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
 
     App.LoadingRoute = _emberRouting.Route.extend({
       activate: function () {
-        ok(deferred, 'LoadingRoute should be entered at this time');
+        assert.ok(deferred, 'LoadingRoute should be entered at this time');
       },
       deactivate: function () {
-        ok(true, 'LoadingRoute was exited');
+        assert.ok(true, 'LoadingRoute was exited');
       }
     });
 
     App.NorkRoute = _emberRouting.Route.extend({
       activate: function () {
-        ok(true, 'NorkRoute was entered');
+        assert.ok(true, 'NorkRoute was entered');
       }
     });
 
     App.AboutRoute = _emberRouting.Route.extend({
       activate: function () {
-        ok(true, 'AboutRoute was entered');
+        assert.ok(true, 'AboutRoute was entered');
       },
       model: function () {
         if (deferred) {
@@ -73386,8 +73408,8 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
     (0, _emberMetal.run)(deferred.resolve);
   });
 
-  QUnit.test('`didTransition` event fires on the router', function () {
-    expect(3);
+  QUnit.test('`didTransition` event fires on the router', function (assert) {
+    assert.expect(3);
 
     Router.map(function () {
       this.route('nork');
@@ -73396,20 +73418,20 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
     router = container.lookup('router:main');
 
     router.one('didTransition', function () {
-      ok(true, 'didTransition fired on initial routing');
+      assert.ok(true, 'didTransition fired on initial routing');
     });
 
     bootApplication();
 
     router.one('didTransition', function () {
-      ok(true, 'didTransition fired on the router');
-      equal(router.get('url'), '/nork', 'The url property is updated by the time didTransition fires');
+      assert.ok(true, 'didTransition fired on the router');
+      assert.equal(router.get('url'), '/nork', 'The url property is updated by the time didTransition fires');
     });
 
     (0, _emberMetal.run)(router, 'transitionTo', 'nork');
   });
-  QUnit.test('`didTransition` can be reopened', function () {
-    expect(1);
+  QUnit.test('`didTransition` can be reopened', function (assert) {
+    assert.expect(1);
 
     Router.map(function () {
       this.route('nork');
@@ -73418,15 +73440,15 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
     Router.reopen({
       didTransition: function () {
         this._super.apply(this, arguments);
-        ok(true, 'reopened didTransition was called');
+        assert.ok(true, 'reopened didTransition was called');
       }
     });
 
     bootApplication();
   });
 
-  QUnit.test('`activate` event fires on the route', function () {
-    expect(2);
+  QUnit.test('`activate` event fires on the route', function (assert) {
+    assert.expect(2);
 
     var eventFired = 0;
 
@@ -73439,11 +73461,11 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
         this._super.apply(this, arguments);
 
         this.on('activate', function () {
-          equal(++eventFired, 1, 'activate event is fired once');
+          assert.equal(++eventFired, 1, 'activate event is fired once');
         });
       },
       activate: function () {
-        ok(true, 'activate hook is called');
+        assert.ok(true, 'activate hook is called');
       }
     });
 
@@ -73452,8 +73474,8 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
     (0, _emberMetal.run)(router, 'transitionTo', 'nork');
   });
 
-  QUnit.test('`deactivate` event fires on the route', function () {
-    expect(2);
+  QUnit.test('`deactivate` event fires on the route', function (assert) {
+    assert.expect(2);
 
     var eventFired = 0;
 
@@ -73467,11 +73489,11 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
         this._super.apply(this, arguments);
 
         this.on('deactivate', function () {
-          equal(++eventFired, 1, 'deactivate event is fired once');
+          assert.equal(++eventFired, 1, 'deactivate event is fired once');
         });
       },
       deactivate: function () {
-        ok(true, 'deactivate hook is called');
+        assert.ok(true, 'deactivate hook is called');
       }
     });
 
@@ -73481,16 +73503,16 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
     (0, _emberMetal.run)(router, 'transitionTo', 'dork');
   });
 
-  QUnit.test('Actions can be handled by inherited action handlers', function () {
-    expect(4);
+  QUnit.test('Actions can be handled by inherited action handlers', function (assert) {
+    assert.expect(4);
 
     App.SuperRoute = _emberRouting.Route.extend({
       actions: {
         foo: function () {
-          ok(true, 'foo');
+          assert.ok(true, 'foo');
         },
         bar: function (msg) {
-          equal(msg, 'HELLO');
+          assert.equal(msg, 'HELLO');
         }
       }
     });
@@ -73498,7 +73520,7 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
     App.RouteMixin = _emberMetal.Mixin.create({
       actions: {
         bar: function (msg) {
-          equal(msg, 'HELLO');
+          assert.equal(msg, 'HELLO');
           this._super(msg);
         }
       }
@@ -73507,7 +73529,7 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
     App.IndexRoute = App.SuperRoute.extend(App.RouteMixin, {
       actions: {
         baz: function () {
-          ok(true, 'baz');
+          assert.ok(true, 'baz');
         }
       }
     });
@@ -73519,8 +73541,8 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
     router.send('baz');
   });
 
-  QUnit.test('transitionTo returns Transition when passed a route name', function () {
-    expect(1);
+  QUnit.test('transitionTo returns Transition when passed a route name', function (assert) {
+    assert.expect(1);
     Router.map(function () {
       this.route('root', { path: '/' });
       this.route('bar');
@@ -73532,11 +73554,11 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
       return router.transitionTo('bar');
     });
 
-    equal(transition instanceof _router.Transition, true);
+    assert.equal(transition instanceof _router.Transition, true);
   });
 
-  QUnit.test('transitionTo returns Transition when passed a url', function () {
-    expect(1);
+  QUnit.test('transitionTo returns Transition when passed a url', function (assert) {
+    assert.expect(1);
     Router.map(function () {
       this.route('root', { path: '/' });
       this.route('bar', function () {
@@ -73550,11 +73572,11 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
       return router.transitionTo('/bar/baz');
     });
 
-    equal(transition instanceof _router.Transition, true);
+    assert.equal(transition instanceof _router.Transition, true);
   });
 
-  QUnit.test('currentRouteName is a property installed on ApplicationController that can be used in transitionTo', function () {
-    expect(24);
+  QUnit.test('currentRouteName is a property installed on ApplicationController that can be used in transitionTo', function (assert) {
+    assert.expect(24);
 
     Router.map(function () {
       this.route('be', function () {
@@ -73576,8 +73598,8 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
       if (path) {
         (0, _emberMetal.run)(router, 'transitionTo', path);
       }
-      equal(appController.get('currentPath'), expectedPath);
-      equal(appController.get('currentRouteName'), expectedRouteName);
+      assert.equal(appController.get('currentPath'), expectedPath);
+      assert.equal(appController.get('currentRouteName'), expectedRouteName);
     }
 
     transitionAndCheck(null, 'index', 'index');
@@ -73595,7 +73617,7 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
     transitionAndCheck('each.other', 'be.excellent.to.each.other', 'each.other');
   });
 
-  QUnit.test('Route model hook finds the same model as a manual find', function () {
+  QUnit.test('Route model hook finds the same model as a manual find', function (assert) {
     var Post = void 0;
     App.Post = _emberRuntime.Object.extend();
     App.Post.reopenClass({
@@ -73611,12 +73633,12 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
 
     bootApplication();
 
-    handleURL('/post/1');
+    handleURL(assert, '/post/1');
 
-    equal(App.Post, Post);
+    assert.equal(App.Post, Post);
   });
 
-  QUnit.test('Routes can refresh themselves causing their model hooks to be re-run', function () {
+  QUnit.test('Routes can refresh themselves causing their model hooks to be re-run', function (assert) {
     Router.map(function () {
       this.route('parent', { path: '/parent/:parent_id' }, function () {
         this.route('child');
@@ -73633,7 +73655,7 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
     var parentcount = 0;
     App.ParentRoute = _emberRouting.Route.extend({
       model: function (params) {
-        equal(params.parent_id, '123');
+        assert.equal(params.parent_id, '123');
         ++parentcount;
       },
 
@@ -73653,25 +73675,25 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
 
     bootApplication();
 
-    equal(appcount, 1);
-    equal(parentcount, 0);
-    equal(childcount, 0);
+    assert.equal(appcount, 1);
+    assert.equal(parentcount, 0);
+    assert.equal(childcount, 0);
 
     (0, _emberMetal.run)(router, 'transitionTo', 'parent.child', '123');
 
-    equal(appcount, 1);
-    equal(parentcount, 1);
-    equal(childcount, 1);
+    assert.equal(appcount, 1);
+    assert.equal(parentcount, 1);
+    assert.equal(childcount, 1);
 
     (0, _emberMetal.run)(router, 'send', 'refreshParent');
 
-    equal(appcount, 1);
-    equal(parentcount, 2);
-    equal(childcount, 2);
+    assert.equal(appcount, 1);
+    assert.equal(parentcount, 2);
+    assert.equal(childcount, 2);
   });
 
-  QUnit.test('Specifying non-existent controller name in route#render throws', function () {
-    expect(1);
+  QUnit.test('Specifying non-existent controller name in route#render throws', function (assert) {
+    assert.expect(1);
 
     Router.map(function () {
       this.route('home', { path: '/' });
@@ -73690,7 +73712,7 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
     bootApplication();
   });
 
-  QUnit.test('Redirecting with null model doesn\'t error out', function () {
+  QUnit.test('Redirecting with null model doesn\'t error out', function (assert) {
     Router.map(function () {
       this.route('home', { path: '/' });
       this.route('about', { path: '/about/:hurhurhur' });
@@ -73712,11 +73734,11 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
 
     bootApplication();
 
-    equal(router.get('location.path'), '/about/TreeklesMcGeekles');
+    assert.equal(router.get('location.path'), '/about/TreeklesMcGeekles');
   });
 
-  QUnit.test('rejecting the model hooks promise with a non-error prints the `message` property', function () {
-    expect(5);
+  QUnit.test('rejecting the model hooks promise with a non-error prints the `message` property', function (assert) {
+    assert.expect(5);
 
     var rejectedMessage = 'OMG!! SOOOOOO BAD!!!!';
     var rejectedStack = 'Yeah, buddy: stack gets printed too.';
@@ -73726,9 +73748,9 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
     });
 
     _emberConsole.default.error = function (initialMessage, errorMessage, errorStack) {
-      equal(initialMessage, 'Error while processing route: yippie', 'a message with the current route name is printed');
-      equal(errorMessage, rejectedMessage, 'the rejected reason\'s message property is logged');
-      equal(errorStack, rejectedStack, 'the rejected reason\'s stack property is logged');
+      assert.equal(initialMessage, 'Error while processing route: yippie', 'a message with the current route name is printed');
+      assert.equal(errorMessage, rejectedMessage, 'the rejected reason\'s message property is logged');
+      assert.equal(errorStack, rejectedStack, 'the rejected reason\'s stack property is logged');
     };
 
     App.YippieRoute = _emberRouting.Route.extend({
@@ -73737,16 +73759,16 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
       }
     });
 
-    throws(function () {
+    assert.throws(function () {
       bootApplication();
     }, function (err) {
-      equal(err.message, rejectedMessage);
+      assert.equal(err.message, rejectedMessage);
       return true;
     }, 'expected an exception');
   });
 
-  QUnit.test('rejecting the model hooks promise with an error with `errorThrown` property prints `errorThrown.message` property', function () {
-    expect(5);
+  QUnit.test('rejecting the model hooks promise with an error with `errorThrown` property prints `errorThrown.message` property', function (assert) {
+    assert.expect(5);
     var rejectedMessage = 'OMG!! SOOOOOO BAD!!!!';
     var rejectedStack = 'Yeah, buddy: stack gets printed too.';
 
@@ -73755,9 +73777,9 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
     });
 
     _emberConsole.default.error = function (initialMessage, errorMessage, errorStack) {
-      equal(initialMessage, 'Error while processing route: yippie', 'a message with the current route name is printed');
-      equal(errorMessage, rejectedMessage, 'the rejected reason\'s message property is logged');
-      equal(errorStack, rejectedStack, 'the rejected reason\'s stack property is logged');
+      assert.equal(initialMessage, 'Error while processing route: yippie', 'a message with the current route name is printed');
+      assert.equal(errorMessage, rejectedMessage, 'the rejected reason\'s message property is logged');
+      assert.equal(errorStack, rejectedStack, 'the rejected reason\'s stack property is logged');
     };
 
     App.YippieRoute = _emberRouting.Route.extend({
@@ -73768,21 +73790,21 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
       }
     });
 
-    throws(function () {
+    assert.throws(function () {
       return bootApplication();
     }, function (err) {
-      equal(err.message, rejectedMessage);
+      assert.equal(err.message, rejectedMessage);
       return true;
     }, 'expected an exception');
   });
 
-  QUnit.test('rejecting the model hooks promise with no reason still logs error', function () {
+  QUnit.test('rejecting the model hooks promise with no reason still logs error', function (assert) {
     Router.map(function () {
       this.route('wowzers', { path: '/' });
     });
 
     _emberConsole.default.error = function (initialMessage) {
-      equal(initialMessage, 'Error while processing route: wowzers', 'a message with the current route name is printed');
+      assert.equal(initialMessage, 'Error while processing route: wowzers', 'a message with the current route name is printed');
     };
 
     App.WowzersRoute = _emberRouting.Route.extend({
@@ -73794,8 +73816,8 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
     bootApplication();
   });
 
-  QUnit.test('rejecting the model hooks promise with a string shows a good error', function () {
-    expect(3);
+  QUnit.test('rejecting the model hooks promise with a string shows a good error', function (assert) {
+    assert.expect(3);
     var originalLoggerError = _emberConsole.default.error;
     var rejectedMessage = 'Supercalifragilisticexpialidocious';
 
@@ -73804,8 +73826,8 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
     });
 
     _emberConsole.default.error = function (initialMessage, errorMessage) {
-      equal(initialMessage, 'Error while processing route: yondo', 'a message with the current route name is printed');
-      equal(errorMessage, rejectedMessage, 'the rejected reason\'s message property is logged');
+      assert.equal(initialMessage, 'Error while processing route: yondo', 'a message with the current route name is printed');
+      assert.equal(errorMessage, rejectedMessage, 'the rejected reason\'s message property is logged');
     };
 
     App.YondoRoute = _emberRouting.Route.extend({
@@ -73814,22 +73836,22 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
       }
     });
 
-    throws(function () {
+    assert.throws(function () {
       return bootApplication();
     }, rejectedMessage, 'expected an exception');
 
     _emberConsole.default.error = originalLoggerError;
   });
 
-  QUnit.test('willLeave, willChangeContext, willChangeModel actions don\'t fire unless feature flag enabled', function () {
-    expect(1);
+  QUnit.test('willLeave, willChangeContext, willChangeModel actions don\'t fire unless feature flag enabled', function (assert) {
+    assert.expect(1);
 
     App.Router.map(function () {
       this.route('about');
     });
 
     function shouldNotFire() {
-      ok(false, 'this action shouldn\'t have been received');
+      assert.ok(false, 'this action shouldn\'t have been received');
     }
 
     App.IndexRoute = _emberRouting.Route.extend({
@@ -73842,7 +73864,7 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
 
     App.AboutRoute = _emberRouting.Route.extend({
       setupController: function () {
-        ok(true, 'about route was entered');
+        assert.ok(true, 'about route was entered');
       }
     });
 
@@ -73850,8 +73872,8 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
     (0, _emberMetal.run)(router, 'transitionTo', 'about');
   });
 
-  QUnit.test('Errors in transitionTo within redirect hook are logged', function () {
-    expect(4);
+  QUnit.test('Errors in transitionTo within redirect hook are logged', function (assert) {
+    assert.expect(4);
     var actual = [];
 
     Router.map(function () {
@@ -73870,16 +73892,16 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
       actual.push(arguments);
     };
 
-    throws(function () {
+    assert.throws(function () {
       return bootApplication();
     }, /More context objects were passed/);
 
-    equal(actual.length, 1, 'the error is only logged once');
-    equal(actual[0][0], 'Error while processing route: yondo', 'source route is printed');
-    ok(actual[0][1].match(/More context objects were passed than there are dynamic segments for the route: stink-bomb/), 'the error is printed');
+    assert.equal(actual.length, 1, 'the error is only logged once');
+    assert.equal(actual[0][0], 'Error while processing route: yondo', 'source route is printed');
+    assert.ok(actual[0][1].match(/More context objects were passed than there are dynamic segments for the route: stink-bomb/), 'the error is printed');
   });
 
-  QUnit.test('Errors in transition show error template if available', function () {
+  QUnit.test('Errors in transition show error template if available', function (assert) {
     (0, _emberGlimmer.setTemplate)('error', (0, _emberTemplateCompiler.compile)('<div id=\'error\'>Error!</div>'));
 
     Router.map(function () {
@@ -73895,11 +73917,11 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
 
     bootApplication();
 
-    equal((0, _emberViews.jQuery)('#error').length, 1, 'Error template was rendered.');
+    assert.equal((0, _emberViews.jQuery)('#error').length, 1, 'Error template was rendered.');
   });
 
-  QUnit.test('Route#resetController gets fired when changing models and exiting routes', function () {
-    expect(4);
+  QUnit.test('Route#resetController gets fired when changing models and exiting routes', function (assert) {
+    assert.expect(4);
 
     Router.map(function () {
       this.route('a', function () {
@@ -73926,21 +73948,21 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
     App.OutRoute = SpyRoute.extend();
 
     bootApplication();
-    deepEqual(calls, []);
+    assert.deepEqual(calls, []);
 
     (0, _emberMetal.run)(router, 'transitionTo', 'b', 'b-1');
-    deepEqual(calls, [['setup', 'a'], ['setup', 'b']]);
+    assert.deepEqual(calls, [['setup', 'a'], ['setup', 'b']]);
     calls.length = 0;
 
     (0, _emberMetal.run)(router, 'transitionTo', 'c', 'c-1');
-    deepEqual(calls, [['reset', 'b'], ['setup', 'c']]);
+    assert.deepEqual(calls, [['reset', 'b'], ['setup', 'c']]);
     calls.length = 0;
 
     (0, _emberMetal.run)(router, 'transitionTo', 'out');
-    deepEqual(calls, [['reset', 'c'], ['reset', 'a'], ['setup', 'out']]);
+    assert.deepEqual(calls, [['reset', 'c'], ['reset', 'a'], ['setup', 'out']]);
   });
 
-  QUnit.test('Exception during initialization of non-initial route is not swallowed', function () {
+  QUnit.test('Exception during initialization of non-initial route is not swallowed', function (assert) {
     Router.map(function () {
       this.route('boom');
     });
@@ -73950,12 +73972,12 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
       }
     });
     bootApplication();
-    throws(function () {
+    assert.throws(function () {
       return (0, _emberMetal.run)(router, 'transitionTo', 'boom');
     }, /\bboom\b/);
   });
 
-  QUnit.test('Exception during load of non-initial route is not swallowed', function () {
+  QUnit.test('Exception during load of non-initial route is not swallowed', function (assert) {
     Router.map(function () {
       this.route('boom');
     });
@@ -73972,12 +73994,12 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
       }
     });
     bootApplication();
-    throws(function () {
+    assert.throws(function () {
       return (0, _emberMetal.run)(router, 'transitionTo', 'boom');
     });
   });
 
-  QUnit.test('Exception during initialization of initial route is not swallowed', function () {
+  QUnit.test('Exception during initialization of initial route is not swallowed', function (assert) {
     Router.map(function () {
       this.route('boom', { path: '/' });
     });
@@ -73986,12 +74008,12 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
         throw new Error('boom!');
       }
     });
-    throws(function () {
+    assert.throws(function () {
       return bootApplication();
     }, /\bboom\b/);
   });
 
-  QUnit.test('Exception during load of initial route is not swallowed', function () {
+  QUnit.test('Exception during load of initial route is not swallowed', function (assert) {
     Router.map(function () {
       this.route('boom', { path: '/' });
     });
@@ -74007,12 +74029,12 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
         throw new Error('boom!');
       }
     });
-    throws(function () {
+    assert.throws(function () {
       return bootApplication();
     }, /\bboom\b/);
   });
 
-  QUnit.test('{{outlet}} works when created after initial render', function () {
+  QUnit.test('{{outlet}} works when created after initial render', function (assert) {
     (0, _emberGlimmer.setTemplate)('sample', (0, _emberTemplateCompiler.compile)('Hi{{#if showTheThing}}{{outlet}}{{/if}}Bye'));
     (0, _emberGlimmer.setTemplate)('sample/inner', (0, _emberTemplateCompiler.compile)('Yay'));
     (0, _emberGlimmer.setTemplate)('sample/inner2', (0, _emberTemplateCompiler.compile)('Boo'));
@@ -74025,20 +74047,20 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
 
     bootApplication();
 
-    equal((0, _emberViews.jQuery)('#qunit-fixture').text(), 'HiBye', 'initial render');
+    assert.equal((0, _emberViews.jQuery)('#qunit-fixture').text(), 'HiBye', 'initial render');
 
     (0, _emberMetal.run)(function () {
       return container.lookup('controller:sample').set('showTheThing', true);
     });
 
-    equal((0, _emberViews.jQuery)('#qunit-fixture').text(), 'HiYayBye', 'second render');
+    assert.equal((0, _emberViews.jQuery)('#qunit-fixture').text(), 'HiYayBye', 'second render');
 
-    handleURL('/2');
+    handleURL(assert, '/2');
 
-    equal((0, _emberViews.jQuery)('#qunit-fixture').text(), 'HiBooBye', 'third render');
+    assert.equal((0, _emberViews.jQuery)('#qunit-fixture').text(), 'HiBooBye', 'third render');
   });
 
-  QUnit.test('Can render into a named outlet at the top level', function () {
+  QUnit.test('Can render into a named outlet at the top level', function (assert) {
     (0, _emberGlimmer.setTemplate)('application', (0, _emberTemplateCompiler.compile)('A-{{outlet}}-B-{{outlet "other"}}-C'));
     (0, _emberGlimmer.setTemplate)('modal', (0, _emberTemplateCompiler.compile)('Hello world'));
     (0, _emberGlimmer.setTemplate)('index', (0, _emberTemplateCompiler.compile)('The index'));
@@ -74055,10 +74077,10 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
 
     bootApplication();
 
-    equal((0, _emberViews.jQuery)('#qunit-fixture').text(), 'A-The index-B-Hello world-C', 'initial render');
+    assert.equal((0, _emberViews.jQuery)('#qunit-fixture').text(), 'A-The index-B-Hello world-C', 'initial render');
   });
 
-  QUnit.test('Can disconnect a named outlet at the top level', function () {
+  QUnit.test('Can disconnect a named outlet at the top level', function (assert) {
     (0, _emberGlimmer.setTemplate)('application', (0, _emberTemplateCompiler.compile)('A-{{outlet}}-B-{{outlet "other"}}-C'));
     (0, _emberGlimmer.setTemplate)('modal', (0, _emberTemplateCompiler.compile)('Hello world'));
     (0, _emberGlimmer.setTemplate)('index', (0, _emberTemplateCompiler.compile)('The index'));
@@ -74084,14 +74106,14 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
 
     bootApplication();
 
-    equal((0, _emberViews.jQuery)('#qunit-fixture').text(), 'A-The index-B-Hello world-C', 'initial render');
+    assert.equal((0, _emberViews.jQuery)('#qunit-fixture').text(), 'A-The index-B-Hello world-C', 'initial render');
 
     (0, _emberMetal.run)(router, 'send', 'banish');
 
-    equal((0, _emberViews.jQuery)('#qunit-fixture').text(), 'A-The index-B--C', 'second render');
+    assert.equal((0, _emberViews.jQuery)('#qunit-fixture').text(), 'A-The index-B--C', 'second render');
   });
 
-  QUnit.test('Can render into a named outlet at the top level, with empty main outlet', function () {
+  QUnit.test('Can render into a named outlet at the top level, with empty main outlet', function (assert) {
     (0, _emberGlimmer.setTemplate)('application', (0, _emberTemplateCompiler.compile)('A-{{outlet}}-B-{{outlet "other"}}-C'));
     (0, _emberGlimmer.setTemplate)('modal', (0, _emberTemplateCompiler.compile)('Hello world'));
 
@@ -74111,10 +74133,10 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
 
     bootApplication();
 
-    equal((0, _emberViews.jQuery)('#qunit-fixture').text(), 'A--B-Hello world-C', 'initial render');
+    assert.equal((0, _emberViews.jQuery)('#qunit-fixture').text(), 'A--B-Hello world-C', 'initial render');
   });
 
-  QUnit.test('Can render into a named outlet at the top level, later', function () {
+  QUnit.test('Can render into a named outlet at the top level, later', function (assert) {
     (0, _emberGlimmer.setTemplate)('application', (0, _emberTemplateCompiler.compile)('A-{{outlet}}-B-{{outlet "other"}}-C'));
     (0, _emberGlimmer.setTemplate)('modal', (0, _emberTemplateCompiler.compile)('Hello world'));
     (0, _emberGlimmer.setTemplate)('index', (0, _emberTemplateCompiler.compile)('The index'));
@@ -74132,14 +74154,14 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
 
     bootApplication();
 
-    equal((0, _emberViews.jQuery)('#qunit-fixture').text(), 'A-The index-B--C', 'initial render');
+    assert.equal((0, _emberViews.jQuery)('#qunit-fixture').text(), 'A-The index-B--C', 'initial render');
 
     (0, _emberMetal.run)(router, 'send', 'launch');
 
-    equal((0, _emberViews.jQuery)('#qunit-fixture').text(), 'A-The index-B-Hello world-C', 'second render');
+    assert.equal((0, _emberViews.jQuery)('#qunit-fixture').text(), 'A-The index-B-Hello world-C', 'second render');
   });
 
-  QUnit.test('Can render routes with no \'main\' outlet and their children', function () {
+  QUnit.test('Can render routes with no \'main\' outlet and their children', function (assert) {
     (0, _emberGlimmer.setTemplate)('application', (0, _emberTemplateCompiler.compile)('<div id="application">{{outlet "app"}}</div>'));
     (0, _emberGlimmer.setTemplate)('app', (0, _emberTemplateCompiler.compile)('<div id="app-common">{{outlet "common"}}</div><div id="app-sub">{{outlet "sub"}}</div>'));
     (0, _emberGlimmer.setTemplate)('common', (0, _emberTemplateCompiler.compile)('<div id="common"></div>'));
@@ -74174,14 +74196,14 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
     });
 
     bootApplication();
-    handleURL('/app');
-    equal((0, _emberViews.jQuery)('#app-common #common').length, 1, 'Finds common while viewing /app');
-    handleURL('/app/sub');
-    equal((0, _emberViews.jQuery)('#app-common #common').length, 1, 'Finds common while viewing /app/sub');
-    equal((0, _emberViews.jQuery)('#app-sub #sub').length, 1, 'Finds sub while viewing /app/sub');
+    handleURL(assert, '/app');
+    assert.equal((0, _emberViews.jQuery)('#app-common #common').length, 1, 'Finds common while viewing /app');
+    handleURL(assert, '/app/sub');
+    assert.equal((0, _emberViews.jQuery)('#app-common #common').length, 1, 'Finds common while viewing /app/sub');
+    assert.equal((0, _emberViews.jQuery)('#app-sub #sub').length, 1, 'Finds sub while viewing /app/sub');
   });
 
-  QUnit.test('Tolerates stacked renders', function () {
+  QUnit.test('Tolerates stacked renders', function (assert) {
     (0, _emberGlimmer.setTemplate)('application', (0, _emberTemplateCompiler.compile)('{{outlet}}{{outlet "modal"}}'));
     (0, _emberGlimmer.setTemplate)('index', (0, _emberTemplateCompiler.compile)('hi'));
     (0, _emberGlimmer.setTemplate)('layer', (0, _emberTemplateCompiler.compile)('layer'));
@@ -74202,16 +74224,16 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
       }
     });
     bootApplication();
-    equal((0, _emberViews.jQuery)('#qunit-fixture').text().trim(), 'hi');
+    assert.equal((0, _emberViews.jQuery)('#qunit-fixture').text().trim(), 'hi');
     (0, _emberMetal.run)(router, 'send', 'openLayer');
-    equal((0, _emberViews.jQuery)('#qunit-fixture').text().trim(), 'hilayer');
+    assert.equal((0, _emberViews.jQuery)('#qunit-fixture').text().trim(), 'hilayer');
     (0, _emberMetal.run)(router, 'send', 'openLayer');
-    equal((0, _emberViews.jQuery)('#qunit-fixture').text().trim(), 'hilayer');
+    assert.equal((0, _emberViews.jQuery)('#qunit-fixture').text().trim(), 'hilayer');
     (0, _emberMetal.run)(router, 'send', 'close');
-    equal((0, _emberViews.jQuery)('#qunit-fixture').text().trim(), 'hi');
+    assert.equal((0, _emberViews.jQuery)('#qunit-fixture').text().trim(), 'hi');
   });
 
-  QUnit.test('Renders child into parent with non-default template name', function () {
+  QUnit.test('Renders child into parent with non-default template name', function (assert) {
     (0, _emberGlimmer.setTemplate)('application', (0, _emberTemplateCompiler.compile)('<div class="a">{{outlet}}</div>'));
     (0, _emberGlimmer.setTemplate)('exports/root', (0, _emberTemplateCompiler.compile)('<div class="b">{{outlet}}</div>'));
     (0, _emberGlimmer.setTemplate)('exports/index', (0, _emberTemplateCompiler.compile)('<div class="c"></div>'));
@@ -74233,11 +74255,11 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
     });
 
     bootApplication();
-    handleURL('/root');
-    equal((0, _emberViews.jQuery)('#qunit-fixture .a .b .c').length, 1);
+    handleURL(assert, '/root');
+    assert.equal((0, _emberViews.jQuery)('#qunit-fixture .a .b .c').length, 1);
   });
 
-  QUnit.test('Allows any route to disconnectOutlet another route\'s templates', function () {
+  QUnit.test('Allows any route to disconnectOutlet another route\'s templates', function (assert) {
     (0, _emberGlimmer.setTemplate)('application', (0, _emberTemplateCompiler.compile)('{{outlet}}{{outlet "modal"}}'));
     (0, _emberGlimmer.setTemplate)('index', (0, _emberTemplateCompiler.compile)('hi'));
     (0, _emberGlimmer.setTemplate)('layer', (0, _emberTemplateCompiler.compile)('layer'));
@@ -74262,14 +74284,14 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
       }
     });
     bootApplication();
-    equal((0, _emberViews.jQuery)('#qunit-fixture').text().trim(), 'hi');
+    assert.equal((0, _emberViews.jQuery)('#qunit-fixture').text().trim(), 'hi');
     (0, _emberMetal.run)(router, 'send', 'openLayer');
-    equal((0, _emberViews.jQuery)('#qunit-fixture').text().trim(), 'hilayer');
+    assert.equal((0, _emberViews.jQuery)('#qunit-fixture').text().trim(), 'hilayer');
     (0, _emberMetal.run)(router, 'send', 'close');
-    equal((0, _emberViews.jQuery)('#qunit-fixture').text().trim(), 'hi');
+    assert.equal((0, _emberViews.jQuery)('#qunit-fixture').text().trim(), 'hi');
   });
 
-  QUnit.test('Can this.render({into:...}) the render helper', function () {
+  QUnit.test('Can this.render({into:...}) the render helper', function (assert) {
     expectDeprecation(/Rendering into a {{render}} helper that resolves to an {{outlet}} is deprecated./);
 
     expectDeprecation(function () {
@@ -74297,12 +74319,12 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
     });
 
     bootApplication();
-    equal((0, _emberViews.jQuery)('#qunit-fixture .sidebar').text(), 'other');
+    assert.equal((0, _emberViews.jQuery)('#qunit-fixture .sidebar').text(), 'other');
     (0, _emberMetal.run)(router, 'send', 'changeToBar');
-    equal((0, _emberViews.jQuery)('#qunit-fixture .sidebar').text(), 'bar');
+    assert.equal((0, _emberViews.jQuery)('#qunit-fixture .sidebar').text(), 'bar');
   });
 
-  QUnit.test('Can disconnect from the render helper', function () {
+  QUnit.test('Can disconnect from the render helper', function (assert) {
     expectDeprecation(/Rendering into a {{render}} helper that resolves to an {{outlet}} is deprecated./);
 
     expectDeprecation(function () {
@@ -74328,12 +74350,12 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
     });
 
     bootApplication();
-    equal((0, _emberViews.jQuery)('#qunit-fixture .sidebar').text(), 'other');
+    assert.equal((0, _emberViews.jQuery)('#qunit-fixture .sidebar').text(), 'other');
     (0, _emberMetal.run)(router, 'send', 'disconnect');
-    equal((0, _emberViews.jQuery)('#qunit-fixture .sidebar').text(), '');
+    assert.equal((0, _emberViews.jQuery)('#qunit-fixture .sidebar').text(), '');
   });
 
-  QUnit.test('Can this.render({into:...}) the render helper\'s children', function () {
+  QUnit.test('Can this.render({into:...}) the render helper\'s children', function (assert) {
     expectDeprecation(/Rendering into a {{render}} helper that resolves to an {{outlet}} is deprecated./);
 
     expectDeprecation(function () {
@@ -74363,12 +74385,12 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
     });
 
     bootApplication();
-    equal((0, _emberViews.jQuery)('#qunit-fixture .sidebar .index').text(), 'other');
+    assert.equal((0, _emberViews.jQuery)('#qunit-fixture .sidebar .index').text(), 'other');
     (0, _emberMetal.run)(router, 'send', 'changeToBar');
-    equal((0, _emberViews.jQuery)('#qunit-fixture .sidebar .index').text(), 'bar');
+    assert.equal((0, _emberViews.jQuery)('#qunit-fixture .sidebar .index').text(), 'bar');
   });
 
-  QUnit.test('Can disconnect from the render helper\'s children', function () {
+  QUnit.test('Can disconnect from the render helper\'s children', function (assert) {
     expectDeprecation(/Rendering into a {{render}} helper that resolves to an {{outlet}} is deprecated./);
 
     expectDeprecation(function () {
@@ -74396,12 +74418,12 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
     });
 
     bootApplication();
-    equal((0, _emberViews.jQuery)('#qunit-fixture .sidebar .index').text(), 'other');
+    assert.equal((0, _emberViews.jQuery)('#qunit-fixture .sidebar .index').text(), 'other');
     (0, _emberMetal.run)(router, 'send', 'disconnect');
-    equal((0, _emberViews.jQuery)('#qunit-fixture .sidebar .index').text(), '');
+    assert.equal((0, _emberViews.jQuery)('#qunit-fixture .sidebar .index').text(), '');
   });
 
-  QUnit.test('Can this.render({into:...}) nested render helpers', function () {
+  QUnit.test('Can this.render({into:...}) nested render helpers', function (assert) {
     expectDeprecation(/Rendering into a {{render}} helper that resolves to an {{outlet}} is deprecated./);
 
     expectDeprecation(function () {
@@ -74433,12 +74455,12 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
     });
 
     bootApplication();
-    equal((0, _emberViews.jQuery)('#qunit-fixture .cart').text(), 'other');
+    assert.equal((0, _emberViews.jQuery)('#qunit-fixture .cart').text(), 'other');
     (0, _emberMetal.run)(router, 'send', 'changeToBaz');
-    equal((0, _emberViews.jQuery)('#qunit-fixture .cart').text(), 'baz');
+    assert.equal((0, _emberViews.jQuery)('#qunit-fixture .cart').text(), 'baz');
   });
 
-  QUnit.test('Can disconnect from nested render helpers', function () {
+  QUnit.test('Can disconnect from nested render helpers', function (assert) {
     expectDeprecation(/Rendering into a {{render}} helper that resolves to an {{outlet}} is deprecated./);
 
     expectDeprecation(function () {
@@ -74468,9 +74490,9 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
     });
 
     bootApplication();
-    equal((0, _emberViews.jQuery)('#qunit-fixture .cart').text(), 'other');
+    assert.equal((0, _emberViews.jQuery)('#qunit-fixture .cart').text(), 'other');
     (0, _emberMetal.run)(router, 'send', 'disconnect');
-    equal((0, _emberViews.jQuery)('#qunit-fixture .cart').text(), '');
+    assert.equal((0, _emberViews.jQuery)('#qunit-fixture .cart').text(), '');
   });
 
   QUnit.test('Components inside an outlet have their didInsertElement hook invoked when the route is displayed', function (assert) {
@@ -74515,8 +74537,8 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
     assert.strictEqual(otherComponentCounter, 1, 'didInsertElement invoked on displayed component');
   });
 
-  QUnit.test('Doesnt swallow exception thrown from willTransition', function () {
-    expect(1);
+  QUnit.test('Doesnt swallow exception thrown from willTransition', function (assert) {
+    assert.expect(1);
     (0, _emberGlimmer.setTemplate)('application', (0, _emberTemplateCompiler.compile)('{{outlet}}'));
     (0, _emberGlimmer.setTemplate)('index', (0, _emberTemplateCompiler.compile)('index'));
     (0, _emberGlimmer.setTemplate)('other', (0, _emberTemplateCompiler.compile)('other'));
@@ -74535,7 +74557,7 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
 
     bootApplication();
 
-    throws(function () {
+    assert.throws(function () {
       (0, _emberMetal.run)(function () {
         return router.handleURL('/other');
       });
@@ -74575,8 +74597,8 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
     }, /You passed undefined as the outlet name/);
   });
 
-  QUnit.test('Route serializers work for Engines', function () {
-    expect(2);
+  QUnit.test('Route serializers work for Engines', function (assert) {
+    assert.expect(2);
 
     // Register engine
     var BlogEngine = _emberApplication.Engine.extend();
@@ -74584,7 +74606,7 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
 
     // Register engine route map
     var postSerialize = function (params) {
-      ok(true, 'serialize hook runs');
+      assert.ok(true, 'serialize hook runs');
       return {
         post_id: params.id
       };
@@ -74600,11 +74622,11 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
 
     bootApplication();
 
-    equal(router._routerMicrolib.generate('blog.post', { id: '13' }), '/blog/post/13', 'url is generated properly');
+    assert.equal(router._routerMicrolib.generate('blog.post', { id: '13' }), '/blog/post/13', 'url is generated properly');
   });
 
-  QUnit.test('Defining a Route#serialize method in an Engine throws an error', function () {
-    expect(1);
+  QUnit.test('Defining a Route#serialize method in an Engine throws an error', function (assert) {
+    assert.expect(1);
 
     // Register engine
     var BlogEngine = _emberApplication.Engine.extend();
@@ -74627,13 +74649,13 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
     });
     container.lookup('engine:blog').register('route:post', PostRoute);
 
-    throws(function () {
+    assert.throws(function () {
       return router.transitionTo('blog.post');
     }, /Defining a custom serialize method on an Engine route is not supported/);
   });
 
-  QUnit.test('App.destroy does not leave undestroyed views after clearing engines', function () {
-    expect(4);
+  QUnit.test('App.destroy does not leave undestroyed views after clearing engines', function (assert) {
+    assert.expect(4);
 
     var engineInstance = void 0;
     // Register engine
@@ -74662,18 +74684,18 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
     engine.register('route:index', EngineIndexRoute);
     engine.register('template:index', (0, _emberTemplateCompiler.compile)('Engine Post!'));
 
-    handleURL('/blog');
+    handleURL(assert, '/blog');
 
     var route = engineInstance.lookup('route:index');
 
     (0, _emberMetal.run)(router, 'destroy');
-    equal(router._toplevelView, null, 'the toplevelView was cleared');
+    assert.equal(router._toplevelView, null, 'the toplevelView was cleared');
 
     (0, _emberMetal.run)(route, 'destroy');
-    equal(router._toplevelView, null, 'the toplevelView was not reinitialized');
+    assert.equal(router._toplevelView, null, 'the toplevelView was not reinitialized');
 
     (0, _emberMetal.run)(App, 'destroy');
-    equal(router._toplevelView, null, 'the toplevelView was not reinitialized');
+    assert.equal(router._toplevelView, null, 'the toplevelView was not reinitialized');
   });
 });
 QUnit.module('ESLint | ember/tests/routing/basic_test.js');
@@ -79132,8 +79154,8 @@ enifed('ember/tests/routing/substates_test', ['ember-babel', 'ember-runtime', 'e
 
   var counter = void 0;
 
-  function step(expectedValue, description) {
-    equal(counter, expectedValue, 'Step ' + expectedValue + ': ' + description);
+  function step(assert, expectedValue, description) {
+    assert.equal(counter, expectedValue, 'Step ' + expectedValue + ': ' + description);
     counter++;
   }
 
@@ -79167,13 +79189,13 @@ enifed('ember/tests/routing/substates_test', ['ember-babel', 'ember-runtime', 'e
 
       this.add('route:application', _emberRouting.Route.extend({
         setupController: function () {
-          step(2, 'ApplicationRoute#setupController');
+          step(assert, 2, 'ApplicationRoute#setupController');
         }
       }));
 
       this.add('route:turtle', _emberRouting.Route.extend({
         model: function () {
-          step(1, 'TurtleRoute#model');
+          step(assert, 1, 'TurtleRoute#model');
           return turtleDeferred.promise;
         }
       }));
@@ -79204,7 +79226,7 @@ enifed('ember/tests/routing/substates_test', ['ember-babel', 'ember-runtime', 'e
       }));
       this.add('route:loading', _emberRouting.Route.extend({
         setupController: function () {
-          ok(false, 'shouldn\'t get here');
+          assert.ok(false, 'shouldn\'t get here');
         }
       }));
 
@@ -79262,13 +79284,13 @@ enifed('ember/tests/routing/substates_test', ['ember-babel', 'ember-runtime', 'e
 
       this.add('route:dummy', _emberRouting.Route.extend({
         model: function () {
-          step(1, 'DummyRoute#model');
+          step(assert, 1, 'DummyRoute#model');
           return deferred.promise;
         }
       }));
       this.add('route:loading', _emberRouting.Route.extend({
         setupController: function () {
-          step(2, 'LoadingRoute#setupController');
+          step(assert, 2, 'LoadingRoute#setupController');
         }
       }));
       this.addTemplate('dummy', 'DUMMY');
@@ -79709,7 +79731,7 @@ enifed('ember/tests/routing/substates_test', ['ember-babel', 'ember-runtime', 'e
 
       this.add('route:mom.sally', _emberRouting.Route.extend({
         model: function () {
-          step(1, 'MomSallyRoute#model');
+          step(assert, 1, 'MomSallyRoute#model');
           return _emberRuntime.RSVP.reject({
             msg: 'did it broke?'
           });
@@ -79717,14 +79739,14 @@ enifed('ember/tests/routing/substates_test', ['ember-babel', 'ember-runtime', 'e
 
         actions: {
           error: function () {
-            step(2, 'MomSallyRoute#actions.error');
+            step(assert, 2, 'MomSallyRoute#actions.error');
             return true;
           }
         }
       }));
 
       return this.visit('/grandma/mom/sally').then(function () {
-        step(3, 'App finished loading');
+        step(assert, 3, 'App finished loading');
 
         var text = _this18.$('#app').text();
 
@@ -79765,7 +79787,7 @@ enifed('ember/tests/routing/substates_test', ['ember-babel', 'ember-runtime', 'e
 
       this.add('route:mom.sally', _emberRouting.Route.extend({
         model: function () {
-          step(1, 'MomSallyRoute#model');
+          step(assert, 1, 'MomSallyRoute#model');
           return _emberRuntime.RSVP.reject({
             msg: 'did it broke?'
           });
@@ -79773,7 +79795,7 @@ enifed('ember/tests/routing/substates_test', ['ember-babel', 'ember-runtime', 'e
 
         actions: {
           error: function (err) {
-            step(2, 'MomSallyRoute#actions.error');
+            step(assert, 2, 'MomSallyRoute#actions.error');
             handledError = err;
             this.transitionTo('mom.this-route-throws');
 
@@ -79784,7 +79806,7 @@ enifed('ember/tests/routing/substates_test', ['ember-babel', 'ember-runtime', 'e
 
       this.add('route:mom.this-route-throws', _emberRouting.Route.extend({
         model: function () {
-          step(3, 'MomThisRouteThrows#model');
+          step(assert, 3, 'MomThisRouteThrows#model');
           throw handledError;
         }
       }));
@@ -79801,7 +79823,7 @@ enifed('ember/tests/routing/substates_test', ['ember-babel', 'ember-runtime', 'e
 
       this.add('route:mom.sally', _emberRouting.Route.extend({
         model: function () {
-          step(1, 'MomSallyRoute#model');
+          step(assert, 1, 'MomSallyRoute#model');
           return _emberRuntime.RSVP.reject({
             msg: 'did it broke?'
           });
@@ -79809,7 +79831,7 @@ enifed('ember/tests/routing/substates_test', ['ember-babel', 'ember-runtime', 'e
 
         actions: {
           error: function () {
-            step(2, 'MomSallyRoute#actions.error');
+            step(assert, 2, 'MomSallyRoute#actions.error');
             return true;
           }
         }
@@ -79829,7 +79851,7 @@ enifed('ember/tests/routing/substates_test', ['ember-babel', 'ember-runtime', 'e
 
       this.add('route:mom.sally', _emberRouting.Route.extend({
         model: function () {
-          step(1, 'MomSallyRoute#model');
+          step(assert, 1, 'MomSallyRoute#model');
           return _emberRuntime.RSVP.reject({
             msg: 'did it broke?'
           });
@@ -79837,7 +79859,7 @@ enifed('ember/tests/routing/substates_test', ['ember-babel', 'ember-runtime', 'e
 
         actions: {
           error: function (err) {
-            step(2, 'MomSallyRoute#actions.error');
+            step(assert, 2, 'MomSallyRoute#actions.error');
             handledError = err;
             this.transitionTo('mom.this-route-throws');
 
@@ -79848,7 +79870,7 @@ enifed('ember/tests/routing/substates_test', ['ember-babel', 'ember-runtime', 'e
 
       this.add('route:mom.this-route-throws', _emberRouting.Route.extend({
         model: function () {
-          step(3, 'MomThisRouteThrows#model');
+          step(assert, 3, 'MomThisRouteThrows#model');
           return _emberRuntime.RSVP.reject(handledError);
         }
       }));
@@ -79868,7 +79890,7 @@ enifed('ember/tests/routing/substates_test', ['ember-babel', 'ember-runtime', 'e
 
       this.add('route:mom.sally', _emberRouting.Route.extend({
         model: function () {
-          step(1, 'MomSallyRoute#model');
+          step(assert, 1, 'MomSallyRoute#model');
           return _emberRuntime.RSVP.reject({
             msg: 'did it broke?'
           });
@@ -79876,14 +79898,14 @@ enifed('ember/tests/routing/substates_test', ['ember-babel', 'ember-runtime', 'e
 
         actions: {
           error: function () {
-            step(2, 'MomSallyRoute#actions.error');
+            step(assert, 2, 'MomSallyRoute#actions.error');
             return true;
           }
         }
       }));
 
       return this.visit('/grandma/mom/sally').then(function () {
-        step(3, 'Application finished booting');
+        step(assert, 3, 'Application finished booting');
 
         assert.equal(_this23.$('#app').text(), 'GRANDMA MOM ERROR: did it broke?', 'the more specifically named mome error substate was entered over the other error route');
 
@@ -79904,25 +79926,25 @@ enifed('ember/tests/routing/substates_test', ['ember-babel', 'ember-runtime', 'e
 
       this.add('route:grandma', _emberRouting.Route.extend({
         model: function () {
-          step(1, 'GrandmaRoute#model');
+          step(assert, 1, 'GrandmaRoute#model');
           return grandmaDeferred.promise;
         }
       }));
 
       this.add('route:mom', _emberRouting.Route.extend({
         model: function () {
-          step(2, 'MomRoute#model');
+          step(assert, 2, 'MomRoute#model');
           return {};
         }
       }));
 
       this.add('route:mom.sally', _emberRouting.Route.extend({
         model: function () {
-          step(3, 'SallyRoute#model');
+          step(assert, 3, 'SallyRoute#model');
           return sallyDeferred.promise;
         },
         setupController: function () {
-          step(4, 'SallyRoute#setupController');
+          step(assert, 4, 'SallyRoute#setupController');
         }
       }));
 
@@ -79955,7 +79977,7 @@ enifed('ember/tests/routing/substates_test', ['ember-babel', 'ember-runtime', 'e
 
       this.add('route:mom.sally', _emberRouting.Route.extend({
         setupController: function () {
-          step(1, 'SallyRoute#setupController');
+          step(assert, 1, 'SallyRoute#setupController');
         }
       }));
 
@@ -79982,7 +80004,7 @@ enifed('ember/tests/routing/substates_test', ['ember-babel', 'ember-runtime', 'e
     _class2.prototype['@test Error events that aren\'t bubbled don\'t throw application assertions'] = function (assert) {
       this.add('route:mom.sally', _emberRouting.Route.extend({
         model: function () {
-          step(1, 'MomSallyRoute#model');
+          step(assert, 1, 'MomSallyRoute#model');
           return _emberRuntime.RSVP.reject({
             msg: 'did it broke?'
           });
@@ -79990,7 +80012,7 @@ enifed('ember/tests/routing/substates_test', ['ember-babel', 'ember-runtime', 'e
 
         actions: {
           error: function (err) {
-            step(2, 'MomSallyRoute#actions.error');
+            step(assert, 2, 'MomSallyRoute#actions.error');
             assert.equal(err.msg, 'did it broke?', 'it didn\'t break');
             return false;
           }
@@ -80006,7 +80028,7 @@ enifed('ember/tests/routing/substates_test', ['ember-babel', 'ember-runtime', 'e
       this.add('route:mom', _emberRouting.Route.extend({
         actions: {
           error: function (err) {
-            step(3, 'MomRoute#actions.error');
+            step(assert, 3, 'MomRoute#actions.error');
             assert.equal(err, handledError, 'error handled and rebubbled is handleable at higher route');
           }
         }
@@ -80014,7 +80036,7 @@ enifed('ember/tests/routing/substates_test', ['ember-babel', 'ember-runtime', 'e
 
       this.add('route:mom.sally', _emberRouting.Route.extend({
         model: function () {
-          step(1, 'MomSallyRoute#model');
+          step(assert, 1, 'MomSallyRoute#model');
           return _emberRuntime.RSVP.reject({
             msg: 'did it broke?'
           });
@@ -80022,7 +80044,7 @@ enifed('ember/tests/routing/substates_test', ['ember-babel', 'ember-runtime', 'e
 
         actions: {
           error: function (err) {
-            step(2, 'MomSallyRoute#actions.error');
+            step(assert, 2, 'MomSallyRoute#actions.error');
             handledError = err;
 
             return true;
@@ -80383,8 +80405,6 @@ enifed('internal-test-helpers/ember-dev/assertion', ['exports', 'internal-test-h
     In particular, this prevents `Ember.assert` from throw errors that would
     disrupt the control flow.
   */
-  /* globals QUnit */
-
   function AssertionAssert(env) {
     this.env = env;
   }
@@ -80396,6 +80416,9 @@ enifed('internal-test-helpers/ember-dev/assertion', ['exports', 'internal-test-h
       var _this = this;
 
       var expectAssertion = function (func, expectedMessage) {
+        var assert = QUnit.config.current.assert;
+
+
         if (_this.env.runningProdBuild) {
           QUnit.ok(true, 'Assertions disabled in production builds.');
           return;
@@ -80421,7 +80444,7 @@ enifed('internal-test-helpers/ember-dev/assertion', ['exports', 'internal-test-h
           }
         }
 
-        assert(sawCall, actualMessage, expectedMessage);
+        check(assert, sawCall, actualMessage, expectedMessage);
       };
 
       var ignoreAssertion = function (func) {
@@ -80437,22 +80460,22 @@ enifed('internal-test-helpers/ember-dev/assertion', ['exports', 'internal-test-h
     }
   };
 
-  function assert(sawCall, actualMessage, expectedMessage) {
+  function check(assert, sawCall, actualMessage, expectedMessage) {
     // Run assertions in an order that is useful when debugging a test failure.
     if (!sawCall) {
-      QUnit.ok(false, 'Expected Ember.assert to be called (Not called with any value).');
+      assert.ok(false, 'Expected Ember.assert to be called (Not called with any value).');
     } else if (!actualMessage) {
-      QUnit.ok(false, 'Expected a failing Ember.assert (Ember.assert called, but without a failing test).');
+      assert.ok(false, 'Expected a failing Ember.assert (Ember.assert called, but without a failing test).');
     } else {
       if (expectedMessage) {
         if (expectedMessage instanceof RegExp) {
-          QUnit.ok(expectedMessage.test(actualMessage), 'Expected failing Ember.assert: \'' + expectedMessage + '\', but got \'' + actualMessage + '\'.');
+          assert.ok(expectedMessage.test(actualMessage), 'Expected failing Ember.assert: \'' + expectedMessage + '\', but got \'' + actualMessage + '\'.');
         } else {
-          QUnit.equal(actualMessage, expectedMessage, 'Expected failing Ember.assert: \'' + expectedMessage + '\', but got \'' + actualMessage + '\'.');
+          assert.equal(actualMessage, expectedMessage, 'Expected failing Ember.assert: \'' + expectedMessage + '\', but got \'' + actualMessage + '\'.');
         }
       } else {
         // Positive assertion that assert was called
-        QUnit.ok(true, 'Expected a failing Ember.assert.');
+        assert.ok(true, 'Expected a failing Ember.assert.');
       }
     }
   }
@@ -80606,10 +80629,10 @@ enifed('internal-test-helpers/ember-dev/deprecation', ['exports', 'ember-babel',
 
   exports.default = DeprecationAssert;
 });
-enifed("internal-test-helpers/ember-dev/index", ["exports", "internal-test-helpers/ember-dev/deprecation", "internal-test-helpers/ember-dev/warning", "internal-test-helpers/ember-dev/remaining-view", "internal-test-helpers/ember-dev/remaining-template", "internal-test-helpers/ember-dev/assertion", "internal-test-helpers/ember-dev/run-loop", "internal-test-helpers/ember-dev/utils"], function (exports, _deprecation, _warning, _remainingView, _remainingTemplate, _assertion, _runLoop, _utils) {
+enifed("internal-test-helpers/ember-dev/index", ["exports", "internal-test-helpers/ember-dev/deprecation", "internal-test-helpers/ember-dev/warning", "internal-test-helpers/ember-dev/assertion", "internal-test-helpers/ember-dev/run-loop", "internal-test-helpers/ember-dev/utils"], function (exports, _deprecation, _warning, _assertion, _runLoop, _utils) {
   "use strict";
 
-  var EmberDevTestHelperAssert = (0, _utils.buildCompositeAssert)([_deprecation.default, _warning.default, _remainingView.default, _remainingTemplate.default, _assertion.default, _runLoop.default]);
+  var EmberDevTestHelperAssert = (0, _utils.buildCompositeAssert)([_deprecation.default, _warning.default, _assertion.default, _runLoop.default]);
 
   exports.default = EmberDevTestHelperAssert;
 });
@@ -80622,7 +80645,7 @@ enifed('internal-test-helpers/ember-dev/method-call-tracker', ['exports', 'inter
     this._isExpectingNoCalls = false;
     this._expecteds = [];
     this._actuals = [];
-  }; /* globals QUnit */
+  };
 
   MethodCallTracker.prototype = {
     stubMethod: function () {
@@ -80664,6 +80687,8 @@ enifed('internal-test-helpers/ember-dev/method-call-tracker', ['exports', 'inter
       return !this._isExpectingNoCalls && this._expecteds.length;
     },
     assert: function () {
+      var assert = QUnit.config.current.assert;
+
       var env = this._env;
       var methodName = this._methodName;
       var isExpectingNoCalls = this._isExpectingNoCalls;
@@ -80677,7 +80702,7 @@ enifed('internal-test-helpers/ember-dev/method-call-tracker', ['exports', 'inter
       }
 
       if (env.runningProdBuild) {
-        QUnit.ok(true, 'calls to Ember.' + methodName + ' disabled in production builds.');
+        assert.ok(true, 'calls to Ember.' + methodName + ' disabled in production builds.');
         return;
       }
 
@@ -80688,7 +80713,7 @@ enifed('internal-test-helpers/ember-dev/method-call-tracker', ['exports', 'inter
             actualMessages.push(actuals[i][0]);
           }
         }
-        QUnit.ok(actualMessages.length === 0, 'Expected no Ember.' + methodName + ' calls, got ' + actuals.length + ': ' + actualMessages.join(', '));
+        assert.ok(actualMessages.length === 0, 'Expected no Ember.' + methodName + ' calls, got ' + actuals.length + ': ' + actualMessages.join(', '));
         return;
       }
 
@@ -80716,15 +80741,15 @@ enifed('internal-test-helpers/ember-dev/method-call-tracker', ['exports', 'inter
         }
 
         if (!actual) {
-          QUnit.ok(false, 'Received no Ember.' + methodName + ' calls at all, expecting: ' + expected);
+          assert.ok(false, 'Received no Ember.' + methodName + ' calls at all, expecting: ' + expected);
         } else if (match && !match[1]) {
-          QUnit.ok(true, 'Received failing Ember.' + methodName + ' call with message: ' + match[0]);
+          assert.ok(true, 'Received failing Ember.' + methodName + ' call with message: ' + match[0]);
         } else if (match && match[1]) {
-          QUnit.ok(false, 'Expected failing Ember.' + methodName + ' call, got succeeding with message: ' + match[0]);
+          assert.ok(false, 'Expected failing Ember.' + methodName + ' call, got succeeding with message: ' + match[0]);
         } else if (actual[1]) {
-          QUnit.ok(false, 'Did not receive failing Ember.' + methodName + ' call matching \'' + expected + '\', last was success with \'' + actual[0] + '\'');
+          assert.ok(false, 'Did not receive failing Ember.' + methodName + ' call matching \'' + expected + '\', last was success with \'' + actual[0] + '\'');
         } else if (!actual[1]) {
-          QUnit.ok(false, 'Did not receive failing Ember.' + methodName + ' call matching \'' + expected + '\', last was failure with \'' + actual[0] + '\'');
+          assert.ok(false, 'Did not receive failing Ember.' + methodName + ' call matching \'' + expected + '\', last was failure with \'' + actual[0] + '\'');
         }
       }
     }
@@ -80732,76 +80757,8 @@ enifed('internal-test-helpers/ember-dev/method-call-tracker', ['exports', 'inter
 
   exports.default = MethodCallTracker;
 });
-enifed("internal-test-helpers/ember-dev/remaining-template", ["exports"], function (exports) {
-  "use strict";
-
-  /* globals QUnit */
-
-  var RemainingTemplateAssert = function (env) {
-    this.env = env;
-  };
-
-  RemainingTemplateAssert.prototype = {
-    reset: function () {},
-    inject: function () {},
-    assert: function () {
-      if (this.env.Ember && this.env.Ember.TEMPLATES) {
-        var templateNames = [],
-            name;
-        for (name in this.env.Ember.TEMPLATES) {
-          if (this.env.Ember.TEMPLATES[name] != null) {
-            templateNames.push(name);
-          }
-        }
-
-        if (templateNames.length > 0) {
-          QUnit.deepEqual(templateNames, [], "Ember.TEMPLATES should be empty");
-          this.env.Ember.TEMPLATES = {};
-        }
-      }
-    },
-    restore: function () {}
-  };
-
-  exports.default = RemainingTemplateAssert;
-});
-enifed("internal-test-helpers/ember-dev/remaining-view", ["exports"], function (exports) {
-  "use strict";
-
-  /* globals QUnit */
-
-  var RemainingViewAssert = function (env) {
-    this.env = env;
-  };
-
-  RemainingViewAssert.prototype = {
-    reset: function () {},
-    inject: function () {},
-    assert: function () {
-      if (this.env.Ember && this.env.Ember.View) {
-        var viewIds = [],
-            id;
-        for (id in this.env.Ember.View.views) {
-          if (this.env.Ember.View.views[id] != null) {
-            viewIds.push(id);
-          }
-        }
-
-        if (viewIds.length > 0) {
-          QUnit.deepEqual(viewIds, [], "Ember.View.views should be empty");
-          this.env.Ember.View.views = [];
-        }
-      }
-    },
-    restore: function () {}
-  };
-
-  exports.default = RemainingViewAssert;
-});
 enifed("internal-test-helpers/ember-dev/run-loop", ["exports"], function (exports) {
   "use strict";
-
-  /* globals QUnit */
 
   function RunLoopAssertion(env) {
     this.env = env;
@@ -80811,17 +80768,19 @@ enifed("internal-test-helpers/ember-dev/run-loop", ["exports"], function (export
     reset: function () {},
     inject: function () {},
     assert: function () {
+      var assert = QUnit.config.current.assert;
+
       var run = this.env.Ember.run;
 
       if (run.currentRunLoop) {
-        QUnit.ok(false, "Should not be in a run loop at end of test");
+        assert.ok(false, "Should not be in a run loop at end of test");
         while (run.currentRunLoop) {
           run.end();
         }
       }
 
       if (run.hasScheduledTimers()) {
-        QUnit.ok(false, "Ember run should not have scheduled timers at end of test");
+        assert.ok(false, "Ember run should not have scheduled timers at end of test");
         run.cancelTimers();
       }
     },
@@ -80834,8 +80793,6 @@ enifed("internal-test-helpers/ember-dev/setup-qunit", ["exports"], function (exp
   "use strict";
 
   exports.default = setupQUnit;
-  /* globals QUnit */
-
   function setupQUnit(assertion, _qunitGlobal) {
     var qunitGlobal = QUnit;
 
@@ -81037,9 +80994,14 @@ enifed('internal-test-helpers/equal-inner-html', ['exports'], function (exports)
     return actualHTML;
   }
 
-  function equalInnerHTML(fragment, html) {
+  function equalInnerHTML(assert, fragment, html) {
     var actualHTML = normalizeInnerHTML(fragment.innerHTML);
-    QUnit.push(actualHTML === html, actualHTML, html);
+
+    assert.pushResult({
+      result: actualHTML === html,
+      actual: actualHTML,
+      expected: html
+    });
   }
 });
 enifed('internal-test-helpers/equal-tokens', ['exports', 'simple-html-tokenizer'], function (exports, _simpleHtmlTokenizer) {
@@ -81087,12 +81049,19 @@ enifed('internal-test-helpers/equal-tokens', ['exports', 'simple-html-tokenizer'
     normalizeTokens(actual.tokens);
     normalizeTokens(expected.tokens);
 
+    var assert = QUnit.config.current.assert;
+
     var equiv = QUnit.equiv(actual.tokens, expected.tokens);
 
     if (equiv && expected.html !== actual.html) {
-      deepEqual(actual.tokens, expected.tokens, message);
+      assert.deepEqual(actual.tokens, expected.tokens, message);
     } else {
-      QUnit.push(QUnit.equiv(actual.tokens, expected.tokens), actual.html, expected.html, message);
+      assert.pushResult({
+        result: QUnit.equiv(actual.tokens, expected.tokens),
+        actual: actual.html,
+        expected: expected.html,
+        message: message
+      });
     }
   }
 });
@@ -81380,18 +81349,6 @@ QUnit.test('should pass ESLint', function(assert) {
   assert.ok(true, 'internal-test-helpers/lib/ember-dev/method-call-tracker.js should pass ESLint\n\n');
 });
 
-QUnit.module('ESLint | internal-test-helpers/lib/ember-dev/remaining-template.js');
-QUnit.test('should pass ESLint', function(assert) {
-  assert.expect(1);
-  assert.ok(true, 'internal-test-helpers/lib/ember-dev/remaining-template.js should pass ESLint\n\n');
-});
-
-QUnit.module('ESLint | internal-test-helpers/lib/ember-dev/remaining-view.js');
-QUnit.test('should pass ESLint', function(assert) {
-  assert.expect(1);
-  assert.ok(true, 'internal-test-helpers/lib/ember-dev/remaining-view.js should pass ESLint\n\n');
-});
-
 QUnit.module('ESLint | internal-test-helpers/lib/ember-dev/run-loop.js');
 QUnit.test('should pass ESLint', function(assert) {
   assert.expect(1);
@@ -81612,8 +81569,13 @@ enifed('internal-test-helpers/matchers', ['exports'], function (exports) {
     }, _ref4;
   }
 
-  function equalsElement(element, tagName, attributes, content) {
-    QUnit.push(element.tagName === tagName.toUpperCase(), element.tagName.toLowerCase(), tagName, 'expect tagName to be ' + tagName);
+  function equalsElement(assert, element, tagName, attributes, content) {
+    assert.pushResult({
+      result: element.tagName === tagName.toUpperCase(),
+      actual: element.tagName.toLowerCase(),
+      expected: tagName,
+      message: 'expect tagName to be ' + tagName
+    });
 
     var expectedAttrs = {};
     var expectedCount = 0;
@@ -81628,7 +81590,12 @@ enifed('internal-test-helpers/matchers', ['exports'], function (exports) {
 
       expectedAttrs[name] = matcher;
 
-      QUnit.push(expectedAttrs[name].match(element.getAttribute(name)), element.getAttribute(name), matcher.expected(), 'Element\'s ' + name + ' attribute ' + matcher.message());
+      assert.pushResult({
+        result: expectedAttrs[name].match(element.getAttribute(name)),
+        actual: element.getAttribute(name),
+        expected: matcher.expected(),
+        message: 'Element\'s ' + name + ' attribute ' + matcher.message()
+      });
     }
 
     var actualAttributes = {};
@@ -81638,12 +81605,25 @@ enifed('internal-test-helpers/matchers', ['exports'], function (exports) {
     }
 
     if (!(element instanceof HTMLElement)) {
-      QUnit.push(element instanceof HTMLElement, null, null, 'Element must be an HTML Element, not an SVG Element');
+      assert.pushResult({
+        result: element instanceof HTMLElement,
+        message: 'Element must be an HTML Element, not an SVG Element'
+      });
     } else {
-      QUnit.push(element.attributes.length === expectedCount || !attributes, element.attributes.length, expectedCount, 'Expected ' + expectedCount + ' attributes; got ' + element.outerHTML);
+      assert.pushResult({
+        result: element.attributes.length === expectedCount || !attributes,
+        actual: element.attributes.length,
+        expected: expectedCount,
+        message: 'Expected ' + expectedCount + ' attributes; got ' + element.outerHTML
+      });
 
       if (content !== null) {
-        QUnit.push(element.innerHTML === content, element.innerHTML, content, 'The element had \'' + content + '\' as its content');
+        assert.pushResult({
+          result: element.innerHTML === content,
+          actual: element.innerHTML,
+          expected: content,
+          message: 'The element had \'' + content + '\' as its content'
+        });
       }
     }
   }
@@ -82130,7 +82110,7 @@ enifed('internal-test-helpers/test-cases/abstract', ['exports', 'ember-babel', '
     };
 
     AbstractTestCase.prototype.assertInnerHTML = function assertInnerHTML(html) {
-      (0, _equalInnerHtml.default)(this.element, html);
+      (0, _equalInnerHtml.default)(this.assert, this.element, html);
     };
 
     AbstractTestCase.prototype.assertHTML = function assertHTML(html) {
@@ -82150,7 +82130,7 @@ enifed('internal-test-helpers/test-cases/abstract', ['exports', 'ember-babel', '
         throw new Error('Expecting a ' + ElementType.name + ', but got ' + node);
       }
 
-      (0, _matchers.equalsElement)(node, tagName, attrs, content);
+      (0, _matchers.equalsElement)(this.assert, node, tagName, attrs, content);
     };
 
     AbstractTestCase.prototype.assertComponentElement = function assertComponentElement(node, _ref2) {
@@ -82648,7 +82628,7 @@ enifed('internal-test-helpers/test-groups', ['exports', 'ember-environment', 'em
       if (_emberEnvironment.ENV.USES_ACCESSORS) {
         callback(aget, aset, assert);
       } else {
-        ok('SKIPPING ACCESSORS');
+        assert.ok('SKIPPING ACCESSORS');
       }
     });
   }
@@ -82693,7 +82673,7 @@ enifed('internal-test-helpers/test-groups', ['exports', 'ember-environment', 'em
       if (_emberEnvironment.ENV.USES_ACCESSORS) {
         callback(aget, aset, assert);
       } else {
-        ok('SKIPPING ACCESSORS');
+        assert.ok('SKIPPING ACCESSORS');
       }
     });
   }

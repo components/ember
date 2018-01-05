@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.0.0-canary+a8ee02e0
+ * @version   3.0.0-canary+7fd33bca
  */
 
 /*globals process */
@@ -1047,11 +1047,27 @@ enifed('ember-testing/adapters/qunit', ['exports', 'ember-utils', 'ember-testing
   'use strict';
 
   exports.default = _adapter.default.extend({
+    init: function () {
+      this.doneCallbacks = [];
+    },
     asyncStart: function () {
-      QUnit.stop();
+      if (typeof QUnit.stop === 'function') {
+        // very old QUnit version
+        QUnit.stop();
+      } else {
+        this.doneCallbacks.push(QUnit.config.current ? QUnit.config.current.assert.async() : null);
+      }
     },
     asyncEnd: function () {
-      QUnit.start();
+      if (typeof QUnit.start === 'function') {
+        QUnit.start();
+      } else {
+        var done = this.doneCallbacks.pop();
+        // This can be null if asyncStart() was called outside of a test
+        if (done) {
+          done();
+        }
+      }
     },
     exception: function (error) {
       QUnit.config.current.assert.ok(false, (0, _emberUtils.inspect)(error));
