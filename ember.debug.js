@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.0.0-canary+ce36f26d
+ * @version   3.0.0-canary+0cc3f850
  */
 
 /*globals process */
@@ -42577,7 +42577,10 @@ enifed('ember-testing/adapters/qunit', ['exports', 'ember-utils', 'ember-testing
       }
     },
     asyncEnd: function () {
-      if (typeof QUnit.start === 'function') {
+      // checking for QUnit.stop here (even though we _need_ QUnit.start) because
+      // QUnit.start() still exists in QUnit 2.x (it just throws an error when calling
+      // inside a test context)
+      if (typeof QUnit.stop === 'function') {
         QUnit.start();
       } else {
         var done = this.doneCallbacks.pop();
@@ -47306,7 +47309,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "3.0.0-canary+ce36f26d";
+  exports.default = "3.0.0-canary+0cc3f850";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";

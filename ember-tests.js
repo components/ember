@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.0.0-canary+ce36f26d
+ * @version   3.0.0-canary+0cc3f850
  */
 
 /*globals process */
@@ -6587,6 +6587,7 @@ enifed('ember-debug/tests/main_test', ['ember-babel', 'ember-environment', 'embe
 
   var originalEnvValue = void 0;
   var originalDeprecateHandler = void 0;
+  var originalWarnHandler = void 0;
   var originalWarnOptions = void 0;
   var originalDeprecationOptions = void 0;
 
@@ -6600,6 +6601,7 @@ enifed('ember-debug/tests/main_test', ['ember-babel', 'ember-environment', 'embe
 
       originalEnvValue = _emberEnvironment.ENV.RAISE_ON_DEPRECATION;
       originalDeprecateHandler = _handlers.HANDLERS.deprecate;
+      originalWarnHandler = _handlers.HANDLERS.warn;
       originalWarnOptions = _emberEnvironment.ENV._ENABLE_WARN_OPTIONS_SUPPORT;
       originalDeprecationOptions = _emberEnvironment.ENV._ENABLE_DEPRECATION_OPTIONS_SUPPORT;
 
@@ -6610,6 +6612,7 @@ enifed('ember-debug/tests/main_test', ['ember-babel', 'ember-environment', 'embe
 
     _class.prototype.teardown = function teardown() {
       _handlers.HANDLERS.deprecate = originalDeprecateHandler;
+      _handlers.HANDLERS.warn = originalWarnHandler;
 
       _emberEnvironment.ENV.RAISE_ON_DEPRECATION = originalEnvValue;
       _emberEnvironment.ENV._ENABLE_WARN_OPTIONS_SUPPORT = originalWarnOptions;
@@ -55764,7 +55767,7 @@ enifed('ember-runtime/tests/mixins/promise_proxy_test', ['ember-metal', 'ember-r
     assert.equal((0, _emberMetal.get)(proxy, 'isFulfilled'), false, 'expects the proxy to indicate that it is not fulfilled');
   });
 
-  QUnit.test('should have content when isFulfilled is set', function () {
+  QUnit.test('should have content when isFulfilled is set', function (assert) {
     var deferred = _rsvp.default.defer();
 
     var proxy = ObjectPromiseProxy.create({
@@ -55772,7 +55775,7 @@ enifed('ember-runtime/tests/mixins/promise_proxy_test', ['ember-metal', 'ember-r
     });
 
     proxy.addObserver('isFulfilled', function () {
-      return equal((0, _emberMetal.get)(proxy, 'content'), true);
+      return assert.equal((0, _emberMetal.get)(proxy, 'content'), true);
     });
 
     (0, _emberMetal.run)(deferred, 'resolve', true);
@@ -55787,7 +55790,7 @@ enifed('ember-runtime/tests/mixins/promise_proxy_test', ['ember-metal', 'ember-r
     });
 
     proxy.addObserver('isRejected', function () {
-      return equal((0, _emberMetal.get)(proxy, 'reason'), error);
+      return assert.equal((0, _emberMetal.get)(proxy, 'reason'), error);
     });
 
     try {
@@ -56105,11 +56108,11 @@ enifed('ember-runtime/tests/suites/array', ['exports', 'ember-runtime/tests/suit
       return this;
     },
     arrayWillChange: function () {
-      equal(this._before, null, 'should only call once');
+      QUnit.config.current.assert.equal(this._before, null, 'should only call once');
       this._before = Array.prototype.slice.call(arguments);
     },
     arrayDidChange: function () {
-      equal(this._after, null, 'should only call once');
+      QUnit.config.current.assert.equal(this._after, null, 'should only call once');
       this._after = Array.prototype.slice.call(arguments);
     }
   });
@@ -56142,36 +56145,36 @@ enifed('ember-runtime/tests/suites/array/includes', ['exports', 'ember-runtime/t
 
   suite.module('includes');
 
-  suite.test('includes returns correct value if startAt is positive', function () {
+  suite.test('includes returns correct value if startAt is positive', function (assert) {
     var data = this.newFixture(3);
     var obj = this.newObject(data);
 
-    equal(obj.includes(data[1], 1), true, 'should return true if included');
-    equal(obj.includes(data[0], 1), false, 'should return false if not included');
+    assert.equal(obj.includes(data[1], 1), true, 'should return true if included');
+    assert.equal(obj.includes(data[0], 1), false, 'should return false if not included');
   });
 
-  suite.test('includes returns correct value if startAt is negative', function () {
+  suite.test('includes returns correct value if startAt is negative', function (assert) {
     var data = this.newFixture(3);
     var obj = this.newObject(data);
 
-    equal(obj.includes(data[1], -2), true, 'should return true if included');
-    equal(obj.includes(data[0], -2), false, 'should return false if not included');
+    assert.equal(obj.includes(data[1], -2), true, 'should return true if included');
+    assert.equal(obj.includes(data[0], -2), false, 'should return false if not included');
   });
 
-  suite.test('includes returns true if startAt + length is still negative', function () {
+  suite.test('includes returns true if startAt + length is still negative', function (assert) {
     var data = this.newFixture(1);
     var obj = this.newObject(data);
 
-    equal(obj.includes(data[0], -2), true, 'should return true if included');
-    equal(obj.includes(this.newFixture(1), -2), false, 'should return false if not included');
+    assert.equal(obj.includes(data[0], -2), true, 'should return true if included');
+    assert.equal(obj.includes(this.newFixture(1), -2), false, 'should return false if not included');
   });
 
-  suite.test('includes returns false if startAt out of bounds', function () {
+  suite.test('includes returns false if startAt out of bounds', function (assert) {
     var data = this.newFixture(1);
     var obj = this.newObject(data);
 
-    equal(obj.includes(data[0], 2), false, 'should return false if startAt >= length');
-    equal(obj.includes(this.newFixture(1), 2), false, 'should return false if startAt >= length');
+    assert.equal(obj.includes(data[0], 2), false, 'should return false if startAt >= length');
+    assert.equal(obj.includes(this.newFixture(1), 2), false, 'should return false if startAt >= length');
   });
 
   exports.default = suite;
@@ -56189,21 +56192,21 @@ enifed('ember-runtime/tests/suites/array/indexOf', ['exports', 'ember-runtime/te
 
   suite.module('indexOf');
 
-  suite.test('should return index of object', function () {
+  suite.test('should return index of object', function (assert) {
     var expected = this.newFixture(3);
     var obj = this.newObject(expected);
     var len = 3;
 
     for (var idx = 0; idx < len; idx++) {
-      equal(obj.indexOf(expected[idx]), idx, 'obj.indexOf(' + expected[idx] + ') should match idx');
+      assert.equal(obj.indexOf(expected[idx]), idx, 'obj.indexOf(' + expected[idx] + ') should match idx');
     }
   });
 
-  suite.test('should return -1 when requesting object not in index', function () {
+  suite.test('should return -1 when requesting object not in index', function (assert) {
     var obj = this.newObject(this.newFixture(3));
     var foo = {};
 
-    equal(obj.indexOf(foo), -1, 'obj.indexOf(foo) should be < 0');
+    assert.equal(obj.indexOf(foo), -1, 'obj.indexOf(foo) should be < 0');
   });
 
   exports.default = suite;
@@ -56221,55 +56224,55 @@ enifed('ember-runtime/tests/suites/array/lastIndexOf', ['exports', 'ember-metal'
 
   suite.module('lastIndexOf');
 
-  suite.test('should return index of object\'s last occurrence', function () {
+  suite.test('should return index of object\'s last occurrence', function (assert) {
     var expected = this.newFixture(3);
     var obj = this.newObject(expected);
     var len = 3;
 
     for (var idx = 0; idx < len; idx++) {
-      equal(obj.lastIndexOf(expected[idx]), idx, 'obj.lastIndexOf(' + expected[idx] + ') should match idx');
+      assert.equal(obj.lastIndexOf(expected[idx]), idx, 'obj.lastIndexOf(' + expected[idx] + ') should match idx');
     }
   });
 
-  suite.test('should return index of object\'s last occurrence even startAt search location is equal to length', function () {
+  suite.test('should return index of object\'s last occurrence even startAt search location is equal to length', function (assert) {
     var expected = this.newFixture(3);
     var obj = this.newObject(expected);
     var len = 3;
 
     for (var idx = 0; idx < len; idx++) {
-      equal(obj.lastIndexOf(expected[idx], len), idx, 'obj.lastIndexOfs(' + expected[idx] + ') should match idx');
+      assert.equal(obj.lastIndexOf(expected[idx], len), idx, 'obj.lastIndexOfs(' + expected[idx] + ') should match idx');
     }
   });
 
-  suite.test('should return index of object\'s last occurrence even startAt search location is greater than length', function () {
+  suite.test('should return index of object\'s last occurrence even startAt search location is greater than length', function (assert) {
     var expected = this.newFixture(3);
     var obj = this.newObject(expected);
     var len = 3;
 
     for (var idx = 0; idx < len; idx++) {
-      equal(obj.lastIndexOf(expected[idx], len + 1), idx, 'obj.lastIndexOf(' + expected[idx] + ') should match idx');
+      assert.equal(obj.lastIndexOf(expected[idx], len + 1), idx, 'obj.lastIndexOf(' + expected[idx] + ') should match idx');
     }
   });
 
-  suite.test('should return -1 when no match is found', function () {
+  suite.test('should return -1 when no match is found', function (assert) {
     var obj = this.newObject(this.newFixture(3));
     var foo = {};
 
-    equal(obj.lastIndexOf(foo), -1, 'obj.lastIndexOf(foo) should be -1');
+    assert.equal(obj.lastIndexOf(foo), -1, 'obj.lastIndexOf(foo) should be -1');
   });
 
-  suite.test('should return -1 when no match is found even startAt search location is equal to length', function () {
+  suite.test('should return -1 when no match is found even startAt search location is equal to length', function (assert) {
     var obj = this.newObject(this.newFixture(3));
     var foo = {};
 
-    equal(obj.lastIndexOf(foo, (0, _emberMetal.get)(obj, 'length')), -1, 'obj.lastIndexOf(foo) should be -1');
+    assert.equal(obj.lastIndexOf(foo, (0, _emberMetal.get)(obj, 'length')), -1, 'obj.lastIndexOf(foo) should be -1');
   });
 
-  suite.test('should return -1 when no match is found even startAt search location is greater than length', function () {
+  suite.test('should return -1 when no match is found even startAt search location is greater than length', function (assert) {
     var obj = this.newObject(this.newFixture(3));
     var foo = {};
 
-    equal(obj.lastIndexOf(foo, (0, _emberMetal.get)(obj, 'length') + 1), -1, 'obj.lastIndexOf(foo) should be -1');
+    assert.equal(obj.lastIndexOf(foo, (0, _emberMetal.get)(obj, 'length') + 1), -1, 'obj.lastIndexOf(foo) should be -1');
   });
 
   exports.default = suite;
@@ -56287,24 +56290,24 @@ enifed('ember-runtime/tests/suites/array/objectAt', ['exports', 'ember-runtime/t
 
   suite.module('objectAt');
 
-  suite.test('should return object at specified index', function () {
+  suite.test('should return object at specified index', function (assert) {
     var expected = this.newFixture(3);
     var obj = this.newObject(expected);
     var len = expected.length;
 
     for (var idx = 0; idx < len; idx++) {
-      equal((0, _array.objectAt)(obj, idx), expected[idx], 'obj.objectAt(' + idx + ') should match');
+      assert.equal((0, _array.objectAt)(obj, idx), expected[idx], 'obj.objectAt(' + idx + ') should match');
     }
   });
 
-  suite.test('should return undefined when requesting objects beyond index', function () {
+  suite.test('should return undefined when requesting objects beyond index', function (assert) {
     var obj = void 0;
 
     obj = this.newObject(this.newFixture(3));
-    equal((0, _array.objectAt)(obj, 5), undefined, 'should return undefined for obj.objectAt(5) when len = 3');
+    assert.equal((0, _array.objectAt)(obj, 5), undefined, 'should return undefined for obj.objectAt(5) when len = 3');
 
     obj = this.newObject([]);
-    equal((0, _array.objectAt)(obj, 0), undefined, 'should return undefined for obj.objectAt(0) when len = 0');
+    assert.equal((0, _array.objectAt)(obj, 0), undefined, 'should return undefined for obj.objectAt(0) when len = 0');
   });
 
   exports.default = suite;
@@ -56358,10 +56361,10 @@ enifed('ember-runtime/tests/suites/copyable/copy', ['exports', 'ember-runtime/te
 
   suite.module('copy');
 
-  suite.test('should return an equivalent copy', function () {
+  suite.test('should return an equivalent copy', function (assert) {
     var obj = this.newObject();
     var copy = obj.copy();
-    ok(this.isEqual(obj, copy), 'old object and new object should be equivalent');
+    assert.ok(this.isEqual(obj, copy), 'old object and new object should be equivalent');
   });
 
   exports.default = suite;
@@ -56464,11 +56467,11 @@ enifed('ember-runtime/tests/suites/enumerable', ['exports', 'ember-utils', 'embe
       return this;
     },
     enumerableWillChange: function () {
-      equal(this._before, null, 'should only call once');
+      QUnit.config.current.assert.equal(this._before, null, 'should only call once');
       this._before = Array.prototype.slice.call(arguments);
     },
     enumerableDidChange: function () {
-      equal(this._after, null, 'should only call once');
+      QUnit.config.current.assert.equal(this._after, null, 'should only call once');
       this._after = Array.prototype.slice.call(arguments);
     }
   });
@@ -56591,7 +56594,7 @@ enifed('ember-runtime/tests/suites/enumerable/any', ['exports', 'ember-runtime/t
 
   suite.module('any');
 
-  suite.test('any should should invoke callback on each item as long as you return false', function () {
+  suite.test('any should should invoke callback on each item as long as you return false', function (assert) {
     var obj = this.newObject();
     var ary = this.toArray(obj);
     var found = [];
@@ -56601,11 +56604,11 @@ enifed('ember-runtime/tests/suites/enumerable/any', ['exports', 'ember-runtime/t
       found.push(i);
       return false;
     });
-    equal(result, false, 'return value of obj.any');
-    deepEqual(found, ary, 'items passed during any() should match');
+    assert.equal(result, false, 'return value of obj.any');
+    assert.deepEqual(found, ary, 'items passed during any() should match');
   });
 
-  suite.test('any should stop invoking when you return true', function () {
+  suite.test('any should stop invoking when you return true', function (assert) {
     var obj = this.newObject();
     var ary = this.toArray(obj);
     var cnt = ary.length - 2;
@@ -56617,39 +56620,39 @@ enifed('ember-runtime/tests/suites/enumerable/any', ['exports', 'ember-runtime/t
       found.push(i);
       return --cnt <= 0;
     });
-    equal(result, true, 'return value of obj.any');
-    equal(found.length, exp, 'should invoke proper number of times');
-    deepEqual(found, ary.slice(0, -2), 'items passed during any() should match');
+    assert.equal(result, true, 'return value of obj.any');
+    assert.equal(found.length, exp, 'should invoke proper number of times');
+    assert.deepEqual(found, ary.slice(0, -2), 'items passed during any() should match');
   });
 
-  suite.test('any should return true if any object matches the callback', function () {
+  suite.test('any should return true if any object matches the callback', function (assert) {
     var obj = (0, _native_array.A)([0, 1, 2]);
     var result = void 0;
 
     result = obj.any(function (i) {
       return !!i;
     });
-    equal(result, true, 'return value of obj.any');
+    assert.equal(result, true, 'return value of obj.any');
   });
 
-  suite.test('any should return false if no object matches the callback', function () {
+  suite.test('any should return false if no object matches the callback', function (assert) {
     var obj = (0, _native_array.A)([0, null, false]);
     var result = void 0;
 
     result = obj.any(function (i) {
       return !!i;
     });
-    equal(result, false, 'return value of obj.any');
+    assert.equal(result, false, 'return value of obj.any');
   });
 
-  suite.test('any should produce correct results even if the matching element is undefined', function () {
+  suite.test('any should produce correct results even if the matching element is undefined', function (assert) {
     var obj = (0, _native_array.A)([undefined]);
     var result = void 0;
 
     result = obj.any(function () {
       return true;
     });
-    equal(result, true, 'return value of obj.any');
+    assert.equal(result, true, 'return value of obj.any');
   });
 
   exports.default = suite;
@@ -56667,10 +56670,10 @@ enifed('ember-runtime/tests/suites/enumerable/compact', ['exports', 'ember-runti
 
   suite.module('compact');
 
-  suite.test('removes null and undefined values from enumerable', function () {
+  suite.test('removes null and undefined values from enumerable', function (assert) {
     var obj = this.newObject([null, 1, false, '', undefined, 0, null]);
     var ary = obj.compact();
-    deepEqual(ary, [1, false, '', 0]);
+    assert.deepEqual(ary, [1, false, '', 0]);
   });
 
   exports.default = suite;
@@ -56692,7 +56695,7 @@ enifed('ember-runtime/tests/suites/enumerable/every', ['exports', 'ember-runtime
 
   suite.module('every');
 
-  suite.test('every should should invoke callback on each item as long as you return true', function () {
+  suite.test('every should should invoke callback on each item as long as you return true', function (assert) {
     var obj = this.newObject();
     var ary = this.toArray(obj);
     var found = [];
@@ -56702,11 +56705,11 @@ enifed('ember-runtime/tests/suites/enumerable/every', ['exports', 'ember-runtime
       found.push(i);
       return true;
     });
-    equal(result, true, 'return value of obj.every');
-    deepEqual(found, ary, 'items passed during every() should match');
+    assert.equal(result, true, 'return value of obj.every');
+    assert.deepEqual(found, ary, 'items passed during every() should match');
   });
 
-  suite.test('every should stop invoking when you return false', function () {
+  suite.test('every should stop invoking when you return false', function (assert) {
     var obj = this.newObject();
     var ary = this.toArray(obj);
     var cnt = ary.length - 2;
@@ -56718,9 +56721,9 @@ enifed('ember-runtime/tests/suites/enumerable/every', ['exports', 'ember-runtime
       found.push(i);
       return --cnt > 0;
     });
-    equal(result, false, 'return value of obj.every');
-    equal(found.length, exp, 'should invoke proper number of times');
-    deepEqual(found, ary.slice(0, -2), 'items passed during every() should match');
+    assert.equal(result, false, 'return value of obj.every');
+    assert.equal(found.length, exp, 'should invoke proper number of times');
+    assert.deepEqual(found, ary.slice(0, -2), 'items passed during every() should match');
   });
 
   // ..........................................................
@@ -56729,33 +56732,33 @@ enifed('ember-runtime/tests/suites/enumerable/every', ['exports', 'ember-runtime
 
   suite.module('isEvery');
 
-  suite.test('should return true of every property matches', function () {
+  suite.test('should return true of every property matches', function (assert) {
     var obj = this.newObject([{ foo: 'foo', bar: 'BAZ' }, _object.default.create({ foo: 'foo', bar: 'bar' })]);
 
-    equal(obj.isEvery('foo', 'foo'), true, 'isEvery(foo)');
-    equal(obj.isEvery('bar', 'bar'), false, 'isEvery(bar)');
+    assert.equal(obj.isEvery('foo', 'foo'), true, 'isEvery(foo)');
+    assert.equal(obj.isEvery('bar', 'bar'), false, 'isEvery(bar)');
   });
 
-  suite.test('should return true of every property is true', function () {
+  suite.test('should return true of every property is true', function (assert) {
     var obj = this.newObject([{ foo: 'foo', bar: true }, _object.default.create({ foo: 'bar', bar: false })]);
 
     // different values - all eval to true
-    equal(obj.isEvery('foo'), true, 'isEvery(foo)');
-    equal(obj.isEvery('bar'), false, 'isEvery(bar)');
+    assert.equal(obj.isEvery('foo'), true, 'isEvery(foo)');
+    assert.equal(obj.isEvery('bar'), false, 'isEvery(bar)');
   });
 
-  suite.test('should return true if every property matches null', function () {
+  suite.test('should return true if every property matches null', function (assert) {
     var obj = this.newObject([{ foo: null, bar: 'BAZ' }, _object.default.create({ foo: null, bar: null })]);
 
-    equal(obj.isEvery('foo', null), true, 'isEvery(\'foo\', null)');
-    equal(obj.isEvery('bar', null), false, 'isEvery(\'bar\', null)');
+    assert.equal(obj.isEvery('foo', null), true, 'isEvery(\'foo\', null)');
+    assert.equal(obj.isEvery('bar', null), false, 'isEvery(\'bar\', null)');
   });
 
-  suite.test('should return true if every property is undefined', function () {
+  suite.test('should return true if every property is undefined', function (assert) {
     var obj = this.newObject([{ foo: undefined, bar: 'BAZ' }, _object.default.create({ bar: undefined })]);
 
-    equal(obj.isEvery('foo', undefined), true, 'isEvery(\'foo\', undefined)');
-    equal(obj.isEvery('bar', undefined), false, 'isEvery(\'bar\', undefined)');
+    assert.equal(obj.isEvery('foo', undefined), true, 'isEvery(\'foo\', undefined)');
+    assert.equal(obj.isEvery('bar', undefined), false, 'isEvery(\'bar\', undefined)');
   });
 
   exports.default = suite;
@@ -56777,7 +56780,7 @@ enifed('ember-runtime/tests/suites/enumerable/filter', ['exports', 'ember-runtim
 
   suite.module('filter');
 
-  suite.test('filter should invoke on each item', function () {
+  suite.test('filter should invoke on each item', function (assert) {
     var obj = this.newObject();
     var ary = this.toArray(obj);
     var cnt = ary.length - 2;
@@ -56789,8 +56792,8 @@ enifed('ember-runtime/tests/suites/enumerable/filter', ['exports', 'ember-runtim
       found.push(i);
       return --cnt >= 0;
     });
-    deepEqual(found, ary, 'should have invoked on each item');
-    deepEqual(result, ary.slice(0, -2), 'filtered array should exclude items');
+    assert.deepEqual(found, ary, 'should have invoked on each item');
+    assert.deepEqual(result, ary.slice(0, -2), 'filtered array should exclude items');
   });
 
   // ..........................................................
@@ -56799,7 +56802,7 @@ enifed('ember-runtime/tests/suites/enumerable/filter', ['exports', 'ember-runtim
 
   suite.module('filterBy');
 
-  suite.test('should filter based on object', function () {
+  suite.test('should filter based on object', function (assert) {
     var obj = void 0,
         ary = void 0;
 
@@ -56807,11 +56810,11 @@ enifed('ember-runtime/tests/suites/enumerable/filter', ['exports', 'ember-runtim
 
     obj = this.newObject(ary);
 
-    deepEqual(obj.filterBy('foo', 'foo'), ary, 'filterBy(foo)');
-    deepEqual(obj.filterBy('bar', 'bar'), [ary[1]], 'filterBy(bar)');
+    assert.deepEqual(obj.filterBy('foo', 'foo'), ary, 'filterBy(foo)');
+    assert.deepEqual(obj.filterBy('bar', 'bar'), [ary[1]], 'filterBy(bar)');
   });
 
-  suite.test('should include in result if property is true', function () {
+  suite.test('should include in result if property is true', function (assert) {
     var obj = void 0,
         ary = void 0;
 
@@ -56820,11 +56823,11 @@ enifed('ember-runtime/tests/suites/enumerable/filter', ['exports', 'ember-runtim
     obj = this.newObject(ary);
 
     // different values - all eval to true
-    deepEqual(obj.filterBy('foo'), ary, 'filterBy(foo)');
-    deepEqual(obj.filterBy('bar'), [ary[0]], 'filterBy(bar)');
+    assert.deepEqual(obj.filterBy('foo'), ary, 'filterBy(foo)');
+    assert.deepEqual(obj.filterBy('bar'), [ary[0]], 'filterBy(bar)');
   });
 
-  suite.test('should filter on second argument if provided', function () {
+  suite.test('should filter on second argument if provided', function (assert) {
     var obj = void 0,
         ary = void 0;
 
@@ -56832,10 +56835,10 @@ enifed('ember-runtime/tests/suites/enumerable/filter', ['exports', 'ember-runtim
 
     obj = this.newObject(ary);
 
-    deepEqual(obj.filterBy('foo', 3), [ary[0], ary[3]], 'filterBy(\'foo\', 3)\')');
+    assert.deepEqual(obj.filterBy('foo', 3), [ary[0], ary[3]], 'filterBy(\'foo\', 3)\')');
   });
 
-  suite.test('should correctly filter null second argument', function () {
+  suite.test('should correctly filter null second argument', function (assert) {
     var obj = void 0,
         ary = void 0;
 
@@ -56843,10 +56846,10 @@ enifed('ember-runtime/tests/suites/enumerable/filter', ['exports', 'ember-runtim
 
     obj = this.newObject(ary);
 
-    deepEqual(obj.filterBy('foo', null), [ary[1], ary[2]], 'filterBy(\'foo\', 3)\')');
+    assert.deepEqual(obj.filterBy('foo', null), [ary[1], ary[2]], 'filterBy(\'foo\', 3)\')');
   });
 
-  suite.test('should not return all objects on undefined second argument', function () {
+  suite.test('should not return all objects on undefined second argument', function (assert) {
     var obj = void 0,
         ary = void 0;
 
@@ -56854,10 +56857,10 @@ enifed('ember-runtime/tests/suites/enumerable/filter', ['exports', 'ember-runtim
 
     obj = this.newObject(ary);
 
-    deepEqual(obj.filterBy('foo', undefined), [], 'filterBy(\'foo\', 3)\')');
+    assert.deepEqual(obj.filterBy('foo', undefined), [], 'filterBy(\'foo\', 3)\')');
   });
 
-  suite.test('should correctly filter explicit undefined second argument', function () {
+  suite.test('should correctly filter explicit undefined second argument', function (assert) {
     var obj = void 0,
         ary = void 0;
 
@@ -56865,10 +56868,10 @@ enifed('ember-runtime/tests/suites/enumerable/filter', ['exports', 'ember-runtim
 
     obj = this.newObject(ary);
 
-    deepEqual(obj.filterBy('foo', undefined), ary.slice(2), 'filterBy(\'foo\', 3)\')');
+    assert.deepEqual(obj.filterBy('foo', undefined), ary.slice(2), 'filterBy(\'foo\', 3)\')');
   });
 
-  suite.test('should not match undefined properties without second argument', function () {
+  suite.test('should not match undefined properties without second argument', function (assert) {
     var obj = void 0,
         ary = void 0;
 
@@ -56876,7 +56879,7 @@ enifed('ember-runtime/tests/suites/enumerable/filter', ['exports', 'ember-runtim
 
     obj = this.newObject(ary);
 
-    deepEqual(obj.filterBy('foo'), ary.slice(0, 2), 'filterBy(\'foo\', 3)\')');
+    assert.deepEqual(obj.filterBy('foo'), ary.slice(0, 2), 'filterBy(\'foo\', 3)\')');
   });
 
   exports.default = suite;
@@ -56897,7 +56900,7 @@ enifed('ember-runtime/tests/suites/enumerable/find', ['exports', 'ember-runtime/
 
   suite.module('find');
 
-  suite.test('find should invoke callback on each item as long as you return false', function () {
+  suite.test('find should invoke callback on each item as long as you return false', function (assert) {
     var obj = this.newObject();
     var ary = this.toArray(obj);
     var found = [];
@@ -56907,11 +56910,11 @@ enifed('ember-runtime/tests/suites/enumerable/find', ['exports', 'ember-runtime/
       found.push(i);
       return false;
     });
-    equal(result, undefined, 'return value of obj.find');
-    deepEqual(found, ary, 'items passed during find() should match');
+    assert.equal(result, undefined, 'return value of obj.find');
+    assert.deepEqual(found, ary, 'items passed during find() should match');
   });
 
-  suite.test('every should stop invoking when you return true', function () {
+  suite.test('every should stop invoking when you return true', function (assert) {
     var obj = this.newObject();
     var ary = this.toArray(obj);
     var cnt = ary.length - 2;
@@ -56923,9 +56926,9 @@ enifed('ember-runtime/tests/suites/enumerable/find', ['exports', 'ember-runtime/
       found.push(i);
       return --cnt >= 0;
     });
-    equal(result, ary[exp - 1], 'return value of obj.find');
-    equal(found.length, exp, 'should invoke proper number of times');
-    deepEqual(found, ary.slice(0, -2), 'items passed during find() should match');
+    assert.equal(result, ary[exp - 1], 'return value of obj.find');
+    assert.equal(found.length, exp, 'should invoke proper number of times');
+    assert.deepEqual(found, ary.slice(0, -2), 'items passed during find() should match');
   });
 
   // ..........................................................
@@ -56934,7 +56937,7 @@ enifed('ember-runtime/tests/suites/enumerable/find', ['exports', 'ember-runtime/
 
   suite.module('findBy');
 
-  suite.test('should return first object of property matches', function () {
+  suite.test('should return first object of property matches', function (assert) {
     var ary = void 0,
         obj = void 0;
 
@@ -56942,11 +56945,11 @@ enifed('ember-runtime/tests/suites/enumerable/find', ['exports', 'ember-runtime/
 
     obj = this.newObject(ary);
 
-    equal(obj.findBy('foo', 'foo'), ary[0], 'findBy(foo)');
-    equal(obj.findBy('bar', 'bar'), ary[1], 'findBy(bar)');
+    assert.equal(obj.findBy('foo', 'foo'), ary[0], 'findBy(foo)');
+    assert.equal(obj.findBy('bar', 'bar'), ary[1], 'findBy(bar)');
   });
 
-  suite.test('should return first object with truthy prop', function () {
+  suite.test('should return first object with truthy prop', function (assert) {
     var ary = void 0,
         obj = void 0;
 
@@ -56955,11 +56958,11 @@ enifed('ember-runtime/tests/suites/enumerable/find', ['exports', 'ember-runtime/
     obj = this.newObject(ary);
 
     // different values - all eval to true
-    equal(obj.findBy('foo'), ary[0], 'findBy(foo)');
-    equal(obj.findBy('bar'), ary[1], 'findBy(bar)');
+    assert.equal(obj.findBy('foo'), ary[0], 'findBy(foo)');
+    assert.equal(obj.findBy('bar'), ary[1], 'findBy(bar)');
   });
 
-  suite.test('should return first null property match', function () {
+  suite.test('should return first null property match', function (assert) {
     var ary = void 0,
         obj = void 0;
 
@@ -56967,11 +56970,11 @@ enifed('ember-runtime/tests/suites/enumerable/find', ['exports', 'ember-runtime/
 
     obj = this.newObject(ary);
 
-    equal(obj.findBy('foo', null), ary[0], 'findBy(\'foo\', null)');
-    equal(obj.findBy('bar', null), ary[1], 'findBy(\'bar\', null)');
+    assert.equal(obj.findBy('foo', null), ary[0], 'findBy(\'foo\', null)');
+    assert.equal(obj.findBy('bar', null), ary[1], 'findBy(\'bar\', null)');
   });
 
-  suite.test('should return first undefined property match', function () {
+  suite.test('should return first undefined property match', function (assert) {
     var ary = void 0,
         obj = void 0;
 
@@ -56979,8 +56982,8 @@ enifed('ember-runtime/tests/suites/enumerable/find', ['exports', 'ember-runtime/
 
     obj = this.newObject(ary);
 
-    equal(obj.findBy('foo', undefined), ary[0], 'findBy(\'foo\', undefined)');
-    equal(obj.findBy('bar', undefined), ary[1], 'findBy(\'bar\', undefined)');
+    assert.equal(obj.findBy('foo', undefined), ary[0], 'findBy(\'foo\', undefined)');
+    assert.equal(obj.findBy('bar', undefined), ary[1], 'findBy(\'bar\', undefined)');
   });
 
   exports.default = suite;
@@ -56998,22 +57001,22 @@ enifed('ember-runtime/tests/suites/enumerable/firstObject', ['exports', 'ember-r
 
   suite.module('firstObject');
 
-  suite.test('returns first item in enumerable', function () {
+  suite.test('returns first item in enumerable', function (assert) {
     var obj = this.newObject();
-    equal((0, _emberMetal.get)(obj, 'firstObject'), this.toArray(obj)[0]);
+    assert.equal((0, _emberMetal.get)(obj, 'firstObject'), this.toArray(obj)[0]);
   });
 
-  suite.test('returns undefined if enumerable is empty', function () {
+  suite.test('returns undefined if enumerable is empty', function (assert) {
     var obj = this.newObject([]);
-    equal((0, _emberMetal.get)(obj, 'firstObject'), undefined);
+    assert.equal((0, _emberMetal.get)(obj, 'firstObject'), undefined);
   });
 
-  suite.test('can not be set', function () {
+  suite.test('can not be set', function (assert) {
     var obj = this.newObject([]);
 
-    equal((0, _emberMetal.get)(obj, 'firstObject'), this.toArray(obj)[0]);
+    assert.equal((0, _emberMetal.get)(obj, 'firstObject'), this.toArray(obj)[0]);
 
-    throws(function () {
+    assert.throws(function () {
       (0, _emberMetal.set)(obj, 'firstObject', 'foo!');
     }, /Cannot set read-only property "firstObject" on object/);
   });
@@ -57033,7 +57036,7 @@ enifed('ember-runtime/tests/suites/enumerable/forEach', ['exports', 'ember-utils
 
   suite.module('forEach');
 
-  suite.test('forEach should iterate over list', function () {
+  suite.test('forEach should iterate over list', function (assert) {
     var obj = this.newObject();
     var ary = this.toArray(obj);
     var found = [];
@@ -57041,12 +57044,12 @@ enifed('ember-runtime/tests/suites/enumerable/forEach', ['exports', 'ember-utils
     obj.forEach(function (i) {
       return found.push(i);
     });
-    deepEqual(found, ary, 'items passed during forEach should match');
+    assert.deepEqual(found, ary, 'items passed during forEach should match');
   });
 
-  suite.test('forEach should iterate over list after mutation', function () {
+  suite.test('forEach should iterate over list after mutation', function (assert) {
     if ((0, _emberMetal.get)(this, 'canTestMutation')) {
-      expect(0);
+      assert.expect(0);
       return;
     }
 
@@ -57057,7 +57060,7 @@ enifed('ember-runtime/tests/suites/enumerable/forEach', ['exports', 'ember-utils
     obj.forEach(function (i) {
       return found.push(i);
     });
-    deepEqual(found, ary, 'items passed during forEach should match');
+    assert.deepEqual(found, ary, 'items passed during forEach should match');
 
     this.mutate(obj);
     ary = this.toArray(obj);
@@ -57066,10 +57069,10 @@ enifed('ember-runtime/tests/suites/enumerable/forEach', ['exports', 'ember-utils
     obj.forEach(function (i) {
       return found.push(i);
     });
-    deepEqual(found, ary, 'items passed during forEach should match');
+    assert.deepEqual(found, ary, 'items passed during forEach should match');
   });
 
-  suite.test('2nd target parameter', function () {
+  suite.test('2nd target parameter', function (assert) {
     var _this = this;
 
     var obj = this.newObject();
@@ -57084,19 +57087,19 @@ enifed('ember-runtime/tests/suites/enumerable/forEach', ['exports', 'ember-utils
     });
 
     obj.forEach(function () {
-      equal((0, _emberUtils.guidFor)(_this), (0, _emberUtils.guidFor)(target), 'should pass target as this if context');
+      assert.equal((0, _emberUtils.guidFor)(_this), (0, _emberUtils.guidFor)(target), 'should pass target as this if context');
     }, target);
   });
 
-  suite.test('callback params', function () {
+  suite.test('callback params', function (assert) {
     var obj = this.newObject();
     var ary = this.toArray(obj);
     var loc = 0;
 
     obj.forEach(function (item, idx, enumerable) {
-      equal(item, ary[loc], 'item param');
-      equal(idx, loc, 'idx param');
-      equal((0, _emberUtils.guidFor)(enumerable), (0, _emberUtils.guidFor)(obj), 'enumerable param');
+      assert.equal(item, ary[loc], 'item param');
+      assert.equal(idx, loc, 'idx param');
+      assert.equal((0, _emberUtils.guidFor)(enumerable), (0, _emberUtils.guidFor)(obj), 'enumerable param');
       loc++;
     });
   });
@@ -57116,22 +57119,22 @@ enifed('ember-runtime/tests/suites/enumerable/includes', ['exports', 'ember-runt
 
   suite.module('includes');
 
-  suite.test('includes returns true if item is in enumerable', function () {
+  suite.test('includes returns true if item is in enumerable', function (assert) {
     var data = this.newFixture(1);
     var obj = this.newObject([].concat(data, [NaN, undefined, null]));
 
-    equal(obj.includes(data[0]), true, 'should return true if included');
-    equal(obj.includes(NaN), true, 'should return true if NaN included');
-    equal(obj.includes(undefined), true, 'should return true if undefined included');
-    equal(obj.includes(null), true, 'should return true if null included');
+    assert.equal(obj.includes(data[0]), true, 'should return true if included');
+    assert.equal(obj.includes(NaN), true, 'should return true if NaN included');
+    assert.equal(obj.includes(undefined), true, 'should return true if undefined included');
+    assert.equal(obj.includes(null), true, 'should return true if null included');
   });
 
-  suite.test('includes returns false if item is not in enumerable', function () {
+  suite.test('includes returns false if item is not in enumerable', function (assert) {
     var data = this.newFixture(1);
     var obj = this.newObject([].concat(this.newFixture(3), [null]));
 
-    equal(obj.includes(data[0]), false, 'should return false if not included');
-    equal(obj.includes(undefined), false, 'should return false if undefined not included but null is included');
+    assert.equal(obj.includes(data[0]), false, 'should return false if not included');
+    assert.equal(obj.includes(undefined), false, 'should return false if undefined not included but null is included');
   });
 
   exports.default = suite;
@@ -57149,7 +57152,7 @@ enifed('ember-runtime/tests/suites/enumerable/invoke', ['exports', 'ember-runtim
 
   suite.module('invoke');
 
-  suite.test('invoke should call on each object that implements', function () {
+  suite.test('invoke should call on each object that implements', function (assert) {
     var cnt = void 0,
         ary = void 0,
         obj = void 0;
@@ -57165,11 +57168,11 @@ enifed('ember-runtime/tests/suites/enumerable/invoke', ['exports', 'ember-runtim
 
     obj = this.newObject(ary);
     obj.invoke('foo');
-    equal(cnt, 3, 'should have invoked 3 times');
+    assert.equal(cnt, 3, 'should have invoked 3 times');
 
     cnt = 0;
     obj.invoke('foo', 2);
-    equal(cnt, 6, 'should have invoked 3 times, passing param');
+    assert.equal(cnt, 6, 'should have invoked 3 times, passing param');
   });
 
   exports.default = suite;
@@ -57191,41 +57194,41 @@ enifed('ember-runtime/tests/suites/enumerable/is_any', ['exports', 'ember-runtim
 
   suite.module('isAny');
 
-  suite.test('should return true of any property matches', function () {
+  suite.test('should return true of any property matches', function (assert) {
     var obj = this.newObject([{ foo: 'foo', bar: 'BAZ' }, _object.default.create({ foo: 'foo', bar: 'bar' })]);
 
-    equal(obj.isAny('foo', 'foo'), true, 'isAny(foo)');
-    equal(obj.isAny('bar', 'bar'), true, 'isAny(bar)');
-    equal(obj.isAny('bar', 'BIFF'), false, 'isAny(BIFF)');
+    assert.equal(obj.isAny('foo', 'foo'), true, 'isAny(foo)');
+    assert.equal(obj.isAny('bar', 'bar'), true, 'isAny(bar)');
+    assert.equal(obj.isAny('bar', 'BIFF'), false, 'isAny(BIFF)');
   });
 
-  suite.test('should return true of any property is true', function () {
+  suite.test('should return true of any property is true', function (assert) {
     var obj = this.newObject([{ foo: 'foo', bar: true }, _object.default.create({ foo: 'bar', bar: false })]);
 
     // different values - all eval to true
-    equal(obj.isAny('foo'), true, 'isAny(foo)');
-    equal(obj.isAny('bar'), true, 'isAny(bar)');
-    equal(obj.isAny('BIFF'), false, 'isAny(biff)');
+    assert.equal(obj.isAny('foo'), true, 'isAny(foo)');
+    assert.equal(obj.isAny('bar'), true, 'isAny(bar)');
+    assert.equal(obj.isAny('BIFF'), false, 'isAny(biff)');
   });
 
-  suite.test('should return true if any property matches null', function () {
+  suite.test('should return true if any property matches null', function (assert) {
     var obj = this.newObject([{ foo: null, bar: 'bar' }, _object.default.create({ foo: 'foo', bar: null })]);
 
-    equal(obj.isAny('foo', null), true, 'isAny(\'foo\', null)');
-    equal(obj.isAny('bar', null), true, 'isAny(\'bar\', null)');
+    assert.equal(obj.isAny('foo', null), true, 'isAny(\'foo\', null)');
+    assert.equal(obj.isAny('bar', null), true, 'isAny(\'bar\', null)');
   });
 
-  suite.test('should return true if any property is undefined', function () {
+  suite.test('should return true if any property is undefined', function (assert) {
     var obj = this.newObject([{ foo: undefined, bar: 'bar' }, _object.default.create({ foo: 'foo' })]);
 
-    equal(obj.isAny('foo', undefined), true, 'isAny(\'foo\', undefined)');
-    equal(obj.isAny('bar', undefined), true, 'isAny(\'bar\', undefined)');
+    assert.equal(obj.isAny('foo', undefined), true, 'isAny(\'foo\', undefined)');
+    assert.equal(obj.isAny('bar', undefined), true, 'isAny(\'bar\', undefined)');
   });
 
-  suite.test('should not match undefined properties without second argument', function () {
+  suite.test('should not match undefined properties without second argument', function (assert) {
     var obj = this.newObject([{ foo: undefined }, _object.default.create({})]);
 
-    equal(obj.isAny('foo'), false, 'isAny(\'foo\', undefined)');
+    assert.equal(obj.isAny('foo'), false, 'isAny(\'foo\', undefined)');
   });
 
   exports.default = suite;
@@ -57243,26 +57246,26 @@ enifed('ember-runtime/tests/suites/enumerable/lastObject', ['exports', 'ember-ru
 
   suite.module('lastObject');
 
-  suite.test('returns last item in enumerable', function () {
+  suite.test('returns last item in enumerable', function (assert) {
     var obj = this.newObject();
     var ary = this.toArray(obj);
 
-    equal((0, _emberMetal.get)(obj, 'lastObject'), ary[ary.length - 1]);
+    assert.equal((0, _emberMetal.get)(obj, 'lastObject'), ary[ary.length - 1]);
   });
 
-  suite.test('returns undefined if enumerable is empty', function () {
+  suite.test('returns undefined if enumerable is empty', function (assert) {
     var obj = this.newObject([]);
 
-    equal((0, _emberMetal.get)(obj, 'lastObject'), undefined);
+    assert.equal((0, _emberMetal.get)(obj, 'lastObject'), undefined);
   });
 
-  suite.test('can not be set', function () {
+  suite.test('can not be set', function (assert) {
     var obj = this.newObject();
     var ary = this.toArray(obj);
 
-    equal((0, _emberMetal.get)(obj, 'lastObject'), ary[ary.length - 1]);
+    assert.equal((0, _emberMetal.get)(obj, 'lastObject'), ary[ary.length - 1]);
 
-    throws(function () {
+    assert.throws(function () {
       (0, _emberMetal.set)(obj, 'lastObject', 'foo!');
     }, /Cannot set read-only property "lastObject" on object/);
   });
@@ -57286,18 +57289,18 @@ enifed('ember-runtime/tests/suites/enumerable/map', ['exports', 'ember-utils', '
     return item ? item.toString() : null;
   };
 
-  suite.test('map should iterate over list', function () {
+  suite.test('map should iterate over list', function (assert) {
     var obj = this.newObject();
     var ary = this.toArray(obj).map(mapFunc);
     var found = [];
 
     found = obj.map(mapFunc);
-    deepEqual(found, ary, 'mapped arrays should match');
+    assert.deepEqual(found, ary, 'mapped arrays should match');
   });
 
-  suite.test('map should iterate over list after mutation', function () {
+  suite.test('map should iterate over list after mutation', function (assert) {
     if ((0, _emberMetal.get)(this, 'canTestMutation')) {
-      expect(0);
+      assert.expect(0);
       return;
     }
 
@@ -57306,15 +57309,15 @@ enifed('ember-runtime/tests/suites/enumerable/map', ['exports', 'ember-utils', '
     var found = void 0;
 
     found = obj.map(mapFunc);
-    deepEqual(found, ary, 'items passed during forEach should match');
+    assert.deepEqual(found, ary, 'items passed during forEach should match');
 
     this.mutate(obj);
     ary = this.toArray(obj).map(mapFunc);
     found = obj.map(mapFunc);
-    deepEqual(found, ary, 'items passed during forEach should match');
+    assert.deepEqual(found, ary, 'items passed during forEach should match');
   });
 
-  suite.test('2nd target parameter', function () {
+  suite.test('2nd target parameter', function (assert) {
     var _this = this;
 
     var obj = this.newObject();
@@ -57329,19 +57332,19 @@ enifed('ember-runtime/tests/suites/enumerable/map', ['exports', 'ember-utils', '
     });
 
     obj.map(function () {
-      equal((0, _emberUtils.guidFor)(_this), (0, _emberUtils.guidFor)(target), 'should pass target as this if context');
+      assert.equal((0, _emberUtils.guidFor)(_this), (0, _emberUtils.guidFor)(target), 'should pass target as this if context');
     }, target);
   });
 
-  suite.test('callback params', function () {
+  suite.test('callback params', function (assert) {
     var obj = this.newObject();
     var ary = this.toArray(obj);
     var loc = 0;
 
     obj.map(function (item, idx, enumerable) {
-      equal(item, ary[loc], 'item param');
-      equal(idx, loc, 'idx param');
-      equal((0, _emberUtils.guidFor)(enumerable), (0, _emberUtils.guidFor)(obj), 'enumerable param');
+      assert.equal(item, ary[loc], 'item param');
+      assert.equal(idx, loc, 'idx param');
+      assert.equal((0, _emberUtils.guidFor)(enumerable), (0, _emberUtils.guidFor)(obj), 'enumerable param');
       loc++;
     });
   });
@@ -57361,14 +57364,14 @@ enifed('ember-runtime/tests/suites/enumerable/mapBy', ['exports', 'ember-runtime
 
   suite.module('mapBy');
 
-  suite.test('get value of each property', function () {
+  suite.test('get value of each property', function (assert) {
     var obj = this.newObject([{ a: 1 }, { a: 2 }]);
-    equal(obj.mapBy('a').join(''), '12');
+    assert.equal(obj.mapBy('a').join(''), '12');
   });
 
-  suite.test('should work also through getEach alias', function () {
+  suite.test('should work also through getEach alias', function (assert) {
     var obj = this.newObject([{ a: 1 }, { a: 2 }]);
-    equal(obj.getEach('a').join(''), '12');
+    assert.equal(obj.getEach('a').join(''), '12');
   });
 
   exports.default = suite;
@@ -57386,28 +57389,28 @@ enifed('ember-runtime/tests/suites/enumerable/reduce', ['exports', 'ember-runtim
 
   suite.module('reduce');
 
-  suite.test('collects a summary value from an enumeration', function () {
+  suite.test('collects a summary value from an enumeration', function (assert) {
     var obj = this.newObject([1, 2, 3]);
     var res = obj.reduce(function (previousValue, item) {
       return previousValue + item;
     }, 0);
-    equal(res, 6);
+    assert.equal(res, 6);
   });
 
-  suite.test('passes index of item to callback', function () {
+  suite.test('passes index of item to callback', function (assert) {
     var obj = this.newObject([1, 2, 3]);
     var res = obj.reduce(function (previousValue, item, index) {
       return previousValue + index;
     }, 0);
-    equal(res, 3);
+    assert.equal(res, 3);
   });
 
-  suite.test('passes enumerable object to callback', function () {
+  suite.test('passes enumerable object to callback', function (assert) {
     var obj = this.newObject([1, 2, 3]);
     var res = obj.reduce(function (previousValue, item, index, enumerable) {
       return enumerable;
     }, 0);
-    equal(res, obj);
+    assert.equal(res, obj);
   });
 
   exports.default = suite;
@@ -57429,17 +57432,17 @@ enifed('ember-runtime/tests/suites/enumerable/reject', ['exports', 'ember-runtim
 
   suite.module('reject');
 
-  suite.test('should reject any item that does not meet the condition', function () {
+  suite.test('should reject any item that does not meet the condition', function (assert) {
     var obj = this.newObject([1, 2, 3, 4]);
     var result = void 0;
 
     result = obj.reject(function (i) {
       return i < 3;
     });
-    deepEqual(result, [3, 4], 'reject the correct items');
+    assert.deepEqual(result, [3, 4], 'reject the correct items');
   });
 
-  suite.test('should be the inverse of filter', function () {
+  suite.test('should be the inverse of filter', function (assert) {
     var obj = this.newObject([1, 2, 3, 4]);
     var isEven = function (i) {
       return i % 2 === 0;
@@ -57450,8 +57453,8 @@ enifed('ember-runtime/tests/suites/enumerable/reject', ['exports', 'ember-runtim
     filtered = obj.filter(isEven);
     rejected = obj.reject(isEven);
 
-    deepEqual(filtered, [2, 4], 'filtered evens');
-    deepEqual(rejected, [1, 3], 'rejected evens');
+    assert.deepEqual(filtered, [2, 4], 'filtered evens');
+    assert.deepEqual(rejected, [1, 3], 'rejected evens');
   });
 
   // ..........................................................
@@ -57460,7 +57463,7 @@ enifed('ember-runtime/tests/suites/enumerable/reject', ['exports', 'ember-runtim
 
   suite.module('rejectBy');
 
-  suite.test('should reject based on object', function () {
+  suite.test('should reject based on object', function (assert) {
     var obj = void 0,
         ary = void 0;
 
@@ -57468,11 +57471,11 @@ enifed('ember-runtime/tests/suites/enumerable/reject', ['exports', 'ember-runtim
 
     obj = this.newObject(ary);
 
-    deepEqual(obj.rejectBy('foo', 'foo'), [], 'rejectBy(foo)');
-    deepEqual(obj.rejectBy('bar', 'bar'), [ary[0]], 'rejectBy(bar)');
+    assert.deepEqual(obj.rejectBy('foo', 'foo'), [], 'rejectBy(foo)');
+    assert.deepEqual(obj.rejectBy('bar', 'bar'), [ary[0]], 'rejectBy(bar)');
   });
 
-  suite.test('should include in result if property is false', function () {
+  suite.test('should include in result if property is false', function (assert) {
     var obj = void 0,
         ary = void 0;
 
@@ -57480,11 +57483,11 @@ enifed('ember-runtime/tests/suites/enumerable/reject', ['exports', 'ember-runtim
 
     obj = this.newObject(ary);
 
-    deepEqual(obj.rejectBy('foo'), ary, 'rejectBy(foo)');
-    deepEqual(obj.rejectBy('bar'), [ary[1]], 'rejectBy(bar)');
+    assert.deepEqual(obj.rejectBy('foo'), ary, 'rejectBy(foo)');
+    assert.deepEqual(obj.rejectBy('bar'), [ary[1]], 'rejectBy(bar)');
   });
 
-  suite.test('should reject on second argument if provided', function () {
+  suite.test('should reject on second argument if provided', function (assert) {
     var obj = void 0,
         ary = void 0;
 
@@ -57492,10 +57495,10 @@ enifed('ember-runtime/tests/suites/enumerable/reject', ['exports', 'ember-runtim
 
     obj = this.newObject(ary);
 
-    deepEqual(obj.rejectBy('foo', 3), [ary[1], ary[2]], 'rejectBy(\'foo\', 3)\')');
+    assert.deepEqual(obj.rejectBy('foo', 3), [ary[1], ary[2]], 'rejectBy(\'foo\', 3)\')');
   });
 
-  suite.test('should correctly reject null second argument', function () {
+  suite.test('should correctly reject null second argument', function (assert) {
     var obj = void 0,
         ary = void 0;
 
@@ -57503,10 +57506,10 @@ enifed('ember-runtime/tests/suites/enumerable/reject', ['exports', 'ember-runtim
 
     obj = this.newObject(ary);
 
-    deepEqual(obj.rejectBy('foo', null), [ary[0], ary[3]], 'rejectBy(\'foo\', null)\')');
+    assert.deepEqual(obj.rejectBy('foo', null), [ary[0], ary[3]], 'rejectBy(\'foo\', null)\')');
   });
 
-  suite.test('should correctly reject undefined second argument', function () {
+  suite.test('should correctly reject undefined second argument', function (assert) {
     var obj = void 0,
         ary = void 0;
 
@@ -57514,10 +57517,10 @@ enifed('ember-runtime/tests/suites/enumerable/reject', ['exports', 'ember-runtim
 
     obj = this.newObject(ary);
 
-    deepEqual(obj.rejectBy('bar', undefined), [], 'rejectBy(\'bar\', undefined)\')');
+    assert.deepEqual(obj.rejectBy('bar', undefined), [], 'rejectBy(\'bar\', undefined)\')');
   });
 
-  suite.test('should correctly reject explicit undefined second argument', function () {
+  suite.test('should correctly reject explicit undefined second argument', function (assert) {
     var obj = void 0,
         ary = void 0;
 
@@ -57525,10 +57528,10 @@ enifed('ember-runtime/tests/suites/enumerable/reject', ['exports', 'ember-runtim
 
     obj = this.newObject(ary);
 
-    deepEqual(obj.rejectBy('foo', undefined), ary.slice(0, 2), 'rejectBy(\'foo\', undefined)\')');
+    assert.deepEqual(obj.rejectBy('foo', undefined), ary.slice(0, 2), 'rejectBy(\'foo\', undefined)\')');
   });
 
-  suite.test('should match undefined, null, or false properties without second argument', function () {
+  suite.test('should match undefined, null, or false properties without second argument', function (assert) {
     var obj = void 0,
         ary = void 0;
 
@@ -57536,7 +57539,7 @@ enifed('ember-runtime/tests/suites/enumerable/reject', ['exports', 'ember-runtim
 
     obj = this.newObject(ary);
 
-    deepEqual(obj.rejectBy('foo'), ary.slice(2), 'rejectBy(\'foo\')\')');
+    assert.deepEqual(obj.rejectBy('foo'), ary.slice(2), 'rejectBy(\'foo\')\')');
   });
 
   exports.default = suite;
@@ -57554,20 +57557,20 @@ enifed('ember-runtime/tests/suites/enumerable/sortBy', ['exports', 'ember-runtim
 
   suite.module('sortBy');
 
-  suite.test('sort by value of property', function () {
+  suite.test('sort by value of property', function (assert) {
     var obj = this.newObject([{ a: 2 }, { a: 1 }]);
     var sorted = obj.sortBy('a');
 
-    equal((0, _emberMetal.get)(sorted[0], 'a'), 1);
-    equal((0, _emberMetal.get)(sorted[1], 'a'), 2);
+    assert.equal((0, _emberMetal.get)(sorted[0], 'a'), 1);
+    assert.equal((0, _emberMetal.get)(sorted[1], 'a'), 2);
   });
 
-  suite.test('supports multiple propertyNames', function () {
+  suite.test('supports multiple propertyNames', function (assert) {
     var obj = this.newObject([{ a: 1, b: 2 }, { a: 1, b: 1 }]);
     var sorted = obj.sortBy('a', 'b');
 
-    equal((0, _emberMetal.get)(sorted[0], 'b'), 1);
-    equal((0, _emberMetal.get)(sorted[1], 'b'), 2);
+    assert.equal((0, _emberMetal.get)(sorted[0], 'b'), 1);
+    assert.equal((0, _emberMetal.get)(sorted[1], 'b'), 2);
   });
 
   exports.default = suite;
@@ -57585,9 +57588,9 @@ enifed('ember-runtime/tests/suites/enumerable/toArray', ['exports', 'ember-runti
 
   suite.module('toArray');
 
-  suite.test('toArray should convert to an array', function () {
+  suite.test('toArray should convert to an array', function (assert) {
     var obj = this.newObject();
-    deepEqual(obj.toArray(), this.toArray(obj));
+    assert.deepEqual(obj.toArray(), this.toArray(obj));
   });
 
   exports.default = suite;
@@ -57605,7 +57608,7 @@ enifed('ember-runtime/tests/suites/enumerable/uniq', ['exports', 'ember-runtime/
 
   suite.module('uniq');
 
-  suite.test('should return new instance with duplicates removed', function () {
+  suite.test('should return new instance with duplicates removed', function (assert) {
     var before = void 0,
         after = void 0,
         obj = void 0,
@@ -57617,18 +57620,18 @@ enifed('ember-runtime/tests/suites/enumerable/uniq', ['exports', 'ember-runtime/
     before = obj.toArray(); // in case of set before will be different...
 
     ret = obj.uniq();
-    deepEqual(this.toArray(ret), after, 'should have removed item');
-    deepEqual(this.toArray(obj), before, 'should not have changed original');
+    assert.deepEqual(this.toArray(ret), after, 'should have removed item');
+    assert.deepEqual(this.toArray(obj), before, 'should not have changed original');
   });
 
-  suite.test('should return duplicate of same content if no duplicates found', function () {
+  suite.test('should return duplicate of same content if no duplicates found', function (assert) {
     var item = void 0,
         obj = void 0,
         ret = void 0;
     obj = this.newObject(this.newFixture(3));
     ret = obj.uniq(item);
-    ok(ret !== obj, 'should not be same object');
-    deepEqual(this.toArray(ret), this.toArray(obj), 'should be the same content');
+    assert.ok(ret !== obj, 'should not be same object');
+    assert.deepEqual(this.toArray(ret), this.toArray(obj), 'should be the same content');
   });
 
   exports.default = suite;
@@ -57646,9 +57649,9 @@ enifed('ember-runtime/tests/suites/enumerable/uniqBy', ['exports', 'ember-runtim
 
   suite.module('uniqBy');
 
-  suite.test('should return new instance with duplicates removed', function () {
+  suite.test('should return new instance with duplicates removed', function (assert) {
     var numbers = this.newObject([{ id: 1, value: 'one' }, { id: 2, value: 'two' }, { id: 1, value: 'one' }]);
-    deepEqual(numbers.uniqBy('id'), [{ id: 1, value: 'one' }, { id: 2, value: 'two' }]);
+    assert.deepEqual(numbers.uniqBy('id'), [{ id: 1, value: 'one' }, { id: 2, value: 'two' }]);
   });
 
   exports.default = suite;
@@ -57666,7 +57669,7 @@ enifed('ember-runtime/tests/suites/enumerable/without', ['exports', 'ember-runti
 
   suite.module('without');
 
-  suite.test('should return new instance with item removed', function () {
+  suite.test('should return new instance with item removed', function (assert) {
     var before = void 0,
         after = void 0,
         obj = void 0,
@@ -57677,11 +57680,11 @@ enifed('ember-runtime/tests/suites/enumerable/without', ['exports', 'ember-runti
     obj = this.newObject(before);
 
     ret = obj.without(before[1]);
-    deepEqual(this.toArray(ret), after, 'should have removed item');
-    deepEqual(this.toArray(obj), before, 'should not have changed original');
+    assert.deepEqual(this.toArray(ret), after, 'should have removed item');
+    assert.deepEqual(this.toArray(obj), before, 'should not have changed original');
   });
 
-  suite.test('should remove NaN value', function () {
+  suite.test('should remove NaN value', function (assert) {
     var before = void 0,
         after = void 0,
         obj = void 0,
@@ -57692,10 +57695,10 @@ enifed('ember-runtime/tests/suites/enumerable/without', ['exports', 'ember-runti
     obj = this.newObject(before);
 
     ret = obj.without(NaN);
-    deepEqual(this.toArray(ret), after, 'should have removed item');
+    assert.deepEqual(this.toArray(ret), after, 'should have removed item');
   });
 
-  suite.test('should return same instance if object not found', function () {
+  suite.test('should return same instance if object not found', function (assert) {
     var item = void 0,
         obj = void 0,
         ret = void 0;
@@ -57704,7 +57707,7 @@ enifed('ember-runtime/tests/suites/enumerable/without', ['exports', 'ember-runti
     obj = this.newObject(this.newFixture(3));
 
     ret = obj.without(item);
-    equal(ret, obj, 'should be same instance');
+    assert.equal(ret, obj, 'should be same instance');
   });
 
   exports.default = suite;
@@ -57744,13 +57747,13 @@ enifed('ember-runtime/tests/suites/mutable_array/addObject', ['exports', 'ember-
 
   suite.module('addObject');
 
-  suite.test('should return receiver', function () {
+  suite.test('should return receiver', function (assert) {
     var before = this.newFixture(3);
     var obj = this.newObject(before);
-    equal(obj.addObject(before[1]), obj, 'should return receiver');
+    assert.equal(obj.addObject(before[1]), obj, 'should return receiver');
   });
 
-  suite.test('[A,B].addObject(C) => [A,B,C] + notify', function () {
+  suite.test('[A,B].addObject(C) => [A,B,C] + notify', function (assert) {
     var before = this.newFixture(2);
     var item = this.newFixture(1)[0];
     var after = [before[0], before[1], item];
@@ -57761,20 +57764,20 @@ enifed('ember-runtime/tests/suites/mutable_array/addObject', ['exports', 'ember-
 
     obj.addObject(item);
 
-    deepEqual(this.toArray(obj), after, 'post item results');
-    equal((0, _emberMetal.get)(obj, 'length'), after.length, 'length');
+    assert.deepEqual(this.toArray(obj), after, 'post item results');
+    assert.equal((0, _emberMetal.get)(obj, 'length'), after.length, 'length');
 
     if (observer.isEnabled) {
-      equal(observer.timesCalled('[]'), 1, 'should have notified [] once');
-      equal(observer.timesCalled('@each'), 0, 'should not have notified @each once');
-      equal(observer.timesCalled('length'), 1, 'should have notified length once');
-      equal(observer.timesCalled('lastObject'), 1, 'should have notified lastObject once');
+      assert.equal(observer.timesCalled('[]'), 1, 'should have notified [] once');
+      assert.equal(observer.timesCalled('@each'), 0, 'should not have notified @each once');
+      assert.equal(observer.timesCalled('length'), 1, 'should have notified length once');
+      assert.equal(observer.timesCalled('lastObject'), 1, 'should have notified lastObject once');
 
-      equal(observer.validate('firstObject'), false, 'should NOT have notified firstObject once');
+      assert.equal(observer.validate('firstObject'), false, 'should NOT have notified firstObject once');
     }
   });
 
-  suite.test('[A,B,C].addObject(A) => [A,B,C] + NO notify', function () {
+  suite.test('[A,B,C].addObject(A) => [A,B,C] + NO notify', function (assert) {
     var before = this.newFixture(3);
     var after = before;
     var item = before[0];
@@ -57785,15 +57788,15 @@ enifed('ember-runtime/tests/suites/mutable_array/addObject', ['exports', 'ember-
 
     obj.addObject(item); // note: item in set
 
-    deepEqual(this.toArray(obj), after, 'post item results');
-    equal((0, _emberMetal.get)(obj, 'length'), after.length, 'length');
+    assert.deepEqual(this.toArray(obj), after, 'post item results');
+    assert.equal((0, _emberMetal.get)(obj, 'length'), after.length, 'length');
 
     if (observer.isEnabled) {
-      equal(observer.validate('[]'), false, 'should NOT have notified []');
-      equal(observer.validate('@each'), false, 'should NOT have notified @each');
-      equal(observer.validate('length'), false, 'should NOT have notified length');
-      equal(observer.validate('firstObject'), false, 'should NOT have notified firstObject once');
-      equal(observer.validate('lastObject'), false, 'should NOT have notified lastObject once');
+      assert.equal(observer.validate('[]'), false, 'should NOT have notified []');
+      assert.equal(observer.validate('@each'), false, 'should NOT have notified @each');
+      assert.equal(observer.validate('length'), false, 'should NOT have notified length');
+      assert.equal(observer.validate('firstObject'), false, 'should NOT have notified firstObject once');
+      assert.equal(observer.validate('lastObject'), false, 'should NOT have notified lastObject once');
     }
   });
 
@@ -57812,7 +57815,7 @@ enifed('ember-runtime/tests/suites/mutable_array/clear', ['exports', 'ember-meta
 
   suite.module('clear');
 
-  suite.test('[].clear() => [] + notify', function () {
+  suite.test('[].clear() => [] + notify', function (assert) {
     var before = [];
     var after = [];
     var obj = this.newObject(before);
@@ -57820,19 +57823,19 @@ enifed('ember-runtime/tests/suites/mutable_array/clear', ['exports', 'ember-meta
 
     obj.getProperties('firstObject', 'lastObject'); /* Prime the cache */
 
-    equal(obj.clear(), obj, 'return self');
+    assert.equal(obj.clear(), obj, 'return self');
 
-    deepEqual(this.toArray(obj), after, 'post item results');
-    equal((0, _emberMetal.get)(obj, 'length'), after.length, 'length');
+    assert.deepEqual(this.toArray(obj), after, 'post item results');
+    assert.equal((0, _emberMetal.get)(obj, 'length'), after.length, 'length');
 
-    equal(observer.validate('[]'), false, 'should NOT have notified [] once');
-    equal(observer.validate('@each'), false, 'should NOT have notified @each once');
-    equal(observer.validate('length'), false, 'should NOT have notified length once');
-    equal(observer.validate('firstObject'), false, 'should NOT have notified firstObject once');
-    equal(observer.validate('lastObject'), false, 'should NOT have notified lastObject once');
+    assert.equal(observer.validate('[]'), false, 'should NOT have notified [] once');
+    assert.equal(observer.validate('@each'), false, 'should NOT have notified @each once');
+    assert.equal(observer.validate('length'), false, 'should NOT have notified length once');
+    assert.equal(observer.validate('firstObject'), false, 'should NOT have notified firstObject once');
+    assert.equal(observer.validate('lastObject'), false, 'should NOT have notified lastObject once');
   });
 
-  suite.test('[X].clear() => [] + notify', function () {
+  suite.test('[X].clear() => [] + notify', function (assert) {
     var obj, before, after, observer;
 
     before = this.newFixture(1);
@@ -57841,16 +57844,16 @@ enifed('ember-runtime/tests/suites/mutable_array/clear', ['exports', 'ember-meta
     observer = this.newObserver(obj, '[]', '@each', 'length', 'firstObject', 'lastObject');
     obj.getProperties('firstObject', 'lastObject'); /* Prime the cache */
 
-    equal(obj.clear(), obj, 'return self');
+    assert.equal(obj.clear(), obj, 'return self');
 
-    deepEqual(this.toArray(obj), after, 'post item results');
-    equal((0, _emberMetal.get)(obj, 'length'), after.length, 'length');
+    assert.deepEqual(this.toArray(obj), after, 'post item results');
+    assert.equal((0, _emberMetal.get)(obj, 'length'), after.length, 'length');
 
-    equal(observer.timesCalled('[]'), 1, 'should have notified [] once');
-    equal(observer.timesCalled('@each'), 0, 'should not have notified @each once');
-    equal(observer.timesCalled('length'), 1, 'should have notified length once');
-    equal(observer.timesCalled('firstObject'), 1, 'should have notified firstObject once');
-    equal(observer.timesCalled('lastObject'), 1, 'should have notified lastObject once');
+    assert.equal(observer.timesCalled('[]'), 1, 'should have notified [] once');
+    assert.equal(observer.timesCalled('@each'), 0, 'should not have notified @each once');
+    assert.equal(observer.timesCalled('length'), 1, 'should have notified length once');
+    assert.equal(observer.timesCalled('firstObject'), 1, 'should have notified firstObject once');
+    assert.equal(observer.timesCalled('lastObject'), 1, 'should have notified lastObject once');
   });
 
   exports.default = suite;
@@ -57868,7 +57871,7 @@ enifed('ember-runtime/tests/suites/mutable_array/insertAt', ['exports', 'ember-r
 
   suite.module('insertAt');
 
-  suite.test('[].insertAt(0, X) => [X] + notify', function () {
+  suite.test('[].insertAt(0, X) => [X] + notify', function (assert) {
     var after = this.newFixture(1);
     var obj = this.newObject([]);
     var observer = this.newObserver(obj, '[]', '@each', 'length', 'firstObject', 'lastObject');
@@ -57877,32 +57880,32 @@ enifed('ember-runtime/tests/suites/mutable_array/insertAt', ['exports', 'ember-r
 
     obj.insertAt(0, after[0]);
 
-    deepEqual(this.toArray(obj), after, 'post item results');
-    equal((0, _emberMetal.get)(obj, 'length'), after.length, 'length');
+    assert.deepEqual(this.toArray(obj), after, 'post item results');
+    assert.equal((0, _emberMetal.get)(obj, 'length'), after.length, 'length');
 
-    equal(observer.timesCalledBefore('[]'), 1, 'should have notified [] will change once');
-    equal(observer.timesCalledBefore('@each'), 0, 'should not have notified @each will change once');
-    equal(observer.timesCalledBefore('length'), 1, 'should have notified length will change once');
-    equal(observer.timesCalledBefore('firstObject'), 1, 'should have notified firstObject will change once');
-    equal(observer.timesCalledBefore('lastObject'), 1, 'should have notified lastObject will change once');
+    assert.equal(observer.timesCalledBefore('[]'), 1, 'should have notified [] will change once');
+    assert.equal(observer.timesCalledBefore('@each'), 0, 'should not have notified @each will change once');
+    assert.equal(observer.timesCalledBefore('length'), 1, 'should have notified length will change once');
+    assert.equal(observer.timesCalledBefore('firstObject'), 1, 'should have notified firstObject will change once');
+    assert.equal(observer.timesCalledBefore('lastObject'), 1, 'should have notified lastObject will change once');
 
-    equal(observer.timesCalled('[]'), 1, 'should have notified [] did change once');
-    equal(observer.timesCalled('@each'), 0, 'should not have notified @each did change once');
-    equal(observer.timesCalled('length'), 1, 'should have notified length did change once');
-    equal(observer.timesCalled('firstObject'), 1, 'should have notified firstObject did change once');
-    equal(observer.timesCalled('lastObject'), 1, 'should have notified lastObject did change once');
+    assert.equal(observer.timesCalled('[]'), 1, 'should have notified [] did change once');
+    assert.equal(observer.timesCalled('@each'), 0, 'should not have notified @each did change once');
+    assert.equal(observer.timesCalled('length'), 1, 'should have notified length did change once');
+    assert.equal(observer.timesCalled('firstObject'), 1, 'should have notified firstObject did change once');
+    assert.equal(observer.timesCalled('lastObject'), 1, 'should have notified lastObject did change once');
   });
 
-  suite.test('[].insertAt(200,X) => OUT_OF_RANGE_EXCEPTION exception', function () {
+  suite.test('[].insertAt(200,X) => OUT_OF_RANGE_EXCEPTION exception', function (assert) {
     var obj = this.newObject([]);
     var that = this;
 
-    throws(function () {
+    assert.throws(function () {
       return obj.insertAt(200, that.newFixture(1)[0]);
     }, Error);
   });
 
-  suite.test('[A].insertAt(0, X) => [X,A] + notify', function () {
+  suite.test('[A].insertAt(0, X) => [X,A] + notify', function (assert) {
     var item = this.newFixture(1)[0];
     var before = this.newFixture(1);
     var after = [item, before[0]];
@@ -57913,24 +57916,24 @@ enifed('ember-runtime/tests/suites/mutable_array/insertAt', ['exports', 'ember-r
 
     obj.insertAt(0, item);
 
-    deepEqual(this.toArray(obj), after, 'post item results');
-    equal((0, _emberMetal.get)(obj, 'length'), after.length, 'length');
+    assert.deepEqual(this.toArray(obj), after, 'post item results');
+    assert.equal((0, _emberMetal.get)(obj, 'length'), after.length, 'length');
 
-    equal(observer.timesCalledBefore('[]'), 1, 'should have notified [] will change once');
-    equal(observer.timesCalledBefore('@each'), 0, 'should not have notified @each will change once');
-    equal(observer.timesCalledBefore('length'), 1, 'should have notified length will change once');
-    equal(observer.timesCalledBefore('firstObject'), 1, 'should have notified firstObject will change once');
-    equal(observer.timesCalledBefore('lastObject'), 0, 'should NOT have notified lastObject will change once');
+    assert.equal(observer.timesCalledBefore('[]'), 1, 'should have notified [] will change once');
+    assert.equal(observer.timesCalledBefore('@each'), 0, 'should not have notified @each will change once');
+    assert.equal(observer.timesCalledBefore('length'), 1, 'should have notified length will change once');
+    assert.equal(observer.timesCalledBefore('firstObject'), 1, 'should have notified firstObject will change once');
+    assert.equal(observer.timesCalledBefore('lastObject'), 0, 'should NOT have notified lastObject will change once');
 
-    equal(observer.timesCalled('[]'), 1, 'should have notified [] once');
-    equal(observer.timesCalled('@each'), 0, 'should not have notified @each once');
-    equal(observer.timesCalled('length'), 1, 'should have notified length once');
-    equal(observer.timesCalled('firstObject'), 1, 'should have notified firstObject once');
+    assert.equal(observer.timesCalled('[]'), 1, 'should have notified [] once');
+    assert.equal(observer.timesCalled('@each'), 0, 'should not have notified @each once');
+    assert.equal(observer.timesCalled('length'), 1, 'should have notified length once');
+    assert.equal(observer.timesCalled('firstObject'), 1, 'should have notified firstObject once');
 
-    equal(observer.validate('lastObject'), false, 'should NOT have notified lastObject');
+    assert.equal(observer.validate('lastObject'), false, 'should NOT have notified lastObject');
   });
 
-  suite.test('[A].insertAt(1, X) => [A,X] + notify', function () {
+  suite.test('[A].insertAt(1, X) => [A,X] + notify', function (assert) {
     var item = this.newFixture(1)[0];
     var before = this.newFixture(1);
     var after = [before[0], item];
@@ -57941,33 +57944,33 @@ enifed('ember-runtime/tests/suites/mutable_array/insertAt', ['exports', 'ember-r
 
     obj.insertAt(1, item);
 
-    deepEqual(this.toArray(obj), after, 'post item results');
-    equal((0, _emberMetal.get)(obj, 'length'), after.length, 'length');
+    assert.deepEqual(this.toArray(obj), after, 'post item results');
+    assert.equal((0, _emberMetal.get)(obj, 'length'), after.length, 'length');
 
-    equal(observer.timesCalledBefore('[]'), 1, 'should have notified [] will change once');
-    equal(observer.timesCalledBefore('@each'), 0, 'should not have notified @each will change once');
-    equal(observer.timesCalledBefore('length'), 1, 'should have notified length will change once');
-    equal(observer.timesCalledBefore('firstObject'), 0, 'should NOT have notified firstObject will change once');
-    equal(observer.timesCalledBefore('lastObject'), 1, 'should have notified lastObject will change once');
+    assert.equal(observer.timesCalledBefore('[]'), 1, 'should have notified [] will change once');
+    assert.equal(observer.timesCalledBefore('@each'), 0, 'should not have notified @each will change once');
+    assert.equal(observer.timesCalledBefore('length'), 1, 'should have notified length will change once');
+    assert.equal(observer.timesCalledBefore('firstObject'), 0, 'should NOT have notified firstObject will change once');
+    assert.equal(observer.timesCalledBefore('lastObject'), 1, 'should have notified lastObject will change once');
 
-    equal(observer.timesCalled('[]'), 1, 'should have notified [] once');
-    equal(observer.timesCalled('@each'), 0, 'should not have notified @each once');
-    equal(observer.timesCalled('length'), 1, 'should have notified length once');
-    equal(observer.timesCalled('lastObject'), 1, 'should have notified lastObject once');
+    assert.equal(observer.timesCalled('[]'), 1, 'should have notified [] once');
+    assert.equal(observer.timesCalled('@each'), 0, 'should not have notified @each once');
+    assert.equal(observer.timesCalled('length'), 1, 'should have notified length once');
+    assert.equal(observer.timesCalled('lastObject'), 1, 'should have notified lastObject once');
 
-    equal(observer.validate('firstObject'), false, 'should NOT have notified firstObject');
+    assert.equal(observer.validate('firstObject'), false, 'should NOT have notified firstObject');
   });
 
-  suite.test('[A].insertAt(200,X) => OUT_OF_RANGE exception', function () {
+  suite.test('[A].insertAt(200,X) => OUT_OF_RANGE exception', function (assert) {
     var obj = this.newObject(this.newFixture(1));
     var that = this;
 
-    throws(function () {
+    assert.throws(function () {
       return obj.insertAt(200, that.newFixture(1)[0]);
     }, Error);
   });
 
-  suite.test('[A,B,C].insertAt(0,X) => [X,A,B,C] + notify', function () {
+  suite.test('[A,B,C].insertAt(0,X) => [X,A,B,C] + notify', function (assert) {
     var item = this.newFixture(1)[0];
     var before = this.newFixture(3);
     var after = [item, before[0], before[1], before[2]];
@@ -57978,24 +57981,24 @@ enifed('ember-runtime/tests/suites/mutable_array/insertAt', ['exports', 'ember-r
 
     obj.insertAt(0, item);
 
-    deepEqual(this.toArray(obj), after, 'post item results');
-    equal((0, _emberMetal.get)(obj, 'length'), after.length, 'length');
+    assert.deepEqual(this.toArray(obj), after, 'post item results');
+    assert.equal((0, _emberMetal.get)(obj, 'length'), after.length, 'length');
 
-    equal(observer.timesCalledBefore('[]'), 1, 'should have notified [] will change once');
-    equal(observer.timesCalledBefore('@each'), 0, 'should not have notified @each will change once');
-    equal(observer.timesCalledBefore('length'), 1, 'should have notified length will change once');
-    equal(observer.timesCalledBefore('firstObject'), 1, 'should have notified firstObject will change once');
-    equal(observer.timesCalledBefore('lastObject'), 0, 'should NOT have notified lastObject will change once');
+    assert.equal(observer.timesCalledBefore('[]'), 1, 'should have notified [] will change once');
+    assert.equal(observer.timesCalledBefore('@each'), 0, 'should not have notified @each will change once');
+    assert.equal(observer.timesCalledBefore('length'), 1, 'should have notified length will change once');
+    assert.equal(observer.timesCalledBefore('firstObject'), 1, 'should have notified firstObject will change once');
+    assert.equal(observer.timesCalledBefore('lastObject'), 0, 'should NOT have notified lastObject will change once');
 
-    equal(observer.timesCalled('[]'), 1, 'should have notified [] once');
-    equal(observer.timesCalled('@each'), 0, 'should not have notified @each once');
-    equal(observer.timesCalled('length'), 1, 'should have notified length once');
-    equal(observer.timesCalled('firstObject'), 1, 'should have notified firstObject once');
+    assert.equal(observer.timesCalled('[]'), 1, 'should have notified [] once');
+    assert.equal(observer.timesCalled('@each'), 0, 'should not have notified @each once');
+    assert.equal(observer.timesCalled('length'), 1, 'should have notified length once');
+    assert.equal(observer.timesCalled('firstObject'), 1, 'should have notified firstObject once');
 
-    equal(observer.validate('lastObject'), false, 'should NOT have notified lastObject');
+    assert.equal(observer.validate('lastObject'), false, 'should NOT have notified lastObject');
   });
 
-  suite.test('[A,B,C].insertAt(1,X) => [A,X,B,C] + notify', function () {
+  suite.test('[A,B,C].insertAt(1,X) => [A,X,B,C] + notify', function (assert) {
     var item = this.newFixture(1)[0];
     var before = this.newFixture(3);
     var after = [before[0], item, before[1], before[2]];
@@ -58014,26 +58017,26 @@ enifed('ember-runtime/tests/suites/mutable_array/insertAt', ['exports', 'ember-r
     objectAtCalls.splice(0, objectAtCalls.length);
 
     obj.insertAt(1, item);
-    deepEqual(objectAtCalls, [], 'objectAt is not called when only inserting items');
+    assert.deepEqual(objectAtCalls, [], 'objectAt is not called when only inserting items');
 
-    deepEqual(this.toArray(obj), after, 'post item results');
-    equal((0, _emberMetal.get)(obj, 'length'), after.length, 'length');
+    assert.deepEqual(this.toArray(obj), after, 'post item results');
+    assert.equal((0, _emberMetal.get)(obj, 'length'), after.length, 'length');
 
-    equal(observer.timesCalledBefore('[]'), 1, 'should have notified [] will change once');
-    equal(observer.timesCalledBefore('@each'), 0, 'should not have notified @each will change once');
-    equal(observer.timesCalledBefore('length'), 1, 'should have notified length will change once');
-    equal(observer.timesCalledBefore('firstObject'), 0, 'should NOT have notified firstObject will change once');
-    equal(observer.timesCalledBefore('lastObject'), 0, 'should NOT have notified lastObject will change once');
+    assert.equal(observer.timesCalledBefore('[]'), 1, 'should have notified [] will change once');
+    assert.equal(observer.timesCalledBefore('@each'), 0, 'should not have notified @each will change once');
+    assert.equal(observer.timesCalledBefore('length'), 1, 'should have notified length will change once');
+    assert.equal(observer.timesCalledBefore('firstObject'), 0, 'should NOT have notified firstObject will change once');
+    assert.equal(observer.timesCalledBefore('lastObject'), 0, 'should NOT have notified lastObject will change once');
 
-    equal(observer.timesCalled('[]'), 1, 'should have notified [] once');
-    equal(observer.timesCalled('@each'), 0, 'should not have notified @each once');
-    equal(observer.timesCalled('length'), 1, 'should have notified length once');
+    assert.equal(observer.timesCalled('[]'), 1, 'should have notified [] once');
+    assert.equal(observer.timesCalled('@each'), 0, 'should not have notified @each once');
+    assert.equal(observer.timesCalled('length'), 1, 'should have notified length once');
 
-    equal(observer.validate('firstObject'), false, 'should NOT have notified firstObject');
-    equal(observer.validate('lastObject'), false, 'should NOT have notified lastObject');
+    assert.equal(observer.validate('firstObject'), false, 'should NOT have notified firstObject');
+    assert.equal(observer.validate('lastObject'), false, 'should NOT have notified lastObject');
   });
 
-  suite.test('[A,B,C].insertAt(3,X) => [A,B,C,X] + notify', function () {
+  suite.test('[A,B,C].insertAt(3,X) => [A,B,C,X] + notify', function (assert) {
     var item = this.newFixture(1)[0];
     var before = this.newFixture(3);
     var after = [before[0], before[1], before[2], item];
@@ -58044,21 +58047,21 @@ enifed('ember-runtime/tests/suites/mutable_array/insertAt', ['exports', 'ember-r
 
     obj.insertAt(3, item);
 
-    deepEqual(this.toArray(obj), after, 'post item results');
-    equal((0, _emberMetal.get)(obj, 'length'), after.length, 'length');
+    assert.deepEqual(this.toArray(obj), after, 'post item results');
+    assert.equal((0, _emberMetal.get)(obj, 'length'), after.length, 'length');
 
-    equal(observer.timesCalledBefore('[]'), 1, 'should have notified [] will change once');
-    equal(observer.timesCalledBefore('@each'), 0, 'should not have notified @each will change once');
-    equal(observer.timesCalledBefore('length'), 1, 'should have notified length will change once');
-    equal(observer.timesCalledBefore('firstObject'), 0, 'should NOT have notified firstObject will change once');
-    equal(observer.timesCalledBefore('lastObject'), 1, 'should have notified lastObject will change once');
+    assert.equal(observer.timesCalledBefore('[]'), 1, 'should have notified [] will change once');
+    assert.equal(observer.timesCalledBefore('@each'), 0, 'should not have notified @each will change once');
+    assert.equal(observer.timesCalledBefore('length'), 1, 'should have notified length will change once');
+    assert.equal(observer.timesCalledBefore('firstObject'), 0, 'should NOT have notified firstObject will change once');
+    assert.equal(observer.timesCalledBefore('lastObject'), 1, 'should have notified lastObject will change once');
 
-    equal(observer.timesCalled('[]'), 1, 'should have notified [] once');
-    equal(observer.timesCalled('@each'), 0, 'should not have notified @each once');
-    equal(observer.timesCalled('length'), 1, 'should have notified length once');
-    equal(observer.timesCalled('lastObject'), 1, 'should have notified lastObject once');
+    assert.equal(observer.timesCalled('[]'), 1, 'should have notified [] once');
+    assert.equal(observer.timesCalled('@each'), 0, 'should not have notified @each once');
+    assert.equal(observer.timesCalled('length'), 1, 'should have notified length once');
+    assert.equal(observer.timesCalled('lastObject'), 1, 'should have notified lastObject once');
 
-    equal(observer.validate('firstObject'), false, 'should NOT have notified firstObject');
+    assert.equal(observer.validate('firstObject'), false, 'should NOT have notified firstObject');
   });
 
   exports.default = suite;
@@ -58076,24 +58079,24 @@ enifed('ember-runtime/tests/suites/mutable_array/popObject', ['exports', 'ember-
 
   suite.module('popObject');
 
-  suite.test('[].popObject() => [] + returns undefined + NO notify', function () {
+  suite.test('[].popObject() => [] + returns undefined + NO notify', function (assert) {
     var obj = this.newObject([]);
     var observer = this.newObserver(obj, '[]', '@each', 'length', 'firstObject', 'lastObject');
 
     obj.getProperties('firstObject', 'lastObject'); /* Prime the cache */
 
-    equal(obj.popObject(), undefined, 'popObject results');
+    assert.equal(obj.popObject(), undefined, 'popObject results');
 
-    deepEqual(this.toArray(obj), [], 'post item results');
+    assert.deepEqual(this.toArray(obj), [], 'post item results');
 
-    equal(observer.validate('[]'), false, 'should NOT have notified []');
-    equal(observer.validate('@each'), false, 'should NOT have notified @each');
-    equal(observer.validate('length'), false, 'should NOT have notified length');
-    equal(observer.validate('firstObject'), false, 'should NOT have notified firstObject');
-    equal(observer.validate('lastObject'), false, 'should NOT have notified lastObject');
+    assert.equal(observer.validate('[]'), false, 'should NOT have notified []');
+    assert.equal(observer.validate('@each'), false, 'should NOT have notified @each');
+    assert.equal(observer.validate('length'), false, 'should NOT have notified length');
+    assert.equal(observer.validate('firstObject'), false, 'should NOT have notified firstObject');
+    assert.equal(observer.validate('lastObject'), false, 'should NOT have notified lastObject');
   });
 
-  suite.test('[X].popObject() => [] + notify', function () {
+  suite.test('[X].popObject() => [] + notify', function (assert) {
     var before = this.newFixture(1);
     var after = [];
     var obj = this.newObject(before);
@@ -58103,18 +58106,18 @@ enifed('ember-runtime/tests/suites/mutable_array/popObject', ['exports', 'ember-
 
     var ret = obj.popObject();
 
-    equal(ret, before[0], 'return object');
-    deepEqual(this.toArray(obj), after, 'post item results');
-    equal((0, _emberMetal.get)(obj, 'length'), after.length, 'length');
+    assert.equal(ret, before[0], 'return object');
+    assert.deepEqual(this.toArray(obj), after, 'post item results');
+    assert.equal((0, _emberMetal.get)(obj, 'length'), after.length, 'length');
 
-    equal(observer.timesCalled('[]'), 1, 'should have notified [] once');
-    equal(observer.timesCalled('@each'), 0, 'should not have notified @each once');
-    equal(observer.timesCalled('length'), 1, 'should have notified length once');
-    equal(observer.timesCalled('firstObject'), 1, 'should have notified firstObject once');
-    equal(observer.timesCalled('lastObject'), 1, 'should have notified lastObject once');
+    assert.equal(observer.timesCalled('[]'), 1, 'should have notified [] once');
+    assert.equal(observer.timesCalled('@each'), 0, 'should not have notified @each once');
+    assert.equal(observer.timesCalled('length'), 1, 'should have notified length once');
+    assert.equal(observer.timesCalled('firstObject'), 1, 'should have notified firstObject once');
+    assert.equal(observer.timesCalled('lastObject'), 1, 'should have notified lastObject once');
   });
 
-  suite.test('[A,B,C].popObject() => [A,B] + notify', function () {
+  suite.test('[A,B,C].popObject() => [A,B] + notify', function (assert) {
     var before = this.newFixture(3);
     var after = [before[0], before[1]];
     var obj = this.newObject(before);
@@ -58124,16 +58127,16 @@ enifed('ember-runtime/tests/suites/mutable_array/popObject', ['exports', 'ember-
 
     var ret = obj.popObject();
 
-    equal(ret, before[2], 'return object');
-    deepEqual(this.toArray(obj), after, 'post item results');
-    equal((0, _emberMetal.get)(obj, 'length'), after.length, 'length');
+    assert.equal(ret, before[2], 'return object');
+    assert.deepEqual(this.toArray(obj), after, 'post item results');
+    assert.equal((0, _emberMetal.get)(obj, 'length'), after.length, 'length');
 
-    equal(observer.timesCalled('[]'), 1, 'should have notified [] once');
-    equal(observer.timesCalled('@each'), 0, 'should not have notified @each once');
-    equal(observer.timesCalled('length'), 1, 'should have notified length once');
-    equal(observer.timesCalled('lastObject'), 1, 'should have notified lastObject once');
+    assert.equal(observer.timesCalled('[]'), 1, 'should have notified [] once');
+    assert.equal(observer.timesCalled('@each'), 0, 'should not have notified @each once');
+    assert.equal(observer.timesCalled('length'), 1, 'should have notified length once');
+    assert.equal(observer.timesCalled('lastObject'), 1, 'should have notified lastObject once');
 
-    equal(observer.validate('firstObject'), false, 'should NOT have notified firstObject');
+    assert.equal(observer.validate('firstObject'), false, 'should NOT have notified firstObject');
   });
 
   exports.default = suite;
@@ -58151,14 +58154,14 @@ enifed('ember-runtime/tests/suites/mutable_array/pushObject', ['exports', 'ember
 
   suite.module('pushObject');
 
-  suite.test('returns pushed object', function () {
+  suite.test('returns pushed object', function (assert) {
     var exp = this.newFixture(1)[0];
     var obj = this.newObject([]);
 
-    equal(obj.pushObject(exp), exp, 'should return pushed object');
+    assert.equal(obj.pushObject(exp), exp, 'should return pushed object');
   });
 
-  suite.test('[].pushObject(X) => [X] + notify', function () {
+  suite.test('[].pushObject(X) => [X] + notify', function (assert) {
     var before = [];
     var after = this.newFixture(1);
     var obj = this.newObject(before);
@@ -58168,17 +58171,17 @@ enifed('ember-runtime/tests/suites/mutable_array/pushObject', ['exports', 'ember
 
     obj.pushObject(after[0]);
 
-    deepEqual(this.toArray(obj), after, 'post item results');
-    equal((0, _emberMetal.get)(obj, 'length'), after.length, 'length');
+    assert.deepEqual(this.toArray(obj), after, 'post item results');
+    assert.equal((0, _emberMetal.get)(obj, 'length'), after.length, 'length');
 
-    equal(observer.timesCalled('[]'), 1, 'should have notified [] once');
-    equal(observer.timesCalled('@each'), 0, 'should not have notified @each once');
-    equal(observer.timesCalled('length'), 1, 'should have notified length once');
-    equal(observer.timesCalled('firstObject'), 1, 'should have notified firstObject once');
-    equal(observer.timesCalled('lastObject'), 1, 'should have notified lastObject once');
+    assert.equal(observer.timesCalled('[]'), 1, 'should have notified [] once');
+    assert.equal(observer.timesCalled('@each'), 0, 'should not have notified @each once');
+    assert.equal(observer.timesCalled('length'), 1, 'should have notified length once');
+    assert.equal(observer.timesCalled('firstObject'), 1, 'should have notified firstObject once');
+    assert.equal(observer.timesCalled('lastObject'), 1, 'should have notified lastObject once');
   });
 
-  suite.test('[A,B,C].pushObject(X) => [A,B,C,X] + notify', function () {
+  suite.test('[A,B,C].pushObject(X) => [A,B,C,X] + notify', function (assert) {
     var before = this.newFixture(3);
     var item = this.newFixture(1)[0];
     var after = [before[0], before[1], before[2], item];
@@ -58189,18 +58192,18 @@ enifed('ember-runtime/tests/suites/mutable_array/pushObject', ['exports', 'ember
 
     obj.pushObject(item);
 
-    deepEqual(this.toArray(obj), after, 'post item results');
-    equal((0, _emberMetal.get)(obj, 'length'), after.length, 'length');
+    assert.deepEqual(this.toArray(obj), after, 'post item results');
+    assert.equal((0, _emberMetal.get)(obj, 'length'), after.length, 'length');
 
-    equal(observer.timesCalled('[]'), 1, 'should have notified [] once');
-    equal(observer.timesCalled('@each'), 0, 'should not have notified @each once');
-    equal(observer.timesCalled('length'), 1, 'should have notified length once');
-    equal(observer.timesCalled('lastObject'), 1, 'should have notified lastObject once');
+    assert.equal(observer.timesCalled('[]'), 1, 'should have notified [] once');
+    assert.equal(observer.timesCalled('@each'), 0, 'should not have notified @each once');
+    assert.equal(observer.timesCalled('length'), 1, 'should have notified length once');
+    assert.equal(observer.timesCalled('lastObject'), 1, 'should have notified lastObject once');
 
-    equal(observer.validate('firstObject'), false, 'should NOT have notified firstObject');
+    assert.equal(observer.validate('firstObject'), false, 'should NOT have notified firstObject');
   });
 
-  suite.test('[A,B,C,C].pushObject(A) => [A,B,C,C] + notify', function () {
+  suite.test('[A,B,C,C].pushObject(A) => [A,B,C,C] + notify', function (assert) {
     var before = this.newFixture(3);
     var item = before[2]; // note same object as current tail. should end up twice
     var after = [before[0], before[1], before[2], item];
@@ -58211,15 +58214,15 @@ enifed('ember-runtime/tests/suites/mutable_array/pushObject', ['exports', 'ember
 
     obj.pushObject(item);
 
-    deepEqual(this.toArray(obj), after, 'post item results');
-    equal((0, _emberMetal.get)(obj, 'length'), after.length, 'length');
+    assert.deepEqual(this.toArray(obj), after, 'post item results');
+    assert.equal((0, _emberMetal.get)(obj, 'length'), after.length, 'length');
 
-    equal(observer.timesCalled('[]'), 1, 'should have notified [] once');
-    equal(observer.timesCalled('@each'), 0, 'should not have notified @each once');
-    equal(observer.timesCalled('length'), 1, 'should have notified length once');
+    assert.equal(observer.timesCalled('[]'), 1, 'should have notified [] once');
+    assert.equal(observer.timesCalled('@each'), 0, 'should not have notified @each once');
+    assert.equal(observer.timesCalled('length'), 1, 'should have notified length once');
 
-    equal(observer.validate('firstObject'), false, 'should NOT have notified firstObject');
-    equal(observer.validate('lastObject'), true, 'should have notified lastObject');
+    assert.equal(observer.validate('firstObject'), false, 'should NOT have notified firstObject');
+    assert.equal(observer.validate('lastObject'), true, 'should have notified lastObject');
   });
 
   exports.default = suite;
@@ -58237,10 +58240,10 @@ enifed('ember-runtime/tests/suites/mutable_array/pushObjects', ['exports', 'embe
 
   suite.module('pushObjects');
 
-  suite.test('should raise exception if not Ember.Enumerable is passed to pushObjects', function () {
+  suite.test('should raise exception if not Ember.Enumerable is passed to pushObjects', function (assert) {
     var obj = this.newObject([]);
 
-    throws(function () {
+    assert.throws(function () {
       return obj.pushObjects('string');
     });
   });
@@ -58260,7 +58263,7 @@ enifed('ember-runtime/tests/suites/mutable_array/removeAt', ['exports', 'ember-r
 
   suite.module('removeAt');
 
-  suite.test('removeAt([X], 0) => [] + notify', function () {
+  suite.test('removeAt([X], 0) => [] + notify', function (assert) {
     var before = this.newFixture(1);
     var after = [];
     var obj = this.newObject(before);
@@ -58268,26 +58271,26 @@ enifed('ember-runtime/tests/suites/mutable_array/removeAt', ['exports', 'ember-r
 
     obj.getProperties('firstObject', 'lastObject'); /* Prime the cache */
 
-    equal((0, _mutable_array.removeAt)(obj, 0), obj, 'return self');
+    assert.equal((0, _mutable_array.removeAt)(obj, 0), obj, 'return self');
 
-    deepEqual(this.toArray(obj), after, 'post item results');
-    equal((0, _emberMetal.get)(obj, 'length'), after.length, 'length');
+    assert.deepEqual(this.toArray(obj), after, 'post item results');
+    assert.equal((0, _emberMetal.get)(obj, 'length'), after.length, 'length');
 
-    equal(observer.timesCalled('[]'), 1, 'should have notified [] once');
-    equal(observer.timesCalled('@each'), 0, 'should not have notified @each once');
-    equal(observer.timesCalled('length'), 1, 'should have notified length once');
-    equal(observer.timesCalled('firstObject'), 1, 'should have notified firstObject once');
-    equal(observer.timesCalled('lastObject'), 1, 'should have notified lastObject once');
+    assert.equal(observer.timesCalled('[]'), 1, 'should have notified [] once');
+    assert.equal(observer.timesCalled('@each'), 0, 'should not have notified @each once');
+    assert.equal(observer.timesCalled('length'), 1, 'should have notified length once');
+    assert.equal(observer.timesCalled('firstObject'), 1, 'should have notified firstObject once');
+    assert.equal(observer.timesCalled('lastObject'), 1, 'should have notified lastObject once');
   });
 
-  suite.test('removeAt([], 200) => OUT_OF_RANGE_EXCEPTION exception', function () {
+  suite.test('removeAt([], 200) => OUT_OF_RANGE_EXCEPTION exception', function (assert) {
     var obj = this.newObject([]);
-    throws(function () {
+    assert.throws(function () {
       return (0, _mutable_array.removeAt)(obj, 200);
     }, Error);
   });
 
-  suite.test('removeAt([A,B], 0) => [B] + notify', function () {
+  suite.test('removeAt([A,B], 0) => [B] + notify', function (assert) {
     var before = this.newFixture(2);
     var after = [before[1]];
     var obj = this.newObject(before);
@@ -58295,20 +58298,20 @@ enifed('ember-runtime/tests/suites/mutable_array/removeAt', ['exports', 'ember-r
 
     obj.getProperties('firstObject', 'lastObject'); /* Prime the cache */
 
-    equal((0, _mutable_array.removeAt)(obj, 0), obj, 'return self');
+    assert.equal((0, _mutable_array.removeAt)(obj, 0), obj, 'return self');
 
-    deepEqual(this.toArray(obj), after, 'post item results');
-    equal((0, _emberMetal.get)(obj, 'length'), after.length, 'length');
+    assert.deepEqual(this.toArray(obj), after, 'post item results');
+    assert.equal((0, _emberMetal.get)(obj, 'length'), after.length, 'length');
 
-    equal(observer.timesCalled('[]'), 1, 'should have notified [] once');
-    equal(observer.timesCalled('@each'), 0, 'should not have notified @each once');
-    equal(observer.timesCalled('length'), 1, 'should have notified length once');
-    equal(observer.timesCalled('firstObject'), 1, 'should have notified firstObject once');
+    assert.equal(observer.timesCalled('[]'), 1, 'should have notified [] once');
+    assert.equal(observer.timesCalled('@each'), 0, 'should not have notified @each once');
+    assert.equal(observer.timesCalled('length'), 1, 'should have notified length once');
+    assert.equal(observer.timesCalled('firstObject'), 1, 'should have notified firstObject once');
 
-    equal(observer.validate('lastObject'), false, 'should NOT have notified lastObject');
+    assert.equal(observer.validate('lastObject'), false, 'should NOT have notified lastObject');
   });
 
-  suite.test('removeAt([A,B], 1) => [A] + notify', function () {
+  suite.test('removeAt([A,B], 1) => [A] + notify', function (assert) {
     var before = this.newFixture(2);
     var after = [before[0]];
     var obj = this.newObject(before);
@@ -58316,20 +58319,20 @@ enifed('ember-runtime/tests/suites/mutable_array/removeAt', ['exports', 'ember-r
 
     obj.getProperties('firstObject', 'lastObject'); /* Prime the cache */
 
-    equal((0, _mutable_array.removeAt)(obj, 1), obj, 'return self');
+    assert.equal((0, _mutable_array.removeAt)(obj, 1), obj, 'return self');
 
-    deepEqual(this.toArray(obj), after, 'post item results');
-    equal((0, _emberMetal.get)(obj, 'length'), after.length, 'length');
+    assert.deepEqual(this.toArray(obj), after, 'post item results');
+    assert.equal((0, _emberMetal.get)(obj, 'length'), after.length, 'length');
 
-    equal(observer.timesCalled('[]'), 1, 'should have notified [] once');
-    equal(observer.timesCalled('@each'), 0, 'should not have notified @each once');
-    equal(observer.timesCalled('length'), 1, 'should have notified length once');
-    equal(observer.timesCalled('lastObject'), 1, 'should have notified lastObject once');
+    assert.equal(observer.timesCalled('[]'), 1, 'should have notified [] once');
+    assert.equal(observer.timesCalled('@each'), 0, 'should not have notified @each once');
+    assert.equal(observer.timesCalled('length'), 1, 'should have notified length once');
+    assert.equal(observer.timesCalled('lastObject'), 1, 'should have notified lastObject once');
 
-    equal(observer.validate('firstObject'), false, 'should NOT have notified firstObject once');
+    assert.equal(observer.validate('firstObject'), false, 'should NOT have notified firstObject once');
   });
 
-  suite.test('removeAt([A,B,C], 1) => [A,C] + notify', function () {
+  suite.test('removeAt([A,B,C], 1) => [A,C] + notify', function (assert) {
     var before = this.newFixture(3);
     var after = [before[0], before[2]];
     var obj = this.newObject(before);
@@ -58337,20 +58340,20 @@ enifed('ember-runtime/tests/suites/mutable_array/removeAt', ['exports', 'ember-r
 
     obj.getProperties('firstObject', 'lastObject'); /* Prime the cache */
 
-    equal((0, _mutable_array.removeAt)(obj, 1), obj, 'return self');
+    assert.equal((0, _mutable_array.removeAt)(obj, 1), obj, 'return self');
 
-    deepEqual(this.toArray(obj), after, 'post item results');
-    equal((0, _emberMetal.get)(obj, 'length'), after.length, 'length');
+    assert.deepEqual(this.toArray(obj), after, 'post item results');
+    assert.equal((0, _emberMetal.get)(obj, 'length'), after.length, 'length');
 
-    equal(observer.timesCalled('[]'), 1, 'should have notified [] once');
-    equal(observer.timesCalled('@each'), 0, 'should not have notified @each once');
-    equal(observer.timesCalled('length'), 1, 'should have notified length once');
+    assert.equal(observer.timesCalled('[]'), 1, 'should have notified [] once');
+    assert.equal(observer.timesCalled('@each'), 0, 'should not have notified @each once');
+    assert.equal(observer.timesCalled('length'), 1, 'should have notified length once');
 
-    equal(observer.validate('firstObject'), false, 'should NOT have notified firstObject once');
-    equal(observer.validate('lastObject'), false, 'should NOT have notified lastObject once');
+    assert.equal(observer.validate('firstObject'), false, 'should NOT have notified firstObject once');
+    assert.equal(observer.validate('lastObject'), false, 'should NOT have notified lastObject once');
   });
 
-  suite.test('removeAt([A,B,C,D], 1,2) => [A,D] + notify', function () {
+  suite.test('removeAt([A,B,C,D], 1,2) => [A,D] + notify', function (assert) {
     var before = this.newFixture(4);
     var after = [before[0], before[3]];
     var obj = this.newObject(before);
@@ -58358,20 +58361,20 @@ enifed('ember-runtime/tests/suites/mutable_array/removeAt', ['exports', 'ember-r
 
     obj.getProperties('firstObject', 'lastObject'); /* Prime the cache */
 
-    equal((0, _mutable_array.removeAt)(obj, 1, 2), obj, 'return self');
+    assert.equal((0, _mutable_array.removeAt)(obj, 1, 2), obj, 'return self');
 
-    deepEqual(this.toArray(obj), after, 'post item results');
-    equal((0, _emberMetal.get)(obj, 'length'), after.length, 'length');
+    assert.deepEqual(this.toArray(obj), after, 'post item results');
+    assert.equal((0, _emberMetal.get)(obj, 'length'), after.length, 'length');
 
-    equal(observer.timesCalled('[]'), 1, 'should have notified [] once');
-    equal(observer.timesCalled('@each'), 0, 'should not have notified @each once');
-    equal(observer.timesCalled('length'), 1, 'should have notified length once');
+    assert.equal(observer.timesCalled('[]'), 1, 'should have notified [] once');
+    assert.equal(observer.timesCalled('@each'), 0, 'should not have notified @each once');
+    assert.equal(observer.timesCalled('length'), 1, 'should have notified length once');
 
-    equal(observer.validate('firstObject'), false, 'should NOT have notified firstObject once');
-    equal(observer.validate('lastObject'), false, 'should NOT have notified lastObject once');
+    assert.equal(observer.validate('firstObject'), false, 'should NOT have notified firstObject once');
+    assert.equal(observer.validate('lastObject'), false, 'should NOT have notified lastObject once');
   });
 
-  suite.test('[A,B,C,D].removeAt(1,2) => [A,D] + notify', function () {
+  suite.test('[A,B,C,D].removeAt(1,2) => [A,D] + notify', function (assert) {
     var obj, before, after, observer;
 
     before = this.newFixture(4);
@@ -58380,17 +58383,17 @@ enifed('ember-runtime/tests/suites/mutable_array/removeAt', ['exports', 'ember-r
     observer = this.newObserver(obj, '[]', '@each', 'length', 'firstObject', 'lastObject');
     obj.getProperties('firstObject', 'lastObject'); /* Prime the cache */
 
-    equal(obj.removeAt(1, 2), obj, 'return self');
+    assert.equal(obj.removeAt(1, 2), obj, 'return self');
 
-    deepEqual(this.toArray(obj), after, 'post item results');
-    equal((0, _emberMetal.get)(obj, 'length'), after.length, 'length');
+    assert.deepEqual(this.toArray(obj), after, 'post item results');
+    assert.equal((0, _emberMetal.get)(obj, 'length'), after.length, 'length');
 
-    equal(observer.timesCalled('[]'), 1, 'should have notified [] once');
-    equal(observer.timesCalled('@each'), 0, 'should not have notified @each once');
-    equal(observer.timesCalled('length'), 1, 'should have notified length once');
+    assert.equal(observer.timesCalled('[]'), 1, 'should have notified [] once');
+    assert.equal(observer.timesCalled('@each'), 0, 'should not have notified @each once');
+    assert.equal(observer.timesCalled('length'), 1, 'should have notified length once');
 
-    equal(observer.validate('firstObject'), false, 'should NOT have notified firstObject once');
-    equal(observer.validate('lastObject'), false, 'should NOT have notified lastObject once');
+    assert.equal(observer.validate('firstObject'), false, 'should NOT have notified firstObject once');
+    assert.equal(observer.validate('lastObject'), false, 'should NOT have notified lastObject once');
   });
 
   exports.default = suite;
@@ -58408,14 +58411,14 @@ enifed('ember-runtime/tests/suites/mutable_array/removeObject', ['exports', 'emb
 
   suite.module('removeObject');
 
-  suite.test('should return receiver', function () {
+  suite.test('should return receiver', function (assert) {
     var before = this.newFixture(3);
     var obj = this.newObject(before);
 
-    equal(obj.removeObject(before[1]), obj, 'should return receiver');
+    assert.equal(obj.removeObject(before[1]), obj, 'should return receiver');
   });
 
-  suite.test('[A,B,C].removeObject(B) => [A,C] + notify', function () {
+  suite.test('[A,B,C].removeObject(B) => [A,C] + notify', function (assert) {
     var before = this.newFixture(3);
     var after = [before[0], before[2]];
     var obj = this.newObject(before);
@@ -58425,20 +58428,20 @@ enifed('ember-runtime/tests/suites/mutable_array/removeObject', ['exports', 'emb
 
     obj.removeObject(before[1]);
 
-    deepEqual(this.toArray(obj), after, 'post item results');
-    equal((0, _emberMetal.get)(obj, 'length'), after.length, 'length');
+    assert.deepEqual(this.toArray(obj), after, 'post item results');
+    assert.equal((0, _emberMetal.get)(obj, 'length'), after.length, 'length');
 
     if (observer.isEnabled) {
-      equal(observer.timesCalled('[]'), 1, 'should have notified [] once');
-      equal(observer.timesCalled('@each'), 0, 'should not have notified @each once');
-      equal(observer.timesCalled('length'), 1, 'should have notified length once');
+      assert.equal(observer.timesCalled('[]'), 1, 'should have notified [] once');
+      assert.equal(observer.timesCalled('@each'), 0, 'should not have notified @each once');
+      assert.equal(observer.timesCalled('length'), 1, 'should have notified length once');
 
-      equal(observer.validate('firstObject'), false, 'should NOT have notified firstObject once');
-      equal(observer.validate('lastObject'), false, 'should NOT have notified lastObject once');
+      assert.equal(observer.validate('firstObject'), false, 'should NOT have notified firstObject once');
+      assert.equal(observer.validate('lastObject'), false, 'should NOT have notified lastObject once');
     }
   });
 
-  suite.test('[A,B,C].removeObject(D) => [A,B,C]', function () {
+  suite.test('[A,B,C].removeObject(D) => [A,B,C]', function (assert) {
     var before = this.newFixture(3);
     var after = before;
     var item = this.newFixture(1)[0];
@@ -58449,16 +58452,16 @@ enifed('ember-runtime/tests/suites/mutable_array/removeObject', ['exports', 'emb
 
     obj.removeObject(item); // note: item not in set
 
-    deepEqual(this.toArray(obj), after, 'post item results');
-    equal((0, _emberMetal.get)(obj, 'length'), after.length, 'length');
+    assert.deepEqual(this.toArray(obj), after, 'post item results');
+    assert.equal((0, _emberMetal.get)(obj, 'length'), after.length, 'length');
 
     if (observer.isEnabled) {
-      equal(observer.validate('[]'), false, 'should NOT have notified []');
-      equal(observer.validate('@each'), false, 'should NOT have notified @each');
-      equal(observer.validate('length'), false, 'should NOT have notified length');
+      assert.equal(observer.validate('[]'), false, 'should NOT have notified []');
+      assert.equal(observer.validate('@each'), false, 'should NOT have notified @each');
+      assert.equal(observer.validate('length'), false, 'should NOT have notified length');
 
-      equal(observer.validate('firstObject'), false, 'should NOT have notified firstObject once');
-      equal(observer.validate('lastObject'), false, 'should NOT have notified lastObject once');
+      assert.equal(observer.validate('firstObject'), false, 'should NOT have notified firstObject once');
+      assert.equal(observer.validate('lastObject'), false, 'should NOT have notified lastObject once');
     }
   });
 
@@ -58477,7 +58480,7 @@ enifed('ember-runtime/tests/suites/mutable_array/replace', ['exports', 'ember-ru
 
   suite.module('replace');
 
-  suite.test('[].replace(0,0,\'X\') => [\'X\'] + notify', function () {
+  suite.test('[].replace(0,0,\'X\') => [\'X\'] + notify', function (assert) {
     var exp = this.newFixture(1);
     var obj = this.newObject([]);
     var observer = this.newObserver(obj, '[]', '@each', 'length', 'firstObject', 'lastObject');
@@ -58486,16 +58489,16 @@ enifed('ember-runtime/tests/suites/mutable_array/replace', ['exports', 'ember-ru
 
     obj.replace(0, 0, exp);
 
-    deepEqual(this.toArray(obj), exp, 'post item results');
+    assert.deepEqual(this.toArray(obj), exp, 'post item results');
 
-    equal(observer.timesCalled('[]'), 1, 'should have notified [] once');
-    equal(observer.timesCalled('@each'), 0, 'should not have notified @each once');
-    equal(observer.timesCalled('length'), 1, 'should have notified length once');
-    equal(observer.timesCalled('firstObject'), 1, 'should have notified firstObject once');
-    equal(observer.timesCalled('lastObject'), 1, 'should have notified lastObject once');
+    assert.equal(observer.timesCalled('[]'), 1, 'should have notified [] once');
+    assert.equal(observer.timesCalled('@each'), 0, 'should not have notified @each once');
+    assert.equal(observer.timesCalled('length'), 1, 'should have notified length once');
+    assert.equal(observer.timesCalled('firstObject'), 1, 'should have notified firstObject once');
+    assert.equal(observer.timesCalled('lastObject'), 1, 'should have notified lastObject once');
   });
 
-  suite.test('[].replace(0,0,"X") => ["X"] + avoid calling objectAt and notifying fistObject/lastObject when not in cache', function () {
+  suite.test('[].replace(0,0,"X") => ["X"] + avoid calling objectAt and notifying fistObject/lastObject when not in cache', function (assert) {
     var obj, exp, observer;
     var called = 0;
     exp = this.newFixture(1);
@@ -58507,12 +58510,12 @@ enifed('ember-runtime/tests/suites/mutable_array/replace', ['exports', 'ember-ru
 
     obj.replace(0, 0, exp);
 
-    equal(called, 0, 'should NOT have called objectAt upon replace when firstObject/lastObject are not cached');
-    equal(observer.validate('firstObject'), false, 'should NOT have notified firstObject since not cached');
-    equal(observer.validate('lastObject'), false, 'should NOT have notified lastObject since not cached');
+    assert.equal(called, 0, 'should NOT have called objectAt upon replace when firstObject/lastObject are not cached');
+    assert.equal(observer.validate('firstObject'), false, 'should NOT have notified firstObject since not cached');
+    assert.equal(observer.validate('lastObject'), false, 'should NOT have notified lastObject since not cached');
   });
 
-  suite.test('[A,B,C,D].replace(1,2,X) => [A,X,D] + notify', function () {
+  suite.test('[A,B,C,D].replace(1,2,X) => [A,X,D] + notify', function (assert) {
     var before = this.newFixture(4);
     var replace = this.newFixture(1);
     var after = [before[0], replace[0], before[3]];
@@ -58524,17 +58527,17 @@ enifed('ember-runtime/tests/suites/mutable_array/replace', ['exports', 'ember-ru
 
     obj.replace(1, 2, replace);
 
-    deepEqual(this.toArray(obj), after, 'post item results');
+    assert.deepEqual(this.toArray(obj), after, 'post item results');
 
-    equal(observer.timesCalled('[]'), 1, 'should have notified [] once');
-    equal(observer.timesCalled('@each'), 0, 'should not have notified @each once');
-    equal(observer.timesCalled('length'), 1, 'should have notified length once');
+    assert.equal(observer.timesCalled('[]'), 1, 'should have notified [] once');
+    assert.equal(observer.timesCalled('@each'), 0, 'should not have notified @each once');
+    assert.equal(observer.timesCalled('length'), 1, 'should have notified length once');
 
-    equal(observer.validate('firstObject'), false, 'should NOT have notified firstObject once');
-    equal(observer.validate('lastObject'), false, 'should NOT have notified lastObject once');
+    assert.equal(observer.validate('firstObject'), false, 'should NOT have notified firstObject once');
+    assert.equal(observer.validate('lastObject'), false, 'should NOT have notified lastObject once');
   });
 
-  suite.test('[A,B,C,D].replace(1,2,[X,Y]) => [A,X,Y,D] + notify', function () {
+  suite.test('[A,B,C,D].replace(1,2,[X,Y]) => [A,X,Y,D] + notify', function (assert) {
     var before = this.newFixture(4);
     var replace = this.newFixture(2);
     var after = [before[0], replace[0], replace[1], before[3]];
@@ -58546,17 +58549,17 @@ enifed('ember-runtime/tests/suites/mutable_array/replace', ['exports', 'ember-ru
 
     obj.replace(1, 2, replace);
 
-    deepEqual(this.toArray(obj), after, 'post item results');
+    assert.deepEqual(this.toArray(obj), after, 'post item results');
 
-    equal(observer.timesCalled('[]'), 1, 'should have notified [] once');
-    equal(observer.timesCalled('@each'), 0, 'should not have notified @each once');
-    equal(observer.validate('length'), false, 'should NOT have notified length');
+    assert.equal(observer.timesCalled('[]'), 1, 'should have notified [] once');
+    assert.equal(observer.timesCalled('@each'), 0, 'should not have notified @each once');
+    assert.equal(observer.validate('length'), false, 'should NOT have notified length');
 
-    equal(observer.validate('firstObject'), false, 'should NOT have notified firstObject once');
-    equal(observer.validate('lastObject'), false, 'should NOT have notified lastObject once');
+    assert.equal(observer.validate('firstObject'), false, 'should NOT have notified firstObject once');
+    assert.equal(observer.validate('lastObject'), false, 'should NOT have notified lastObject once');
   });
 
-  suite.test('[A,B].replace(1,0,[X,Y]) => [A,X,Y,B] + notify', function () {
+  suite.test('[A,B].replace(1,0,[X,Y]) => [A,X,Y,B] + notify', function (assert) {
     var before = this.newFixture(2);
     var replace = this.newFixture(2);
     var after = [before[0], replace[0], replace[1], before[1]];
@@ -58568,17 +58571,17 @@ enifed('ember-runtime/tests/suites/mutable_array/replace', ['exports', 'ember-ru
 
     obj.replace(1, 0, replace);
 
-    deepEqual(this.toArray(obj), after, 'post item results');
+    assert.deepEqual(this.toArray(obj), after, 'post item results');
 
-    equal(observer.timesCalled('[]'), 1, 'should have notified [] once');
-    equal(observer.timesCalled('@each'), 0, 'should not have notified @each once');
-    equal(observer.timesCalled('length'), 1, 'should have notified length once');
+    assert.equal(observer.timesCalled('[]'), 1, 'should have notified [] once');
+    assert.equal(observer.timesCalled('@each'), 0, 'should not have notified @each once');
+    assert.equal(observer.timesCalled('length'), 1, 'should have notified length once');
 
-    equal(observer.validate('firstObject'), false, 'should NOT have notified firstObject once');
-    equal(observer.validate('lastObject'), false, 'should NOT have notified lastObject once');
+    assert.equal(observer.validate('firstObject'), false, 'should NOT have notified firstObject once');
+    assert.equal(observer.validate('lastObject'), false, 'should NOT have notified lastObject once');
   });
 
-  suite.test('[A,B,C,D].replace(2,2) => [A,B] + notify', function () {
+  suite.test('[A,B,C,D].replace(2,2) => [A,B] + notify', function (assert) {
     var before = this.newFixture(4);
     var after = [before[0], before[1]];
 
@@ -58589,17 +58592,17 @@ enifed('ember-runtime/tests/suites/mutable_array/replace', ['exports', 'ember-ru
 
     obj.replace(2, 2);
 
-    deepEqual(this.toArray(obj), after, 'post item results');
+    assert.deepEqual(this.toArray(obj), after, 'post item results');
 
-    equal(observer.timesCalled('[]'), 1, 'should have notified [] once');
-    equal(observer.timesCalled('@each'), 0, 'should not have notified @each once');
-    equal(observer.timesCalled('length'), 1, 'should have notified length once');
-    equal(observer.timesCalled('lastObject'), 1, 'should have notified lastObject once');
+    assert.equal(observer.timesCalled('[]'), 1, 'should have notified [] once');
+    assert.equal(observer.timesCalled('@each'), 0, 'should not have notified @each once');
+    assert.equal(observer.timesCalled('length'), 1, 'should have notified length once');
+    assert.equal(observer.timesCalled('lastObject'), 1, 'should have notified lastObject once');
 
-    equal(observer.validate('firstObject'), false, 'should NOT have notified firstObject once');
+    assert.equal(observer.validate('firstObject'), false, 'should NOT have notified firstObject once');
   });
 
-  suite.test('[A,B,C,D].replace(-1,1) => [A,B,C] + notify', function () {
+  suite.test('[A,B,C,D].replace(-1,1) => [A,B,C] + notify', function (assert) {
     var before = this.newFixture(4);
     var after = [before[0], before[1], before[2]];
 
@@ -58610,17 +58613,17 @@ enifed('ember-runtime/tests/suites/mutable_array/replace', ['exports', 'ember-ru
 
     obj.replace(-1, 1);
 
-    deepEqual(this.toArray(obj), after, 'post item results');
+    assert.deepEqual(this.toArray(obj), after, 'post item results');
 
-    equal(observer.timesCalled('[]'), 1, 'should have notified [] once');
-    equal(observer.timesCalled('@each'), 0, 'should not have notified @each once');
-    equal(observer.timesCalled('length'), 1, 'should have notified length once');
-    equal(observer.timesCalled('lastObject'), 1, 'should have notified lastObject once');
+    assert.equal(observer.timesCalled('[]'), 1, 'should have notified [] once');
+    assert.equal(observer.timesCalled('@each'), 0, 'should not have notified @each once');
+    assert.equal(observer.timesCalled('length'), 1, 'should have notified length once');
+    assert.equal(observer.timesCalled('lastObject'), 1, 'should have notified lastObject once');
 
-    equal(observer.validate('firstObject'), false, 'should NOT have notified firstObject once');
+    assert.equal(observer.validate('firstObject'), false, 'should NOT have notified firstObject once');
   });
 
-  suite.test('Adding object should notify enumerable observer', function () {
+  suite.test('Adding object should notify enumerable observer', function (assert) {
     var fixtures = this.newFixture(4);
     var obj = this.newObject(fixtures);
     var observer = this.newObserver(obj).observeEnumerable(obj);
@@ -58628,11 +58631,11 @@ enifed('ember-runtime/tests/suites/mutable_array/replace', ['exports', 'ember-ru
 
     obj.replace(2, 2, [item]);
 
-    deepEqual(observer._before, [obj, [fixtures[2], fixtures[3]], 1], 'before');
-    deepEqual(observer._after, [obj, 2, [item]], 'after');
+    assert.deepEqual(observer._before, [obj, [fixtures[2], fixtures[3]], 1], 'before');
+    assert.deepEqual(observer._after, [obj, 2, [item]], 'after');
   });
 
-  suite.test('Adding object should notify array observer', function () {
+  suite.test('Adding object should notify array observer', function (assert) {
     var fixtures = this.newFixture(4);
     var obj = this.newObject(fixtures);
     var observer = this.newObserver(obj).observeArray(obj);
@@ -58640,8 +58643,8 @@ enifed('ember-runtime/tests/suites/mutable_array/replace', ['exports', 'ember-ru
 
     obj.replace(2, 2, [item]);
 
-    deepEqual(observer._before, [obj, 2, 2, 1], 'before');
-    deepEqual(observer._after, [obj, 2, 2, 1], 'after');
+    assert.deepEqual(observer._before, [obj, 2, 2, 1], 'before');
+    assert.deepEqual(observer._after, [obj, 2, 2, 1], 'after');
   });
 
   exports.default = suite;
@@ -58659,7 +58662,7 @@ enifed('ember-runtime/tests/suites/mutable_array/reverseObjects', ['exports', 'e
 
   suite.module('reverseObjects');
 
-  suite.test('[A,B,C].reverseObjects() => [] + notify', function () {
+  suite.test('[A,B,C].reverseObjects() => [] + notify', function (assert) {
     var before = this.newFixture(3);
     var after = [before[2], before[1], before[0]];
     var obj = this.newObject(before);
@@ -58667,16 +58670,16 @@ enifed('ember-runtime/tests/suites/mutable_array/reverseObjects', ['exports', 'e
 
     obj.getProperties('firstObject', 'lastObject'); /* Prime the cache */
 
-    equal(obj.reverseObjects(), obj, 'return self');
+    assert.equal(obj.reverseObjects(), obj, 'return self');
 
-    deepEqual(this.toArray(obj), after, 'post item results');
-    equal((0, _emberMetal.get)(obj, 'length'), after.length, 'length');
+    assert.deepEqual(this.toArray(obj), after, 'post item results');
+    assert.equal((0, _emberMetal.get)(obj, 'length'), after.length, 'length');
 
-    equal(observer.timesCalled('[]'), 1, 'should have notified [] once');
-    equal(observer.timesCalled('@each'), 0, 'should not have notified @each once');
-    equal(observer.timesCalled('length'), 0, 'should have notified length once');
-    equal(observer.timesCalled('firstObject'), 1, 'should have notified firstObject once');
-    equal(observer.timesCalled('lastObject'), 1, 'should have notified lastObject once');
+    assert.equal(observer.timesCalled('[]'), 1, 'should have notified [] once');
+    assert.equal(observer.timesCalled('@each'), 0, 'should not have notified @each once');
+    assert.equal(observer.timesCalled('length'), 0, 'should have notified length once');
+    assert.equal(observer.timesCalled('firstObject'), 1, 'should have notified firstObject once');
+    assert.equal(observer.timesCalled('lastObject'), 1, 'should have notified lastObject once');
   });
 
   exports.default = suite;
@@ -58694,7 +58697,7 @@ enifed('ember-runtime/tests/suites/mutable_array/setObjects', ['exports', 'ember
 
   suite.module('setObjects');
 
-  suite.test('[A,B,C].setObjects([]) = > [] + notify', function () {
+  suite.test('[A,B,C].setObjects([]) = > [] + notify', function (assert) {
     var before = this.newFixture(3);
     var after = [];
     var obj = this.newObject(before);
@@ -58702,19 +58705,19 @@ enifed('ember-runtime/tests/suites/mutable_array/setObjects', ['exports', 'ember
 
     obj.getProperties('firstObject', 'lastObject'); /* Prime the cache */
 
-    equal(obj.setObjects(after), obj, 'return self');
+    assert.equal(obj.setObjects(after), obj, 'return self');
 
-    deepEqual(this.toArray(obj), after, 'post item results');
-    equal((0, _emberMetal.get)(obj, 'length'), after.length, 'length');
+    assert.deepEqual(this.toArray(obj), after, 'post item results');
+    assert.equal((0, _emberMetal.get)(obj, 'length'), after.length, 'length');
 
-    equal(observer.timesCalled('[]'), 1, 'should have notified [] once');
-    equal(observer.timesCalled('@each'), 0, 'should not have notified @each once');
-    equal(observer.timesCalled('length'), 1, 'should have notified length once');
-    equal(observer.timesCalled('firstObject'), 1, 'should have notified firstObject once');
-    equal(observer.timesCalled('lastObject'), 1, 'should have notified lastObject once');
+    assert.equal(observer.timesCalled('[]'), 1, 'should have notified [] once');
+    assert.equal(observer.timesCalled('@each'), 0, 'should not have notified @each once');
+    assert.equal(observer.timesCalled('length'), 1, 'should have notified length once');
+    assert.equal(observer.timesCalled('firstObject'), 1, 'should have notified firstObject once');
+    assert.equal(observer.timesCalled('lastObject'), 1, 'should have notified lastObject once');
   });
 
-  suite.test('[A,B,C].setObjects([D, E, F, G]) = > [D, E, F, G] + notify', function () {
+  suite.test('[A,B,C].setObjects([D, E, F, G]) = > [D, E, F, G] + notify', function (assert) {
     var before = this.newFixture(3);
     var after = this.newFixture(4);
     var obj = this.newObject(before);
@@ -58722,16 +58725,16 @@ enifed('ember-runtime/tests/suites/mutable_array/setObjects', ['exports', 'ember
 
     obj.getProperties('firstObject', 'lastObject'); /* Prime the cache */
 
-    equal(obj.setObjects(after), obj, 'return self');
+    assert.equal(obj.setObjects(after), obj, 'return self');
 
-    deepEqual(this.toArray(obj), after, 'post item results');
-    equal((0, _emberMetal.get)(obj, 'length'), after.length, 'length');
+    assert.deepEqual(this.toArray(obj), after, 'post item results');
+    assert.equal((0, _emberMetal.get)(obj, 'length'), after.length, 'length');
 
-    equal(observer.timesCalled('[]'), 1, 'should have notified [] once');
-    equal(observer.timesCalled('@each'), 0, 'should not have notified @each once');
-    equal(observer.timesCalled('length'), 1, 'should have notified length once');
-    equal(observer.timesCalled('firstObject'), 1, 'should have notified firstObject once');
-    equal(observer.timesCalled('lastObject'), 1, 'should have notified lastObject once');
+    assert.equal(observer.timesCalled('[]'), 1, 'should have notified [] once');
+    assert.equal(observer.timesCalled('@each'), 0, 'should not have notified @each once');
+    assert.equal(observer.timesCalled('length'), 1, 'should have notified length once');
+    assert.equal(observer.timesCalled('firstObject'), 1, 'should have notified firstObject once');
+    assert.equal(observer.timesCalled('lastObject'), 1, 'should have notified lastObject once');
   });
 
   exports.default = suite;
@@ -58749,7 +58752,7 @@ enifed('ember-runtime/tests/suites/mutable_array/shiftObject', ['exports', 'embe
 
   suite.module('shiftObject');
 
-  suite.test('[].shiftObject() => [] + returns undefined + NO notify', function () {
+  suite.test('[].shiftObject() => [] + returns undefined + NO notify', function (assert) {
     var before = [];
     var after = [];
     var obj = this.newObject(before);
@@ -58757,20 +58760,20 @@ enifed('ember-runtime/tests/suites/mutable_array/shiftObject', ['exports', 'embe
 
     obj.getProperties('firstObject', 'lastObject'); /* Prime the cache */
 
-    equal(obj.shiftObject(), undefined);
+    assert.equal(obj.shiftObject(), undefined);
 
-    deepEqual(this.toArray(obj), after, 'post item results');
-    equal((0, _emberMetal.get)(obj, 'length'), after.length, 'length');
+    assert.deepEqual(this.toArray(obj), after, 'post item results');
+    assert.equal((0, _emberMetal.get)(obj, 'length'), after.length, 'length');
 
-    equal(observer.validate('[]', undefined, 1), false, 'should NOT have notified [] once');
-    equal(observer.validate('@each', undefined, 1), false, 'should NOT have notified @each once');
-    equal(observer.validate('length', undefined, 1), false, 'should NOT have notified length once');
+    assert.equal(observer.validate('[]', undefined, 1), false, 'should NOT have notified [] once');
+    assert.equal(observer.validate('@each', undefined, 1), false, 'should NOT have notified @each once');
+    assert.equal(observer.validate('length', undefined, 1), false, 'should NOT have notified length once');
 
-    equal(observer.validate('firstObject'), false, 'should NOT have notified firstObject once');
-    equal(observer.validate('lastObject'), false, 'should NOT have notified lastObject once');
+    assert.equal(observer.validate('firstObject'), false, 'should NOT have notified firstObject once');
+    assert.equal(observer.validate('lastObject'), false, 'should NOT have notified lastObject once');
   });
 
-  suite.test('[X].shiftObject() => [] + notify', function () {
+  suite.test('[X].shiftObject() => [] + notify', function (assert) {
     var before = this.newFixture(1);
     var after = [];
     var obj = this.newObject(before);
@@ -58778,19 +58781,19 @@ enifed('ember-runtime/tests/suites/mutable_array/shiftObject', ['exports', 'embe
 
     obj.getProperties('firstObject', 'lastObject'); /* Prime the cache */
 
-    equal(obj.shiftObject(), before[0], 'should return object');
+    assert.equal(obj.shiftObject(), before[0], 'should return object');
 
-    deepEqual(this.toArray(obj), after, 'post item results');
-    equal((0, _emberMetal.get)(obj, 'length'), after.length, 'length');
+    assert.deepEqual(this.toArray(obj), after, 'post item results');
+    assert.equal((0, _emberMetal.get)(obj, 'length'), after.length, 'length');
 
-    equal(observer.timesCalled('[]'), 1, 'should have notified [] once');
-    equal(observer.timesCalled('@each'), 0, 'should not have notified @each once');
-    equal(observer.timesCalled('length'), 1, 'should have notified length once');
-    equal(observer.timesCalled('firstObject'), 1, 'should have notified firstObject once');
-    equal(observer.timesCalled('lastObject'), 1, 'should have notified lastObject once');
+    assert.equal(observer.timesCalled('[]'), 1, 'should have notified [] once');
+    assert.equal(observer.timesCalled('@each'), 0, 'should not have notified @each once');
+    assert.equal(observer.timesCalled('length'), 1, 'should have notified length once');
+    assert.equal(observer.timesCalled('firstObject'), 1, 'should have notified firstObject once');
+    assert.equal(observer.timesCalled('lastObject'), 1, 'should have notified lastObject once');
   });
 
-  suite.test('[A,B,C].shiftObject() => [B,C] + notify', function () {
+  suite.test('[A,B,C].shiftObject() => [B,C] + notify', function (assert) {
     var before = this.newFixture(3);
     var after = [before[1], before[2]];
     var obj = this.newObject(before);
@@ -58798,17 +58801,17 @@ enifed('ember-runtime/tests/suites/mutable_array/shiftObject', ['exports', 'embe
 
     obj.getProperties('firstObject', 'lastObject'); /* Prime the cache */
 
-    equal(obj.shiftObject(), before[0], 'should return object');
+    assert.equal(obj.shiftObject(), before[0], 'should return object');
 
-    deepEqual(this.toArray(obj), after, 'post item results');
-    equal((0, _emberMetal.get)(obj, 'length'), after.length, 'length');
+    assert.deepEqual(this.toArray(obj), after, 'post item results');
+    assert.equal((0, _emberMetal.get)(obj, 'length'), after.length, 'length');
 
-    equal(observer.timesCalled('[]'), 1, 'should have notified [] once');
-    equal(observer.timesCalled('@each'), 0, 'should not have notified @each once');
-    equal(observer.timesCalled('length'), 1, 'should have notified length once');
-    equal(observer.timesCalled('firstObject'), 1, 'should have notified firstObject once');
+    assert.equal(observer.timesCalled('[]'), 1, 'should have notified [] once');
+    assert.equal(observer.timesCalled('@each'), 0, 'should not have notified @each once');
+    assert.equal(observer.timesCalled('length'), 1, 'should have notified length once');
+    assert.equal(observer.timesCalled('firstObject'), 1, 'should have notified firstObject once');
 
-    equal(observer.validate('lastObject'), false, 'should NOT have notified lastObject once');
+    assert.equal(observer.validate('lastObject'), false, 'should NOT have notified lastObject once');
   });
 
   exports.default = suite;
@@ -58826,14 +58829,14 @@ enifed('ember-runtime/tests/suites/mutable_array/unshiftObject', ['exports', 'em
 
   suite.module('unshiftObject');
 
-  suite.test('returns unshifted object', function () {
+  suite.test('returns unshifted object', function (assert) {
     var obj = this.newObject([]);
     var item = this.newFixture(1)[0];
 
-    equal(obj.unshiftObject(item), item, 'should return unshifted object');
+    assert.equal(obj.unshiftObject(item), item, 'should return unshifted object');
   });
 
-  suite.test('[].unshiftObject(X) => [X] + notify', function () {
+  suite.test('[].unshiftObject(X) => [X] + notify', function (assert) {
     var before = [];
     var item = this.newFixture(1)[0];
     var after = [item];
@@ -58844,17 +58847,17 @@ enifed('ember-runtime/tests/suites/mutable_array/unshiftObject', ['exports', 'em
 
     obj.unshiftObject(item);
 
-    deepEqual(this.toArray(obj), after, 'post item results');
-    equal((0, _emberMetal.get)(obj, 'length'), after.length, 'length');
+    assert.deepEqual(this.toArray(obj), after, 'post item results');
+    assert.equal((0, _emberMetal.get)(obj, 'length'), after.length, 'length');
 
-    equal(observer.timesCalled('[]'), 1, 'should have notified [] once');
-    equal(observer.timesCalled('@each'), 0, 'should not have notified @each once');
-    equal(observer.timesCalled('length'), 1, 'should have notified length once');
-    equal(observer.timesCalled('firstObject'), 1, 'should have notified firstObject once');
-    equal(observer.timesCalled('lastObject'), 1, 'should have notified lastObject once');
+    assert.equal(observer.timesCalled('[]'), 1, 'should have notified [] once');
+    assert.equal(observer.timesCalled('@each'), 0, 'should not have notified @each once');
+    assert.equal(observer.timesCalled('length'), 1, 'should have notified length once');
+    assert.equal(observer.timesCalled('firstObject'), 1, 'should have notified firstObject once');
+    assert.equal(observer.timesCalled('lastObject'), 1, 'should have notified lastObject once');
   });
 
-  suite.test('[A,B,C].unshiftObject(X) => [X,A,B,C] + notify', function () {
+  suite.test('[A,B,C].unshiftObject(X) => [X,A,B,C] + notify', function (assert) {
     var before = this.newFixture(3);
     var item = this.newFixture(1)[0];
     var after = [item, before[0], before[1], before[2]];
@@ -58865,18 +58868,18 @@ enifed('ember-runtime/tests/suites/mutable_array/unshiftObject', ['exports', 'em
 
     obj.unshiftObject(item);
 
-    deepEqual(this.toArray(obj), after, 'post item results');
-    equal((0, _emberMetal.get)(obj, 'length'), after.length, 'length');
+    assert.deepEqual(this.toArray(obj), after, 'post item results');
+    assert.equal((0, _emberMetal.get)(obj, 'length'), after.length, 'length');
 
-    equal(observer.timesCalled('[]'), 1, 'should have notified [] once');
-    equal(observer.timesCalled('@each'), 0, 'should not have notified @each once');
-    equal(observer.timesCalled('length'), 1, 'should have notified length once');
-    equal(observer.timesCalled('firstObject'), 1, 'should have notified firstObject once');
+    assert.equal(observer.timesCalled('[]'), 1, 'should have notified [] once');
+    assert.equal(observer.timesCalled('@each'), 0, 'should not have notified @each once');
+    assert.equal(observer.timesCalled('length'), 1, 'should have notified length once');
+    assert.equal(observer.timesCalled('firstObject'), 1, 'should have notified firstObject once');
 
-    equal(observer.validate('lastObject'), false, 'should NOT have notified lastObject');
+    assert.equal(observer.validate('lastObject'), false, 'should NOT have notified lastObject');
   });
 
-  suite.test('[A,B,C].unshiftObject(A) => [A,A,B,C] + notify', function () {
+  suite.test('[A,B,C].unshiftObject(A) => [A,A,B,C] + notify', function (assert) {
     var before = this.newFixture(3);
     var item = before[0]; // note same object as current head. should end up twice
     var after = [item, before[0], before[1], before[2]];
@@ -58887,15 +58890,15 @@ enifed('ember-runtime/tests/suites/mutable_array/unshiftObject', ['exports', 'em
 
     obj.unshiftObject(item);
 
-    deepEqual(this.toArray(obj), after, 'post item results');
-    equal((0, _emberMetal.get)(obj, 'length'), after.length, 'length');
+    assert.deepEqual(this.toArray(obj), after, 'post item results');
+    assert.equal((0, _emberMetal.get)(obj, 'length'), after.length, 'length');
 
-    equal(observer.timesCalled('[]'), 1, 'should have notified [] once');
-    equal(observer.timesCalled('@each'), 0, 'should not have notified @each once');
-    equal(observer.timesCalled('length'), 1, 'should have notified length once');
+    assert.equal(observer.timesCalled('[]'), 1, 'should have notified [] once');
+    assert.equal(observer.timesCalled('@each'), 0, 'should not have notified @each once');
+    assert.equal(observer.timesCalled('length'), 1, 'should have notified length once');
 
-    equal(observer.validate('firstObject'), true, 'should have notified firstObject');
-    equal(observer.validate('lastObject'), false, 'should NOT have notified lastObject');
+    assert.equal(observer.validate('firstObject'), true, 'should have notified firstObject');
+    assert.equal(observer.validate('lastObject'), false, 'should NOT have notified lastObject');
   });
 
   exports.default = suite;
@@ -58913,14 +58916,14 @@ enifed('ember-runtime/tests/suites/mutable_array/unshiftObjects', ['exports', 'e
 
   suite.module('unshiftObjects');
 
-  suite.test('returns receiver', function () {
+  suite.test('returns receiver', function (assert) {
     var obj = this.newObject([]);
     var items = this.newFixture(3);
 
-    equal(obj.unshiftObjects(items), obj, 'should return receiver');
+    assert.equal(obj.unshiftObjects(items), obj, 'should return receiver');
   });
 
-  suite.test('[].unshiftObjects([A,B,C]) => [A,B,C] + notify', function () {
+  suite.test('[].unshiftObjects([A,B,C]) => [A,B,C] + notify', function (assert) {
     var before = [];
     var items = this.newFixture(3);
     var obj = this.newObject(before);
@@ -58930,17 +58933,17 @@ enifed('ember-runtime/tests/suites/mutable_array/unshiftObjects', ['exports', 'e
 
     obj.unshiftObjects(items);
 
-    deepEqual(this.toArray(obj), items, 'post item results');
-    equal((0, _emberMetal.get)(obj, 'length'), items.length, 'length');
+    assert.deepEqual(this.toArray(obj), items, 'post item results');
+    assert.equal((0, _emberMetal.get)(obj, 'length'), items.length, 'length');
 
-    equal(observer.timesCalled('[]'), 1, 'should have notified [] once');
-    equal(observer.timesCalled('@each'), 0, 'should not have notified @each once');
-    equal(observer.timesCalled('length'), 1, 'should have notified length once');
-    equal(observer.timesCalled('firstObject'), 1, 'should have notified firstObject once');
-    equal(observer.timesCalled('lastObject'), 1, 'should have notified lastObject once');
+    assert.equal(observer.timesCalled('[]'), 1, 'should have notified [] once');
+    assert.equal(observer.timesCalled('@each'), 0, 'should not have notified @each once');
+    assert.equal(observer.timesCalled('length'), 1, 'should have notified length once');
+    assert.equal(observer.timesCalled('firstObject'), 1, 'should have notified firstObject once');
+    assert.equal(observer.timesCalled('lastObject'), 1, 'should have notified lastObject once');
   });
 
-  suite.test('[A,B,C].unshiftObjects([X,Y]) => [X,Y,A,B,C] + notify', function () {
+  suite.test('[A,B,C].unshiftObjects([X,Y]) => [X,Y,A,B,C] + notify', function (assert) {
     var before = this.newFixture(3);
     var items = this.newFixture(2);
     var after = items.concat(before);
@@ -58951,18 +58954,18 @@ enifed('ember-runtime/tests/suites/mutable_array/unshiftObjects', ['exports', 'e
 
     obj.unshiftObjects(items);
 
-    deepEqual(this.toArray(obj), after, 'post item results');
-    equal((0, _emberMetal.get)(obj, 'length'), after.length, 'length');
+    assert.deepEqual(this.toArray(obj), after, 'post item results');
+    assert.equal((0, _emberMetal.get)(obj, 'length'), after.length, 'length');
 
-    equal(observer.timesCalled('[]'), 1, 'should have notified [] once');
-    equal(observer.timesCalled('@each'), 0, 'should not have notified @each once');
-    equal(observer.timesCalled('length'), 1, 'should have notified length once');
-    equal(observer.timesCalled('firstObject'), 1, 'should have notified firstObject once');
+    assert.equal(observer.timesCalled('[]'), 1, 'should have notified [] once');
+    assert.equal(observer.timesCalled('@each'), 0, 'should not have notified @each once');
+    assert.equal(observer.timesCalled('length'), 1, 'should have notified length once');
+    assert.equal(observer.timesCalled('firstObject'), 1, 'should have notified firstObject once');
 
-    equal(observer.validate('lastObject'), false, 'should NOT have notified lastObject');
+    assert.equal(observer.validate('lastObject'), false, 'should NOT have notified lastObject');
   });
 
-  suite.test('[A,B,C].unshiftObjects([A,B]) => [A,B,A,B,C] + notify', function () {
+  suite.test('[A,B,C].unshiftObjects([A,B]) => [A,B,A,B,C] + notify', function (assert) {
     var before = this.newFixture(3);
     var items = [before[0], before[1]]; // note same object as current head. should end up twice
     var after = items.concat(before);
@@ -58973,15 +58976,15 @@ enifed('ember-runtime/tests/suites/mutable_array/unshiftObjects', ['exports', 'e
 
     obj.unshiftObjects(items);
 
-    deepEqual(this.toArray(obj), after, 'post item results');
-    equal((0, _emberMetal.get)(obj, 'length'), after.length, 'length');
+    assert.deepEqual(this.toArray(obj), after, 'post item results');
+    assert.equal((0, _emberMetal.get)(obj, 'length'), after.length, 'length');
 
-    equal(observer.timesCalled('[]'), 1, 'should have notified [] once');
-    equal(observer.timesCalled('@each'), 0, 'should not have notified @each once');
-    equal(observer.timesCalled('length'), 1, 'should have notified length once');
+    assert.equal(observer.timesCalled('[]'), 1, 'should have notified [] once');
+    assert.equal(observer.timesCalled('@each'), 0, 'should not have notified @each once');
+    assert.equal(observer.timesCalled('length'), 1, 'should have notified length once');
 
-    equal(observer.validate('firstObject'), false, 'should NOT have notified firstObject');
-    equal(observer.validate('lastObject'), false, 'should NOT have notified lastObject');
+    assert.equal(observer.validate('firstObject'), false, 'should NOT have notified firstObject');
+    assert.equal(observer.validate('lastObject'), false, 'should NOT have notified lastObject');
   });
 
   exports.default = suite;
@@ -59015,14 +59018,14 @@ enifed('ember-runtime/tests/suites/mutable_enumerable/addObject', ['exports', 'e
 
   suite.module('addObject');
 
-  suite.test('should return receiver', function () {
+  suite.test('should return receiver', function (assert) {
     var before = this.newFixture(3);
     var obj = this.newObject(before);
 
-    equal(obj.addObject(before[1]), obj, 'should return receiver');
+    assert.equal(obj.addObject(before[1]), obj, 'should return receiver');
   });
 
-  suite.test('[A,B].addObject(C) => [A,B,C] + notify', function () {
+  suite.test('[A,B].addObject(C) => [A,B,C] + notify', function (assert) {
     var before = this.newFixture(2);
     var item = this.newFixture(1)[0];
     var after = [before[0], before[1], item];
@@ -59034,19 +59037,19 @@ enifed('ember-runtime/tests/suites/mutable_enumerable/addObject', ['exports', 'e
 
     obj.addObject(item);
 
-    deepEqual(this.toArray(obj), after, 'post item results');
-    equal((0, _emberMetal.get)(obj, 'length'), after.length, 'length');
+    assert.deepEqual(this.toArray(obj), after, 'post item results');
+    assert.equal((0, _emberMetal.get)(obj, 'length'), after.length, 'length');
 
     if (observer.isEnabled) {
-      equal(observer.timesCalled('[]'), 1, 'should have notified [] once');
-      equal(observer.timesCalled('length'), 1, 'should have notified length once');
-      equal(observer.timesCalled('lastObject'), 1, 'should have notified lastObject once');
+      assert.equal(observer.timesCalled('[]'), 1, 'should have notified [] once');
+      assert.equal(observer.timesCalled('length'), 1, 'should have notified length once');
+      assert.equal(observer.timesCalled('lastObject'), 1, 'should have notified lastObject once');
       // This gets called since MutableEnumerable is naive about changes
-      equal(observer.timesCalled('firstObject'), 1, 'should have notified firstObject once');
+      assert.equal(observer.timesCalled('firstObject'), 1, 'should have notified firstObject once');
     }
   });
 
-  suite.test('[A,B,C].addObject(A) => [A,B,C] + NO notify', function () {
+  suite.test('[A,B,C].addObject(A) => [A,B,C] + NO notify', function (assert) {
     var before = this.newFixture(3);
     var after = before;
     var item = before[0];
@@ -59055,26 +59058,26 @@ enifed('ember-runtime/tests/suites/mutable_enumerable/addObject', ['exports', 'e
 
     obj.addObject(item); // note: item in set
 
-    deepEqual(this.toArray(obj), after, 'post item results');
-    equal((0, _emberMetal.get)(obj, 'length'), after.length, 'length');
+    assert.deepEqual(this.toArray(obj), after, 'post item results');
+    assert.equal((0, _emberMetal.get)(obj, 'length'), after.length, 'length');
 
     if (observer.isEnabled) {
-      equal(observer.validate('[]'), false, 'should NOT have notified []');
-      equal(observer.validate('length'), false, 'should NOT have notified length');
-      equal(observer.validate('firstObject'), false, 'should NOT have notified firstObject');
-      equal(observer.validate('lastObject'), false, 'should NOT have notified lastObject');
+      assert.equal(observer.validate('[]'), false, 'should NOT have notified []');
+      assert.equal(observer.validate('length'), false, 'should NOT have notified length');
+      assert.equal(observer.validate('firstObject'), false, 'should NOT have notified firstObject');
+      assert.equal(observer.validate('lastObject'), false, 'should NOT have notified lastObject');
     }
   });
 
-  suite.test('Adding object should notify enumerable observer', function () {
+  suite.test('Adding object should notify enumerable observer', function (assert) {
     var obj = this.newObject(this.newFixture(3));
     var observer = this.newObserver(obj).observeEnumerable(obj);
     var item = this.newFixture(1)[0];
 
     obj.addObject(item);
 
-    deepEqual(observer._before, [obj, null, [item]]);
-    deepEqual(observer._after, [obj, null, [item]]);
+    assert.deepEqual(observer._before, [obj, null, [item]]);
+    assert.deepEqual(observer._after, [obj, null, [item]]);
   });
 
   exports.default = suite;
@@ -59092,14 +59095,14 @@ enifed('ember-runtime/tests/suites/mutable_enumerable/removeObject', ['exports',
 
   suite.module('removeObject');
 
-  suite.test('should return receiver', function () {
+  suite.test('should return receiver', function (assert) {
     var before = this.newFixture(3);
     var obj = this.newObject(before);
 
-    equal(obj.removeObject(before[1]), obj, 'should return receiver');
+    assert.equal(obj.removeObject(before[1]), obj, 'should return receiver');
   });
 
-  suite.test('[A,B,C].removeObject(B) => [A,C] + notify', function () {
+  suite.test('[A,B,C].removeObject(B) => [A,C] + notify', function (assert) {
     var before = (0, _native_array.A)(this.newFixture(3));
     var after = [before[0], before[2]];
     var obj = before;
@@ -59109,19 +59112,19 @@ enifed('ember-runtime/tests/suites/mutable_enumerable/removeObject', ['exports',
 
     obj.removeObject(before[1]);
 
-    deepEqual(this.toArray(obj), after, 'post item results');
-    equal((0, _emberMetal.get)(obj, 'length'), after.length, 'length');
+    assert.deepEqual(this.toArray(obj), after, 'post item results');
+    assert.equal((0, _emberMetal.get)(obj, 'length'), after.length, 'length');
 
     if (observer.isEnabled) {
-      equal(observer.timesCalled('[]'), 1, 'should have notified [] once');
-      equal(observer.timesCalled('length'), 1, 'should have notified length once');
+      assert.equal(observer.timesCalled('[]'), 1, 'should have notified [] once');
+      assert.equal(observer.timesCalled('length'), 1, 'should have notified length once');
 
-      equal(observer.validate('firstObject'), false, 'should NOT have notified firstObject');
-      equal(observer.validate('lastObject'), false, 'should NOT have notified lastObject');
+      assert.equal(observer.validate('firstObject'), false, 'should NOT have notified firstObject');
+      assert.equal(observer.validate('lastObject'), false, 'should NOT have notified lastObject');
     }
   });
 
-  suite.test('[A,B,C].removeObject(D) => [A,B,C]', function () {
+  suite.test('[A,B,C].removeObject(D) => [A,B,C]', function (assert) {
     var before = (0, _native_array.A)(this.newFixture(3));
     var after = before;
     var item = this.newFixture(1)[0];
@@ -59132,19 +59135,19 @@ enifed('ember-runtime/tests/suites/mutable_enumerable/removeObject', ['exports',
 
     obj.removeObject(item); // Note: item not in set
 
-    deepEqual(this.toArray(obj), after, 'post item results');
-    equal((0, _emberMetal.get)(obj, 'length'), after.length, 'length');
+    assert.deepEqual(this.toArray(obj), after, 'post item results');
+    assert.equal((0, _emberMetal.get)(obj, 'length'), after.length, 'length');
 
     if (observer.isEnabled) {
-      equal(observer.validate('[]'), false, 'should NOT have notified []');
-      equal(observer.validate('length'), false, 'should NOT have notified length');
+      assert.equal(observer.validate('[]'), false, 'should NOT have notified []');
+      assert.equal(observer.validate('length'), false, 'should NOT have notified length');
 
-      equal(observer.validate('firstObject'), false, 'should NOT have notified firstObject');
-      equal(observer.validate('lastObject'), false, 'should NOT have notified lastObject');
+      assert.equal(observer.validate('firstObject'), false, 'should NOT have notified firstObject');
+      assert.equal(observer.validate('lastObject'), false, 'should NOT have notified lastObject');
     }
   });
 
-  suite.test('Removing object should notify enumerable observer', function () {
+  suite.test('Removing object should notify enumerable observer', function (assert) {
     var fixtures = this.newFixture(3);
     var obj = this.newObject(fixtures);
     var observer = this.newObserver(obj).observeEnumerable(obj);
@@ -59152,8 +59155,8 @@ enifed('ember-runtime/tests/suites/mutable_enumerable/removeObject', ['exports',
 
     obj.removeObject(item);
 
-    deepEqual(observer._before, [obj, [item], null]);
-    deepEqual(observer._after, [obj, [item], null]);
+    assert.deepEqual(observer._before, [obj, [item], null]);
+    assert.deepEqual(observer._after, [obj, [item], null]);
   });
 
   exports.default = suite;
@@ -59171,14 +59174,14 @@ enifed('ember-runtime/tests/suites/mutable_enumerable/removeObjects', ['exports'
 
   suite.module('removeObjects');
 
-  suite.test('should return receiver', function () {
+  suite.test('should return receiver', function (assert) {
     var before = (0, _native_array.A)(this.newFixture(3));
     var obj = before;
 
-    equal(obj.removeObjects(before[1]), obj, 'should return receiver');
+    assert.equal(obj.removeObjects(before[1]), obj, 'should return receiver');
   });
 
-  suite.test('[A,B,C].removeObjects([B]) => [A,C] + notify', function () {
+  suite.test('[A,B,C].removeObjects([B]) => [A,C] + notify', function (assert) {
     var before = (0, _native_array.A)(this.newFixture(3));
     var after = [before[0], before[2]];
     var obj = before;
@@ -59188,19 +59191,19 @@ enifed('ember-runtime/tests/suites/mutable_enumerable/removeObjects', ['exports'
 
     obj.removeObjects([before[1]]);
 
-    deepEqual(this.toArray(obj), after, 'post item results');
-    equal((0, _emberMetal.get)(obj, 'length'), after.length, 'length');
+    assert.deepEqual(this.toArray(obj), after, 'post item results');
+    assert.equal((0, _emberMetal.get)(obj, 'length'), after.length, 'length');
 
     if (observer.isEnabled) {
-      equal(observer.timesCalled('[]'), 1, 'should have notified [] once');
-      equal(observer.timesCalled('length'), 1, 'should have notified length once');
+      assert.equal(observer.timesCalled('[]'), 1, 'should have notified [] once');
+      assert.equal(observer.timesCalled('length'), 1, 'should have notified length once');
 
-      equal(observer.validate('firstObject'), false, 'should NOT have notified firstObject');
-      equal(observer.validate('lastObject'), false, 'should NOT have notified lastObject');
+      assert.equal(observer.validate('firstObject'), false, 'should NOT have notified firstObject');
+      assert.equal(observer.validate('lastObject'), false, 'should NOT have notified lastObject');
     }
   });
 
-  suite.test('[{A},{B},{C}].removeObjects([{B}]) => [{A},{C}] + notify', function () {
+  suite.test('[{A},{B},{C}].removeObjects([{B}]) => [{A},{C}] + notify', function (assert) {
     var before = (0, _native_array.A)(this.newObjectsFixture(3));
     var after = [before[0], before[2]];
     var obj = before;
@@ -59210,19 +59213,19 @@ enifed('ember-runtime/tests/suites/mutable_enumerable/removeObjects', ['exports'
 
     obj.removeObjects([before[1]]);
 
-    deepEqual(this.toArray(obj), after, 'post item results');
-    equal((0, _emberMetal.get)(obj, 'length'), after.length, 'length');
+    assert.deepEqual(this.toArray(obj), after, 'post item results');
+    assert.equal((0, _emberMetal.get)(obj, 'length'), after.length, 'length');
 
     if (observer.isEnabled) {
-      equal(observer.timesCalled('[]'), 1, 'should have notified [] once');
-      equal(observer.timesCalled('length'), 1, 'should have notified length once');
+      assert.equal(observer.timesCalled('[]'), 1, 'should have notified [] once');
+      assert.equal(observer.timesCalled('length'), 1, 'should have notified length once');
 
-      equal(observer.validate('firstObject'), false, 'should NOT have notified firstObject');
-      equal(observer.validate('lastObject'), false, 'should NOT have notified lastObject');
+      assert.equal(observer.validate('firstObject'), false, 'should NOT have notified firstObject');
+      assert.equal(observer.validate('lastObject'), false, 'should NOT have notified lastObject');
     }
   });
 
-  suite.test('[A,B,C].removeObjects([A,B]) => [C] + notify', function () {
+  suite.test('[A,B,C].removeObjects([A,B]) => [C] + notify', function (assert) {
     var before = (0, _native_array.A)(this.newFixture(3));
     var after = [before[2]];
     var obj = before;
@@ -59232,19 +59235,19 @@ enifed('ember-runtime/tests/suites/mutable_enumerable/removeObjects', ['exports'
 
     obj.removeObjects([before[0], before[1]]);
 
-    deepEqual(this.toArray(obj), after, 'post item results');
-    equal((0, _emberMetal.get)(obj, 'length'), after.length, 'length');
+    assert.deepEqual(this.toArray(obj), after, 'post item results');
+    assert.equal((0, _emberMetal.get)(obj, 'length'), after.length, 'length');
 
     if (observer.isEnabled) {
-      equal(observer.timesCalled('[]'), 1, 'should have notified [] once');
-      equal(observer.timesCalled('length'), 1, 'should have notified length once');
+      assert.equal(observer.timesCalled('[]'), 1, 'should have notified [] once');
+      assert.equal(observer.timesCalled('length'), 1, 'should have notified length once');
 
-      equal(observer.timesCalled('firstObject'), 1, 'should have notified firstObject');
-      equal(observer.validate('lastObject'), false, 'should NOT have notified lastObject');
+      assert.equal(observer.timesCalled('firstObject'), 1, 'should have notified firstObject');
+      assert.equal(observer.validate('lastObject'), false, 'should NOT have notified lastObject');
     }
   });
 
-  suite.test('[{A},{B},{C}].removeObjects([{A},{B}]) => [{C}] + notify', function () {
+  suite.test('[{A},{B},{C}].removeObjects([{A},{B}]) => [{C}] + notify', function (assert) {
     var before = (0, _native_array.A)(this.newObjectsFixture(3));
     var after = [before[2]];
     var obj = before;
@@ -59254,19 +59257,19 @@ enifed('ember-runtime/tests/suites/mutable_enumerable/removeObjects', ['exports'
 
     obj.removeObjects([before[0], before[1]]);
 
-    deepEqual(this.toArray(obj), after, 'post item results');
-    equal((0, _emberMetal.get)(obj, 'length'), after.length, 'length');
+    assert.deepEqual(this.toArray(obj), after, 'post item results');
+    assert.equal((0, _emberMetal.get)(obj, 'length'), after.length, 'length');
 
     if (observer.isEnabled) {
-      equal(observer.timesCalled('[]'), 1, 'should have notified [] once');
-      equal(observer.timesCalled('length'), 1, 'should have notified length once');
+      assert.equal(observer.timesCalled('[]'), 1, 'should have notified [] once');
+      assert.equal(observer.timesCalled('length'), 1, 'should have notified length once');
 
-      equal(observer.timesCalled('firstObject'), 1, 'should have notified firstObject');
-      equal(observer.validate('lastObject'), false, 'should NOT have notified lastObject');
+      assert.equal(observer.timesCalled('firstObject'), 1, 'should have notified firstObject');
+      assert.equal(observer.validate('lastObject'), false, 'should NOT have notified lastObject');
     }
   });
 
-  suite.test('[A,B,C].removeObjects([A,B,C]) => [] + notify', function () {
+  suite.test('[A,B,C].removeObjects([A,B,C]) => [] + notify', function (assert) {
     var before = (0, _native_array.A)(this.newFixture(3));
     var after = [];
     var obj = before;
@@ -59276,19 +59279,19 @@ enifed('ember-runtime/tests/suites/mutable_enumerable/removeObjects', ['exports'
 
     obj.removeObjects([before[0], before[1], before[2]]);
 
-    deepEqual(this.toArray(obj), after, 'post item results');
-    equal((0, _emberMetal.get)(obj, 'length'), after.length, 'length');
+    assert.deepEqual(this.toArray(obj), after, 'post item results');
+    assert.equal((0, _emberMetal.get)(obj, 'length'), after.length, 'length');
 
     if (observer.isEnabled) {
-      equal(observer.timesCalled('[]'), 1, 'should have notified [] once');
-      equal(observer.timesCalled('length'), 1, 'should have notified length once');
+      assert.equal(observer.timesCalled('[]'), 1, 'should have notified [] once');
+      assert.equal(observer.timesCalled('length'), 1, 'should have notified length once');
 
-      equal(observer.timesCalled('firstObject'), 1, 'should have notified firstObject');
-      equal(observer.timesCalled('lastObject'), 1, 'should have notified lastObject');
+      assert.equal(observer.timesCalled('firstObject'), 1, 'should have notified firstObject');
+      assert.equal(observer.timesCalled('lastObject'), 1, 'should have notified lastObject');
     }
   });
 
-  suite.test('[{A},{B},{C}].removeObjects([{A},{B},{C}]) => [] + notify', function () {
+  suite.test('[{A},{B},{C}].removeObjects([{A},{B},{C}]) => [] + notify', function (assert) {
     var before = (0, _native_array.A)(this.newObjectsFixture(3));
     var after = [];
     var obj = before;
@@ -59298,19 +59301,19 @@ enifed('ember-runtime/tests/suites/mutable_enumerable/removeObjects', ['exports'
 
     obj.removeObjects(before);
 
-    deepEqual(this.toArray(obj), after, 'post item results');
-    equal((0, _emberMetal.get)(obj, 'length'), after.length, 'length');
+    assert.deepEqual(this.toArray(obj), after, 'post item results');
+    assert.equal((0, _emberMetal.get)(obj, 'length'), after.length, 'length');
 
     if (observer.isEnabled) {
-      equal(observer.timesCalled('[]'), 1, 'should have notified [] once');
-      equal(observer.timesCalled('length'), 1, 'should have notified length once');
+      assert.equal(observer.timesCalled('[]'), 1, 'should have notified [] once');
+      assert.equal(observer.timesCalled('length'), 1, 'should have notified length once');
 
-      equal(observer.timesCalled('firstObject'), 1, 'should have notified firstObject');
-      equal(observer.validate('lastObject'), 1, 'should have notified lastObject');
+      assert.equal(observer.timesCalled('firstObject'), 1, 'should have notified firstObject');
+      assert.equal(observer.validate('lastObject'), 1, 'should have notified lastObject');
     }
   });
 
-  suite.test('[A,B,C].removeObjects([D]) => [A,B,C]', function () {
+  suite.test('[A,B,C].removeObjects([D]) => [A,B,C]', function (assert) {
     var before = (0, _native_array.A)(this.newFixture(3));
     var after = before;
     var item = this.newFixture(1)[0];
@@ -59321,19 +59324,19 @@ enifed('ember-runtime/tests/suites/mutable_enumerable/removeObjects', ['exports'
 
     obj.removeObjects([item]); // Note: item not in set
 
-    deepEqual(this.toArray(obj), after, 'post item results');
-    equal((0, _emberMetal.get)(obj, 'length'), after.length, 'length');
+    assert.deepEqual(this.toArray(obj), after, 'post item results');
+    assert.equal((0, _emberMetal.get)(obj, 'length'), after.length, 'length');
 
     if (observer.isEnabled) {
-      equal(observer.validate('[]'), false, 'should NOT have notified []');
-      equal(observer.validate('length'), false, 'should NOT have notified length');
+      assert.equal(observer.validate('[]'), false, 'should NOT have notified []');
+      assert.equal(observer.validate('length'), false, 'should NOT have notified length');
 
-      equal(observer.validate('firstObject'), false, 'should NOT have notified firstObject');
-      equal(observer.validate('lastObject'), false, 'should NOT have notified lastObject');
+      assert.equal(observer.validate('firstObject'), false, 'should NOT have notified firstObject');
+      assert.equal(observer.validate('lastObject'), false, 'should NOT have notified lastObject');
     }
   });
 
-  suite.test('Removing objects should notify enumerable observer', function () {
+  suite.test('Removing objects should notify enumerable observer', function (assert) {
     var fixtures = this.newFixture(3);
     var obj = this.newObject(fixtures);
     var observer = this.newObserver(obj).observeEnumerable(obj);
@@ -59341,8 +59344,8 @@ enifed('ember-runtime/tests/suites/mutable_enumerable/removeObjects', ['exports'
 
     obj.removeObjects([item]);
 
-    deepEqual(observer._before, [obj, [item], null]);
-    deepEqual(observer._after, [obj, [item], null]);
+    assert.deepEqual(observer._before, [obj, [item], null]);
+    assert.deepEqual(observer._after, [obj, [item], null]);
   });
 
   exports.default = suite;
@@ -59423,14 +59426,14 @@ enifed('ember-runtime/tests/suites/suite', ['exports', 'ember-utils', 'ember-run
           var title = (0, _emberMetal.get)(this, 'name') + ': ' + desc;
           var ctx = this;
           QUnit.module(title, {
-            beforeEach: function () {
+            beforeEach: function (assert) {
               if (setup) {
-                setup.call(ctx);
+                setup.call(ctx, assert);
               }
             },
-            afterEach: function () {
+            afterEach: function (assert) {
               if (teardown) {
-                teardown.call(ctx);
+                teardown.call(ctx, assert);
               }
             }
           });
@@ -64789,7 +64792,7 @@ enifed('ember-testing/tests/adapters/qunit_test', ['ember-babel', 'ember-metal',
 
   var adapter;
 
-  (0, _internalTestHelpers.moduleFor)('ember-testing QUnitAdapter: QUnit 1.x', function (_AbstractTestCase) {
+  (0, _internalTestHelpers.moduleFor)('ember-testing QUnitAdapter: QUnit 2.x', function (_AbstractTestCase) {
     (0, _emberBabel.inherits)(_class, _AbstractTestCase);
 
     function _class() {
@@ -64797,83 +64800,24 @@ enifed('ember-testing/tests/adapters/qunit_test', ['ember-babel', 'ember-metal',
 
       var _this = (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase.call(this));
 
+      _this.originalStart = QUnit.start;
+      _this.originalStop = QUnit.stop;
+
+      delete QUnit.start;
+      delete QUnit.stop;
+
       adapter = new _qunit.default();
       return _this;
     }
 
     _class.prototype.teardown = function teardown() {
       (0, _emberMetal.run)(adapter, adapter.destroy);
-    };
-
-    _class.prototype['@test asyncStart calls stop'] = function testAsyncStartCallsStop(assert) {
-      var originalStop = QUnit.stop;
-      try {
-        QUnit.stop = function () {
-          assert.ok(true, 'stop called');
-        };
-        adapter.asyncStart();
-      } finally {
-        QUnit.stop = originalStop;
-      }
-    };
-
-    _class.prototype['@test asyncEnd calls start'] = function testAsyncEndCallsStart(assert) {
-      var originalStart = QUnit.start;
-      try {
-        QUnit.start = function () {
-          assert.ok(true, 'start called');
-        };
-        adapter.asyncEnd();
-      } finally {
-        QUnit.start = originalStart;
-      }
-    };
-
-    _class.prototype['@test exception causes a failing assertion'] = function testExceptionCausesAFailingAssertion(assert) {
-      var error = { err: 'hai' };
-      var originalPushResult = assert.pushResult;
-      try {
-        assert.pushResult = function (resultInfo) {
-          // Inverts the result so we can test failing assertions
-          resultInfo.result = !resultInfo.result;
-          resultInfo.message = 'Failed: ' + resultInfo.message;
-          originalPushResult(resultInfo);
-        };
-        adapter.exception(error);
-      } finally {
-        assert.pushResult = originalPushResult;
-      }
-    };
-
-    return _class;
-  }(_internalTestHelpers.AbstractTestCase));
-
-  (0, _internalTestHelpers.moduleFor)('ember-testing QUnitAdapter: QUnit 2.x', function (_AbstractTestCase2) {
-    (0, _emberBabel.inherits)(_class2, _AbstractTestCase2);
-
-    function _class2() {
-      (0, _emberBabel.classCallCheck)(this, _class2);
-
-      var _this2 = (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase2.call(this));
-
-      _this2.originalStart = QUnit.start;
-      _this2.originalStop = QUnit.stop;
-
-      delete QUnit.start;
-      delete QUnit.stop;
-
-      adapter = new _qunit.default();
-      return _this2;
-    }
-
-    _class2.prototype.teardown = function teardown() {
-      (0, _emberMetal.run)(adapter, adapter.destroy);
 
       QUnit.start = this.originalStart;
       QUnit.stop = this.originalStop;
     };
 
-    _class2.prototype['@test asyncStart waits for asyncEnd to finish a test'] = function testAsyncStartWaitsForAsyncEndToFinishATest(assert) {
+    _class.prototype['@test asyncStart waits for asyncEnd to finish a test'] = function testAsyncStartWaitsForAsyncEndToFinishATest(assert) {
       adapter.asyncStart();
 
       setTimeout(function () {
@@ -64882,7 +64826,7 @@ enifed('ember-testing/tests/adapters/qunit_test', ['ember-babel', 'ember-metal',
       }, 50);
     };
 
-    _class2.prototype['@test asyncStart waits for equal numbers of asyncEnd to finish a test'] = function testAsyncStartWaitsForEqualNumbersOfAsyncEndToFinishATest(assert) {
+    _class.prototype['@test asyncStart waits for equal numbers of asyncEnd to finish a test'] = function testAsyncStartWaitsForEqualNumbersOfAsyncEndToFinishATest(assert) {
       var adapter = _qunit.default.create();
 
       adapter.asyncStart();
@@ -64895,7 +64839,7 @@ enifed('ember-testing/tests/adapters/qunit_test', ['ember-babel', 'ember-metal',
       }, 50);
     };
 
-    return _class2;
+    return _class;
   }(_internalTestHelpers.AbstractTestCase));
 });
 QUnit.module('ESLint | ember-testing/tests/adapters/qunit_test.js');
@@ -69110,10 +69054,18 @@ enifed('ember/tests/helpers/link_to_test', ['ember-babel', 'internal-test-helper
 
         _this3.addTemplate('index', '\n        <h3>Home</h3>\n        {{#link-to \'about\' id=\'about-link\'}}About{{/link-to}}\n        {{#link-to \'index\' id=\'self-link\'}}Self{{/link-to}}\n      ');
         _this3.addTemplate('about', '\n        <h3>About</h3>\n        {{#link-to \'index\' id=\'home-link\'}}Home{{/link-to}}\n        {{#link-to \'about\' id=\'self-link\'}}Self{{/link-to}}\n      ');
-
-        _this3.visit('/');
         return _this3;
       }
+
+      _class3.prototype.beforeEach = function beforeEach() {
+        return this.visit('/');
+      };
+
+      _class3.prototype.afterEach = function afterEach() {
+        (0, _emberMetal.instrumentationReset)();
+
+        return _ApplicationTestCase4.prototype.afterEach.call(this);
+      };
 
       _class3.prototype['@test The {{link-to}} helper fires an interaction event'] = function testTheLinkToHelperFiresAnInteractionEvent(assert) {
         assert.expect(2);
@@ -73839,7 +73791,7 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
 
     assert.throws(function () {
       return bootApplication();
-    }, rejectedMessage, 'expected an exception');
+    }, new RegExp(rejectedMessage), 'expected an exception');
 
     _emberConsole.default.error = originalLoggerError;
   });
@@ -80421,7 +80373,7 @@ enifed('internal-test-helpers/ember-dev/assertion', ['exports', 'internal-test-h
 
 
         if (_this.env.runningProdBuild) {
-          QUnit.ok(true, 'Assertions disabled in production builds.');
+          assert.ok(true, 'Assertions disabled in production builds.');
           return;
         }
 
