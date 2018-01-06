@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.0.0-canary+7fd33bca
+ * @version   3.0.0-canary+ce36f26d
  */
 
 /*globals process */
@@ -63804,7 +63804,7 @@ QUnit.test('should pass ESLint', function(assert) {
   assert.ok(true, 'ember-template-compiler/tests/plugins/transform-input-type-syntax-test.js should pass ESLint\n\n');
 });
 
-enifed('ember-template-compiler/tests/system/bootstrap-test', ['ember-babel', 'ember-metal', 'ember-views', 'ember-glimmer', 'ember-template-compiler/system/bootstrap', 'internal-test-helpers'], function (_emberBabel, _emberMetal, _emberViews, _emberGlimmer, _bootstrap, _internalTestHelpers) {
+enifed('ember-template-compiler/tests/system/bootstrap-test', ['ember-babel', 'ember-metal', 'ember-glimmer', 'ember-template-compiler/system/bootstrap', 'internal-test-helpers'], function (_emberBabel, _emberMetal, _emberGlimmer, _bootstrap, _internalTestHelpers) {
   'use strict';
 
   var component = void 0,
@@ -63816,9 +63816,10 @@ enifed('ember-template-compiler/tests/system/bootstrap-test', ['ember-babel', 'e
     });
 
     var template = (0, _emberGlimmer.getTemplate)(templateName);
+    var qunitFixture = document.querySelector('#qunit-fixture');
 
     assert.ok(template, 'template is available on Ember.TEMPLATES');
-    assert.equal((0, _emberViews.jQuery)('#qunit-fixture script').length, 0, 'script removed');
+    assert.notOk(qunitFixture.querySelector('script'), 'script removed');
 
     var owner = (0, _internalTestHelpers.buildOwner)();
     owner.register('template:-top-level', template);
@@ -63831,7 +63832,7 @@ enifed('ember-template-compiler/tests/system/bootstrap-test', ['ember-babel', 'e
     component = owner.lookup('component:-top-level');
     (0, _internalTestHelpers.runAppend)(component);
 
-    assert.equal((0, _emberViews.jQuery)('#qunit-fixture').text().trim(), 'Tobias takes teamocil', 'template works');
+    assert.equal(qunitFixture.textContent.trim(), 'Tobias takes teamocil', 'template works');
     (0, _internalTestHelpers.runDestroy)(component);
   }
 
@@ -63853,25 +63854,25 @@ enifed('ember-template-compiler/tests/system/bootstrap-test', ['ember-babel', 'e
     };
 
     _class.prototype['@test template with data-template-name should add a new template to Ember.TEMPLATES'] = function testTemplateWithDataTemplateNameShouldAddANewTemplateToEmberTEMPLATES(assert) {
-      (0, _emberViews.jQuery)('#qunit-fixture').html('<script type="text/x-handlebars" data-template-name="funkyTemplate">{{firstName}} takes {{drug}}</script>');
+      fixture.innerHTML = '<script type="text/x-handlebars" data-template-name="funkyTemplate">{{firstName}} takes {{drug}}</script>';
 
       checkTemplate('funkyTemplate', assert);
     };
 
     _class.prototype['@test template with id instead of data-template-name should add a new template to Ember.TEMPLATES'] = function testTemplateWithIdInsteadOfDataTemplateNameShouldAddANewTemplateToEmberTEMPLATES(assert) {
-      (0, _emberViews.jQuery)('#qunit-fixture').html('<script type="text/x-handlebars" id="funkyTemplate" >{{firstName}} takes {{drug}}</script>');
+      fixture.innerHTML = '<script type="text/x-handlebars" id="funkyTemplate" >{{firstName}} takes {{drug}}</script>';
 
       checkTemplate('funkyTemplate', assert);
     };
 
     _class.prototype['@test template without data-template-name or id should default to application'] = function testTemplateWithoutDataTemplateNameOrIdShouldDefaultToApplication(assert) {
-      (0, _emberViews.jQuery)('#qunit-fixture').html('<script type="text/x-handlebars">{{firstName}} takes {{drug}}</script>');
+      fixture.innerHTML = '<script type="text/x-handlebars">{{firstName}} takes {{drug}}</script>';
 
       checkTemplate('application', assert);
     };
 
     _class.prototype[(typeof Handlebars === 'object' ? '@test' : '@skip') + ' template with type text/x-raw-handlebars should be parsed'] = function (assert) {
-      (0, _emberViews.jQuery)('#qunit-fixture').html('<script type="text/x-raw-handlebars" data-template-name="funkyTemplate">{{name}}</script>');
+      fixture.innerHTML = '<script type="text/x-raw-handlebars" data-template-name="funkyTemplate">{{name}}</script>';
 
       (0, _emberMetal.run)(function () {
         return (0, _bootstrap.default)({ context: fixture, hasTemplate: _emberGlimmer.hasTemplate, setTemplate: _emberGlimmer.setTemplate });
@@ -63886,7 +63887,7 @@ enifed('ember-template-compiler/tests/system/bootstrap-test', ['ember-babel', 'e
     };
 
     _class.prototype['@test duplicated default application templates should throw exception'] = function testDuplicatedDefaultApplicationTemplatesShouldThrowException(assert) {
-      (0, _emberViews.jQuery)('#qunit-fixture').html('<script type="text/x-handlebars">first</script><script type="text/x-handlebars">second</script>');
+      fixture.innerHTML = '<script type="text/x-handlebars">first</script><script type="text/x-handlebars">second</script>';
 
       assert.throws(function () {
         return (0, _bootstrap.default)({ context: fixture, hasTemplate: _emberGlimmer.hasTemplate, setTemplate: _emberGlimmer.setTemplate });
@@ -63894,7 +63895,7 @@ enifed('ember-template-compiler/tests/system/bootstrap-test', ['ember-babel', 'e
     };
 
     _class.prototype['@test default default application template and id application template present should throw exception'] = function testDefaultDefaultApplicationTemplateAndIdApplicationTemplatePresentShouldThrowException(assert) {
-      (0, _emberViews.jQuery)('#qunit-fixture').html('<script type="text/x-handlebars">first</script><script type="text/x-handlebars" id="application">second</script>');
+      fixture.innerHTML = '<script type="text/x-handlebars">first</script><script type="text/x-handlebars" id="application">second</script>';
 
       assert.throws(function () {
         return (0, _bootstrap.default)({ context: fixture, hasTemplate: _emberGlimmer.hasTemplate, setTemplate: _emberGlimmer.setTemplate });
@@ -63902,7 +63903,7 @@ enifed('ember-template-compiler/tests/system/bootstrap-test', ['ember-babel', 'e
     };
 
     _class.prototype['@test default application template and data-template-name application template present should throw exception'] = function testDefaultApplicationTemplateAndDataTemplateNameApplicationTemplatePresentShouldThrowException(assert) {
-      (0, _emberViews.jQuery)('#qunit-fixture').html('<script type="text/x-handlebars">first</script><script type="text/x-handlebars" data-template-name="application">second</script>');
+      fixture.innerHTML = '<script type="text/x-handlebars">first</script><script type="text/x-handlebars" data-template-name="application">second</script>';
 
       assert.throws(function () {
         return (0, _bootstrap.default)({ context: fixture, hasTemplate: _emberGlimmer.hasTemplate, setTemplate: _emberGlimmer.setTemplate });
@@ -63910,7 +63911,7 @@ enifed('ember-template-compiler/tests/system/bootstrap-test', ['ember-babel', 'e
     };
 
     _class.prototype['@test duplicated template id should throw exception'] = function testDuplicatedTemplateIdShouldThrowException(assert) {
-      (0, _emberViews.jQuery)('#qunit-fixture').html('<script type="text/x-handlebars" id="funkyTemplate">first</script><script type="text/x-handlebars" id="funkyTemplate">second</script>');
+      fixture.innerHTML = '<script type="text/x-handlebars" id="funkyTemplate">first</script><script type="text/x-handlebars" id="funkyTemplate">second</script>';
 
       assert.throws(function () {
         return (0, _bootstrap.default)({ context: fixture, hasTemplate: _emberGlimmer.hasTemplate, setTemplate: _emberGlimmer.setTemplate });
@@ -63918,7 +63919,7 @@ enifed('ember-template-compiler/tests/system/bootstrap-test', ['ember-babel', 'e
     };
 
     _class.prototype['@test duplicated template data-template-name should throw exception'] = function testDuplicatedTemplateDataTemplateNameShouldThrowException(assert) {
-      (0, _emberViews.jQuery)('#qunit-fixture').html('<script type="text/x-handlebars" data-template-name="funkyTemplate">first</script><script type="text/x-handlebars" data-template-name="funkyTemplate">second</script>');
+      fixture.innerHTML = '<script type="text/x-handlebars" data-template-name="funkyTemplate">first</script><script type="text/x-handlebars" data-template-name="funkyTemplate">second</script>';
 
       assert.throws(function () {
         return (0, _bootstrap.default)({ context: fixture, hasTemplate: _emberGlimmer.hasTemplate, setTemplate: _emberGlimmer.setTemplate });
