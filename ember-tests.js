@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.0.0-canary+db34024b
+ * @version   3.0.0-canary+87a3264b
  */
 
 /*globals process */
@@ -52393,7 +52393,7 @@ QUnit.test('should pass ESLint', function(assert) {
   assert.ok(true, 'ember-runtime/tests/inject_test.js should pass ESLint\n\n');
 });
 
-enifed('ember-runtime/tests/legacy_1x/mixins/observable/chained_test', ['ember-metal', 'ember-runtime/system/object', 'ember-runtime/system/native_array'], function (_emberMetal, _object, _native_array) {
+enifed('ember-runtime/tests/legacy_1x/mixins/observable/chained_test', ['ember-babel', 'ember-metal', 'ember-runtime/system/object', 'ember-runtime/system/native_array', 'internal-test-helpers'], function (_emberBabel, _emberMetal, _object, _native_array, _internalTestHelpers) {
   'use strict';
 
   /*
@@ -52407,51 +52407,60 @@ enifed('ember-runtime/tests/legacy_1x/mixins/observable/chained_test', ['ember-m
     * changed obj.addObserver() to addObserver()
   */
 
-  QUnit.module('Ember.Observable - Observing with @each');
+  (0, _internalTestHelpers.moduleFor)('Ember.Observable - Observing with @each', function (_AbstractTestCase) {
+    (0, _emberBabel.inherits)(_class, _AbstractTestCase);
 
-  QUnit.test('chained observers on enumerable properties are triggered when the observed property of any item changes', function (assert) {
-    var family = _object.default.create({ momma: null });
-    var momma = _object.default.create({ children: [] });
+    function _class() {
+      (0, _emberBabel.classCallCheck)(this, _class);
+      return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase.apply(this, arguments));
+    }
 
-    var child1 = _object.default.create({ name: 'Bartholomew' });
-    var child2 = _object.default.create({ name: 'Agnes' });
-    var child3 = _object.default.create({ name: 'Dan' });
-    var child4 = _object.default.create({ name: 'Nancy' });
+    _class.prototype['@test chained observers on enumerable properties are triggered when the observed property of any item changes'] = function testChainedObserversOnEnumerablePropertiesAreTriggeredWhenTheObservedPropertyOfAnyItemChanges(assert) {
+      var family = _object.default.create({ momma: null });
+      var momma = _object.default.create({ children: [] });
 
-    (0, _emberMetal.set)(family, 'momma', momma);
-    (0, _emberMetal.set)(momma, 'children', (0, _native_array.A)([child1, child2, child3]));
+      var child1 = _object.default.create({ name: 'Bartholomew' });
+      var child2 = _object.default.create({ name: 'Agnes' });
+      var child3 = _object.default.create({ name: 'Dan' });
+      var child4 = _object.default.create({ name: 'Nancy' });
 
-    var observerFiredCount = 0;
-    (0, _emberMetal.addObserver)(family, 'momma.children.@each.name', this, function () {
-      observerFiredCount++;
-    });
+      (0, _emberMetal.set)(family, 'momma', momma);
+      (0, _emberMetal.set)(momma, 'children', (0, _native_array.A)([child1, child2, child3]));
 
-    observerFiredCount = 0;
-    (0, _emberMetal.run)(function () {
-      return (0, _emberMetal.get)(momma, 'children').setEach('name', 'Juan');
-    });
-    assert.equal(observerFiredCount, 3, 'observer fired after changing child names');
+      var observerFiredCount = 0;
+      (0, _emberMetal.addObserver)(family, 'momma.children.@each.name', this, function () {
+        observerFiredCount++;
+      });
 
-    observerFiredCount = 0;
-    (0, _emberMetal.run)(function () {
-      return (0, _emberMetal.get)(momma, 'children').pushObject(child4);
-    });
-    assert.equal(observerFiredCount, 1, 'observer fired after adding a new item');
+      observerFiredCount = 0;
+      (0, _emberMetal.run)(function () {
+        return (0, _emberMetal.get)(momma, 'children').setEach('name', 'Juan');
+      });
+      assert.equal(observerFiredCount, 3, 'observer fired after changing child names');
 
-    observerFiredCount = 0;
-    (0, _emberMetal.run)(function () {
-      return (0, _emberMetal.set)(child4, 'name', 'Herbert');
-    });
-    assert.equal(observerFiredCount, 1, 'observer fired after changing property on new object');
+      observerFiredCount = 0;
+      (0, _emberMetal.run)(function () {
+        return (0, _emberMetal.get)(momma, 'children').pushObject(child4);
+      });
+      assert.equal(observerFiredCount, 1, 'observer fired after adding a new item');
 
-    (0, _emberMetal.set)(momma, 'children', []);
+      observerFiredCount = 0;
+      (0, _emberMetal.run)(function () {
+        return (0, _emberMetal.set)(child4, 'name', 'Herbert');
+      });
+      assert.equal(observerFiredCount, 1, 'observer fired after changing property on new object');
 
-    observerFiredCount = 0;
-    (0, _emberMetal.run)(function () {
-      return (0, _emberMetal.set)(child1, 'name', 'Hanna');
-    });
-    assert.equal(observerFiredCount, 0, 'observer did not fire after removing changing property on a removed object');
-  });
+      (0, _emberMetal.set)(momma, 'children', []);
+
+      observerFiredCount = 0;
+      (0, _emberMetal.run)(function () {
+        return (0, _emberMetal.set)(child1, 'name', 'Hanna');
+      });
+      assert.equal(observerFiredCount, 0, 'observer did not fire after removing changing property on a removed object');
+    };
+
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
 });
 QUnit.module('ESLint | ember-runtime/tests/legacy_1x/mixins/observable/chained_test.js');
 QUnit.test('should pass ESLint', function(assert) {
@@ -52459,7 +52468,7 @@ QUnit.test('should pass ESLint', function(assert) {
   assert.ok(true, 'ember-runtime/tests/legacy_1x/mixins/observable/chained_test.js should pass ESLint\n\n');
 });
 
-enifed('ember-runtime/tests/legacy_1x/mixins/observable/observable_test', ['ember-environment', 'ember-metal', 'ember-runtime/system/string', 'ember-runtime/system/object', 'ember-runtime/mixins/observable', 'ember-runtime/system/native_array'], function (_emberEnvironment, _emberMetal, _string, _object, _observable, _native_array) {
+enifed('ember-runtime/tests/legacy_1x/mixins/observable/observable_test', ['ember-babel', 'ember-environment', 'ember-metal', 'ember-runtime/system/string', 'ember-runtime/system/object', 'ember-runtime/mixins/observable', 'ember-runtime/system/native_array', 'internal-test-helpers'], function (_emberBabel, _emberEnvironment, _emberMetal, _string, _object, _observable, _native_array, _internalTestHelpers) {
   'use strict';
 
   /*
@@ -52497,8 +52506,15 @@ enifed('ember-runtime/tests/legacy_1x/mixins/observable/observable_test', ['embe
   // GET()
   //
 
-  QUnit.module('object.get()', {
-    beforeEach: function () {
+  (0, _internalTestHelpers.moduleFor)('object.get()', function (_AbstractTestCase) {
+    (0, _emberBabel.inherits)(_class, _AbstractTestCase);
+
+    function _class() {
+      (0, _emberBabel.classCallCheck)(this, _class);
+      return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase.apply(this, arguments));
+    }
+
+    _class.prototype.beforeEach = function beforeEach() {
       object = ObservableObject.extend(_observable.default, {
         computed: (0, _emberMetal.computed)(function () {
           return 'value';
@@ -52516,36 +52532,44 @@ enifed('ember-runtime/tests/legacy_1x/mixins/observable/observable_test', ['embe
         toggleVal: true,
         nullProperty: null
       });
-    }
-  });
+    };
 
-  QUnit.test('should get normal properties', function (assert) {
-    assert.equal(object.get('normal'), 'value');
-  });
+    _class.prototype['@test should get normal properties'] = function testShouldGetNormalProperties(assert) {
+      assert.equal(object.get('normal'), 'value');
+    };
 
-  QUnit.test('should call computed properties and return their result', function (assert) {
-    assert.equal(object.get('computed'), 'value');
-  });
+    _class.prototype['@test should call computed properties and return their result'] = function testShouldCallComputedPropertiesAndReturnTheirResult(assert) {
+      assert.equal(object.get('computed'), 'value');
+    };
 
-  QUnit.test('should return the function for a non-computed property', function (assert) {
-    var value = object.get('method');
-    assert.equal(typeof value, 'function');
-  });
+    _class.prototype['@test should return the function for a non-computed property'] = function testShouldReturnTheFunctionForANonComputedProperty(assert) {
+      var value = object.get('method');
+      assert.equal(typeof value, 'function');
+    };
 
-  QUnit.test('should return null when property value is null', function (assert) {
-    assert.equal(object.get('nullProperty'), null);
-  });
+    _class.prototype['@test should return null when property value is null'] = function testShouldReturnNullWhenPropertyValueIsNull(assert) {
+      assert.equal(object.get('nullProperty'), null);
+    };
 
-  QUnit.test('should call unknownProperty when value is undefined', function (assert) {
-    assert.equal(object.get('unknown'), 'unknown');
-    assert.equal(object.lastUnknownProperty, 'unknown');
-  });
+    _class.prototype['@test should call unknownProperty when value is undefined'] = function testShouldCallUnknownPropertyWhenValueIsUndefined(assert) {
+      assert.equal(object.get('unknown'), 'unknown');
+      assert.equal(object.lastUnknownProperty, 'unknown');
+    };
 
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
   // ..........................................................
   // Ember.GET()
   //
-  QUnit.module('Ember.get()', {
-    beforeEach: function () {
+  (0, _internalTestHelpers.moduleFor)('Ember.get()', function (_AbstractTestCase2) {
+    (0, _emberBabel.inherits)(_class2, _AbstractTestCase2);
+
+    function _class2() {
+      (0, _emberBabel.classCallCheck)(this, _class2);
+      return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase2.apply(this, arguments));
+    }
+
+    _class2.prototype.beforeEach = function beforeEach() {
       objectA = ObservableObject.extend({
         computed: (0, _emberMetal.computed)(function () {
           return 'value';
@@ -52568,83 +52592,93 @@ enifed('ember-runtime/tests/legacy_1x/mixins/observable/observable_test', ['embe
         normal: 'value',
         nullProperty: null
       };
-    }
-  });
-
-  QUnit.test('should get normal properties on Ember.Observable', function (assert) {
-    assert.equal((0, _emberMetal.get)(objectA, 'normal'), 'value');
-  });
-
-  QUnit.test('should call computed properties on Ember.Observable and return their result', function (assert) {
-    assert.equal((0, _emberMetal.get)(objectA, 'computed'), 'value');
-  });
-
-  QUnit.test('should return the function for a non-computed property on Ember.Observable', function (assert) {
-    var value = (0, _emberMetal.get)(objectA, 'method');
-    assert.equal(typeof value, 'function');
-  });
-
-  QUnit.test('should return null when property value is null on Ember.Observable', function (assert) {
-    assert.equal((0, _emberMetal.get)(objectA, 'nullProperty'), null);
-  });
-
-  QUnit.test('should call unknownProperty when value is undefined on Ember.Observable', function (assert) {
-    assert.equal((0, _emberMetal.get)(objectA, 'unknown'), 'unknown');
-    assert.equal(objectA.lastUnknownProperty, 'unknown');
-  });
-
-  QUnit.test('should get normal properties on standard objects', function (assert) {
-    assert.equal((0, _emberMetal.get)(objectB, 'normal'), 'value');
-  });
-
-  QUnit.test('should return null when property is null on standard objects', function (assert) {
-    assert.equal((0, _emberMetal.get)(objectB, 'nullProperty'), null);
-  });
-
-  /*
-  QUnit.test("raise if the provided object is null", function() {
-    throws(function() {
-      get(null, 'key');
-    });
-  });
-  */
-
-  QUnit.test('raise if the provided object is undefined', function () {
-    expectAssertion(function () {
-      (0, _emberMetal.get)(undefined, 'key');
-    }, /Cannot call get with 'key' on an undefined object/i);
-  });
-
-  QUnit.module('Ember.get() with paths');
-
-  QUnit.test('should return a property at a given path relative to the passed object', function (assert) {
-    var foo = ObservableObject.create({
-      bar: ObservableObject.extend({
-        baz: (0, _emberMetal.computed)(function () {
-          return 'blargh';
-        }).volatile()
-      }).create()
-    });
-
-    assert.equal((0, _emberMetal.get)(foo, 'bar.baz'), 'blargh');
-  });
-
-  QUnit.test('should return a property at a given path relative to the passed object - JavaScript hash', function (assert) {
-    var foo = {
-      bar: {
-        baz: 'blargh'
-      }
     };
 
-    assert.equal((0, _emberMetal.get)(foo, 'bar.baz'), 'blargh');
-  });
+    _class2.prototype['@test should get normal properties on Ember.Observable'] = function testShouldGetNormalPropertiesOnEmberObservable(assert) {
+      assert.equal((0, _emberMetal.get)(objectA, 'normal'), 'value');
+    };
+
+    _class2.prototype['@test should call computed properties on Ember.Observable and return their result'] = function testShouldCallComputedPropertiesOnEmberObservableAndReturnTheirResult(assert) {
+      assert.equal((0, _emberMetal.get)(objectA, 'computed'), 'value');
+    };
+
+    _class2.prototype['@test should return the function for a non-computed property on Ember.Observable'] = function testShouldReturnTheFunctionForANonComputedPropertyOnEmberObservable(assert) {
+      var value = (0, _emberMetal.get)(objectA, 'method');
+      assert.equal(typeof value, 'function');
+    };
+
+    _class2.prototype['@test should return null when property value is null on Ember.Observable'] = function testShouldReturnNullWhenPropertyValueIsNullOnEmberObservable(assert) {
+      assert.equal((0, _emberMetal.get)(objectA, 'nullProperty'), null);
+    };
+
+    _class2.prototype['@test should call unknownProperty when value is undefined on Ember.Observable'] = function testShouldCallUnknownPropertyWhenValueIsUndefinedOnEmberObservable(assert) {
+      assert.equal((0, _emberMetal.get)(objectA, 'unknown'), 'unknown');
+      assert.equal(objectA.lastUnknownProperty, 'unknown');
+    };
+
+    _class2.prototype['@test should get normal properties on standard objects'] = function testShouldGetNormalPropertiesOnStandardObjects(assert) {
+      assert.equal((0, _emberMetal.get)(objectB, 'normal'), 'value');
+    };
+
+    _class2.prototype['@test should return null when property is null on standard objects'] = function testShouldReturnNullWhenPropertyIsNullOnStandardObjects(assert) {
+      assert.equal((0, _emberMetal.get)(objectB, 'nullProperty'), null);
+    };
+
+    _class2.prototype['@test raise if the provided object is undefined'] = function testRaiseIfTheProvidedObjectIsUndefined() {
+      expectAssertion(function () {
+        (0, _emberMetal.get)(undefined, 'key');
+      }, /Cannot call get with 'key' on an undefined object/i);
+    };
+
+    return _class2;
+  }(_internalTestHelpers.AbstractTestCase));
+
+  (0, _internalTestHelpers.moduleFor)('Ember.get() with paths', function (_AbstractTestCase3) {
+    (0, _emberBabel.inherits)(_class3, _AbstractTestCase3);
+
+    function _class3() {
+      (0, _emberBabel.classCallCheck)(this, _class3);
+      return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase3.apply(this, arguments));
+    }
+
+    _class3.prototype['@test should return a property at a given path relative to the passed object'] = function testShouldReturnAPropertyAtAGivenPathRelativeToThePassedObject(assert) {
+      var foo = ObservableObject.create({
+        bar: ObservableObject.extend({
+          baz: (0, _emberMetal.computed)(function () {
+            return 'blargh';
+          }).volatile()
+        }).create()
+      });
+
+      assert.equal((0, _emberMetal.get)(foo, 'bar.baz'), 'blargh');
+    };
+
+    _class3.prototype['@test should return a property at a given path relative to the passed object - JavaScript hash'] = function testShouldReturnAPropertyAtAGivenPathRelativeToThePassedObjectJavaScriptHash(assert) {
+      var foo = {
+        bar: {
+          baz: 'blargh'
+        }
+      };
+
+      assert.equal((0, _emberMetal.get)(foo, 'bar.baz'), 'blargh');
+    };
+
+    return _class3;
+  }(_internalTestHelpers.AbstractTestCase));
 
   // ..........................................................
   // SET()
   //
 
-  QUnit.module('object.set()', {
-    beforeEach: function () {
+  (0, _internalTestHelpers.moduleFor)('object.set()', function (_AbstractTestCase4) {
+    (0, _emberBabel.inherits)(_class4, _AbstractTestCase4);
+
+    function _class4() {
+      (0, _emberBabel.classCallCheck)(this, _class4);
+      return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase4.apply(this, arguments));
+    }
+
+    _class4.prototype.beforeEach = function beforeEach() {
       object = ObservableObject.extend({
         computed: (0, _emberMetal.computed)({
           get: function () {
@@ -52684,52 +52718,61 @@ enifed('ember-runtime/tests/legacy_1x/mixins/observable/observable_test', ['embe
         // unknown property
         _unknown: 'unknown'
       }).create();
-    }
-  });
+    };
 
-  QUnit.test('should change normal properties and return the value', function (assert) {
-    var ret = object.set('normal', 'changed');
-    assert.equal(object.get('normal'), 'changed');
-    assert.equal(ret, 'changed');
-  });
+    _class4.prototype['@test should change normal properties and return the value'] = function testShouldChangeNormalPropertiesAndReturnTheValue(assert) {
+      var ret = object.set('normal', 'changed');
+      assert.equal(object.get('normal'), 'changed');
+      assert.equal(ret, 'changed');
+    };
 
-  QUnit.test('should call computed properties passing value and return the value', function (assert) {
-    var ret = object.set('computed', 'changed');
-    assert.equal(object.get('_computed'), 'changed');
-    assert.equal(ret, 'changed');
-  });
+    _class4.prototype['@test should call computed properties passing value and return the value'] = function testShouldCallComputedPropertiesPassingValueAndReturnTheValue(assert) {
+      var ret = object.set('computed', 'changed');
+      assert.equal(object.get('_computed'), 'changed');
+      assert.equal(ret, 'changed');
+    };
 
-  QUnit.test('should change normal properties when passing undefined', function (assert) {
-    var ret = object.set('normal', undefined);
-    assert.equal(object.get('normal'), undefined);
-    assert.equal(ret, undefined);
-  });
+    _class4.prototype['@test should change normal properties when passing undefined'] = function testShouldChangeNormalPropertiesWhenPassingUndefined(assert) {
+      var ret = object.set('normal', undefined);
+      assert.equal(object.get('normal'), undefined);
+      assert.equal(ret, undefined);
+    };
 
-  QUnit.test('should replace the function for a non-computed property and return the value', function (assert) {
-    var ret = object.set('method', 'changed');
-    assert.equal(object.get('_method'), 'method'); // make sure this was NOT run
-    assert.ok(typeof object.get('method') !== 'function');
-    assert.equal(ret, 'changed');
-  });
+    _class4.prototype['@test should replace the function for a non-computed property and return the value'] = function testShouldReplaceTheFunctionForANonComputedPropertyAndReturnTheValue(assert) {
+      var ret = object.set('method', 'changed');
+      assert.equal(object.get('_method'), 'method'); // make sure this was NOT run
+      assert.ok(typeof object.get('method') !== 'function');
+      assert.equal(ret, 'changed');
+    };
 
-  QUnit.test('should replace prover when property value is null', function (assert) {
-    var ret = object.set('nullProperty', 'changed');
-    assert.equal(object.get('nullProperty'), 'changed');
-    assert.equal(ret, 'changed');
-  });
+    _class4.prototype['@test should replace prover when property value is null'] = function testShouldReplaceProverWhenPropertyValueIsNull(assert) {
+      var ret = object.set('nullProperty', 'changed');
+      assert.equal(object.get('nullProperty'), 'changed');
+      assert.equal(ret, 'changed');
+    };
 
-  QUnit.test('should call unknownProperty with value when property is undefined', function (assert) {
-    var ret = object.set('unknown', 'changed');
-    assert.equal(object.get('_unknown'), 'changed');
-    assert.equal(ret, 'changed');
-  });
+    _class4.prototype['@test should call unknownProperty with value when property is undefined'] = function testShouldCallUnknownPropertyWithValueWhenPropertyIsUndefined(assert) {
+      var ret = object.set('unknown', 'changed');
+      assert.equal(object.get('_unknown'), 'changed');
+      assert.equal(ret, 'changed');
+    };
+
+    return _class4;
+  }(_internalTestHelpers.AbstractTestCase));
 
   // ..........................................................
   // COMPUTED PROPERTIES
   //
 
-  QUnit.module('Computed properties', {
-    beforeEach: function () {
+  (0, _internalTestHelpers.moduleFor)('Computed properties', function (_AbstractTestCase5) {
+    (0, _emberBabel.inherits)(_class5, _AbstractTestCase5);
+
+    function _class5() {
+      (0, _emberBabel.classCallCheck)(this, _class5);
+      return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase5.apply(this, arguments));
+    }
+
+    _class5.prototype.beforeEach = function beforeEach() {
       lookup = _emberEnvironment.context.lookup = {};
 
       object = ObservableObject.extend({
@@ -52822,249 +52865,257 @@ enifed('ember-runtime/tests/legacy_1x/mixins/observable/observable_test', ['embe
         nestedIncCallCount: 0,
         state: 'on'
       });
-    },
-    afterEach: function () {
+    };
+
+    _class5.prototype.afterEach = function afterEach() {
       _emberEnvironment.context.lookup = originalLookup;
-    }
-  });
+    };
 
-  QUnit.test('getting values should call function return value', function (assert) {
-    // get each property twice. Verify return.
-    var keys = (0, _string.w)('computed computedCached dependent dependentFront dependentCached');
+    _class5.prototype['@test getting values should call function return value'] = function testGettingValuesShouldCallFunctionReturnValue(assert) {
+      // get each property twice. Verify return.
+      var keys = (0, _string.w)('computed computedCached dependent dependentFront dependentCached');
 
-    keys.forEach(function (key) {
-      assert.equal(object.get(key), key, 'Try #1: object.get(' + key + ') should run function');
-      assert.equal(object.get(key), key, 'Try #2: object.get(' + key + ') should run function');
-    });
+      keys.forEach(function (key) {
+        assert.equal(object.get(key), key, 'Try #1: object.get(' + key + ') should run function');
+        assert.equal(object.get(key), key, 'Try #2: object.get(' + key + ') should run function');
+      });
 
-    // verify each call count.  cached should only be called once
-    (0, _string.w)('computedCalls dependentFrontCalls dependentCalls').forEach(function (key) {
-      assert.equal(object[key].length, 2, 'non-cached property ' + key + ' should be called 2x');
-    });
+      // verify each call count.  cached should only be called once
+      (0, _string.w)('computedCalls dependentFrontCalls dependentCalls').forEach(function (key) {
+        assert.equal(object[key].length, 2, 'non-cached property ' + key + ' should be called 2x');
+      });
 
-    (0, _string.w)('computedCachedCalls dependentCachedCalls').forEach(function (key) {
-      assert.equal(object[key].length, 1, 'non-cached property ' + key + ' should be called 1x');
-    });
-  });
+      (0, _string.w)('computedCachedCalls dependentCachedCalls').forEach(function (key) {
+        assert.equal(object[key].length, 1, 'non-cached property ' + key + ' should be called 1x');
+      });
+    };
 
-  QUnit.test('setting values should call function return value', function (assert) {
-    // get each property twice. Verify return.
-    var keys = (0, _string.w)('computed dependent dependentFront computedCached dependentCached');
-    var values = (0, _string.w)('value1 value2');
+    _class5.prototype['@test setting values should call function return value'] = function testSettingValuesShouldCallFunctionReturnValue(assert) {
+      // get each property twice. Verify return.
+      var keys = (0, _string.w)('computed dependent dependentFront computedCached dependentCached');
+      var values = (0, _string.w)('value1 value2');
 
-    keys.forEach(function (key) {
-      assert.equal(object.set(key, values[0]), values[0], 'Try #1: object.set(' + key + ', ' + values[0] + ') should run function');
+      keys.forEach(function (key) {
+        assert.equal(object.set(key, values[0]), values[0], 'Try #1: object.set(' + key + ', ' + values[0] + ') should run function');
 
-      assert.equal(object.set(key, values[1]), values[1], 'Try #2: object.set(' + key + ', ' + values[1] + ') should run function');
+        assert.equal(object.set(key, values[1]), values[1], 'Try #2: object.set(' + key + ', ' + values[1] + ') should run function');
 
-      assert.equal(object.set(key, values[1]), values[1], 'Try #3: object.set(' + key + ', ' + values[1] + ') should not run function since it is setting same value as before');
-    });
+        assert.equal(object.set(key, values[1]), values[1], 'Try #3: object.set(' + key + ', ' + values[1] + ') should not run function since it is setting same value as before');
+      });
 
-    // verify each call count.  cached should only be called once
-    keys.forEach(function (key) {
-      var calls = object[key + 'Calls'];
-      var idx, expectedLength;
+      // verify each call count.  cached should only be called once
+      keys.forEach(function (key) {
+        var calls = object[key + 'Calls'];
+        var idx, expectedLength;
 
-      // Cached properties first check their cached value before setting the
-      // property. Other properties blindly call set.
-      expectedLength = 3;
-      assert.equal(calls.length, expectedLength, 'set(' + key + ') should be called the right amount of times');
-      for (idx = 0; idx < 2; idx++) {
-        assert.equal(calls[idx], values[idx], 'call #' + (idx + 1) + ' to set(' + key + ') should have passed value ' + values[idx]);
-      }
-    });
-  });
+        // Cached properties first check their cached value before setting the
+        // property. Other properties blindly call set.
+        expectedLength = 3;
+        assert.equal(calls.length, expectedLength, 'set(' + key + ') should be called the right amount of times');
+        for (idx = 0; idx < 2; idx++) {
+          assert.equal(calls[idx], values[idx], 'call #' + (idx + 1) + ' to set(' + key + ') should have passed value ' + values[idx]);
+        }
+      });
+    };
 
-  QUnit.test('notify change should clear cache', function (assert) {
-    // call get several times to collect call count
-    object.get('computedCached'); // should run func
-    object.get('computedCached'); // should not run func
+    _class5.prototype['@test notify change should clear cache'] = function testNotifyChangeShouldClearCache(assert) {
+      // call get several times to collect call count
+      object.get('computedCached'); // should run func
+      object.get('computedCached'); // should not run func
 
-    object.propertyWillChange('computedCached').propertyDidChange('computedCached');
+      object.propertyWillChange('computedCached').propertyDidChange('computedCached');
 
-    object.get('computedCached'); // should run again
-    assert.equal(object.computedCachedCalls.length, 2, 'should have invoked method 2x');
-  });
+      object.get('computedCached'); // should run again
+      assert.equal(object.computedCachedCalls.length, 2, 'should have invoked method 2x');
+    };
 
-  QUnit.test('change dependent should clear cache', function (assert) {
-    // call get several times to collect call count
-    var ret1 = object.get('inc'); // should run func
-    assert.equal(object.get('inc'), ret1, 'multiple calls should not run cached prop');
+    _class5.prototype['@test change dependent should clear cache'] = function testChangeDependentShouldClearCache(assert) {
+      // call get several times to collect call count
+      var ret1 = object.get('inc'); // should run func
+      assert.equal(object.get('inc'), ret1, 'multiple calls should not run cached prop');
 
-    object.set('changer', 'bar');
+      object.set('changer', 'bar');
 
-    assert.equal(object.get('inc'), ret1 + 1, 'should increment after dependent key changes'); // should run again
-  });
-
-  QUnit.test('just notifying change of dependent should clear cache', function (assert) {
-    // call get several times to collect call count
-    var ret1 = object.get('inc'); // should run func
-    assert.equal(object.get('inc'), ret1, 'multiple calls should not run cached prop');
-
-    object.notifyPropertyChange('changer');
-
-    assert.equal(object.get('inc'), ret1 + 1, 'should increment after dependent key changes'); // should run again
-  });
-
-  QUnit.test('changing dependent should clear nested cache', function (assert) {
-    // call get several times to collect call count
-    var ret1 = object.get('nestedInc'); // should run func
-    assert.equal(object.get('nestedInc'), ret1, 'multiple calls should not run cached prop');
-
-    object.set('changer', 'bar');
-
-    assert.equal(object.get('nestedInc'), ret1 + 1, 'should increment after dependent key changes'); // should run again
-  });
-
-  QUnit.test('just notifying change of dependent should clear nested cache', function (assert) {
-    // call get several times to collect call count
-    var ret1 = object.get('nestedInc'); // should run func
-    assert.equal(object.get('nestedInc'), ret1, 'multiple calls should not run cached prop');
-
-    object.notifyPropertyChange('changer');
-
-    assert.equal(object.get('nestedInc'), ret1 + 1, 'should increment after dependent key changes'); // should run again
-  });
-
-  // This verifies a specific bug encountered where observers for computed
-  // properties would fire before their prop caches were cleared.
-  QUnit.test('change dependent should clear cache when observers of dependent are called', function (assert) {
-    // call get several times to collect call count
-    var ret1 = object.get('inc'); // should run func
-    assert.equal(object.get('inc'), ret1, 'multiple calls should not run cached prop');
-
-    // add observer to verify change...
-    object.addObserver('inc', this, function () {
       assert.equal(object.get('inc'), ret1 + 1, 'should increment after dependent key changes'); // should run again
-    });
+    };
 
-    // now run
-    object.set('changer', 'bar');
-  });
+    _class5.prototype['@test just notifying change of dependent should clear cache'] = function testJustNotifyingChangeOfDependentShouldClearCache(assert) {
+      // call get several times to collect call count
+      var ret1 = object.get('inc'); // should run func
+      assert.equal(object.get('inc'), ret1, 'multiple calls should not run cached prop');
 
-  QUnit.test('setting one of two computed properties that depend on a third property should clear the kvo cache', function (assert) {
-    // we have to call set twice to fill up the cache
-    object.set('isOff', true);
-    object.set('isOn', true);
+      object.notifyPropertyChange('changer');
 
-    // setting isOff to true should clear the kvo cache
-    object.set('isOff', true);
-    assert.equal(object.get('isOff'), true, 'object.isOff should be true');
-    assert.equal(object.get('isOn'), false, 'object.isOn should be false');
-  });
+      assert.equal(object.get('inc'), ret1 + 1, 'should increment after dependent key changes'); // should run again
+    };
 
-  QUnit.test('dependent keys should be able to be specified as property paths', function (assert) {
-    var depObj = ObservableObject.extend({
-      menuPrice: (0, _emberMetal.computed)(function () {
-        return this.get('menu.price');
-      }).property('menu.price')
-    }).create({
-      menu: ObservableObject.create({
-        price: 5
-      })
-    });
+    _class5.prototype['@test changing dependent should clear nested cache'] = function testChangingDependentShouldClearNestedCache(assert) {
+      // call get several times to collect call count
+      var ret1 = object.get('nestedInc'); // should run func
+      assert.equal(object.get('nestedInc'), ret1, 'multiple calls should not run cached prop');
 
-    assert.equal(depObj.get('menuPrice'), 5, 'precond - initial value returns 5');
+      object.set('changer', 'bar');
 
-    depObj.set('menu.price', 6);
+      assert.equal(object.get('nestedInc'), ret1 + 1, 'should increment after dependent key changes'); // should run again
+    };
 
-    assert.equal(depObj.get('menuPrice'), 6, 'cache is properly invalidated after nested property changes');
-  });
+    _class5.prototype['@test just notifying change of dependent should clear nested cache'] = function testJustNotifyingChangeOfDependentShouldClearNestedCache(assert) {
+      // call get several times to collect call count
+      var ret1 = object.get('nestedInc'); // should run func
+      assert.equal(object.get('nestedInc'), ret1, 'multiple calls should not run cached prop');
 
-  QUnit.test('nested dependent keys should propagate after they update', function (assert) {
-    var bindObj;
-    (0, _emberMetal.run)(function () {
-      lookup.DepObj = ObservableObject.extend({
-        price: (0, _emberMetal.computed)(function () {
-          return this.get('restaurant.menu.price');
-        }).property('restaurant.menu.price')
+      object.notifyPropertyChange('changer');
+
+      assert.equal(object.get('nestedInc'), ret1 + 1, 'should increment after dependent key changes'); // should run again
+    };
+
+    _class5.prototype['@test change dependent should clear cache when observers of dependent are called'] = function testChangeDependentShouldClearCacheWhenObserversOfDependentAreCalled(assert) {
+      // call get several times to collect call count
+      var ret1 = object.get('inc'); // should run func
+      assert.equal(object.get('inc'), ret1, 'multiple calls should not run cached prop');
+
+      // add observer to verify change...
+      object.addObserver('inc', this, function () {
+        assert.equal(object.get('inc'), ret1 + 1, 'should increment after dependent key changes'); // should run again
+      });
+
+      // now run
+      object.set('changer', 'bar');
+    };
+
+    _class5.prototype['@test setting one of two computed properties that depend on a third property should clear the kvo cache'] = function testSettingOneOfTwoComputedPropertiesThatDependOnAThirdPropertyShouldClearTheKvoCache(assert) {
+      // we have to call set twice to fill up the cache
+      object.set('isOff', true);
+      object.set('isOn', true);
+
+      // setting isOff to true should clear the kvo cache
+      object.set('isOff', true);
+      assert.equal(object.get('isOff'), true, 'object.isOff should be true');
+      assert.equal(object.get('isOn'), false, 'object.isOn should be false');
+    };
+
+    _class5.prototype['@test dependent keys should be able to be specified as property paths'] = function testDependentKeysShouldBeAbleToBeSpecifiedAsPropertyPaths(assert) {
+      var depObj = ObservableObject.extend({
+        menuPrice: (0, _emberMetal.computed)(function () {
+          return this.get('menu.price');
+        }).property('menu.price')
       }).create({
-        restaurant: ObservableObject.create({
-          menu: ObservableObject.create({
-            price: 5
-          })
+        menu: ObservableObject.create({
+          price: 5
         })
       });
 
-      expectDeprecation(function () {
-        bindObj = ObservableObject.extend({
-          priceBinding: 'DepObj.price'
-        }).create();
-      }, /`Ember.Binding` is deprecated/);
-    });
+      assert.equal(depObj.get('menuPrice'), 5, 'precond - initial value returns 5');
 
-    assert.equal(bindObj.get('price'), 5, 'precond - binding propagates');
+      depObj.set('menu.price', 6);
 
-    (0, _emberMetal.run)(function () {
-      lookup.DepObj.set('restaurant.menu.price', 10);
-    });
+      assert.equal(depObj.get('menuPrice'), 6, 'cache is properly invalidated after nested property changes');
+    };
 
-    assert.equal(bindObj.get('price'), 10, 'binding propagates after a nested dependent keys updates');
-
-    (0, _emberMetal.run)(function () {
-      lookup.DepObj.set('restaurant.menu', ObservableObject.create({
-        price: 15
-      }));
-    });
-
-    assert.equal(bindObj.get('price'), 15, 'binding propagates after a middle dependent keys updates');
-  });
-
-  QUnit.test('cacheable nested dependent keys should clear after their dependencies update', function (assert) {
-    assert.ok(true);
-
-    var DepObj;
-
-    (0, _emberMetal.run)(function () {
-      lookup.DepObj = DepObj = ObservableObject.extend({
-        price: (0, _emberMetal.computed)('restaurant.menu.price', function () {
-          return this.get('restaurant.menu.price');
-        })
-      }).create({
-        restaurant: ObservableObject.create({
-          menu: ObservableObject.create({
-            price: 5
+    _class5.prototype['@test nested dependent keys should propagate after they update'] = function testNestedDependentKeysShouldPropagateAfterTheyUpdate(assert) {
+      var bindObj;
+      (0, _emberMetal.run)(function () {
+        lookup.DepObj = ObservableObject.extend({
+          price: (0, _emberMetal.computed)(function () {
+            return this.get('restaurant.menu.price');
+          }).property('restaurant.menu.price')
+        }).create({
+          restaurant: ObservableObject.create({
+            menu: ObservableObject.create({
+              price: 5
+            })
           })
-        })
+        });
+
+        expectDeprecation(function () {
+          bindObj = ObservableObject.extend({
+            priceBinding: 'DepObj.price'
+          }).create();
+        }, /`Ember.Binding` is deprecated/);
       });
-    });
 
-    assert.equal(DepObj.get('price'), 5, 'precond - computed property is correct');
+      assert.equal(bindObj.get('price'), 5, 'precond - binding propagates');
 
-    (0, _emberMetal.run)(function () {
-      DepObj.set('restaurant.menu.price', 10);
-    });
-    assert.equal(DepObj.get('price'), 10, 'cacheable computed properties are invalidated even if no run loop occurred');
+      (0, _emberMetal.run)(function () {
+        lookup.DepObj.set('restaurant.menu.price', 10);
+      });
 
-    (0, _emberMetal.run)(function () {
-      DepObj.set('restaurant.menu.price', 20);
-    });
-    assert.equal(DepObj.get('price'), 20, 'cacheable computed properties are invalidated after a second get before a run loop');
-    assert.equal(DepObj.get('price'), 20, 'precond - computed properties remain correct after a run loop');
+      assert.equal(bindObj.get('price'), 10, 'binding propagates after a nested dependent keys updates');
 
-    (0, _emberMetal.run)(function () {
-      DepObj.set('restaurant.menu', ObservableObject.create({
-        price: 15
-      }));
-    });
+      (0, _emberMetal.run)(function () {
+        lookup.DepObj.set('restaurant.menu', ObservableObject.create({
+          price: 15
+        }));
+      });
 
-    assert.equal(DepObj.get('price'), 15, 'cacheable computed properties are invalidated after a middle property changes');
+      assert.equal(bindObj.get('price'), 15, 'binding propagates after a middle dependent keys updates');
+    };
 
-    (0, _emberMetal.run)(function () {
-      DepObj.set('restaurant.menu', ObservableObject.create({
-        price: 25
-      }));
-    });
+    _class5.prototype['@test cacheable nested dependent keys should clear after their dependencies update'] = function testCacheableNestedDependentKeysShouldClearAfterTheirDependenciesUpdate(assert) {
+      assert.ok(true);
 
-    assert.equal(DepObj.get('price'), 25, 'cacheable computed properties are invalidated after a middle property changes again, before a run loop');
-  });
+      var DepObj;
+
+      (0, _emberMetal.run)(function () {
+        lookup.DepObj = DepObj = ObservableObject.extend({
+          price: (0, _emberMetal.computed)('restaurant.menu.price', function () {
+            return this.get('restaurant.menu.price');
+          })
+        }).create({
+          restaurant: ObservableObject.create({
+            menu: ObservableObject.create({
+              price: 5
+            })
+          })
+        });
+      });
+
+      assert.equal(DepObj.get('price'), 5, 'precond - computed property is correct');
+
+      (0, _emberMetal.run)(function () {
+        DepObj.set('restaurant.menu.price', 10);
+      });
+      assert.equal(DepObj.get('price'), 10, 'cacheable computed properties are invalidated even if no run loop occurred');
+
+      (0, _emberMetal.run)(function () {
+        DepObj.set('restaurant.menu.price', 20);
+      });
+      assert.equal(DepObj.get('price'), 20, 'cacheable computed properties are invalidated after a second get before a run loop');
+      assert.equal(DepObj.get('price'), 20, 'precond - computed properties remain correct after a run loop');
+
+      (0, _emberMetal.run)(function () {
+        DepObj.set('restaurant.menu', ObservableObject.create({
+          price: 15
+        }));
+      });
+
+      assert.equal(DepObj.get('price'), 15, 'cacheable computed properties are invalidated after a middle property changes');
+
+      (0, _emberMetal.run)(function () {
+        DepObj.set('restaurant.menu', ObservableObject.create({
+          price: 25
+        }));
+      });
+
+      assert.equal(DepObj.get('price'), 25, 'cacheable computed properties are invalidated after a middle property changes again, before a run loop');
+    };
+
+    return _class5;
+  }(_internalTestHelpers.AbstractTestCase));
 
   // ..........................................................
   // OBSERVABLE OBJECTS
   //
 
-  QUnit.module('Observable objects & object properties ', {
-    beforeEach: function () {
+  (0, _internalTestHelpers.moduleFor)('Observable objects & object properties ', function (_AbstractTestCase6) {
+    (0, _emberBabel.inherits)(_class6, _AbstractTestCase6);
+
+    function _class6() {
+      (0, _emberBabel.classCallCheck)(this, _class6);
+      return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase6.apply(this, arguments));
+    }
+
+    _class6.prototype.beforeEach = function beforeEach() {
       object = ObservableObject.extend({
         getEach: function () {
           var keys = ['normal', 'abnormal'];
@@ -53095,78 +53146,87 @@ enifed('ember-runtime/tests/legacy_1x/mixins/observable/observable_test', ['embe
         testRemove: 'observerToBeRemoved',
         normalArray: (0, _native_array.A)([1, 2, 3, 4, 5])
       });
+    };
+
+    _class6.prototype['@test incrementProperty and decrementProperty'] = function testIncrementPropertyAndDecrementProperty(assert) {
+      var newValue = object.incrementProperty('numberVal');
+
+      assert.equal(25, newValue, 'numerical value incremented');
+      object.numberVal = 24;
+      newValue = object.decrementProperty('numberVal');
+      assert.equal(23, newValue, 'numerical value decremented');
+      object.numberVal = 25;
+      newValue = object.incrementProperty('numberVal', 5);
+      assert.equal(30, newValue, 'numerical value incremented by specified increment');
+      object.numberVal = 25;
+      newValue = object.incrementProperty('numberVal', -5);
+      assert.equal(20, newValue, 'minus numerical value incremented by specified increment');
+      object.numberVal = 25;
+      newValue = object.incrementProperty('numberVal', 0);
+      assert.equal(25, newValue, 'zero numerical value incremented by specified increment');
+
+      expectAssertion(function () {
+        newValue = object.incrementProperty('numberVal', 0 - void 0); // Increment by NaN
+      }, /Must pass a numeric value to incrementProperty/i);
+
+      expectAssertion(function () {
+        newValue = object.incrementProperty('numberVal', 'Ember'); // Increment by non-numeric String
+      }, /Must pass a numeric value to incrementProperty/i);
+
+      expectAssertion(function () {
+        newValue = object.incrementProperty('numberVal', 1 / 0); // Increment by Infinity
+      }, /Must pass a numeric value to incrementProperty/i);
+
+      assert.equal(25, newValue, 'Attempting to increment by non-numeric values should not increment value');
+
+      object.numberVal = 25;
+      newValue = object.decrementProperty('numberVal', 5);
+      assert.equal(20, newValue, 'numerical value decremented by specified increment');
+      object.numberVal = 25;
+      newValue = object.decrementProperty('numberVal', -5);
+      assert.equal(30, newValue, 'minus numerical value decremented by specified increment');
+      object.numberVal = 25;
+      newValue = object.decrementProperty('numberVal', 0);
+      assert.equal(25, newValue, 'zero numerical value decremented by specified increment');
+
+      expectAssertion(function () {
+        newValue = object.decrementProperty('numberVal', 0 - void 0); // Decrement by NaN
+      }, /Must pass a numeric value to decrementProperty/i);
+
+      expectAssertion(function () {
+        newValue = object.decrementProperty('numberVal', 'Ember'); // Decrement by non-numeric String
+      }, /Must pass a numeric value to decrementProperty/i);
+
+      expectAssertion(function () {
+        newValue = object.decrementProperty('numberVal', 1 / 0); // Decrement by Infinity
+      }, /Must pass a numeric value to decrementProperty/i);
+
+      assert.equal(25, newValue, 'Attempting to decrement by non-numeric values should not decrement value');
+    };
+
+    _class6.prototype['@test toggle function, should be boolean'] = function testToggleFunctionShouldBeBoolean(assert) {
+      assert.equal(object.toggleProperty('toggleVal', true, false), object.get('toggleVal'));
+      assert.equal(object.toggleProperty('toggleVal', true, false), object.get('toggleVal'));
+      assert.equal(object.toggleProperty('toggleVal', undefined, undefined), object.get('toggleVal'));
+    };
+
+    _class6.prototype['@test should notify array observer when array changes'] = function testShouldNotifyArrayObserverWhenArrayChanges(assert) {
+      (0, _emberMetal.get)(object, 'normalArray').replace(0, 0, [6]);
+      assert.equal(object.abnormal, 'notifiedObserver', 'observer should be notified');
+    };
+
+    return _class6;
+  }(_internalTestHelpers.AbstractTestCase));
+
+  (0, _internalTestHelpers.moduleFor)('object.addObserver()', function (_AbstractTestCase7) {
+    (0, _emberBabel.inherits)(_class7, _AbstractTestCase7);
+
+    function _class7() {
+      (0, _emberBabel.classCallCheck)(this, _class7);
+      return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase7.apply(this, arguments));
     }
-  });
 
-  QUnit.test('incrementProperty and decrementProperty', function (assert) {
-    var newValue = object.incrementProperty('numberVal');
-
-    assert.equal(25, newValue, 'numerical value incremented');
-    object.numberVal = 24;
-    newValue = object.decrementProperty('numberVal');
-    assert.equal(23, newValue, 'numerical value decremented');
-    object.numberVal = 25;
-    newValue = object.incrementProperty('numberVal', 5);
-    assert.equal(30, newValue, 'numerical value incremented by specified increment');
-    object.numberVal = 25;
-    newValue = object.incrementProperty('numberVal', -5);
-    assert.equal(20, newValue, 'minus numerical value incremented by specified increment');
-    object.numberVal = 25;
-    newValue = object.incrementProperty('numberVal', 0);
-    assert.equal(25, newValue, 'zero numerical value incremented by specified increment');
-
-    expectAssertion(function () {
-      newValue = object.incrementProperty('numberVal', 0 - void 0); // Increment by NaN
-    }, /Must pass a numeric value to incrementProperty/i);
-
-    expectAssertion(function () {
-      newValue = object.incrementProperty('numberVal', 'Ember'); // Increment by non-numeric String
-    }, /Must pass a numeric value to incrementProperty/i);
-
-    expectAssertion(function () {
-      newValue = object.incrementProperty('numberVal', 1 / 0); // Increment by Infinity
-    }, /Must pass a numeric value to incrementProperty/i);
-
-    assert.equal(25, newValue, 'Attempting to increment by non-numeric values should not increment value');
-
-    object.numberVal = 25;
-    newValue = object.decrementProperty('numberVal', 5);
-    assert.equal(20, newValue, 'numerical value decremented by specified increment');
-    object.numberVal = 25;
-    newValue = object.decrementProperty('numberVal', -5);
-    assert.equal(30, newValue, 'minus numerical value decremented by specified increment');
-    object.numberVal = 25;
-    newValue = object.decrementProperty('numberVal', 0);
-    assert.equal(25, newValue, 'zero numerical value decremented by specified increment');
-
-    expectAssertion(function () {
-      newValue = object.decrementProperty('numberVal', 0 - void 0); // Decrement by NaN
-    }, /Must pass a numeric value to decrementProperty/i);
-
-    expectAssertion(function () {
-      newValue = object.decrementProperty('numberVal', 'Ember'); // Decrement by non-numeric String
-    }, /Must pass a numeric value to decrementProperty/i);
-
-    expectAssertion(function () {
-      newValue = object.decrementProperty('numberVal', 1 / 0); // Decrement by Infinity
-    }, /Must pass a numeric value to decrementProperty/i);
-
-    assert.equal(25, newValue, 'Attempting to decrement by non-numeric values should not decrement value');
-  });
-
-  QUnit.test('toggle function, should be boolean', function (assert) {
-    assert.equal(object.toggleProperty('toggleVal', true, false), object.get('toggleVal'));
-    assert.equal(object.toggleProperty('toggleVal', true, false), object.get('toggleVal'));
-    assert.equal(object.toggleProperty('toggleVal', undefined, undefined), object.get('toggleVal'));
-  });
-
-  QUnit.test('should notify array observer when array changes', function (assert) {
-    (0, _emberMetal.get)(object, 'normalArray').replace(0, 0, [6]);
-    assert.equal(object.abnormal, 'notifiedObserver', 'observer should be notified');
-  });
-
-  QUnit.module('object.addObserver()', {
-    beforeEach: function () {
+    _class7.prototype.beforeEach = function beforeEach() {
       ObjectC = ObservableObject.create({
         objectE: ObservableObject.create({
           propertyVal: 'chainedProperty'
@@ -53187,26 +53247,35 @@ enifed('ember-runtime/tests/legacy_1x/mixins/observable/observable_test', ['embe
           this.normal2 = 'chainedPropertyObserved';
         }
       });
+    };
+
+    _class7.prototype['@test should register an observer for a property'] = function testShouldRegisterAnObserverForAProperty(assert) {
+      ObjectC.addObserver('normal', ObjectC, 'action');
+      ObjectC.set('normal', 'newValue');
+      assert.equal(ObjectC.normal1, 'newZeroValue');
+    };
+
+    _class7.prototype['@test should register an observer for a property - Special case of chained property'] = function testShouldRegisterAnObserverForAPropertySpecialCaseOfChainedProperty(assert) {
+      ObjectC.addObserver('objectE.propertyVal', ObjectC, 'chainedObserver');
+      ObjectC.objectE.set('propertyVal', 'chainedPropertyValue');
+      assert.equal('chainedPropertyObserved', ObjectC.normal2);
+      ObjectC.normal2 = 'dependentValue';
+      ObjectC.set('objectE', '');
+      assert.equal('chainedPropertyObserved', ObjectC.normal2);
+    };
+
+    return _class7;
+  }(_internalTestHelpers.AbstractTestCase));
+
+  (0, _internalTestHelpers.moduleFor)('object.removeObserver()', function (_AbstractTestCase8) {
+    (0, _emberBabel.inherits)(_class8, _AbstractTestCase8);
+
+    function _class8() {
+      (0, _emberBabel.classCallCheck)(this, _class8);
+      return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase8.apply(this, arguments));
     }
-  });
 
-  QUnit.test('should register an observer for a property', function (assert) {
-    ObjectC.addObserver('normal', ObjectC, 'action');
-    ObjectC.set('normal', 'newValue');
-    assert.equal(ObjectC.normal1, 'newZeroValue');
-  });
-
-  QUnit.test('should register an observer for a property - Special case of chained property', function (assert) {
-    ObjectC.addObserver('objectE.propertyVal', ObjectC, 'chainedObserver');
-    ObjectC.objectE.set('propertyVal', 'chainedPropertyValue');
-    assert.equal('chainedPropertyObserved', ObjectC.normal2);
-    ObjectC.normal2 = 'dependentValue';
-    ObjectC.set('objectE', '');
-    assert.equal('chainedPropertyObserved', ObjectC.normal2);
-  });
-
-  QUnit.module('object.removeObserver()', {
-    beforeEach: function () {
+    _class8.prototype.beforeEach = function beforeEach() {
       ObjectD = ObservableObject.create({
         objectF: ObservableObject.create({
           propertyVal: 'chainedProperty'
@@ -53243,51 +53312,60 @@ enifed('ember-runtime/tests/legacy_1x/mixins/observable/observable_test', ['embe
           // Just an observer
         }
       });
+    };
+
+    _class8.prototype['@test should unregister an observer for a property'] = function testShouldUnregisterAnObserverForAProperty(assert) {
+      ObjectD.addObserver('normal', ObjectD, 'addAction');
+      ObjectD.set('normal', 'newValue');
+      assert.equal(ObjectD.normal1, 'newZeroValue');
+
+      ObjectD.set('normal1', 'zeroValue');
+
+      ObjectD.removeObserver('normal', ObjectD, 'addAction');
+      ObjectD.set('normal', 'newValue');
+      assert.equal(ObjectD.normal1, 'zeroValue');
+    };
+
+    _class8.prototype['@test should unregister an observer for a property - special case when key has a \'.\' in it.'] = function testShouldUnregisterAnObserverForAPropertySpecialCaseWhenKeyHasAInIt(assert) {
+      ObjectD.addObserver('objectF.propertyVal', ObjectD, 'removeChainedObserver');
+      ObjectD.objectF.set('propertyVal', 'chainedPropertyValue');
+      ObjectD.removeObserver('objectF.propertyVal', ObjectD, 'removeChainedObserver');
+      ObjectD.normal2 = 'dependentValue';
+      ObjectD.objectF.set('propertyVal', 'removedPropertyValue');
+      assert.equal('dependentValue', ObjectD.normal2);
+      ObjectD.set('objectF', '');
+      assert.equal('dependentValue', ObjectD.normal2);
+    };
+
+    _class8.prototype['@test removing an observer inside of an observer shouldn’t cause any problems'] = function testRemovingAnObserverInsideOfAnObserverShouldnTCauseAnyProblems(assert) {
+      // The observable system should be protected against clients removing
+      // observers in the middle of observer notification.
+      var encounteredError = false;
+      try {
+        ObjectD.addObserver('observableValue', null, 'observer1');
+        ObjectD.addObserver('observableValue', null, 'observer2');
+        ObjectD.addObserver('observableValue', null, 'observer3');
+        (0, _emberMetal.run)(function () {
+          ObjectD.set('observableValue', 'hi world');
+        });
+      } catch (e) {
+        encounteredError = true;
+      }
+      assert.equal(encounteredError, false);
+    };
+
+    return _class8;
+  }(_internalTestHelpers.AbstractTestCase));
+
+  (0, _internalTestHelpers.moduleFor)('Bind function', function (_AbstractTestCase9) {
+    (0, _emberBabel.inherits)(_class9, _AbstractTestCase9);
+
+    function _class9() {
+      (0, _emberBabel.classCallCheck)(this, _class9);
+      return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase9.apply(this, arguments));
     }
-  });
 
-  QUnit.test('should unregister an observer for a property', function (assert) {
-    ObjectD.addObserver('normal', ObjectD, 'addAction');
-    ObjectD.set('normal', 'newValue');
-    assert.equal(ObjectD.normal1, 'newZeroValue');
-
-    ObjectD.set('normal1', 'zeroValue');
-
-    ObjectD.removeObserver('normal', ObjectD, 'addAction');
-    ObjectD.set('normal', 'newValue');
-    assert.equal(ObjectD.normal1, 'zeroValue');
-  });
-
-  QUnit.test('should unregister an observer for a property - special case when key has a \'.\' in it.', function (assert) {
-    ObjectD.addObserver('objectF.propertyVal', ObjectD, 'removeChainedObserver');
-    ObjectD.objectF.set('propertyVal', 'chainedPropertyValue');
-    ObjectD.removeObserver('objectF.propertyVal', ObjectD, 'removeChainedObserver');
-    ObjectD.normal2 = 'dependentValue';
-    ObjectD.objectF.set('propertyVal', 'removedPropertyValue');
-    assert.equal('dependentValue', ObjectD.normal2);
-    ObjectD.set('objectF', '');
-    assert.equal('dependentValue', ObjectD.normal2);
-  });
-
-  QUnit.test('removing an observer inside of an observer shouldn’t cause any problems', function (assert) {
-    // The observable system should be protected against clients removing
-    // observers in the middle of observer notification.
-    var encounteredError = false;
-    try {
-      ObjectD.addObserver('observableValue', null, 'observer1');
-      ObjectD.addObserver('observableValue', null, 'observer2');
-      ObjectD.addObserver('observableValue', null, 'observer3');
-      (0, _emberMetal.run)(function () {
-        ObjectD.set('observableValue', 'hi world');
-      });
-    } catch (e) {
-      encounteredError = true;
-    }
-    assert.equal(encounteredError, false);
-  });
-
-  QUnit.module('Bind function', {
-    beforeEach: function () {
+    _class9.prototype.beforeEach = function beforeEach() {
       objectA = ObservableObject.create({
         name: 'Sproutcore',
         location: 'Timbaktu'
@@ -53306,52 +53384,51 @@ enifed('ember-runtime/tests/legacy_1x/mixins/observable/observable_test', ['embe
           objectB: objectB
         }
       };
-    },
-    afterEach: function () {
+    };
+
+    _class9.prototype.afterEach = function afterEach() {
       _emberEnvironment.context.lookup = originalLookup;
-    }
-  });
+    };
 
-  QUnit.test('should bind property with method parameter as undefined', function (assert) {
-    // creating binding
-    (0, _emberMetal.run)(function () {
-      expectDeprecation(function () {
-        objectA.bind('name', 'Namespace.objectB.normal', undefined);
-      }, /`Ember.Binding` is deprecated/);
-    });
+    _class9.prototype['@test should bind property with method parameter as undefined'] = function testShouldBindPropertyWithMethodParameterAsUndefined(assert) {
+      // creating binding
+      (0, _emberMetal.run)(function () {
+        expectDeprecation(function () {
+          objectA.bind('name', 'Namespace.objectB.normal', undefined);
+        }, /`Ember.Binding` is deprecated/);
+      });
 
-    // now make a change to see if the binding triggers.
-    (0, _emberMetal.run)(function () {
-      objectB.set('normal', 'changedValue');
-    });
+      // now make a change to see if the binding triggers.
+      (0, _emberMetal.run)(function () {
+        objectB.set('normal', 'changedValue');
+      });
 
-    // support new-style bindings if available
-    assert.equal('changedValue', objectA.get('name'), 'objectA.name is bound');
-  });
+      // support new-style bindings if available
+      assert.equal('changedValue', objectA.get('name'), 'objectA.name is bound');
+    };
 
-  // ..........................................................
-  // SPECIAL CASES
-  //
+    _class9.prototype['@test changing chained observer object to null should not raise exception'] = function testChangingChainedObserverObjectToNullShouldNotRaiseException(assert) {
+      var obj = ObservableObject.create({
+        foo: ObservableObject.create({
+          bar: ObservableObject.create({ bat: 'BAT' })
+        })
+      });
 
-  QUnit.test('changing chained observer object to null should not raise exception', function (assert) {
-    var obj = ObservableObject.create({
-      foo: ObservableObject.create({
-        bar: ObservableObject.create({ bat: 'BAT' })
-      })
-    });
+      var callCount = 0;
+      obj.foo.addObserver('bar.bat', obj, function () {
+        callCount++;
+      });
 
-    var callCount = 0;
-    obj.foo.addObserver('bar.bat', obj, function () {
-      callCount++;
-    });
+      (0, _emberMetal.run)(function () {
+        obj.foo.set('bar', null);
+      });
 
-    (0, _emberMetal.run)(function () {
-      obj.foo.set('bar', null);
-    });
+      assert.equal(callCount, 1, 'changing bar should trigger observer');
+      assert.expect(1);
+    };
 
-    assert.equal(callCount, 1, 'changing bar should trigger observer');
-    assert.expect(1);
-  });
+    return _class9;
+  }(_internalTestHelpers.AbstractTestCase));
 });
 QUnit.module('ESLint | ember-runtime/tests/legacy_1x/mixins/observable/observable_test.js');
 QUnit.test('should pass ESLint', function(assert) {
@@ -53359,14 +53436,8 @@ QUnit.test('should pass ESLint', function(assert) {
   assert.ok(true, 'ember-runtime/tests/legacy_1x/mixins/observable/observable_test.js should pass ESLint\n\n');
 });
 
-enifed('ember-runtime/tests/legacy_1x/mixins/observable/observersForKey_test', ['ember-metal', 'ember-runtime/system/object', 'ember-runtime/mixins/observable'], function (_emberMetal, _object, _observable) {
+enifed('ember-runtime/tests/legacy_1x/mixins/observable/observersForKey_test', ['ember-babel', 'ember-metal', 'ember-runtime/system/object', 'ember-runtime/mixins/observable', 'internal-test-helpers'], function (_emberBabel, _emberMetal, _object, _observable, _internalTestHelpers) {
   'use strict';
-
-  var ObservableObject = _object.default.extend(_observable.default);
-
-  // ..........................................................
-  // GET()
-  //
 
   /*
     NOTE: This test is adapted from the 1.x series of unit tests.  The tests
@@ -53382,29 +53453,44 @@ enifed('ember-runtime/tests/legacy_1x/mixins/observable/observersForKey_test', [
   // Ember.Observable Tests
   // ========================================================================
 
-  QUnit.module('object.observesForKey()');
+  var ObservableObject = _object.default.extend(_observable.default);
 
-  QUnit.test('should get observers', function (assert) {
-    var o1 = ObservableObject.create({ foo: 100 });
-    var o2 = ObservableObject.create({
-      func: function () {}
-    });
-    var o3 = ObservableObject.create({
-      func: function () {}
-    });
-    var observers = null;
+  // ..........................................................
+  // GET()
+  //
 
-    assert.equal((0, _emberMetal.get)(o1.observersForKey('foo'), 'length'), 0, 'o1.observersForKey should return empty array');
+  (0, _internalTestHelpers.moduleFor)('object.observesForKey()', function (_AbstractTestCase) {
+    (0, _emberBabel.inherits)(_class, _AbstractTestCase);
 
-    o1.addObserver('foo', o2, o2.func);
-    o1.addObserver('foo', o3, o3.func);
+    function _class() {
+      (0, _emberBabel.classCallCheck)(this, _class);
+      return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase.apply(this, arguments));
+    }
 
-    observers = o1.observersForKey('foo');
+    _class.prototype['@test should get observers'] = function testShouldGetObservers(assert) {
+      var o1 = ObservableObject.create({ foo: 100 });
+      var o2 = ObservableObject.create({
+        func: function () {}
+      });
+      var o3 = ObservableObject.create({
+        func: function () {}
+      });
+      var observers = null;
 
-    assert.equal((0, _emberMetal.get)(observers, 'length'), 2, 'o2.observersForKey should return an array with length 2');
-    assert.equal(observers[0][0], o2, 'first item in observers array should be o2');
-    assert.equal(observers[1][0], o3, 'second item in observers array should be o3');
-  });
+      assert.equal((0, _emberMetal.get)(o1.observersForKey('foo'), 'length'), 0, 'o1.observersForKey should return empty array');
+
+      o1.addObserver('foo', o2, o2.func);
+      o1.addObserver('foo', o3, o3.func);
+
+      observers = o1.observersForKey('foo');
+
+      assert.equal((0, _emberMetal.get)(observers, 'length'), 2, 'o2.observersForKey should return an array with length 2');
+      assert.equal(observers[0][0], o2, 'first item in observers array should be o2');
+      assert.equal(observers[1][0], o3, 'second item in observers array should be o3');
+    };
+
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
 });
 QUnit.module('ESLint | ember-runtime/tests/legacy_1x/mixins/observable/observersForKey_test.js');
 QUnit.test('should pass ESLint', function(assert) {
@@ -53412,32 +53498,41 @@ QUnit.test('should pass ESLint', function(assert) {
   assert.ok(true, 'ember-runtime/tests/legacy_1x/mixins/observable/observersForKey_test.js should pass ESLint\n\n');
 });
 
-enifed('ember-runtime/tests/legacy_1x/mixins/observable/propertyChanges_test', ['ember-runtime/system/object', 'ember-runtime/mixins/observable', 'ember-metal'], function (_object, _observable, _emberMetal) {
+enifed('ember-runtime/tests/legacy_1x/mixins/observable/propertyChanges_test', ['ember-babel', 'ember-runtime/system/object', 'ember-runtime/mixins/observable', 'ember-metal', 'internal-test-helpers'], function (_emberBabel, _object, _observable, _emberMetal, _internalTestHelpers) {
   'use strict';
 
-  var ObservableObject = _object.default.extend(_observable.default); /*
-                                                                        NOTE: This test is adapted from the 1.x series of unit tests.  The tests
-                                                                        are the same except for places where we intend to break the API we instead
-                                                                        validate that we warn the developer appropriately.
-                                                                      
-                                                                        CHANGES FROM 1.6:
-                                                                      
-                                                                        * Create ObservableObject which includes Ember.Observable
-                                                                        * Remove test that tests internal _kvo_changeLevel property.  This is an
-                                                                          implementation detail.
-                                                                        * Remove test for allPropertiesDidChange
-                                                                        * Removed star observer test.  no longer supported
-                                                                        * Removed property revision test.  no longer supported
-                                                                      */
+  /*
+    NOTE: This test is adapted from the 1.x series of unit tests.  The tests
+    are the same except for places where we intend to break the API we instead
+    validate that we warn the developer appropriately.
+  
+    CHANGES FROM 1.6:
+  
+    * Create ObservableObject which includes Ember.Observable
+    * Remove test that tests internal _kvo_changeLevel property.  This is an
+      implementation detail.
+    * Remove test for allPropertiesDidChange
+    * Removed star observer test.  no longer supported
+    * Removed property revision test.  no longer supported
+  */
 
   // ========================================================================
   // Ember.Observable Tests
   // ========================================================================
 
+  var ObservableObject = _object.default.extend(_observable.default);
+
   var ObjectA = void 0;
 
-  QUnit.module('object.propertyChanges', {
-    beforeEach: function () {
+  (0, _internalTestHelpers.moduleFor)('object.propertyChanges', function (_AbstractTestCase) {
+    (0, _emberBabel.inherits)(_class, _AbstractTestCase);
+
+    function _class() {
+      (0, _emberBabel.classCallCheck)(this, _class);
+      return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase.apply(this, arguments));
+    }
+
+    _class.prototype.beforeEach = function beforeEach() {
       ObjectA = ObservableObject.extend({
         action: (0, _emberMetal.observer)('foo', function () {
           this.set('prop', 'changedPropValue');
@@ -53462,91 +53557,93 @@ enifed('ember-runtime/tests/legacy_1x/mixins/observable/propertyChanges_test', [
         newFoo: 'newFooValue',
         newProp: 'newPropValue'
       });
-    }
-  });
+    };
 
-  QUnit.test('should observe the changes within the nested begin / end property changes', function (assert) {
-    //start the outer nest
-    ObjectA.beginPropertyChanges();
+    _class.prototype['@test should observe the changes within the nested begin / end property changes'] = function testShouldObserveTheChangesWithinTheNestedBeginEndPropertyChanges(assert) {
+      //start the outer nest
+      ObjectA.beginPropertyChanges();
 
-    // Inner nest
-    ObjectA.beginPropertyChanges();
-    ObjectA.set('foo', 'changeFooValue');
+      // Inner nest
+      ObjectA.beginPropertyChanges();
+      ObjectA.set('foo', 'changeFooValue');
 
-    assert.equal(ObjectA.prop, 'propValue');
-    ObjectA.endPropertyChanges();
+      assert.equal(ObjectA.prop, 'propValue');
+      ObjectA.endPropertyChanges();
 
-    //end inner nest
-    ObjectA.set('prop', 'changePropValue');
-    assert.equal(ObjectA.newFoo, 'newFooValue');
+      //end inner nest
+      ObjectA.set('prop', 'changePropValue');
+      assert.equal(ObjectA.newFoo, 'newFooValue');
 
-    //close the outer nest
-    ObjectA.endPropertyChanges();
+      //close the outer nest
+      ObjectA.endPropertyChanges();
 
-    assert.equal(ObjectA.prop, 'changedPropValue');
-    assert.equal(ObjectA.newFoo, 'changedNewFooValue');
-  });
+      assert.equal(ObjectA.prop, 'changedPropValue');
+      assert.equal(ObjectA.newFoo, 'changedNewFooValue');
+    };
 
-  QUnit.test('should observe the changes within the begin and end property changes', function (assert) {
-    ObjectA.beginPropertyChanges();
-    ObjectA.set('foo', 'changeFooValue');
+    _class.prototype['@test should observe the changes within the begin and end property changes'] = function testShouldObserveTheChangesWithinTheBeginAndEndPropertyChanges(assert) {
+      ObjectA.beginPropertyChanges();
+      ObjectA.set('foo', 'changeFooValue');
 
-    assert.equal(ObjectA.prop, 'propValue');
-    ObjectA.endPropertyChanges();
+      assert.equal(ObjectA.prop, 'propValue');
+      ObjectA.endPropertyChanges();
 
-    assert.equal(ObjectA.prop, 'changedPropValue');
-  });
+      assert.equal(ObjectA.prop, 'changedPropValue');
+    };
 
-  QUnit.test('should indicate that the property of an object has just changed', function (assert) {
-    // indicate that property of foo will change to its subscribers
-    ObjectA.propertyWillChange('foo');
+    _class.prototype['@test should indicate that the property of an object has just changed'] = function testShouldIndicateThatThePropertyOfAnObjectHasJustChanged(assert) {
+      // indicate that property of foo will change to its subscribers
+      ObjectA.propertyWillChange('foo');
 
-    //Value of the prop is unchanged yet as this will be changed when foo changes
-    assert.equal(ObjectA.prop, 'propValue');
+      //Value of the prop is unchanged yet as this will be changed when foo changes
+      assert.equal(ObjectA.prop, 'propValue');
 
-    //change the value of foo.
-    ObjectA.set('foo', 'changeFooValue');
+      //change the value of foo.
+      ObjectA.set('foo', 'changeFooValue');
 
-    // Indicate the subscribers of foo that the value has just changed
-    ObjectA.propertyDidChange('foo', null);
+      // Indicate the subscribers of foo that the value has just changed
+      ObjectA.propertyDidChange('foo', null);
 
-    // Values of prop has just changed
-    assert.equal(ObjectA.prop, 'changedPropValue');
-  });
+      // Values of prop has just changed
+      assert.equal(ObjectA.prop, 'changedPropValue');
+    };
 
-  QUnit.test('should notify that the property of an object has changed', function (assert) {
-    // Notify to its subscriber that the values of 'newFoo' will be changed. In this
-    // case the observer is "newProp". Therefore this will call the notifyAction function
-    // and value of "newProp" will be changed.
-    ObjectA.notifyPropertyChange('newFoo', 'fooValue');
+    _class.prototype['@test should notify that the property of an object has changed'] = function testShouldNotifyThatThePropertyOfAnObjectHasChanged(assert) {
+      // Notify to its subscriber that the values of 'newFoo' will be changed. In this
+      // case the observer is "newProp". Therefore this will call the notifyAction function
+      // and value of "newProp" will be changed.
+      ObjectA.notifyPropertyChange('newFoo', 'fooValue');
 
-    //value of newProp changed.
-    assert.equal(ObjectA.newProp, 'changedNewPropValue');
-  });
+      //value of newProp changed.
+      assert.equal(ObjectA.newProp, 'changedNewPropValue');
+    };
 
-  QUnit.test('should invalidate function property cache when notifyPropertyChange is called', function (assert) {
-    var a = ObservableObject.extend({
-      b: (0, _emberMetal.computed)({
-        get: function () {
-          return this._b;
-        },
-        set: function (key, value) {
-          this._b = value;
-          return this;
-        }
-      }).volatile()
-    }).create({
-      _b: null
-    });
+    _class.prototype['@test should invalidate function property cache when notifyPropertyChange is called'] = function testShouldInvalidateFunctionPropertyCacheWhenNotifyPropertyChangeIsCalled(assert) {
+      var a = ObservableObject.extend({
+        b: (0, _emberMetal.computed)({
+          get: function () {
+            return this._b;
+          },
+          set: function (key, value) {
+            this._b = value;
+            return this;
+          }
+        }).volatile()
+      }).create({
+        _b: null
+      });
 
-    a.set('b', 'foo');
-    assert.equal(a.get('b'), 'foo', 'should have set the correct value for property b');
+      a.set('b', 'foo');
+      assert.equal(a.get('b'), 'foo', 'should have set the correct value for property b');
 
-    a._b = 'bar';
-    a.notifyPropertyChange('b');
-    a.set('b', 'foo');
-    assert.equal(a.get('b'), 'foo', 'should have invalidated the cache so that the newly set value is actually set');
-  });
+      a._b = 'bar';
+      a.notifyPropertyChange('b');
+      a.set('b', 'foo');
+      assert.equal(a.get('b'), 'foo', 'should have invalidated the cache so that the newly set value is actually set');
+    };
+
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
 });
 QUnit.module('ESLint | ember-runtime/tests/legacy_1x/mixins/observable/propertyChanges_test.js');
 QUnit.test('should pass ESLint', function(assert) {
@@ -53554,7 +53651,7 @@ QUnit.test('should pass ESLint', function(assert) {
   assert.ok(true, 'ember-runtime/tests/legacy_1x/mixins/observable/propertyChanges_test.js should pass ESLint\n\n');
 });
 
-enifed('ember-runtime/tests/legacy_1x/system/binding_test', ['ember-environment', 'ember-metal', 'ember-runtime/system/object'], function (_emberEnvironment, _emberMetal, _object) {
+enifed('ember-runtime/tests/legacy_1x/system/binding_test', ['ember-babel', 'ember-environment', 'ember-metal', 'ember-runtime/system/object', 'internal-test-helpers'], function (_emberBabel, _emberEnvironment, _emberMetal, _object, _internalTestHelpers) {
   'use strict';
 
   /*
@@ -53604,8 +53701,15 @@ enifed('ember-runtime/tests/legacy_1x/system/binding_test', ['ember-environment'
   var originalLookup = _emberEnvironment.context.lookup;
   var lookup = void 0;
 
-  QUnit.module('basic object binding', {
-    beforeEach: function () {
+  (0, _internalTestHelpers.moduleFor)('basic object binding', function (_AbstractTestCase) {
+    (0, _emberBabel.inherits)(_class, _AbstractTestCase);
+
+    function _class() {
+      (0, _emberBabel.classCallCheck)(this, _class);
+      return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase.apply(this, arguments));
+    }
+
+    _class.prototype.beforeEach = function beforeEach() {
       fromObject = _object.default.create({ value: 'start' });
       toObject = _object.default.create({ value: 'end' });
       root = { fromObject: fromObject, toObject: toObject };
@@ -53614,76 +53718,77 @@ enifed('ember-runtime/tests/legacy_1x/system/binding_test', ['ember-environment'
           binding = (0, _emberMetal.bind)(root, 'toObject.value', 'fromObject.value');
         }, /`Ember\.Binding` is deprecated./);
       });
-    }
-  });
+    };
 
-  QUnit.test('binding should have synced on connect', function (assert) {
-    assert.equal((0, _emberMetal.get)(toObject, 'value'), 'start', 'toObject.value should match fromObject.value');
-  });
+    _class.prototype['@test binding should have synced on connect'] = function testBindingShouldHaveSyncedOnConnect(assert) {
+      assert.equal((0, _emberMetal.get)(toObject, 'value'), 'start', 'toObject.value should match fromObject.value');
+    };
 
-  QUnit.test('fromObject change should propagate to toObject only after flush', function (assert) {
-    (0, _emberMetal.run)(function () {
-      (0, _emberMetal.set)(fromObject, 'value', 'change');
+    _class.prototype['@test fromObject change should propagate to toObject only after flush'] = function testFromObjectChangeShouldPropagateToToObjectOnlyAfterFlush(assert) {
+      (0, _emberMetal.run)(function () {
+        (0, _emberMetal.set)(fromObject, 'value', 'change');
+        assert.equal((0, _emberMetal.get)(toObject, 'value'), 'start');
+      });
+      assert.equal((0, _emberMetal.get)(toObject, 'value'), 'change');
+    };
+
+    _class.prototype['@test toObject change should propagate to fromObject only after flush'] = function testToObjectChangeShouldPropagateToFromObjectOnlyAfterFlush(assert) {
+      (0, _emberMetal.run)(function () {
+        (0, _emberMetal.set)(toObject, 'value', 'change');
+        assert.equal((0, _emberMetal.get)(fromObject, 'value'), 'start');
+      });
+      assert.equal((0, _emberMetal.get)(fromObject, 'value'), 'change');
+    };
+
+    _class.prototype['@test deferred observing during bindings'] = function testDeferredObservingDuringBindings(assert) {
+      // setup special binding
+      fromObject = _object.default.create({
+        value1: 'value1',
+        value2: 'value2'
+      });
+
+      toObject = _object.default.extend({
+        observer: (0, _emberMetal.observer)('value1', 'value2', function () {
+          assert.equal((0, _emberMetal.get)(this, 'value1'), 'CHANGED', 'value1 when observer fires');
+          assert.equal((0, _emberMetal.get)(this, 'value2'), 'CHANGED', 'value2 when observer fires');
+          this.callCount++;
+        })
+      }).create({
+        value1: 'value1',
+        value2: 'value2',
+
+        callCount: 0
+      });
+
+      var root = { fromObject: fromObject, toObject: toObject };
+      (0, _emberMetal.run)(function () {
+        expectDeprecation(function () {
+          (0, _emberMetal.bind)(root, 'toObject.value1', 'fromObject.value1');
+        }, /`Ember\.Binding` is deprecated./);
+
+        expectDeprecation(function () {
+          (0, _emberMetal.bind)(root, 'toObject.value2', 'fromObject.value2');
+        }, /`Ember\.Binding` is deprecated./);
+
+        // change both value1 + value2, then  flush bindings.  observer should only
+        // fire after bindings are done flushing.
+        (0, _emberMetal.set)(fromObject, 'value1', 'CHANGED');
+        (0, _emberMetal.set)(fromObject, 'value2', 'CHANGED');
+      });
+
+      assert.equal(toObject.callCount, 2, 'should call observer twice');
+    };
+
+    _class.prototype['@test binding disconnection actually works'] = function testBindingDisconnectionActuallyWorks(assert) {
+      binding.disconnect(root);
+      (0, _emberMetal.run)(function () {
+        (0, _emberMetal.set)(fromObject, 'value', 'change');
+      });
       assert.equal((0, _emberMetal.get)(toObject, 'value'), 'start');
-    });
-    assert.equal((0, _emberMetal.get)(toObject, 'value'), 'change');
-  });
+    };
 
-  QUnit.test('toObject change should propagate to fromObject only after flush', function (assert) {
-    (0, _emberMetal.run)(function () {
-      (0, _emberMetal.set)(toObject, 'value', 'change');
-      assert.equal((0, _emberMetal.get)(fromObject, 'value'), 'start');
-    });
-    assert.equal((0, _emberMetal.get)(fromObject, 'value'), 'change');
-  });
-
-  QUnit.test('deferred observing during bindings', function (assert) {
-    // setup special binding
-    fromObject = _object.default.create({
-      value1: 'value1',
-      value2: 'value2'
-    });
-
-    toObject = _object.default.extend({
-      observer: (0, _emberMetal.observer)('value1', 'value2', function () {
-        assert.equal((0, _emberMetal.get)(this, 'value1'), 'CHANGED', 'value1 when observer fires');
-        assert.equal((0, _emberMetal.get)(this, 'value2'), 'CHANGED', 'value2 when observer fires');
-        this.callCount++;
-      })
-    }).create({
-      value1: 'value1',
-      value2: 'value2',
-
-      callCount: 0
-    });
-
-    var root = { fromObject: fromObject, toObject: toObject };
-    (0, _emberMetal.run)(function () {
-      expectDeprecation(function () {
-        (0, _emberMetal.bind)(root, 'toObject.value1', 'fromObject.value1');
-      }, /`Ember\.Binding` is deprecated./);
-
-      expectDeprecation(function () {
-        (0, _emberMetal.bind)(root, 'toObject.value2', 'fromObject.value2');
-      }, /`Ember\.Binding` is deprecated./);
-
-      // change both value1 + value2, then  flush bindings.  observer should only
-      // fire after bindings are done flushing.
-      (0, _emberMetal.set)(fromObject, 'value1', 'CHANGED');
-      (0, _emberMetal.set)(fromObject, 'value2', 'CHANGED');
-    });
-
-    assert.equal(toObject.callCount, 2, 'should call observer twice');
-  });
-
-  QUnit.test('binding disconnection actually works', function (assert) {
-    binding.disconnect(root);
-    (0, _emberMetal.run)(function () {
-      (0, _emberMetal.set)(fromObject, 'value', 'change');
-    });
-    assert.equal((0, _emberMetal.get)(toObject, 'value'), 'start');
-  });
-
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
   var first = void 0,
       second = void 0,
       third = void 0; // global variables
@@ -53692,8 +53797,15 @@ enifed('ember-runtime/tests/legacy_1x/system/binding_test', ['ember-environment'
   // chained binding
   //
 
-  QUnit.module('chained binding', {
-    beforeEach: function () {
+  (0, _internalTestHelpers.moduleFor)('chained binding', function (_AbstractTestCase2) {
+    (0, _emberBabel.inherits)(_class2, _AbstractTestCase2);
+
+    function _class2() {
+      (0, _emberBabel.classCallCheck)(this, _class2);
+      return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase2.apply(this, arguments));
+    }
+
+    _class2.prototype.beforeEach = function beforeEach() {
       (0, _emberMetal.run)(function () {
         first = _object.default.create({ output: 'first' });
 
@@ -53718,31 +53830,41 @@ enifed('ember-runtime/tests/legacy_1x/system/binding_test', ['ember-environment'
           (0, _emberMetal.bind)(root, 'second.output', 'third.input');
         }, /`Ember\.Binding` is deprecated./);
       });
-    },
-    afterEach: function () {
+    };
+
+    _class2.prototype.afterEach = function afterEach() {
       _emberMetal.run.cancelTimers();
-    }
-  });
+    };
 
-  QUnit.test('changing first output should propagate to third after flush', function (assert) {
-    (0, _emberMetal.run)(function () {
-      (0, _emberMetal.set)(first, 'output', 'change');
+    _class2.prototype['@test changing first output should propagate to third after flush'] = function testChangingFirstOutputShouldPropagateToThirdAfterFlush(assert) {
+      (0, _emberMetal.run)(function () {
+        (0, _emberMetal.set)(first, 'output', 'change');
+        assert.equal('change', (0, _emberMetal.get)(first, 'output'), 'first.output');
+        assert.ok('change' !== (0, _emberMetal.get)(third, 'input'), 'third.input');
+      });
+
       assert.equal('change', (0, _emberMetal.get)(first, 'output'), 'first.output');
-      assert.ok('change' !== (0, _emberMetal.get)(third, 'input'), 'third.input');
-    });
+      assert.equal('change', (0, _emberMetal.get)(second, 'input'), 'second.input');
+      assert.equal('change', (0, _emberMetal.get)(second, 'output'), 'second.output');
+      assert.equal('change', (0, _emberMetal.get)(third, 'input'), 'third.input');
+    };
 
-    assert.equal('change', (0, _emberMetal.get)(first, 'output'), 'first.output');
-    assert.equal('change', (0, _emberMetal.get)(second, 'input'), 'second.input');
-    assert.equal('change', (0, _emberMetal.get)(second, 'output'), 'second.output');
-    assert.equal('change', (0, _emberMetal.get)(third, 'input'), 'third.input');
-  });
+    return _class2;
+  }(_internalTestHelpers.AbstractTestCase));
 
   // ..........................................................
   // Custom Binding
   //
 
-  QUnit.module('Custom Binding', {
-    beforeEach: function () {
+  (0, _internalTestHelpers.moduleFor)('Custom Binding', function (_AbstractTestCase3) {
+    (0, _emberBabel.inherits)(_class3, _AbstractTestCase3);
+
+    function _class3() {
+      (0, _emberBabel.classCallCheck)(this, _class3);
+      return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase3.apply(this, arguments));
+    }
+
+    _class3.prototype.beforeEach = function beforeEach() {
       _emberEnvironment.context.lookup = lookup = {};
 
       Bon1 = _object.default.extend({
@@ -53761,54 +53883,64 @@ enifed('ember-runtime/tests/legacy_1x/system/binding_test', ['ember-environment'
         bon2: bon2,
         Bon1: Bon1
       };
-    },
-    afterEach: function () {
+    };
+
+    _class3.prototype.afterEach = function afterEach() {
       _emberEnvironment.context.lookup = originalLookup;
       Bon1 = bon2 = TestNamespace = null;
       _emberMetal.run.cancelTimers();
-    }
-  });
+    };
 
-  QUnit.test('two bindings to the same value should sync in the order they are initialized', function (assert) {
-    _emberMetal.run.begin();
+    _class3.prototype['@test two bindings to the same value should sync in the order they are initialized'] = function testTwoBindingsToTheSameValueShouldSyncInTheOrderTheyAreInitialized(assert) {
+      _emberMetal.run.begin();
 
-    var a = _object.default.create({
-      foo: 'bar'
-    });
-
-    var b = _object.default.extend({
-      C: _object.default.extend({
-        foo: 'bee',
-        fooBinding: 'owner.foo'
-      }),
-
-      init: function () {
-        this._super.apply(this, arguments);
-        (0, _emberMetal.set)(this, 'c', this.C.create({ owner: this }));
-      }
-    });
-
-    expectDeprecation(function () {
-      b = b.create({
-        foo: 'baz',
-        fooBinding: 'a.foo',
-        a: a
+      var a = _object.default.create({
+        foo: 'bar'
       });
-    }, /`Ember\.Binding` is deprecated./);
 
-    _emberMetal.run.end();
+      var b = _object.default.extend({
+        C: _object.default.extend({
+          foo: 'bee',
+          fooBinding: 'owner.foo'
+        }),
 
-    assert.equal((0, _emberMetal.get)(a, 'foo'), 'bar', 'a.foo should not change');
-    assert.equal((0, _emberMetal.get)(b, 'foo'), 'bar', 'a.foo should propagate up to b.foo');
-    assert.equal((0, _emberMetal.get)(b.c, 'foo'), 'bar', 'a.foo should propagate up to b.c.foo');
-  });
+        init: function () {
+          this._super.apply(this, arguments);
+          (0, _emberMetal.set)(this, 'c', this.C.create({ owner: this }));
+        }
+      });
+
+      expectDeprecation(function () {
+        b = b.create({
+          foo: 'baz',
+          fooBinding: 'a.foo',
+          a: a
+        });
+      }, /`Ember\.Binding` is deprecated./);
+
+      _emberMetal.run.end();
+
+      assert.equal((0, _emberMetal.get)(a, 'foo'), 'bar', 'a.foo should not change');
+      assert.equal((0, _emberMetal.get)(b, 'foo'), 'bar', 'a.foo should propagate up to b.foo');
+      assert.equal((0, _emberMetal.get)(b.c, 'foo'), 'bar', 'a.foo should propagate up to b.c.foo');
+    };
+
+    return _class3;
+  }(_internalTestHelpers.AbstractTestCase));
 
   // ..........................................................
   // propertyNameBinding with longhand
   //
 
-  QUnit.module('propertyNameBinding with longhand', {
-    beforeEach: function () {
+  (0, _internalTestHelpers.moduleFor)('propertyNameBinding with longhand', function (_AbstractTestCase4) {
+    (0, _emberBabel.inherits)(_class4, _AbstractTestCase4);
+
+    function _class4() {
+      (0, _emberBabel.classCallCheck)(this, _class4);
+      return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase4.apply(this, arguments));
+    }
+
+    _class4.prototype.beforeEach = function beforeEach() {
       _emberEnvironment.context.lookup = lookup = {};
 
       lookup['TestNamespace'] = TestNamespace = {};
@@ -53826,40 +53958,43 @@ enifed('ember-runtime/tests/legacy_1x/system/binding_test', ['ember-environment'
           });
         }, /`Ember\.Binding` is deprecated./);
       });
-    },
-    afterEach: function () {
+    };
+
+    _class4.prototype.afterEach = function afterEach() {
       TestNamespace = undefined;
       _emberEnvironment.context.lookup = originalLookup;
-    }
-  });
+    };
 
-  QUnit.test('works with full path', function (assert) {
-    (0, _emberMetal.run)(function () {
-      return (0, _emberMetal.set)(TestNamespace.fromObject, 'value', 'updatedValue');
-    });
+    _class4.prototype['@test works with full path'] = function testWorksWithFullPath(assert) {
+      (0, _emberMetal.run)(function () {
+        return (0, _emberMetal.set)(TestNamespace.fromObject, 'value', 'updatedValue');
+      });
 
-    assert.equal((0, _emberMetal.get)(TestNamespace.toObject, 'value'), 'updatedValue');
+      assert.equal((0, _emberMetal.get)(TestNamespace.toObject, 'value'), 'updatedValue');
 
-    (0, _emberMetal.run)(function () {
-      return (0, _emberMetal.set)(TestNamespace.fromObject, 'value', 'newerValue');
-    });
+      (0, _emberMetal.run)(function () {
+        return (0, _emberMetal.set)(TestNamespace.fromObject, 'value', 'newerValue');
+      });
 
-    assert.equal((0, _emberMetal.get)(TestNamespace.toObject, 'value'), 'newerValue');
-  });
+      assert.equal((0, _emberMetal.get)(TestNamespace.toObject, 'value'), 'newerValue');
+    };
 
-  QUnit.test('works with local path', function (assert) {
-    (0, _emberMetal.run)(function () {
-      return (0, _emberMetal.set)(TestNamespace.toObject, 'localValue', 'updatedValue');
-    });
+    _class4.prototype['@test works with local path'] = function testWorksWithLocalPath(assert) {
+      (0, _emberMetal.run)(function () {
+        return (0, _emberMetal.set)(TestNamespace.toObject, 'localValue', 'updatedValue');
+      });
 
-    assert.equal((0, _emberMetal.get)(TestNamespace.toObject, 'relative'), 'updatedValue');
+      assert.equal((0, _emberMetal.get)(TestNamespace.toObject, 'relative'), 'updatedValue');
 
-    (0, _emberMetal.run)(function () {
-      return (0, _emberMetal.set)(TestNamespace.toObject, 'localValue', 'newerValue');
-    });
+      (0, _emberMetal.run)(function () {
+        return (0, _emberMetal.set)(TestNamespace.toObject, 'localValue', 'newerValue');
+      });
 
-    assert.equal((0, _emberMetal.get)(TestNamespace.toObject, 'relative'), 'newerValue');
-  });
+      assert.equal((0, _emberMetal.get)(TestNamespace.toObject, 'relative'), 'newerValue');
+    };
+
+    return _class4;
+  }(_internalTestHelpers.AbstractTestCase));
 });
 QUnit.module('ESLint | ember-runtime/tests/legacy_1x/system/binding_test.js');
 QUnit.test('should pass ESLint', function(assert) {
@@ -53867,7 +54002,7 @@ QUnit.test('should pass ESLint', function(assert) {
   assert.ok(true, 'ember-runtime/tests/legacy_1x/system/binding_test.js should pass ESLint\n\n');
 });
 
-enifed('ember-runtime/tests/legacy_1x/system/object/base_test', ['ember-metal', 'ember-runtime/system/object'], function (_emberMetal, _object) {
+enifed('ember-runtime/tests/legacy_1x/system/object/base_test', ['ember-babel', 'ember-metal', 'ember-runtime/system/object', 'internal-test-helpers'], function (_emberBabel, _emberMetal, _object, _internalTestHelpers) {
   'use strict';
 
   /*
@@ -53895,8 +54030,15 @@ enifed('ember-runtime/tests/legacy_1x/system/object/base_test', ['ember-metal', 
   var obj = void 0,
       obj1 = void 0; // global variables
 
-  QUnit.module('A new EmberObject instance', {
-    beforeEach: function () {
+  (0, _internalTestHelpers.moduleFor)('A new EmberObject instance', function (_AbstractTestCase) {
+    (0, _emberBabel.inherits)(_class, _AbstractTestCase);
+
+    function _class() {
+      (0, _emberBabel.classCallCheck)(this, _class);
+      return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase.apply(this, arguments));
+    }
+
+    _class.prototype.beforeEach = function beforeEach() {
       obj = _object.default.create({
         foo: 'bar',
         total: 12345,
@@ -53911,52 +54053,65 @@ enifed('ember-runtime/tests/legacy_1x/system/object/base_test', ['ember-metal', 
           return false;
         }
       });
-    },
-    afterEach: function () {
+    };
+
+    _class.prototype.afterEach = function afterEach() {
       obj = undefined;
+    };
+
+    _class.prototype['@test Should return its properties when requested using EmberObject#get'] = function testShouldReturnItsPropertiesWhenRequestedUsingEmberObjectGet(assert) {
+      assert.equal((0, _emberMetal.get)(obj, 'foo'), 'bar');
+      assert.equal((0, _emberMetal.get)(obj, 'total'), 12345);
+    };
+
+    _class.prototype['@test Should allow changing of those properties by calling EmberObject#set'] = function testShouldAllowChangingOfThosePropertiesByCallingEmberObjectSet(assert) {
+      assert.equal((0, _emberMetal.get)(obj, 'foo'), 'bar');
+      assert.equal((0, _emberMetal.get)(obj, 'total'), 12345);
+
+      (0, _emberMetal.set)(obj, 'foo', 'Chunky Bacon');
+      (0, _emberMetal.set)(obj, 'total', 12);
+
+      assert.equal((0, _emberMetal.get)(obj, 'foo'), 'Chunky Bacon');
+      assert.equal((0, _emberMetal.get)(obj, 'total'), 12);
+    };
+
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
+
+  (0, _internalTestHelpers.moduleFor)('EmberObject superclass and subclasses', function (_AbstractTestCase2) {
+    (0, _emberBabel.inherits)(_class2, _AbstractTestCase2);
+
+    function _class2() {
+      (0, _emberBabel.classCallCheck)(this, _class2);
+      return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase2.apply(this, arguments));
     }
-  });
 
-  QUnit.test('Should return its properties when requested using EmberObject#get', function (assert) {
-    assert.equal((0, _emberMetal.get)(obj, 'foo'), 'bar');
-    assert.equal((0, _emberMetal.get)(obj, 'total'), 12345);
-  });
-
-  QUnit.test('Should allow changing of those properties by calling EmberObject#set', function (assert) {
-    assert.equal((0, _emberMetal.get)(obj, 'foo'), 'bar');
-    assert.equal((0, _emberMetal.get)(obj, 'total'), 12345);
-
-    (0, _emberMetal.set)(obj, 'foo', 'Chunky Bacon');
-    (0, _emberMetal.set)(obj, 'total', 12);
-
-    assert.equal((0, _emberMetal.get)(obj, 'foo'), 'Chunky Bacon');
-    assert.equal((0, _emberMetal.get)(obj, 'total'), 12);
-  });
-
-  QUnit.module('EmberObject superclass and subclasses', {
-    beforeEach: function () {
+    _class2.prototype.beforeEach = function beforeEach() {
       obj = _object.default.extend({
         method1: function () {
           return 'hello';
         }
       });
       obj1 = obj.extend();
-    },
-    afterEach: function () {
+    };
+
+    _class2.prototype.afterEach = function afterEach() {
       obj = undefined;
       obj1 = undefined;
-    }
-  });
+    };
 
-  QUnit.test('Checking the detect() function on an object and its subclass', function (assert) {
-    assert.equal(obj.detect(obj1), true);
-    assert.equal(obj1.detect(obj), false);
-  });
+    _class2.prototype['@test Checking the detect() function on an object and its subclass'] = function testCheckingTheDetectFunctionOnAnObjectAndItsSubclass(assert) {
+      assert.equal(obj.detect(obj1), true);
+      assert.equal(obj1.detect(obj), false);
+    };
 
-  QUnit.test('Checking the detectInstance() function on an object and its subclass', function (assert) {
-    assert.ok(_object.default.detectInstance(obj.create()));
-    assert.ok(obj.detectInstance(obj.create()));
-  });
+    _class2.prototype['@test Checking the detectInstance() function on an object and its subclass'] = function testCheckingTheDetectInstanceFunctionOnAnObjectAndItsSubclass(assert) {
+      assert.ok(_object.default.detectInstance(obj.create()));
+      assert.ok(obj.detectInstance(obj.create()));
+    };
+
+    return _class2;
+  }(_internalTestHelpers.AbstractTestCase));
 });
 QUnit.module('ESLint | ember-runtime/tests/legacy_1x/system/object/base_test.js');
 QUnit.test('should pass ESLint', function(assert) {
@@ -53964,7 +54119,7 @@ QUnit.test('should pass ESLint', function(assert) {
   assert.ok(true, 'ember-runtime/tests/legacy_1x/system/object/base_test.js should pass ESLint\n\n');
 });
 
-enifed('ember-runtime/tests/legacy_1x/system/object/bindings_test', ['ember-environment', 'ember-metal', 'ember-runtime/system/object'], function (_emberEnvironment, _emberMetal, _object) {
+enifed('ember-runtime/tests/legacy_1x/system/object/bindings_test', ['ember-babel', 'ember-environment', 'ember-metal', 'ember-runtime/system/object', 'internal-test-helpers'], function (_emberBabel, _emberEnvironment, _emberMetal, _object, _internalTestHelpers) {
   'use strict';
 
   /*
@@ -53991,8 +54146,15 @@ enifed('ember-runtime/tests/legacy_1x/system/object/bindings_test', ['ember-envi
   var TestNamespace = void 0,
       lookup = void 0;
 
-  QUnit.module('bind() method', {
-    beforeEach: function () {
+  (0, _internalTestHelpers.moduleFor)('bind() method', function (_AbstractTestCase) {
+    (0, _emberBabel.inherits)(_class, _AbstractTestCase);
+
+    function _class() {
+      (0, _emberBabel.classCallCheck)(this, _class);
+      return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase.apply(this, arguments));
+    }
+
+    _class.prototype.beforeEach = function beforeEach() {
       _emberEnvironment.context.lookup = lookup = {};
 
       testObject = _object.default.create({
@@ -54010,43 +54172,54 @@ enifed('ember-runtime/tests/legacy_1x/system/object/bindings_test', ['ember-envi
         fromObject: fromObject,
         testObject: testObject
       };
-    },
-    afterEach: function () {
+    };
+
+    _class.prototype.afterEach = function afterEach() {
       testObject = fromObject = null;
       _emberEnvironment.context.lookup = originalLookup;
+    };
+
+    _class.prototype['@test bind(TestNamespace.fromObject.bar) should follow absolute path'] = function testBindTestNamespaceFromObjectBarShouldFollowAbsolutePath(assert) {
+      (0, _emberMetal.run)(function () {
+        expectDeprecation(function () {
+          // create binding
+          testObject.bind('foo', 'TestNamespace.fromObject.bar');
+        }, /`Ember.Binding` is deprecated/);
+
+        // now make a change to see if the binding triggers.
+        (0, _emberMetal.set)(fromObject, 'bar', 'changedValue');
+      });
+
+      assert.equal('changedValue', (0, _emberMetal.get)(testObject, 'foo'), 'testObject.foo');
+    };
+
+    _class.prototype['@test bind(.bar) should bind to relative path'] = function testBindBarShouldBindToRelativePath(assert) {
+      (0, _emberMetal.run)(function () {
+        expectDeprecation(function () {
+          // create binding
+          testObject.bind('foo', 'bar');
+        }, /`Ember.Binding` is deprecated/);
+
+        // now make a change to see if the binding triggers.
+        (0, _emberMetal.set)(testObject, 'bar', 'changedValue');
+      });
+
+      assert.equal('changedValue', (0, _emberMetal.get)(testObject, 'foo'), 'testObject.foo');
+    };
+
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
+
+  var deprecationMessage = /`Ember.Binding` is deprecated/;
+  (0, _internalTestHelpers.moduleFor)('fooBinding method', function (_AbstractTestCase2) {
+    (0, _emberBabel.inherits)(_class2, _AbstractTestCase2);
+
+    function _class2() {
+      (0, _emberBabel.classCallCheck)(this, _class2);
+      return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase2.apply(this, arguments));
     }
-  });
 
-  QUnit.test('bind(TestNamespace.fromObject.bar) should follow absolute path', function (assert) {
-    (0, _emberMetal.run)(function () {
-      expectDeprecation(function () {
-        // create binding
-        testObject.bind('foo', 'TestNamespace.fromObject.bar');
-      }, /`Ember.Binding` is deprecated/);
-
-      // now make a change to see if the binding triggers.
-      (0, _emberMetal.set)(fromObject, 'bar', 'changedValue');
-    });
-
-    assert.equal('changedValue', (0, _emberMetal.get)(testObject, 'foo'), 'testObject.foo');
-  });
-
-  QUnit.test('bind(.bar) should bind to relative path', function (assert) {
-    (0, _emberMetal.run)(function () {
-      expectDeprecation(function () {
-        // create binding
-        testObject.bind('foo', 'bar');
-      }, /`Ember.Binding` is deprecated/);
-
-      // now make a change to see if the binding triggers.
-      (0, _emberMetal.set)(testObject, 'bar', 'changedValue');
-    });
-
-    assert.equal('changedValue', (0, _emberMetal.get)(testObject, 'foo'), 'testObject.foo');
-  });
-
-  QUnit.module('fooBinding method', {
-    beforeEach: function () {
+    _class2.prototype.beforeEach = function beforeEach() {
       _emberEnvironment.context.lookup = lookup = {};
 
       TestObject = _object.default.extend({
@@ -54064,72 +54237,73 @@ enifed('ember-runtime/tests/legacy_1x/system/object/bindings_test', ['ember-envi
         fromObject: fromObject,
         testObject: TestObject
       };
-    },
-    afterEach: function () {
+    };
+
+    _class2.prototype.afterEach = function afterEach() {
       _emberEnvironment.context.lookup = originalLookup;
       TestObject = fromObject = null;
       //  delete TestNamespace;
-    }
-  });
+    };
 
-  var deprecationMessage = /`Ember.Binding` is deprecated/;
+    _class2.prototype['@test fooBinding: TestNamespace.fromObject.bar should follow absolute path'] = function testFooBindingTestNamespaceFromObjectBarShouldFollowAbsolutePath(assert) {
+      (0, _emberMetal.run)(function () {
+        expectDeprecation(function () {
+          // create binding
+          testObject = TestObject.extend({
+            fooBinding: 'TestNamespace.fromObject.bar'
+          }).create();
+        }, deprecationMessage);
 
-  QUnit.test('fooBinding: TestNamespace.fromObject.bar should follow absolute path', function (assert) {
-    (0, _emberMetal.run)(function () {
-      expectDeprecation(function () {
-        // create binding
-        testObject = TestObject.extend({
-          fooBinding: 'TestNamespace.fromObject.bar'
-        }).create();
-      }, deprecationMessage);
+        // now make a change to see if the binding triggers.
+        (0, _emberMetal.set)(fromObject, 'bar', 'changedValue');
+      });
 
-      // now make a change to see if the binding triggers.
-      (0, _emberMetal.set)(fromObject, 'bar', 'changedValue');
-    });
+      assert.equal('changedValue', (0, _emberMetal.get)(testObject, 'foo'), 'testObject.foo');
+    };
 
-    assert.equal('changedValue', (0, _emberMetal.get)(testObject, 'foo'), 'testObject.foo');
-  });
+    _class2.prototype['@test fooBinding: .bar should bind to relative path'] = function testFooBindingBarShouldBindToRelativePath(assert) {
+      (0, _emberMetal.run)(function () {
+        expectDeprecation(function () {
+          // create binding
+          testObject = TestObject.extend({
+            fooBinding: 'bar'
+          }).create();
+        }, deprecationMessage);
 
-  QUnit.test('fooBinding: .bar should bind to relative path', function (assert) {
-    (0, _emberMetal.run)(function () {
-      expectDeprecation(function () {
-        // create binding
-        testObject = TestObject.extend({
-          fooBinding: 'bar'
-        }).create();
-      }, deprecationMessage);
+        // now make a change to see if the binding triggers.
+        (0, _emberMetal.set)(testObject, 'bar', 'changedValue');
+      });
 
-      // now make a change to see if the binding triggers.
-      (0, _emberMetal.set)(testObject, 'bar', 'changedValue');
-    });
+      assert.equal('changedValue', (0, _emberMetal.get)(testObject, 'foo'), 'testObject.foo');
+    };
 
-    assert.equal('changedValue', (0, _emberMetal.get)(testObject, 'foo'), 'testObject.foo');
-  });
+    _class2.prototype['@test fooBinding: should disconnect bindings when destroyed'] = function testFooBindingShouldDisconnectBindingsWhenDestroyed(assert) {
+      (0, _emberMetal.run)(function () {
+        expectDeprecation(function () {
+          // create binding
+          testObject = TestObject.extend({
+            fooBinding: 'TestNamespace.fromObject.bar'
+          }).create();
+        }, deprecationMessage);
 
-  QUnit.test('fooBinding: should disconnect bindings when destroyed', function (assert) {
-    (0, _emberMetal.run)(function () {
-      expectDeprecation(function () {
-        // create binding
-        testObject = TestObject.extend({
-          fooBinding: 'TestNamespace.fromObject.bar'
-        }).create();
-      }, deprecationMessage);
+        (0, _emberMetal.set)(TestNamespace.fromObject, 'bar', 'BAZ');
+      });
 
-      (0, _emberMetal.set)(TestNamespace.fromObject, 'bar', 'BAZ');
-    });
+      assert.equal((0, _emberMetal.get)(testObject, 'foo'), 'BAZ', 'binding should have synced');
 
-    assert.equal((0, _emberMetal.get)(testObject, 'foo'), 'BAZ', 'binding should have synced');
+      (0, _emberMetal.run)(function () {
+        return testObject.destroy();
+      });
 
-    (0, _emberMetal.run)(function () {
-      return testObject.destroy();
-    });
+      (0, _emberMetal.run)(function () {
+        return (0, _emberMetal.set)(TestNamespace.fromObject, 'bar', 'BIFF');
+      });
 
-    (0, _emberMetal.run)(function () {
-      return (0, _emberMetal.set)(TestNamespace.fromObject, 'bar', 'BIFF');
-    });
+      assert.ok((0, _emberMetal.get)(testObject, 'foo') !== 'bar', 'binding should not have synced');
+    };
 
-    assert.ok((0, _emberMetal.get)(testObject, 'foo') !== 'bar', 'binding should not have synced');
-  });
+    return _class2;
+  }(_internalTestHelpers.AbstractTestCase));
 });
 QUnit.module('ESLint | ember-runtime/tests/legacy_1x/system/object/bindings_test.js');
 QUnit.test('should pass ESLint', function(assert) {
@@ -54137,7 +54311,7 @@ QUnit.test('should pass ESLint', function(assert) {
   assert.ok(true, 'ember-runtime/tests/legacy_1x/system/object/bindings_test.js should pass ESLint\n\n');
 });
 
-enifed('ember-runtime/tests/legacy_1x/system/object/concatenated_test', ['ember-metal', 'ember-runtime/system/object'], function (_emberMetal, _object) {
+enifed('ember-runtime/tests/legacy_1x/system/object/concatenated_test', ['ember-babel', 'ember-metal', 'ember-runtime/system/object', 'internal-test-helpers'], function (_emberBabel, _emberMetal, _object, _internalTestHelpers) {
   'use strict';
 
   /*
@@ -54158,88 +54332,97 @@ enifed('ember-runtime/tests/legacy_1x/system/object/concatenated_test', ['ember-
 
   var klass = void 0;
 
-  QUnit.module('EmberObject Concatenated Properties', {
-    beforeEach: function () {
+  (0, _internalTestHelpers.moduleFor)('EmberObject Concatenated Properties', function (_AbstractTestCase) {
+    (0, _emberBabel.inherits)(_class, _AbstractTestCase);
+
+    function _class() {
+      (0, _emberBabel.classCallCheck)(this, _class);
+      return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase.apply(this, arguments));
+    }
+
+    _class.prototype.beforeEach = function beforeEach() {
       klass = _object.default.extend({
         concatenatedProperties: ['values', 'functions'],
         values: ['a', 'b', 'c'],
         functions: [K]
       });
-    }
-  });
-
-  QUnit.test('concatenates instances', function (assert) {
-    var obj = klass.create({
-      values: ['d', 'e', 'f']
-    });
-
-    var values = (0, _emberMetal.get)(obj, 'values');
-    var expected = ['a', 'b', 'c', 'd', 'e', 'f'];
-
-    assert.deepEqual(values, expected, 'should concatenate values property (expected: ' + expected + ', got: ' + values + ')');
-  });
-
-  QUnit.test('concatenates subclasses', function (assert) {
-    var subKlass = klass.extend({
-      values: ['d', 'e', 'f']
-    });
-    var obj = subKlass.create();
-
-    var values = (0, _emberMetal.get)(obj, 'values');
-    var expected = ['a', 'b', 'c', 'd', 'e', 'f'];
-
-    assert.deepEqual(values, expected, 'should concatenate values property (expected: ' + expected + ', got: ' + values + ')');
-  });
-
-  QUnit.test('concatenates reopen', function (assert) {
-    klass.reopen({
-      values: ['d', 'e', 'f']
-    });
-    var obj = klass.create();
-
-    var values = (0, _emberMetal.get)(obj, 'values');
-    var expected = ['a', 'b', 'c', 'd', 'e', 'f'];
-
-    assert.deepEqual(values, expected, 'should concatenate values property (expected: ' + expected + ', got: ' + values + ')');
-  });
-
-  QUnit.test('concatenates mixin', function (assert) {
-    var mixin = {
-      values: ['d', 'e']
     };
-    var subKlass = klass.extend(mixin, {
-      values: ['f']
-    });
-    var obj = subKlass.create();
 
-    var values = (0, _emberMetal.get)(obj, 'values');
-    var expected = ['a', 'b', 'c', 'd', 'e', 'f'];
+    _class.prototype['@test concatenates instances'] = function testConcatenatesInstances(assert) {
+      var obj = klass.create({
+        values: ['d', 'e', 'f']
+      });
 
-    assert.deepEqual(values, expected, 'should concatenate values property (expected: ' + expected + ', got: ' + values + ')');
-  });
+      var values = (0, _emberMetal.get)(obj, 'values');
+      var expected = ['a', 'b', 'c', 'd', 'e', 'f'];
 
-  QUnit.test('concatenates reopen, subclass, and instance', function (assert) {
-    klass.reopen({ values: ['d'] });
-    var subKlass = klass.extend({ values: ['e'] });
-    var obj = subKlass.create({ values: ['f'] });
+      assert.deepEqual(values, expected, 'should concatenate values property (expected: ' + expected + ', got: ' + values + ')');
+    };
 
-    var values = (0, _emberMetal.get)(obj, 'values');
-    var expected = ['a', 'b', 'c', 'd', 'e', 'f'];
+    _class.prototype['@test concatenates subclasses'] = function testConcatenatesSubclasses(assert) {
+      var subKlass = klass.extend({
+        values: ['d', 'e', 'f']
+      });
+      var obj = subKlass.create();
 
-    assert.deepEqual(values, expected, 'should concatenate values property (expected: ' + expected + ', got: ' + values + ')');
-  });
+      var values = (0, _emberMetal.get)(obj, 'values');
+      var expected = ['a', 'b', 'c', 'd', 'e', 'f'];
 
-  QUnit.test('concatenates subclasses when the values are functions', function (assert) {
-    var subKlass = klass.extend({
-      functions: K
-    });
-    var obj = subKlass.create();
+      assert.deepEqual(values, expected, 'should concatenate values property (expected: ' + expected + ', got: ' + values + ')');
+    };
 
-    var values = (0, _emberMetal.get)(obj, 'functions');
-    var expected = [K, K];
+    _class.prototype['@test concatenates reopen'] = function testConcatenatesReopen(assert) {
+      klass.reopen({
+        values: ['d', 'e', 'f']
+      });
+      var obj = klass.create();
 
-    assert.deepEqual(values, expected, 'should concatenate functions property (expected: ' + expected + ', got: ' + values + ')');
-  });
+      var values = (0, _emberMetal.get)(obj, 'values');
+      var expected = ['a', 'b', 'c', 'd', 'e', 'f'];
+
+      assert.deepEqual(values, expected, 'should concatenate values property (expected: ' + expected + ', got: ' + values + ')');
+    };
+
+    _class.prototype['@test concatenates mixin'] = function testConcatenatesMixin(assert) {
+      var mixin = {
+        values: ['d', 'e']
+      };
+      var subKlass = klass.extend(mixin, {
+        values: ['f']
+      });
+      var obj = subKlass.create();
+
+      var values = (0, _emberMetal.get)(obj, 'values');
+      var expected = ['a', 'b', 'c', 'd', 'e', 'f'];
+
+      assert.deepEqual(values, expected, 'should concatenate values property (expected: ' + expected + ', got: ' + values + ')');
+    };
+
+    _class.prototype['@test concatenates reopen, subclass, and instance'] = function testConcatenatesReopenSubclassAndInstance(assert) {
+      klass.reopen({ values: ['d'] });
+      var subKlass = klass.extend({ values: ['e'] });
+      var obj = subKlass.create({ values: ['f'] });
+
+      var values = (0, _emberMetal.get)(obj, 'values');
+      var expected = ['a', 'b', 'c', 'd', 'e', 'f'];
+
+      assert.deepEqual(values, expected, 'should concatenate values property (expected: ' + expected + ', got: ' + values + ')');
+    };
+
+    _class.prototype['@test concatenates subclasses when the values are functions'] = function testConcatenatesSubclassesWhenTheValuesAreFunctions(assert) {
+      var subKlass = klass.extend({
+        functions: K
+      });
+      var obj = subKlass.create();
+
+      var values = (0, _emberMetal.get)(obj, 'functions');
+      var expected = [K, K];
+
+      assert.deepEqual(values, expected, 'should concatenate functions property (expected: ' + expected + ', got: ' + values + ')');
+    };
+
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
 });
 QUnit.module('ESLint | ember-runtime/tests/legacy_1x/system/object/concatenated_test.js');
 QUnit.test('should pass ESLint', function(assert) {
@@ -54247,7 +54430,7 @@ QUnit.test('should pass ESLint', function(assert) {
   assert.ok(true, 'ember-runtime/tests/legacy_1x/system/object/concatenated_test.js should pass ESLint\n\n');
 });
 
-enifed('ember-runtime/tests/legacy_1x/system/run_loop_test', ['ember-metal', 'ember-runtime/mixins/observable', 'ember-runtime/system/object'], function (_emberMetal, _observable, _object) {
+enifed('ember-runtime/tests/legacy_1x/system/run_loop_test', ['ember-babel', 'ember-metal', 'ember-runtime/mixins/observable', 'ember-runtime/system/object', 'internal-test-helpers'], function (_emberBabel, _emberMetal, _observable, _object, _internalTestHelpers) {
   'use strict';
 
   /*
@@ -54265,9 +54448,17 @@ enifed('ember-runtime/tests/legacy_1x/system/run_loop_test', ['ember-metal', 'em
   */
 
   var MyApp = void 0;
+  var deprecationMessage = /`Ember.Binding` is deprecated/;
 
-  QUnit.module('System:run_loop() - chained binding', {
-    beforeEach: function () {
+  (0, _internalTestHelpers.moduleFor)('System:run_loop() - chained binding', function (_AbstractTestCase) {
+    (0, _emberBabel.inherits)(_class, _AbstractTestCase);
+
+    function _class() {
+      (0, _emberBabel.classCallCheck)(this, _class);
+      return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase.apply(this, arguments));
+    }
+
+    _class.prototype.beforeEach = function beforeEach() {
       MyApp = {};
       MyApp.first = _object.default.extend(_observable.default).create({
         output: 'MyApp.first'
@@ -54285,75 +54476,75 @@ enifed('ember-runtime/tests/legacy_1x/system/run_loop_test', ['ember-metal', 'em
       MyApp.third = _object.default.extend(_observable.default).create({
         input: 'MyApp.third'
       });
-    }
-  });
+    };
 
-  var deprecationMessage = /`Ember.Binding` is deprecated/;
+    _class.prototype['@test Should propagate bindings after the RunLoop completes (using Ember.RunLoop)'] = function testShouldPropagateBindingsAfterTheRunLoopCompletesUsingEmberRunLoop(assert) {
+      (0, _emberMetal.run)(function () {
+        //Binding of output of MyApp.first object to input of MyApp.second object
+        expectDeprecation(function () {
+          _emberMetal.Binding.from('first.output').to('second.input').connect(MyApp);
+        }, deprecationMessage);
 
-  QUnit.test('Should propagate bindings after the RunLoop completes (using Ember.RunLoop)', function (assert) {
-    (0, _emberMetal.run)(function () {
-      //Binding of output of MyApp.first object to input of MyApp.second object
-      expectDeprecation(function () {
-        _emberMetal.Binding.from('first.output').to('second.input').connect(MyApp);
-      }, deprecationMessage);
+        //Binding of output of MyApp.second object to input of MyApp.third object
+        expectDeprecation(function () {
+          _emberMetal.Binding.from('second.output').to('third.input').connect(MyApp);
+        }, deprecationMessage);
+      });
 
-      //Binding of output of MyApp.second object to input of MyApp.third object
-      expectDeprecation(function () {
-        _emberMetal.Binding.from('second.output').to('third.input').connect(MyApp);
-      }, deprecationMessage);
-    });
+      (0, _emberMetal.run)(function () {
+        // Based on the above binding if you change the output of MyApp.first
+        // object it should change the all the variable of
+        //  MyApp.first,MyApp.second and MyApp.third object
+        MyApp.first.set('output', 'change');
 
-    (0, _emberMetal.run)(function () {
-      // Based on the above binding if you change the output of MyApp.first
-      // object it should change the all the variable of
-      //  MyApp.first,MyApp.second and MyApp.third object
-      MyApp.first.set('output', 'change');
+        //Changes the output of the MyApp.first object
+        assert.equal(MyApp.first.get('output'), 'change');
 
-      //Changes the output of the MyApp.first object
+        //since binding has not taken into effect the value still remains as change.
+        assert.equal(MyApp.second.get('output'), 'MyApp.first');
+      }); // allows bindings to trigger...
+
+      //Value of the output variable changed to 'change'
       assert.equal(MyApp.first.get('output'), 'change');
 
-      //since binding has not taken into effect the value still remains as change.
-      assert.equal(MyApp.second.get('output'), 'MyApp.first');
-    }); // allows bindings to trigger...
+      //Since binding triggered after the end loop the value changed to 'change'.
+      assert.equal(MyApp.second.get('output'), 'change');
+    };
 
-    //Value of the output variable changed to 'change'
-    assert.equal(MyApp.first.get('output'), 'change');
+    _class.prototype['@test Should propagate bindings after the RunLoop completes'] = function testShouldPropagateBindingsAfterTheRunLoopCompletes(assert) {
+      (0, _emberMetal.run)(function () {
+        //Binding of output of MyApp.first object to input of MyApp.second object
+        expectDeprecation(function () {
+          _emberMetal.Binding.from('first.output').to('second.input').connect(MyApp);
+        }, deprecationMessage);
 
-    //Since binding triggered after the end loop the value changed to 'change'.
-    assert.equal(MyApp.second.get('output'), 'change');
-  });
+        //Binding of output of MyApp.second object to input of MyApp.third object
+        expectDeprecation(function () {
+          _emberMetal.Binding.from('second.output').to('third.input').connect(MyApp);
+        }, deprecationMessage);
+      });
 
-  QUnit.test('Should propagate bindings after the RunLoop completes', function (assert) {
-    (0, _emberMetal.run)(function () {
-      //Binding of output of MyApp.first object to input of MyApp.second object
-      expectDeprecation(function () {
-        _emberMetal.Binding.from('first.output').to('second.input').connect(MyApp);
-      }, deprecationMessage);
+      (0, _emberMetal.run)(function () {
+        //Based on the above binding if you change the output of MyApp.first object it should
+        //change the all the variable of MyApp.first,MyApp.second and MyApp.third object
+        MyApp.first.set('output', 'change');
 
-      //Binding of output of MyApp.second object to input of MyApp.third object
-      expectDeprecation(function () {
-        _emberMetal.Binding.from('second.output').to('third.input').connect(MyApp);
-      }, deprecationMessage);
-    });
+        //Changes the output of the MyApp.first object
+        assert.equal(MyApp.first.get('output'), 'change');
 
-    (0, _emberMetal.run)(function () {
-      //Based on the above binding if you change the output of MyApp.first object it should
-      //change the all the variable of MyApp.first,MyApp.second and MyApp.third object
-      MyApp.first.set('output', 'change');
+        //since binding has not taken into effect the value still remains as change.
+        assert.equal(MyApp.second.get('output'), 'MyApp.first');
+      });
 
-      //Changes the output of the MyApp.first object
+      //Value of the output variable changed to 'change'
       assert.equal(MyApp.first.get('output'), 'change');
 
-      //since binding has not taken into effect the value still remains as change.
-      assert.equal(MyApp.second.get('output'), 'MyApp.first');
-    });
+      //Since binding triggered after the end loop the value changed to 'change'.
+      assert.equal(MyApp.second.get('output'), 'change');
+    };
 
-    //Value of the output variable changed to 'change'
-    assert.equal(MyApp.first.get('output'), 'change');
-
-    //Since binding triggered after the end loop the value changed to 'change'.
-    assert.equal(MyApp.second.get('output'), 'change');
-  });
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
 });
 QUnit.module('ESLint | ember-runtime/tests/legacy_1x/system/run_loop_test.js');
 QUnit.test('should pass ESLint', function(assert) {
