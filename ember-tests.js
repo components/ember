@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.0.0-canary+aa961d13
+ * @version   3.0.0-canary+124747b5
  */
 
 /*globals process */
@@ -51708,7 +51708,7 @@ QUnit.test('should pass ESLint', function(assert) {
   assert.ok(true, 'ember-runtime/tests/controllers/controller_test.js should pass ESLint\n\n');
 });
 
-enifed('ember-runtime/tests/core/compare_test', ['ember-runtime/utils', 'ember-runtime/system/object', 'ember-runtime/compare', 'ember-runtime/mixins/comparable'], function (_utils, _object, _compare, _comparable) {
+enifed('ember-runtime/tests/core/compare_test', ['ember-babel', 'ember-runtime/utils', 'ember-runtime/system/object', 'ember-runtime/compare', 'ember-runtime/mixins/comparable', 'internal-test-helpers'], function (_emberBabel, _utils, _object, _compare, _comparable, _internalTestHelpers) {
   'use strict';
 
   var data = [];
@@ -51720,8 +51720,15 @@ enifed('ember-runtime/tests/core/compare_test', ['ember-runtime/utils', 'ember-r
     }
   });
 
-  QUnit.module('Ember.compare()', {
-    beforeEach: function () {
+  (0, _internalTestHelpers.moduleFor)('Ember.compare()', function (_AbstractTestCase) {
+    (0, _emberBabel.inherits)(_class, _AbstractTestCase);
+
+    function _class() {
+      (0, _emberBabel.classCallCheck)(this, _class);
+      return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase.apply(this, arguments));
+    }
+
+    _class.prototype.beforeEach = function beforeEach() {
       data[0] = null;
       data[1] = false;
       data[2] = true;
@@ -51740,52 +51747,54 @@ enifed('ember-runtime/tests/core/compare_test', ['ember-runtime/utils', 'ember-r
       };
       data[14] = new Date('2012/01/01');
       data[15] = new Date('2012/06/06');
-    }
-  });
+    };
 
-  QUnit.test('ordering should work', function (assert) {
-    var suspect = void 0,
-        comparable = void 0,
-        failureMessage = void 0,
-        suspectIndex = void 0,
-        comparableIndex = void 0;
+    _class.prototype['@test ordering should work'] = function testOrderingShouldWork(assert) {
+      var suspect = void 0,
+          comparable = void 0,
+          failureMessage = void 0,
+          suspectIndex = void 0,
+          comparableIndex = void 0;
 
-    for (suspectIndex = 0; suspectIndex < data.length; suspectIndex++) {
-      suspect = data[suspectIndex];
+      for (suspectIndex = 0; suspectIndex < data.length; suspectIndex++) {
+        suspect = data[suspectIndex];
 
-      assert.equal((0, _compare.default)(suspect, suspect), 0, suspectIndex + ' should equal itself');
+        assert.equal((0, _compare.default)(suspect, suspect), 0, suspectIndex + ' should equal itself');
 
-      for (comparableIndex = suspectIndex + 1; comparableIndex < data.length; comparableIndex++) {
-        comparable = data[comparableIndex];
+        for (comparableIndex = suspectIndex + 1; comparableIndex < data.length; comparableIndex++) {
+          comparable = data[comparableIndex];
 
-        failureMessage = 'data[' + suspectIndex + '] (' + (0, _utils.typeOf)(suspect) + ') should be smaller than data[' + comparableIndex + '] (' + (0, _utils.typeOf)(comparable) + ')';
+          failureMessage = 'data[' + suspectIndex + '] (' + (0, _utils.typeOf)(suspect) + ') should be smaller than data[' + comparableIndex + '] (' + (0, _utils.typeOf)(comparable) + ')';
 
-        assert.equal((0, _compare.default)(suspect, comparable), -1, failureMessage);
+          assert.equal((0, _compare.default)(suspect, comparable), -1, failureMessage);
+        }
       }
-    }
-  });
+    };
 
-  QUnit.test('comparables should return values in the range of -1, 0, 1', function (assert) {
-    var negOne = Comp.create({
-      val: -1
-    });
+    _class.prototype['@test comparables should return values in the range of -1, 0, 1'] = function testComparablesShouldReturnValuesInTheRangeOf101(assert) {
+      var negOne = Comp.create({
+        val: -1
+      });
 
-    var zero = Comp.create({
-      val: 0
-    });
+      var zero = Comp.create({
+        val: 0
+      });
 
-    var one = Comp.create({
-      val: 1
-    });
+      var one = Comp.create({
+        val: 1
+      });
 
-    assert.equal((0, _compare.default)(negOne, 'a'), -1, 'First item comparable - returns -1 (not negated)');
-    assert.equal((0, _compare.default)(zero, 'b'), 0, 'First item comparable - returns  0 (not negated)');
-    assert.equal((0, _compare.default)(one, 'c'), 1, 'First item comparable - returns  1 (not negated)');
+      assert.equal((0, _compare.default)(negOne, 'a'), -1, 'First item comparable - returns -1 (not negated)');
+      assert.equal((0, _compare.default)(zero, 'b'), 0, 'First item comparable - returns  0 (not negated)');
+      assert.equal((0, _compare.default)(one, 'c'), 1, 'First item comparable - returns  1 (not negated)');
 
-    assert.equal((0, _compare.default)('a', negOne), 1, 'Second item comparable - returns -1 (negated)');
-    assert.equal((0, _compare.default)('b', zero), 0, 'Second item comparable - returns  0 (negated)');
-    assert.equal((0, _compare.default)('c', one), -1, 'Second item comparable - returns  1 (negated)');
-  });
+      assert.equal((0, _compare.default)('a', negOne), 1, 'Second item comparable - returns -1 (negated)');
+      assert.equal((0, _compare.default)('b', zero), 0, 'Second item comparable - returns  0 (negated)');
+      assert.equal((0, _compare.default)('c', one), -1, 'Second item comparable - returns  1 (negated)');
+    };
+
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
 });
 QUnit.module('ESLint | ember-runtime/tests/core/compare_test.js');
 QUnit.test('should pass ESLint', function(assert) {
@@ -51793,38 +51802,47 @@ QUnit.test('should pass ESLint', function(assert) {
   assert.ok(true, 'ember-runtime/tests/core/compare_test.js should pass ESLint\n\n');
 });
 
-enifed('ember-runtime/tests/core/copy_test', ['ember-runtime/copy'], function (_copy) {
+enifed('ember-runtime/tests/core/copy_test', ['ember-babel', 'ember-runtime/copy', 'internal-test-helpers'], function (_emberBabel, _copy, _internalTestHelpers) {
   'use strict';
 
-  QUnit.module('Ember Copy Method');
+  (0, _internalTestHelpers.moduleFor)('Ember Copy Method', function (_AbstractTestCase) {
+    (0, _emberBabel.inherits)(_class, _AbstractTestCase);
 
-  QUnit.test('Ember.copy null', function (assert) {
-    var obj = { field: null };
+    function _class() {
+      (0, _emberBabel.classCallCheck)(this, _class);
+      return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase.apply(this, arguments));
+    }
 
-    assert.equal((0, _copy.default)(obj, true).field, null, 'null should still be null');
-  });
+    _class.prototype['@test Ember.copy null'] = function testEmberCopyNull(assert) {
+      var obj = { field: null };
 
-  QUnit.test('Ember.copy date', function (assert) {
-    var date = new Date(2014, 7, 22);
-    var dateCopy = (0, _copy.default)(date);
+      assert.equal((0, _copy.default)(obj, true).field, null, 'null should still be null');
+    };
 
-    assert.equal(date.getTime(), dateCopy.getTime(), 'dates should be equivalent');
-  });
+    _class.prototype['@test Ember.copy date'] = function testEmberCopyDate(assert) {
+      var date = new Date(2014, 7, 22);
+      var dateCopy = (0, _copy.default)(date);
 
-  QUnit.test('Ember.copy null prototype object', function (assert) {
-    var obj = Object.create(null);
+      assert.equal(date.getTime(), dateCopy.getTime(), 'dates should be equivalent');
+    };
 
-    obj.foo = 'bar';
+    _class.prototype['@test Ember.copy null prototype object'] = function testEmberCopyNullPrototypeObject(assert) {
+      var obj = Object.create(null);
 
-    assert.equal((0, _copy.default)(obj).foo, 'bar', 'bar should still be bar');
-  });
+      obj.foo = 'bar';
 
-  QUnit.test('Ember.copy Array', function (assert) {
-    var array = [1, null, new Date(2015, 9, 9), 'four'];
-    var arrayCopy = (0, _copy.default)(array);
+      assert.equal((0, _copy.default)(obj).foo, 'bar', 'bar should still be bar');
+    };
 
-    assert.deepEqual(array, arrayCopy, 'array content cloned successfully in new array');
-  });
+    _class.prototype['@test Ember.copy Array'] = function testEmberCopyArray(assert) {
+      var array = [1, null, new Date(2015, 9, 9), 'four'];
+      var arrayCopy = (0, _copy.default)(array);
+
+      assert.deepEqual(array, arrayCopy, 'array content cloned successfully in new array');
+    };
+
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
 });
 QUnit.module('ESLint | ember-runtime/tests/core/copy_test.js');
 QUnit.test('should pass ESLint', function(assert) {
@@ -51832,53 +51850,62 @@ QUnit.test('should pass ESLint', function(assert) {
   assert.ok(true, 'ember-runtime/tests/core/copy_test.js should pass ESLint\n\n');
 });
 
-enifed('ember-runtime/tests/core/isEqual_test', ['ember-runtime/is-equal'], function (_isEqual) {
+enifed('ember-runtime/tests/core/isEqual_test', ['ember-babel', 'ember-runtime/is-equal', 'internal-test-helpers'], function (_emberBabel, _isEqual, _internalTestHelpers) {
   'use strict';
 
-  QUnit.module('isEqual');
+  (0, _internalTestHelpers.moduleFor)('isEqual', function (_AbstractTestCase) {
+    (0, _emberBabel.inherits)(_class, _AbstractTestCase);
 
-  QUnit.test('undefined and null', function (assert) {
-    assert.ok((0, _isEqual.default)(undefined, undefined), 'undefined is equal to undefined');
-    assert.ok(!(0, _isEqual.default)(undefined, null), 'undefined is not equal to null');
-    assert.ok((0, _isEqual.default)(null, null), 'null is equal to null');
-    assert.ok(!(0, _isEqual.default)(null, undefined), 'null is not equal to undefined');
-  });
+    function _class() {
+      (0, _emberBabel.classCallCheck)(this, _class);
+      return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase.apply(this, arguments));
+    }
 
-  QUnit.test('strings should be equal', function (assert) {
-    assert.ok(!(0, _isEqual.default)('Hello', 'Hi'), 'different Strings are unequal');
-    assert.ok((0, _isEqual.default)('Hello', 'Hello'), 'same Strings are equal');
-  });
-
-  QUnit.test('numericals should be equal', function (assert) {
-    assert.ok((0, _isEqual.default)(24, 24), 'same numbers are equal');
-    assert.ok(!(0, _isEqual.default)(24, 21), 'different numbers are inequal');
-  });
-
-  QUnit.test('dates should be equal', function (assert) {
-    assert.ok((0, _isEqual.default)(new Date(1985, 7, 22), new Date(1985, 7, 22)), 'same dates are equal');
-    assert.ok(!(0, _isEqual.default)(new Date(2014, 7, 22), new Date(1985, 7, 22)), 'different dates are not equal');
-  });
-
-  QUnit.test('array should be equal', function (assert) {
-    // NOTE: We don't test for array contents -- that would be too expensive.
-    assert.ok(!(0, _isEqual.default)([1, 2], [1, 2]), 'two array instances with the same values should not be equal');
-    assert.ok(!(0, _isEqual.default)([1, 2], [1]), 'two array instances with different values should not be equal');
-  });
-
-  QUnit.test('first object implements isEqual should use it', function (assert) {
-    assert.ok((0, _isEqual.default)({
-      isEqual: function () {
-        return true;
-      }
-    }, null), 'should return true always');
-
-    var obj = {
-      isEqual: function () {
-        return false;
-      }
+    _class.prototype['@test undefined and null'] = function testUndefinedAndNull(assert) {
+      assert.ok((0, _isEqual.default)(undefined, undefined), 'undefined is equal to undefined');
+      assert.ok(!(0, _isEqual.default)(undefined, null), 'undefined is not equal to null');
+      assert.ok((0, _isEqual.default)(null, null), 'null is equal to null');
+      assert.ok(!(0, _isEqual.default)(null, undefined), 'null is not equal to undefined');
     };
-    assert.equal((0, _isEqual.default)(obj, obj), false, 'should return false because isEqual returns false');
-  });
+
+    _class.prototype['@test strings should be equal'] = function testStringsShouldBeEqual(assert) {
+      assert.ok(!(0, _isEqual.default)('Hello', 'Hi'), 'different Strings are unequal');
+      assert.ok((0, _isEqual.default)('Hello', 'Hello'), 'same Strings are equal');
+    };
+
+    _class.prototype['@test numericals should be equal'] = function testNumericalsShouldBeEqual(assert) {
+      assert.ok((0, _isEqual.default)(24, 24), 'same numbers are equal');
+      assert.ok(!(0, _isEqual.default)(24, 21), 'different numbers are inequal');
+    };
+
+    _class.prototype['@test dates should be equal'] = function testDatesShouldBeEqual(assert) {
+      assert.ok((0, _isEqual.default)(new Date(1985, 7, 22), new Date(1985, 7, 22)), 'same dates are equal');
+      assert.ok(!(0, _isEqual.default)(new Date(2014, 7, 22), new Date(1985, 7, 22)), 'different dates are not equal');
+    };
+
+    _class.prototype['@test array should be equal'] = function testArrayShouldBeEqual(assert) {
+      // NOTE: We don't test for array contents -- that would be too expensive.
+      assert.ok(!(0, _isEqual.default)([1, 2], [1, 2]), 'two array instances with the same values should not be equal');
+      assert.ok(!(0, _isEqual.default)([1, 2], [1]), 'two array instances with different values should not be equal');
+    };
+
+    _class.prototype['@test first object implements isEqual should use it'] = function testFirstObjectImplementsIsEqualShouldUseIt(assert) {
+      assert.ok((0, _isEqual.default)({
+        isEqual: function () {
+          return true;
+        }
+      }, null), 'should return true always');
+
+      var obj = {
+        isEqual: function () {
+          return false;
+        }
+      };
+      assert.equal((0, _isEqual.default)(obj, obj), false, 'should return false because isEqual returns false');
+    };
+
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
 });
 QUnit.module('ESLint | ember-runtime/tests/core/isEqual_test.js');
 QUnit.test('should pass ESLint', function(assert) {
@@ -51886,44 +51913,55 @@ QUnit.test('should pass ESLint', function(assert) {
   assert.ok(true, 'ember-runtime/tests/core/isEqual_test.js should pass ESLint\n\n');
 });
 
-enifed('ember-runtime/tests/core/is_array_test', ['ember-runtime/utils', 'ember-runtime/system/native_array', 'ember-runtime/system/array_proxy', 'ember-environment'], function (_utils, _native_array, _array_proxy, _emberEnvironment) {
+enifed('ember-runtime/tests/core/is_array_test', ['ember-babel', 'ember-runtime/utils', 'ember-runtime/system/native_array', 'ember-runtime/system/array_proxy', 'ember-environment', 'internal-test-helpers'], function (_emberBabel, _utils, _native_array, _array_proxy, _emberEnvironment, _internalTestHelpers) {
   'use strict';
-
-  QUnit.module('Ember Type Checking');
 
   var global = undefined;
 
-  QUnit.test('Ember.isArray', function (assert) {
-    var numarray = [1, 2, 3];
-    var number = 23;
-    var strarray = ['Hello', 'Hi'];
-    var string = 'Hello';
-    var object = {};
-    var length = { length: 12 };
-    var strangeLength = { length: 'yes' };
-    var fn = function () {};
-    var arrayProxy = _array_proxy.default.create({ content: (0, _native_array.A)() });
+  (0, _internalTestHelpers.moduleFor)('Ember Type Checking', function (_AbstractTestCase) {
+    (0, _emberBabel.inherits)(_class, _AbstractTestCase);
 
-    assert.equal((0, _utils.isArray)(numarray), true, '[1,2,3]');
-    assert.equal((0, _utils.isArray)(number), false, '23');
-    assert.equal((0, _utils.isArray)(strarray), true, '["Hello", "Hi"]');
-    assert.equal((0, _utils.isArray)(string), false, '"Hello"');
-    assert.equal((0, _utils.isArray)(object), false, '{}');
-    assert.equal((0, _utils.isArray)(length), true, '{ length: 12 }');
-    assert.equal((0, _utils.isArray)(strangeLength), false, '{ length: "yes" }');
-    assert.equal((0, _utils.isArray)(global), false, 'global');
-    assert.equal((0, _utils.isArray)(fn), false, 'function() {}');
-    assert.equal((0, _utils.isArray)(arrayProxy), true, '[]');
-  });
+    function _class() {
+      (0, _emberBabel.classCallCheck)(this, _class);
+      return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase.apply(this, arguments));
+    }
 
-  if (_emberEnvironment.environment.window && typeof _emberEnvironment.environment.window.FileList === 'function') {
-    QUnit.test('Ember.isArray(fileList)', function (assert) {
-      var fileListElement = document.createElement('input');
-      fileListElement.type = 'file';
-      var fileList = fileListElement.files;
-      assert.equal((0, _utils.isArray)(fileList), false, 'fileList');
-    });
-  }
+    _class.prototype['@test Ember.isArray'] = function testEmberIsArray(assert) {
+      var numarray = [1, 2, 3];
+      var number = 23;
+      var strarray = ['Hello', 'Hi'];
+      var string = 'Hello';
+      var object = {};
+      var length = { length: 12 };
+      var strangeLength = { length: 'yes' };
+      var fn = function () {};
+      var arrayProxy = _array_proxy.default.create({ content: (0, _native_array.A)() });
+
+      assert.equal((0, _utils.isArray)(numarray), true, '[1,2,3]');
+      assert.equal((0, _utils.isArray)(number), false, '23');
+      assert.equal((0, _utils.isArray)(strarray), true, '["Hello", "Hi"]');
+      assert.equal((0, _utils.isArray)(string), false, '"Hello"');
+      assert.equal((0, _utils.isArray)(object), false, '{}');
+      assert.equal((0, _utils.isArray)(length), true, '{ length: 12 }');
+      assert.equal((0, _utils.isArray)(strangeLength), false, '{ length: "yes" }');
+      assert.equal((0, _utils.isArray)(global), false, 'global');
+      assert.equal((0, _utils.isArray)(fn), false, 'function() {}');
+      assert.equal((0, _utils.isArray)(arrayProxy), true, '[]');
+    };
+
+    _class.prototype['@test Ember.isArray(fileList)'] = function testEmberIsArrayFileList(assert) {
+      if (_emberEnvironment.environment.window && typeof _emberEnvironment.environment.window.FileList === 'function') {
+        var fileListElement = document.createElement('input');
+        fileListElement.type = 'file';
+        var fileList = fileListElement.files;
+        assert.equal((0, _utils.isArray)(fileList), false, 'fileList');
+      } else {
+        assert.ok(true, 'FileList is not present on window');
+      }
+    };
+
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
 });
 QUnit.module('ESLint | ember-runtime/tests/core/is_array_test.js');
 QUnit.test('should pass ESLint', function(assert) {
@@ -51931,16 +51969,25 @@ QUnit.test('should pass ESLint', function(assert) {
   assert.ok(true, 'ember-runtime/tests/core/is_array_test.js should pass ESLint\n\n');
 });
 
-enifed('ember-runtime/tests/core/is_empty_test', ['ember-metal', 'ember-runtime/system/array_proxy', 'ember-runtime/system/native_array'], function (_emberMetal, _array_proxy, _native_array) {
+enifed('ember-runtime/tests/core/is_empty_test', ['ember-babel', 'ember-metal', 'ember-runtime/system/array_proxy', 'ember-runtime/system/native_array', 'internal-test-helpers'], function (_emberBabel, _emberMetal, _array_proxy, _native_array, _internalTestHelpers) {
   'use strict';
 
-  QUnit.module('Ember.isEmpty');
+  (0, _internalTestHelpers.moduleFor)('Ember.isEmpty', function (_AbstractTestCase) {
+    (0, _emberBabel.inherits)(_class, _AbstractTestCase);
 
-  QUnit.test('Ember.isEmpty', function (assert) {
-    var arrayProxy = _array_proxy.default.create({ content: (0, _native_array.A)() });
+    function _class() {
+      (0, _emberBabel.classCallCheck)(this, _class);
+      return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase.apply(this, arguments));
+    }
 
-    assert.equal(true, (0, _emberMetal.isEmpty)(arrayProxy), 'for an ArrayProxy that has empty content');
-  });
+    _class.prototype['@test Ember.isEmpty'] = function testEmberIsEmpty(assert) {
+      var arrayProxy = _array_proxy.default.create({ content: (0, _native_array.A)() });
+
+      assert.equal(true, (0, _emberMetal.isEmpty)(arrayProxy), 'for an ArrayProxy that has empty content');
+    };
+
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
 });
 QUnit.module('ESLint | ember-runtime/tests/core/is_empty_test.js');
 QUnit.test('should pass ESLint', function(assert) {
@@ -51948,55 +51995,66 @@ QUnit.test('should pass ESLint', function(assert) {
   assert.ok(true, 'ember-runtime/tests/core/is_empty_test.js should pass ESLint\n\n');
 });
 
-enifed('ember-runtime/tests/core/type_of_test', ['ember-runtime/utils', 'ember-runtime/system/object', 'ember-environment'], function (_utils, _object, _emberEnvironment) {
+enifed('ember-runtime/tests/core/type_of_test', ['ember-babel', 'ember-runtime/utils', 'ember-runtime/system/object', 'ember-environment', 'internal-test-helpers'], function (_emberBabel, _utils, _object, _emberEnvironment, _internalTestHelpers) {
   'use strict';
 
-  QUnit.module('Ember Type Checking');
+  (0, _internalTestHelpers.moduleFor)('Ember Type Checking', function (_AbstractTestCase) {
+    (0, _emberBabel.inherits)(_class, _AbstractTestCase);
 
-  QUnit.test('Ember.typeOf', function (assert) {
-    var MockedDate = function () {};
-    MockedDate.prototype = new Date();
+    function _class() {
+      (0, _emberBabel.classCallCheck)(this, _class);
+      return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase.apply(this, arguments));
+    }
 
-    var mockedDate = new MockedDate();
-    var date = new Date();
-    var error = new Error('boum');
-    var object = { a: 'b' };
-    var a = null;
-    var arr = [1, 2, 3];
-    var obj = {};
-    var instance = _object.default.create({
-      method: function () {}
-    });
+    _class.prototype['@test Ember.typeOf'] = function testEmberTypeOf(assert) {
+      var MockedDate = function () {};
+      MockedDate.prototype = new Date();
 
-    assert.equal((0, _utils.typeOf)(), 'undefined', 'undefined');
-    assert.equal((0, _utils.typeOf)(null), 'null', 'null');
-    assert.equal((0, _utils.typeOf)('Cyril'), 'string', 'Cyril');
-    assert.equal((0, _utils.typeOf)(101), 'number', '101');
-    assert.equal((0, _utils.typeOf)(true), 'boolean', 'true');
-    assert.equal((0, _utils.typeOf)([1, 2, 90]), 'array', '[1,2,90]');
-    assert.equal((0, _utils.typeOf)(/abc/), 'regexp', '/abc/');
-    assert.equal((0, _utils.typeOf)(date), 'date', 'new Date()');
-    assert.equal((0, _utils.typeOf)(mockedDate), 'date', 'mocked date');
-    assert.equal((0, _utils.typeOf)(error), 'error', 'error');
-    assert.equal((0, _utils.typeOf)(object), 'object', 'object');
-    assert.equal((0, _utils.typeOf)(undefined), 'undefined', 'item of type undefined');
-    assert.equal((0, _utils.typeOf)(a), 'null', 'item of type null');
-    assert.equal((0, _utils.typeOf)(arr), 'array', 'item of type array');
-    assert.equal((0, _utils.typeOf)(obj), 'object', 'item of type object');
-    assert.equal((0, _utils.typeOf)(instance), 'instance', 'item of type instance');
-    assert.equal((0, _utils.typeOf)(instance.method), 'function', 'item of type function');
-    assert.equal((0, _utils.typeOf)(_object.default.extend()), 'class', 'item of type class');
-    assert.equal((0, _utils.typeOf)(new Error()), 'error', 'item of type error');
-  });
+      var mockedDate = new MockedDate();
+      var date = new Date();
+      var error = new Error('boum');
+      var object = { a: 'b' };
+      var a = null;
+      var arr = [1, 2, 3];
+      var obj = {};
+      var instance = _object.default.create({
+        method: function () {}
+      });
 
-  if (_emberEnvironment.environment.window && typeof _emberEnvironment.environment.window.FileList === 'function') {
-    QUnit.test('Ember.typeOf(fileList)', function (assert) {
-      var fileListElement = document.createElement('input');
-      fileListElement.type = 'file';
-      var fileList = fileListElement.files;
-      assert.equal((0, _utils.typeOf)(fileList), 'filelist', 'item of type filelist');
-    });
-  }
+      assert.equal((0, _utils.typeOf)(), 'undefined', 'undefined');
+      assert.equal((0, _utils.typeOf)(null), 'null', 'null');
+      assert.equal((0, _utils.typeOf)('Cyril'), 'string', 'Cyril');
+      assert.equal((0, _utils.typeOf)(101), 'number', '101');
+      assert.equal((0, _utils.typeOf)(true), 'boolean', 'true');
+      assert.equal((0, _utils.typeOf)([1, 2, 90]), 'array', '[1,2,90]');
+      assert.equal((0, _utils.typeOf)(/abc/), 'regexp', '/abc/');
+      assert.equal((0, _utils.typeOf)(date), 'date', 'new Date()');
+      assert.equal((0, _utils.typeOf)(mockedDate), 'date', 'mocked date');
+      assert.equal((0, _utils.typeOf)(error), 'error', 'error');
+      assert.equal((0, _utils.typeOf)(object), 'object', 'object');
+      assert.equal((0, _utils.typeOf)(undefined), 'undefined', 'item of type undefined');
+      assert.equal((0, _utils.typeOf)(a), 'null', 'item of type null');
+      assert.equal((0, _utils.typeOf)(arr), 'array', 'item of type array');
+      assert.equal((0, _utils.typeOf)(obj), 'object', 'item of type object');
+      assert.equal((0, _utils.typeOf)(instance), 'instance', 'item of type instance');
+      assert.equal((0, _utils.typeOf)(instance.method), 'function', 'item of type function');
+      assert.equal((0, _utils.typeOf)(_object.default.extend()), 'class', 'item of type class');
+      assert.equal((0, _utils.typeOf)(new Error()), 'error', 'item of type error');
+    };
+
+    _class.prototype['@test Ember.typeOf(fileList)'] = function testEmberTypeOfFileList(assert) {
+      if (_emberEnvironment.environment.window && typeof _emberEnvironment.environment.window.FileList === 'function') {
+        var fileListElement = document.createElement('input');
+        fileListElement.type = 'file';
+        var fileList = fileListElement.files;
+        assert.equal((0, _utils.typeOf)(fileList), 'filelist', 'item of type filelist');
+      } else {
+        assert.ok(true, 'FileList is not present on window');
+      }
+    };
+
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
 });
 QUnit.module('ESLint | ember-runtime/tests/core/type_of_test.js');
 QUnit.test('should pass ESLint', function(assert) {
