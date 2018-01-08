@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.0.0-canary+d7b15eea
+ * @version   3.0.0-canary+db34024b
  */
 
 /*globals process */
@@ -16746,6 +16746,10 @@ enifed('ember-utils', ['exports'], function (exports) {
   }
 
   /**
+    @module @ember/utils
+  */
+
+  /**
     Checks to see if the `methodName` exists on the `obj`,
     and if it does, invokes it with the arguments passed.
   
@@ -16758,7 +16762,8 @@ enifed('ember-utils', ['exports'], function (exports) {
     ```
   
     @method tryInvoke
-    @for Ember
+    @for @ember/utils
+    @static
     @param {Object} obj The object to check for the method
     @param {String} methodName The method name to check for
     @param {Array} [args] The arguments to pass to the method
@@ -17040,7 +17045,7 @@ enifed('ember/features', ['exports', 'ember-environment', 'ember-utils'], functi
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "3.0.0-canary+d7b15eea";
+  exports.default = "3.0.0-canary+db34024b";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";

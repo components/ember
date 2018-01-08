@@ -3,7 +3,7 @@
     "name": "The Ember API",
     "description": "The Ember API: a framework for building ambitious web applications",
     "url": "https://emberjs.com/",
-    "version": "3.0.0-canary+d7b15eea"
+    "version": "3.0.0-canary+db34024b"
   },
   "files": {
     "node_modules/rsvp/lib/rsvp/promise/all.js": {
@@ -1263,7 +1263,7 @@
       "modules": {},
       "classes": {},
       "fors": {
-        "Ember.Ember": 1
+        "@ember/utils": 1
       },
       "namespaces": {}
     },
@@ -1294,15 +1294,13 @@
       "modules": {},
       "classes": {},
       "fors": {
-        "Ember.Ember": 1
+        "@ember/utils": 1
       },
       "namespaces": {}
     },
     "packages/ember-runtime/lib/utils.js": {
       "name": "packages/ember-runtime/lib/utils.js",
-      "modules": {
-        "@ember/utils": 1
-      },
+      "modules": {},
       "classes": {},
       "fors": {
         "@ember/array": 1,
@@ -1536,10 +1534,13 @@
     },
     "packages/ember-utils/lib/invoke.js": {
       "name": "packages/ember-utils/lib/invoke.js",
-      "modules": {},
+      "modules": {
+        "@ember/utils": 1
+      },
       "classes": {},
       "fors": {
-        "Ember.Ember": 1
+        "Ember.Ember": 1,
+        "@ember/utils": 1
       },
       "namespaces": {}
     },
@@ -1915,8 +1916,7 @@
       },
       "fors": {
         "@ember/template": 1,
-        "@ember/string": 1,
-        "Ember.Ember": 1
+        "@ember/string": 1
       },
       "namespaces": {},
       "tag": "module",
@@ -1983,9 +1983,7 @@
     },
     "@ember/utils": {
       "name": "@ember/utils",
-      "submodules": {
-        "undefined": 1
-      },
+      "submodules": {},
       "elements": {},
       "classes": {
         "@ember/array": 1,
@@ -1996,8 +1994,8 @@
       },
       "namespaces": {},
       "tag": "module",
-      "file": "packages/ember-runtime/lib/utils.js",
-      "line": 59
+      "file": "packages/ember-utils/lib/invoke.js",
+      "line": 25
     },
     "@ember/polyfills": {
       "name": "@ember/polyfills",
@@ -13923,7 +13921,7 @@
     {
       "file": "packages/ember-runtime/lib/computed/reduce_computed_macros.js",
       "line": 675,
-      "description": "A computed property which returns a new array with all the\nproperties from the first dependent array sorted based on a property\nor sort function.\n\nThe callback method you provide should have the following signature:\n\n```javascript\nfunction(itemA, itemB);\n```\n\n- `itemA` the first item to compare.\n- `itemB` the second item to compare.\n\nThis function should return negative number (e.g. `-1`) when `itemA` should come before\n`itemB`. It should return positive number (e.g. `1`) when `itemA` should come after\n`itemB`. If the `itemA` and `itemB` are equal this function should return `0`.\n\nTherefore, if this function is comparing some numeric values, simple `itemA - itemB` or\n`itemA.get( 'foo' ) - itemB.get( 'foo' )` can be used instead of series of `if`.\n\nExample\n\n```javascript\nlet ToDoList = Ember.Object.extend({\n  // using standard ascending sort\n  todosSorting: ['name'],\n  sortedTodos: Ember.computed.sort('todos', 'todosSorting'),\n\n  // using descending sort\n  todosSortingDesc: ['name:desc'],\n  sortedTodosDesc: Ember.computed.sort('todos', 'todosSortingDesc'),\n\n  // using a custom sort function\n  priorityTodos: Ember.computed.sort('todos', function(a, b){\n    if (a.priority > b.priority) {\n      return 1;\n    } else if (a.priority < b.priority) {\n      return -1;\n    }\n\n    return 0;\n  })\n});\n\nlet todoList = ToDoList.create({todos: [\n  { name: 'Unit Test', priority: 2 },\n  { name: 'Documentation', priority: 3 },\n  { name: 'Release', priority: 1 }\n]});\n\ntodoList.get('sortedTodos');      // [{ name:'Documentation', priority:3 }, { name:'Release', priority:1 }, { name:'Unit Test', priority:2 }]\ntodoList.get('sortedTodosDesc');  // [{ name:'Unit Test', priority:2 }, { name:'Release', priority:1 }, { name:'Documentation', priority:3 }]\ntodoList.get('priorityTodos');    // [{ name:'Release', priority:1 }, { name:'Unit Test', priority:2 }, { name:'Documentation', priority:3 }]\n```",
+      "description": "A computed property which returns a new array with all the\nproperties from the first dependent array sorted based on a property\nor sort function.\n\nThe callback method you provide should have the following signature:\n\n```javascript\nfunction(itemA, itemB);\n```\n\n- `itemA` the first item to compare.\n- `itemB` the second item to compare.\n\nThis function should return negative number (e.g. `-1`) when `itemA` should come before\n`itemB`. It should return positive number (e.g. `1`) when `itemA` should come after\n`itemB`. If the `itemA` and `itemB` are equal this function should return `0`.\n\nTherefore, if this function is comparing some numeric values, simple `itemA - itemB` or\n`itemA.get( 'foo' ) - itemB.get( 'foo' )` can be used instead of series of `if`.\n\nExample\n\n```javascript\nlet ToDoList = Ember.Object.extend({\n  // using standard ascending sort\n  todosSorting: Object.freeze(['name']),\n  sortedTodos: Ember.computed.sort('todos', 'todosSorting'),\n\n  // using descending sort\n  todosSortingDesc: Object.freeze(['name:desc']),\n  sortedTodosDesc: Ember.computed.sort('todos', 'todosSortingDesc'),\n\n  // using a custom sort function\n  priorityTodos: Ember.computed.sort('todos', function(a, b){\n    if (a.priority > b.priority) {\n      return 1;\n    } else if (a.priority < b.priority) {\n      return -1;\n    }\n\n    return 0;\n  })\n});\n\nlet todoList = ToDoList.create({todos: [\n  { name: 'Unit Test', priority: 2 },\n  { name: 'Documentation', priority: 3 },\n  { name: 'Release', priority: 1 }\n]});\n\ntodoList.get('sortedTodos');      // [{ name:'Documentation', priority:3 }, { name:'Release', priority:1 }, { name:'Unit Test', priority:2 }]\ntodoList.get('sortedTodosDesc');  // [{ name:'Unit Test', priority:2 }, { name:'Release', priority:1 }, { name:'Documentation', priority:3 }]\ntodoList.get('priorityTodos');    // [{ name:'Release', priority:1 }, { name:'Unit Test', priority:2 }, { name:'Documentation', priority:3 }]\n```",
       "itemtype": "method",
       "name": "sort",
       "static": 1,
@@ -17446,10 +17444,11 @@
     },
     {
       "file": "packages/ember-runtime/lib/compare.js",
-      "line": 40,
+      "line": 44,
       "description": "Compares two javascript values and returns:\n\n - -1 if the first is smaller than the second,\n - 0 if both are equal,\n - 1 if the first is greater than the second.\n\n ```javascript\n Ember.compare('hello', 'hello');  // 0\n Ember.compare('abc', 'dfg');      // -1\n Ember.compare(2, 1);              // 1\n ```\n\nIf the types of the two objects are different precedence occurs in the\nfollowing order, with types earlier in the list considered `<` types\nlater in the list:\n\n - undefined\n - null\n - boolean\n - number\n - string\n - array\n - object\n - instance\n - function\n - class\n - date\n\n ```javascript\n Ember.compare('hello', 50);       // 1\n Ember.compare(50, 'hello');       // -1\n ```",
       "itemtype": "method",
       "name": "compare",
+      "static": 1,
       "params": [
         {
           "name": "v",
@@ -17468,9 +17467,8 @@
       },
       "access": "public",
       "tagname": "",
-      "class": "Ember.Ember",
-      "module": "@ember/string",
-      "namespace": "Ember"
+      "class": "@ember/utils",
+      "module": "@ember/utils"
     },
     {
       "file": "packages/ember-runtime/lib/copy.js",
@@ -17549,10 +17547,11 @@
     },
     {
       "file": "packages/ember-runtime/lib/is-equal.js",
-      "line": 1,
+      "line": 4,
       "description": "Compares two objects, returning true if they are equal.\n\n```javascript\nEmber.isEqual('hello', 'hello');                   // true\nEmber.isEqual(1, 2);                               // false\n```\n\n`isEqual` is a more specific comparison than a triple equal comparison.\nIt will call the `isEqual` instance method on the objects being\ncompared, allowing finer control over when objects should be considered\nequal to each other.\n\n```javascript\nlet Person = Ember.Object.extend({\n  isEqual(other) { return this.ssn == other.ssn; }\n});\n\nlet personA = Person.create({name: 'Muhammad Ali', ssn: '123-45-6789'});\nlet personB = Person.create({name: 'Cassius Clay', ssn: '123-45-6789'});\n\nEmber.isEqual(personA, personB); // true\n```\n\nDue to the expense of array comparisons, collections will never be equal to\neach other even if each of their items are equal to each other.\n\n```javascript\nEmber.isEqual([4, 2], [4, 2]);                     // false\n```",
       "itemtype": "method",
       "name": "isEqual",
+      "static": 1,
       "params": [
         {
           "name": "a",
@@ -17571,9 +17570,8 @@
       },
       "access": "public",
       "tagname": "",
-      "class": "Ember.Ember",
-      "module": "@ember/object",
-      "namespace": "Ember"
+      "class": "@ember/utils",
+      "module": "@ember/utils"
     },
     {
       "file": "packages/ember-runtime/lib/utils.js",
@@ -18541,10 +18539,11 @@
     },
     {
       "file": "packages/ember-utils/lib/invoke.js",
-      "line": 25,
+      "line": 29,
       "description": "Checks to see if the `methodName` exists on the `obj`,\nand if it does, invokes it with the arguments passed.\n\n```javascript\nlet d = new Date('03/15/2013');\n\nEmber.tryInvoke(d, 'getTime');              // 1363320000000\nEmber.tryInvoke(d, 'setFullYear', [2014]);  // 1394856000000\nEmber.tryInvoke(d, 'noSuchMethod', [2014]); // undefined\n```",
       "itemtype": "method",
       "name": "tryInvoke",
+      "static": 1,
       "params": [
         {
           "name": "obj",
@@ -18569,9 +18568,8 @@
       },
       "access": "public",
       "tagname": "",
-      "class": "Ember.Ember",
-      "module": "@ember/debug",
-      "namespace": "Ember"
+      "class": "@ember/utils",
+      "module": "@ember/utils"
     },
     {
       "file": "packages/ember-utils/lib/make-array.js",

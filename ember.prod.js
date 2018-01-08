@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.0.0-canary+d7b15eea
+ * @version   3.0.0-canary+db34024b
  */
 
 /*globals process */
@@ -32936,6 +32936,10 @@ enifed('ember-runtime/compare', ['exports', 'ember-runtime/utils', 'ember-runtim
   }
 
   /**
+   @module @ember/utils
+  */
+
+  /**
    Compares two javascript values and returns:
   
     - -1 if the first is smaller than the second,
@@ -32970,7 +32974,8 @@ enifed('ember-runtime/compare', ['exports', 'ember-runtime/utils', 'ember-runtim
     ```
   
    @method compare
-   @for Ember
+   @for @ember/utils
+   @static
    @param {Object} v First value to compare
    @param {Object} w Second value to compare
    @return {Number} -1 if v < w, 0 if v = w and 1 if v > w.
@@ -34394,11 +34399,11 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-debug
     ```javascript
     let ToDoList = Ember.Object.extend({
       // using standard ascending sort
-      todosSorting: ['name'],
+      todosSorting: Object.freeze(['name']),
       sortedTodos: Ember.computed.sort('todos', 'todosSorting'),
   
       // using descending sort
-      todosSortingDesc: ['name:desc'],
+      todosSortingDesc: Object.freeze(['name:desc']),
       sortedTodosDesc: Ember.computed.sort('todos', 'todosSortingDesc'),
   
       // using a custom sort function
@@ -35636,6 +35641,9 @@ enifed('ember-runtime/is-equal', ['exports'], function (exports) {
 
   exports.default =
   /**
+   @module @ember/utils
+  */
+  /**
     Compares two objects, returning true if they are equal.
   
     ```javascript
@@ -35667,7 +35675,8 @@ enifed('ember-runtime/is-equal', ['exports'], function (exports) {
     ```
   
     @method isEqual
-    @for Ember
+    @for @ember/utils
+    @static
     @param {Object} a first object to compare
     @param {Object} b second object to compare
     @return {Boolean}
@@ -40684,6 +40693,10 @@ enifed('ember-utils', ['exports'], function (exports) {
   }
 
   /**
+    @module @ember/utils
+  */
+
+  /**
     Checks to see if the `methodName` exists on the `obj`,
     and if it does, invokes it with the arguments passed.
   
@@ -40696,7 +40709,8 @@ enifed('ember-utils', ['exports'], function (exports) {
     ```
   
     @method tryInvoke
-    @for Ember
+    @for @ember/utils
+    @static
     @param {Object} obj The object to check for the method
     @param {String} methodName The method name to check for
     @param {Array} [args] The arguments to pass to the method
@@ -43412,7 +43426,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "3.0.0-canary+d7b15eea";
+  exports.default = "3.0.0-canary+db34024b";
 });
 /*global enifed */
 enifed('node-module', ['exports'], function(_exports) {
