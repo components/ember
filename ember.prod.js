@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.0.0-canary+f7f92863
+ * @version   3.0.0-canary+db1f29fe
  */
 
 /*globals process */
@@ -11506,7 +11506,7 @@ enifed('ember-application/initializers/dom-templates', ['require', 'ember-glimme
     }
   });
 });
-enifed('ember-application/system/application-instance', ['exports', 'ember-utils', 'ember-metal', 'ember-runtime', 'ember-environment', 'ember-views', 'ember-application/system/engine-instance'], function (exports, _emberUtils, _emberMetal, _emberRuntime, _emberEnvironment, _emberViews, _engineInstance) {
+enifed('ember-application/system/application-instance', ['exports', 'ember-utils', 'ember-metal', 'ember-environment', 'ember-views', 'ember-application/system/engine-instance', 'ember-glimmer'], function (exports, _emberUtils, _emberMetal, _emberEnvironment, _emberViews, _engineInstance, _emberGlimmer) {
   'use strict';
 
   /**
@@ -11671,13 +11671,9 @@ enifed('ember-application/system/application-instance', ['exports', 'ember-utils
           // No rendering is needed, and routing has completed, simply return.
           return _this;
         } else {
-          return new _emberRuntime.RSVP.Promise(function (resolve) {
-            // Resolve once rendering is completed. `router.handleURL` returns the transition (as a thennable)
-            // which resolves once the transition is completed, but the transition completion only queues up
-            // a scheduled revalidation (into the `render` queue) in the Renderer.
-            //
-            // This uses `run.schedule('afterRender', ....)` to resolve after that rendering has completed.
-            _emberMetal.run.schedule('afterRender', null, resolve, _this);
+          // Ensure that the visit promise resolves when all rendering has completed
+          return (0, _emberGlimmer.renderSettled)().then(function () {
+            return _this;
           });
         }
       };
@@ -18460,6 +18456,12 @@ enifed('ember-glimmer/index', ['exports', 'ember-glimmer/helpers/action', 'ember
       return _renderer._resetRenderers;
     }
   });
+  Object.defineProperty(exports, 'renderSettled', {
+    enumerable: true,
+    get: function () {
+      return _renderer.renderSettled;
+    }
+  });
   Object.defineProperty(exports, 'getTemplate', {
     enumerable: true,
     get: function () {
@@ -18796,12 +18798,34 @@ enifed('ember-glimmer/protocol-for-url', ['exports', 'ember-environment', 'node-
         return protocol === null ? ':' : protocol;
     }
 });
-enifed('ember-glimmer/renderer', ['exports', 'ember-babel', '@glimmer/reference', 'ember-debug', 'ember-metal', 'ember-views', 'ember-glimmer/component', 'ember-glimmer/component-managers/outlet', 'ember-glimmer/component-managers/root', 'ember-glimmer/utils/references', '@glimmer/runtime'], function (exports, _emberBabel, _reference, _emberDebug, _emberMetal, _emberViews, _component, _outlet, _root2, _references, _runtime) {
+enifed('ember-glimmer/renderer', ['exports', 'ember-babel', '@glimmer/reference', 'ember-debug', 'ember-metal', 'ember-views', 'ember-glimmer/component', 'ember-glimmer/component-managers/outlet', 'ember-glimmer/component-managers/root', 'ember-glimmer/utils/references', '@glimmer/runtime', 'rsvp'], function (exports, _emberBabel, _reference, _emberDebug, _emberMetal, _emberViews, _component, _outlet, _root2, _references, _runtime, _rsvp) {
     'use strict';
 
     exports.InteractiveRenderer = exports.InertRenderer = exports.Renderer = exports.DynamicScope = undefined;
     exports._resetRenderers = function () {
         renderers.length = 0;
+    };
+    exports.renderSettled =
+    /*
+      Returns a promise which will resolve when rendering has settled. Settled in
+      this context is defined as when all of the tags in use are "current" (e.g.
+      `renderers.every(r => r._isValid())`). When this is checked at the _end_ of
+      the run loop, this essentially guarantees that all rendering is completed.
+    
+      @method renderSettled
+      @returns {Promise<void>} a promise which fulfills when rendering has settled
+    */
+    function () {
+        if (renderSettledDeferred === null) {
+            renderSettledDeferred = _rsvp.default.defer();
+            // if there is no current runloop, the promise created above will not have
+            // a chance to resolve (because its resolved in backburner's "end" event)
+            if (!_emberMetal.run.currentRunLoop) {
+                // ensure a runloop has been kicked off
+                backburner.schedule('actions', null, K);
+            }
+        }
+        return renderSettledDeferred.promise;
     };
     var backburner = _emberMetal.run.backburner;
 
@@ -18920,6 +18944,17 @@ enifed('ember-glimmer/renderer', ['exports', 'ember-babel', '@glimmer/reference'
     }
 
     function K() {}
+    var renderSettledDeferred = null;
+    function resolveRenderPromise() {
+        var resolve;
+
+        if (renderSettledDeferred !== null) {
+            resolve = renderSettledDeferred.resolve;
+
+            renderSettledDeferred = null;
+            backburner.join(null, resolve);
+        }
+    }
     var loops = 0;
 
     backburner.on('begin', function () {
@@ -18945,6 +18980,7 @@ enifed('ember-glimmer/renderer', ['exports', 'ember-babel', '@glimmer/reference'
             }
         }
         loops = 0;
+        resolveRenderPromise();
     });
 
     var Renderer = exports.Renderer = function () {
@@ -43489,7 +43525,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "3.0.0-canary+f7f92863";
+  exports.default = "3.0.0-canary+db1f29fe";
 });
 /*global enifed */
 enifed('node-module', ['exports'], function(_exports) {

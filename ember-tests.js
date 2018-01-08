@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.0.0-canary+f7f92863
+ * @version   3.0.0-canary+db1f29fe
  */
 
 /*globals process */
@@ -33050,6 +33050,95 @@ QUnit.module('ESLint | ember-glimmer/tests/integration/refinements-test.js');
 QUnit.test('should pass ESLint', function(assert) {
   assert.expect(1);
   assert.ok(true, 'ember-glimmer/tests/integration/refinements-test.js should pass ESLint\n\n');
+});
+
+enifed('ember-glimmer/tests/integration/render-settled-test', ['ember-babel', 'internal-test-helpers', 'ember-glimmer', 'rsvp', 'ember-metal'], function (_emberBabel, _internalTestHelpers, _emberGlimmer, _rsvp, _emberMetal) {
+  'use strict';
+
+  var _templateObject = (0, _emberBabel.taggedTemplateLiteralLoose)(['{{foo}}'], ['{{foo}}']);
+
+  (0, _internalTestHelpers.moduleFor)('renderSettled', function (_RenderingTestCase) {
+    (0, _emberBabel.inherits)(_class, _RenderingTestCase);
+
+    function _class() {
+      (0, _emberBabel.classCallCheck)(this, _class);
+      return (0, _emberBabel.possibleConstructorReturn)(this, _RenderingTestCase.apply(this, arguments));
+    }
+
+    _class.prototype['@test resolves when no rendering is happening'] = function testResolvesWhenNoRenderingIsHappening(assert) {
+      return (0, _emberGlimmer.renderSettled)().then(function () {
+        assert.ok(true, 'resolved even without rendering');
+      });
+    };
+
+    _class.prototype['@test resolves renderers exist but no runloops are triggered'] = function testResolvesRenderersExistButNoRunloopsAreTriggered(assert) {
+      this.render((0, _internalTestHelpers.strip)(_templateObject), { foo: 'bar' });
+
+      return (0, _emberGlimmer.renderSettled)().then(function () {
+        assert.ok(true, 'resolved even without runloops');
+      });
+    };
+
+    _class.prototype['@test does not create extraneous promises'] = function testDoesNotCreateExtraneousPromises(assert) {
+      var first = (0, _emberGlimmer.renderSettled)();
+      var second = (0, _emberGlimmer.renderSettled)();
+
+      assert.strictEqual(first, second);
+
+      return (0, _rsvp.all)([first, second]);
+    };
+
+    _class.prototype['@test resolves when rendering has completed (after property update)'] = function testResolvesWhenRenderingHasCompletedAfterPropertyUpdate() {
+      var _this2 = this;
+
+      this.render((0, _internalTestHelpers.strip)(_templateObject), { foo: 'bar' });
+
+      this.assertText('bar');
+      this.component.set('foo', 'baz');
+      this.assertText('bar');
+
+      return (0, _emberGlimmer.renderSettled)().then(function () {
+        _this2.assertText('baz');
+      });
+    };
+
+    _class.prototype['@test resolves in run loop when renderer has settled'] = function testResolvesInRunLoopWhenRendererHasSettled(assert) {
+      var _this3 = this;
+
+      assert.expect(3);
+
+      this.render((0, _internalTestHelpers.strip)(_templateObject), { foo: 'bar' });
+
+      this.assertText('bar');
+      var promise = void 0;
+
+      return (0, _emberMetal.run)(function () {
+        _emberMetal.run.schedule('actions', null, function () {
+          _this3.component.set('foo', 'set in actions');
+
+          promise = (0, _emberGlimmer.renderSettled)().then(function () {
+            _this3.assertText('set in afterRender');
+          });
+
+          _emberMetal.run.schedule('afterRender', null, function () {
+            _this3.component.set('foo', 'set in afterRender');
+          });
+        });
+
+        // still not updated here
+        _this3.assertText('bar');
+
+        return promise;
+      });
+    };
+
+    return _class;
+  }(_internalTestHelpers.RenderingTestCase));
+});
+QUnit.module('ESLint | ember-glimmer/tests/integration/render-settled-test.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'ember-glimmer/tests/integration/render-settled-test.js should pass ESLint\n\n');
 });
 
 enifed('ember-glimmer/tests/integration/svg-test', ['ember-babel', 'ember-glimmer/tests/utils/test-case', 'ember-metal', 'ember-glimmer/tests/utils/abstract-test-case'], function (_emberBabel, _testCase, _emberMetal, _abstractTestCase) {

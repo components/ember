@@ -3,7 +3,7 @@
     "name": "The Ember API",
     "description": "The Ember API: a framework for building ambitious web applications",
     "url": "https://emberjs.com/",
-    "version": "3.0.0-canary+f7f92863"
+    "version": "3.0.0-canary+db1f29fe"
   },
   "files": {
     "node_modules/rsvp/lib/rsvp/promise/all.js": {
@@ -2270,7 +2270,7 @@
       "module": "@ember/application",
       "namespace": "ApplicationInstance",
       "file": "packages/ember-application/lib/system/application-instance.js",
-      "line": 303,
+      "line": 297,
       "description": "A list of boot-time configuration options for customizing the behavior of\nan `Ember.ApplicationInstance`.\n\nThis is an interface class that exists purely to document the available\noptions; you do not need to construct it manually. Simply pass a regular\nJavaScript object containing the desired options into methods that require\none of these options object:\n\n```javascript\nMyApp.visit(\"/\", { location: \"none\", rootElement: \"#container\" });\n```\n\nNot all combinations of the supported options are valid. See the documentation\non `Ember.Application#visit` for the supported configurations.\n\nInternal, experimental or otherwise unstable flags are marked as private.",
       "access": "public",
       "tagname": ""
@@ -5238,7 +5238,7 @@
     },
     {
       "file": "packages/ember-application/lib/system/application-instance.js",
-      "line": 285,
+      "line": 279,
       "access": "private",
       "tagname": "",
       "itemtype": "method",
@@ -5260,7 +5260,7 @@
     },
     {
       "file": "packages/ember-application/lib/system/application-instance.js",
-      "line": 326,
+      "line": 320,
       "description": "Provide a specific instance of jQuery. This is useful in conjunction with\nthe `document` option, as it allows you to use a copy of `jQuery` that is\nappropriately bound to the foreign `document` (e.g. a jsdom).\n\nThis is highly experimental and support very incomplete at the moment.",
       "itemtype": "property",
       "name": "jQuery",
@@ -5274,7 +5274,7 @@
     },
     {
       "file": "packages/ember-application/lib/system/application-instance.js",
-      "line": 340,
+      "line": 334,
       "description": "Interactive mode: whether we need to set up event delegation and invoke\nlifecycle callbacks on Components.",
       "itemtype": "property",
       "name": "isInteractive",
@@ -5288,7 +5288,7 @@
     },
     {
       "file": "packages/ember-application/lib/system/application-instance.js",
-      "line": 351,
+      "line": 345,
       "description": "Run in a full browser environment.\n\nWhen this flag is set to `false`, it will disable most browser-specific\nand interactive features. Specifically:\n\n* It does not use `jQuery` to append the root view; the `rootElement`\n  (either specified as a subsequent option or on the application itself)\n  must already be an `Element` in the given `document` (as opposed to a\n  string selector).\n\n* It does not set up an `EventDispatcher`.\n\n* It does not run any `Component` lifecycle hooks (such as `didInsertElement`).\n\n* It sets the `location` option to `\"none\"`. (If you would like to use\n  the location adapter specified in the app's router instead, you can also\n  specify `{ location: null }` to specifically opt-out.)",
       "itemtype": "property",
       "name": "isBrowser",
@@ -5302,7 +5302,7 @@
     },
     {
       "file": "packages/ember-application/lib/system/application-instance.js",
-      "line": 387,
+      "line": 381,
       "description": "Disable rendering completely.\n\nWhen this flag is set to `true`, it will disable the entire rendering\npipeline. Essentially, this puts the app into \"routing-only\" mode. No\ntemplates will be rendered, and no Components will be created.",
       "itemtype": "property",
       "name": "shouldRender",
@@ -5316,7 +5316,7 @@
     },
     {
       "file": "packages/ember-application/lib/system/application-instance.js",
-      "line": 410,
+      "line": 404,
       "description": "If present, render into the given `Document` object instead of the\nglobal `window.document` object.\n\nIn practice, this is only useful in non-browser environment or in\nnon-interactive mode, because Ember's `jQuery` dependency is\nimplicitly bound to the current document, causing event delegation\nto not work properly when the app is rendered into a foreign\ndocument object (such as an iframe's `contentDocument`).\n\nIn non-browser mode, this could be a \"`Document`-like\" object as\nEmber only interact with a small subset of the DOM API in non-\ninteractive mode. While the exact requirements have not yet been\nformalized, the `SimpleDOM` library's implementation is known to\nwork.",
       "itemtype": "property",
       "name": "document",
@@ -5330,7 +5330,7 @@
     },
     {
       "file": "packages/ember-application/lib/system/application-instance.js",
-      "line": 437,
+      "line": 431,
       "description": "If present, overrides the application's `rootElement` property on\nthe instance. This is useful for testing environment, where you\nmight want to append the root view to a fixture area.\n\nIn non-browser mode, because Ember does not have access to jQuery,\nthis options must be specified as a DOM `Element` object instead of\na selector string.\n\nSee the documentation on `Ember.Applications`'s `rootElement` for\ndetails.",
       "itemtype": "property",
       "name": "rootElement",
@@ -5344,7 +5344,7 @@
     },
     {
       "file": "packages/ember-application/lib/system/application-instance.js",
-      "line": 462,
+      "line": 456,
       "description": "If present, overrides the router's `location` property with this\nvalue. This is useful for environments where trying to modify the\nURL would be inappropriate.",
       "itemtype": "property",
       "name": "location",
