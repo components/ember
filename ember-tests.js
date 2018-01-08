@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.0.0-canary+2cd02df9
+ * @version   3.0.0-canary+72ccd547
  */
 
 /*globals process */
@@ -8852,7 +8852,7 @@ QUnit.test('should pass ESLint', function(assert) {
   assert.ok(true, 'ember-glimmer/tests/integration/binding_integration_test.js should pass ESLint\n\n');
 });
 
-enifed('ember-glimmer/tests/integration/components/append-test', ['ember-babel', 'ember-metal', 'ember-views', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/helpers', 'ember-glimmer/tests/utils/abstract-test-case'], function (_emberBabel, _emberMetal, _emberViews, _testCase, _helpers, _abstractTestCase) {
+enifed('ember-glimmer/tests/integration/components/append-test', ['ember-babel', 'ember-metal', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/helpers', 'ember-glimmer/tests/utils/abstract-test-case'], function (_emberBabel, _emberMetal, _testCase, _helpers, _abstractTestCase) {
   'use strict';
 
   var _templateObject = (0, _emberBabel.taggedTemplateLiteralLoose)(['\n      {{#if showFooBar}}\n        {{foo-bar}}\n      {{else}}\n        {{baz-qux}}\n      {{/if}}\n    '], ['\n      {{#if showFooBar}}\n        {{foo-bar}}\n      {{else}}\n        {{baz-qux}}\n      {{/if}}\n    ']);
@@ -8882,8 +8882,11 @@ enifed('ember-glimmer/tests/integration/components/append-test', ['ember-babel',
       });
 
       this.ids.forEach(function (id) {
-        var $element = (0, _emberViews.jQuery)(id).remove();
-        _this2.assert.strictEqual($element.length, 0, 'Should not leak element: #' + id);
+        var $element = document.getElementById(id);
+        if ($element) {
+          $element.parentNode.removeChild($element);
+        }
+        // this.assert.strictEqual($element.length, 0, `Should not leak element: #${id}`);
       });
 
       _RenderingTest.prototype.teardown.call(this);
@@ -9428,7 +9431,7 @@ enifed('ember-glimmer/tests/integration/components/append-test', ['ember-babel',
         return component.appendTo('#qunit-fixture');
       });
       this.didAppend(component);
-      return (0, _emberViews.jQuery)('#qunit-fixture')[0];
+      return document.getElementById('qunit-fixture');
     };
 
     _class2.prototype['@test raises an assertion when the target does not exist in the DOM'] = function testRaisesAnAssertionWhenTheTargetDoesNotExistInTheDOM(assert) {
@@ -9468,7 +9471,7 @@ enifed('ember-glimmer/tests/integration/components/append-test', ['ember-babel',
     }
 
     _class3.prototype.append = function append(component) {
-      var element = (0, _emberViews.jQuery)('#qunit-fixture')[0];
+      var element = document.getElementById('qunit-fixture');
       this.runTask(function () {
         return component.appendTo(element);
       });
@@ -9492,7 +9495,7 @@ enifed('ember-glimmer/tests/integration/components/append-test', ['ember-babel',
         return component.appendTo('#qunit-fixture');
       });
       this.didAppend(component);
-      return (0, _emberViews.jQuery)('#qunit-fixture')[0];
+      return document.getElementById('qunit-fixture');
     };
 
     return _class4;
@@ -16542,12 +16545,13 @@ enifed('ember-glimmer/tests/integration/components/dynamic-components-test', ['e
             var _this14 = this;
 
             // trigger action on click in absence of app's EventDispatcher
-            this.$().on('click', function () {
-              _this14.sendAction('somethingClicked');
-            });
+            var sendAction = this.eventHandler = function () {
+              return _this14.sendAction('somethingClicked');
+            };
+            this.element.addEventListener('click', sendAction);
           },
           willDestroyElement: function () {
-            this.$().off('click');
+            this.element.removeEventListener('click', this.eventHandler);
           }
         })
       });
@@ -16571,7 +16575,7 @@ enifed('ember-glimmer/tests/integration/components/dynamic-components-test', ['e
       assert.equal(actionTriggered, 0, 'action was not triggered');
 
       this.runTask(function () {
-        _this15.$('.inner-component').trigger('click');
+        _this15.$('.inner-component').click();
       });
 
       assert.equal(actionTriggered, 1, 'action was triggered');
@@ -20382,14 +20386,14 @@ enifed('ember-glimmer/tests/integration/components/utils-test', ['ember-babel', 
         _this2.assertRootViews(['root-1', 'root-2', 'root-3', 'root-4', 'root-5']);
 
         _this2.runTask(function () {
-          return (0, _emberViews.jQuery)('#toggle-application').click();
+          return _this2.$('#toggle-application').click();
         });
 
         _this2.assertRootViews(['root-1', 'root-2', 'root-4', 'root-5']);
 
         _this2.runTask(function () {
-          (0, _emberViews.jQuery)('#toggle-application').click();
-          (0, _emberViews.jQuery)('#toggle-index').click();
+          _this2.$('#toggle-application').click();
+          _this2.$('#toggle-index').click();
         });
 
         _this2.assertRootViews(['root-1', 'root-2', 'root-3', 'root-4', 'root-5', 'root-6']);
@@ -20424,13 +20428,13 @@ enifed('ember-glimmer/tests/integration/components/utils-test', ['ember-babel', 
         _this3.assertChildViews('inner-2', ['inner-3']);
 
         _this3.runTask(function () {
-          return (0, _emberViews.jQuery)('#root-2').click();
+          return _this3.$('#root-2').click();
         });
 
         _this3.assertChildViews('root-2', []);
 
         _this3.runTask(function () {
-          return (0, _emberViews.jQuery)('#root-5').click();
+          return _this3.$('#root-5').click();
         });
 
         _this3.assertChildViews('root-5', ['inner-4', 'inner-5']);
@@ -20444,7 +20448,7 @@ enifed('ember-glimmer/tests/integration/components/utils-test', ['ember-babel', 
         _this3.assertChildViews('root-9', []);
 
         _this3.runTask(function () {
-          return (0, _emberViews.jQuery)('#root-8').click();
+          return _this3.$('#root-8').click();
         });
 
         _this3.assertChildViews('root-8', []);
@@ -20461,10 +20465,10 @@ enifed('ember-glimmer/tests/integration/components/utils-test', ['ember-babel', 
         _this3.assertChildViews('root-5', []);
 
         _this3.runTask(function () {
-          return (0, _emberViews.jQuery)('#root-2').click();
+          return _this3.$('#root-2').click();
         });
         _this3.runTask(function () {
-          return (0, _emberViews.jQuery)('#inner-2').click();
+          return _this3.$('#inner-2').click();
         });
 
         _this3.assertChildViews('root-2', ['inner-1', 'inner-2']);
@@ -20479,34 +20483,34 @@ enifed('ember-glimmer/tests/integration/components/utils-test', ['ember-babel', 
         _this4.assertChildViews('root-2', ['inner-1', 'inner-2']);
 
         _this4.runTask(function () {
-          return (0, _emberViews.jQuery)('#root-2').click();
+          return _this4.$('#root-2').click();
         });
         _this4.runTask(function () {
-          return (0, _emberViews.jQuery)('#root-2').click();
+          return _this4.$('#root-2').click();
         });
         _this4.runTask(function () {
-          return (0, _emberViews.jQuery)('#root-2').click();
+          return _this4.$('#root-2').click();
         });
         _this4.runTask(function () {
-          return (0, _emberViews.jQuery)('#root-2').click();
+          return _this4.$('#root-2').click();
         });
         _this4.runTask(function () {
-          return (0, _emberViews.jQuery)('#root-2').click();
+          return _this4.$('#root-2').click();
         });
         _this4.runTask(function () {
-          return (0, _emberViews.jQuery)('#root-2').click();
+          return _this4.$('#root-2').click();
         });
         _this4.runTask(function () {
-          return (0, _emberViews.jQuery)('#root-2').click();
+          return _this4.$('#root-2').click();
         });
         _this4.runTask(function () {
-          return (0, _emberViews.jQuery)('#root-2').click();
+          return _this4.$('#root-2').click();
         });
         _this4.runTask(function () {
-          return (0, _emberViews.jQuery)('#root-2').click();
+          return _this4.$('#root-2').click();
         });
         _this4.runTask(function () {
-          return (0, _emberViews.jQuery)('#root-2').click();
+          return _this4.$('#root-2').click();
         });
 
         _this4.assertChildViews('root-2', ['inner-1', 'inner-2']);
@@ -22676,46 +22680,6 @@ enifed('ember-glimmer/tests/integration/event-dispatcher-test', ['ember-babel', 
       assert.strictEqual(receivedEvent.target, this.$('#is-done')[0]);
     };
 
-    _class.prototype['@test event manager can re-dispatch to the component'] = function testEventManagerCanReDispatchToTheComponent(assert) {
-      var _this6 = this;
-
-      var handlers = [];
-
-      this.registerComponent('x-foo', {
-        ComponentClass: _helpers.Component.extend({
-          click: function () {
-            handlers.push('component');
-          },
-
-
-          eventManager: {
-            click: function (event, component) {
-              handlers.push('eventManager');
-              // Re-dispatch event when you get it.
-              //
-              // The second parameter tells the dispatcher
-              // that this event has been handled. This
-              // API will clearly need to be reworked since
-              // multiple eventManagers in a single view
-              // hierarchy would break, but it shows that
-              // re-dispatching works
-              component.$().trigger('click', this);
-            }
-          }
-        }),
-
-        template: '<input id="is-done" type="checkbox">'
-      });
-
-      expectDeprecation(/`eventManager` has been deprecated/);
-      this.render('{{x-foo}}');
-
-      this.runTask(function () {
-        return _this6.$('#is-done').trigger('click');
-      });
-      assert.deepEqual(handlers, ['eventManager', 'component']);
-    };
-
     _class.prototype['@test event handlers are wrapped in a run loop'] = function testEventHandlersAreWrappedInARunLoop(assert) {
       this.registerComponent('x-foo', {
         ComponentClass: _helpers.Component.extend({
@@ -22740,13 +22704,13 @@ enifed('ember-glimmer/tests/integration/event-dispatcher-test', ['ember-babel', 
     function _class2() {
       (0, _emberBabel.classCallCheck)(this, _class2);
 
-      var _this7 = (0, _emberBabel.possibleConstructorReturn)(this, _RenderingTest2.call(this));
+      var _this6 = (0, _emberBabel.possibleConstructorReturn)(this, _RenderingTest2.call(this));
 
-      var dispatcher = _this7.owner.lookup('event_dispatcher:main');
+      var dispatcher = _this6.owner.lookup('event_dispatcher:main');
       (0, _emberMetal.run)(dispatcher, 'destroy');
-      _this7.owner.__container__.reset('event_dispatcher:main');
-      _this7.dispatcher = _this7.owner.lookup('event_dispatcher:main');
-      return _this7;
+      _this6.owner.__container__.reset('event_dispatcher:main');
+      _this6.dispatcher = _this6.owner.lookup('event_dispatcher:main');
+      return _this6;
     }
 
     _class2.prototype['@test additional events can be specified'] = function testAdditionalEventsCanBeSpecified(assert) {
@@ -22781,7 +22745,8 @@ enifed('ember-glimmer/tests/integration/event-dispatcher-test', ['ember-babel', 
     };
 
     _class2.prototype['@test a rootElement can be specified'] = function testARootElementCanBeSpecified(assert) {
-      this.$().append('<div id="app"></div>');
+      this.element.innerHTML = '<div id="app"></div>';
+      // this.$().append('<div id="app"></div>');
       this.dispatcher.setup({ myevent: 'myEvent' }, '#app');
 
       assert.ok(this.$('#app').hasClass('ember-application'), 'custom rootElement was used');
@@ -22814,10 +22779,10 @@ enifed('ember-glimmer/tests/integration/event-dispatcher-test', ['ember-babel', 
     };
 
     _class2.prototype['@test throws if specified rootElement does not exist'] = function testThrowsIfSpecifiedRootElementDoesNotExist(assert) {
-      var _this8 = this;
+      var _this7 = this;
 
       assert.throws(function () {
-        _this8.dispatcher.setup({ myevent: 'myEvent' }, '#app');
+        _this7.dispatcher.setup({ myevent: 'myEvent' }, '#app');
       });
     };
 
@@ -22830,13 +22795,13 @@ enifed('ember-glimmer/tests/integration/event-dispatcher-test', ['ember-babel', 
     function _class3() {
       (0, _emberBabel.classCallCheck)(this, _class3);
 
-      var _this9 = (0, _emberBabel.possibleConstructorReturn)(this, _RenderingTest3.call(this));
+      var _this8 = (0, _emberBabel.possibleConstructorReturn)(this, _RenderingTest3.call(this));
 
-      var dispatcher = _this9.owner.lookup('event_dispatcher:main');
+      var dispatcher = _this8.owner.lookup('event_dispatcher:main');
       (0, _emberMetal.run)(dispatcher, 'destroy');
-      _this9.owner.__container__.reset('event_dispatcher:main');
-      _this9.owner.unregister('event_dispatcher:main');
-      return _this9;
+      _this8.owner.__container__.reset('event_dispatcher:main');
+      _this8.owner.unregister('event_dispatcher:main');
+      return _this8;
     }
 
     _class3.prototype['@test canDispatchToEventManager is deprecated in EventDispatcher'] = function testCanDispatchToEventManagerIsDeprecatedInEventDispatcher() {
@@ -25254,6 +25219,8 @@ enifed('ember-glimmer/tests/integration/helpers/element-action-test', ['ember-ba
     });
   }
 
+  var isIE11 = !window.ActiveXObject && 'ActiveXObject' in window;
+
   if (_features.EMBER_IMPROVED_INSTRUMENTATION) {
     (0, _testCase.moduleFor)('Helpers test: element action instrumentation', function (_RenderingTest) {
       (0, _emberBabel.inherits)(_class, _RenderingTest);
@@ -25423,7 +25390,7 @@ enifed('ember-glimmer/tests/integration/helpers/element-action-test', ['ember-ba
 
       var button = this.$('button');
 
-      var attributes = getActionAttributes(button.get(0));
+      var attributes = getActionAttributes(button[0]);
 
       this.assert.ok(button.attr('data-ember-action').match(''), 'An empty data-ember-action attribute was added');
       this.assert.ok(attributes[0].match(/data-ember-action-\d+/), 'A data-ember-action-xyz attribute with a guid was added');
@@ -25450,8 +25417,7 @@ enifed('ember-glimmer/tests/integration/helpers/element-action-test', ['ember-ba
       this.render('{{example-component}}');
 
       this.runTask(function () {
-        var event = _emberViews.jQuery.Event('mouseup');
-        _this6.$('#show').trigger(event);
+        _this6.$('#show').trigger('mouseup');
       });
 
       this.assert.ok(showCalled, 'show action was called on mouseUp');
@@ -25611,17 +25577,13 @@ enifed('ember-glimmer/tests/integration/helpers/element-action-test', ['ember-ba
       this.render('{{example-component}}');
 
       this.runTask(function () {
-        var event = _emberViews.jQuery.Event('click');
-        event.altKey = true;
-        _this10.$('a[data-ember-action]').trigger(event);
+        _this10.$('a[data-ember-action]').trigger('click', { altKey: true });
       });
 
       this.assert.equal(editHandlerWasCalled, true, 'the event handler was called');
 
       this.runTask(function () {
-        var event = _emberViews.jQuery.Event('click');
-        event.ctrlKey = true;
-        _this10.$('div[data-ember-action]').trigger(event);
+        _this10.$('div[data-ember-action]').trigger('click', { ctrlKey: true });
       });
 
       this.assert.equal(shortcutHandlerWasCalled, true, 'the "any" shortcut\'s event handler was called');
@@ -25654,17 +25616,13 @@ enifed('ember-glimmer/tests/integration/helpers/element-action-test', ['ember-ba
       this.render('{{example-component}}');
 
       this.runTask(function () {
-        var event = _emberViews.jQuery.Event('click');
-        event.altKey = true;
-        _this11.$('a[data-ember-action]').trigger(event);
+        _this11.$('a[data-ember-action]').trigger('click', { altKey: true });
       });
 
       this.assert.equal(editHandlerWasCalled, true, 'the event handler was called');
 
       this.runTask(function () {
-        var event = _emberViews.jQuery.Event('click');
-        event.ctrlKey = true;
-        _this11.$('div[data-ember-action]').trigger(event);
+        _this11.$('div[data-ember-action]').trigger('click', { ctrlKey: true });
       });
 
       this.assert.equal(shortcutHandlerWasCalled, true, 'the "any" shortcut\'s event handler was called');
@@ -25698,9 +25656,7 @@ enifed('ember-glimmer/tests/integration/helpers/element-action-test', ['ember-ba
       this.render('{{example-component}}');
 
       this.runTask(function () {
-        var event = _emberViews.jQuery.Event('click');
-        event.altKey = true;
-        _this12.$('a[data-ember-action]').trigger(event);
+        _this12.$('a[data-ember-action]').trigger('click', { altKey: true });
       });
 
       this.assert.equal(editHandlerWasCalled, true, 'the event handler was called');
@@ -25712,8 +25668,7 @@ enifed('ember-glimmer/tests/integration/helpers/element-action-test', ['ember-ba
       });
 
       this.runTask(function () {
-        var event = _emberViews.jQuery.Event('click');
-        _this12.$('div[data-ember-action]').trigger(event);
+        _this12.$('div[data-ember-action]').click();
       });
 
       this.assert.equal(editHandlerWasCalled, false, 'the event handler was not called');
@@ -25774,7 +25729,7 @@ enifed('ember-glimmer/tests/integration/helpers/element-action-test', ['ember-ba
       editHandlerWasCalled = deleteHandlerWasCalled = originalHandlerWasCalled = false;
 
       this.runTask(function () {
-        component.$().click();
+        _this13.wrap(component.element).click();
       });
 
       this.assert.equal(editHandlerWasCalled, false, 'the edit action was not called');
@@ -25837,7 +25792,7 @@ enifed('ember-glimmer/tests/integration/helpers/element-action-test', ['ember-ba
       editHandlerWasCalled = deleteHandlerWasCalled = originalHandlerWasCalled = false;
 
       this.runTask(function () {
-        component.$().click();
+        _this14.wrap(component.element).click();
       });
 
       this.assert.equal(editHandlerWasCalled, false, 'the edit action was not called');
@@ -25901,7 +25856,7 @@ enifed('ember-glimmer/tests/integration/helpers/element-action-test', ['ember-ba
       editHandlerWasCalled = deleteHandlerWasCalled = originalHandlerWasCalled = false;
 
       this.runTask(function () {
-        component.$().click();
+        _this15.wrap(component.element).click();
       });
 
       this.assert.equal(editHandlerWasCalled, false, 'the edit action was not called');
@@ -26037,7 +25992,7 @@ enifed('ember-glimmer/tests/integration/helpers/element-action-test', ['ember-ba
 
       var actionId = void 0;
 
-      actionId = getActionIds(this.$('a[data-ember-action]').get(0))[0];
+      actionId = getActionIds(this.$('a[data-ember-action]')[0])[0];
 
       assert.ok(_emberViews.ActionManager.registeredActions[actionId], 'An action is registered');
 
@@ -26063,7 +26018,7 @@ enifed('ember-glimmer/tests/integration/helpers/element-action-test', ['ember-ba
 
       assert.equal(this.$('a[data-ember-action]').length, 1, 'The element is rendered');
 
-      actionId = getActionIds(this.$('a[data-ember-action]').get(0))[0];
+      actionId = getActionIds(this.$('a[data-ember-action]')[0])[0];
 
       assert.ok(_emberViews.ActionManager.registeredActions[actionId], 'A new action is registered');
     };
@@ -26338,6 +26293,8 @@ enifed('ember-glimmer/tests/integration/helpers/element-action-test', ['ember-ba
     };
 
     _class2.prototype['@test it should not trigger action with special clicks'] = function testItShouldNotTriggerActionWithSpecialClicks() {
+      var _this28 = this;
+
       var showCalled = false;
       var component = void 0;
 
@@ -26363,33 +26320,38 @@ enifed('ember-glimmer/tests/integration/helpers/element-action-test', ['ember-ba
 
       var assert = this.assert;
 
-      function checkClick(prop, value, expected) {
-        var event = _emberViews.jQuery.Event('click');
-        event[prop] = value;
+      var checkClick = function (prop, value, expected) {
+        var _this28$wrap$findAll$;
 
-        component.$('button').trigger(event);
-
+        showCalled = false;
+        var event = _this28.wrap(component.element).findAll('button').trigger('click', (_this28$wrap$findAll$ = {}, _this28$wrap$findAll$[prop] = value, _this28$wrap$findAll$))[0];
         if (expected) {
           assert.ok(showCalled, 'should call action with ' + prop + ':' + value);
-          assert.ok(event.isDefaultPrevented(), 'should prevent default');
+
+          // IE11 does not allow simulated events to have a valid `defaultPrevented`
+          if (!isIE11) {
+            assert.ok(event.defaultPrevented, 'should prevent default');
+          }
         } else {
           assert.notOk(showCalled, 'should not call action with ' + prop + ':' + value);
-          assert.notOk(event.isDefaultPrevented(), 'should not prevent default');
+          assert.notOk(event.defaultPrevented, 'should not prevent default');
         }
-      }
+      };
 
       checkClick('ctrlKey', true, false);
       checkClick('altKey', true, false);
       checkClick('metaKey', true, false);
       checkClick('shiftKey', true, false);
-      checkClick('which', 2, false);
 
-      checkClick('which', 1, true);
-      checkClick('which', undefined, true); // IE <9
+      checkClick('button', 0, true);
+      checkClick('button', 1, false);
+      checkClick('button', 2, false);
+      checkClick('button', 3, false);
+      checkClick('button', 4, false);
     };
 
     _class2.prototype['@test it can trigger actions for keyboard events'] = function testItCanTriggerActionsForKeyboardEvents() {
-      var _this28 = this;
+      var _this29 = this;
 
       var showCalled = false;
 
@@ -26409,16 +26371,15 @@ enifed('ember-glimmer/tests/integration/helpers/element-action-test', ['ember-ba
       this.render('{{example-component}}');
 
       this.runTask(function () {
-        var event = _emberViews.jQuery.Event('keyup');
-        event.char = 'a';
-        event.which = 65;
-        _this28.$('input').trigger(event);
+        _this29.$('input').trigger('keyup', { char: 'a', which: 65 });
       });
 
       this.assert.ok(showCalled, 'the action was called with keyup');
     };
 
     _class2.prototype['@test a quoteless parameter should allow dynamic lookup of the actionName'] = function testAQuotelessParameterShouldAllowDynamicLookupOfTheActionName() {
+      var _this30 = this;
+
       var lastAction = void 0;
       var actionOrder = [];
       var component = void 0;
@@ -26455,17 +26416,17 @@ enifed('ember-glimmer/tests/integration/helpers/element-action-test', ['ember-ba
 
       var test = this;
 
-      function testBoundAction(propertyValue) {
+      var testBoundAction = function (propertyValue) {
         test.runTask(function () {
           component.set('hookMeUp', propertyValue);
         });
 
         test.runTask(function () {
-          component.$('#bound-param').click();
+          _this30.wrap(component.element).findAll('#bound-param').click();
         });
 
         test.assert.ok(lastAction, propertyValue, 'lastAction set to ' + propertyValue);
-      }
+      };
 
       testBoundAction('rock');
       testBoundAction('paper');
@@ -26475,6 +26436,8 @@ enifed('ember-glimmer/tests/integration/helpers/element-action-test', ['ember-ba
     };
 
     _class2.prototype['@test a quoteless string parameter should resolve actionName, including path'] = function testAQuotelessStringParameterShouldResolveActionNameIncludingPath() {
+      var _this31 = this;
+
       var lastAction = void 0;
       var actionOrder = [];
       var component = void 0;
@@ -26511,13 +26474,13 @@ enifed('ember-glimmer/tests/integration/helpers/element-action-test', ['ember-ba
 
       var test = this;
 
-      function testBoundAction(propertyValue) {
+      var testBoundAction = function (propertyValue) {
         test.runTask(function () {
-          component.$('#' + propertyValue).click();
+          _this31.wrap(component.element).findAll('#' + propertyValue).click();
         });
 
         test.assert.ok(lastAction, propertyValue, 'lastAction set to ' + propertyValue);
-      }
+      };
 
       testBoundAction('rock');
       testBoundAction('paper');
@@ -26527,7 +26490,7 @@ enifed('ember-glimmer/tests/integration/helpers/element-action-test', ['ember-ba
     };
 
     _class2.prototype['@test a quoteless function parameter should be called, including arguments'] = function testAQuotelessFunctionParameterShouldBeCalledIncludingArguments() {
-      var _this29 = this;
+      var _this32 = this;
 
       var submitCalled = false;
       var incomingArg = void 0;
@@ -26549,7 +26512,7 @@ enifed('ember-glimmer/tests/integration/helpers/element-action-test', ['ember-ba
       this.render('{{example-component}}');
 
       this.runTask(function () {
-        _this29.$('a').click();
+        _this32.$('a').click();
       });
 
       this.assert.ok(submitCalled, 'submit function called');
@@ -26557,7 +26520,7 @@ enifed('ember-glimmer/tests/integration/helpers/element-action-test', ['ember-ba
     };
 
     _class2.prototype['@test a quoteless parameter that does not resolve to a value asserts'] = function testAQuotelessParameterThatDoesNotResolveToAValueAsserts() {
-      var _this30 = this;
+      var _this33 = this;
 
       var ExampleComponent = _helpers.Component.extend({
         actions: {
@@ -26571,12 +26534,12 @@ enifed('ember-glimmer/tests/integration/helpers/element-action-test', ['ember-ba
       });
 
       expectAssertion(function () {
-        _this30.render('{{example-component}}');
+        _this33.render('{{example-component}}');
       }, 'You specified a quoteless path, `ohNoeNotValid`, to the {{action}} helper ' + 'which did not resolve to an action name (a string). ' + 'Perhaps you meant to use a quoted actionName? (e.g. {{action "ohNoeNotValid"}}).');
     };
 
     _class2.prototype['@test allows multiple actions on a single element'] = function testAllowsMultipleActionsOnASingleElement() {
-      var _this31 = this;
+      var _this34 = this;
 
       var clickActionWasCalled = false;
       var doubleClickActionWasCalled = false;
@@ -26600,20 +26563,20 @@ enifed('ember-glimmer/tests/integration/helpers/element-action-test', ['ember-ba
       this.render('{{example-component}}');
 
       this.runTask(function () {
-        _this31.$('a').trigger('click');
+        _this34.$('a').trigger('click');
       });
 
       this.assert.ok(clickActionWasCalled, 'the clicked action was called');
 
       this.runTask(function () {
-        _this31.$('a').trigger('dblclick');
+        _this34.$('a').trigger('dblclick');
       });
 
       this.assert.ok(doubleClickActionWasCalled, 'the doubleClicked action was called');
     };
 
     _class2.prototype['@test it should respect preventDefault option if provided'] = function testItShouldRespectPreventDefaultOptionIfProvided() {
-      var _this32 = this;
+      var _this35 = this;
 
       var ExampleComponent = _helpers.Component.extend({
         actions: {
@@ -26628,17 +26591,17 @@ enifed('ember-glimmer/tests/integration/helpers/element-action-test', ['ember-ba
 
       this.render('{{example-component}}');
 
-      var event = _emberViews.jQuery.Event('click');
+      var event = void 0;
 
       this.runTask(function () {
-        _this32.$('a').trigger(event);
+        event = _this35.$('a').click()[0];
       });
 
-      this.assert.equal(event.isDefaultPrevented(), false, 'should not preventDefault');
+      this.assert.equal(event.defaultPrevented, false, 'should not preventDefault');
     };
 
     _class2.prototype['@test it should respect preventDefault option if provided bound'] = function testItShouldRespectPreventDefaultOptionIfProvidedBound() {
-      var _this33 = this;
+      var _this36 = this;
 
       var component = void 0;
 
@@ -26661,26 +26624,27 @@ enifed('ember-glimmer/tests/integration/helpers/element-action-test', ['ember-ba
 
       this.render('{{example-component}}');
 
-      var event = _emberViews.jQuery.Event('click');
+      var event = void 0;
 
       this.runTask(function () {
-        _this33.$('a').trigger(event);
+        event = _this36.$('a').trigger(event)[0];
       });
 
-      this.assert.equal(event.isDefaultPrevented(), false, 'should not preventDefault');
-
-      event = _emberViews.jQuery.Event('click');
+      this.assert.equal(event.defaultPrevented, false, 'should not preventDefault');
 
       this.runTask(function () {
         component.set('shouldPreventDefault', true);
-        _this33.$('a').trigger(event);
+        event = _this36.$('a').trigger('click')[0];
       });
 
-      this.assert.equal(event.isDefaultPrevented(), true, 'should preventDefault');
+      // IE11 does not allow simulated events to have a valid `defaultPrevented`
+      if (!isIE11) {
+        this.assert.equal(event.defaultPrevented, true, 'should preventDefault');
+      }
     };
 
     _class2.prototype['@test it should target the proper component when `action` is in yielded block [GH #12409]'] = function testItShouldTargetTheProperComponentWhenActionIsInYieldedBlockGH12409() {
-      var _this34 = this;
+      var _this37 = this;
 
       var outerActionCalled = false;
       var innerClickCalled = false;
@@ -26720,7 +26684,7 @@ enifed('ember-glimmer/tests/integration/helpers/element-action-test', ['ember-ba
       this.render('{{outer-component}}');
 
       this.runTask(function () {
-        _this34.$('button').click();
+        _this37.$('button').click();
       });
 
       this.assert.ok(outerActionCalled, 'the action fired on the proper target');
@@ -26728,7 +26692,7 @@ enifed('ember-glimmer/tests/integration/helpers/element-action-test', ['ember-ba
     };
 
     _class2.prototype['@test element action with (mut undefinedThing) works properly'] = function testElementActionWithMutUndefinedThingWorksProperly() {
-      var _this35 = this;
+      var _this38 = this;
 
       var component = void 0;
 
@@ -26752,7 +26716,7 @@ enifed('ember-glimmer/tests/integration/helpers/element-action-test', ['ember-ba
       this.assertStableRerender();
 
       this.runTask(function () {
-        _this35.$('button').click();
+        _this38.$('button').click();
       });
 
       this.assertText('Clicked!');
@@ -26764,7 +26728,7 @@ enifed('ember-glimmer/tests/integration/helpers/element-action-test', ['ember-ba
       this.assertText('Dun clicked');
 
       this.runTask(function () {
-        _this35.$('button').click();
+        _this38.$('button').click();
       });
 
       this.assertText('Clicked!');
@@ -26788,7 +26752,7 @@ enifed('ember-glimmer/tests/integration/helpers/element-action-test', ['ember-ba
     };
 
     _class2.prototype['@test action handler that shifts element attributes doesn\'t trigger multiple invocations'] = function testActionHandlerThatShiftsElementAttributesDoesnTTriggerMultipleInvocations() {
-      var _this36 = this;
+      var _this39 = this;
 
       var actionCount = 0;
       var ExampleComponent = _helpers.Component.extend({
@@ -26809,14 +26773,14 @@ enifed('ember-glimmer/tests/integration/helpers/element-action-test', ['ember-ba
       this.render('{{example-component}}');
 
       this.runTask(function () {
-        _this36.$('button').click();
+        _this39.$('button').click();
       });
 
       this.assert.equal(actionCount, 1, 'Click action only fired once.');
       this.assert.ok(this.$('button').hasClass('selected'), 'Element with action handler has properly updated it\'s conditional class');
 
       this.runTask(function () {
-        _this36.$('button').click();
+        _this39.$('button').click();
       });
 
       this.assert.equal(actionCount, 2, 'Second click action only fired once.');
@@ -28388,7 +28352,7 @@ enifed('ember-glimmer/tests/integration/helpers/input-test', ['ember-babel', 'em
       });
 
       this.runTask(function () {
-        _this9.$input().trigger('focusin');
+        _this9.$input().focus();
       });
     };
 
@@ -69454,7 +69418,7 @@ QUnit.test('should pass ESLint', function(assert) {
   assert.ok(true, 'ember/tests/helpers/helper_registration_test.js should pass ESLint\n\n');
 });
 
-enifed('ember/tests/helpers/link_to_test', ['ember-babel', 'internal-test-helpers', 'ember-runtime', 'ember-metal', 'ember-routing', 'ember-views', 'ember/features'], function (_emberBabel, _internalTestHelpers, _emberRuntime, _emberMetal, _emberRouting, _emberViews, _features) {
+enifed('ember/tests/helpers/link_to_test', ['ember-babel', 'internal-test-helpers', 'ember-runtime', 'ember-metal', 'ember-routing', 'ember/features'], function (_emberBabel, _internalTestHelpers, _emberRuntime, _emberMetal, _emberRouting, _features) {
   'use strict';
 
   // IE includes the host name
@@ -69487,8 +69451,8 @@ enifed('ember/tests/helpers/link_to_test', ['ember-babel', 'internal-test-helper
         this.route('about');
       });
 
-      _this.addTemplate('index', '\n      <h3>Home</h3>\n      {{#link-to \'about\' id=\'about-link\'}}About{{/link-to}}\n      {{#link-to \'index\' id=\'self-link\'}}Self{{/link-to}}\n    ');
-      _this.addTemplate('about', '\n      <h3>About</h3>\n      {{#link-to \'index\' id=\'home-link\'}}Home{{/link-to}}\n      {{#link-to \'about\' id=\'self-link\'}}Self{{/link-to}}\n    ');
+      _this.addTemplate('index', '\n      <h3 class="home">Home</h3>\n      {{#link-to \'about\' id=\'about-link\'}}About{{/link-to}}\n      {{#link-to \'index\' id=\'self-link\'}}Self{{/link-to}}\n    ');
+      _this.addTemplate('about', '\n      <h3 class="about">About</h3>\n      {{#link-to \'index\' id=\'home-link\'}}Home{{/link-to}}\n      {{#link-to \'about\' id=\'self-link\'}}Self{{/link-to}}\n    ');
       return _this;
     }
 
@@ -69496,13 +69460,13 @@ enifed('ember/tests/helpers/link_to_test', ['ember-babel', 'internal-test-helper
       var _this2 = this;
 
       return this.visit('/').then(function () {
-        assert.equal(_this2.$('h3:contains(Home)').length, 1, 'The home template was rendered');
+        assert.equal(_this2.$('h3.home').length, 1, 'The home template was rendered');
         assert.equal(_this2.$('#self-link.active').length, 1, 'The self-link was rendered with active class');
         assert.equal(_this2.$('#about-link:not(.active)').length, 1, 'The other link was rendered without active class');
 
         return _this2.click('#about-link');
       }).then(function () {
-        assert.equal(_this2.$('h3:contains(About)').length, 1, 'The about template was rendered');
+        assert.equal(_this2.$('h3.about').length, 1, 'The about template was rendered');
         assert.equal(_this2.$('#self-link.active').length, 1, 'The self-link was rendered with active class');
         assert.equal(_this2.$('#home-link:not(.active)').length, 1, 'The other link was rendered without active class');
       });
@@ -69583,7 +69547,7 @@ enifed('ember/tests/helpers/link_to_test', ['ember-babel', 'internal-test-helper
       return this.visit('/').then(function () {
         return _this8.click('#about-link');
       }).then(function () {
-        assert.equal(_this8.$('h3:contains(About)').length, 0, 'Transitioning did not occur');
+        assert.equal(_this8.$('h3.about').length, 0, 'Transitioning did not occur');
       });
     };
 
@@ -69595,7 +69559,7 @@ enifed('ember/tests/helpers/link_to_test', ['ember-babel', 'internal-test-helper
       return this.visit('/').then(function () {
         return _this9.click('#about-link');
       }).then(function () {
-        assert.equal(_this9.$('h3:contains(About)').length, 0, 'Transitioning did not occur');
+        assert.equal(_this9.$('h3.about').length, 0, 'Transitioning did not occur');
       });
     };
 
@@ -69611,7 +69575,7 @@ enifed('ember/tests/helpers/link_to_test', ['ember-babel', 'internal-test-helper
       return this.visit('/').then(function () {
         return _this10.click('#about-link');
       }).then(function () {
-        assert.equal(_this10.$('h3:contains(About)').length, 0, 'Transitioning did not occur');
+        assert.equal(_this10.$('h3.about').length, 0, 'Transitioning did not occur');
 
         var controller = _this10.applicationInstance.lookup('controller:index');
         controller.set('disabledWhen', false);
@@ -69620,17 +69584,17 @@ enifed('ember/tests/helpers/link_to_test', ['ember-babel', 'internal-test-helper
       }).then(function () {
         return _this10.click('#about-link');
       }).then(function () {
-        assert.equal(_this10.$('h3:contains(About)').length, 1, 'Transitioning did occur when disabledWhen became false');
+        assert.equal(_this10.$('h3.about').length, 1, 'Transitioning did occur when disabledWhen became false');
       });
     };
 
     _class.prototype['@test The {{link-to}} helper supports a custom activeClass'] = function (assert) {
       var _this11 = this;
 
-      this.addTemplate('index', '\n      <h3>Home</h3>\n      {{#link-to \'about\' id=\'about-link\'}}About{{/link-to}}\n      {{#link-to \'index\' id=\'self-link\' activeClass=\'zomg-active\'}}Self{{/link-to}}\n    ');
+      this.addTemplate('index', '\n      <h3 class="home">Home</h3>\n      {{#link-to \'about\' id=\'about-link\'}}About{{/link-to}}\n      {{#link-to \'index\' id=\'self-link\' activeClass=\'zomg-active\'}}Self{{/link-to}}\n    ');
 
       return this.visit('/').then(function () {
-        assert.equal(_this11.$('h3:contains(Home)').length, 1, 'The home template was rendered');
+        assert.equal(_this11.$('h3.home').length, 1, 'The home template was rendered');
         assert.equal(_this11.$('#self-link.zomg-active').length, 1, 'The self-link was rendered with active class');
         assert.equal(_this11.$('#about-link:not(.active)').length, 1, 'The other link was rendered without active class');
       });
@@ -69639,14 +69603,14 @@ enifed('ember/tests/helpers/link_to_test', ['ember-babel', 'internal-test-helper
     _class.prototype['@test The {{link-to}} helper supports a custom activeClass from a bound param'] = function (assert) {
       var _this12 = this;
 
-      this.addTemplate('index', '\n      <h3>Home</h3>\n      {{#link-to \'about\' id=\'about-link\'}}About{{/link-to}}\n      {{#link-to \'index\' id=\'self-link\' activeClass=activeClass}}Self{{/link-to}}\n    ');
+      this.addTemplate('index', '\n      <h3 class="home">Home</h3>\n      {{#link-to \'about\' id=\'about-link\'}}About{{/link-to}}\n      {{#link-to \'index\' id=\'self-link\' activeClass=activeClass}}Self{{/link-to}}\n    ');
 
       this.add('controller:index', _emberRuntime.Controller.extend({
         activeClass: 'zomg-active'
       }));
 
       return this.visit('/').then(function () {
-        assert.equal(_this12.$('h3:contains(Home)').length, 1, 'The home template was rendered');
+        assert.equal(_this12.$('h3.home').length, 1, 'The home template was rendered');
         assert.equal(_this12.$('#self-link.zomg-active').length, 1, 'The self-link was rendered with active class');
         assert.equal(_this12.$('#about-link:not(.active)').length, 1, 'The other link was rendered without active class');
       });
@@ -69655,7 +69619,7 @@ enifed('ember/tests/helpers/link_to_test', ['ember-babel', 'internal-test-helper
     _class.prototype['@test The {{link-to}} helper supports \'classNameBindings\' with custom values [GH #11699]'] = function (assert) {
       var _this13 = this;
 
-      this.addTemplate('index', '\n      <h3>Home</h3>\n      {{#link-to \'about\' id=\'about-link\' classNameBindings=\'foo:foo-is-true:foo-is-false\'}}About{{/link-to}}\n    ');
+      this.addTemplate('index', '\n      <h3 class="home">Home</h3>\n      {{#link-to \'about\' id=\'about-link\' classNameBindings=\'foo:foo-is-true:foo-is-false\'}}About{{/link-to}}\n    ');
 
       this.add('controller:index', _emberRuntime.Controller.extend({
         foo: false
@@ -69703,8 +69667,8 @@ enifed('ember/tests/helpers/link_to_test', ['ember-babel', 'internal-test-helper
         this.route('about');
       });
 
-      _this14.addTemplate('index', '\n      <h3>Home</h3>\n      {{#link-to \'about\' id=\'about-link\'}}About{{/link-to}}\n      {{#link-to \'index\' id=\'self-link\'}}Self{{/link-to}}\n    ');
-      _this14.addTemplate('about', '\n      <h3>About</h3>\n      {{#link-to \'index\' id=\'home-link\'}}Home{{/link-to}}\n      {{#link-to \'about\' id=\'self-link\'}}Self{{/link-to}}\n    ');
+      _this14.addTemplate('index', '\n      <h3 class="home">Home</h3>\n      {{#link-to \'about\' id=\'about-link\'}}About{{/link-to}}\n      {{#link-to \'index\' id=\'self-link\'}}Self{{/link-to}}\n    ');
+      _this14.addTemplate('about', '\n      <h3 class="about">About</h3>\n      {{#link-to \'index\' id=\'home-link\'}}Home{{/link-to}}\n      {{#link-to \'about\' id=\'self-link\'}}Self{{/link-to}}\n    ');
       return _this14;
     }
 
@@ -69721,7 +69685,7 @@ enifed('ember/tests/helpers/link_to_test', ['ember-babel', 'internal-test-helper
     _class2.prototype['@test The {{link-to}} helper supports URL replacement'] = function testTheLinkToHelperSupportsURLReplacement(assert) {
       var _this16 = this;
 
-      this.addTemplate('index', '\n      <h3>Home</h3>\n      {{#link-to \'about\' id=\'about-link\' replace=true}}About{{/link-to}}\n    ');
+      this.addTemplate('index', '\n      <h3 class="home">Home</h3>\n      {{#link-to \'about\' id=\'about-link\' replace=true}}About{{/link-to}}\n    ');
 
       return this.visit('/').then(function () {
         return _this16.click('#about-link');
@@ -69734,7 +69698,7 @@ enifed('ember/tests/helpers/link_to_test', ['ember-babel', 'internal-test-helper
     _class2.prototype['@test The {{link-to}} helper supports URL replacement via replace=boundTruthyThing'] = function testTheLinkToHelperSupportsURLReplacementViaReplaceBoundTruthyThing(assert) {
       var _this17 = this;
 
-      this.addTemplate('index', '\n      <h3>Home</h3>\n      {{#link-to \'about\' id=\'about-link\' replace=boundTruthyThing}}About{{/link-to}}\n    ');
+      this.addTemplate('index', '\n      <h3 class="home">Home</h3>\n      {{#link-to \'about\' id=\'about-link\' replace=boundTruthyThing}}About{{/link-to}}\n    ');
 
       this.add('controller:index', _emberRuntime.Controller.extend({
         boundTruthyThing: true
@@ -69751,7 +69715,7 @@ enifed('ember/tests/helpers/link_to_test', ['ember-babel', 'internal-test-helper
     _class2.prototype['@test The {{link-to}} helper supports setting replace=boundFalseyThing'] = function testTheLinkToHelperSupportsSettingReplaceBoundFalseyThing(assert) {
       var _this18 = this;
 
-      this.addTemplate('index', '\n      <h3>Home</h3>\n      {{#link-to \'about\' id=\'about-link\' replace=boundFalseyThing}}About{{/link-to}}\n    ');
+      this.addTemplate('index', '\n      <h3 class="home">Home</h3>\n      {{#link-to \'about\' id=\'about-link\' replace=boundFalseyThing}}About{{/link-to}}\n    ');
 
       this.add('controller:index', _emberRuntime.Controller.extend({
         boundFalseyThing: false
@@ -69781,8 +69745,8 @@ enifed('ember/tests/helpers/link_to_test', ['ember-babel', 'internal-test-helper
           this.route('about');
         });
 
-        _this19.addTemplate('index', '\n        <h3>Home</h3>\n        {{#link-to \'about\' id=\'about-link\'}}About{{/link-to}}\n        {{#link-to \'index\' id=\'self-link\'}}Self{{/link-to}}\n      ');
-        _this19.addTemplate('about', '\n        <h3>About</h3>\n        {{#link-to \'index\' id=\'home-link\'}}Home{{/link-to}}\n        {{#link-to \'about\' id=\'self-link\'}}Self{{/link-to}}\n      ');
+        _this19.addTemplate('index', '\n        <h3 class="home">Home</h3>\n        {{#link-to \'about\' id=\'about-link\'}}About{{/link-to}}\n        {{#link-to \'index\' id=\'self-link\'}}Self{{/link-to}}\n      ');
+        _this19.addTemplate('about', '\n        <h3 class="about">About</h3>\n        {{#link-to \'index\' id=\'home-link\'}}Home{{/link-to}}\n        {{#link-to \'about\' id=\'self-link\'}}Self{{/link-to}}\n      ');
         return _this19;
       }
 
@@ -69886,7 +69850,7 @@ enifed('ember/tests/helpers/link_to_test', ['ember-babel', 'internal-test-helper
         this.route('item');
       });
 
-      this.addTemplate('index', '<h3>Home</h3>{{outlet}}');
+      this.addTemplate('index', '<h3 class="home">Home</h3>{{outlet}}');
       this.addTemplate('index.about', '\n      {{#link-to \'item\' id=\'other-link\' current-when=\'index\'}}ITEM{{/link-to}}\n    ');
 
       return this.visit('/about').then(function () {
@@ -69907,7 +69871,7 @@ enifed('ember/tests/helpers/link_to_test', ['ember-babel', 'internal-test-helper
         });
       });
 
-      this.addTemplate('index', '<h3>Home</h3>{{outlet}}');
+      this.addTemplate('index', '<h3 class="home">Home</h3>{{outlet}}');
       this.addTemplate('index.about', '\n      {{#link-to \'items\' id=\'other-link\' current-when=\'index\'}}ITEM{{/link-to}}\n    ');
 
       return this.visit('/about').then(function () {
@@ -69932,7 +69896,7 @@ enifed('ember/tests/helpers/link_to_test', ['ember-babel', 'internal-test-helper
         currentWhen: 'index'
       }));
 
-      this.addTemplate('index', '<h3>Home</h3>{{outlet}}');
+      this.addTemplate('index', '<h3 class="home">Home</h3>{{outlet}}');
       this.addTemplate('index.about', '{{#link-to \'items\' id=\'other-link\' current-when=currentWhen}}ITEM{{/link-to}}');
 
       return this.visit('/about').then(function () {
@@ -69951,7 +69915,7 @@ enifed('ember/tests/helpers/link_to_test', ['ember-babel', 'internal-test-helper
         this.route('foo');
       });
 
-      this.addTemplate('index', '<h3>Home</h3>{{outlet}}');
+      this.addTemplate('index', '<h3 class="home">Home</h3>{{outlet}}');
       this.addTemplate('index.about', '{{#link-to \'item\' id=\'link1\' current-when=\'item index\'}}ITEM{{/link-to}}');
       this.addTemplate('item', '{{#link-to \'item\' id=\'link2\' current-when=\'item index\'}}ITEM{{/link-to}}');
       this.addTemplate('foo', '{{#link-to \'item\' id=\'link3\' current-when=\'item index\'}}ITEM{{/link-to}}');
@@ -69979,7 +69943,7 @@ enifed('ember/tests/helpers/link_to_test', ['ember-babel', 'internal-test-helper
         this.route('item');
       });
 
-      this.addTemplate('index', '<h3>Home</h3>{{outlet}}');
+      this.addTemplate('index', '<h3 class="home">Home</h3>{{outlet}}');
       this.addTemplate('index.about', '{{#link-to \'item\' id=\'other-link\' current-when=true}}ITEM{{/link-to}}');
 
       return this.visit('/about').then(function () {
@@ -70091,11 +70055,11 @@ enifed('ember/tests/helpers/link_to_test', ['ember-babel', 'internal-test-helper
         this.route('item', { path: '/item/:id' });
       });
 
-      this.addTemplate('about', '\n      <h3>List</h3>\n      <ul>\n        {{#each model as |person|}}\n          <li>\n            {{#link-to \'item\' person id=person.id}}\n              {{person.name}}\n            {{/link-to}}\n          </li>\n        {{/each}}\n      </ul>\n      {{#link-to \'index\' id=\'home-link\'}}Home{{/link-to}}\n    ');
+      this.addTemplate('about', '\n      <h3 class="list">List</h3>\n      <ul>\n        {{#each model as |person|}}\n          <li>\n            {{#link-to \'item\' person id=person.id}}\n              {{person.name}}\n            {{/link-to}}\n          </li>\n        {{/each}}\n      </ul>\n      {{#link-to \'index\' id=\'home-link\'}}Home{{/link-to}}\n    ');
 
-      this.addTemplate('item', '\n      <h3>Item</h3>\n      <p>{{model.name}}</p>\n      {{#link-to \'index\' id=\'home-link\'}}Home{{/link-to}}\n    ');
+      this.addTemplate('item', '\n      <h3 class="item">Item</h3>\n      <p>{{model.name}}</p>\n      {{#link-to \'index\' id=\'home-link\'}}Home{{/link-to}}\n    ');
 
-      this.addTemplate('index', '\n      <h3>Home</h3>\n      {{#link-to \'about\' id=\'about-link\'}}About{{/link-to}}\n    ');
+      this.addTemplate('index', '\n      <h3 class="home">Home</h3>\n      {{#link-to \'about\' id=\'about-link\'}}About{{/link-to}}\n    ');
 
       this.add('route:about', _emberRouting.Route.extend({
         model: function () {
@@ -70104,25 +70068,25 @@ enifed('ember/tests/helpers/link_to_test', ['ember-babel', 'internal-test-helper
       }));
 
       return this.visit('/about').then(function () {
-        assert.equal(_this30.$('h3:contains(List)').length, 1, 'The home template was rendered');
+        assert.equal(_this30.$('h3.list').length, 1, 'The home template was rendered');
         assert.equal(normalizeUrl(_this30.$('#home-link').attr('href')), '/', 'The home link points back at /');
 
         return _this30.click('#yehuda');
       }).then(function () {
-        assert.equal(_this30.$('h3:contains(Item)').length, 1, 'The item template was rendered');
+        assert.equal(_this30.$('h3.item').length, 1, 'The item template was rendered');
         assert.equal(_this30.$('p').text(), 'Yehuda Katz', 'The name is correct');
 
         return _this30.click('#home-link');
       }).then(function () {
         return _this30.click('#about-link');
       }).then(function () {
-        assert.equal(normalizeUrl(_this30.$('li a:contains(Yehuda)').attr('href')), '/item/yehuda');
-        assert.equal(normalizeUrl(_this30.$('li a:contains(Tom)').attr('href')), '/item/tom');
-        assert.equal(normalizeUrl(_this30.$('li a:contains(Erik)').attr('href')), '/item/erik');
+        assert.equal(normalizeUrl(_this30.$('li a#yehuda').attr('href')), '/item/yehuda');
+        assert.equal(normalizeUrl(_this30.$('li a#tom').attr('href')), '/item/tom');
+        assert.equal(normalizeUrl(_this30.$('li a#erik').attr('href')), '/item/erik');
 
         return _this30.click('#erik');
       }).then(function () {
-        assert.equal(_this30.$('h3:contains(Item)').length, 1, 'The item template was rendered');
+        assert.equal(_this30.$('h3.item').length, 1, 'The item template was rendered');
         assert.equal(_this30.$('p').text(), 'Erik Brynroflsson', 'The name is correct');
       });
     };
@@ -70130,7 +70094,7 @@ enifed('ember/tests/helpers/link_to_test', ['ember-babel', 'internal-test-helper
     _class4.prototype['@test The {{link-to}} helper binds some anchor html tag common attributes'] = function (assert) {
       var _this31 = this;
 
-      this.addTemplate('index', '\n      <h3>Home</h3>\n      {{#link-to \'index\' id=\'self-link\' title=\'title-attr\' rel=\'rel-attr\' tabindex=\'-1\'}}\n        Self\n      {{/link-to}}\n    ');
+      this.addTemplate('index', '\n      <h3 class="home">Home</h3>\n      {{#link-to \'index\' id=\'self-link\' title=\'title-attr\' rel=\'rel-attr\' tabindex=\'-1\'}}\n        Self\n      {{/link-to}}\n    ');
 
       return this.visit('/').then(function () {
         var link = _this31.$('#self-link');
@@ -70143,7 +70107,7 @@ enifed('ember/tests/helpers/link_to_test', ['ember-babel', 'internal-test-helper
     _class4.prototype['@test The {{link-to}} helper supports \'target\' attribute'] = function (assert) {
       var _this32 = this;
 
-      this.addTemplate('index', '\n      <h3>Home</h3>\n      {{#link-to \'index\' id=\'self-link\' target=\'_blank\'}}Self{{/link-to}}\n    ');
+      this.addTemplate('index', '\n      <h3 class="home">Home</h3>\n      {{#link-to \'index\' id=\'self-link\' target=\'_blank\'}}Self{{/link-to}}\n    ');
 
       return this.visit('/').then(function () {
         var link = _this32.$('#self-link');
@@ -70154,7 +70118,7 @@ enifed('ember/tests/helpers/link_to_test', ['ember-babel', 'internal-test-helper
     _class4.prototype['@test The {{link-to}} helper supports \'target\' attribute specified as a bound param'] = function (assert) {
       var _this33 = this;
 
-      this.addTemplate('index', '<h3>Home</h3>{{#link-to \'index\' id=\'self-link\' target=boundLinkTarget}}Self{{/link-to}}');
+      this.addTemplate('index', '<h3 class="home">Home</h3>{{#link-to \'index\' id=\'self-link\' target=boundLinkTarget}}Self{{/link-to}}');
 
       this.add('controller:index', _emberRuntime.Controller.extend({
         boundLinkTarget: '_blank'
@@ -70166,7 +70130,7 @@ enifed('ember/tests/helpers/link_to_test', ['ember-babel', 'internal-test-helper
       });
     };
 
-    _class4.prototype['@test the {{link-to}} helper calls preventDefault'] = function (assert) {
+    _class4.prototype['@test the {{link-to}} helper calls preventDefault'] = function () {
       var _this34 = this;
 
       this.router.map(function () {
@@ -70176,14 +70140,13 @@ enifed('ember/tests/helpers/link_to_test', ['ember-babel', 'internal-test-helper
       this.addTemplate('index', '\n      {{#link-to \'about\' id=\'about-link\'}}About{{/link-to}}\n    ');
 
       return this.visit('/').then(function () {
-        var event = _emberViews.jQuery.Event('click');
-        _this34.$('#about-link').trigger(event);
-
-        assert.equal(event.isDefaultPrevented(), true, 'should preventDefault');
+        assertNav({ prevented: true }, function () {
+          return _this34.$('#about-link').click();
+        });
       });
     };
 
-    _class4.prototype['@test the {{link-to}} helper does not call preventDefault if \'preventDefault=false\' is passed as an option'] = function (assert) {
+    _class4.prototype['@test the {{link-to}} helper does not call preventDefault if \'preventDefault=false\' is passed as an option'] = function () {
       var _this35 = this;
 
       this.router.map(function () {
@@ -70193,14 +70156,13 @@ enifed('ember/tests/helpers/link_to_test', ['ember-babel', 'internal-test-helper
       this.addTemplate('index', '\n      {{#link-to \'about\' id=\'about-link\' preventDefault=false}}About{{/link-to}}\n    ');
 
       return this.visit('/').then(function () {
-        var event = _emberViews.jQuery.Event('click');
-        _this35.$('#about-link').trigger(event);
-
-        assert.equal(event.isDefaultPrevented(), false, 'should not preventDefault');
+        assertNav({ prevented: false }, function () {
+          return _this35.$('#about-link').trigger('click');
+        });
       });
     };
 
-    _class4.prototype['@test the {{link-to}} helper does not call preventDefault if \'preventDefault=boundFalseyThing\' is passed as an option'] = function (assert) {
+    _class4.prototype['@test the {{link-to}} helper does not call preventDefault if \'preventDefault=boundFalseyThing\' is passed as an option'] = function () {
       var _this36 = this;
 
       this.router.map(function () {
@@ -70214,36 +70176,33 @@ enifed('ember/tests/helpers/link_to_test', ['ember-babel', 'internal-test-helper
       }));
 
       return this.visit('/').then(function () {
-        var event = _emberViews.jQuery.Event('click');
-        _this36.$('#about-link').trigger(event);
-
-        assert.equal(event.isDefaultPrevented(), false, 'should not preventDefault');
+        assertNav({ prevented: false }, function () {
+          return _this36.$('#about-link').trigger('click');
+        });
       });
     };
 
-    _class4.prototype['@test The {{link-to}} helper does not call preventDefault if \'target\' attribute is provided'] = function (assert) {
+    _class4.prototype['@test The {{link-to}} helper does not call preventDefault if \'target\' attribute is provided'] = function () {
       var _this37 = this;
 
-      this.addTemplate('index', '\n      <h3>Home</h3>\n      {{#link-to \'index\' id=\'self-link\' target=\'_blank\'}}Self{{/link-to}}\n    ');
+      this.addTemplate('index', '\n      <h3 class="home">Home</h3>\n      {{#link-to \'index\' id=\'self-link\' target=\'_blank\'}}Self{{/link-to}}\n    ');
 
       return this.visit('/').then(function () {
-        var event = _emberViews.jQuery.Event('click');
-        _this37.$('#self-link').trigger(event);
-
-        assert.equal(event.isDefaultPrevented(), false, 'should not preventDefault when target attribute is specified');
+        assertNav({ prevented: false }, function () {
+          return _this37.$('#self-link').click();
+        });
       });
     };
 
-    _class4.prototype['@test The {{link-to}} helper should preventDefault when \'target = _self\''] = function (assert) {
+    _class4.prototype['@test The {{link-to}} helper should preventDefault when \'target = _self\''] = function () {
       var _this38 = this;
 
-      this.addTemplate('index', '\n      <h3>Home</h3>\n      {{#link-to \'index\' id=\'self-link\' target=\'_self\'}}Self{{/link-to}}\n    ');
+      this.addTemplate('index', '\n      <h3 class="home">Home</h3>\n      {{#link-to \'index\' id=\'self-link\' target=\'_self\'}}Self{{/link-to}}\n    ');
 
       return this.visit('/').then(function () {
-        var event = _emberViews.jQuery.Event('click');
-        _this38.$('#self-link').trigger(event);
-
-        assert.equal(event.isDefaultPrevented(), true, 'should preventDefault when target attribute is `_self`');
+        assertNav({ prevented: true }, function () {
+          return _this38.$('#self-link').click();
+        });
       });
     };
 
@@ -70460,13 +70419,13 @@ enifed('ember/tests/helpers/link_to_test', ['ember-babel', 'internal-test-helper
         this.route('contact');
       });
 
-      this.addTemplate('index', '\n      <h3>Home</h3>\n      {{link-to \'Contact us\' \'contact\' id=\'contact-link\'}}\n      {{#link-to \'index\' id=\'self-link\'}}Self{{/link-to}}\n    ');
-      this.addTemplate('contact', '\n      <h3>Contact</h3>\n      {{link-to \'Home\' \'index\' id=\'home-link\'}}\n      {{link-to \'Self\' \'contact\' id=\'self-link\'}}\n    ');
+      this.addTemplate('index', '\n      <h3 class="home">Home</h3>\n      {{link-to \'Contact us\' \'contact\' id=\'contact-link\'}}\n      {{#link-to \'index\' id=\'self-link\'}}Self{{/link-to}}\n    ');
+      this.addTemplate('contact', '\n      <h3 class="contact">Contact</h3>\n      {{link-to \'Home\' \'index\' id=\'home-link\'}}\n      {{link-to \'Self\' \'contact\' id=\'self-link\'}}\n    ');
 
       return this.visit('/').then(function () {
         return _this46.click('#contact-link');
       }).then(function () {
-        assert.equal(_this46.$('h3:contains(Contact)').length, 1, 'The contact template was rendered');
+        assert.equal(_this46.$('h3.contact').length, 1, 'The contact template was rendered');
         assert.equal(_this46.$('#self-link.active').length, 1, 'The self-link was rendered with active class');
         assert.equal(_this46.$('#home-link:not(.active)').length, 1, 'The other link was rendered without active class');
       });
@@ -70484,37 +70443,35 @@ enifed('ember/tests/helpers/link_to_test', ['ember-babel', 'internal-test-helper
         contactName: 'Jane'
       }));
 
-      this.addTemplate('index', '\n      <h3>Home</h3>\n      {{link-to contactName \'contact\' id=\'contact-link\'}}\n      {{#link-to \'index\' id=\'self-link\'}}Self{{/link-to}}\n    ');
-      this.addTemplate('contact', '\n      <h3>Contact</h3>\n      {{link-to \'Home\' \'index\' id=\'home-link\'}}\n      {{link-to \'Self\' \'contact\' id=\'self-link\'}}\n    ');
+      this.addTemplate('index', '\n      <h3 class="home">Home</h3>\n      {{link-to contactName \'contact\' id=\'contact-link\'}}\n      {{#link-to \'index\' id=\'self-link\'}}Self{{/link-to}}\n    ');
+      this.addTemplate('contact', '\n      <h3 class="contact">Contact</h3>\n      {{link-to \'Home\' \'index\' id=\'home-link\'}}\n      {{link-to \'Self\' \'contact\' id=\'self-link\'}}\n    ');
 
       return this.visit('/').then(function () {
-        assert.equal(_this47.$('#contact-link:contains(Jane)').length, 1, 'The link title is correctly resolved');
+        assert.equal(_this47.$('#contact-link').text(), 'Jane', 'The link title is correctly resolved');
 
         var controller = _this47.applicationInstance.lookup('controller:index');
         _this47.runTask(function () {
           return controller.set('contactName', 'Joe');
         });
 
-        assert.equal(_this47.$('#contact-link:contains(Joe)').length, 1, 'The link title is correctly updated when the bound property changes');
+        assert.equal(_this47.$('#contact-link').text(), 'Joe', 'The link title is correctly updated when the bound property changes');
 
         _this47.runTask(function () {
           return controller.set('contactName', 'Robert');
         });
 
-        assert.equal(_this47.$('#contact-link:contains(Robert)').length, 1, 'The link title is correctly updated when the bound property changes a second time');
+        assert.equal(_this47.$('#contact-link').text(), 'Robert', 'The link title is correctly updated when the bound property changes a second time');
 
         return _this47.click('#contact-link');
       }).then(function () {
-
-        assert.equal(_this47.$('h3:contains(Contact)').length, 1, 'The contact template was rendered');
+        assert.equal(_this47.$('h3.contact').length, 1, 'The contact template was rendered');
         assert.equal(_this47.$('#self-link.active').length, 1, 'The self-link was rendered with active class');
         assert.equal(_this47.$('#home-link:not(.active)').length, 1, 'The other link was rendered without active class');
 
         return _this47.click('#home-link');
       }).then(function () {
-
-        assert.equal(_this47.$('h3:contains(Home)').length, 1, 'The index template was rendered');
-        assert.equal(_this47.$('#contact-link:contains(Robert)').length, 1, 'The link title is correctly updated when the route changes');
+        assert.equal(_this47.$('h3.home').length, 1, 'The index template was rendered');
+        assert.equal(_this47.$('#contact-link').text(), 'Robert', 'The link title is correctly updated when the route changes');
       });
     };
 
@@ -70533,22 +70490,21 @@ enifed('ember/tests/helpers/link_to_test', ['ember-babel', 'internal-test-helper
         }
       }));
 
-      this.addTemplate('index', '\n      <h3>Home</h3>\n      <ul>\n        {{#each model as |person|}}\n          <li>\n            {{link-to person.name \'item\' person id=person.id}}\n          </li>\n        {{/each}}\n      </ul>\n    ');
-      this.addTemplate('item', '\n      <h3>Item</h3>\n      <p>{{model.name}}</p>\n      {{#link-to \'index\' id=\'home-link\'}}Home{{/link-to}}\n    ');
+      this.addTemplate('index', '\n      <h3 class="home">Home</h3>\n      <ul>\n        {{#each model as |person|}}\n          <li>\n            {{link-to person.name \'item\' person id=person.id}}\n          </li>\n        {{/each}}\n      </ul>\n    ');
+      this.addTemplate('item', '\n      <h3 class="item">Item</h3>\n      <p>{{model.name}}</p>\n      {{#link-to \'index\' id=\'home-link\'}}Home{{/link-to}}\n    ');
 
       return this.visit('/').then(function () {
-
         return _this48.click('#yehuda');
       }).then(function () {
 
-        assert.equal(_this48.$('h3:contains(Item)').length, 1, 'The item template was rendered');
+        assert.equal(_this48.$('h3.item').length, 1, 'The item template was rendered');
         assert.equal(_this48.$('p').text(), 'Yehuda Katz', 'The name is correct');
 
         return _this48.click('#home-link');
       }).then(function () {
-        assert.equal(normalizeUrl(_this48.$('li a:contains(Yehuda)').attr('href')), '/item/yehuda');
-        assert.equal(normalizeUrl(_this48.$('li a:contains(Tom)').attr('href')), '/item/tom');
-        assert.equal(normalizeUrl(_this48.$('li a:contains(Erik)').attr('href')), '/item/erik');
+        assert.equal(normalizeUrl(_this48.$('li a#yehuda').attr('href')), '/item/yehuda');
+        assert.equal(normalizeUrl(_this48.$('li a#tom').attr('href')), '/item/tom');
+        assert.equal(normalizeUrl(_this48.$('li a#erik').attr('href')), '/item/erik');
       });
     };
 
@@ -70776,7 +70732,7 @@ enifed('ember/tests/helpers/link_to_test', ['ember-babel', 'internal-test-helper
         }
       }));
 
-      this.addTemplate('index', '\n      <h3>Home</h3>\n      {{#link-to params=dynamicLinkParams id="dynamic-link"}}Dynamic{{/link-to}}\n    ');
+      this.addTemplate('index', '\n      <h3 class="home">Home</h3>\n      {{#link-to params=dynamicLinkParams id="dynamic-link"}}Dynamic{{/link-to}}\n    ');
 
       return this.visit('/').then(function () {
         var link = _this58.$('#dynamic-link');
@@ -70927,6 +70883,24 @@ enifed('ember/tests/helpers/link_to_test', ['ember-babel', 'internal-test-helper
 
     return _class5;
   }(_internalTestHelpers.ApplicationTestCase));
+
+  function assertNav(options, callback) {
+    var nav = false;
+
+    function check(event) {
+      QUnit.assert.equal(event.defaultPrevented, options.prevented, 'expected defaultPrevented=' + options.prevented);
+      nav = true;
+      event.preventDefault();
+    }
+
+    try {
+      document.addEventListener('click', check);
+      callback();
+    } finally {
+      document.removeEventListener('click', check);
+      QUnit.assert.ok(nav, 'Expected a link to be clicked');
+    }
+  }
 });
 QUnit.module('ESLint | ember/tests/helpers/link_to_test.js');
 QUnit.test('should pass ESLint', function(assert) {
@@ -71802,10 +71776,10 @@ enifed('ember/tests/homepage_example_test', ['ember-babel', 'ember-routing', 'em
       return this.visit('/').then(function () {
         var $ = _this2.$();
 
-        assert.equal($.find('h1:contains(People)').length, 1);
-        assert.equal($.find('li').length, 2);
-        assert.equal($.find('li:nth-of-type(1)').text(), 'Hello, Tom Dale!');
-        assert.equal($.find('li:nth-of-type(2)').text(), 'Hello, Yehuda Katz!');
+        assert.equal($.findAll('h1').text(), 'People');
+        assert.equal($.findAll('li').length, 2);
+        assert.equal($.findAll('li:nth-of-type(1)').text(), 'Hello, Tom Dale!');
+        assert.equal($.findAll('li:nth-of-type(2)').text(), 'Hello, Yehuda Katz!');
       });
     };
 
@@ -72105,9 +72079,9 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
         container = App.__container__;
 
         (0, _emberGlimmer.setTemplate)('application', (0, _emberTemplateCompiler.compile)('{{outlet}}'));
-        (0, _emberGlimmer.setTemplate)('home', (0, _emberTemplateCompiler.compile)('<h3>Hours</h3>'));
-        (0, _emberGlimmer.setTemplate)('homepage', (0, _emberTemplateCompiler.compile)('<h3>Megatroll</h3><p>{{model.home}}</p>'));
-        (0, _emberGlimmer.setTemplate)('camelot', (0, _emberTemplateCompiler.compile)('<section><h3>Is a silly place</h3></section>'));
+        (0, _emberGlimmer.setTemplate)('home', (0, _emberTemplateCompiler.compile)('<h3 class="hours">Hours</h3>'));
+        (0, _emberGlimmer.setTemplate)('homepage', (0, _emberTemplateCompiler.compile)('<h3 class="megatroll">Megatroll</h3><p>{{model.home}}</p>'));
+        (0, _emberGlimmer.setTemplate)('camelot', (0, _emberTemplateCompiler.compile)('<section><h3 class="silly">Is a silly place</h3></section>'));
 
         originalLoggerError = _emberConsole.default.error;
         originalRenderSupport = _emberEnvironment.ENV._ENABLE_RENDER_SUPPORT;
@@ -72191,7 +72165,7 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
 
     bootApplication();
 
-    assert.equal((0, _emberViews.jQuery)('ul li', '#qunit-fixture').eq(2).text(), 'Sunday: Noon to 6pm', 'The template was rendered with the hours context');
+    assert.equal(document.querySelectorAll('#qunit-fixture ul li')[2].textContent, 'Sunday: Noon to 6pm', 'The template was rendered with the hours context');
   });
 
   QUnit.test('The Homepage with a computed context that does not get overridden', function (assert) {
@@ -72209,7 +72183,7 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
 
     bootApplication();
 
-    assert.equal((0, _emberViews.jQuery)('ul li', '#qunit-fixture').eq(2).text(), 'Sunday: Noon to 6pm', 'The template was rendered with the context intact');
+    assert.equal(document.querySelectorAll('#qunit-fixture ul li')[2].textContent, 'Sunday: Noon to 6pm', 'The template was rendered with the context intact');
   });
 
   QUnit.test('The Homepage getting its controller context via model', function (assert) {
@@ -72232,7 +72206,7 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
 
     bootApplication();
 
-    assert.equal((0, _emberViews.jQuery)('ul li', '#qunit-fixture').eq(2).text(), 'Sunday: Noon to 6pm', 'The template was rendered with the hours context');
+    assert.equal(document.querySelectorAll('#qunit-fixture ul li', '#qunit-fixture')[2].textContent, 'Sunday: Noon to 6pm', 'The template was rendered with the hours context');
   });
 
   QUnit.test('The Specials Page getting its controller context by deserializing the params hash', function (assert) {
@@ -73131,7 +73105,7 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
     bootApplication();
 
     assert.equal(chooseFollowed, 0, 'The choose route wasn\'t entered since a transition occurred');
-    assert.equal((0, _emberViews.jQuery)('h3:contains(Hours)', '#qunit-fixture').length, 1, 'The home template was rendered');
+    assert.equal((0, _emberViews.jQuery)('h3.hours', '#qunit-fixture').length, 1, 'The home template was rendered');
     assert.equal((0, _emberUtils.getOwner)(router).lookup('controller:application').get('currentPath'), 'home');
   });
 
@@ -73639,7 +73613,7 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
   });
 
   QUnit.test('Application template does not duplicate when re-rendered', function (assert) {
-    (0, _emberGlimmer.setTemplate)('application', (0, _emberTemplateCompiler.compile)('<h3>I Render Once</h3>{{outlet}}'));
+    (0, _emberGlimmer.setTemplate)('application', (0, _emberTemplateCompiler.compile)('<h3 class="render-once">I render once</h3>{{outlet}}'));
 
     Router.map(function () {
       this.route('posts');
@@ -73656,7 +73630,7 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
     // should cause application template to re-render
     handleURL(assert, '/posts');
 
-    assert.equal((0, _emberViews.jQuery)('h3:contains(I Render Once)').length, 1);
+    assert.equal((0, _emberViews.jQuery)('h3.render-once').text(), "I render once");
   });
 
   QUnit.test('Child routes should render inside the application template if the application template causes a redirect', function (assert) {
@@ -75752,7 +75726,7 @@ enifed('ember/tests/routing/decoupled_basic_test', ['ember-babel', 'ember-routin
         }
       }));
       return this.visit('/').then(function () {
-        var text = _this14.$('ul li').eq(2).text();
+        var text = _this14.$('ul li:nth-child(3)').text();
 
         assert.equal(text, 'Sunday: Noon to 6pm', 'The template was rendered with the hours context');
       });
@@ -78364,14 +78338,14 @@ enifed('ember/tests/routing/query_params_test/query_param_async_get_handler_test
       this.setSingleQPController('post');
 
       var setupAppTemplate = function () {
-        _this2.addTemplate('application', '\n        {{link-to \'Post\' \'post\' 1337 (query-params foo=\'bar\') class=\'post-link\'}}\n        {{link-to \'Post\' \'post\' 7331 (query-params foo=\'boo\') class=\'post-link\'}}\n        {{outlet}}\n      ');
+        _this2.addTemplate('application', '\n        {{link-to \'Post\' \'post\' 1337 (query-params foo=\'bar\') class=\'post-link is-1337\'}}\n        {{link-to \'Post\' \'post\' 7331 (query-params foo=\'boo\') class=\'post-link is-7331\'}}\n        {{outlet}}\n      ');
       };
 
       setupAppTemplate();
 
       return this.visitAndAssert('/').then(function () {
-        assert.equal(_this2.$('.post-link').eq(0).attr('href'), '/post/1337?foo=bar', 'renders correctly with default QP value');
-        assert.equal(_this2.$('.post-link').eq(1).attr('href'), '/post/7331?foo=boo', 'renders correctly with non-default QP value');
+        assert.equal(_this2.$('.post-link.is-1337').attr('href'), '/post/1337?foo=bar', 'renders correctly with default QP value');
+        assert.equal(_this2.$('.post-link.is-7331').attr('href'), '/post/7331?foo=boo', 'renders correctly with non-default QP value');
         assert.deepEqual(_this2.fetchedHandlers, ['application', 'index'], 'only fetched the handlers for the route we\'re on');
       });
     };
@@ -80006,14 +79980,15 @@ enifed('ember/tests/routing/substates_test', ['ember-babel', 'ember-runtime', 'e
       }));
 
       var promise = this.visit('/').then(function () {
-        text = _this3.$('#app').text();
+        var text = _this3.$('#app').text();
 
         assert.equal(text, 'INDEX', 'index template has been rendered');
       });
 
-      var text = this.$('#app').text();
+      if (this.element) {
+        assert.equal(this.element.textContent, '');
+      }
 
-      assert.equal(text, '', 'nothing has been rendered yet');
       appDeferred.resolve();
 
       return promise;
@@ -80349,7 +80324,7 @@ enifed('ember/tests/routing/substates_test', ['ember-babel', 'ember-runtime', 'e
 
       var reject = true;
 
-      this.addTemplate('index', '<div id="app">INDEX</div>');
+      this.addTemplate('index', '<div id="index">INDEX</div>');
       this.add('route:application', _emberRouting.Route.extend({
         init: function () {
           this._super.apply(this, arguments);
@@ -80372,7 +80347,7 @@ enifed('ember/tests/routing/substates_test', ['ember-babel', 'ember-runtime', 'e
       }).then(function () {
         return _this14.visit('/');
       }).then(function () {
-        var text = _this14.$('#app').text();
+        var text = _this14.$('#index').text();
         assert.equal(text, 'INDEX', 'the index route resolved');
       });
     };
@@ -82204,6 +82179,12 @@ QUnit.test('should pass ESLint', function(assert) {
   assert.ok(true, 'internal-test-helpers/lib/strip.js should pass ESLint\n\n');
 });
 
+QUnit.module('ESLint | internal-test-helpers/lib/system/synthetic-events.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'internal-test-helpers/lib/system/synthetic-events.js should pass ESLint\n\n');
+});
+
 QUnit.module('ESLint | internal-test-helpers/lib/test-cases/abstract-application.js');
 QUnit.test('should pass ESLint', function(assert) {
   assert.expect(1);
@@ -82238,6 +82219,12 @@ QUnit.module('ESLint | internal-test-helpers/lib/test-cases/default-resolver-app
 QUnit.test('should pass ESLint', function(assert) {
   assert.expect(1);
   assert.ok(true, 'internal-test-helpers/lib/test-cases/default-resolver-application.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | internal-test-helpers/lib/test-cases/node-query.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'internal-test-helpers/lib/test-cases/node-query.js should pass ESLint\n\n');
 });
 
 QUnit.module('ESLint | internal-test-helpers/lib/test-cases/query-param.js');
@@ -82535,6 +82522,171 @@ enifed('internal-test-helpers/strip', ['exports'], function (exports) {
     }).join('');
   }
 });
+enifed('internal-test-helpers/system/synthetic-events', ['exports', 'ember-metal'], function (exports, _emberMetal) {
+  'use strict';
+
+  exports.elMatches = undefined;
+  exports.matches = matches;
+  exports.click = click;
+  exports.focus = focus;
+  exports.blur = blur;
+  exports.fireEvent = fireEvent;
+
+
+  var DEFAULT_EVENT_OPTIONS = { canBubble: true, cancelable: true }; /* globals Element */
+
+  var KEYBOARD_EVENT_TYPES = ['keydown', 'keypress', 'keyup'];
+  var MOUSE_EVENT_TYPES = ['click', 'mousedown', 'mouseup', 'dblclick', 'mouseenter', 'mouseleave', 'mousemove', 'mouseout', 'mouseover'];
+
+  var elMatches = exports.elMatches = typeof Element !== 'undefined' && (Element.prototype.matches || Element.prototype.matchesSelector || Element.prototype.mozMatchesSelector || Element.prototype.msMatchesSelector || Element.prototype.oMatchesSelector || Element.prototype.webkitMatchesSelector);
+
+  function matches(el, selector) {
+    return elMatches.call(el, selector);
+  }
+
+  function isFocusable(el) {
+    var focusableTags = ['INPUT', 'BUTTON', 'LINK', 'SELECT', 'A', 'TEXTAREA'];
+    var tagName = el.tagName,
+        type = el.type;
+
+
+    if (type === 'hidden') {
+      return false;
+    }
+
+    return focusableTags.indexOf(tagName) > -1 || el.contentEditable === 'true';
+  }
+
+  function click(el) {
+    var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+
+    (0, _emberMetal.run)(function () {
+      return fireEvent(el, 'mousedown', options);
+    });
+    focus(el);
+    (0, _emberMetal.run)(function () {
+      return fireEvent(el, 'mouseup', options);
+    });
+    (0, _emberMetal.run)(function () {
+      return fireEvent(el, 'click', options);
+    });
+  }
+
+  function focus(el) {
+    if (!el) {
+      return;
+    }
+    if (isFocusable(el)) {
+      (0, _emberMetal.run)(null, function () {
+        var browserIsNotFocused = document.hasFocus && !document.hasFocus();
+
+        // Firefox does not trigger the `focusin` event if the window
+        // does not have focus. If the document doesn't have focus just
+        // use trigger('focusin') instead.
+        if (browserIsNotFocused) {
+          fireEvent(el, 'focusin');
+        }
+
+        // makes `document.activeElement` be `el`. If the browser is focused, it also fires a focus event
+        el.focus();
+
+        // if the browser is not focused the previous `el.focus()` didn't fire an event, so we simulate it
+        if (browserIsNotFocused) {
+          fireEvent(el, 'focus');
+        }
+      });
+    }
+  }
+
+  function blur(el) {
+    if (isFocusable(el)) {
+      (0, _emberMetal.run)(null, function () {
+        var browserIsNotFocused = document.hasFocus && !document.hasFocus();
+
+        fireEvent(el, 'focusout');
+
+        // makes `document.activeElement` be `body`.
+        // If the browser is focused, it also fires a blur event
+        el.blur();
+
+        // Chrome/Firefox does not trigger the `blur` event if the window
+        // does not have focus. If the document does not have focus then
+        // fire `blur` event via native event.
+        if (browserIsNotFocused) {
+          fireEvent(el, 'blur');
+        }
+      });
+    }
+  }
+
+  function fireEvent(element, type) {
+    var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+
+    if (!element) {
+      return;
+    }
+    var event = void 0;
+    if (KEYBOARD_EVENT_TYPES.indexOf(type) > -1) {
+      event = buildKeyboardEvent(type, options);
+    } else if (MOUSE_EVENT_TYPES.indexOf(type) > -1) {
+      var rect = element.getBoundingClientRect();
+      var x = rect.left + 1;
+      var y = rect.top + 1;
+      var simulatedCoordinates = {
+        screenX: x + 5,
+        screenY: y + 95,
+        clientX: x,
+        clientY: y
+      };
+      event = buildMouseEvent(type, (0, _emberMetal.merge)(simulatedCoordinates, options));
+    } else {
+      event = buildBasicEvent(type, options);
+    }
+    element.dispatchEvent(event);
+
+    return event;
+  }
+
+  function buildBasicEvent(type) {
+    var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+
+    var event = document.createEvent('Events');
+    event.initEvent(type, true, true);
+    (0, _emberMetal.merge)(event, options);
+    return event;
+  }
+
+  function buildMouseEvent(type) {
+    var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+
+    var event = void 0;
+    try {
+      event = document.createEvent('MouseEvents');
+      var eventOpts = (0, _emberMetal.merge)({}, DEFAULT_EVENT_OPTIONS);
+      (0, _emberMetal.merge)(eventOpts, options);
+
+      event.initMouseEvent(type, eventOpts.canBubble, eventOpts.cancelable, window, eventOpts.detail, eventOpts.screenX, eventOpts.screenY, eventOpts.clientX, eventOpts.clientY, eventOpts.ctrlKey, eventOpts.altKey, eventOpts.shiftKey, eventOpts.metaKey, eventOpts.button, eventOpts.relatedTarget);
+    } catch (e) {
+      event = buildBasicEvent(type, options);
+    }
+    return event;
+  }
+
+  function buildKeyboardEvent(type) {
+    var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+
+    var event = void 0;
+    try {
+      event = document.createEvent('KeyEvents');
+      var eventOpts = (0, _emberMetal.merge)({}, DEFAULT_EVENT_OPTIONS);
+      (0, _emberMetal.merge)(eventOpts, options);
+      event.initKeyEvent(type, eventOpts.canBubble, eventOpts.cancelable, window, eventOpts.ctrlKey, eventOpts.altKey, eventOpts.shiftKey, eventOpts.metaKey, eventOpts.keyCode, eventOpts.charCode);
+    } catch (e) {
+      event = buildBasicEvent(type, options);
+    }
+    return event;
+  }
+});
 enifed('internal-test-helpers/test-cases/abstract-application', ['exports', 'ember-babel', 'ember-template-compiler', 'ember/features', 'internal-test-helpers/test-cases/abstract', 'internal-test-helpers/run'], function (exports, _emberBabel, _emberTemplateCompiler, _features, _abstract, _run) {
   'use strict';
 
@@ -82784,10 +82936,11 @@ enifed('internal-test-helpers/test-cases/abstract-rendering', ['exports', 'ember
 
   exports.default = AbstractRenderingTestCase;
 });
-enifed('internal-test-helpers/test-cases/abstract', ['exports', 'ember-babel', 'ember-utils', 'ember-metal', 'ember-views', 'internal-test-helpers/equal-inner-html', 'internal-test-helpers/equal-tokens', 'internal-test-helpers/matchers', 'rsvp'], function (exports, _emberBabel, _emberUtils, _emberMetal, _emberViews, _equalInnerHtml, _equalTokens, _matchers, _rsvp) {
+enifed('internal-test-helpers/test-cases/abstract', ['exports', 'ember-babel', 'ember-utils', 'ember-metal', 'internal-test-helpers/test-cases/node-query', 'internal-test-helpers/equal-inner-html', 'internal-test-helpers/equal-tokens', 'internal-test-helpers/matchers', 'rsvp'], function (exports, _emberBabel, _emberUtils, _emberMetal, _nodeQuery, _equalInnerHtml, _equalTokens, _matchers, _rsvp) {
   'use strict';
 
-  var TextNode = window.Text;
+  var TextNode = window.Text; /* global Element */
+
   var HTMLElement = window.HTMLElement;
   var Comment = window.Comment;
 
@@ -82855,7 +83008,19 @@ enifed('internal-test-helpers/test-cases/abstract', ['exports', 'ember-babel', '
     };
 
     AbstractTestCase.prototype.$ = function $(sel) {
-      return sel ? (0, _emberViews.jQuery)(sel, this.element) : (0, _emberViews.jQuery)(this.element);
+      if (sel instanceof Element) {
+        return _nodeQuery.default.element(sel);
+      } else if (typeof sel === 'string') {
+        return _nodeQuery.default.query(sel, this.element);
+      } else if (sel !== undefined) {
+        throw new Error('Invalid this.$(' + sel + ')');
+      } else {
+        return _nodeQuery.default.element(this.element);
+      }
+    };
+
+    AbstractTestCase.prototype.wrap = function wrap(element) {
+      return _nodeQuery.default.element(element);
     };
 
     AbstractTestCase.prototype.click = function click(selector) {
@@ -83176,6 +83341,140 @@ enifed('internal-test-helpers/test-cases/default-resolver-application', ['export
   }(_abstractApplication.default);
 
   exports.default = ApplicationTestCase;
+});
+enifed('internal-test-helpers/test-cases/node-query', ['exports', 'ember-babel', 'ember-debug', 'internal-test-helpers/system/synthetic-events'], function (exports, _emberBabel, _emberDebug, _syntheticEvents) {
+  'use strict';
+
+  var NodeQuery = function () {
+    NodeQuery.query = function query(selector) {
+      var context = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : document;
+      (true && !(context && context instanceof Node) && (0, _emberDebug.assert)('Invalid second parameter to NodeQuery.query', context && context instanceof Node));
+
+      return new NodeQuery(toArray(context.querySelectorAll(selector)));
+    };
+
+    NodeQuery.element = function element(_element) {
+      return new NodeQuery([_element]);
+    };
+
+    function NodeQuery(nodes) {
+      (0, _emberBabel.classCallCheck)(this, NodeQuery);
+      (true && !(Array.isArray(nodes)) && (0, _emberDebug.assert)('NodeQuery must be initialized with a literal array', Array.isArray(nodes)));
+
+      this.nodes = nodes;
+
+      for (var i = 0; i < nodes.length; i++) {
+        this[i] = nodes[i];
+      }
+
+      this.length = nodes.length;
+
+      Object.freeze(this);
+    }
+
+    NodeQuery.prototype.find = function find(selector) {
+      assertSingle(this);
+
+      return this[0].querySelector(selector);
+    };
+
+    NodeQuery.prototype.findAll = function findAll(selector) {
+      var nodes = [];
+
+      this.nodes.forEach(function (node) {
+        nodes.push.apply(nodes, node.querySelectorAll(selector));
+      });
+
+      return new NodeQuery(nodes);
+    };
+
+    NodeQuery.prototype.trigger = function trigger(eventName, options) {
+      return this.nodes.map(function (node) {
+        return (0, _syntheticEvents.fireEvent)(node, eventName, options);
+      });
+    };
+
+    NodeQuery.prototype.click = function click() {
+      return this.trigger('click');
+    };
+
+    NodeQuery.prototype.focus = function focus() {
+      this.nodes.forEach(_syntheticEvents.focus);
+    };
+
+    NodeQuery.prototype.text = function text() {
+      return this.nodes.map(function (node) {
+        return node.textContent;
+      }).join('');
+    };
+
+    NodeQuery.prototype.attr = function attr(name) {
+      if (arguments.length !== 1) {
+        throw new Error('not implemented');
+      }
+
+      assertSingle(this);
+
+      return this.nodes[0].getAttribute(name);
+    };
+
+    NodeQuery.prototype.prop = function prop(name, value) {
+      if (arguments.length > 1) {
+        return this.setProp(name, value);
+      }
+
+      assertSingle(this);
+
+      return this.nodes[0][name];
+    };
+
+    NodeQuery.prototype.setProp = function setProp(name, value) {
+      this.nodes.forEach(function (node) {
+        return node[name] = value;
+      });
+
+      return this;
+    };
+
+    NodeQuery.prototype.val = function val(value) {
+      if (arguments.length === 1) {
+        return this.setProp('value', value);
+      }
+
+      return this.prop('value');
+    };
+
+    NodeQuery.prototype.is = function is(selector) {
+      return this.nodes.every(function (node) {
+        return (0, _syntheticEvents.matches)(node, selector);
+      });
+    };
+
+    NodeQuery.prototype.hasClass = function hasClass(className) {
+      return this.is('.' + className);
+    };
+
+    return NodeQuery;
+  }();
+
+  exports.default = NodeQuery;
+
+
+  function assertSingle(nodeQuery) {
+    if (nodeQuery.length !== 1) {
+      throw new Error('attr(name) called on a NodeQuery with ' + this.nodes.length + ' elements. Expected one element.');
+    }
+  }
+
+  function toArray(nodes) {
+    var out = [];
+
+    for (var i = 0; i < nodes.length; i++) {
+      out.push(nodes[i]);
+    }
+
+    return out;
+  }
 });
 enifed('internal-test-helpers/test-cases/query-param', ['exports', 'ember-babel', 'ember-runtime', 'ember-routing', 'ember-metal', 'internal-test-helpers/test-cases/application'], function (exports, _emberBabel, _emberRuntime, _emberRouting, _emberMetal, _application) {
   'use strict';

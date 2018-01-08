@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.0.0-canary+2cd02df9
+ * @version   3.0.0-canary+72ccd547
  */
 
 /*globals process */
@@ -12147,7 +12147,7 @@ enifed('ember-application/system/application', ['exports', 'ember-babel', 'ember
     if (!librariesRegistered) {
       librariesRegistered = true;
 
-      if (_emberEnvironment.environment.hasDOM && typeof _emberViews.jQuery === 'function') {
+      if (_emberEnvironment.environment.hasDOM && !_emberViews.jQueryDisabled) {
         _emberMetal.libraries.registerCoreLibrary('jQuery', (0, _emberViews.jQuery)().jquery);
       }
     }
@@ -16323,7 +16323,7 @@ enifed('ember-glimmer/components/checkbox', ['exports', 'ember-metal', 'ember-gl
             (0, _emberMetal.get)(this, 'element').indeterminate = !!(0, _emberMetal.get)(this, 'indeterminate');
         },
         change: function () {
-            (0, _emberMetal.set)(this, 'checked', this.$().prop('checked'));
+            (0, _emberMetal.set)(this, 'checked', this.element.checked);
         }
     });
 });
@@ -43614,7 +43614,7 @@ enifed('ember-testing/support', ['ember-debug', 'ember-views', 'ember-environmen
     $(input).attr('type', 'checkbox').css({ position: 'absolute', left: '-1000px', top: '-1000px' }).appendTo('body').on('click', handler).trigger('click').remove();
   }
 
-  if (_emberEnvironment.environment.hasDOM && typeof $ === 'function') {
+  if (_emberEnvironment.environment.hasDOM && !_emberViews.jQueryDisabled) {
     $(function () {
       /*
         Determine whether a checkbox checked using jQuery's "click" method will have
@@ -44917,11 +44917,17 @@ enifed('ember-views/component_lookup', ['exports', 'ember-debug', 'ember-runtime
 enifed('ember-views/index', ['exports', 'ember-views/system/jquery', 'ember-views/system/utils', 'ember-views/system/event_dispatcher', 'ember-views/component_lookup', 'ember-views/mixins/text_support', 'ember-views/views/core_view', 'ember-views/mixins/class_names_support', 'ember-views/mixins/child_views_support', 'ember-views/mixins/view_state_support', 'ember-views/mixins/view_support', 'ember-views/mixins/action_support', 'ember-views/compat/attrs', 'ember-views/system/lookup_partial', 'ember-views/utils/lookup-component', 'ember-views/system/action_manager', 'ember-views/compat/fallback-view-registry', 'ember-views/system/ext'], function (exports, _jquery, _utils, _event_dispatcher, _component_lookup, _text_support, _core_view, _class_names_support, _child_views_support, _view_state_support, _view_support, _action_support, _attrs, _lookup_partial, _lookupComponent, _action_manager, _fallbackViewRegistry) {
   'use strict';
 
-  exports.fallbackViewRegistry = exports.ActionManager = exports.lookupComponent = exports.hasPartial = exports.lookupPartial = exports.MUTABLE_CELL = exports.ActionSupport = exports.ViewMixin = exports.ViewStateSupport = exports.ChildViewsSupport = exports.ClassNamesSupport = exports.CoreView = exports.TextSupport = exports.ComponentLookup = exports.EventDispatcher = exports.constructStyleDeprecationMessage = exports.setViewElement = exports.getViewElement = exports.getViewId = exports.getChildViews = exports.getRootViews = exports.getViewBoundingClientRect = exports.getViewClientRects = exports.getViewBounds = exports.isSimpleClick = exports.jQuery = undefined;
+  exports.fallbackViewRegistry = exports.ActionManager = exports.lookupComponent = exports.hasPartial = exports.lookupPartial = exports.MUTABLE_CELL = exports.ActionSupport = exports.ViewMixin = exports.ViewStateSupport = exports.ChildViewsSupport = exports.ClassNamesSupport = exports.CoreView = exports.TextSupport = exports.ComponentLookup = exports.EventDispatcher = exports.constructStyleDeprecationMessage = exports.setViewElement = exports.getViewElement = exports.getViewId = exports.getChildViews = exports.getRootViews = exports.getViewBoundingClientRect = exports.getViewClientRects = exports.getViewBounds = exports.isSimpleClick = exports.jQueryDisabled = exports.jQuery = undefined;
   Object.defineProperty(exports, 'jQuery', {
     enumerable: true,
     get: function () {
       return _jquery.default;
+    }
+  });
+  Object.defineProperty(exports, 'jQueryDisabled', {
+    enumerable: true,
+    get: function () {
+      return _jquery.jQueryDisabled;
     }
   });
   Object.defineProperty(exports, 'isSimpleClick', {
@@ -46283,7 +46289,11 @@ enifed('ember-views/system/ext', ['ember-metal'], function (_emberMetal) {
 enifed('ember-views/system/jquery', ['exports', 'ember-environment'], function (exports, _emberEnvironment) {
   'use strict';
 
+  exports.jQueryDisabled = undefined;
+
+
   var jQuery = void 0;
+  var jQueryDisabled = exports.jQueryDisabled = false;
 
   if (_emberEnvironment.environment.hasDOM) {
     jQuery = _emberEnvironment.context.imports.jQuery;
@@ -46299,6 +46309,8 @@ enifed('ember-views/system/jquery', ['exports', 'ember-environment'], function (
           };
         });
       }
+    } else {
+      exports.jQueryDisabled = jQueryDisabled = true;
     }
   }
 
@@ -47375,7 +47387,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "3.0.0-canary+2cd02df9";
+  exports.default = "3.0.0-canary+72ccd547";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";

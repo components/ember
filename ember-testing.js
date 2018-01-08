@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.0.0-canary+2cd02df9
+ * @version   3.0.0-canary+72ccd547
  */
 
 /*globals process */
@@ -2036,7 +2036,7 @@ enifed('ember-testing/support', ['ember-debug', 'ember-views', 'ember-environmen
     $(input).attr('type', 'checkbox').css({ position: 'absolute', left: '-1000px', top: '-1000px' }).appendTo('body').on('click', handler).trigger('click').remove();
   }
 
-  if (_emberEnvironment.environment.hasDOM && typeof $ === 'function') {
+  if (_emberEnvironment.environment.hasDOM && !_emberViews.jQueryDisabled) {
     $(function () {
       /*
         Determine whether a checkbox checked using jQuery's "click" method will have
