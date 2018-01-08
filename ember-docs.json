@@ -3,7 +3,7 @@
     "name": "The Ember API",
     "description": "The Ember API: a framework for building ambitious web applications",
     "url": "https://emberjs.com/",
-    "version": "3.0.0-canary+db1f29fe"
+    "version": "3.0.0-canary+aa961d13"
   },
   "files": {
     "node_modules/rsvp/lib/rsvp/promise/all.js": {
@@ -582,19 +582,6 @@
       },
       "namespaces": {}
     },
-    "packages/ember-metal/lib/binding.js": {
-      "name": "packages/ember-metal/lib/binding.js",
-      "modules": {},
-      "classes": {
-        "Ember.Binding": 1
-      },
-      "fors": {
-        "Ember": 1
-      },
-      "namespaces": {
-        "Ember": 1
-      }
-    },
     "packages/ember-metal/lib/computed.js": {
       "name": "packages/ember-metal/lib/computed.js",
       "modules": {},
@@ -754,7 +741,7 @@
       "modules": {},
       "classes": {},
       "fors": {
-        "Ember.Ember": 1
+        "Ember": 1
       },
       "namespaces": {}
     },
@@ -766,7 +753,7 @@
       },
       "fors": {
         "@ember/object/mixin": 1,
-        "Ember.Ember": 1,
+        "Ember": 1,
         "@ember/object": 1
       },
       "namespaces": {}
@@ -796,7 +783,7 @@
       "modules": {},
       "classes": {},
       "fors": {
-        "Ember.Ember": 1
+        "Ember": 1
       },
       "namespaces": {}
     },
@@ -843,7 +830,7 @@
       "modules": {},
       "classes": {},
       "fors": {
-        "Ember.Ember": 1
+        "Ember": 1
       },
       "namespaces": {}
     },
@@ -940,7 +927,7 @@
       "modules": {},
       "classes": {},
       "fors": {
-        "Ember.Ember": 1
+        "Ember": 1
       },
       "namespaces": {}
     },
@@ -949,7 +936,7 @@
       "modules": {},
       "classes": {},
       "fors": {
-        "Ember.Ember": 1
+        "Ember": 1
       },
       "namespaces": {}
     },
@@ -1294,7 +1281,7 @@
         "Ember.inject": 1
       },
       "fors": {
-        "Ember.Ember": 1
+        "Ember": 1
       },
       "namespaces": {
         "Ember": 1
@@ -1522,7 +1509,7 @@
       },
       "classes": {},
       "fors": {
-        "Ember.Ember": 1,
+        "Ember": 1,
         "@ember/object/internals": 1
       },
       "namespaces": {}
@@ -1550,7 +1537,7 @@
       },
       "classes": {},
       "fors": {
-        "Ember.Ember": 1,
+        "Ember": 1,
         "@ember/utils": 1
       },
       "namespaces": {}
@@ -1582,7 +1569,7 @@
       "modules": {},
       "classes": {},
       "fors": {
-        "Ember.Ember": 1
+        "Ember": 1
       },
       "namespaces": {}
     },
@@ -1692,7 +1679,7 @@
         "jquery": 1
       },
       "fors": {
-        "Ember.Ember": 1,
+        "Ember": 1,
         "jquery": 1
       },
       "namespaces": {}
@@ -1721,7 +1708,7 @@
         "Ember.Logger": 1,
         "@ember/application/deprecations": 1,
         "@ember/application": 1,
-        "Ember.Ember": 1
+        "Ember": 1
       },
       "namespaces": {
         "ApplicationInstance": 1,
@@ -1763,7 +1750,7 @@
       },
       "fors": {
         "@ember/debug": 1,
-        "Ember.Ember": 1
+        "Ember": 1
       },
       "namespaces": {},
       "tag": "module",
@@ -1795,8 +1782,6 @@
         "Ember.FEATURES": 1,
         "Ember.Templates.helpers": 1,
         "ComponentStateBucket": 1,
-        "Ember.Binding": 1,
-        "Ember": 1,
         "Ember.InjectedProperty": 1,
         "Libraries": 1,
         "Ember.OrderedSet": 1,
@@ -1829,7 +1814,6 @@
         "Ember.FEATURES": 1,
         "Ember.Templates.helpers": 1,
         "Ember": 1,
-        "Ember.Ember": 1,
         "Ember.ControllerMixin": 1,
         "Function": 1,
         "Ember.Test": 1
@@ -1979,7 +1963,7 @@
         "@ember/object/events": 1,
         "@ember/object/evented": 1,
         "@ember/object/mixin": 1,
-        "Ember.Ember": 1,
+        "Ember": 1,
         "@ember/object/observers": 1,
         "@ember/object/computed": 1
       },
@@ -2148,7 +2132,7 @@
       "submodules": {},
       "elements": {},
       "classes": {
-        "Ember.Ember": 1,
+        "Ember": 1,
         "jquery": 1
       },
       "fors": {
@@ -2642,36 +2626,6 @@
       "module": "@ember/component",
       "namespace": ""
     },
-    "Ember.Binding": {
-      "name": "Ember.Binding",
-      "shortname": "Ember.Binding",
-      "classitems": [],
-      "plugins": [],
-      "extensions": [],
-      "plugin_for": [],
-      "extension_for": [],
-      "module": "ember",
-      "namespace": "Ember",
-      "file": "packages/ember-metal/lib/binding.js",
-      "line": 351,
-      "deprecated": true,
-      "deprecationMessage": "See https://emberjs.com/deprecations/v2.x#toc_ember-binding",
-      "access": "public",
-      "tagname": "",
-      "description": "An `Ember.Binding` connects the properties of two objects so that whenever\nthe value of one property changes, the other property will be changed also.\n\n## Automatic Creation of Bindings with `/^*Binding/`-named Properties.\n\nYou do not usually create Binding objects directly but instead describe\nbindings in your class or object definition using automatic binding\ndetection.\n\nProperties ending in a `Binding` suffix will be converted to `Ember.Binding`\ninstances. The value of this property should be a string representing a path\nto another object or a custom binding instance created using Binding helpers\n(see \"One Way Bindings\"):\n\n```\nvalueBinding: \"MyApp.someController.title\"\n```\n\nThis will create a binding from `MyApp.someController.title` to the `value`\nproperty of your object instance automatically. Now the two values will be\nkept in sync.\n\n## One Way Bindings\n\nOne especially useful binding customization you can use is the `oneWay()`\nhelper. This helper tells Ember that you are only interested in\nreceiving changes on the object you are binding from. For example, if you\nare binding to a preference and you want to be notified if the preference\nhas changed, but your object will not be changing the preference itself, you\ncould do:\n\n```\nbigTitlesBinding: Ember.Binding.oneWay(\"MyApp.preferencesController.bigTitles\")\n```\n\nThis way if the value of `MyApp.preferencesController.bigTitles` changes the\n`bigTitles` property of your object will change also. However, if you\nchange the value of your `bigTitles` property, it will not update the\n`preferencesController`.\n\nOne way bindings are almost twice as fast to setup and twice as fast to\nexecute because the binding only has to worry about changes to one side.\n\nYou should consider using one way bindings anytime you have an object that\nmay be created frequently and you do not intend to change a property; only\nto monitor it for changes (such as in the example above).\n\n## Adding Bindings Manually\n\nAll of the examples above show you how to configure a custom binding, but the\nresult of these customizations will be a binding template, not a fully active\nBinding instance. The binding will actually become active only when you\ninstantiate the object the binding belongs to. It is useful, however, to\nunderstand what actually happens when the binding is activated.\n\nFor a binding to function it must have at least a `from` property and a `to`\nproperty. The `from` property path points to the object/key that you want to\nbind from while the `to` path points to the object/key you want to bind to.\n\nWhen you define a custom binding, you are usually describing the property\nyou want to bind from (such as `MyApp.someController.value` in the examples\nabove). When your object is created, it will automatically assign the value\nyou want to bind `to` based on the name of your binding key. In the\nexamples above, during init, Ember objects will effectively call\nsomething like this on your binding:\n\n```javascript\nbinding = Ember.Binding.from(\"valueBinding\").to(\"value\");\n```\n\nThis creates a new binding instance based on the template you provide, and\nsets the to path to the `value` property of the new object. Now that the\nbinding is fully configured with a `from` and a `to`, it simply needs to be\nconnected to become active. This is done through the `connect()` method:\n\n```javascript\nbinding.connect(this);\n```\n\nNote that when you connect a binding you pass the object you want it to be\nconnected to. This object will be used as the root for both the from and\nto side of the binding when inspecting relative paths. This allows the\nbinding to be automatically inherited by subclassed objects as well.\n\nThis also allows you to bind between objects using the paths you declare in\n`from` and `to`:\n\n```javascript\n// Example 1\nbinding = Ember.Binding.from(\"App.someObject.value\").to(\"value\");\nbinding.connect(this);\n\n// Example 2\nbinding = Ember.Binding.from(\"parentView.value\").to(\"App.someObject.value\");\nbinding.connect(this);\n```\n\nNow that the binding is connected, it will observe both the from and to side\nand relay changes.\n\nIf you ever needed to do so (you almost never will, but it is useful to\nunderstand this anyway), you could manually create an active binding by\nusing the `Ember.bind()` helper method. (This is the same method used by\nto setup your bindings on objects):\n\n```javascript\nEmber.bind(MyApp.anotherObject, \"value\", \"MyApp.someController.value\");\n```\n\nBoth of these code fragments have the same effect as doing the most friendly\nform of binding creation like so:\n\n```javascript\nMyApp.anotherObject = Ember.Object.create({\n  valueBinding: \"MyApp.someController.value\",\n\n  // OTHER CODE FOR THIS OBJECT...\n});\n```\n\nEmber's built in binding creation method makes it easy to automatically\ncreate bindings for you. You should always use the highest-level APIs\navailable, even if you understand how it works underneath.",
-      "since": "Ember 0.9"
-    },
-    "Ember.Ember": {
-      "name": "Ember.Ember",
-      "shortname": "Ember",
-      "classitems": [],
-      "plugins": [],
-      "extensions": [],
-      "plugin_for": [],
-      "extension_for": [],
-      "module": "jquery",
-      "namespace": "Ember"
-    },
     "ComputedProperty": {
       "name": "ComputedProperty",
       "shortname": "ComputedProperty",
@@ -2718,7 +2672,7 @@
       "extensions": [],
       "plugin_for": [],
       "extension_for": [],
-      "module": "ember",
+      "module": "jquery",
       "namespace": "",
       "file": "packages/ember-metal/lib/core.js",
       "line": 7,
@@ -2938,7 +2892,7 @@
       "module": "@ember/object",
       "namespace": "",
       "file": "packages/ember-metal/lib/mixin.js",
-      "line": 401,
+      "line": 367,
       "description": "The `Mixin` class allows you to create mixins, whose properties can be\nadded to other classes. For instance,\n\n```javascript\nimport Mixin from '@ember/object/mixin';\n\nconst EditableMixin = Mixin.create({\n  edit() {\n    console.log('starting to edit');\n    this.set('isEditing', true);\n  },\n  isEditing: false\n});\n```\n\n```javascript\nimport EmberObject from '@ember/object';\nimport EditableMixin from '../mixins/editable';\n\n// Mix mixins into classes by passing them as the first arguments to\n// `.extend.`\nconst Comment = EmberObject.extend(EditableMixin, {\n  post: null\n});\n\nlet comment = Comment.create({\n  post: somePost\n});\n\ncomment.edit(); // outputs 'starting to edit'\n```\n\nNote that Mixins are created with `Mixin.create`, not\n`Mixin.extend`.\n\nNote that mixins extend a constructor's prototype so arrays and object literals\ndefined as properties will be shared amongst objects that implement the mixin.\nIf you want to define a property in a mixin that is not shared, you can define\nit either as a computed property or have it be created on initialization of the object.\n\n```javascript\n// filters array will be shared amongst any object implementing mixin\nimport Mixin from '@ember/object/mixin';\nimport { A } from '@ember/array';\n\nconst FilterableMixin = Mixin.create({\n  filters: A()\n});\n```\n\n```javascript\nimport Mixin from '@ember/object/mixin';\nimport { A } from '@ember/array';\nimport { computed } from '@ember/object';\n\n// filters will be a separate array for every object implementing the mixin\nconst FilterableMixin = Mixin.create({\n  filters: computed(function() {\n    return A();\n  })\n});\n```\n\n```javascript\nimport Mixin from '@ember/object/mixin';\nimport { A } from '@ember/array';\n\n// filters will be created as a separate array during the object's initialization\nconst Filterable = Mixin.create({\n  filters: null,\n\n  init() {\n    this._super(...arguments);\n    this.set(\"filters\", A());\n  }\n});\n```",
       "access": "public",
       "tagname": ""
@@ -8218,170 +8172,6 @@
       "module": "ember"
     },
     {
-      "file": "packages/ember-metal/lib/binding.js",
-      "line": 50,
-      "description": "This copies the Binding so it can be connected to another object.",
-      "itemtype": "method",
-      "name": "copy",
-      "return": {
-        "description": "`this`",
-        "type": "Ember.Binding"
-      },
-      "access": "public",
-      "tagname": "",
-      "class": "Ember.Binding",
-      "module": "ember",
-      "namespace": "Ember"
-    },
-    {
-      "file": "packages/ember-metal/lib/binding.js",
-      "line": 67,
-      "description": "This will set `from` property path to the specified value. It will not\nattempt to resolve this property path to an actual object until you\nconnect the binding.\n\nThe binding will search for the property path starting at the root object\nyou pass when you `connect()` the binding. It follows the same rules as\n`get()` - see that method for more information.",
-      "itemtype": "method",
-      "name": "from",
-      "params": [
-        {
-          "name": "path",
-          "description": "The property path to connect to.",
-          "type": "String"
-        }
-      ],
-      "return": {
-        "description": "`this`",
-        "type": "Ember.Binding"
-      },
-      "access": "public",
-      "tagname": "",
-      "class": "Ember.Binding",
-      "module": "ember",
-      "namespace": "Ember"
-    },
-    {
-      "file": "packages/ember-metal/lib/binding.js",
-      "line": 86,
-      "description": "This will set the `to` property path to the specified value. It will not\nattempt to resolve this property path to an actual object until you\nconnect the binding.\n\nThe binding will search for the property path starting at the root object\nyou pass when you `connect()` the binding. It follows the same rules as\n`get()` - see that method for more information.",
-      "itemtype": "method",
-      "name": "to",
-      "params": [
-        {
-          "name": "path",
-          "description": "A property path or tuple.",
-          "type": "String|Tuple"
-        }
-      ],
-      "return": {
-        "description": "`this`",
-        "type": "Ember.Binding"
-      },
-      "access": "public",
-      "tagname": "",
-      "class": "Ember.Binding",
-      "module": "ember",
-      "namespace": "Ember"
-    },
-    {
-      "file": "packages/ember-metal/lib/binding.js",
-      "line": 105,
-      "description": "Configures the binding as one way. A one-way binding will relay changes\non the `from` side to the `to` side, but not the other way around. This\nmeans that if you change the `to` side directly, the `from` side may have\na different value.",
-      "itemtype": "method",
-      "name": "oneWay",
-      "return": {
-        "description": "`this`",
-        "type": "Ember.Binding"
-      },
-      "access": "public",
-      "tagname": "",
-      "class": "Ember.Binding",
-      "module": "ember",
-      "namespace": "Ember"
-    },
-    {
-      "file": "packages/ember-metal/lib/binding.js",
-      "line": 120,
-      "itemtype": "method",
-      "name": "toString",
-      "return": {
-        "description": "string representation of binding",
-        "type": "String"
-      },
-      "access": "public",
-      "tagname": "",
-      "class": "Ember.Binding",
-      "module": "ember",
-      "namespace": "Ember"
-    },
-    {
-      "file": "packages/ember-metal/lib/binding.js",
-      "line": 134,
-      "description": "Attempts to connect this binding instance so that it can receive and relay\nchanges. This method will raise an exception if you have not set the\nfrom/to properties yet.",
-      "itemtype": "method",
-      "name": "connect",
-      "params": [
-        {
-          "name": "obj",
-          "description": "The root object for this binding.",
-          "type": "Object"
-        }
-      ],
-      "return": {
-        "description": "`this`",
-        "type": "Ember.Binding"
-      },
-      "access": "public",
-      "tagname": "",
-      "class": "Ember.Binding",
-      "module": "ember",
-      "namespace": "Ember"
-    },
-    {
-      "file": "packages/ember-metal/lib/binding.js",
-      "line": 195,
-      "description": "Disconnects the binding instance. Changes will no longer be relayed. You\nwill not usually need to call this method.",
-      "itemtype": "method",
-      "name": "disconnect",
-      "return": {
-        "description": "`this`",
-        "type": "Ember.Binding"
-      },
-      "access": "public",
-      "tagname": "",
-      "class": "Ember.Binding",
-      "module": "ember",
-      "namespace": "Ember"
-    },
-    {
-      "file": "packages/ember-metal/lib/binding.js",
-      "line": 484,
-      "description": "Global helper method to create a new binding. Just pass the root object\nalong with a `to` and `from` path to create and connect the binding.",
-      "itemtype": "method",
-      "name": "bind",
-      "params": [
-        {
-          "name": "obj",
-          "description": "The root object of the transform.",
-          "type": "Object"
-        },
-        {
-          "name": "to",
-          "description": "The path to the 'to' side of the binding.\n  Must be relative to obj.",
-          "type": "String"
-        },
-        {
-          "name": "from",
-          "description": "The path to the 'from' side of the binding.\n  Must be relative to obj or a global path.",
-          "type": "String"
-        }
-      ],
-      "return": {
-        "description": "binding instance",
-        "type": "Ember.Binding"
-      },
-      "access": "public",
-      "tagname": "",
-      "class": "Ember.Ember",
-      "module": "ember"
-    },
-    {
       "file": "packages/ember-metal/lib/computed.js",
       "line": 159,
       "description": "Call on a computed property to set it into non-cached mode. When in this\nmode the computed property will not automatically cache the return value.\n\nIt also does not automatically fire any change events. You must manually notify\nany changes if you want to observe this property.\n\nDependency keys have no effect on volatile properties as they are for cache\ninvalidation and notification when cached value is invalidated.\n\n```javascript\nimport EmberObject, { computed } from '@ember/object';\n\nlet outsideService = EmberObject.extend({\n  value: computed(function() {\n    return OutsideService.getValue();\n  }).volatile()\n}).create();\n```",
@@ -9488,7 +9278,7 @@
     },
     {
       "file": "packages/ember-metal/lib/meta.js",
-      "line": 505,
+      "line": 513,
       "description": "Tears down the meta on an object so that it can be garbage collected.\nMultiple calls will have no effect.",
       "itemtype": "method",
       "name": "deleteMeta",
@@ -9505,13 +9295,12 @@
       },
       "access": "private",
       "tagname": "",
-      "class": "Ember.Ember",
-      "module": "ember",
-      "namespace": "Ember"
+      "class": "Ember",
+      "module": "ember"
     },
     {
       "file": "packages/ember-metal/lib/meta.js",
-      "line": 530,
+      "line": 538,
       "description": "Retrieves the meta hash for an object. If `writable` is true ensures the\nhash is writable for this object as well.\n\nThe meta object contains information about computed property descriptors as\nwell as any watched properties and other information. You generally will\nnot access this information directly but instead work with higher level\nmethods that manipulate this hash indirectly.",
       "itemtype": "method",
       "name": "meta",
@@ -9535,13 +9324,12 @@
         "description": "the meta hash for an object",
         "type": "Object"
       },
-      "class": "Ember.Ember",
-      "module": "ember",
-      "namespace": "Ember"
+      "class": "Ember",
+      "module": "ember"
     },
     {
       "file": "packages/ember-metal/lib/meta.js",
-      "line": 579,
+      "line": 587,
       "description": "Returns the CP descriptor assocaited with `obj` and `keyName`, if any.",
       "itemtype": "method",
       "name": "descriptorFor",
@@ -9563,13 +9351,12 @@
       },
       "access": "private",
       "tagname": "",
-      "class": "Ember.Ember",
-      "module": "ember",
-      "namespace": "Ember"
+      "class": "Ember",
+      "module": "ember"
     },
     {
       "file": "packages/ember-metal/lib/meta.js",
-      "line": 618,
+      "line": 626,
       "description": "Check whether a value is a CP descriptor.",
       "itemtype": "method",
       "name": "descriptorFor",
@@ -9586,13 +9373,12 @@
       },
       "access": "private",
       "tagname": "",
-      "class": "Ember.Ember",
-      "module": "ember",
-      "namespace": "Ember"
+      "class": "Ember",
+      "module": "ember"
     },
     {
       "file": "packages/ember-metal/lib/mixin.js",
-      "line": 389,
+      "line": 355,
       "itemtype": "method",
       "name": "mixin",
       "params": [
@@ -9616,7 +9402,7 @@
     },
     {
       "file": "packages/ember-metal/lib/mixin.js",
-      "line": 516,
+      "line": 482,
       "itemtype": "method",
       "name": "create",
       "static": 1,
@@ -9634,7 +9420,7 @@
     },
     {
       "file": "packages/ember-metal/lib/mixin.js",
-      "line": 545,
+      "line": 511,
       "itemtype": "method",
       "name": "reopen",
       "params": [
@@ -9651,7 +9437,7 @@
     },
     {
       "file": "packages/ember-metal/lib/mixin.js",
-      "line": 582,
+      "line": 548,
       "itemtype": "method",
       "name": "apply",
       "params": [
@@ -9670,7 +9456,7 @@
     },
     {
       "file": "packages/ember-metal/lib/mixin.js",
-      "line": 596,
+      "line": 562,
       "itemtype": "method",
       "name": "detect",
       "params": [
@@ -9690,19 +9476,18 @@
     },
     {
       "file": "packages/ember-metal/lib/mixin.js",
-      "line": 678,
+      "line": 649,
       "description": "Denotes a required property for a mixin",
       "itemtype": "method",
       "name": "required",
       "access": "private",
       "tagname": "",
-      "class": "Ember.Ember",
-      "module": "@ember/object",
-      "namespace": "Ember"
+      "class": "Ember",
+      "module": "@ember/object"
     },
     {
       "file": "packages/ember-metal/lib/mixin.js",
-      "line": 701,
+      "line": 672,
       "description": "Makes a method available via an additional name.\n\n```app/utils/person.js\nimport EmberObject, {\n  aliasMethod\n} from '@ember/object';\n\nexport default EmberObject.extend({\n  name() {\n    return 'Tomhuda Katzdale';\n  },\n  moniker: aliasMethod('name')\n});\n```\n\n```javascript\nlet goodGuy = Person.create();\n\ngoodGuy.name();    // 'Tomhuda Katzdale'\ngoodGuy.moniker(); // 'Tomhuda Katzdale'\n```",
       "itemtype": "method",
       "name": "aliasMethod",
@@ -9721,7 +9506,7 @@
     },
     {
       "file": "packages/ember-metal/lib/mixin.js",
-      "line": 738,
+      "line": 709,
       "description": "Specify a method that observes property changes.\n\n```javascript\nimport EmberObject from '@ember/object';\nimport { observer } from '@ember/object';\n\nexport default EmberObject.extend({\n  valueObserver: observer('value', function() {\n    // Executes whenever the \"value\" property changes\n  })\n});\n```\n\nAlso available as `Function.prototype.observes` if prototype extensions are\nenabled.",
       "itemtype": "method",
       "name": "observer",
@@ -9749,7 +9534,7 @@
     },
     {
       "file": "packages/ember-metal/lib/mixin.js",
-      "line": 781,
+      "line": 752,
       "description": "When observers fire, they are called with the arguments `obj`, `keyName`.\n\nNote, `@each.property` observer is called per each add or replace of an element\nand it's not called with a specific enumeration item.\n\nA `_beforeObserver` fires before a property changes.",
       "itemtype": "method",
       "name": "beforeObserver",
@@ -9772,9 +9557,8 @@
       "deprecated": true,
       "access": "private",
       "tagname": "",
-      "class": "Ember.Ember",
-      "module": "@ember/object",
-      "namespace": "Ember"
+      "class": "Ember",
+      "module": "@ember/object"
     },
     {
       "file": "packages/ember-metal/lib/observer.js",
@@ -9969,9 +9753,8 @@
       },
       "access": "private",
       "tagname": "",
-      "class": "Ember.Ember",
-      "module": "ember",
-      "namespace": "Ember"
+      "class": "Ember",
+      "module": "ember"
     },
     {
       "file": "packages/ember-metal/lib/property_events.js",
@@ -10002,9 +9785,8 @@
       },
       "access": "private",
       "tagname": "",
-      "class": "Ember.Ember",
-      "module": "ember",
-      "namespace": "Ember"
+      "class": "Ember",
+      "module": "ember"
     },
     {
       "file": "packages/ember-metal/lib/property_events.js",
@@ -10014,9 +9796,8 @@
       "chainable": 1,
       "access": "private",
       "tagname": "",
-      "class": "Ember.Ember",
-      "module": "ember",
-      "namespace": "Ember"
+      "class": "Ember",
+      "module": "ember"
     },
     {
       "file": "packages/ember-metal/lib/property_events.js",
@@ -10025,9 +9806,8 @@
       "name": "endPropertyChanges",
       "access": "private",
       "tagname": "",
-      "class": "Ember.Ember",
-      "module": "ember",
-      "namespace": "Ember"
+      "class": "Ember",
+      "module": "ember"
     },
     {
       "file": "packages/ember-metal/lib/property_events.js",
@@ -10044,9 +9824,8 @@
       ],
       "access": "private",
       "tagname": "",
-      "class": "Ember.Ember",
-      "module": "ember",
-      "namespace": "Ember"
+      "class": "Ember",
+      "module": "ember"
     },
     {
       "file": "packages/ember-metal/lib/property_get.js",
@@ -10710,9 +10489,8 @@
           "type": "String"
         }
       ],
-      "class": "Ember.Ember",
-      "module": "ember",
-      "namespace": "Ember"
+      "class": "Ember",
+      "module": "ember"
     },
     {
       "file": "packages/ember-routing/lib/ext/controller.js",
@@ -11563,9 +11341,8 @@
       "name": "controllerFor",
       "access": "private",
       "tagname": "",
-      "class": "Ember.Ember",
-      "module": "ember",
-      "namespace": "Ember"
+      "class": "Ember",
+      "module": "ember"
     },
     {
       "file": "packages/ember-routing/lib/system/generate_controller.js",
@@ -11575,9 +11352,8 @@
       "name": "generateControllerFactory",
       "access": "private",
       "tagname": "",
-      "class": "Ember.Ember",
-      "module": "ember",
-      "namespace": "Ember"
+      "class": "Ember",
+      "module": "ember"
     },
     {
       "file": "packages/ember-routing/lib/system/generate_controller.js",
@@ -11588,9 +11364,8 @@
       "access": "private",
       "tagname": "",
       "since": "1.3.0",
-      "class": "Ember.Ember",
-      "module": "ember",
-      "namespace": "Ember"
+      "class": "Ember",
+      "module": "ember"
     },
     {
       "file": "packages/ember-routing/lib/system/route.js",
@@ -17548,9 +17323,8 @@
           "type": "Function"
         }
       ],
-      "class": "Ember.Ember",
-      "module": "@ember/object",
-      "namespace": "Ember"
+      "class": "Ember",
+      "module": "@ember/object"
     },
     {
       "file": "packages/ember-runtime/lib/inject.js",
@@ -17568,9 +17342,8 @@
           "type": "Object"
         }
       ],
-      "class": "Ember.Ember",
-      "module": "@ember/object",
-      "namespace": "Ember"
+      "class": "Ember",
+      "module": "@ember/object"
     },
     {
       "file": "packages/ember-runtime/lib/is-equal.js",
@@ -18402,7 +18175,7 @@
         "description": "the uuid",
         "type": "Number"
       },
-      "class": "Ember.Ember",
+      "class": "Ember",
       "module": "@ember/object"
     },
     {
@@ -18415,7 +18188,7 @@
         "description": "[description]",
         "type": "Number"
       },
-      "class": "Ember.Ember",
+      "class": "Ember",
       "module": "@ember/object"
     },
     {
@@ -18428,9 +18201,8 @@
       "name": "GUID_PREFIX",
       "type": "String",
       "final": 1,
-      "class": "Ember.Ember",
-      "module": "@ember/object",
-      "namespace": "Ember"
+      "class": "Ember",
+      "module": "@ember/object"
     },
     {
       "file": "packages/ember-utils/lib/guid.js",
@@ -18442,9 +18214,8 @@
       "name": "GUID_KEY",
       "type": "String",
       "final": 1,
-      "class": "Ember.Ember",
-      "module": "@ember/object",
-      "namespace": "Ember"
+      "class": "Ember",
+      "module": "@ember/object"
     },
     {
       "file": "packages/ember-utils/lib/guid.js",
@@ -18520,7 +18291,7 @@
       "since": "1.4.0",
       "access": "private",
       "tagname": "",
-      "class": "Ember.Ember",
+      "class": "Ember",
       "module": "@ember/debug"
     },
     {
@@ -18533,7 +18304,7 @@
         "description": "interned version of the provided string",
         "type": "String"
       },
-      "class": "Ember.Ember",
+      "class": "Ember",
       "module": "@ember/debug"
     },
     {
@@ -18560,9 +18331,8 @@
       },
       "access": "private",
       "tagname": "",
-      "class": "Ember.Ember",
-      "module": "@ember/debug",
-      "namespace": "Ember"
+      "class": "Ember",
+      "module": "@ember/debug"
     },
     {
       "file": "packages/ember-utils/lib/invoke.js",
@@ -18694,9 +18464,8 @@
         "description": "wrapped function.",
         "type": "Function"
       },
-      "class": "Ember.Ember",
-      "module": "@ember/application",
-      "namespace": "Ember"
+      "class": "Ember",
+      "module": "@ember/application"
     },
     {
       "file": "packages/ember-views/lib/mixins/action_support.js",
@@ -19547,9 +19316,8 @@
       ],
       "access": "public",
       "tagname": "",
-      "class": "Ember.Ember",
-      "module": "ember",
-      "namespace": "Ember"
+      "class": "Ember",
+      "module": "ember"
     },
     {
       "file": "packages/ember/lib/index.js",
@@ -19560,9 +19328,8 @@
       "type": "Object",
       "access": "private",
       "tagname": "",
-      "class": "Ember.Ember",
-      "module": "ember",
-      "namespace": "Ember"
+      "class": "Ember",
+      "module": "ember"
     },
     {
       "file": "packages/ember/lib/index.js",
@@ -19573,9 +19340,8 @@
       "type": "Boolean",
       "access": "private",
       "tagname": "",
-      "class": "Ember.Ember",
-      "module": "ember",
-      "namespace": "Ember"
+      "class": "Ember",
+      "module": "ember"
     },
     {
       "file": "packages/ember/lib/index.js",
@@ -19586,9 +19352,8 @@
       "type": "Object",
       "access": "private",
       "tagname": "",
-      "class": "Ember.Ember",
-      "module": "ember",
-      "namespace": "Ember"
+      "class": "Ember",
+      "module": "ember"
     },
     {
       "file": "packages/ember/lib/index.js",
@@ -19599,9 +19364,8 @@
       "type": "String",
       "access": "public",
       "tagname": "",
-      "class": "Ember.Ember",
-      "module": "ember",
-      "namespace": "Ember"
+      "class": "Ember",
+      "module": "ember"
     },
     {
       "file": "packages/ember/lib/index.js",

@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.0.0-canary+db1f29fe
+ * @version   3.0.0-canary+aa961d13
  */
 
 /*globals process */
@@ -7522,12 +7522,11 @@ enifed('ember-environment', ['exports'], function (exports) {
   exports.context = context;
   exports.environment = environment;
 });
-enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-debug', 'ember/features', 'ember-babel', '@glimmer/reference', 'require', 'backburner', 'ember-console'], function (exports, emberEnvironment, emberUtils, emberDebug, features, emberBabel, reference, require, Backburner, Logger) {
+enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-debug', 'ember/features', 'ember-babel', '@glimmer/reference', 'require', 'backburner'], function (exports, emberEnvironment, emberUtils, emberDebug, features, emberBabel, reference, require, Backburner) {
   'use strict';
 
   require = require && require.hasOwnProperty('default') ? require['default'] : require;
   Backburner = Backburner && Backburner.hasOwnProperty('default') ? Backburner['default'] : Backburner;
-  Logger = Logger && Logger.hasOwnProperty('default') ? Logger['default'] : Logger;
 
   /**
   @module ember
@@ -8440,9 +8439,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   //
   // This should only be used by the target of the observer
   // while it is setting the observed path.
-  function _suspendObserver(obj, path, target, method, callback) {
-    return suspendListener(obj, changeEvent(path), target, method, callback);
-  }
+
 
   /**
     @method removeBeforeObserver
@@ -9642,7 +9639,9 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
 
       this._watching = undefined;
       this._mixins = undefined;
-      this._bindings = undefined;
+      if (emberEnvironment.ENV._ENABLE_BINDING_SUPPORT) {
+        this._bindings = undefined;
+      }
       this._values = undefined;
       this._deps = undefined;
       this._chainWatchers = undefined;
@@ -9988,6 +9987,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     };
 
     Meta.prototype.writeBindings = function (subkey, value) {
+      true && !emberEnvironment.ENV._ENABLE_BINDING_SUPPORT && emberDebug.assert('Cannot invoke `meta.writeBindings` when EmberENV._ENABLE_BINDING_SUPPORT is not set', emberEnvironment.ENV._ENABLE_BINDING_SUPPORT);
       true && !!this.isMetaDestroyed() && emberDebug.assert('Cannot add a binding for `' + subkey + '` on `' + emberUtils.toString(this.source) + '` after it has been destroyed.', !this.isMetaDestroyed());
 
       var map = this._getOrCreateOwnMap('_bindings');
@@ -9995,10 +9995,14 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     };
 
     Meta.prototype.peekBindings = function (subkey) {
+      true && !emberEnvironment.ENV._ENABLE_BINDING_SUPPORT && emberDebug.assert('Cannot invoke `meta.peekBindings` when EmberENV._ENABLE_BINDING_SUPPORT is not set', emberEnvironment.ENV._ENABLE_BINDING_SUPPORT);
+
       return this._findInherited('_bindings', subkey);
     };
 
     Meta.prototype.forEachBindings = function (fn) {
+      true && !emberEnvironment.ENV._ENABLE_BINDING_SUPPORT && emberDebug.assert('Cannot invoke `meta.forEachBindings` when EmberENV._ENABLE_BINDING_SUPPORT is not set', emberEnvironment.ENV._ENABLE_BINDING_SUPPORT);
+
       var pointer = this,
           map;
       var seen = void 0;
@@ -10019,6 +10023,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     };
 
     Meta.prototype.clearBindings = function () {
+      true && !emberEnvironment.ENV._ENABLE_BINDING_SUPPORT && emberDebug.assert('Cannot invoke `meta.clearBindings` when EmberENV._ENABLE_BINDING_SUPPORT is not set', emberEnvironment.ENV._ENABLE_BINDING_SUPPORT);
       true && !!this.isMetaDestroyed() && emberDebug.assert('Cannot clear bindings on `' + emberUtils.toString(this.source) + '` after it has been destroyed.', !this.isMetaDestroyed());
 
       this._bindings = undefined;
@@ -10350,30 +10355,18 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     return key.indexOf('.');
   });
 
-  var firstKeyCache = new Cache(1000, function (path) {
+  new Cache(1000, function (path) {
     var index = firstDotIndexCache.get(path);
     return index === -1 ? path : path.slice(0, index);
   });
-
-  var tailPathCache = new Cache(1000, function (path) {
+  new Cache(1000, function (path) {
     var index = firstDotIndexCache.get(path);
     return index === -1 ? undefined : path.slice(index + 1);
   });
 
-  function isGlobalPath(path) {
-    return isGlobalPathCache.get(path);
-  }
 
   function isPath(path) {
     return firstDotIndexCache.get(path) !== -1;
-  }
-
-  function getFirstKey(path) {
-    return firstKeyCache.get(path);
-  }
-
-  function getTailPath(path) {
-    return tailPathCache.get(path);
   }
 
   /**
@@ -10638,9 +10631,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     @param {Object} value The value to set
     @public
   */
-  function trySet(root, path, value) {
-    return set(root, path, value, true);
-  }
+
 
   /**
   @module @ember/object
@@ -13229,487 +13220,6 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
 
 
   /**
-  @module ember
-  */
-
-  // ..........................................................
-  // BINDING
-  //
-
-  var Binding = function () {
-    function Binding(toPath, fromPath) {
-
-      // Configuration
-      this._from = fromPath;
-      this._to = toPath;
-      this._oneWay = undefined;
-
-      // State
-      this._direction = undefined;
-      this._readyToSync = undefined;
-      this._fromObj = undefined;
-      this._fromPath = undefined;
-      this._toObj = undefined;
-    }
-
-    /**
-      @class Binding
-      @namespace Ember
-      @deprecated See https://emberjs.com/deprecations/v2.x#toc_ember-binding
-      @public
-    */
-
-    /**
-      This copies the Binding so it can be connected to another object.
-       @method copy
-      @return {Ember.Binding} `this`
-      @public
-    */
-
-    Binding.prototype.copy = function () {
-      var copy = new Binding(this._to, this._from);
-      if (this._oneWay) {
-        copy._oneWay = true;
-      }
-      return copy;
-    };
-
-    // ..........................................................
-    // CONFIG
-    //
-
-    /**
-      This will set `from` property path to the specified value. It will not
-      attempt to resolve this property path to an actual object until you
-      connect the binding.
-       The binding will search for the property path starting at the root object
-      you pass when you `connect()` the binding. It follows the same rules as
-      `get()` - see that method for more information.
-       @method from
-      @param {String} path The property path to connect to.
-      @return {Ember.Binding} `this`
-      @public
-    */
-
-    Binding.prototype.from = function (path) {
-      this._from = path;
-      return this;
-    };
-
-    /**
-      This will set the `to` property path to the specified value. It will not
-      attempt to resolve this property path to an actual object until you
-      connect the binding.
-       The binding will search for the property path starting at the root object
-      you pass when you `connect()` the binding. It follows the same rules as
-      `get()` - see that method for more information.
-       @method to
-      @param {String|Tuple} path A property path or tuple.
-      @return {Ember.Binding} `this`
-      @public
-    */
-
-    Binding.prototype.to = function (path) {
-      this._to = path;
-      return this;
-    };
-
-    /**
-      Configures the binding as one way. A one-way binding will relay changes
-      on the `from` side to the `to` side, but not the other way around. This
-      means that if you change the `to` side directly, the `from` side may have
-      a different value.
-       @method oneWay
-      @return {Ember.Binding} `this`
-      @public
-    */
-
-    Binding.prototype.oneWay = function () {
-      this._oneWay = true;
-      return this;
-    };
-
-    /**
-      @method toString
-      @return {String} string representation of binding
-      @public
-    */
-
-    Binding.prototype.toString = function () {
-      var oneWay = this._oneWay ? '[oneWay]' : '';
-      return 'Ember.Binding<' + emberUtils.guidFor(this) + '>(' + this._from + ' -> ' + this._to + ')' + oneWay;
-    };
-
-    // ..........................................................
-    // CONNECT AND SYNC
-    //
-
-    /**
-      Attempts to connect this binding instance so that it can receive and relay
-      changes. This method will raise an exception if you have not set the
-      from/to properties yet.
-       @method connect
-      @param {Object} obj The root object for this binding.
-      @return {Ember.Binding} `this`
-      @public
-    */
-
-    Binding.prototype.connect = function (obj) {
-      true && !!!obj && emberDebug.assert('Must pass a valid object to Ember.Binding.connect()', !!obj);
-
-      var fromObj = void 0,
-          fromPath = void 0,
-          possibleGlobal = void 0,
-          name;
-
-      // If the binding's "from" path could be interpreted as a global, verify
-      // whether the path refers to a global or not by consulting `Ember.lookup`.
-      if (isGlobalPath(this._from)) {
-        name = getFirstKey(this._from);
-
-        possibleGlobal = emberEnvironment.context.lookup[name];
-
-        if (possibleGlobal) {
-          fromObj = possibleGlobal;
-          fromPath = getTailPath(this._from);
-        }
-      }
-
-      if (fromObj === undefined) {
-        fromObj = obj;
-        fromPath = this._from;
-      }
-
-      trySet(obj, this._to, get(fromObj, fromPath));
-
-      // Add an observer on the object to be notified when the binding should be updated.
-      addObserver(fromObj, fromPath, this, 'fromDidChange');
-
-      // If the binding is a two-way binding, also set up an observer on the target.
-      if (!this._oneWay) {
-        addObserver(obj, this._to, this, 'toDidChange');
-      }
-
-      addListener(obj, 'willDestroy', this, 'disconnect');
-
-      fireDeprecations(obj, this._to, this._from, possibleGlobal, this._oneWay, !possibleGlobal && !this._oneWay);
-
-      this._readyToSync = true;
-      this._fromObj = fromObj;
-      this._fromPath = fromPath;
-      this._toObj = obj;
-
-      return this;
-    };
-
-    /**
-      Disconnects the binding instance. Changes will no longer be relayed. You
-      will not usually need to call this method.
-       @method disconnect
-      @return {Ember.Binding} `this`
-      @public
-    */
-
-    Binding.prototype.disconnect = function () {
-      true && !!!this._toObj && emberDebug.assert('Must pass a valid object to Ember.Binding.disconnect()', !!this._toObj);
-
-      // Remove an observer on the object so we're no longer notified of
-      // changes that should update bindings.
-
-      removeObserver(this._fromObj, this._fromPath, this, 'fromDidChange');
-
-      // If the binding is two-way, remove the observer from the target as well.
-      if (!this._oneWay) {
-        removeObserver(this._toObj, this._to, this, 'toDidChange');
-      }
-
-      this._readyToSync = false; // Disable scheduled syncs...
-      return this;
-    };
-
-    // ..........................................................
-    // PRIVATE
-    //
-
-    /* Called when the from side changes. */
-
-    Binding.prototype.fromDidChange = function () {
-      // eslint-disable-line no-unused-vars
-      this._scheduleSync('fwd');
-    };
-
-    /* Called when the to side changes. */
-
-    Binding.prototype.toDidChange = function () {
-      // eslint-disable-line no-unused-vars
-      this._scheduleSync('back');
-    };
-
-    Binding.prototype._scheduleSync = function (dir) {
-      var existingDir = this._direction;
-
-      // If we haven't scheduled the binding yet, schedule it.
-      if (existingDir === undefined) {
-        run.schedule('sync', this, '_sync');
-        this._direction = dir;
-      }
-
-      // If both a 'back' and 'fwd' sync have been scheduled on the same object,
-      // default to a 'fwd' sync so that it remains deterministic.
-      if (existingDir === 'back' && dir === 'fwd') {
-        this._direction = 'fwd';
-      }
-    };
-
-    Binding.prototype._sync = function () {
-      var log = emberEnvironment.ENV.LOG_BINDINGS,
-          fromValue,
-          toValue;
-
-      var toObj = this._toObj;
-
-      // Don't synchronize destroyed objects or disconnected bindings.
-      if (toObj.isDestroyed || !this._readyToSync) {
-        return;
-      }
-
-      // Get the direction of the binding for the object we are
-      // synchronizing from.
-      var direction = this._direction;
-
-      var fromObj = this._fromObj;
-      var fromPath = this._fromPath;
-
-      this._direction = undefined;
-
-      // If we're synchronizing from the remote object...
-      if (direction === 'fwd') {
-        fromValue = get(fromObj, fromPath);
-
-        if (log) {
-          Logger.log(' ', this.toString(), '->', fromValue, fromObj);
-        }
-        if (this._oneWay) {
-          trySet(toObj, this._to, fromValue);
-        } else {
-          _suspendObserver(toObj, this._to, this, 'toDidChange', function () {
-            trySet(toObj, this._to, fromValue);
-          });
-        }
-        // If we're synchronizing *to* the remote object.
-      } else if (direction === 'back') {
-        toValue = get(toObj, this._to);
-
-        if (log) {
-          Logger.log(' ', this.toString(), '<-', toValue, toObj);
-        }
-        _suspendObserver(fromObj, fromPath, this, 'fromDidChange', function () {
-          trySet(fromObj, fromPath, toValue);
-        });
-      }
-    };
-
-    return Binding;
-  }();
-
-  function fireDeprecations(obj, toPath, fromPath, deprecateGlobal, deprecateOneWay, deprecateAlias) {
-
-    var objectInfo = 'The `' + toPath + '` property of `' + obj + '` is an `Ember.Binding` connected to `' + fromPath + '`, but ';
-    true && !!deprecateGlobal && emberDebug.deprecate(objectInfo + ('`Ember.Binding` is deprecated. Since you' + ' are binding to a global consider using a service instead.'), !deprecateGlobal, {
-      id: 'ember-metal.binding',
-      until: '3.0.0',
-      url: 'https://emberjs.com/deprecations/v2.x#toc_ember-binding'
-    });
-    true && !!deprecateOneWay && emberDebug.deprecate(objectInfo + ('`Ember.Binding` is deprecated. Since you' + ' are using a `oneWay` binding consider using a `readOnly` computed' + ' property instead.'), !deprecateOneWay, {
-      id: 'ember-metal.binding',
-      until: '3.0.0',
-      url: 'https://emberjs.com/deprecations/v2.x#toc_ember-binding'
-    });
-    true && !!deprecateAlias && emberDebug.deprecate(objectInfo + ('`Ember.Binding` is deprecated. Consider' + ' using an `alias` computed property instead.'), !deprecateAlias, {
-      id: 'ember-metal.binding',
-      until: '3.0.0',
-      url: 'https://emberjs.com/deprecations/v2.x#toc_ember-binding'
-    });
-  }
-
-  (function (to, from) {
-    for (var key in from) {
-      if (from.hasOwnProperty(key)) {
-        to[key] = from[key];
-      }
-    }
-  })(Binding, {
-
-    /*
-      See `Ember.Binding.from`.
-       @method from
-      @static
-    */
-    from: function (from) {
-      var C = this;
-      return new C(undefined, from);
-    },
-
-    /*
-      See `Ember.Binding.to`.
-       @method to
-      @static
-    */
-    to: function (to) {
-      var C = this;
-      return new C(to, undefined);
-    }
-  });
-  /**
-    An `Ember.Binding` connects the properties of two objects so that whenever
-    the value of one property changes, the other property will be changed also.
-  
-    ## Automatic Creation of Bindings with `/^*Binding/`-named Properties.
-  
-    You do not usually create Binding objects directly but instead describe
-    bindings in your class or object definition using automatic binding
-    detection.
-  
-    Properties ending in a `Binding` suffix will be converted to `Ember.Binding`
-    instances. The value of this property should be a string representing a path
-    to another object or a custom binding instance created using Binding helpers
-    (see "One Way Bindings"):
-  
-    ```
-    valueBinding: "MyApp.someController.title"
-    ```
-  
-    This will create a binding from `MyApp.someController.title` to the `value`
-    property of your object instance automatically. Now the two values will be
-    kept in sync.
-  
-    ## One Way Bindings
-  
-    One especially useful binding customization you can use is the `oneWay()`
-    helper. This helper tells Ember that you are only interested in
-    receiving changes on the object you are binding from. For example, if you
-    are binding to a preference and you want to be notified if the preference
-    has changed, but your object will not be changing the preference itself, you
-    could do:
-  
-    ```
-    bigTitlesBinding: Ember.Binding.oneWay("MyApp.preferencesController.bigTitles")
-    ```
-  
-    This way if the value of `MyApp.preferencesController.bigTitles` changes the
-    `bigTitles` property of your object will change also. However, if you
-    change the value of your `bigTitles` property, it will not update the
-    `preferencesController`.
-  
-    One way bindings are almost twice as fast to setup and twice as fast to
-    execute because the binding only has to worry about changes to one side.
-  
-    You should consider using one way bindings anytime you have an object that
-    may be created frequently and you do not intend to change a property; only
-    to monitor it for changes (such as in the example above).
-  
-    ## Adding Bindings Manually
-  
-    All of the examples above show you how to configure a custom binding, but the
-    result of these customizations will be a binding template, not a fully active
-    Binding instance. The binding will actually become active only when you
-    instantiate the object the binding belongs to. It is useful, however, to
-    understand what actually happens when the binding is activated.
-  
-    For a binding to function it must have at least a `from` property and a `to`
-    property. The `from` property path points to the object/key that you want to
-    bind from while the `to` path points to the object/key you want to bind to.
-  
-    When you define a custom binding, you are usually describing the property
-    you want to bind from (such as `MyApp.someController.value` in the examples
-    above). When your object is created, it will automatically assign the value
-    you want to bind `to` based on the name of your binding key. In the
-    examples above, during init, Ember objects will effectively call
-    something like this on your binding:
-  
-    ```javascript
-    binding = Ember.Binding.from("valueBinding").to("value");
-    ```
-  
-    This creates a new binding instance based on the template you provide, and
-    sets the to path to the `value` property of the new object. Now that the
-    binding is fully configured with a `from` and a `to`, it simply needs to be
-    connected to become active. This is done through the `connect()` method:
-  
-    ```javascript
-    binding.connect(this);
-    ```
-  
-    Note that when you connect a binding you pass the object you want it to be
-    connected to. This object will be used as the root for both the from and
-    to side of the binding when inspecting relative paths. This allows the
-    binding to be automatically inherited by subclassed objects as well.
-  
-    This also allows you to bind between objects using the paths you declare in
-    `from` and `to`:
-  
-    ```javascript
-    // Example 1
-    binding = Ember.Binding.from("App.someObject.value").to("value");
-    binding.connect(this);
-  
-    // Example 2
-    binding = Ember.Binding.from("parentView.value").to("App.someObject.value");
-    binding.connect(this);
-    ```
-  
-    Now that the binding is connected, it will observe both the from and to side
-    and relay changes.
-  
-    If you ever needed to do so (you almost never will, but it is useful to
-    understand this anyway), you could manually create an active binding by
-    using the `Ember.bind()` helper method. (This is the same method used by
-    to setup your bindings on objects):
-  
-    ```javascript
-    Ember.bind(MyApp.anotherObject, "value", "MyApp.someController.value");
-    ```
-  
-    Both of these code fragments have the same effect as doing the most friendly
-    form of binding creation like so:
-  
-    ```javascript
-    MyApp.anotherObject = Ember.Object.create({
-      valueBinding: "MyApp.someController.value",
-  
-      // OTHER CODE FOR THIS OBJECT...
-    });
-    ```
-  
-    Ember's built in binding creation method makes it easy to automatically
-    create bindings for you. You should always use the highest-level APIs
-    available, even if you understand how it works underneath.
-  
-    @class Binding
-    @namespace Ember
-    @since Ember 0.9
-    @public
-  */
-  // Ember.Binding = Binding; ES6TODO: where to put this?
-
-
-  /**
-    Global helper method to create a new binding. Just pass the root object
-    along with a `to` and `from` path to create and connect the binding.
-  
-    @method bind
-    @for Ember
-    @param {Object} obj The root object of the transform.
-    @param {String} to The path to the 'to' side of the binding.
-      Must be relative to obj.
-    @param {String} from The path to the 'from' side of the binding.
-      Must be relative to obj or a global path.
-    @return {Ember.Binding} binding instance
-    @public
-  */
-
-
-  /**
   @module @ember/object
   */
   var a_concat = Array.prototype.concat;
@@ -13946,43 +13456,6 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     }
   }
 
-  function detectBinding(key) {
-    var length = key.length;
-
-    return length > 7 && key.charCodeAt(length - 7) === 66 && key.indexOf('inding', length - 6) !== -1;
-  }
-  // warm both paths of above function
-  detectBinding('notbound');
-  detectBinding('fooBinding');
-
-  function connectBindings(obj, meta$$1) {
-    // TODO Mixin.apply(instance) should disconnect binding if exists
-    meta$$1.forEachBindings(function (key, binding) {
-      var to;
-
-      if (binding) {
-        to = key.slice(0, -7); // strip Binding off end
-
-        if (binding instanceof Binding) {
-          binding = binding.copy(); // copy prototypes' instance
-          binding.to(to);
-        } else {
-          // binding is string path
-          binding = new Binding(to, binding);
-        }
-        binding.connect(obj);
-        obj[key] = binding;
-      }
-    });
-    // mark as applied
-    meta$$1.clearBindings();
-  }
-
-  function finishPartial(obj, meta$$1) {
-    connectBindings(obj, meta$$1 === undefined ? meta(obj) : meta$$1);
-    return obj;
-  }
-
   function followAlias(obj, desc, descs, values) {
     var altKey = desc.methodName;
     var value = void 0;
@@ -14077,16 +13550,16 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
         replaceObserversAndListeners(obj, key, obj[key], value);
       }
 
-      if (detectBinding(key)) {
+      if (emberEnvironment.ENV._ENABLE_BINDING_SUPPORT && Mixin.detectBinding(key)) {
         meta$$1.writeBindings(key, value);
       }
 
       defineProperty(obj, key, desc, value, meta$$1);
     }
 
-    if (!partial) {
+    if (emberEnvironment.ENV._ENABLE_BINDING_SUPPORT && !partial) {
       // don't apply to prototype
-      finishPartial(obj, meta$$1);
+      Mixin.finishPartial(obj, meta$$1);
     }
 
     return obj;
@@ -14370,7 +13843,12 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   }();
 
   Mixin._apply = applyMixin;
-  Mixin.finishPartial = finishPartial;
+  if (emberEnvironment.ENV._ENABLE_BINDING_SUPPORT) {
+    // slotting this so that the legacy addon can add the function here
+    // without triggering an error due to the Object.seal done below
+    Mixin.finishPartial = null;
+    Mixin.detectBinding = null;
+  }
 
   var MixinPrototype = Mixin.prototype;
   MixinPrototype.toString = Object.toString;
@@ -14756,7 +14234,9 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     return value;
   };
   exports.set = set;
-  exports.trySet = trySet;
+  exports.trySet = function (root, path, value) {
+    return set(root, path, value, true);
+  };
   exports.addListener = addListener;
   exports.hasListeners = function (obj, eventName) {
     var meta$$1 = peekMeta(obj);
@@ -14877,7 +14357,9 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     return properties;
   };
   exports.expandProperties = expandProperties;
-  exports._suspendObserver = _suspendObserver;
+  exports._suspendObserver = function (obj, path, target, method, callback) {
+    return suspendListener(obj, changeEvent(path), target, method, callback);
+  };
   exports._suspendObservers = function (obj, paths, target, method, callback) {
     var events = paths.map(changeEvent);
     return suspendListeners(obj, events, target, method, callback);
@@ -14972,12 +14454,9 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   exports.clearUnprocessedMixins = function () {
     unprocessedFlag = false;
   };
-  exports.detectBinding = detectBinding;
-  exports.Binding = Binding;
-  exports.bind = function (obj, to, from) {
-    return new Binding(to, from).connect(obj);
+  exports.isGlobalPath = function (path) {
+    return isGlobalPathCache.get(path);
   };
-  exports.isGlobalPath = isGlobalPath;
   exports.InjectedProperty = InjectedProperty;
   exports.setHasViews = function (fn) {
     hasViews = fn;
@@ -17024,7 +16503,7 @@ enifed('ember/features', ['exports', 'ember-environment', 'ember-utils'], functi
     'use strict';
 
     exports.EMBER_GLIMMER_DETECT_BACKTRACKING_RERENDER = exports.MANDATORY_SETTER = exports.DESCRIPTOR_TRAP = exports.EMBER_TEMPLATE_BLOCK_LET_HELPER = exports.GLIMMER_CUSTOM_COMPONENT_MANAGER = exports.EMBER_MODULE_UNIFICATION = exports.EMBER_ENGINES_MOUNT_PARAMS = exports.EMBER_ROUTING_ROUTER_SERVICE = exports.EMBER_METAL_ES5_GETTERS = exports.EMBER_GLIMMER_TEMPLATE_ONLY_COMPONENTS = exports.EMBER_GLIMMER_REMOVE_APPLICATION_TEMPLATE_WRAPPER = exports.EMBER_GLIMMER_NAMED_ARGUMENTS = exports.EMBER_IMPROVED_INSTRUMENTATION = exports.EMBER_LIBRARIES_ISREGISTERED = exports.FEATURES_STRIPPED_TEST = exports.FEATURES = exports.DEFAULT_FEATURES = undefined;
-    var DEFAULT_FEATURES = exports.DEFAULT_FEATURES = { "features-stripped-test": null, "ember-libraries-isregistered": null, "ember-improved-instrumentation": null, "ember-glimmer-named-arguments": null, "ember-glimmer-remove-application-template-wrapper": null, "ember-glimmer-template-only-components": null, "ember-metal-es5-getters": null, "ember-routing-router-service": true, "ember-engines-mount-params": true, "ember-module-unification": null, "glimmer-custom-component-manager": null, "ember-template-block-let-helper": null, "descriptor-trap": true, "mandatory-setter": true, "ember-glimmer-detect-backtracking-rerender": true };
+    var DEFAULT_FEATURES = exports.DEFAULT_FEATURES = { "features-stripped-test": null, "ember-libraries-isregistered": null, "ember-improved-instrumentation": null, "ember-glimmer-named-arguments": true, "ember-glimmer-remove-application-template-wrapper": null, "ember-glimmer-template-only-components": null, "ember-metal-es5-getters": null, "ember-routing-router-service": true, "ember-engines-mount-params": true, "ember-module-unification": null, "glimmer-custom-component-manager": null, "ember-template-block-let-helper": null, "descriptor-trap": true, "mandatory-setter": true, "ember-glimmer-detect-backtracking-rerender": true };
     var FEATURES = exports.FEATURES = (0, _emberUtils.assign)(DEFAULT_FEATURES, _emberEnvironment.ENV.FEATURES);
 
     exports.FEATURES_STRIPPED_TEST = FEATURES["features-stripped-test"];
@@ -17046,7 +16525,7 @@ enifed('ember/features', ['exports', 'ember-environment', 'ember-utils'], functi
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "3.0.0-canary+db1f29fe";
+  exports.default = "3.0.0-canary+aa961d13";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";

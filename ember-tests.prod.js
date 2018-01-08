@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.0.0-canary+db1f29fe
+ * @version   3.0.0-canary+aa961d13
  */
 
 /*globals process */
@@ -8182,74 +8182,6 @@ enifed('ember-glimmer/tests/integration/application/rendering-test', ['ember-bab
 
     return _class;
   }(_testCase.ApplicationTest));
-});
-enifed('ember-glimmer/tests/integration/binding_integration_test', ['ember-babel', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/helpers', 'ember-metal'], function (_emberBabel, _testCase, _helpers, _emberMetal) {
-  'use strict';
-
-  (0, _testCase.moduleFor)('Binding integration tests', function (_RenderingTest) {
-    (0, _emberBabel.inherits)(_class, _RenderingTest);
-
-    function _class() {
-      return (0, _emberBabel.possibleConstructorReturn)(this, _RenderingTest.apply(this, arguments));
-    }
-
-    _class.prototype['@test should accept bindings as a string or an Ember.binding'] = function () {
-      var _this2 = this;
-
-      var FooBarComponent = _helpers.Component.extend({
-        twoWayTestBinding: _emberMetal.Binding.from('direction'),
-        stringTestBinding: 'direction',
-        twoWayObjectTestBinding: _emberMetal.Binding.from('displacement.distance'),
-        stringObjectTestBinding: 'displacement.distance'
-      });
-
-      this.registerComponent('foo-bar', {
-        ComponentClass: FooBarComponent,
-        template: 'two way: {{twoWayTest}}, string: {{stringTest}}, object: {{twoWayObjectTest}}, string object: {{stringObjectTest}}'
-      });
-
-      expectDeprecation(function () {
-        _this2.render('{{foo-bar direction=direction displacement=displacement}}', {
-          direction: 'down',
-          displacement: {
-            distance: 10
-          }
-        });
-      }, /`Ember\.Binding` is deprecated/);
-
-      this.assertText('two way: down, string: down, object: 10, string object: 10');
-
-      this.assertStableRerender();
-
-      this.runTask(function () {
-        return (0, _emberMetal.set)(_this2.context, 'direction', 'up');
-      });
-
-      this.assertText('two way: up, string: up, object: 10, string object: 10');
-
-      this.runTask(function () {
-        return (0, _emberMetal.set)(_this2.context, 'displacement.distance', 20);
-      });
-
-      this.assertText('two way: up, string: up, object: 20, string object: 20');
-
-      this.runTask(function () {
-        (0, _emberMetal.set)(_this2.context, 'direction', 'right');
-        (0, _emberMetal.set)(_this2.context, 'displacement.distance', 30);
-      });
-
-      this.assertText('two way: right, string: right, object: 30, string object: 30');
-
-      this.runTask(function () {
-        (0, _emberMetal.set)(_this2.context, 'direction', 'down');
-        (0, _emberMetal.set)(_this2.context, 'displacement', { distance: 10 });
-      });
-
-      this.assertText('two way: down, string: down, object: 10, string object: 10');
-    };
-
-    return _class;
-  }(_testCase.RenderingTest));
 });
 enifed('ember-glimmer/tests/integration/components/append-test', ['ember-babel', 'ember-metal', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/helpers', 'ember-glimmer/tests/utils/abstract-test-case'], function (_emberBabel, _emberMetal, _testCase, _helpers, _abstractTestCase) {
   'use strict';
@@ -37620,317 +37552,6 @@ enifed('ember-metal/tests/alias_test', ['ember-metal'], function (_emberMetal) {
     }, 'Setting alias \'bar\' on self');
   });
 });
-enifed('ember-metal/tests/binding/connect_test', ['ember-environment', 'internal-test-helpers', 'ember-metal'], function (_emberEnvironment, _internalTestHelpers, _emberMetal) {
-  'use strict';
-
-  function performTest(binding, a, b, get, set, connect) {
-    if (connect === undefined) {
-      connect = function () {
-        return binding.connect(a);
-      };
-    }
-
-    var assert = QUnit.config.current.assert;
-
-    assert.ok(!_emberMetal.run.currentRunLoop, 'performTest should not have a currentRunLoop');
-
-    assert.equal(get(a, 'foo'), 'FOO', 'a should not have changed');
-    assert.equal(get(b, 'bar'), 'BAR', 'b should not have changed');
-
-    connect();
-
-    assert.equal(get(a, 'foo'), 'BAR', 'a should have changed');
-    assert.equal(get(b, 'bar'), 'BAR', 'b should have changed');
-    //
-    // make sure changes sync both ways
-    (0, _emberMetal.run)(function () {
-      return set(b, 'bar', 'BAZZ');
-    });
-    assert.equal(get(a, 'foo'), 'BAZZ', 'a should have changed');
-
-    (0, _emberMetal.run)(function () {
-      return set(a, 'foo', 'BARF');
-    });
-    assert.equal(get(b, 'bar'), 'BARF', 'a should have changed');
-  }
-
-  var originalLookup = void 0,
-      lookup = void 0,
-      GlobalB = void 0;
-
-  QUnit.module('Ember.Binding', {
-    beforeEach: function () {
-      originalLookup = _emberEnvironment.context.lookup;
-      _emberEnvironment.context.lookup = lookup = {};
-    },
-    afterEach: function () {
-      lookup = null;
-      _emberEnvironment.context.lookup = originalLookup;
-    }
-  });
-
-  (0, _internalTestHelpers.testBoth)('Connecting a binding between two properties', function (get, set) {
-    var a = { foo: 'FOO', bar: 'BAR' };
-
-    // a.bar -> a.foo
-    var binding = new _emberMetal.Binding('foo', 'bar');
-
-    expectDeprecation(function () {
-      performTest(binding, a, a, get, set);
-    }, /`Ember\.Binding` is deprecated./);
-  });
-
-  (0, _internalTestHelpers.testBoth)('Connecting a oneWay binding raises a deprecation', function () {
-    var a = { foo: 'FOO', bar: 'BAR', toString: function () {
-        return '<custom object ID here>';
-      }
-    };
-
-    // a.bar -> a.foo
-    var binding = new _emberMetal.Binding('foo', 'bar').oneWay();
-
-    expectDeprecation(function () {
-      binding.connect(a);
-    }, /`Ember.Binding` is deprecated/);
-  });
-
-  (0, _internalTestHelpers.testBoth)('Connecting a binding between two objects', function (get, set) {
-    var b = { bar: 'BAR' };
-    var a = { foo: 'FOO', b: b };
-
-    // b.bar -> a.foo
-    var binding = new _emberMetal.Binding('foo', 'b.bar');
-
-    expectDeprecation(function () {
-      performTest(binding, a, b, get, set);
-    }, /`Ember\.Binding` is deprecated./);
-  });
-
-  (0, _internalTestHelpers.testBoth)('Connecting a binding to path', function (get, set, assert) {
-    var a = { foo: 'FOO' };
-    lookup['GlobalB'] = GlobalB = {
-      b: { bar: 'BAR' }
-    };
-
-    var b = get(GlobalB, 'b');
-
-    // globalB.b.bar -> a.foo
-    var binding = new _emberMetal.Binding('foo', 'GlobalB.b.bar');
-
-    expectDeprecation(function () {
-      performTest(binding, a, b, get, set);
-    }, /`Ember\.Binding` is deprecated./);
-
-    // make sure modifications update
-    b = { bar: 'BIFF' };
-
-    (0, _emberMetal.run)(function () {
-      return set(GlobalB, 'b', b);
-    });
-
-    assert.equal(get(a, 'foo'), 'BIFF', 'a should have changed');
-  });
-
-  (0, _internalTestHelpers.testBoth)('Calling connect more than once', function (get, set) {
-    var b = { bar: 'BAR' };
-    var a = { foo: 'FOO', b: b };
-
-    // b.bar -> a.foo
-    var binding = new _emberMetal.Binding('foo', 'b.bar');
-
-    expectDeprecation(function () {
-      performTest(binding, a, b, get, set, function () {
-        binding.connect(a);
-        binding.connect(a);
-      });
-    }, /`Ember\.Binding` is deprecated./);
-  });
-
-  QUnit.test('inherited bindings should sync on create', function (assert) {
-    var a = void 0;
-    (0, _emberMetal.run)(function () {
-      function A() {
-        (0, _emberMetal.bind)(this, 'foo', 'bar.baz');
-      }
-
-      expectDeprecation(function () {
-        return a = new A();
-      }, /`Ember\.Binding` is deprecated/);
-
-      (0, _emberMetal.set)(a, 'bar', { baz: 'BAZ' });
-    });
-
-    assert.equal((0, _emberMetal.get)(a, 'foo'), 'BAZ', 'should have synced binding on new obj');
-  });
-});
-enifed('ember-metal/tests/binding/sync_test', ['internal-test-helpers', 'ember-metal'], function (_internalTestHelpers, _emberMetal) {
-  'use strict';
-
-  QUnit.module('system/binding/sync_test.js');
-
-  (0, _internalTestHelpers.testBoth)('bindings should not sync twice in a single run loop', function (get, set, assert) {
-    var a = void 0,
-        b = void 0,
-        setValue = void 0;
-    var setCalled = 0;
-    var getCalled = 0;
-
-    (0, _emberMetal.run)(function () {
-      a = {};
-
-      (0, _emberMetal.defineProperty)(a, 'foo', (0, _emberMetal.computed)({
-        get: function () {
-          getCalled++;
-          return setValue;
-        },
-        set: function (key, value) {
-          setCalled++;
-          (0, _emberMetal.propertyWillChange)(this, key);
-          setValue = value;
-          (0, _emberMetal.propertyDidChange)(this, key);
-          return value;
-        }
-      }).volatile());
-
-      b = {
-        a: a
-      };
-
-      expectDeprecation(function () {
-        return (0, _emberMetal.bind)(b, 'foo', 'a.foo');
-      }, /`Ember.Binding` is deprecated/);
-    });
-
-    // reset after initial binding synchronization
-    getCalled = 0;
-
-    (0, _emberMetal.run)(function () {
-      set(a, 'foo', 'trollface');
-    });
-
-    assert.equal(get(b, 'foo'), 'trollface', 'the binding should sync');
-    assert.equal(setCalled, 1, 'Set should only be called once');
-    assert.equal(getCalled, 1, 'Get should only be called once');
-  });
-
-  (0, _internalTestHelpers.testBoth)('bindings should not infinite loop if computed properties return objects', function (get, set, assert) {
-    var a = void 0,
-        b = void 0;
-    var getCalled = 0;
-
-    (0, _emberMetal.run)(function () {
-      a = {};
-
-      (0, _emberMetal.defineProperty)(a, 'foo', (0, _emberMetal.computed)(function () {
-        getCalled++;
-        if (getCalled > 1000) {
-          throw 'infinite loop detected';
-        }
-        return ['foo', 'bar'];
-      }));
-
-      b = {
-        a: a
-      };
-
-      expectDeprecation(function () {
-        return (0, _emberMetal.bind)(b, 'foo', 'a.foo');
-      }, /`Ember.Binding` is deprecated/);
-    });
-
-    assert.deepEqual(get(b, 'foo'), ['foo', 'bar'], 'the binding should sync');
-    assert.equal(getCalled, 1, 'Get should only be called once');
-  });
-
-  (0, _internalTestHelpers.testBoth)('bindings should do the right thing when observers trigger bindings in the opposite direction', function (get, set, assert) {
-    var a = void 0,
-        b = void 0,
-        c = void 0;
-
-    (0, _emberMetal.run)(function () {
-      a = {
-        foo: 'trololol'
-      };
-
-      b = {
-        a: a
-      };
-
-      var deprecationMessage = /`Ember.Binding` is deprecated/;
-
-      expectDeprecation(function () {
-        return (0, _emberMetal.bind)(b, 'foo', 'a.foo');
-      }, deprecationMessage);
-
-      c = {
-        a: a
-      };
-
-      expectDeprecation(function () {
-        (0, _emberMetal.bind)(c, 'foo', 'a.foo');
-      }, deprecationMessage);
-    });
-
-    (0, _emberMetal.addObserver)(b, 'foo', function () {
-      return set(c, 'foo', 'what is going on');
-    });
-
-    (0, _emberMetal.run)(function () {
-      return set(a, 'foo', 'trollface');
-    });
-
-    assert.equal(get(a, 'foo'), 'what is going on');
-  });
-
-  (0, _internalTestHelpers.testBoth)('bindings should not try to sync destroyed objects', function (get, set, assert) {
-    var a = void 0,
-        b = void 0;
-
-    (0, _emberMetal.run)(function () {
-      a = {
-        foo: 'trololol'
-      };
-
-      b = {
-        a: a
-      };
-
-      var deprecationMessage = /`Ember.Binding` is deprecated/;
-
-      expectDeprecation(function () {
-        return (0, _emberMetal.bind)(b, 'foo', 'a.foo');
-      }, deprecationMessage);
-    });
-
-    (0, _emberMetal.run)(function () {
-      set(a, 'foo', 'trollface');
-      set(b, 'isDestroyed', true);
-      assert.ok(true, 'should not raise');
-    });
-
-    (0, _emberMetal.run)(function () {
-      a = {
-        foo: 'trololol'
-      };
-
-      b = {
-        a: a
-      };
-
-      var deprecationMessage = /`Ember.Binding` is deprecated/;
-
-      expectDeprecation(function () {
-        return (0, _emberMetal.bind)(b, 'foo', 'a.foo');
-      }, deprecationMessage);
-    });
-
-    (0, _emberMetal.run)(function () {
-      set(b, 'foo', 'trollface');
-      set(a, 'isDestroyed', true);
-      assert.ok(true, 'should not raise');
-    });
-  });
-});
 enifed('ember-metal/tests/cache_test', ['ember-metal'], function (_emberMetal) {
   'use strict';
 
@@ -49619,56 +49240,6 @@ enifed('ember-runtime/tests/ext/function_test', ['ember-environment', 'ember-met
     assert.equal(get(obj, 'fullName'), 'Wilma ', 'should return the new computed value');
   });
 });
-enifed('ember-runtime/tests/ext/mixin_test', ['ember-metal'], function (_emberMetal) {
-  'use strict';
-
-  QUnit.module('system/mixin/binding_test');
-
-  QUnit.test('Defining a property ending in Binding should setup binding when applied', function (assert) {
-    var MyMixin = _emberMetal.Mixin.create({
-      fooBinding: 'bar.baz'
-    });
-
-    var obj = { bar: { baz: 'BIFF' } };
-
-    (0, _emberMetal.run)(function () {
-      var deprecationMessage = /`Ember.Binding` is deprecated/;
-
-      expectDeprecation(function () {
-        MyMixin.apply(obj);
-      }, deprecationMessage);
-    });
-
-    assert.ok((0, _emberMetal.get)(obj, 'fooBinding') instanceof _emberMetal.Binding, 'should be a binding object');
-    assert.equal((0, _emberMetal.get)(obj, 'foo'), 'BIFF', 'binding should be created and synced');
-  });
-
-  QUnit.test('Defining a property ending in Binding should apply to prototype children', function (assert) {
-    var MyMixin = (0, _emberMetal.run)(function () {
-      return _emberMetal.Mixin.create({
-        fooBinding: 'bar.baz'
-      });
-    });
-
-    var obj = { bar: { baz: 'BIFF' } };
-
-    (0, _emberMetal.run)(function () {
-      var deprecationMessage = /`Ember.Binding` is deprecated/;
-
-      expectDeprecation(function () {
-        MyMixin.apply(obj);
-      }, deprecationMessage);
-    });
-
-    var obj2 = Object.create(obj);
-    (0, _emberMetal.run)(function () {
-      return (0, _emberMetal.set)((0, _emberMetal.get)(obj2, 'bar'), 'baz', 'BARG');
-    });
-
-    assert.ok((0, _emberMetal.get)(obj2, 'fooBinding') instanceof _emberMetal.Binding, 'should be a binding object');
-    assert.equal((0, _emberMetal.get)(obj2, 'foo'), 'BARG', 'binding should be created and synced');
-  });
-});
 enifed('ember-runtime/tests/ext/rsvp_test', ['ember-metal', 'ember-runtime/ext/rsvp', 'ember-debug'], function (_emberMetal, _rsvp, _emberDebug) {
   'use strict';
 
@@ -50069,7 +49640,6 @@ enifed('ember-runtime/tests/legacy_1x/mixins/observable/observable_test', ['embe
       rule on using capital letters for property paths.
     * Removed test passing context to addObserver.  context param is no longer
       supported.
-    * Changed calls to Ember.Binding.flushPendingChanges() -> run.sync()
     * removed test in observer around line 862 that expected key/value to be
       the last item in the chained path.  Should be root and chained path
   
@@ -50587,45 +50157,6 @@ enifed('ember-runtime/tests/legacy_1x/mixins/observable/observable_test', ['embe
       assert.equal(depObj.get('menuPrice'), 6, 'cache is properly invalidated after nested property changes');
     };
 
-    _class5.prototype['@test nested dependent keys should propagate after they update'] = function (assert) {
-      var bindObj;
-      (0, _emberMetal.run)(function () {
-        lookup.DepObj = ObservableObject.extend({
-          price: (0, _emberMetal.computed)(function () {
-            return this.get('restaurant.menu.price');
-          }).property('restaurant.menu.price')
-        }).create({
-          restaurant: ObservableObject.create({
-            menu: ObservableObject.create({
-              price: 5
-            })
-          })
-        });
-
-        expectDeprecation(function () {
-          bindObj = ObservableObject.extend({
-            priceBinding: 'DepObj.price'
-          }).create();
-        }, /`Ember.Binding` is deprecated/);
-      });
-
-      assert.equal(bindObj.get('price'), 5, 'precond - binding propagates');
-
-      (0, _emberMetal.run)(function () {
-        lookup.DepObj.set('restaurant.menu.price', 10);
-      });
-
-      assert.equal(bindObj.get('price'), 10, 'binding propagates after a nested dependent keys updates');
-
-      (0, _emberMetal.run)(function () {
-        lookup.DepObj.set('restaurant.menu', ObservableObject.create({
-          price: 15
-        }));
-      });
-
-      assert.equal(bindObj.get('price'), 15, 'binding propagates after a middle dependent keys updates');
-    };
-
     _class5.prototype['@test cacheable nested dependent keys should clear after their dependencies update'] = function (assert) {
       assert.ok(true);
 
@@ -50927,78 +50458,6 @@ enifed('ember-runtime/tests/legacy_1x/mixins/observable/observable_test', ['embe
 
     return _class8;
   }(_internalTestHelpers.AbstractTestCase));
-
-  (0, _internalTestHelpers.moduleFor)('Bind function', function (_AbstractTestCase9) {
-    (0, _emberBabel.inherits)(_class9, _AbstractTestCase9);
-
-    function _class9() {
-      return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase9.apply(this, arguments));
-    }
-
-    _class9.prototype.beforeEach = function () {
-      objectA = ObservableObject.create({
-        name: 'Sproutcore',
-        location: 'Timbaktu'
-      });
-
-      objectB = ObservableObject.create({
-        normal: 'value',
-        computed: function () {
-          this.normal = 'newValue';
-        }
-      });
-
-      lookup = _emberEnvironment.context.lookup = {
-        'Namespace': {
-          objectA: objectA,
-          objectB: objectB
-        }
-      };
-    };
-
-    _class9.prototype.afterEach = function () {
-      _emberEnvironment.context.lookup = originalLookup;
-    };
-
-    _class9.prototype['@test should bind property with method parameter as undefined'] = function (assert) {
-      // creating binding
-      (0, _emberMetal.run)(function () {
-        expectDeprecation(function () {
-          objectA.bind('name', 'Namespace.objectB.normal', undefined);
-        }, /`Ember.Binding` is deprecated/);
-      });
-
-      // now make a change to see if the binding triggers.
-      (0, _emberMetal.run)(function () {
-        objectB.set('normal', 'changedValue');
-      });
-
-      // support new-style bindings if available
-      assert.equal('changedValue', objectA.get('name'), 'objectA.name is bound');
-    };
-
-    _class9.prototype['@test changing chained observer object to null should not raise exception'] = function (assert) {
-      var obj = ObservableObject.create({
-        foo: ObservableObject.create({
-          bar: ObservableObject.create({ bat: 'BAT' })
-        })
-      });
-
-      var callCount = 0;
-      obj.foo.addObserver('bar.bat', obj, function () {
-        callCount++;
-      });
-
-      (0, _emberMetal.run)(function () {
-        obj.foo.set('bar', null);
-      });
-
-      assert.equal(callCount, 1, 'changing bar should trigger observer');
-      assert.expect(1);
-    };
-
-    return _class9;
-  }(_internalTestHelpers.AbstractTestCase));
 });
 enifed('ember-runtime/tests/legacy_1x/mixins/observable/observersForKey_test', ['ember-babel', 'ember-metal', 'ember-runtime/system/object', 'ember-runtime/mixins/observable', 'internal-test-helpers'], function (_emberBabel, _emberMetal, _object, _observable, _internalTestHelpers) {
   'use strict';
@@ -51201,347 +50660,6 @@ enifed('ember-runtime/tests/legacy_1x/mixins/observable/propertyChanges_test', [
     return _class;
   }(_internalTestHelpers.AbstractTestCase));
 });
-enifed('ember-runtime/tests/legacy_1x/system/binding_test', ['ember-babel', 'ember-environment', 'ember-metal', 'ember-runtime/system/object', 'internal-test-helpers'], function (_emberBabel, _emberEnvironment, _emberMetal, _object, _internalTestHelpers) {
-  'use strict';
-
-  /*
-    NOTE: This test is adapted from the 1.x series of unit tests.  The tests
-    are the same except for places where we intend to break the API we instead
-    validate that we warn the developer appropriately.
-  
-    CHANGES FROM 1.6:
-  
-    * All calls to run.sync() were changed to
-      run.sync()
-  
-    * Bindings no longer accept a root object as their second param.  Instead
-      our test binding objects were put under a single object they could
-      originate from.
-  
-    * tests that inspected internal properties were removed.
-  
-    * converted foo.get/foo.set to use get/Ember.set
-  
-    * Removed tests for Binding.isConnected.  Since binding instances are now
-      shared this property no longer makes sense.
-  
-    * Changed call calls for obj.bind(...) to bind(obj, ...);
-  
-    * Changed all calls to sc_super() to this._super(...arguments)
-  
-    * Changed all calls to disconnect() to pass the root object.
-  
-    * removed calls to Binding.destroy() as that method is no longer useful
-      (or defined)
-  
-    * changed use of T_STRING to 'string'
-  */
-
-  // ========================================================================
-  // Binding Tests
-  // ========================================================================
-
-  var TestNamespace = void 0,
-      fromObject = void 0,
-      toObject = void 0,
-      binding = void 0,
-      Bon1 = void 0,
-      bon2 = void 0,
-      root = void 0; // global variables
-  var originalLookup = _emberEnvironment.context.lookup;
-  var lookup = void 0;
-
-  (0, _internalTestHelpers.moduleFor)('basic object binding', function (_AbstractTestCase) {
-    (0, _emberBabel.inherits)(_class, _AbstractTestCase);
-
-    function _class() {
-      return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase.apply(this, arguments));
-    }
-
-    _class.prototype.beforeEach = function () {
-      fromObject = _object.default.create({ value: 'start' });
-      toObject = _object.default.create({ value: 'end' });
-      root = { fromObject: fromObject, toObject: toObject };
-      (0, _emberMetal.run)(function () {
-        expectDeprecation(function () {
-          binding = (0, _emberMetal.bind)(root, 'toObject.value', 'fromObject.value');
-        }, /`Ember\.Binding` is deprecated./);
-      });
-    };
-
-    _class.prototype['@test binding should have synced on connect'] = function (assert) {
-      assert.equal((0, _emberMetal.get)(toObject, 'value'), 'start', 'toObject.value should match fromObject.value');
-    };
-
-    _class.prototype['@test fromObject change should propagate to toObject only after flush'] = function (assert) {
-      (0, _emberMetal.run)(function () {
-        (0, _emberMetal.set)(fromObject, 'value', 'change');
-        assert.equal((0, _emberMetal.get)(toObject, 'value'), 'start');
-      });
-      assert.equal((0, _emberMetal.get)(toObject, 'value'), 'change');
-    };
-
-    _class.prototype['@test toObject change should propagate to fromObject only after flush'] = function (assert) {
-      (0, _emberMetal.run)(function () {
-        (0, _emberMetal.set)(toObject, 'value', 'change');
-        assert.equal((0, _emberMetal.get)(fromObject, 'value'), 'start');
-      });
-      assert.equal((0, _emberMetal.get)(fromObject, 'value'), 'change');
-    };
-
-    _class.prototype['@test deferred observing during bindings'] = function (assert) {
-      // setup special binding
-      fromObject = _object.default.create({
-        value1: 'value1',
-        value2: 'value2'
-      });
-
-      toObject = _object.default.extend({
-        observer: (0, _emberMetal.observer)('value1', 'value2', function () {
-          assert.equal((0, _emberMetal.get)(this, 'value1'), 'CHANGED', 'value1 when observer fires');
-          assert.equal((0, _emberMetal.get)(this, 'value2'), 'CHANGED', 'value2 when observer fires');
-          this.callCount++;
-        })
-      }).create({
-        value1: 'value1',
-        value2: 'value2',
-
-        callCount: 0
-      });
-
-      var root = { fromObject: fromObject, toObject: toObject };
-      (0, _emberMetal.run)(function () {
-        expectDeprecation(function () {
-          (0, _emberMetal.bind)(root, 'toObject.value1', 'fromObject.value1');
-        }, /`Ember\.Binding` is deprecated./);
-
-        expectDeprecation(function () {
-          (0, _emberMetal.bind)(root, 'toObject.value2', 'fromObject.value2');
-        }, /`Ember\.Binding` is deprecated./);
-
-        // change both value1 + value2, then  flush bindings.  observer should only
-        // fire after bindings are done flushing.
-        (0, _emberMetal.set)(fromObject, 'value1', 'CHANGED');
-        (0, _emberMetal.set)(fromObject, 'value2', 'CHANGED');
-      });
-
-      assert.equal(toObject.callCount, 2, 'should call observer twice');
-    };
-
-    _class.prototype['@test binding disconnection actually works'] = function (assert) {
-      binding.disconnect(root);
-      (0, _emberMetal.run)(function () {
-        (0, _emberMetal.set)(fromObject, 'value', 'change');
-      });
-      assert.equal((0, _emberMetal.get)(toObject, 'value'), 'start');
-    };
-
-    return _class;
-  }(_internalTestHelpers.AbstractTestCase));
-  var first = void 0,
-      second = void 0,
-      third = void 0; // global variables
-
-  // ..........................................................
-  // chained binding
-  //
-
-  (0, _internalTestHelpers.moduleFor)('chained binding', function (_AbstractTestCase2) {
-    (0, _emberBabel.inherits)(_class2, _AbstractTestCase2);
-
-    function _class2() {
-      return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase2.apply(this, arguments));
-    }
-
-    _class2.prototype.beforeEach = function () {
-      (0, _emberMetal.run)(function () {
-        first = _object.default.create({ output: 'first' });
-
-        second = _object.default.extend({
-          inputDidChange: (0, _emberMetal.observer)('input', function () {
-            (0, _emberMetal.set)(this, 'output', (0, _emberMetal.get)(this, 'input'));
-          })
-        }).create({
-          input: 'second',
-          output: 'second'
-        });
-
-        third = _object.default.create({ input: 'third' });
-
-        root = { first: first, second: second, third: third };
-
-        expectDeprecation(function () {
-          (0, _emberMetal.bind)(root, 'second.input', 'first.output');
-        }, /`Ember\.Binding` is deprecated./);
-
-        expectDeprecation(function () {
-          (0, _emberMetal.bind)(root, 'second.output', 'third.input');
-        }, /`Ember\.Binding` is deprecated./);
-      });
-    };
-
-    _class2.prototype.afterEach = function () {
-      _emberMetal.run.cancelTimers();
-    };
-
-    _class2.prototype['@test changing first output should propagate to third after flush'] = function (assert) {
-      (0, _emberMetal.run)(function () {
-        (0, _emberMetal.set)(first, 'output', 'change');
-        assert.equal('change', (0, _emberMetal.get)(first, 'output'), 'first.output');
-        assert.ok('change' !== (0, _emberMetal.get)(third, 'input'), 'third.input');
-      });
-
-      assert.equal('change', (0, _emberMetal.get)(first, 'output'), 'first.output');
-      assert.equal('change', (0, _emberMetal.get)(second, 'input'), 'second.input');
-      assert.equal('change', (0, _emberMetal.get)(second, 'output'), 'second.output');
-      assert.equal('change', (0, _emberMetal.get)(third, 'input'), 'third.input');
-    };
-
-    return _class2;
-  }(_internalTestHelpers.AbstractTestCase));
-
-  // ..........................................................
-  // Custom Binding
-  //
-
-  (0, _internalTestHelpers.moduleFor)('Custom Binding', function (_AbstractTestCase3) {
-    (0, _emberBabel.inherits)(_class3, _AbstractTestCase3);
-
-    function _class3() {
-      return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase3.apply(this, arguments));
-    }
-
-    _class3.prototype.beforeEach = function () {
-      _emberEnvironment.context.lookup = lookup = {};
-
-      Bon1 = _object.default.extend({
-        value1: 'hi',
-        value2: 83,
-        array1: []
-      });
-
-      bon2 = _object.default.create({
-        val1: 'hello',
-        val2: 25,
-        arr: [1, 2, 3, 4]
-      });
-
-      _emberEnvironment.context.lookup['TestNamespace'] = TestNamespace = {
-        bon2: bon2,
-        Bon1: Bon1
-      };
-    };
-
-    _class3.prototype.afterEach = function () {
-      _emberEnvironment.context.lookup = originalLookup;
-      Bon1 = bon2 = TestNamespace = null;
-      _emberMetal.run.cancelTimers();
-    };
-
-    _class3.prototype['@test two bindings to the same value should sync in the order they are initialized'] = function (assert) {
-      _emberMetal.run.begin();
-
-      var a = _object.default.create({
-        foo: 'bar'
-      });
-
-      var b = _object.default.extend({
-        C: _object.default.extend({
-          foo: 'bee',
-          fooBinding: 'owner.foo'
-        }),
-
-        init: function () {
-          this._super.apply(this, arguments);
-          (0, _emberMetal.set)(this, 'c', this.C.create({ owner: this }));
-        }
-      });
-
-      expectDeprecation(function () {
-        b = b.create({
-          foo: 'baz',
-          fooBinding: 'a.foo',
-          a: a
-        });
-      }, /`Ember\.Binding` is deprecated./);
-
-      _emberMetal.run.end();
-
-      assert.equal((0, _emberMetal.get)(a, 'foo'), 'bar', 'a.foo should not change');
-      assert.equal((0, _emberMetal.get)(b, 'foo'), 'bar', 'a.foo should propagate up to b.foo');
-      assert.equal((0, _emberMetal.get)(b.c, 'foo'), 'bar', 'a.foo should propagate up to b.c.foo');
-    };
-
-    return _class3;
-  }(_internalTestHelpers.AbstractTestCase));
-
-  // ..........................................................
-  // propertyNameBinding with longhand
-  //
-
-  (0, _internalTestHelpers.moduleFor)('propertyNameBinding with longhand', function (_AbstractTestCase4) {
-    (0, _emberBabel.inherits)(_class4, _AbstractTestCase4);
-
-    function _class4() {
-      return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase4.apply(this, arguments));
-    }
-
-    _class4.prototype.beforeEach = function () {
-      _emberEnvironment.context.lookup = lookup = {};
-
-      lookup['TestNamespace'] = TestNamespace = {};
-      (0, _emberMetal.run)(function () {
-        TestNamespace.fromObject = _object.default.create({
-          value: 'originalValue'
-        });
-
-        expectDeprecation(function () {
-          TestNamespace.toObject = _object.default.extend({
-            valueBinding: _emberMetal.Binding.from('TestNamespace.fromObject.value'),
-            relativeBinding: _emberMetal.Binding.from('localValue')
-          }).create({
-            localValue: 'originalLocal'
-          });
-        }, /`Ember\.Binding` is deprecated./);
-      });
-    };
-
-    _class4.prototype.afterEach = function () {
-      TestNamespace = undefined;
-      _emberEnvironment.context.lookup = originalLookup;
-    };
-
-    _class4.prototype['@test works with full path'] = function (assert) {
-      (0, _emberMetal.run)(function () {
-        return (0, _emberMetal.set)(TestNamespace.fromObject, 'value', 'updatedValue');
-      });
-
-      assert.equal((0, _emberMetal.get)(TestNamespace.toObject, 'value'), 'updatedValue');
-
-      (0, _emberMetal.run)(function () {
-        return (0, _emberMetal.set)(TestNamespace.fromObject, 'value', 'newerValue');
-      });
-
-      assert.equal((0, _emberMetal.get)(TestNamespace.toObject, 'value'), 'newerValue');
-    };
-
-    _class4.prototype['@test works with local path'] = function (assert) {
-      (0, _emberMetal.run)(function () {
-        return (0, _emberMetal.set)(TestNamespace.toObject, 'localValue', 'updatedValue');
-      });
-
-      assert.equal((0, _emberMetal.get)(TestNamespace.toObject, 'relative'), 'updatedValue');
-
-      (0, _emberMetal.run)(function () {
-        return (0, _emberMetal.set)(TestNamespace.toObject, 'localValue', 'newerValue');
-      });
-
-      assert.equal((0, _emberMetal.get)(TestNamespace.toObject, 'relative'), 'newerValue');
-    };
-
-    return _class4;
-  }(_internalTestHelpers.AbstractTestCase));
-});
 enifed('ember-runtime/tests/legacy_1x/system/object/base_test', ['ember-babel', 'ember-metal', 'ember-runtime/system/object', 'internal-test-helpers'], function (_emberBabel, _emberMetal, _object, _internalTestHelpers) {
   'use strict';
 
@@ -51646,190 +50764,6 @@ enifed('ember-runtime/tests/legacy_1x/system/object/base_test', ['ember-babel', 
     _class2.prototype['@test Checking the detectInstance() function on an object and its subclass'] = function (assert) {
       assert.ok(_object.default.detectInstance(obj.create()));
       assert.ok(obj.detectInstance(obj.create()));
-    };
-
-    return _class2;
-  }(_internalTestHelpers.AbstractTestCase));
-});
-enifed('ember-runtime/tests/legacy_1x/system/object/bindings_test', ['ember-babel', 'ember-environment', 'ember-metal', 'ember-runtime/system/object', 'internal-test-helpers'], function (_emberBabel, _emberEnvironment, _emberMetal, _object, _internalTestHelpers) {
-  'use strict';
-
-  /*
-    NOTE: This test is adapted from the 1.x series of unit tests.  The tests
-    are the same except for places where we intend to break the API we instead
-    validate that we warn the developer appropriately.
-  
-    CHANGES FROM 1.6:
-  
-    * changed Ember.Bending.flushPendingChanges() -> run.sync();
-    * changes obj.set() and obj.get() to Ember.set() and Ember.get()
-    * Fixed an actual bug in unit tests around line 133
-    * fixed 'bindings should disconnect on destroy' test to use destroy.
-  */
-
-  // ========================================================================
-  // EmberObject bindings Tests
-  // ========================================================================
-
-  var originalLookup = _emberEnvironment.context.lookup;
-  var testObject = void 0,
-      fromObject = void 0,
-      TestObject = void 0;
-  var TestNamespace = void 0,
-      lookup = void 0;
-
-  (0, _internalTestHelpers.moduleFor)('bind() method', function (_AbstractTestCase) {
-    (0, _emberBabel.inherits)(_class, _AbstractTestCase);
-
-    function _class() {
-      return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase.apply(this, arguments));
-    }
-
-    _class.prototype.beforeEach = function () {
-      _emberEnvironment.context.lookup = lookup = {};
-
-      testObject = _object.default.create({
-        foo: 'bar',
-        bar: 'foo',
-        extraObject: null
-      });
-
-      fromObject = _object.default.create({
-        bar: 'foo',
-        extraObject: null
-      });
-
-      lookup['TestNamespace'] = TestNamespace = {
-        fromObject: fromObject,
-        testObject: testObject
-      };
-    };
-
-    _class.prototype.afterEach = function () {
-      testObject = fromObject = null;
-      _emberEnvironment.context.lookup = originalLookup;
-    };
-
-    _class.prototype['@test bind(TestNamespace.fromObject.bar) should follow absolute path'] = function (assert) {
-      (0, _emberMetal.run)(function () {
-        expectDeprecation(function () {
-          // create binding
-          testObject.bind('foo', 'TestNamespace.fromObject.bar');
-        }, /`Ember.Binding` is deprecated/);
-
-        // now make a change to see if the binding triggers.
-        (0, _emberMetal.set)(fromObject, 'bar', 'changedValue');
-      });
-
-      assert.equal('changedValue', (0, _emberMetal.get)(testObject, 'foo'), 'testObject.foo');
-    };
-
-    _class.prototype['@test bind(.bar) should bind to relative path'] = function (assert) {
-      (0, _emberMetal.run)(function () {
-        expectDeprecation(function () {
-          // create binding
-          testObject.bind('foo', 'bar');
-        }, /`Ember.Binding` is deprecated/);
-
-        // now make a change to see if the binding triggers.
-        (0, _emberMetal.set)(testObject, 'bar', 'changedValue');
-      });
-
-      assert.equal('changedValue', (0, _emberMetal.get)(testObject, 'foo'), 'testObject.foo');
-    };
-
-    return _class;
-  }(_internalTestHelpers.AbstractTestCase));
-
-  var deprecationMessage = /`Ember.Binding` is deprecated/;
-  (0, _internalTestHelpers.moduleFor)('fooBinding method', function (_AbstractTestCase2) {
-    (0, _emberBabel.inherits)(_class2, _AbstractTestCase2);
-
-    function _class2() {
-      return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase2.apply(this, arguments));
-    }
-
-    _class2.prototype.beforeEach = function () {
-      _emberEnvironment.context.lookup = lookup = {};
-
-      TestObject = _object.default.extend({
-        foo: 'bar',
-        bar: 'foo',
-        extraObject: null
-      });
-
-      fromObject = _object.default.create({
-        bar: 'foo',
-        extraObject: null
-      });
-
-      lookup['TestNamespace'] = TestNamespace = {
-        fromObject: fromObject,
-        testObject: TestObject
-      };
-    };
-
-    _class2.prototype.afterEach = function () {
-      _emberEnvironment.context.lookup = originalLookup;
-      TestObject = fromObject = null;
-      //  delete TestNamespace;
-    };
-
-    _class2.prototype['@test fooBinding: TestNamespace.fromObject.bar should follow absolute path'] = function (assert) {
-      (0, _emberMetal.run)(function () {
-        expectDeprecation(function () {
-          // create binding
-          testObject = TestObject.extend({
-            fooBinding: 'TestNamespace.fromObject.bar'
-          }).create();
-        }, deprecationMessage);
-
-        // now make a change to see if the binding triggers.
-        (0, _emberMetal.set)(fromObject, 'bar', 'changedValue');
-      });
-
-      assert.equal('changedValue', (0, _emberMetal.get)(testObject, 'foo'), 'testObject.foo');
-    };
-
-    _class2.prototype['@test fooBinding: .bar should bind to relative path'] = function (assert) {
-      (0, _emberMetal.run)(function () {
-        expectDeprecation(function () {
-          // create binding
-          testObject = TestObject.extend({
-            fooBinding: 'bar'
-          }).create();
-        }, deprecationMessage);
-
-        // now make a change to see if the binding triggers.
-        (0, _emberMetal.set)(testObject, 'bar', 'changedValue');
-      });
-
-      assert.equal('changedValue', (0, _emberMetal.get)(testObject, 'foo'), 'testObject.foo');
-    };
-
-    _class2.prototype['@test fooBinding: should disconnect bindings when destroyed'] = function (assert) {
-      (0, _emberMetal.run)(function () {
-        expectDeprecation(function () {
-          // create binding
-          testObject = TestObject.extend({
-            fooBinding: 'TestNamespace.fromObject.bar'
-          }).create();
-        }, deprecationMessage);
-
-        (0, _emberMetal.set)(TestNamespace.fromObject, 'bar', 'BAZ');
-      });
-
-      assert.equal((0, _emberMetal.get)(testObject, 'foo'), 'BAZ', 'binding should have synced');
-
-      (0, _emberMetal.run)(function () {
-        return testObject.destroy();
-      });
-
-      (0, _emberMetal.run)(function () {
-        return (0, _emberMetal.set)(TestNamespace.fromObject, 'bar', 'BIFF');
-      });
-
-      assert.ok((0, _emberMetal.get)(testObject, 'foo') !== 'bar', 'binding should not have synced');
     };
 
     return _class2;
@@ -51941,121 +50875,6 @@ enifed('ember-runtime/tests/legacy_1x/system/object/concatenated_test', ['ember-
       var expected = [K, K];
 
       assert.deepEqual(values, expected, 'should concatenate functions property (expected: ' + expected + ', got: ' + values + ')');
-    };
-
-    return _class;
-  }(_internalTestHelpers.AbstractTestCase));
-});
-enifed('ember-runtime/tests/legacy_1x/system/run_loop_test', ['ember-babel', 'ember-metal', 'ember-runtime/mixins/observable', 'ember-runtime/system/object', 'internal-test-helpers'], function (_emberBabel, _emberMetal, _observable, _object, _internalTestHelpers) {
-  'use strict';
-
-  /*
-    NOTE: This test is adapted from the 1.x series of unit tests.  The tests
-    are the same except for places where we intend to break the API we instead
-    validate that we warn the developer appropriately.
-  
-    CHANGES FROM 1.6:
-  
-    * Updated the API usage for setting up and syncing Binding since these
-      are not the APIs this file is testing.
-  
-    * Disabled a call to invokeOnce() around line 127 because it appeared to be
-      broken anyway.  I don't think it ever even worked.
-  */
-
-  var MyApp = void 0;
-  var deprecationMessage = /`Ember.Binding` is deprecated/;
-
-  (0, _internalTestHelpers.moduleFor)('System:run_loop() - chained binding', function (_AbstractTestCase) {
-    (0, _emberBabel.inherits)(_class, _AbstractTestCase);
-
-    function _class() {
-      return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase.apply(this, arguments));
-    }
-
-    _class.prototype.beforeEach = function () {
-      MyApp = {};
-      MyApp.first = _object.default.extend(_observable.default).create({
-        output: 'MyApp.first'
-      });
-
-      MyApp.second = _object.default.extend(_observable.default, {
-        inputDidChange: (0, _emberMetal.observer)('input', function () {
-          this.set('output', this.get('input'));
-        })
-      }).create({
-        input: 'MyApp.second',
-        output: 'MyApp.second'
-      });
-
-      MyApp.third = _object.default.extend(_observable.default).create({
-        input: 'MyApp.third'
-      });
-    };
-
-    _class.prototype['@test Should propagate bindings after the RunLoop completes (using Ember.RunLoop)'] = function (assert) {
-      (0, _emberMetal.run)(function () {
-        //Binding of output of MyApp.first object to input of MyApp.second object
-        expectDeprecation(function () {
-          _emberMetal.Binding.from('first.output').to('second.input').connect(MyApp);
-        }, deprecationMessage);
-
-        //Binding of output of MyApp.second object to input of MyApp.third object
-        expectDeprecation(function () {
-          _emberMetal.Binding.from('second.output').to('third.input').connect(MyApp);
-        }, deprecationMessage);
-      });
-
-      (0, _emberMetal.run)(function () {
-        // Based on the above binding if you change the output of MyApp.first
-        // object it should change the all the variable of
-        //  MyApp.first,MyApp.second and MyApp.third object
-        MyApp.first.set('output', 'change');
-
-        //Changes the output of the MyApp.first object
-        assert.equal(MyApp.first.get('output'), 'change');
-
-        //since binding has not taken into effect the value still remains as change.
-        assert.equal(MyApp.second.get('output'), 'MyApp.first');
-      }); // allows bindings to trigger...
-
-      //Value of the output variable changed to 'change'
-      assert.equal(MyApp.first.get('output'), 'change');
-
-      //Since binding triggered after the end loop the value changed to 'change'.
-      assert.equal(MyApp.second.get('output'), 'change');
-    };
-
-    _class.prototype['@test Should propagate bindings after the RunLoop completes'] = function (assert) {
-      (0, _emberMetal.run)(function () {
-        //Binding of output of MyApp.first object to input of MyApp.second object
-        expectDeprecation(function () {
-          _emberMetal.Binding.from('first.output').to('second.input').connect(MyApp);
-        }, deprecationMessage);
-
-        //Binding of output of MyApp.second object to input of MyApp.third object
-        expectDeprecation(function () {
-          _emberMetal.Binding.from('second.output').to('third.input').connect(MyApp);
-        }, deprecationMessage);
-      });
-
-      (0, _emberMetal.run)(function () {
-        //Based on the above binding if you change the output of MyApp.first object it should
-        //change the all the variable of MyApp.first,MyApp.second and MyApp.third object
-        MyApp.first.set('output', 'change');
-
-        //Changes the output of the MyApp.first object
-        assert.equal(MyApp.first.get('output'), 'change');
-
-        //since binding has not taken into effect the value still remains as change.
-        assert.equal(MyApp.second.get('output'), 'MyApp.first');
-      });
-
-      //Value of the output variable changed to 'change'
-      assert.equal(MyApp.first.get('output'), 'change');
-
-      //Since binding triggered after the end loop the value changed to 'change'.
-      assert.equal(MyApp.second.get('output'), 'change');
     };
 
     return _class;
@@ -58313,21 +57132,6 @@ enifed('ember-runtime/tests/system/object/create_test', ['ember-metal', 'ember-r
     assert.equal(o.get('foo'), 'bar');
   });
 
-  QUnit.test('allows bindings to be defined', function (assert) {
-    var obj = void 0;
-
-    var deprecationMessage = /`Ember.Binding` is deprecated/;
-
-    expectDeprecation(function () {
-      obj = _object.default.create({
-        foo: 'foo',
-        barBinding: 'foo'
-      });
-    }, deprecationMessage);
-
-    assert.equal(obj.get('bar'), 'foo', 'The binding value is correct');
-  });
-
   QUnit.test('calls setUnknownProperty if defined', function (assert) {
     var setUnknownPropertyCalled = false;
 
@@ -58393,12 +57197,6 @@ enifed('ember-runtime/tests/system/object/create_test', ['ember-metal', 'ember-r
   QUnit.test('EmberObject.create can take null as a parameter', function (assert) {
     var o = _object.default.create(null);
     assert.deepEqual(_object.default.create(), o);
-  });
-
-  QUnit.test('EmberObject.create avoids allocating a binding map when not necessary', function (assert) {
-    var o = _object.default.create();
-    var m = (0, _emberMetal.meta)(o);
-    assert.ok(!m.peekBindings(), 'A binding map is not allocated');
   });
 });
 enifed('ember-runtime/tests/system/object/destroy_test', ['ember-metal', 'internal-test-helpers', 'ember-runtime/system/object'], function (_emberMetal, _internalTestHelpers, _object) {
@@ -58520,36 +57318,6 @@ enifed('ember-runtime/tests/system/object/destroy_test', ['ember-metal', 'intern
 
     assert.equal(shouldNotChange, 0, 'destroyed graph objs should not see change in willDestroy');
     assert.equal(shouldChange, 1, 'long lived should see change in willDestroy');
-  });
-
-  QUnit.test('bindings should be synced when are updated in the willDestroy hook', function (assert) {
-    var bar = _object.default.create({
-      value: false,
-      willDestroy: function () {
-        this.set('value', true);
-      }
-    });
-
-    var foo = _object.default.create({
-      value: null,
-      bar: bar
-    });
-
-    (0, _emberMetal.run)(function () {
-      var deprecationMessage = /`Ember.Binding` is deprecated/;
-
-      expectDeprecation(function () {
-        (0, _emberMetal.bind)(foo, 'value', 'bar.value');
-      }, deprecationMessage);
-    });
-
-    assert.ok(bar.get('value') === false, 'the initial value has been bound');
-
-    (0, _emberMetal.run)(function () {
-      return bar.destroy();
-    });
-
-    assert.ok(foo.get('value'), 'foo is synced when the binding is updated in the willDestroy hook');
   });
 });
 enifed('ember-runtime/tests/system/object/detectInstance_test', ['ember-runtime/system/object'], function (_object) {
@@ -59421,56 +58189,6 @@ enifed('ember-runtime/tests/system/object/strict-mode-test', ['ember-runtime/sys
     var bar = Bar.create();
 
     assert.equal(bar.callBlah(), 'bar', 'can call local function without call/apply');
-  });
-});
-enifed('ember-runtime/tests/system/object/subclasses_test', ['ember-metal', 'ember-runtime/system/object'], function (_emberMetal, _object) {
-  'use strict';
-
-  QUnit.module('system/object/subclasses');
-
-  QUnit.test('chains should copy forward to subclasses when prototype created', function (assert) {
-    var ObjectWithChains = void 0,
-        objWithChains = void 0,
-        SubWithChains = void 0,
-        SubSub = void 0,
-        subSub = void 0;
-    (0, _emberMetal.run)(function () {
-      ObjectWithChains = _object.default.extend({
-        obj: {
-          a: 'a',
-          hi: 'hi'
-        },
-        aBinding: 'obj.a' // add chain
-      });
-
-      var deprecationMessage = /`Ember.Binding` is deprecated/;
-
-      expectDeprecation(function () {
-        // realize prototype
-        objWithChains = ObjectWithChains.create();
-      }, deprecationMessage);
-
-      // should not copy chains from parent yet
-      SubWithChains = ObjectWithChains.extend({
-        hiBinding: 'obj.hi', // add chain
-        hello: (0, _emberMetal.computed)(function () {
-          return this.get('obj.hi') + ' world';
-        }).property('hi'), // observe chain
-        greetingBinding: 'hello'
-      });
-
-      SubSub = SubWithChains.extend();
-
-      expectDeprecation(function () {
-        // should realize prototypes and copy forward chains
-        subSub = SubSub.create();
-      }, deprecationMessage);
-    });
-    assert.equal(subSub.get('greeting'), 'hi world');
-    (0, _emberMetal.run)(function () {
-      return objWithChains.set('obj.hi', 'hello');
-    });
-    assert.equal(subSub.get('greeting'), 'hello world');
   });
 });
 enifed('ember-runtime/tests/system/object/toString_test', ['ember-utils', 'ember-environment', 'ember-runtime/system/object', 'ember-runtime/system/namespace'], function (_emberUtils, _emberEnvironment, _object, _namespace) {
@@ -61323,390 +60041,358 @@ enifed('ember-template-compiler/tests/plugins/assert-input-helper-without-block-
     return _class;
   }(_internalTestHelpers.AbstractTestCase));
 });
-enifed('ember-template-compiler/tests/plugins/assert-reserved-named-arguments-test', ['ember-babel', 'ember/features', 'ember-template-compiler/index', 'internal-test-helpers'], function (_emberBabel, _features, _index, _internalTestHelpers) {
+enifed('ember-template-compiler/tests/plugins/assert-reserved-named-arguments-test', ['ember-babel', 'ember-template-compiler/index', 'internal-test-helpers'], function (_emberBabel, _index, _internalTestHelpers) {
   'use strict';
 
-  if (_features.EMBER_GLIMMER_NAMED_ARGUMENTS) {
-    (0, _internalTestHelpers.moduleFor)('ember-template-compiler: assert-reserved-named-arguments (EMBER_GLIMMER_NAMED_ARGUMENTS) ', function (_AbstractTestCase) {
-      (0, _emberBabel.inherits)(_class, _AbstractTestCase);
+  (0, _internalTestHelpers.moduleFor)('ember-template-compiler: assert-reserved-named-arguments (EMBER_GLIMMER_NAMED_ARGUMENTS) ', function (_AbstractTestCase) {
+    (0, _emberBabel.inherits)(_class, _AbstractTestCase);
 
-      function _class() {
-        return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase.apply(this, arguments));
-      }
+    function _class() {
+      return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase.apply(this, arguments));
+    }
 
-      _class.prototype['@test \'@arguments\' is reserved'] = function () {
-        expectAssertion(function () {
-          (0, _index.compile)('{{@arguments}}', {
-            moduleName: 'baz/foo-bar'
-          });
-        }, '\'@arguments\' is reserved. (\'baz/foo-bar\' @ L1:C2) ');
+    _class.prototype['@test \'@arguments\' is reserved'] = function () {
+      expectAssertion(function () {
+        (0, _index.compile)('{{@arguments}}', {
+          moduleName: 'baz/foo-bar'
+        });
+      }, '\'@arguments\' is reserved. (\'baz/foo-bar\' @ L1:C2) ');
 
-        expectAssertion(function () {
-          (0, _index.compile)('{{#if @arguments}}Yup{{/if}}', {
-            moduleName: 'baz/foo-bar'
-          });
-        }, '\'@arguments\' is reserved. (\'baz/foo-bar\' @ L1:C6) ');
+      expectAssertion(function () {
+        (0, _index.compile)('{{#if @arguments}}Yup{{/if}}', {
+          moduleName: 'baz/foo-bar'
+        });
+      }, '\'@arguments\' is reserved. (\'baz/foo-bar\' @ L1:C6) ');
 
-        expectAssertion(function () {
-          (0, _index.compile)('{{input type=(if @arguments "bar" "baz")}}', {
-            moduleName: 'baz/foo-bar'
-          });
-        }, '\'@arguments\' is reserved. (\'baz/foo-bar\' @ L1:C17) ');
-      };
+      expectAssertion(function () {
+        (0, _index.compile)('{{input type=(if @arguments "bar" "baz")}}', {
+          moduleName: 'baz/foo-bar'
+        });
+      }, '\'@arguments\' is reserved. (\'baz/foo-bar\' @ L1:C17) ');
+    };
 
-      _class.prototype['@test \'@args\' is reserved'] = function () {
-        expectAssertion(function () {
-          (0, _index.compile)('{{@args}}', {
-            moduleName: 'baz/foo-bar'
-          });
-        }, '\'@args\' is reserved. (\'baz/foo-bar\' @ L1:C2) ');
+    _class.prototype['@test \'@args\' is reserved'] = function () {
+      expectAssertion(function () {
+        (0, _index.compile)('{{@args}}', {
+          moduleName: 'baz/foo-bar'
+        });
+      }, '\'@args\' is reserved. (\'baz/foo-bar\' @ L1:C2) ');
 
-        expectAssertion(function () {
-          (0, _index.compile)('{{#if @args}}Yup{{/if}}', {
-            moduleName: 'baz/foo-bar'
-          });
-        }, '\'@args\' is reserved. (\'baz/foo-bar\' @ L1:C6) ');
+      expectAssertion(function () {
+        (0, _index.compile)('{{#if @args}}Yup{{/if}}', {
+          moduleName: 'baz/foo-bar'
+        });
+      }, '\'@args\' is reserved. (\'baz/foo-bar\' @ L1:C6) ');
 
-        expectAssertion(function () {
-          (0, _index.compile)('{{input type=(if @args "bar" "baz")}}', {
-            moduleName: 'baz/foo-bar'
-          });
-        }, '\'@args\' is reserved. (\'baz/foo-bar\' @ L1:C17) ');
-      };
+      expectAssertion(function () {
+        (0, _index.compile)('{{input type=(if @args "bar" "baz")}}', {
+          moduleName: 'baz/foo-bar'
+        });
+      }, '\'@args\' is reserved. (\'baz/foo-bar\' @ L1:C17) ');
+    };
 
-      _class.prototype['@test \'@Arguments\' is reserved'] = function () {
-        expectAssertion(function () {
-          (0, _index.compile)('{{@Arguments}}', {
-            moduleName: 'baz/foo-bar'
-          });
-        }, '\'@Arguments\' is reserved. (\'baz/foo-bar\' @ L1:C2) ');
+    _class.prototype['@test \'@Arguments\' is reserved'] = function () {
+      expectAssertion(function () {
+        (0, _index.compile)('{{@Arguments}}', {
+          moduleName: 'baz/foo-bar'
+        });
+      }, '\'@Arguments\' is reserved. (\'baz/foo-bar\' @ L1:C2) ');
 
-        expectAssertion(function () {
-          (0, _index.compile)('{{#if @Arguments}}Yup{{/if}}', {
-            moduleName: 'baz/foo-bar'
-          });
-        }, '\'@Arguments\' is reserved. (\'baz/foo-bar\' @ L1:C6) ');
+      expectAssertion(function () {
+        (0, _index.compile)('{{#if @Arguments}}Yup{{/if}}', {
+          moduleName: 'baz/foo-bar'
+        });
+      }, '\'@Arguments\' is reserved. (\'baz/foo-bar\' @ L1:C6) ');
 
-        expectAssertion(function () {
-          (0, _index.compile)('{{input type=(if @Arguments "bar" "baz")}}', {
-            moduleName: 'baz/foo-bar'
-          });
-        }, '\'@Arguments\' is reserved. (\'baz/foo-bar\' @ L1:C17) ');
-      };
+      expectAssertion(function () {
+        (0, _index.compile)('{{input type=(if @Arguments "bar" "baz")}}', {
+          moduleName: 'baz/foo-bar'
+        });
+      }, '\'@Arguments\' is reserved. (\'baz/foo-bar\' @ L1:C17) ');
+    };
 
-      _class.prototype['@test \'@Args\' is reserved'] = function () {
-        expectAssertion(function () {
-          (0, _index.compile)('{{@Args}}', {
-            moduleName: 'baz/foo-bar'
-          });
-        }, '\'@Args\' is reserved. (\'baz/foo-bar\' @ L1:C2) ');
+    _class.prototype['@test \'@Args\' is reserved'] = function () {
+      expectAssertion(function () {
+        (0, _index.compile)('{{@Args}}', {
+          moduleName: 'baz/foo-bar'
+        });
+      }, '\'@Args\' is reserved. (\'baz/foo-bar\' @ L1:C2) ');
 
-        expectAssertion(function () {
-          (0, _index.compile)('{{#if @Args}}Yup{{/if}}', {
-            moduleName: 'baz/foo-bar'
-          });
-        }, '\'@Args\' is reserved. (\'baz/foo-bar\' @ L1:C6) ');
+      expectAssertion(function () {
+        (0, _index.compile)('{{#if @Args}}Yup{{/if}}', {
+          moduleName: 'baz/foo-bar'
+        });
+      }, '\'@Args\' is reserved. (\'baz/foo-bar\' @ L1:C6) ');
 
-        expectAssertion(function () {
-          (0, _index.compile)('{{input type=(if @Args "bar" "baz")}}', {
-            moduleName: 'baz/foo-bar'
-          });
-        }, '\'@Args\' is reserved. (\'baz/foo-bar\' @ L1:C17) ');
-      };
+      expectAssertion(function () {
+        (0, _index.compile)('{{input type=(if @Args "bar" "baz")}}', {
+          moduleName: 'baz/foo-bar'
+        });
+      }, '\'@Args\' is reserved. (\'baz/foo-bar\' @ L1:C17) ');
+    };
 
-      _class.prototype['@test \'@FOO\' is reserved'] = function () {
-        expectAssertion(function () {
-          (0, _index.compile)('{{@FOO}}', {
-            moduleName: 'baz/foo-bar'
-          });
-        }, '\'@FOO\' is reserved. (\'baz/foo-bar\' @ L1:C2) ');
+    _class.prototype['@test \'@FOO\' is reserved'] = function () {
+      expectAssertion(function () {
+        (0, _index.compile)('{{@FOO}}', {
+          moduleName: 'baz/foo-bar'
+        });
+      }, '\'@FOO\' is reserved. (\'baz/foo-bar\' @ L1:C2) ');
 
-        expectAssertion(function () {
-          (0, _index.compile)('{{#if @FOO}}Yup{{/if}}', {
-            moduleName: 'baz/foo-bar'
-          });
-        }, '\'@FOO\' is reserved. (\'baz/foo-bar\' @ L1:C6) ');
+      expectAssertion(function () {
+        (0, _index.compile)('{{#if @FOO}}Yup{{/if}}', {
+          moduleName: 'baz/foo-bar'
+        });
+      }, '\'@FOO\' is reserved. (\'baz/foo-bar\' @ L1:C6) ');
 
-        expectAssertion(function () {
-          (0, _index.compile)('{{input type=(if @FOO "bar" "baz")}}', {
-            moduleName: 'baz/foo-bar'
-          });
-        }, '\'@FOO\' is reserved. (\'baz/foo-bar\' @ L1:C17) ');
-      };
+      expectAssertion(function () {
+        (0, _index.compile)('{{input type=(if @FOO "bar" "baz")}}', {
+          moduleName: 'baz/foo-bar'
+        });
+      }, '\'@FOO\' is reserved. (\'baz/foo-bar\' @ L1:C17) ');
+    };
 
-      _class.prototype['@test \'@Foo\' is reserved'] = function () {
-        expectAssertion(function () {
-          (0, _index.compile)('{{@Foo}}', {
-            moduleName: 'baz/foo-bar'
-          });
-        }, '\'@Foo\' is reserved. (\'baz/foo-bar\' @ L1:C2) ');
+    _class.prototype['@test \'@Foo\' is reserved'] = function () {
+      expectAssertion(function () {
+        (0, _index.compile)('{{@Foo}}', {
+          moduleName: 'baz/foo-bar'
+        });
+      }, '\'@Foo\' is reserved. (\'baz/foo-bar\' @ L1:C2) ');
 
-        expectAssertion(function () {
-          (0, _index.compile)('{{#if @Foo}}Yup{{/if}}', {
-            moduleName: 'baz/foo-bar'
-          });
-        }, '\'@Foo\' is reserved. (\'baz/foo-bar\' @ L1:C6) ');
+      expectAssertion(function () {
+        (0, _index.compile)('{{#if @Foo}}Yup{{/if}}', {
+          moduleName: 'baz/foo-bar'
+        });
+      }, '\'@Foo\' is reserved. (\'baz/foo-bar\' @ L1:C6) ');
 
-        expectAssertion(function () {
-          (0, _index.compile)('{{input type=(if @Foo "bar" "baz")}}', {
-            moduleName: 'baz/foo-bar'
-          });
-        }, '\'@Foo\' is reserved. (\'baz/foo-bar\' @ L1:C17) ');
-      };
+      expectAssertion(function () {
+        (0, _index.compile)('{{input type=(if @Foo "bar" "baz")}}', {
+          moduleName: 'baz/foo-bar'
+        });
+      }, '\'@Foo\' is reserved. (\'baz/foo-bar\' @ L1:C17) ');
+    };
 
-      _class.prototype['@test \'@.\' is reserved'] = function () {
-        expectAssertion(function () {
-          (0, _index.compile)('{{@.}}', {
-            moduleName: 'baz/foo-bar'
-          });
-        }, '\'@.\' is reserved. (\'baz/foo-bar\' @ L1:C2) ');
+    _class.prototype['@test \'@.\' is reserved'] = function () {
+      expectAssertion(function () {
+        (0, _index.compile)('{{@.}}', {
+          moduleName: 'baz/foo-bar'
+        });
+      }, '\'@.\' is reserved. (\'baz/foo-bar\' @ L1:C2) ');
 
-        expectAssertion(function () {
-          (0, _index.compile)('{{#if @.}}Yup{{/if}}', {
-            moduleName: 'baz/foo-bar'
-          });
-        }, '\'@.\' is reserved. (\'baz/foo-bar\' @ L1:C6) ');
+      expectAssertion(function () {
+        (0, _index.compile)('{{#if @.}}Yup{{/if}}', {
+          moduleName: 'baz/foo-bar'
+        });
+      }, '\'@.\' is reserved. (\'baz/foo-bar\' @ L1:C6) ');
 
-        expectAssertion(function () {
-          (0, _index.compile)('{{input type=(if @. "bar" "baz")}}', {
-            moduleName: 'baz/foo-bar'
-          });
-        }, '\'@.\' is reserved. (\'baz/foo-bar\' @ L1:C17) ');
-      };
+      expectAssertion(function () {
+        (0, _index.compile)('{{input type=(if @. "bar" "baz")}}', {
+          moduleName: 'baz/foo-bar'
+        });
+      }, '\'@.\' is reserved. (\'baz/foo-bar\' @ L1:C17) ');
+    };
 
-      _class.prototype['@test \'@_\' is reserved'] = function () {
-        expectAssertion(function () {
-          (0, _index.compile)('{{@_}}', {
-            moduleName: 'baz/foo-bar'
-          });
-        }, '\'@_\' is reserved. (\'baz/foo-bar\' @ L1:C2) ');
+    _class.prototype['@test \'@_\' is reserved'] = function () {
+      expectAssertion(function () {
+        (0, _index.compile)('{{@_}}', {
+          moduleName: 'baz/foo-bar'
+        });
+      }, '\'@_\' is reserved. (\'baz/foo-bar\' @ L1:C2) ');
 
-        expectAssertion(function () {
-          (0, _index.compile)('{{#if @_}}Yup{{/if}}', {
-            moduleName: 'baz/foo-bar'
-          });
-        }, '\'@_\' is reserved. (\'baz/foo-bar\' @ L1:C6) ');
+      expectAssertion(function () {
+        (0, _index.compile)('{{#if @_}}Yup{{/if}}', {
+          moduleName: 'baz/foo-bar'
+        });
+      }, '\'@_\' is reserved. (\'baz/foo-bar\' @ L1:C6) ');
 
-        expectAssertion(function () {
-          (0, _index.compile)('{{input type=(if @_ "bar" "baz")}}', {
-            moduleName: 'baz/foo-bar'
-          });
-        }, '\'@_\' is reserved. (\'baz/foo-bar\' @ L1:C17) ');
-      };
+      expectAssertion(function () {
+        (0, _index.compile)('{{input type=(if @_ "bar" "baz")}}', {
+          moduleName: 'baz/foo-bar'
+        });
+      }, '\'@_\' is reserved. (\'baz/foo-bar\' @ L1:C17) ');
+    };
 
-      _class.prototype['@test \'@-\' is reserved'] = function () {
-        expectAssertion(function () {
-          (0, _index.compile)('{{@-}}', {
-            moduleName: 'baz/foo-bar'
-          });
-        }, '\'@-\' is reserved. (\'baz/foo-bar\' @ L1:C2) ');
+    _class.prototype['@test \'@-\' is reserved'] = function () {
+      expectAssertion(function () {
+        (0, _index.compile)('{{@-}}', {
+          moduleName: 'baz/foo-bar'
+        });
+      }, '\'@-\' is reserved. (\'baz/foo-bar\' @ L1:C2) ');
 
-        expectAssertion(function () {
-          (0, _index.compile)('{{#if @-}}Yup{{/if}}', {
-            moduleName: 'baz/foo-bar'
-          });
-        }, '\'@-\' is reserved. (\'baz/foo-bar\' @ L1:C6) ');
+      expectAssertion(function () {
+        (0, _index.compile)('{{#if @-}}Yup{{/if}}', {
+          moduleName: 'baz/foo-bar'
+        });
+      }, '\'@-\' is reserved. (\'baz/foo-bar\' @ L1:C6) ');
 
-        expectAssertion(function () {
-          (0, _index.compile)('{{input type=(if @- "bar" "baz")}}', {
-            moduleName: 'baz/foo-bar'
-          });
-        }, '\'@-\' is reserved. (\'baz/foo-bar\' @ L1:C17) ');
-      };
+      expectAssertion(function () {
+        (0, _index.compile)('{{input type=(if @- "bar" "baz")}}', {
+          moduleName: 'baz/foo-bar'
+        });
+      }, '\'@-\' is reserved. (\'baz/foo-bar\' @ L1:C17) ');
+    };
 
-      _class.prototype['@test \'@$\' is reserved'] = function () {
-        expectAssertion(function () {
-          (0, _index.compile)('{{@$}}', {
-            moduleName: 'baz/foo-bar'
-          });
-        }, '\'@$\' is reserved. (\'baz/foo-bar\' @ L1:C2) ');
+    _class.prototype['@test \'@$\' is reserved'] = function () {
+      expectAssertion(function () {
+        (0, _index.compile)('{{@$}}', {
+          moduleName: 'baz/foo-bar'
+        });
+      }, '\'@$\' is reserved. (\'baz/foo-bar\' @ L1:C2) ');
 
-        expectAssertion(function () {
-          (0, _index.compile)('{{#if @$}}Yup{{/if}}', {
-            moduleName: 'baz/foo-bar'
-          });
-        }, '\'@$\' is reserved. (\'baz/foo-bar\' @ L1:C6) ');
+      expectAssertion(function () {
+        (0, _index.compile)('{{#if @$}}Yup{{/if}}', {
+          moduleName: 'baz/foo-bar'
+        });
+      }, '\'@$\' is reserved. (\'baz/foo-bar\' @ L1:C6) ');
 
-        expectAssertion(function () {
-          (0, _index.compile)('{{input type=(if @$ "bar" "baz")}}', {
-            moduleName: 'baz/foo-bar'
-          });
-        }, '\'@$\' is reserved. (\'baz/foo-bar\' @ L1:C17) ');
-      };
+      expectAssertion(function () {
+        (0, _index.compile)('{{input type=(if @$ "bar" "baz")}}', {
+          moduleName: 'baz/foo-bar'
+        });
+      }, '\'@$\' is reserved. (\'baz/foo-bar\' @ L1:C17) ');
+    };
 
-      _class.prototype['@test \'@\' is de facto reserved (parse error)'] = function (assert) {
-        assert.throws(function () {
-          (0, _index.compile)('{{@}}', {
-            moduleName: 'baz/foo-bar'
-          });
-        }, /Expecting 'ID'/);
+    _class.prototype['@test \'@\' is de facto reserved (parse error)'] = function (assert) {
+      assert.throws(function () {
+        (0, _index.compile)('{{@}}', {
+          moduleName: 'baz/foo-bar'
+        });
+      }, /Expecting 'ID'/);
 
-        assert.throws(function () {
-          (0, _index.compile)('{{#if @}}Yup{{/if}}', {
-            moduleName: 'baz/foo-bar'
-          });
-        }, /Expecting 'ID'/);
+      assert.throws(function () {
+        (0, _index.compile)('{{#if @}}Yup{{/if}}', {
+          moduleName: 'baz/foo-bar'
+        });
+      }, /Expecting 'ID'/);
 
-        assert.throws(function () {
-          (0, _index.compile)('{{input type=(if @ "bar" "baz")}}', {
-            moduleName: 'baz/foo-bar'
-          });
-        }, /Expecting 'ID'/);
-      };
+      assert.throws(function () {
+        (0, _index.compile)('{{input type=(if @ "bar" "baz")}}', {
+          moduleName: 'baz/foo-bar'
+        });
+      }, /Expecting 'ID'/);
+    };
 
-      _class.prototype['@test \'@0\' is de facto reserved (parse error)'] = function (assert) {
-        assert.throws(function () {
-          (0, _index.compile)('{{@0}}', {
-            moduleName: 'baz/foo-bar'
-          });
-        }, /Expecting 'ID'/);
+    _class.prototype['@test \'@0\' is de facto reserved (parse error)'] = function (assert) {
+      assert.throws(function () {
+        (0, _index.compile)('{{@0}}', {
+          moduleName: 'baz/foo-bar'
+        });
+      }, /Expecting 'ID'/);
 
-        assert.throws(function () {
-          (0, _index.compile)('{{#if @0}}Yup{{/if}}', {
-            moduleName: 'baz/foo-bar'
-          });
-        }, /Expecting 'ID'/);
+      assert.throws(function () {
+        (0, _index.compile)('{{#if @0}}Yup{{/if}}', {
+          moduleName: 'baz/foo-bar'
+        });
+      }, /Expecting 'ID'/);
 
-        assert.throws(function () {
-          (0, _index.compile)('{{input type=(if @0 "bar" "baz")}}', {
-            moduleName: 'baz/foo-bar'
-          });
-        }, /Expecting 'ID'/);
-      };
+      assert.throws(function () {
+        (0, _index.compile)('{{input type=(if @0 "bar" "baz")}}', {
+          moduleName: 'baz/foo-bar'
+        });
+      }, /Expecting 'ID'/);
+    };
 
-      _class.prototype['@test \'@1\' is de facto reserved (parse error)'] = function (assert) {
-        assert.throws(function () {
-          (0, _index.compile)('{{@1}}', {
-            moduleName: 'baz/foo-bar'
-          });
-        }, /Expecting 'ID'/);
+    _class.prototype['@test \'@1\' is de facto reserved (parse error)'] = function (assert) {
+      assert.throws(function () {
+        (0, _index.compile)('{{@1}}', {
+          moduleName: 'baz/foo-bar'
+        });
+      }, /Expecting 'ID'/);
 
-        assert.throws(function () {
-          (0, _index.compile)('{{#if @1}}Yup{{/if}}', {
-            moduleName: 'baz/foo-bar'
-          });
-        }, /Expecting 'ID'/);
+      assert.throws(function () {
+        (0, _index.compile)('{{#if @1}}Yup{{/if}}', {
+          moduleName: 'baz/foo-bar'
+        });
+      }, /Expecting 'ID'/);
 
-        assert.throws(function () {
-          (0, _index.compile)('{{input type=(if @1 "bar" "baz")}}', {
-            moduleName: 'baz/foo-bar'
-          });
-        }, /Expecting 'ID'/);
-      };
+      assert.throws(function () {
+        (0, _index.compile)('{{input type=(if @1 "bar" "baz")}}', {
+          moduleName: 'baz/foo-bar'
+        });
+      }, /Expecting 'ID'/);
+    };
 
-      _class.prototype['@test \'@2\' is de facto reserved (parse error)'] = function (assert) {
-        assert.throws(function () {
-          (0, _index.compile)('{{@2}}', {
-            moduleName: 'baz/foo-bar'
-          });
-        }, /Expecting 'ID'/);
+    _class.prototype['@test \'@2\' is de facto reserved (parse error)'] = function (assert) {
+      assert.throws(function () {
+        (0, _index.compile)('{{@2}}', {
+          moduleName: 'baz/foo-bar'
+        });
+      }, /Expecting 'ID'/);
 
-        assert.throws(function () {
-          (0, _index.compile)('{{#if @2}}Yup{{/if}}', {
-            moduleName: 'baz/foo-bar'
-          });
-        }, /Expecting 'ID'/);
+      assert.throws(function () {
+        (0, _index.compile)('{{#if @2}}Yup{{/if}}', {
+          moduleName: 'baz/foo-bar'
+        });
+      }, /Expecting 'ID'/);
 
-        assert.throws(function () {
-          (0, _index.compile)('{{input type=(if @2 "bar" "baz")}}', {
-            moduleName: 'baz/foo-bar'
-          });
-        }, /Expecting 'ID'/);
-      };
+      assert.throws(function () {
+        (0, _index.compile)('{{input type=(if @2 "bar" "baz")}}', {
+          moduleName: 'baz/foo-bar'
+        });
+      }, /Expecting 'ID'/);
+    };
 
-      _class.prototype['@test \'@@\' is de facto reserved (parse error)'] = function (assert) {
-        assert.throws(function () {
-          (0, _index.compile)('{{@@}}', {
-            moduleName: 'baz/foo-bar'
-          });
-        }, /Expecting 'ID'/);
+    _class.prototype['@test \'@@\' is de facto reserved (parse error)'] = function (assert) {
+      assert.throws(function () {
+        (0, _index.compile)('{{@@}}', {
+          moduleName: 'baz/foo-bar'
+        });
+      }, /Expecting 'ID'/);
 
-        assert.throws(function () {
-          (0, _index.compile)('{{#if @@}}Yup{{/if}}', {
-            moduleName: 'baz/foo-bar'
-          });
-        }, /Expecting 'ID'/);
+      assert.throws(function () {
+        (0, _index.compile)('{{#if @@}}Yup{{/if}}', {
+          moduleName: 'baz/foo-bar'
+        });
+      }, /Expecting 'ID'/);
 
-        assert.throws(function () {
-          (0, _index.compile)('{{input type=(if @@ "bar" "baz")}}', {
-            moduleName: 'baz/foo-bar'
-          });
-        }, /Expecting 'ID'/);
-      };
+      assert.throws(function () {
+        (0, _index.compile)('{{input type=(if @@ "bar" "baz")}}', {
+          moduleName: 'baz/foo-bar'
+        });
+      }, /Expecting 'ID'/);
+    };
 
-      _class.prototype['@test \'@=\' is de facto reserved (parse error)'] = function (assert) {
-        assert.throws(function () {
-          (0, _index.compile)('{{@=}}', {
-            moduleName: 'baz/foo-bar'
-          });
-        }, /Expecting 'ID'/);
+    _class.prototype['@test \'@=\' is de facto reserved (parse error)'] = function (assert) {
+      assert.throws(function () {
+        (0, _index.compile)('{{@=}}', {
+          moduleName: 'baz/foo-bar'
+        });
+      }, /Expecting 'ID'/);
 
-        assert.throws(function () {
-          (0, _index.compile)('{{#if @=}}Yup{{/if}}', {
-            moduleName: 'baz/foo-bar'
-          });
-        }, /Expecting 'ID'/);
+      assert.throws(function () {
+        (0, _index.compile)('{{#if @=}}Yup{{/if}}', {
+          moduleName: 'baz/foo-bar'
+        });
+      }, /Expecting 'ID'/);
 
-        assert.throws(function () {
-          (0, _index.compile)('{{input type=(if @= "bar" "baz")}}', {
-            moduleName: 'baz/foo-bar'
-          });
-        }, /Expecting 'ID'/);
-      };
+      assert.throws(function () {
+        (0, _index.compile)('{{input type=(if @= "bar" "baz")}}', {
+          moduleName: 'baz/foo-bar'
+        });
+      }, /Expecting 'ID'/);
+    };
 
-      _class.prototype['@test \'@!\' is de facto reserved (parse error)'] = function (assert) {
-        assert.throws(function () {
-          (0, _index.compile)('{{@!}}', {
-            moduleName: 'baz/foo-bar'
-          });
-        }, /Expecting 'ID'/);
+    _class.prototype['@test \'@!\' is de facto reserved (parse error)'] = function (assert) {
+      assert.throws(function () {
+        (0, _index.compile)('{{@!}}', {
+          moduleName: 'baz/foo-bar'
+        });
+      }, /Expecting 'ID'/);
 
-        assert.throws(function () {
-          (0, _index.compile)('{{#if @!}}Yup{{/if}}', {
-            moduleName: 'baz/foo-bar'
-          });
-        }, /Expecting 'ID'/);
+      assert.throws(function () {
+        (0, _index.compile)('{{#if @!}}Yup{{/if}}', {
+          moduleName: 'baz/foo-bar'
+        });
+      }, /Expecting 'ID'/);
 
-        assert.throws(function () {
-          (0, _index.compile)('{{input type=(if @! "bar" "baz")}}', {
-            moduleName: 'baz/foo-bar'
-          });
-        }, /Expecting 'ID'/);
-      };
+      assert.throws(function () {
+        (0, _index.compile)('{{input type=(if @! "bar" "baz")}}', {
+          moduleName: 'baz/foo-bar'
+        });
+      }, /Expecting 'ID'/);
+    };
 
-      return _class;
-    }(_internalTestHelpers.AbstractTestCase));
-  } else {
-    (0, _internalTestHelpers.moduleFor)('ember-template-compiler: assert-reserved-named-arguments', function (_AbstractTestCase2) {
-      (0, _emberBabel.inherits)(_class2, _AbstractTestCase2);
-
-      function _class2() {
-        return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase2.apply(this, arguments));
-      }
-
-      _class2.prototype['@test Paths beginning with @ are not valid'] = function () {
-        expectAssertion(function () {
-          (0, _index.compile)('{{@foo}}', {
-            moduleName: 'baz/foo-bar'
-          });
-        }, '\'@foo\' is not a valid path. (\'baz/foo-bar\' @ L1:C2) ');
-
-        expectAssertion(function () {
-          (0, _index.compile)('{{#if @foo}}Yup{{/if}}', {
-            moduleName: 'baz/foo-bar'
-          });
-        }, '\'@foo\' is not a valid path. (\'baz/foo-bar\' @ L1:C6) ');
-
-        expectAssertion(function () {
-          (0, _index.compile)('{{input type=(if @foo "bar" "baz")}}', {
-            moduleName: 'baz/foo-bar'
-          });
-        }, '\'@foo\' is not a valid path. (\'baz/foo-bar\' @ L1:C17) ');
-      };
-
-      return _class2;
-    }(_internalTestHelpers.AbstractTestCase));
-  }
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
 });
 enifed('ember-template-compiler/tests/plugins/deprecate-render-model-test', ['ember-babel', 'ember-template-compiler/index', 'internal-test-helpers'], function (_emberBabel, _index, _internalTestHelpers) {
   'use strict';
@@ -68177,7 +66863,7 @@ enifed('ember/tests/reexports_test', ['ember/index', 'ember-environment', 'inter
   ['computed', 'ember-metal'], ['computed.alias', 'ember-metal', 'alias'], ['ComputedProperty', 'ember-metal'], ['cacheFor', 'ember-metal'], ['merge', 'ember-metal'], ['instrument', 'ember-metal'], ['Instrumentation.instrument', 'ember-metal', 'instrument'], ['Instrumentation.subscribe', 'ember-metal', 'instrumentationSubscribe'], ['Instrumentation.unsubscribe', 'ember-metal', 'instrumentationUnsubscribe'], ['Instrumentation.reset', 'ember-metal', 'instrumentationReset'], ['testing', 'ember-debug', { get: 'isTesting', set: 'setTesting' }], ['onerror', 'ember-metal', { get: 'getOnerror', set: 'setOnerror' }],
   // ['create'], TODO: figure out what to do here
   // ['keys'], TODO: figure out what to do here
-  ['FEATURES', 'ember/features'], ['FEATURES.isEnabled', 'ember-debug', 'isFeatureEnabled'], ['Error', 'ember-debug'], ['meta', 'ember-metal'], ['get', 'ember-metal'], ['set', 'ember-metal'], ['_getPath', 'ember-metal'], ['getWithDefault', 'ember-metal'], ['trySet', 'ember-metal'], ['_Cache', 'ember-metal', 'Cache'], ['on', 'ember-metal'], ['addListener', 'ember-metal'], ['removeListener', 'ember-metal'], ['_suspendListener', 'ember-metal', 'suspendListener'], ['_suspendListeners', 'ember-metal', 'suspendListeners'], ['sendEvent', 'ember-metal'], ['hasListeners', 'ember-metal'], ['watchedEvents', 'ember-metal'], ['listenersFor', 'ember-metal'], ['isNone', 'ember-metal'], ['isEmpty', 'ember-metal'], ['isBlank', 'ember-metal'], ['isPresent', 'ember-metal'], ['_Backburner', 'backburner', 'default'], ['run', 'ember-metal'], ['_ObserverSet', 'ember-metal', 'ObserverSet'], ['propertyWillChange', 'ember-metal'], ['propertyDidChange', 'ember-metal'], ['overrideChains', 'ember-metal'], ['beginPropertyChanges', 'ember-metal'], ['beginPropertyChanges', 'ember-metal'], ['endPropertyChanges', 'ember-metal'], ['changeProperties', 'ember-metal'], ['defineProperty', 'ember-metal'], ['watchKey', 'ember-metal'], ['unwatchKey', 'ember-metal'], ['removeChainWatcher', 'ember-metal'], ['_ChainNode', 'ember-metal', 'ChainNode'], ['finishChains', 'ember-metal'], ['watchPath', 'ember-metal'], ['unwatchPath', 'ember-metal'], ['watch', 'ember-metal'], ['isWatching', 'ember-metal'], ['unwatch', 'ember-metal'], ['destroy', 'ember-metal', 'deleteMeta'], ['libraries', 'ember-metal'], ['OrderedSet', 'ember-metal'], ['Map', 'ember-metal'], ['MapWithDefault', 'ember-metal'], ['getProperties', 'ember-metal'], ['setProperties', 'ember-metal'], ['expandProperties', 'ember-metal'], ['NAME_KEY', 'ember-utils'], ['addObserver', 'ember-metal'], ['observersFor', 'ember-metal'], ['removeObserver', 'ember-metal'], ['_suspendObserver', 'ember-metal'], ['_suspendObservers', 'ember-metal'], ['aliasMethod', 'ember-metal'], ['observer', 'ember-metal'], ['mixin', 'ember-metal'], ['Mixin', 'ember-metal'], ['bind', 'ember-metal'], ['Binding', 'ember-metal'], ['isGlobalPath', 'ember-metal'],
+  ['FEATURES', 'ember/features'], ['FEATURES.isEnabled', 'ember-debug', 'isFeatureEnabled'], ['Error', 'ember-debug'], ['meta', 'ember-metal'], ['get', 'ember-metal'], ['set', 'ember-metal'], ['_getPath', 'ember-metal'], ['getWithDefault', 'ember-metal'], ['trySet', 'ember-metal'], ['_Cache', 'ember-metal', 'Cache'], ['on', 'ember-metal'], ['addListener', 'ember-metal'], ['removeListener', 'ember-metal'], ['_suspendListener', 'ember-metal', 'suspendListener'], ['_suspendListeners', 'ember-metal', 'suspendListeners'], ['sendEvent', 'ember-metal'], ['hasListeners', 'ember-metal'], ['watchedEvents', 'ember-metal'], ['listenersFor', 'ember-metal'], ['isNone', 'ember-metal'], ['isEmpty', 'ember-metal'], ['isBlank', 'ember-metal'], ['isPresent', 'ember-metal'], ['_Backburner', 'backburner', 'default'], ['run', 'ember-metal'], ['_ObserverSet', 'ember-metal', 'ObserverSet'], ['propertyWillChange', 'ember-metal'], ['propertyDidChange', 'ember-metal'], ['overrideChains', 'ember-metal'], ['beginPropertyChanges', 'ember-metal'], ['beginPropertyChanges', 'ember-metal'], ['endPropertyChanges', 'ember-metal'], ['changeProperties', 'ember-metal'], ['defineProperty', 'ember-metal'], ['watchKey', 'ember-metal'], ['unwatchKey', 'ember-metal'], ['removeChainWatcher', 'ember-metal'], ['_ChainNode', 'ember-metal', 'ChainNode'], ['finishChains', 'ember-metal'], ['watchPath', 'ember-metal'], ['unwatchPath', 'ember-metal'], ['watch', 'ember-metal'], ['isWatching', 'ember-metal'], ['unwatch', 'ember-metal'], ['destroy', 'ember-metal', 'deleteMeta'], ['libraries', 'ember-metal'], ['OrderedSet', 'ember-metal'], ['Map', 'ember-metal'], ['MapWithDefault', 'ember-metal'], ['getProperties', 'ember-metal'], ['setProperties', 'ember-metal'], ['expandProperties', 'ember-metal'], ['NAME_KEY', 'ember-utils'], ['addObserver', 'ember-metal'], ['observersFor', 'ember-metal'], ['removeObserver', 'ember-metal'], ['_suspendObserver', 'ember-metal'], ['_suspendObservers', 'ember-metal'], ['aliasMethod', 'ember-metal'], ['observer', 'ember-metal'], ['mixin', 'ember-metal'], ['Mixin', 'ember-metal'], ['isGlobalPath', 'ember-metal'],
 
   // ember-views
   ['$', 'ember-views', 'jQuery'], ['ViewUtils.isSimpleClick', 'ember-views', 'isSimpleClick'], ['ViewUtils.getViewElement', 'ember-views', 'getViewElement'], ['ViewUtils.getViewBounds', 'ember-views', 'getViewBounds'], ['ViewUtils.getViewClientRects', 'ember-views', 'getViewClientRects'], ['ViewUtils.getViewBoundingClientRect', 'ember-views', 'getViewBoundingClientRect'], ['ViewUtils.getRootViews', 'ember-views', 'getRootViews'], ['ViewUtils.getChildViews', 'ember-views', 'getChildViews'], ['TextSupport', 'ember-views'], ['ComponentLookup', 'ember-views'], ['EventDispatcher', 'ember-views'],
