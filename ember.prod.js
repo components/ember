@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.0.0-canary+87a3264b
+ * @version   3.0.0-canary+2cd02df9
  */
 
 /*globals process */
@@ -19273,7 +19273,7 @@ enifed('ember-glimmer/setup-registry', ['exports', 'ember-babel', 'container', '
         _templateObject2 = (0, _emberBabel.taggedTemplateLiteralLoose)(['template:components/-default'], ['template:components/-default']),
         _templateObject3 = (0, _emberBabel.taggedTemplateLiteralLoose)(['component:-default'], ['component:-default']);
 });
-enifed('ember-glimmer/syntax', ['exports', 'ember-debug', 'ember-environment', 'ember-glimmer/syntax/-text-area', 'ember-glimmer/syntax/dynamic-component', 'ember-glimmer/syntax/input', 'ember-glimmer/syntax/mount', 'ember-glimmer/syntax/outlet', 'ember-glimmer/syntax/render', 'ember-glimmer/syntax/utils', 'ember-glimmer/utils/bindings'], function (exports, _emberDebug, _emberEnvironment, _textArea, _dynamicComponent, _input, _mount, _outlet, _render, _utils, _bindings) {
+enifed('ember-glimmer/syntax', ['exports', 'ember-debug', 'ember-environment', 'ember-glimmer/syntax/-text-area', 'ember-glimmer/syntax/dynamic-component', 'ember-glimmer/syntax/input', 'ember-glimmer/syntax/mount', 'ember-glimmer/syntax/outlet', 'ember-glimmer/syntax/render', 'ember-glimmer/syntax/utils', 'ember-glimmer/syntax/let', 'ember-glimmer/utils/bindings', 'ember/features'], function (exports, _emberDebug, _emberEnvironment, _textArea, _dynamicComponent, _input, _mount, _outlet, _render, _utils, _let, _bindings, _features) {
     'use strict';
 
     exports.experimentalMacros = undefined;
@@ -19297,6 +19297,9 @@ enifed('ember-glimmer/syntax', ['exports', 'ember-debug', 'ember-environment', '
         inlines.add('textarea', _textArea.textAreaMacro);
         inlines.addMissing(refineInlineSyntax);
         blocks.add('component', _dynamicComponent.blockComponentMacro);
+        if (_features.EMBER_TEMPLATE_BLOCK_LET_HELPER === true) {
+            blocks.add('let', _let.blockLetMacro);
+        }
         blocks.addMissing(refineBlockSyntax);
         for (i = 0; i < experimentalMacros.length; i++) {
             macro = experimentalMacros[i];
@@ -19597,6 +19600,54 @@ enifed('ember-glimmer/syntax/input', ['exports', 'ember-debug', 'ember-glimmer/u
     builder.component.static(definition, [params, (0, _utils.hashToArgs)(hash), null, null]);
     return true;
   }
+});
+enifed("ember-glimmer/syntax/let", ["exports", "@glimmer/runtime"], function (exports, _runtime) {
+  "use strict";
+
+  exports.blockLetMacro =
+
+  /**
+  @module ember
+  
+  /**
+    The `let` helper receives one or more positional arguments and yields
+    them out as block params.
+  
+    This allows the developer to introduce shorter names for certain computations
+    in the template.
+  
+    This is especially useful if you are passing properties to a component
+    that receives a lot of options and you want to clean up the invocation.
+  
+    For the following example, the template receives a `post` object with
+    `content` and `title` properties.
+  
+    We are going to call the `my-post` component, passing a title which is
+    the title of the post suffixed with the name of the blog, the content
+    of the post, and a series of options defined in-place.
+  
+    ```handlebars
+    {{#let
+        (concat post ' | The Ember.js Blog')
+        post.content
+        (hash
+          theme="high-contrast"
+          enableComments=true
+        )
+        as |title content options|
+    }}
+      {{my-post title=title content=content options=options}}
+    {{/let}}
+    ```
+  
+    @method let
+    @for Ember.Templates.helpers
+    @public
+  */
+  function (params, _hash, _default, _inverse, builder) {
+    (0, _runtime.compileList)(params, builder);
+    builder.invokeStatic(_default, params.length);
+  };
 });
 enifed('ember-glimmer/syntax/mount', ['exports', 'ember-debug', 'ember-glimmer/component-managers/mount', 'ember-glimmer/syntax/utils'], function (exports, _emberDebug, _mount, _utils) {
     'use strict';
@@ -42910,8 +42961,8 @@ enifed('ember-views/views/states/pre_render', ['exports', 'ember-views/views/sta
 enifed('ember/features', ['exports', 'ember-environment', 'ember-utils'], function (exports, _emberEnvironment, _emberUtils) {
     'use strict';
 
-    exports.GLIMMER_CUSTOM_COMPONENT_MANAGER = exports.EMBER_MODULE_UNIFICATION = exports.EMBER_METAL_ES5_GETTERS = exports.EMBER_GLIMMER_TEMPLATE_ONLY_COMPONENTS = exports.EMBER_GLIMMER_REMOVE_APPLICATION_TEMPLATE_WRAPPER = exports.EMBER_GLIMMER_NAMED_ARGUMENTS = exports.EMBER_IMPROVED_INSTRUMENTATION = exports.EMBER_LIBRARIES_ISREGISTERED = exports.FEATURES_STRIPPED_TEST = exports.FEATURES = exports.DEFAULT_FEATURES = undefined;
-    var DEFAULT_FEATURES = exports.DEFAULT_FEATURES = { "features-stripped-test": null, "ember-libraries-isregistered": null, "ember-improved-instrumentation": null, "ember-glimmer-named-arguments": null, "ember-glimmer-remove-application-template-wrapper": null, "ember-glimmer-template-only-components": null, "ember-metal-es5-getters": null, "ember-routing-router-service": true, "ember-engines-mount-params": true, "ember-module-unification": null, "glimmer-custom-component-manager": null, "descriptor-trap": false, "mandatory-setter": false, "ember-glimmer-detect-backtracking-rerender": false };
+    exports.EMBER_TEMPLATE_BLOCK_LET_HELPER = exports.GLIMMER_CUSTOM_COMPONENT_MANAGER = exports.EMBER_MODULE_UNIFICATION = exports.EMBER_METAL_ES5_GETTERS = exports.EMBER_GLIMMER_TEMPLATE_ONLY_COMPONENTS = exports.EMBER_GLIMMER_REMOVE_APPLICATION_TEMPLATE_WRAPPER = exports.EMBER_GLIMMER_NAMED_ARGUMENTS = exports.EMBER_IMPROVED_INSTRUMENTATION = exports.EMBER_LIBRARIES_ISREGISTERED = exports.FEATURES_STRIPPED_TEST = exports.FEATURES = exports.DEFAULT_FEATURES = undefined;
+    var DEFAULT_FEATURES = exports.DEFAULT_FEATURES = { "features-stripped-test": null, "ember-libraries-isregistered": null, "ember-improved-instrumentation": null, "ember-glimmer-named-arguments": null, "ember-glimmer-remove-application-template-wrapper": null, "ember-glimmer-template-only-components": null, "ember-metal-es5-getters": null, "ember-routing-router-service": true, "ember-engines-mount-params": true, "ember-module-unification": null, "glimmer-custom-component-manager": null, "ember-template-block-let-helper": null, "descriptor-trap": false, "mandatory-setter": false, "ember-glimmer-detect-backtracking-rerender": false };
     var FEATURES = exports.FEATURES = (0, _emberUtils.assign)(DEFAULT_FEATURES, _emberEnvironment.ENV.FEATURES);
 
     var FEATURES_STRIPPED_TEST = exports.FEATURES_STRIPPED_TEST = FEATURES["features-stripped-test"];
@@ -42925,6 +42976,7 @@ enifed('ember/features', ['exports', 'ember-environment', 'ember-utils'], functi
     true;
     var EMBER_MODULE_UNIFICATION = exports.EMBER_MODULE_UNIFICATION = FEATURES["ember-module-unification"];
     var GLIMMER_CUSTOM_COMPONENT_MANAGER = exports.GLIMMER_CUSTOM_COMPONENT_MANAGER = FEATURES["glimmer-custom-component-manager"];
+    var EMBER_TEMPLATE_BLOCK_LET_HELPER = exports.EMBER_TEMPLATE_BLOCK_LET_HELPER = FEATURES["ember-template-block-let-helper"];
     false;
     false;
     false;
@@ -43426,7 +43478,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "3.0.0-canary+87a3264b";
+  exports.default = "3.0.0-canary+2cd02df9";
 });
 /*global enifed */
 enifed('node-module', ['exports'], function(_exports) {

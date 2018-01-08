@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.0.0-canary+87a3264b
+ * @version   3.0.0-canary+2cd02df9
  */
 
 /*globals process */
@@ -34214,6 +34214,461 @@ enifed('ember-glimmer/tests/integration/syntax/in-element-test', ['ember-babel',
 
     return _class;
   }(_testCase.RenderingTest));
+});
+enifed('ember-glimmer/tests/integration/syntax/let-test', ['ember-babel', 'ember-metal', 'ember-runtime', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/abstract-test-case', 'ember/features'], function (_emberBabel, _emberMetal, _emberRuntime, _testCase, _abstractTestCase, _features) {
+  'use strict';
+
+  var _templateObject = (0, _emberBabel.taggedTemplateLiteralLoose)(['\n        {{#let foo.bar.baz as |thing|}}\n          value: "{{thing}}"\n        {{/let}}'], ['\n        {{#let foo.bar.baz as |thing|}}\n          value: "{{thing}}"\n        {{/let}}']),
+      _templateObject2 = (0, _emberBabel.taggedTemplateLiteralLoose)(['\n        {{name}}\n        {{#let committer1.name as |name|}}\n          [{{name}}\n          {{#let committer2.name as |name|}}\n            [{{name}}]\n          {{/let}}\n          {{name}}]\n        {{/let}}\n        {{name}}\n        {{#let committer2.name as |name|}}\n          [{{name}}\n          {{#let committer1.name as |name|}}\n            [{{name}}]\n          {{/let}}\n          {{name}}]\n        {{/let}}\n        {{name}}\n      '], ['\n        {{name}}\n        {{#let committer1.name as |name|}}\n          [{{name}}\n          {{#let committer2.name as |name|}}\n            [{{name}}]\n          {{/let}}\n          {{name}}]\n        {{/let}}\n        {{name}}\n        {{#let committer2.name as |name|}}\n          [{{name}}\n          {{#let committer1.name as |name|}}\n            [{{name}}]\n          {{/let}}\n          {{name}}]\n        {{/let}}\n        {{name}}\n      ']);
+
+  if (_features.EMBER_TEMPLATE_BLOCK_LET_HELPER) {
+    (0, _testCase.moduleFor)('Syntax test: {{#let as}}', function (_RenderingTest) {
+      (0, _emberBabel.inherits)(_class, _RenderingTest);
+
+      function _class() {
+        return (0, _emberBabel.possibleConstructorReturn)(this, _RenderingTest.apply(this, arguments));
+      }
+
+      _class.prototype.templateFor = function (_ref) {
+        var cond = _ref.cond,
+            truthy = _ref.truthy,
+            falsy = _ref.falsy;
+
+        return '{{#let ' + cond + ' as |test|}}' + truthy + '{{else}}' + falsy + '{{/let}}';
+      };
+
+      _class.prototype['@test it renders the block if `undefined` is passed as an argument'] = function () {
+        var _this2 = this;
+
+        this.render((0, _abstractTestCase.strip)(_templateObject), { foo: {} });
+
+        this.assertText('value: ""');
+
+        this.runTask(function () {
+          return _this2.rerender();
+        });
+
+        this.assertText('value: ""');
+
+        this.runTask(function () {
+          return (0, _emberMetal.set)(_this2.context, 'foo', { bar: { baz: 'Here!' } });
+        });
+
+        this.assertText('value: "Here!"');
+
+        this.runTask(function () {
+          return (0, _emberMetal.set)(_this2.context, 'foo', {});
+        });
+
+        this.assertText('value: ""');
+      };
+
+      _class.prototype['@test it renders the block if arguments are falsey'] = function () {
+        var _this3 = this;
+
+        this.render('{{#let cond1 cond2 as |cond|}}value: "{{cond1}}"{{/let}}', {
+          cond1: false
+        });
+
+        this.assertText('value: "false"');
+
+        this.runTask(function () {
+          return _this3.rerender();
+        });
+
+        this.assertText('value: "false"');
+
+        this.runTask(function () {
+          return (0, _emberMetal.set)(_this3.context, 'cond1', '');
+        });
+
+        this.assertText('value: ""');
+
+        this.runTask(function () {
+          return (0, _emberMetal.set)(_this3.context, 'cond1', 0);
+        });
+
+        this.assertText('value: "0"');
+      };
+
+      _class.prototype['@test it yields multiple arguments in order'] = function () {
+        var _this4 = this;
+
+        this.render('{{#let foo bar baz.name as |a b c|}}{{a}} {{b}} {{c}}{{/let}}', {
+          foo: "Señor Engineer",
+          bar: '',
+          baz: { name: "Dale" }
+        });
+
+        this.assertText('Señor Engineer  Dale');
+
+        this.runTask(function () {
+          return (0, _emberMetal.set)(_this4.context, 'bar', 'Tom');
+        });
+
+        this.assertText('Señor Engineer Tom Dale');
+      };
+
+      _class.prototype['@test can access alias and original scope'] = function () {
+        var _this5 = this;
+
+        this.render('{{#let person as |tom|}}{{title}}: {{tom.name}}{{/let}}', {
+          title: 'Señor Engineer',
+          person: { name: 'Tom Dale' }
+        });
+
+        this.assertText('Señor Engineer: Tom Dale');
+
+        this.runTask(function () {
+          return _this5.rerender();
+        });
+
+        this.assertText('Señor Engineer: Tom Dale');
+
+        this.runTask(function () {
+          (0, _emberMetal.set)(_this5.context, 'person.name', 'Yehuda Katz');
+          (0, _emberMetal.set)(_this5.context, 'title', 'Principal Engineer');
+        });
+
+        this.assertText('Principal Engineer: Yehuda Katz');
+
+        this.runTask(function () {
+          (0, _emberMetal.set)(_this5.context, 'person', { name: 'Tom Dale' });
+          (0, _emberMetal.set)(_this5.context, 'title', 'Señor Engineer');
+        });
+
+        this.assertText('Señor Engineer: Tom Dale');
+      };
+
+      _class.prototype['@test the scoped variable is not available outside the {{#let}} block.'] = function () {
+        var _this6 = this;
+
+        this.render('{{name}}-{{#let other as |name|}}{{name}}{{/let}}-{{name}}', {
+          name: 'Stef',
+          other: 'Yehuda'
+        });
+
+        this.assertText('Stef-Yehuda-Stef');
+
+        this.runTask(function () {
+          return _this6.rerender();
+        });
+
+        this.assertText('Stef-Yehuda-Stef');
+
+        this.runTask(function () {
+          return (0, _emberMetal.set)(_this6.context, 'other', 'Chad');
+        });
+
+        this.assertText('Stef-Chad-Stef');
+
+        this.runTask(function () {
+          return (0, _emberMetal.set)(_this6.context, 'name', 'Tom');
+        });
+
+        this.assertText('Tom-Chad-Tom');
+
+        this.runTask(function () {
+          (0, _emberMetal.set)(_this6.context, 'name', 'Stef');
+          (0, _emberMetal.set)(_this6.context, 'other', 'Yehuda');
+        });
+
+        this.assertText('Stef-Yehuda-Stef');
+      };
+
+      _class.prototype['@test can access alias of a proxy'] = function () {
+        var _this7 = this;
+
+        this.render('{{#let proxy as |person|}}{{person.name}}{{/let}}', {
+          proxy: _emberRuntime.ObjectProxy.create({ content: { name: 'Tom Dale' } })
+        });
+
+        this.assertText('Tom Dale');
+
+        this.runTask(function () {
+          return _this7.rerender();
+        });
+
+        this.assertText('Tom Dale');
+
+        this.runTask(function () {
+          return (0, _emberMetal.set)(_this7.context, 'proxy.name', 'Yehuda Katz');
+        });
+
+        this.assertText('Yehuda Katz');
+
+        this.runTask(function () {
+          return (0, _emberMetal.set)(_this7.context, 'proxy.content', { name: 'Godfrey Chan' });
+        });
+
+        this.assertText('Godfrey Chan');
+
+        this.runTask(function () {
+          return (0, _emberMetal.set)(_this7.context, 'proxy.content.name', 'Stefan Penner');
+        });
+
+        this.assertText('Stefan Penner');
+
+        this.runTask(function () {
+          return (0, _emberMetal.set)(_this7.context, 'proxy.content', null);
+        });
+
+        this.assertText('');
+
+        this.runTask(function () {
+          return (0, _emberMetal.set)(_this7.context, 'proxy', _emberRuntime.ObjectProxy.create({ content: { name: 'Tom Dale' } }));
+        });
+
+        this.assertText('Tom Dale');
+      };
+
+      _class.prototype['@test can access alias of an array'] = function () {
+        var _this8 = this;
+
+        this.render('{{#let arrayThing as |words|}}{{#each words as |word|}}{{word}}{{/each}}{{/let}}', {
+          arrayThing: (0, _emberRuntime.A)(['Hello', ' ', 'world'])
+        });
+
+        this.assertText('Hello world');
+
+        this.runTask(function () {
+          return _this8.rerender();
+        });
+
+        this.assertText('Hello world');
+
+        this.runTask(function () {
+          var array = (0, _emberMetal.get)(_this8.context, 'arrayThing');
+          array.replace(0, 1, ['Goodbye']);
+          (0, _emberRuntime.removeAt)(array, 1);
+          array.insertAt(1, ', ');
+          array.pushObject('!');
+        });
+
+        this.assertText('Goodbye, world!');
+
+        this.runTask(function () {
+          return (0, _emberMetal.set)(_this8.context, 'arrayThing', ['Hello', ' ', 'world']);
+        });
+
+        this.assertText('Hello world');
+      };
+
+      _class.prototype['@test `attrs` can be used as a block param [GH#14678]'] = function () {
+        var _this9 = this;
+
+        this.render('{{#let hash as |attrs|}}[{{hash.foo}}-{{attrs.foo}}]{{/let}}', {
+          hash: { foo: 'foo' }
+        });
+
+        this.assertText('[foo-foo]');
+
+        this.runTask(function () {
+          return _this9.rerender();
+        });
+
+        this.assertText('[foo-foo]');
+
+        this.runTask(function () {
+          return _this9.context.set('hash.foo', 'FOO');
+        });
+
+        this.assertText('[FOO-FOO]');
+
+        this.runTask(function () {
+          return _this9.context.set('hash.foo', 'foo');
+        });
+
+        this.assertText('[foo-foo]');
+      };
+
+      return _class;
+    }(_testCase.RenderingTest));
+
+    (0, _testCase.moduleFor)('Syntax test: Multiple {{#let as}} helpers', function (_RenderingTest2) {
+      (0, _emberBabel.inherits)(_class2, _RenderingTest2);
+
+      function _class2() {
+        return (0, _emberBabel.possibleConstructorReturn)(this, _RenderingTest2.apply(this, arguments));
+      }
+
+      _class2.prototype['@test re-using the same variable with different {{#let}} blocks does not override each other'] = function () {
+        var _this11 = this;
+
+        this.render('Admin: {{#let admin as |person|}}{{person.name}}{{/let}} User: {{#let user as |person|}}{{person.name}}{{/let}}', {
+          admin: { name: 'Tom Dale' },
+          user: { name: 'Yehuda Katz' }
+        });
+
+        this.assertText('Admin: Tom Dale User: Yehuda Katz');
+
+        this.runTask(function () {
+          return _this11.rerender();
+        });
+
+        this.assertText('Admin: Tom Dale User: Yehuda Katz');
+
+        this.runTask(function () {
+          (0, _emberMetal.set)(_this11.context, 'admin.name', 'Godfrey Chan');
+          (0, _emberMetal.set)(_this11.context, 'user.name', 'Stefan Penner');
+        });
+
+        this.assertText('Admin: Godfrey Chan User: Stefan Penner');
+
+        this.runTask(function () {
+          (0, _emberMetal.set)(_this11.context, 'admin', { name: 'Tom Dale' });
+          (0, _emberMetal.set)(_this11.context, 'user', { name: 'Yehuda Katz' });
+        });
+
+        this.assertText('Admin: Tom Dale User: Yehuda Katz');
+      };
+
+      _class2.prototype['@test the scoped variable is not available outside the {{#let}} block'] = function () {
+        var _this12 = this;
+
+        this.render('{{ring}}-{{#let first as |ring|}}{{ring}}-{{#let fifth as |ring|}}{{ring}}-{{#let ninth as |ring|}}{{ring}}-{{/let}}{{ring}}-{{/let}}{{ring}}-{{/let}}{{ring}}', {
+          ring: 'Greed',
+          first: 'Limbo',
+          fifth: 'Wrath',
+          ninth: 'Treachery'
+        });
+
+        this.assertText('Greed-Limbo-Wrath-Treachery-Wrath-Limbo-Greed');
+
+        this.runTask(function () {
+          return _this12.rerender();
+        });
+
+        this.assertText('Greed-Limbo-Wrath-Treachery-Wrath-Limbo-Greed');
+
+        this.runTask(function () {
+          (0, _emberMetal.set)(_this12.context, 'ring', 'O');
+          (0, _emberMetal.set)(_this12.context, 'fifth', 'D');
+        });
+
+        this.assertText('O-Limbo-D-Treachery-D-Limbo-O');
+
+        this.runTask(function () {
+          (0, _emberMetal.set)(_this12.context, 'first', 'I');
+          (0, _emberMetal.set)(_this12.context, 'ninth', 'K');
+        });
+
+        this.assertText('O-I-D-K-D-I-O');
+
+        this.runTask(function () {
+          (0, _emberMetal.set)(_this12.context, 'ring', 'Greed');
+          (0, _emberMetal.set)(_this12.context, 'first', 'Limbo');
+          (0, _emberMetal.set)(_this12.context, 'fifth', 'Wrath');
+          (0, _emberMetal.set)(_this12.context, 'ninth', 'Treachery');
+        });
+
+        this.assertText('Greed-Limbo-Wrath-Treachery-Wrath-Limbo-Greed');
+      };
+
+      _class2.prototype['@test it should support {{#let name as |foo|}}, then {{#let foo as |bar|}}'] = function () {
+        var _this13 = this;
+
+        this.render('{{#let name as |foo|}}{{#let foo as |bar|}}{{bar}}{{/let}}{{/let}}', {
+          name: 'caterpillar'
+        });
+
+        this.assertText('caterpillar');
+
+        this.runTask(function () {
+          return _this13.rerender();
+        });
+
+        this.assertText('caterpillar');
+
+        this.runTask(function () {
+          return (0, _emberMetal.set)(_this13.context, 'name', 'butterfly');
+        });
+
+        this.assertText('butterfly');
+
+        this.runTask(function () {
+          return (0, _emberMetal.set)(_this13.context, 'name', 'caterpillar');
+        });
+
+        this.assertText('caterpillar');
+      };
+
+      _class2.prototype['@test updating the context should update the alias'] = function () {
+        var _this14 = this;
+
+        this.render('{{#let this as |person|}}{{person.name}}{{/let}}', {
+          name: 'Los Pivots'
+        });
+
+        this.assertText('Los Pivots');
+
+        this.runTask(function () {
+          return _this14.rerender();
+        });
+
+        this.assertText('Los Pivots');
+
+        this.runTask(function () {
+          return (0, _emberMetal.set)(_this14.context, 'name', 'l\'Pivots');
+        });
+
+        this.assertText('l\'Pivots');
+
+        this.runTask(function () {
+          return (0, _emberMetal.set)(_this14.context, 'name', 'Los Pivots');
+        });
+
+        this.assertText('Los Pivots');
+      };
+
+      _class2.prototype['@test nested {{#let}} blocks should have access to root context'] = function () {
+        var _this15 = this;
+
+        this.render((0, _abstractTestCase.strip)(_templateObject2), {
+          name: 'ebryn',
+          committer1: { name: 'trek' },
+          committer2: { name: 'machty' }
+        });
+
+        this.assertText('ebryn[trek[machty]trek]ebryn[machty[trek]machty]ebryn');
+
+        this.runTask(function () {
+          return _this15.rerender();
+        });
+
+        this.assertText('ebryn[trek[machty]trek]ebryn[machty[trek]machty]ebryn');
+
+        this.runTask(function () {
+          return (0, _emberMetal.set)(_this15.context, 'name', 'chancancode');
+        });
+
+        this.assertText('chancancode[trek[machty]trek]chancancode[machty[trek]machty]chancancode');
+
+        this.runTask(function () {
+          return (0, _emberMetal.set)(_this15.context, 'committer1', { name: 'krisselden' });
+        });
+
+        this.assertText('chancancode[krisselden[machty]krisselden]chancancode[machty[krisselden]machty]chancancode');
+
+        this.runTask(function () {
+          (0, _emberMetal.set)(_this15.context, 'committer1.name', 'wycats');
+          (0, _emberMetal.set)(_this15.context, 'committer2', { name: 'rwjblue' });
+        });
+
+        this.assertText('chancancode[wycats[rwjblue]wycats]chancancode[rwjblue[wycats]rwjblue]chancancode');
+
+        this.runTask(function () {
+          (0, _emberMetal.set)(_this15.context, 'name', 'ebryn');
+          (0, _emberMetal.set)(_this15.context, 'committer1', { name: 'trek' });
+          (0, _emberMetal.set)(_this15.context, 'committer2', { name: 'machty' });
+        });
+
+        this.assertText('ebryn[trek[machty]trek]ebryn[machty[trek]machty]ebryn');
+      };
+
+      return _class2;
+    }(_testCase.RenderingTest));
+  }
 });
 enifed('ember-glimmer/tests/integration/syntax/with-dynamic-var-test', ['ember-babel', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/abstract-test-case'], function (_emberBabel, _testCase, _abstractTestCase) {
   'use strict';
