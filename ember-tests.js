@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.0.0-canary+124747b5
+ * @version   3.0.0-canary+b59a8941
  */
 
 /*globals process */
@@ -62754,6 +62754,46 @@ enifed('ember-template-compiler/tests/plugins/assert-reserved-named-arguments-te
             moduleName: 'baz/foo-bar'
           });
         }, '\'@args\' is reserved. (\'baz/foo-bar\' @ L1:C17) ');
+      };
+
+      _class.prototype['@test \'@block\' is reserved'] = function () {
+        expectAssertion(function () {
+          (0, _index.compile)('{{@block}}', {
+            moduleName: 'baz/foo-bar'
+          });
+        }, '\'@block\' is reserved. (\'baz/foo-bar\' @ L1:C2) ');
+
+        expectAssertion(function () {
+          (0, _index.compile)('{{#if @block}}Yup{{/if}}', {
+            moduleName: 'baz/foo-bar'
+          });
+        }, '\'@block\' is reserved. (\'baz/foo-bar\' @ L1:C6) ');
+
+        expectAssertion(function () {
+          (0, _index.compile)('{{input type=(if @block "bar" "baz")}}', {
+            moduleName: 'baz/foo-bar'
+          });
+        }, '\'@block\' is reserved. (\'baz/foo-bar\' @ L1:C17) ');
+      };
+
+      _class.prototype['@test \'@else\' is reserved'] = function () {
+        expectAssertion(function () {
+          (0, _index.compile)('{{@else}}', {
+            moduleName: 'baz/foo-bar'
+          });
+        }, '\'@else\' is reserved. (\'baz/foo-bar\' @ L1:C2) ');
+
+        expectAssertion(function () {
+          (0, _index.compile)('{{#if @else}}Yup{{/if}}', {
+            moduleName: 'baz/foo-bar'
+          });
+        }, '\'@else\' is reserved. (\'baz/foo-bar\' @ L1:C6) ');
+
+        expectAssertion(function () {
+          (0, _index.compile)('{{input type=(if @else "bar" "baz")}}', {
+            moduleName: 'baz/foo-bar'
+          });
+        }, '\'@else\' is reserved. (\'baz/foo-bar\' @ L1:C17) ');
       };
 
       _class.prototype['@test \'@Arguments\' is reserved'] = function () {
