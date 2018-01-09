@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.0.0-beta+4c958f73
+ * @version   3.0.0-beta+c8bd19ca
  */
 
 /*globals process */
@@ -119,12 +119,6 @@ QUnit.module('ESLint | alias.js');
 QUnit.test('should pass ESLint', function(assert) {
   assert.expect(1);
   assert.ok(true, 'alias.js should pass ESLint\n\n');
-});
-
-QUnit.module('ESLint | binding.js');
-QUnit.test('should pass ESLint', function(assert) {
-  assert.expect(1);
-  assert.ok(true, 'binding.js should pass ESLint\n\n');
 });
 
 QUnit.module('ESLint | cache.js');
@@ -9470,81 +9464,6 @@ QUnit.module('ESLint | ember-glimmer/tests/integration/application/rendering-tes
 QUnit.test('should pass ESLint', function(assert) {
   assert.expect(1);
   assert.ok(true, 'ember-glimmer/tests/integration/application/rendering-test.js should pass ESLint\n\n');
-});
-
-enifed('ember-glimmer/tests/integration/binding_integration_test', ['ember-babel', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/helpers', 'ember-metal'], function (_emberBabel, _testCase, _helpers, _emberMetal) {
-  'use strict';
-
-  (0, _testCase.moduleFor)('Binding integration tests', function (_RenderingTest) {
-    (0, _emberBabel.inherits)(_class, _RenderingTest);
-
-    function _class() {
-      (0, _emberBabel.classCallCheck)(this, _class);
-      return (0, _emberBabel.possibleConstructorReturn)(this, _RenderingTest.apply(this, arguments));
-    }
-
-    _class.prototype['@test should accept bindings as a string or an Ember.binding'] = function testShouldAcceptBindingsAsAStringOrAnEmberBinding() {
-      var _this2 = this;
-
-      var FooBarComponent = _helpers.Component.extend({
-        twoWayTestBinding: _emberMetal.Binding.from('direction'),
-        stringTestBinding: 'direction',
-        twoWayObjectTestBinding: _emberMetal.Binding.from('displacement.distance'),
-        stringObjectTestBinding: 'displacement.distance'
-      });
-
-      this.registerComponent('foo-bar', {
-        ComponentClass: FooBarComponent,
-        template: 'two way: {{twoWayTest}}, string: {{stringTest}}, object: {{twoWayObjectTest}}, string object: {{stringObjectTest}}'
-      });
-
-      expectDeprecation(function () {
-        _this2.render('{{foo-bar direction=direction displacement=displacement}}', {
-          direction: 'down',
-          displacement: {
-            distance: 10
-          }
-        });
-      }, /`Ember\.Binding` is deprecated/);
-
-      this.assertText('two way: down, string: down, object: 10, string object: 10');
-
-      this.assertStableRerender();
-
-      this.runTask(function () {
-        return (0, _emberMetal.set)(_this2.context, 'direction', 'up');
-      });
-
-      this.assertText('two way: up, string: up, object: 10, string object: 10');
-
-      this.runTask(function () {
-        return (0, _emberMetal.set)(_this2.context, 'displacement.distance', 20);
-      });
-
-      this.assertText('two way: up, string: up, object: 20, string object: 20');
-
-      this.runTask(function () {
-        (0, _emberMetal.set)(_this2.context, 'direction', 'right');
-        (0, _emberMetal.set)(_this2.context, 'displacement.distance', 30);
-      });
-
-      this.assertText('two way: right, string: right, object: 30, string object: 30');
-
-      this.runTask(function () {
-        (0, _emberMetal.set)(_this2.context, 'direction', 'down');
-        (0, _emberMetal.set)(_this2.context, 'displacement', { distance: 10 });
-      });
-
-      this.assertText('two way: down, string: down, object: 10, string object: 10');
-    };
-
-    return _class;
-  }(_testCase.RenderingTest));
-});
-QUnit.module('ESLint | ember-glimmer/tests/integration/binding_integration_test.js');
-QUnit.test('should pass ESLint', function(assert) {
-  assert.expect(1);
-  assert.ok(true, 'ember-glimmer/tests/integration/binding_integration_test.js should pass ESLint\n\n');
 });
 
 enifed('ember-glimmer/tests/integration/components/append-test', ['ember-babel', 'ember-metal', 'ember-views', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/helpers', 'ember-glimmer/tests/utils/abstract-test-case'], function (_emberBabel, _emberMetal, _emberViews, _testCase, _helpers, _abstractTestCase) {
@@ -33783,6 +33702,95 @@ QUnit.test('should pass ESLint', function(assert) {
   assert.ok(true, 'ember-glimmer/tests/integration/refinements-test.js should pass ESLint\n\n');
 });
 
+enifed('ember-glimmer/tests/integration/render-settled-test', ['ember-babel', 'internal-test-helpers', 'ember-glimmer', 'rsvp', 'ember-metal'], function (_emberBabel, _internalTestHelpers, _emberGlimmer, _rsvp, _emberMetal) {
+  'use strict';
+
+  var _templateObject = (0, _emberBabel.taggedTemplateLiteralLoose)(['{{foo}}'], ['{{foo}}']);
+
+  (0, _internalTestHelpers.moduleFor)('renderSettled', function (_RenderingTestCase) {
+    (0, _emberBabel.inherits)(_class, _RenderingTestCase);
+
+    function _class() {
+      (0, _emberBabel.classCallCheck)(this, _class);
+      return (0, _emberBabel.possibleConstructorReturn)(this, _RenderingTestCase.apply(this, arguments));
+    }
+
+    _class.prototype['@test resolves when no rendering is happening'] = function testResolvesWhenNoRenderingIsHappening(assert) {
+      return (0, _emberGlimmer.renderSettled)().then(function () {
+        assert.ok(true, 'resolved even without rendering');
+      });
+    };
+
+    _class.prototype['@test resolves renderers exist but no runloops are triggered'] = function testResolvesRenderersExistButNoRunloopsAreTriggered(assert) {
+      this.render((0, _internalTestHelpers.strip)(_templateObject), { foo: 'bar' });
+
+      return (0, _emberGlimmer.renderSettled)().then(function () {
+        assert.ok(true, 'resolved even without runloops');
+      });
+    };
+
+    _class.prototype['@test does not create extraneous promises'] = function testDoesNotCreateExtraneousPromises(assert) {
+      var first = (0, _emberGlimmer.renderSettled)();
+      var second = (0, _emberGlimmer.renderSettled)();
+
+      assert.strictEqual(first, second);
+
+      return (0, _rsvp.all)([first, second]);
+    };
+
+    _class.prototype['@test resolves when rendering has completed (after property update)'] = function testResolvesWhenRenderingHasCompletedAfterPropertyUpdate() {
+      var _this2 = this;
+
+      this.render((0, _internalTestHelpers.strip)(_templateObject), { foo: 'bar' });
+
+      this.assertText('bar');
+      this.component.set('foo', 'baz');
+      this.assertText('bar');
+
+      return (0, _emberGlimmer.renderSettled)().then(function () {
+        _this2.assertText('baz');
+      });
+    };
+
+    _class.prototype['@test resolves in run loop when renderer has settled'] = function testResolvesInRunLoopWhenRendererHasSettled(assert) {
+      var _this3 = this;
+
+      assert.expect(3);
+
+      this.render((0, _internalTestHelpers.strip)(_templateObject), { foo: 'bar' });
+
+      this.assertText('bar');
+      var promise = void 0;
+
+      return (0, _emberMetal.run)(function () {
+        _emberMetal.run.schedule('actions', null, function () {
+          _this3.component.set('foo', 'set in actions');
+
+          promise = (0, _emberGlimmer.renderSettled)().then(function () {
+            _this3.assertText('set in afterRender');
+          });
+
+          _emberMetal.run.schedule('afterRender', null, function () {
+            _this3.component.set('foo', 'set in afterRender');
+          });
+        });
+
+        // still not updated here
+        _this3.assertText('bar');
+
+        return promise;
+      });
+    };
+
+    return _class;
+  }(_internalTestHelpers.RenderingTestCase));
+});
+QUnit.module('ESLint | ember-glimmer/tests/integration/render-settled-test.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'ember-glimmer/tests/integration/render-settled-test.js should pass ESLint\n\n');
+});
+
 enifed('ember-glimmer/tests/integration/svg-test', ['ember-babel', 'ember-glimmer/tests/utils/test-case', 'ember-metal', 'ember-glimmer/tests/utils/abstract-test-case'], function (_emberBabel, _testCase, _emberMetal, _abstractTestCase) {
   'use strict';
 
@@ -38364,12 +38372,6 @@ QUnit.test('should pass ESLint', function(assert) {
   assert.ok(true, 'ember-metal/lib/alias.js should pass ESLint\n\n');
 });
 
-QUnit.module('ESLint | ember-metal/lib/binding.js');
-QUnit.test('should pass ESLint', function(assert) {
-  assert.expect(1);
-  assert.ok(true, 'ember-metal/lib/binding.js should pass ESLint\n\n');
-});
-
 QUnit.module('ESLint | ember-metal/lib/cache.js');
 QUnit.test('should pass ESLint', function(assert) {
   assert.expect(1);
@@ -39797,327 +39799,6 @@ QUnit.module('ESLint | ember-metal/tests/alias_test.js');
 QUnit.test('should pass ESLint', function(assert) {
   assert.expect(1);
   assert.ok(true, 'ember-metal/tests/alias_test.js should pass ESLint\n\n');
-});
-
-enifed('ember-metal/tests/binding/connect_test', ['ember-environment', 'internal-test-helpers', 'ember-metal'], function (_emberEnvironment, _internalTestHelpers, _emberMetal) {
-  'use strict';
-
-  function performTest(binding, a, b, get, set, connect) {
-    if (connect === undefined) {
-      connect = function () {
-        return binding.connect(a);
-      };
-    }
-
-    ok(!_emberMetal.run.currentRunLoop, 'performTest should not have a currentRunLoop');
-
-    equal(get(a, 'foo'), 'FOO', 'a should not have changed');
-    equal(get(b, 'bar'), 'BAR', 'b should not have changed');
-
-    connect();
-
-    equal(get(a, 'foo'), 'BAR', 'a should have changed');
-    equal(get(b, 'bar'), 'BAR', 'b should have changed');
-    //
-    // make sure changes sync both ways
-    (0, _emberMetal.run)(function () {
-      return set(b, 'bar', 'BAZZ');
-    });
-    equal(get(a, 'foo'), 'BAZZ', 'a should have changed');
-
-    (0, _emberMetal.run)(function () {
-      return set(a, 'foo', 'BARF');
-    });
-    equal(get(b, 'bar'), 'BARF', 'a should have changed');
-  }
-
-  var originalLookup = void 0,
-      lookup = void 0,
-      GlobalB = void 0;
-
-  QUnit.module('Ember.Binding', {
-    setup: function () {
-      originalLookup = _emberEnvironment.context.lookup;
-      _emberEnvironment.context.lookup = lookup = {};
-    },
-    teardown: function () {
-      lookup = null;
-      _emberEnvironment.context.lookup = originalLookup;
-    }
-  });
-
-  (0, _internalTestHelpers.testBoth)('Connecting a binding between two properties', function (get, set) {
-    var a = { foo: 'FOO', bar: 'BAR' };
-
-    // a.bar -> a.foo
-    var binding = new _emberMetal.Binding('foo', 'bar');
-
-    expectDeprecation(function () {
-      performTest(binding, a, a, get, set);
-    }, /`Ember\.Binding` is deprecated./);
-  });
-
-  (0, _internalTestHelpers.testBoth)('Connecting a oneWay binding raises a deprecation', function () {
-    var a = { foo: 'FOO', bar: 'BAR', toString: function () {
-        return '<custom object ID here>';
-      }
-    };
-
-    // a.bar -> a.foo
-    var binding = new _emberMetal.Binding('foo', 'bar').oneWay();
-
-    expectDeprecation(function () {
-      binding.connect(a);
-    }, /`Ember.Binding` is deprecated/);
-  });
-
-  (0, _internalTestHelpers.testBoth)('Connecting a binding between two objects', function (get, set) {
-    var b = { bar: 'BAR' };
-    var a = { foo: 'FOO', b: b };
-
-    // b.bar -> a.foo
-    var binding = new _emberMetal.Binding('foo', 'b.bar');
-
-    expectDeprecation(function () {
-      performTest(binding, a, b, get, set);
-    }, /`Ember\.Binding` is deprecated./);
-  });
-
-  (0, _internalTestHelpers.testBoth)('Connecting a binding to path', function (get, set) {
-    var a = { foo: 'FOO' };
-    lookup['GlobalB'] = GlobalB = {
-      b: { bar: 'BAR' }
-    };
-
-    var b = get(GlobalB, 'b');
-
-    // globalB.b.bar -> a.foo
-    var binding = new _emberMetal.Binding('foo', 'GlobalB.b.bar');
-
-    expectDeprecation(function () {
-      performTest(binding, a, b, get, set);
-    }, /`Ember\.Binding` is deprecated./);
-
-    // make sure modifications update
-    b = { bar: 'BIFF' };
-
-    (0, _emberMetal.run)(function () {
-      return set(GlobalB, 'b', b);
-    });
-
-    equal(get(a, 'foo'), 'BIFF', 'a should have changed');
-  });
-
-  (0, _internalTestHelpers.testBoth)('Calling connect more than once', function (get, set) {
-    var b = { bar: 'BAR' };
-    var a = { foo: 'FOO', b: b };
-
-    // b.bar -> a.foo
-    var binding = new _emberMetal.Binding('foo', 'b.bar');
-
-    expectDeprecation(function () {
-      performTest(binding, a, b, get, set, function () {
-        binding.connect(a);
-        binding.connect(a);
-      });
-    }, /`Ember\.Binding` is deprecated./);
-  });
-
-  QUnit.test('inherited bindings should sync on create', function () {
-    var a = void 0;
-    (0, _emberMetal.run)(function () {
-      function A() {
-        (0, _emberMetal.bind)(this, 'foo', 'bar.baz');
-      }
-
-      expectDeprecation(function () {
-        return a = new A();
-      }, /`Ember\.Binding` is deprecated/);
-
-      (0, _emberMetal.set)(a, 'bar', { baz: 'BAZ' });
-    });
-
-    equal((0, _emberMetal.get)(a, 'foo'), 'BAZ', 'should have synced binding on new obj');
-  });
-});
-QUnit.module('ESLint | ember-metal/tests/binding/connect_test.js');
-QUnit.test('should pass ESLint', function(assert) {
-  assert.expect(1);
-  assert.ok(true, 'ember-metal/tests/binding/connect_test.js should pass ESLint\n\n');
-});
-
-enifed('ember-metal/tests/binding/sync_test', ['internal-test-helpers', 'ember-metal'], function (_internalTestHelpers, _emberMetal) {
-  'use strict';
-
-  QUnit.module('system/binding/sync_test.js');
-
-  (0, _internalTestHelpers.testBoth)('bindings should not sync twice in a single run loop', function (get, set) {
-    var a = void 0,
-        b = void 0,
-        setValue = void 0;
-    var setCalled = 0;
-    var getCalled = 0;
-
-    (0, _emberMetal.run)(function () {
-      a = {};
-
-      (0, _emberMetal.defineProperty)(a, 'foo', (0, _emberMetal.computed)({
-        get: function () {
-          getCalled++;
-          return setValue;
-        },
-        set: function (key, value) {
-          setCalled++;
-          (0, _emberMetal.propertyWillChange)(this, key);
-          setValue = value;
-          (0, _emberMetal.propertyDidChange)(this, key);
-          return value;
-        }
-      }).volatile());
-
-      b = {
-        a: a
-      };
-
-      expectDeprecation(function () {
-        return (0, _emberMetal.bind)(b, 'foo', 'a.foo');
-      }, /`Ember.Binding` is deprecated/);
-    });
-
-    // reset after initial binding synchronization
-    getCalled = 0;
-
-    (0, _emberMetal.run)(function () {
-      set(a, 'foo', 'trollface');
-    });
-
-    equal(get(b, 'foo'), 'trollface', 'the binding should sync');
-    equal(setCalled, 1, 'Set should only be called once');
-    equal(getCalled, 1, 'Get should only be called once');
-  });
-
-  (0, _internalTestHelpers.testBoth)('bindings should not infinite loop if computed properties return objects', function (get) {
-    var a = void 0,
-        b = void 0;
-    var getCalled = 0;
-
-    (0, _emberMetal.run)(function () {
-      a = {};
-
-      (0, _emberMetal.defineProperty)(a, 'foo', (0, _emberMetal.computed)(function () {
-        getCalled++;
-        if (getCalled > 1000) {
-          throw 'infinite loop detected';
-        }
-        return ['foo', 'bar'];
-      }));
-
-      b = {
-        a: a
-      };
-
-      expectDeprecation(function () {
-        return (0, _emberMetal.bind)(b, 'foo', 'a.foo');
-      }, /`Ember.Binding` is deprecated/);
-    });
-
-    deepEqual(get(b, 'foo'), ['foo', 'bar'], 'the binding should sync');
-    equal(getCalled, 1, 'Get should only be called once');
-  });
-
-  (0, _internalTestHelpers.testBoth)('bindings should do the right thing when observers trigger bindings in the opposite direction', function (get, set) {
-    var a = void 0,
-        b = void 0,
-        c = void 0;
-
-    (0, _emberMetal.run)(function () {
-      a = {
-        foo: 'trololol'
-      };
-
-      b = {
-        a: a
-      };
-
-      var deprecationMessage = /`Ember.Binding` is deprecated/;
-
-      expectDeprecation(function () {
-        return (0, _emberMetal.bind)(b, 'foo', 'a.foo');
-      }, deprecationMessage);
-
-      c = {
-        a: a
-      };
-
-      expectDeprecation(function () {
-        (0, _emberMetal.bind)(c, 'foo', 'a.foo');
-      }, deprecationMessage);
-    });
-
-    (0, _emberMetal.addObserver)(b, 'foo', function () {
-      return set(c, 'foo', 'what is going on');
-    });
-
-    (0, _emberMetal.run)(function () {
-      return set(a, 'foo', 'trollface');
-    });
-
-    equal(get(a, 'foo'), 'what is going on');
-  });
-
-  (0, _internalTestHelpers.testBoth)('bindings should not try to sync destroyed objects', function (get, set) {
-    var a = void 0,
-        b = void 0;
-
-    (0, _emberMetal.run)(function () {
-      a = {
-        foo: 'trololol'
-      };
-
-      b = {
-        a: a
-      };
-
-      var deprecationMessage = /`Ember.Binding` is deprecated/;
-
-      expectDeprecation(function () {
-        return (0, _emberMetal.bind)(b, 'foo', 'a.foo');
-      }, deprecationMessage);
-    });
-
-    (0, _emberMetal.run)(function () {
-      set(a, 'foo', 'trollface');
-      set(b, 'isDestroyed', true);
-      ok(true, 'should not raise');
-    });
-
-    (0, _emberMetal.run)(function () {
-      a = {
-        foo: 'trololol'
-      };
-
-      b = {
-        a: a
-      };
-
-      var deprecationMessage = /`Ember.Binding` is deprecated/;
-
-      expectDeprecation(function () {
-        return (0, _emberMetal.bind)(b, 'foo', 'a.foo');
-      }, deprecationMessage);
-    });
-
-    (0, _emberMetal.run)(function () {
-      set(b, 'foo', 'trollface');
-      set(a, 'isDestroyed', true);
-      ok(true, 'should not raise');
-    });
-  });
-});
-QUnit.module('ESLint | ember-metal/tests/binding/sync_test.js');
-QUnit.test('should pass ESLint', function(assert) {
-  assert.expect(1);
-  assert.ok(true, 'ember-metal/tests/binding/sync_test.js should pass ESLint\n\n');
 });
 
 enifed('ember-metal/tests/cache_test', ['ember-metal'], function (_emberMetal) {
@@ -52580,62 +52261,6 @@ QUnit.test('should pass ESLint', function(assert) {
   assert.ok(true, 'ember-runtime/tests/ext/function_test.js should pass ESLint\n\n');
 });
 
-enifed('ember-runtime/tests/ext/mixin_test', ['ember-metal'], function (_emberMetal) {
-  'use strict';
-
-  QUnit.module('system/mixin/binding_test');
-
-  QUnit.test('Defining a property ending in Binding should setup binding when applied', function () {
-    var MyMixin = _emberMetal.Mixin.create({
-      fooBinding: 'bar.baz'
-    });
-
-    var obj = { bar: { baz: 'BIFF' } };
-
-    (0, _emberMetal.run)(function () {
-      var deprecationMessage = /`Ember.Binding` is deprecated/;
-
-      expectDeprecation(function () {
-        MyMixin.apply(obj);
-      }, deprecationMessage);
-    });
-
-    ok((0, _emberMetal.get)(obj, 'fooBinding') instanceof _emberMetal.Binding, 'should be a binding object');
-    equal((0, _emberMetal.get)(obj, 'foo'), 'BIFF', 'binding should be created and synced');
-  });
-
-  QUnit.test('Defining a property ending in Binding should apply to prototype children', function () {
-    var MyMixin = (0, _emberMetal.run)(function () {
-      return _emberMetal.Mixin.create({
-        fooBinding: 'bar.baz'
-      });
-    });
-
-    var obj = { bar: { baz: 'BIFF' } };
-
-    (0, _emberMetal.run)(function () {
-      var deprecationMessage = /`Ember.Binding` is deprecated/;
-
-      expectDeprecation(function () {
-        MyMixin.apply(obj);
-      }, deprecationMessage);
-    });
-
-    var obj2 = Object.create(obj);
-    (0, _emberMetal.run)(function () {
-      return (0, _emberMetal.set)((0, _emberMetal.get)(obj2, 'bar'), 'baz', 'BARG');
-    });
-
-    ok((0, _emberMetal.get)(obj2, 'fooBinding') instanceof _emberMetal.Binding, 'should be a binding object');
-    equal((0, _emberMetal.get)(obj2, 'foo'), 'BARG', 'binding should be created and synced');
-  });
-});
-QUnit.module('ESLint | ember-runtime/tests/ext/mixin_test.js');
-QUnit.test('should pass ESLint', function(assert) {
-  assert.expect(1);
-  assert.ok(true, 'ember-runtime/tests/ext/mixin_test.js should pass ESLint\n\n');
-});
-
 enifed('ember-runtime/tests/ext/rsvp_test', ['ember-metal', 'ember-runtime/ext/rsvp', 'ember-debug'], function (_emberMetal, _rsvp, _emberDebug) {
   'use strict';
 
@@ -53048,7 +52673,6 @@ enifed('ember-runtime/tests/legacy_1x/mixins/observable/observable_test', ['embe
       rule on using capital letters for property paths.
     * Removed test passing context to addObserver.  context param is no longer
       supported.
-    * Changed calls to Ember.Binding.flushPendingChanges() -> run.sync()
     * removed test in observer around line 862 that expected key/value to be
       the last item in the chained path.  Should be root and chained path
   
@@ -53541,45 +53165,6 @@ enifed('ember-runtime/tests/legacy_1x/mixins/observable/observable_test', ['embe
     equal(depObj.get('menuPrice'), 6, 'cache is properly invalidated after nested property changes');
   });
 
-  QUnit.test('nested dependent keys should propagate after they update', function () {
-    var bindObj;
-    (0, _emberMetal.run)(function () {
-      lookup.DepObj = ObservableObject.extend({
-        price: (0, _emberMetal.computed)(function () {
-          return this.get('restaurant.menu.price');
-        }).property('restaurant.menu.price')
-      }).create({
-        restaurant: ObservableObject.create({
-          menu: ObservableObject.create({
-            price: 5
-          })
-        })
-      });
-
-      expectDeprecation(function () {
-        bindObj = ObservableObject.extend({
-          priceBinding: 'DepObj.price'
-        }).create();
-      }, /`Ember.Binding` is deprecated/);
-    });
-
-    equal(bindObj.get('price'), 5, 'precond - binding propagates');
-
-    (0, _emberMetal.run)(function () {
-      lookup.DepObj.set('restaurant.menu.price', 10);
-    });
-
-    equal(bindObj.get('price'), 10, 'binding propagates after a nested dependent keys updates');
-
-    (0, _emberMetal.run)(function () {
-      lookup.DepObj.set('restaurant.menu', ObservableObject.create({
-        price: 15
-      }));
-    });
-
-    equal(bindObj.get('price'), 15, 'binding propagates after a middle dependent keys updates');
-  });
-
   QUnit.test('cacheable nested dependent keys should clear after their dependencies update', function () {
     ok(true);
 
@@ -53855,73 +53440,6 @@ enifed('ember-runtime/tests/legacy_1x/mixins/observable/observable_test', ['embe
     }
     equal(encounteredError, false);
   });
-
-  QUnit.module('Bind function', {
-    setup: function () {
-      objectA = ObservableObject.create({
-        name: 'Sproutcore',
-        location: 'Timbaktu'
-      });
-
-      objectB = ObservableObject.create({
-        normal: 'value',
-        computed: function () {
-          this.normal = 'newValue';
-        }
-      });
-
-      lookup = _emberEnvironment.context.lookup = {
-        'Namespace': {
-          objectA: objectA,
-          objectB: objectB
-        }
-      };
-    },
-    teardown: function () {
-      _emberEnvironment.context.lookup = originalLookup;
-    }
-  });
-
-  QUnit.test('should bind property with method parameter as undefined', function () {
-    // creating binding
-    (0, _emberMetal.run)(function () {
-      expectDeprecation(function () {
-        objectA.bind('name', 'Namespace.objectB.normal', undefined);
-      }, /`Ember.Binding` is deprecated/);
-    });
-
-    // now make a change to see if the binding triggers.
-    (0, _emberMetal.run)(function () {
-      objectB.set('normal', 'changedValue');
-    });
-
-    // support new-style bindings if available
-    equal('changedValue', objectA.get('name'), 'objectA.name is bound');
-  });
-
-  // ..........................................................
-  // SPECIAL CASES
-  //
-
-  QUnit.test('changing chained observer object to null should not raise exception', function () {
-    var obj = ObservableObject.create({
-      foo: ObservableObject.create({
-        bar: ObservableObject.create({ bat: 'BAT' })
-      })
-    });
-
-    var callCount = 0;
-    obj.foo.addObserver('bar.bat', obj, function () {
-      callCount++;
-    });
-
-    (0, _emberMetal.run)(function () {
-      obj.foo.set('bar', null);
-    });
-
-    equal(callCount, 1, 'changing bar should trigger observer');
-    expect(1);
-  });
 });
 QUnit.module('ESLint | ember-runtime/tests/legacy_1x/mixins/observable/observable_test.js');
 QUnit.test('should pass ESLint', function(assert) {
@@ -54124,319 +53642,6 @@ QUnit.test('should pass ESLint', function(assert) {
   assert.ok(true, 'ember-runtime/tests/legacy_1x/mixins/observable/propertyChanges_test.js should pass ESLint\n\n');
 });
 
-enifed('ember-runtime/tests/legacy_1x/system/binding_test', ['ember-environment', 'ember-metal', 'ember-runtime/system/object'], function (_emberEnvironment, _emberMetal, _object) {
-  'use strict';
-
-  /*
-    NOTE: This test is adapted from the 1.x series of unit tests.  The tests
-    are the same except for places where we intend to break the API we instead
-    validate that we warn the developer appropriately.
-  
-    CHANGES FROM 1.6:
-  
-    * All calls to run.sync() were changed to
-      run.sync()
-  
-    * Bindings no longer accept a root object as their second param.  Instead
-      our test binding objects were put under a single object they could
-      originate from.
-  
-    * tests that inspected internal properties were removed.
-  
-    * converted foo.get/foo.set to use get/Ember.set
-  
-    * Removed tests for Binding.isConnected.  Since binding instances are now
-      shared this property no longer makes sense.
-  
-    * Changed call calls for obj.bind(...) to bind(obj, ...);
-  
-    * Changed all calls to sc_super() to this._super(...arguments)
-  
-    * Changed all calls to disconnect() to pass the root object.
-  
-    * removed calls to Binding.destroy() as that method is no longer useful
-      (or defined)
-  
-    * changed use of T_STRING to 'string'
-  */
-
-  // ========================================================================
-  // Binding Tests
-  // ========================================================================
-
-  var TestNamespace = void 0,
-      fromObject = void 0,
-      toObject = void 0,
-      binding = void 0,
-      Bon1 = void 0,
-      bon2 = void 0,
-      root = void 0; // global variables
-  var originalLookup = _emberEnvironment.context.lookup;
-  var lookup = void 0;
-
-  QUnit.module('basic object binding', {
-    setup: function () {
-      fromObject = _object.default.create({ value: 'start' });
-      toObject = _object.default.create({ value: 'end' });
-      root = { fromObject: fromObject, toObject: toObject };
-      (0, _emberMetal.run)(function () {
-        expectDeprecation(function () {
-          binding = (0, _emberMetal.bind)(root, 'toObject.value', 'fromObject.value');
-        }, /`Ember\.Binding` is deprecated./);
-      });
-    }
-  });
-
-  QUnit.test('binding should have synced on connect', function () {
-    equal((0, _emberMetal.get)(toObject, 'value'), 'start', 'toObject.value should match fromObject.value');
-  });
-
-  QUnit.test('fromObject change should propagate to toObject only after flush', function () {
-    (0, _emberMetal.run)(function () {
-      (0, _emberMetal.set)(fromObject, 'value', 'change');
-      equal((0, _emberMetal.get)(toObject, 'value'), 'start');
-    });
-    equal((0, _emberMetal.get)(toObject, 'value'), 'change');
-  });
-
-  QUnit.test('toObject change should propagate to fromObject only after flush', function () {
-    (0, _emberMetal.run)(function () {
-      (0, _emberMetal.set)(toObject, 'value', 'change');
-      equal((0, _emberMetal.get)(fromObject, 'value'), 'start');
-    });
-    equal((0, _emberMetal.get)(fromObject, 'value'), 'change');
-  });
-
-  QUnit.test('deferred observing during bindings', function () {
-    // setup special binding
-    fromObject = _object.default.create({
-      value1: 'value1',
-      value2: 'value2'
-    });
-
-    toObject = _object.default.extend({
-      observer: (0, _emberMetal.observer)('value1', 'value2', function () {
-        equal((0, _emberMetal.get)(this, 'value1'), 'CHANGED', 'value1 when observer fires');
-        equal((0, _emberMetal.get)(this, 'value2'), 'CHANGED', 'value2 when observer fires');
-        this.callCount++;
-      })
-    }).create({
-      value1: 'value1',
-      value2: 'value2',
-
-      callCount: 0
-    });
-
-    var root = { fromObject: fromObject, toObject: toObject };
-    (0, _emberMetal.run)(function () {
-      expectDeprecation(function () {
-        (0, _emberMetal.bind)(root, 'toObject.value1', 'fromObject.value1');
-      }, /`Ember\.Binding` is deprecated./);
-
-      expectDeprecation(function () {
-        (0, _emberMetal.bind)(root, 'toObject.value2', 'fromObject.value2');
-      }, /`Ember\.Binding` is deprecated./);
-
-      // change both value1 + value2, then  flush bindings.  observer should only
-      // fire after bindings are done flushing.
-      (0, _emberMetal.set)(fromObject, 'value1', 'CHANGED');
-      (0, _emberMetal.set)(fromObject, 'value2', 'CHANGED');
-    });
-
-    equal(toObject.callCount, 2, 'should call observer twice');
-  });
-
-  QUnit.test('binding disconnection actually works', function () {
-    binding.disconnect(root);
-    (0, _emberMetal.run)(function () {
-      (0, _emberMetal.set)(fromObject, 'value', 'change');
-    });
-    equal((0, _emberMetal.get)(toObject, 'value'), 'start');
-  });
-
-  var first = void 0,
-      second = void 0,
-      third = void 0; // global variables
-
-  // ..........................................................
-  // chained binding
-  //
-
-  QUnit.module('chained binding', {
-    setup: function () {
-      (0, _emberMetal.run)(function () {
-        first = _object.default.create({ output: 'first' });
-
-        second = _object.default.extend({
-          inputDidChange: (0, _emberMetal.observer)('input', function () {
-            (0, _emberMetal.set)(this, 'output', (0, _emberMetal.get)(this, 'input'));
-          })
-        }).create({
-          input: 'second',
-          output: 'second'
-        });
-
-        third = _object.default.create({ input: 'third' });
-
-        root = { first: first, second: second, third: third };
-
-        expectDeprecation(function () {
-          (0, _emberMetal.bind)(root, 'second.input', 'first.output');
-        }, /`Ember\.Binding` is deprecated./);
-
-        expectDeprecation(function () {
-          (0, _emberMetal.bind)(root, 'second.output', 'third.input');
-        }, /`Ember\.Binding` is deprecated./);
-      });
-    },
-    teardown: function () {
-      _emberMetal.run.cancelTimers();
-    }
-  });
-
-  QUnit.test('changing first output should propagate to third after flush', function () {
-    (0, _emberMetal.run)(function () {
-      (0, _emberMetal.set)(first, 'output', 'change');
-      equal('change', (0, _emberMetal.get)(first, 'output'), 'first.output');
-      ok('change' !== (0, _emberMetal.get)(third, 'input'), 'third.input');
-    });
-
-    equal('change', (0, _emberMetal.get)(first, 'output'), 'first.output');
-    equal('change', (0, _emberMetal.get)(second, 'input'), 'second.input');
-    equal('change', (0, _emberMetal.get)(second, 'output'), 'second.output');
-    equal('change', (0, _emberMetal.get)(third, 'input'), 'third.input');
-  });
-
-  // ..........................................................
-  // Custom Binding
-  //
-
-  QUnit.module('Custom Binding', {
-    setup: function () {
-      _emberEnvironment.context.lookup = lookup = {};
-
-      Bon1 = _object.default.extend({
-        value1: 'hi',
-        value2: 83,
-        array1: []
-      });
-
-      bon2 = _object.default.create({
-        val1: 'hello',
-        val2: 25,
-        arr: [1, 2, 3, 4]
-      });
-
-      _emberEnvironment.context.lookup['TestNamespace'] = TestNamespace = {
-        bon2: bon2,
-        Bon1: Bon1
-      };
-    },
-    teardown: function () {
-      _emberEnvironment.context.lookup = originalLookup;
-      Bon1 = bon2 = TestNamespace = null;
-      _emberMetal.run.cancelTimers();
-    }
-  });
-
-  QUnit.test('two bindings to the same value should sync in the order they are initialized', function () {
-    _emberMetal.run.begin();
-
-    var a = _object.default.create({
-      foo: 'bar'
-    });
-
-    var b = _object.default.extend({
-      C: _object.default.extend({
-        foo: 'bee',
-        fooBinding: 'owner.foo'
-      }),
-
-      init: function () {
-        this._super.apply(this, arguments);
-        (0, _emberMetal.set)(this, 'c', this.C.create({ owner: this }));
-      }
-    });
-
-    expectDeprecation(function () {
-      b = b.create({
-        foo: 'baz',
-        fooBinding: 'a.foo',
-        a: a
-      });
-    }, /`Ember\.Binding` is deprecated./);
-
-    _emberMetal.run.end();
-
-    equal((0, _emberMetal.get)(a, 'foo'), 'bar', 'a.foo should not change');
-    equal((0, _emberMetal.get)(b, 'foo'), 'bar', 'a.foo should propagate up to b.foo');
-    equal((0, _emberMetal.get)(b.c, 'foo'), 'bar', 'a.foo should propagate up to b.c.foo');
-  });
-
-  // ..........................................................
-  // propertyNameBinding with longhand
-  //
-
-  QUnit.module('propertyNameBinding with longhand', {
-    setup: function () {
-      _emberEnvironment.context.lookup = lookup = {};
-
-      lookup['TestNamespace'] = TestNamespace = {};
-      (0, _emberMetal.run)(function () {
-        TestNamespace.fromObject = _object.default.create({
-          value: 'originalValue'
-        });
-
-        expectDeprecation(function () {
-          TestNamespace.toObject = _object.default.extend({
-            valueBinding: _emberMetal.Binding.from('TestNamespace.fromObject.value'),
-            relativeBinding: _emberMetal.Binding.from('localValue')
-          }).create({
-            localValue: 'originalLocal'
-          });
-        }, /`Ember\.Binding` is deprecated./);
-      });
-    },
-    teardown: function () {
-      TestNamespace = undefined;
-      _emberEnvironment.context.lookup = originalLookup;
-    }
-  });
-
-  QUnit.test('works with full path', function () {
-    (0, _emberMetal.run)(function () {
-      return (0, _emberMetal.set)(TestNamespace.fromObject, 'value', 'updatedValue');
-    });
-
-    equal((0, _emberMetal.get)(TestNamespace.toObject, 'value'), 'updatedValue');
-
-    (0, _emberMetal.run)(function () {
-      return (0, _emberMetal.set)(TestNamespace.fromObject, 'value', 'newerValue');
-    });
-
-    equal((0, _emberMetal.get)(TestNamespace.toObject, 'value'), 'newerValue');
-  });
-
-  QUnit.test('works with local path', function () {
-    (0, _emberMetal.run)(function () {
-      return (0, _emberMetal.set)(TestNamespace.toObject, 'localValue', 'updatedValue');
-    });
-
-    equal((0, _emberMetal.get)(TestNamespace.toObject, 'relative'), 'updatedValue');
-
-    (0, _emberMetal.run)(function () {
-      return (0, _emberMetal.set)(TestNamespace.toObject, 'localValue', 'newerValue');
-    });
-
-    equal((0, _emberMetal.get)(TestNamespace.toObject, 'relative'), 'newerValue');
-  });
-});
-QUnit.module('ESLint | ember-runtime/tests/legacy_1x/system/binding_test.js');
-QUnit.test('should pass ESLint', function(assert) {
-  assert.expect(1);
-  assert.ok(true, 'ember-runtime/tests/legacy_1x/system/binding_test.js should pass ESLint\n\n');
-});
-
 enifed('ember-runtime/tests/legacy_1x/system/object/base_test', ['ember-metal', 'ember-runtime/system/object'], function (_emberMetal, _object) {
   'use strict';
 
@@ -54532,179 +53737,6 @@ QUnit.module('ESLint | ember-runtime/tests/legacy_1x/system/object/base_test.js'
 QUnit.test('should pass ESLint', function(assert) {
   assert.expect(1);
   assert.ok(true, 'ember-runtime/tests/legacy_1x/system/object/base_test.js should pass ESLint\n\n');
-});
-
-enifed('ember-runtime/tests/legacy_1x/system/object/bindings_test', ['ember-environment', 'ember-metal', 'ember-runtime/system/object'], function (_emberEnvironment, _emberMetal, _object) {
-  'use strict';
-
-  /*
-    NOTE: This test is adapted from the 1.x series of unit tests.  The tests
-    are the same except for places where we intend to break the API we instead
-    validate that we warn the developer appropriately.
-  
-    CHANGES FROM 1.6:
-  
-    * changed Ember.Bending.flushPendingChanges() -> run.sync();
-    * changes obj.set() and obj.get() to Ember.set() and Ember.get()
-    * Fixed an actual bug in unit tests around line 133
-    * fixed 'bindings should disconnect on destroy' test to use destroy.
-  */
-
-  // ========================================================================
-  // EmberObject bindings Tests
-  // ========================================================================
-
-  var originalLookup = _emberEnvironment.context.lookup;
-  var testObject = void 0,
-      fromObject = void 0,
-      TestObject = void 0;
-  var TestNamespace = void 0,
-      lookup = void 0;
-
-  QUnit.module('bind() method', {
-    setup: function () {
-      _emberEnvironment.context.lookup = lookup = {};
-
-      testObject = _object.default.create({
-        foo: 'bar',
-        bar: 'foo',
-        extraObject: null
-      });
-
-      fromObject = _object.default.create({
-        bar: 'foo',
-        extraObject: null
-      });
-
-      lookup['TestNamespace'] = TestNamespace = {
-        fromObject: fromObject,
-        testObject: testObject
-      };
-    },
-    teardown: function () {
-      testObject = fromObject = null;
-      _emberEnvironment.context.lookup = originalLookup;
-    }
-  });
-
-  QUnit.test('bind(TestNamespace.fromObject.bar) should follow absolute path', function () {
-    (0, _emberMetal.run)(function () {
-      expectDeprecation(function () {
-        // create binding
-        testObject.bind('foo', 'TestNamespace.fromObject.bar');
-      }, /`Ember.Binding` is deprecated/);
-
-      // now make a change to see if the binding triggers.
-      (0, _emberMetal.set)(fromObject, 'bar', 'changedValue');
-    });
-
-    equal('changedValue', (0, _emberMetal.get)(testObject, 'foo'), 'testObject.foo');
-  });
-
-  QUnit.test('bind(.bar) should bind to relative path', function () {
-    (0, _emberMetal.run)(function () {
-      expectDeprecation(function () {
-        // create binding
-        testObject.bind('foo', 'bar');
-      }, /`Ember.Binding` is deprecated/);
-
-      // now make a change to see if the binding triggers.
-      (0, _emberMetal.set)(testObject, 'bar', 'changedValue');
-    });
-
-    equal('changedValue', (0, _emberMetal.get)(testObject, 'foo'), 'testObject.foo');
-  });
-
-  QUnit.module('fooBinding method', {
-    setup: function () {
-      _emberEnvironment.context.lookup = lookup = {};
-
-      TestObject = _object.default.extend({
-        foo: 'bar',
-        bar: 'foo',
-        extraObject: null
-      });
-
-      fromObject = _object.default.create({
-        bar: 'foo',
-        extraObject: null
-      });
-
-      lookup['TestNamespace'] = TestNamespace = {
-        fromObject: fromObject,
-        testObject: TestObject
-      };
-    },
-    teardown: function () {
-      _emberEnvironment.context.lookup = originalLookup;
-      TestObject = fromObject = null;
-      //  delete TestNamespace;
-    }
-  });
-
-  var deprecationMessage = /`Ember.Binding` is deprecated/;
-
-  QUnit.test('fooBinding: TestNamespace.fromObject.bar should follow absolute path', function () {
-    (0, _emberMetal.run)(function () {
-      expectDeprecation(function () {
-        // create binding
-        testObject = TestObject.extend({
-          fooBinding: 'TestNamespace.fromObject.bar'
-        }).create();
-      }, deprecationMessage);
-
-      // now make a change to see if the binding triggers.
-      (0, _emberMetal.set)(fromObject, 'bar', 'changedValue');
-    });
-
-    equal('changedValue', (0, _emberMetal.get)(testObject, 'foo'), 'testObject.foo');
-  });
-
-  QUnit.test('fooBinding: .bar should bind to relative path', function () {
-    (0, _emberMetal.run)(function () {
-      expectDeprecation(function () {
-        // create binding
-        testObject = TestObject.extend({
-          fooBinding: 'bar'
-        }).create();
-      }, deprecationMessage);
-
-      // now make a change to see if the binding triggers.
-      (0, _emberMetal.set)(testObject, 'bar', 'changedValue');
-    });
-
-    equal('changedValue', (0, _emberMetal.get)(testObject, 'foo'), 'testObject.foo');
-  });
-
-  QUnit.test('fooBinding: should disconnect bindings when destroyed', function () {
-    (0, _emberMetal.run)(function () {
-      expectDeprecation(function () {
-        // create binding
-        testObject = TestObject.extend({
-          fooBinding: 'TestNamespace.fromObject.bar'
-        }).create();
-      }, deprecationMessage);
-
-      (0, _emberMetal.set)(TestNamespace.fromObject, 'bar', 'BAZ');
-    });
-
-    equal((0, _emberMetal.get)(testObject, 'foo'), 'BAZ', 'binding should have synced');
-
-    (0, _emberMetal.run)(function () {
-      return testObject.destroy();
-    });
-
-    (0, _emberMetal.run)(function () {
-      return (0, _emberMetal.set)(TestNamespace.fromObject, 'bar', 'BIFF');
-    });
-
-    ok((0, _emberMetal.get)(testObject, 'foo') !== 'bar', 'binding should not have synced');
-  });
-});
-QUnit.module('ESLint | ember-runtime/tests/legacy_1x/system/object/bindings_test.js');
-QUnit.test('should pass ESLint', function(assert) {
-  assert.expect(1);
-  assert.ok(true, 'ember-runtime/tests/legacy_1x/system/object/bindings_test.js should pass ESLint\n\n');
 });
 
 enifed('ember-runtime/tests/legacy_1x/system/object/concatenated_test', ['ember-metal', 'ember-runtime/system/object'], function (_emberMetal, _object) {
@@ -54815,120 +53847,6 @@ QUnit.module('ESLint | ember-runtime/tests/legacy_1x/system/object/concatenated_
 QUnit.test('should pass ESLint', function(assert) {
   assert.expect(1);
   assert.ok(true, 'ember-runtime/tests/legacy_1x/system/object/concatenated_test.js should pass ESLint\n\n');
-});
-
-enifed('ember-runtime/tests/legacy_1x/system/run_loop_test', ['ember-metal', 'ember-runtime/mixins/observable', 'ember-runtime/system/object'], function (_emberMetal, _observable, _object) {
-  'use strict';
-
-  /*
-    NOTE: This test is adapted from the 1.x series of unit tests.  The tests
-    are the same except for places where we intend to break the API we instead
-    validate that we warn the developer appropriately.
-  
-    CHANGES FROM 1.6:
-  
-    * Updated the API usage for setting up and syncing Binding since these
-      are not the APIs this file is testing.
-  
-    * Disabled a call to invokeOnce() around line 127 because it appeared to be
-      broken anyway.  I don't think it ever even worked.
-  */
-
-  var MyApp = void 0;
-
-  QUnit.module('System:run_loop() - chained binding', {
-    setup: function () {
-      MyApp = {};
-      MyApp.first = _object.default.extend(_observable.default).create({
-        output: 'MyApp.first'
-      });
-
-      MyApp.second = _object.default.extend(_observable.default, {
-        inputDidChange: (0, _emberMetal.observer)('input', function () {
-          this.set('output', this.get('input'));
-        })
-      }).create({
-        input: 'MyApp.second',
-        output: 'MyApp.second'
-      });
-
-      MyApp.third = _object.default.extend(_observable.default).create({
-        input: 'MyApp.third'
-      });
-    }
-  });
-
-  var deprecationMessage = /`Ember.Binding` is deprecated/;
-
-  QUnit.test('Should propagate bindings after the RunLoop completes (using Ember.RunLoop)', function () {
-    (0, _emberMetal.run)(function () {
-      //Binding of output of MyApp.first object to input of MyApp.second object
-      expectDeprecation(function () {
-        _emberMetal.Binding.from('first.output').to('second.input').connect(MyApp);
-      }, deprecationMessage);
-
-      //Binding of output of MyApp.second object to input of MyApp.third object
-      expectDeprecation(function () {
-        _emberMetal.Binding.from('second.output').to('third.input').connect(MyApp);
-      }, deprecationMessage);
-    });
-
-    (0, _emberMetal.run)(function () {
-      // Based on the above binding if you change the output of MyApp.first
-      // object it should change the all the variable of
-      //  MyApp.first,MyApp.second and MyApp.third object
-      MyApp.first.set('output', 'change');
-
-      //Changes the output of the MyApp.first object
-      equal(MyApp.first.get('output'), 'change');
-
-      //since binding has not taken into effect the value still remains as change.
-      equal(MyApp.second.get('output'), 'MyApp.first');
-    }); // allows bindings to trigger...
-
-    //Value of the output variable changed to 'change'
-    equal(MyApp.first.get('output'), 'change');
-
-    //Since binding triggered after the end loop the value changed to 'change'.
-    equal(MyApp.second.get('output'), 'change');
-  });
-
-  QUnit.test('Should propagate bindings after the RunLoop completes', function () {
-    (0, _emberMetal.run)(function () {
-      //Binding of output of MyApp.first object to input of MyApp.second object
-      expectDeprecation(function () {
-        _emberMetal.Binding.from('first.output').to('second.input').connect(MyApp);
-      }, deprecationMessage);
-
-      //Binding of output of MyApp.second object to input of MyApp.third object
-      expectDeprecation(function () {
-        _emberMetal.Binding.from('second.output').to('third.input').connect(MyApp);
-      }, deprecationMessage);
-    });
-
-    (0, _emberMetal.run)(function () {
-      //Based on the above binding if you change the output of MyApp.first object it should
-      //change the all the variable of MyApp.first,MyApp.second and MyApp.third object
-      MyApp.first.set('output', 'change');
-
-      //Changes the output of the MyApp.first object
-      equal(MyApp.first.get('output'), 'change');
-
-      //since binding has not taken into effect the value still remains as change.
-      equal(MyApp.second.get('output'), 'MyApp.first');
-    });
-
-    //Value of the output variable changed to 'change'
-    equal(MyApp.first.get('output'), 'change');
-
-    //Since binding triggered after the end loop the value changed to 'change'.
-    equal(MyApp.second.get('output'), 'change');
-  });
-});
-QUnit.module('ESLint | ember-runtime/tests/legacy_1x/system/run_loop_test.js');
-QUnit.test('should pass ESLint', function(assert) {
-  assert.expect(1);
-  assert.ok(true, 'ember-runtime/tests/legacy_1x/system/run_loop_test.js should pass ESLint\n\n');
 });
 
 enifed('ember-runtime/tests/main_test', ['ember-runtime/index'], function (_index) {
@@ -61657,21 +60575,6 @@ enifed('ember-runtime/tests/system/object/create_test', ['ember-metal', 'ember/f
     });
   }
 
-  QUnit.test('allows bindings to be defined', function () {
-    var obj = void 0;
-
-    var deprecationMessage = /`Ember.Binding` is deprecated/;
-
-    expectDeprecation(function () {
-      obj = _object.default.create({
-        foo: 'foo',
-        barBinding: 'foo'
-      });
-    }, deprecationMessage);
-
-    equal(obj.get('bar'), 'foo', 'The binding value is correct');
-  });
-
   QUnit.test('calls setUnknownProperty if defined', function () {
     var setUnknownPropertyCalled = false;
 
@@ -61738,12 +60641,6 @@ enifed('ember-runtime/tests/system/object/create_test', ['ember-metal', 'ember/f
   QUnit.test('EmberObject.create can take null as a parameter', function () {
     var o = _object.default.create(null);
     deepEqual(_object.default.create(), o);
-  });
-
-  QUnit.test('EmberObject.create avoids allocating a binding map when not necessary', function () {
-    var o = _object.default.create();
-    var m = (0, _emberMetal.meta)(o);
-    ok(!m.peekBindings(), 'A binding map is not allocated');
   });
 });
 QUnit.module('ESLint | ember-runtime/tests/system/object/create_test.js');
@@ -61891,36 +60788,6 @@ enifed('ember-runtime/tests/system/object/destroy_test', ['ember-metal', 'intern
 
     equal(shouldNotChange, 0, 'destroyed graph objs should not see change in willDestroy');
     equal(shouldChange, 1, 'long lived should see change in willDestroy');
-  });
-
-  QUnit.test('bindings should be synced when are updated in the willDestroy hook', function () {
-    var bar = _object.default.create({
-      value: false,
-      willDestroy: function () {
-        this.set('value', true);
-      }
-    });
-
-    var foo = _object.default.create({
-      value: null,
-      bar: bar
-    });
-
-    (0, _emberMetal.run)(function () {
-      var deprecationMessage = /`Ember.Binding` is deprecated/;
-
-      expectDeprecation(function () {
-        (0, _emberMetal.bind)(foo, 'value', 'bar.value');
-      }, deprecationMessage);
-    });
-
-    ok(bar.get('value') === false, 'the initial value has been bound');
-
-    (0, _emberMetal.run)(function () {
-      return bar.destroy();
-    });
-
-    ok(foo.get('value'), 'foo is synced when the binding is updated in the willDestroy hook');
   });
 });
 QUnit.module('ESLint | ember-runtime/tests/system/object/destroy_test.js');
@@ -62860,62 +61727,6 @@ QUnit.module('ESLint | ember-runtime/tests/system/object/strict-mode-test.js');
 QUnit.test('should pass ESLint', function(assert) {
   assert.expect(1);
   assert.ok(true, 'ember-runtime/tests/system/object/strict-mode-test.js should pass ESLint\n\n');
-});
-
-enifed('ember-runtime/tests/system/object/subclasses_test', ['ember-metal', 'ember-runtime/system/object'], function (_emberMetal, _object) {
-  'use strict';
-
-  QUnit.module('system/object/subclasses');
-
-  QUnit.test('chains should copy forward to subclasses when prototype created', function () {
-    var ObjectWithChains = void 0,
-        objWithChains = void 0,
-        SubWithChains = void 0,
-        SubSub = void 0,
-        subSub = void 0;
-    (0, _emberMetal.run)(function () {
-      ObjectWithChains = _object.default.extend({
-        obj: {
-          a: 'a',
-          hi: 'hi'
-        },
-        aBinding: 'obj.a' // add chain
-      });
-
-      var deprecationMessage = /`Ember.Binding` is deprecated/;
-
-      expectDeprecation(function () {
-        // realize prototype
-        objWithChains = ObjectWithChains.create();
-      }, deprecationMessage);
-
-      // should not copy chains from parent yet
-      SubWithChains = ObjectWithChains.extend({
-        hiBinding: 'obj.hi', // add chain
-        hello: (0, _emberMetal.computed)(function () {
-          return this.get('obj.hi') + ' world';
-        }).property('hi'), // observe chain
-        greetingBinding: 'hello'
-      });
-
-      SubSub = SubWithChains.extend();
-
-      expectDeprecation(function () {
-        // should realize prototypes and copy forward chains
-        subSub = SubSub.create();
-      }, deprecationMessage);
-    });
-    equal(subSub.get('greeting'), 'hi world');
-    (0, _emberMetal.run)(function () {
-      return objWithChains.set('obj.hi', 'hello');
-    });
-    equal(subSub.get('greeting'), 'hello world');
-  });
-});
-QUnit.module('ESLint | ember-runtime/tests/system/object/subclasses_test.js');
-QUnit.test('should pass ESLint', function(assert) {
-  assert.expect(1);
-  assert.ok(true, 'ember-runtime/tests/system/object/subclasses_test.js should pass ESLint\n\n');
 });
 
 enifed('ember-runtime/tests/system/object/toString_test', ['ember-utils', 'ember-environment', 'ember-runtime/system/object', 'ember-runtime/system/namespace'], function (_emberUtils, _emberEnvironment, _object, _namespace) {
@@ -71755,7 +70566,7 @@ enifed('ember/tests/reexports_test', ['ember/index', 'ember-environment', 'inter
   ['computed', 'ember-metal'], ['computed.alias', 'ember-metal', 'alias'], ['ComputedProperty', 'ember-metal'], ['cacheFor', 'ember-metal'], ['merge', 'ember-metal'], ['instrument', 'ember-metal'], ['Instrumentation.instrument', 'ember-metal', 'instrument'], ['Instrumentation.subscribe', 'ember-metal', 'instrumentationSubscribe'], ['Instrumentation.unsubscribe', 'ember-metal', 'instrumentationUnsubscribe'], ['Instrumentation.reset', 'ember-metal', 'instrumentationReset'], ['testing', 'ember-debug', { get: 'isTesting', set: 'setTesting' }], ['onerror', 'ember-metal', { get: 'getOnerror', set: 'setOnerror' }],
   // ['create'], TODO: figure out what to do here
   // ['keys'], TODO: figure out what to do here
-  ['FEATURES', 'ember/features'], ['FEATURES.isEnabled', 'ember-debug', 'isFeatureEnabled'], ['Error', 'ember-debug'], ['meta', 'ember-metal'], ['get', 'ember-metal'], ['set', 'ember-metal'], ['_getPath', 'ember-metal'], ['getWithDefault', 'ember-metal'], ['trySet', 'ember-metal'], ['_Cache', 'ember-metal', 'Cache'], ['on', 'ember-metal'], ['addListener', 'ember-metal'], ['removeListener', 'ember-metal'], ['_suspendListener', 'ember-metal', 'suspendListener'], ['_suspendListeners', 'ember-metal', 'suspendListeners'], ['sendEvent', 'ember-metal'], ['hasListeners', 'ember-metal'], ['watchedEvents', 'ember-metal'], ['listenersFor', 'ember-metal'], ['isNone', 'ember-metal'], ['isEmpty', 'ember-metal'], ['isBlank', 'ember-metal'], ['isPresent', 'ember-metal'], ['_Backburner', 'backburner', 'default'], ['run', 'ember-metal'], ['_ObserverSet', 'ember-metal', 'ObserverSet'], ['propertyWillChange', 'ember-metal'], ['propertyDidChange', 'ember-metal'], ['overrideChains', 'ember-metal'], ['beginPropertyChanges', 'ember-metal'], ['beginPropertyChanges', 'ember-metal'], ['endPropertyChanges', 'ember-metal'], ['changeProperties', 'ember-metal'], ['defineProperty', 'ember-metal'], ['watchKey', 'ember-metal'], ['unwatchKey', 'ember-metal'], ['removeChainWatcher', 'ember-metal'], ['_ChainNode', 'ember-metal', 'ChainNode'], ['finishChains', 'ember-metal'], ['watchPath', 'ember-metal'], ['unwatchPath', 'ember-metal'], ['watch', 'ember-metal'], ['isWatching', 'ember-metal'], ['unwatch', 'ember-metal'], ['destroy', 'ember-metal', 'deleteMeta'], ['libraries', 'ember-metal'], ['OrderedSet', 'ember-metal'], ['Map', 'ember-metal'], ['MapWithDefault', 'ember-metal'], ['getProperties', 'ember-metal'], ['setProperties', 'ember-metal'], ['expandProperties', 'ember-metal'], ['NAME_KEY', 'ember-utils'], ['addObserver', 'ember-metal'], ['observersFor', 'ember-metal'], ['removeObserver', 'ember-metal'], ['_suspendObserver', 'ember-metal'], ['_suspendObservers', 'ember-metal'], ['aliasMethod', 'ember-metal'], ['observer', 'ember-metal'], ['mixin', 'ember-metal'], ['Mixin', 'ember-metal'], ['bind', 'ember-metal'], ['Binding', 'ember-metal'], ['isGlobalPath', 'ember-metal'],
+  ['FEATURES', 'ember/features'], ['FEATURES.isEnabled', 'ember-debug', 'isFeatureEnabled'], ['Error', 'ember-debug'], ['meta', 'ember-metal'], ['get', 'ember-metal'], ['set', 'ember-metal'], ['_getPath', 'ember-metal'], ['getWithDefault', 'ember-metal'], ['trySet', 'ember-metal'], ['_Cache', 'ember-metal', 'Cache'], ['on', 'ember-metal'], ['addListener', 'ember-metal'], ['removeListener', 'ember-metal'], ['_suspendListener', 'ember-metal', 'suspendListener'], ['_suspendListeners', 'ember-metal', 'suspendListeners'], ['sendEvent', 'ember-metal'], ['hasListeners', 'ember-metal'], ['watchedEvents', 'ember-metal'], ['listenersFor', 'ember-metal'], ['isNone', 'ember-metal'], ['isEmpty', 'ember-metal'], ['isBlank', 'ember-metal'], ['isPresent', 'ember-metal'], ['_Backburner', 'backburner', 'default'], ['run', 'ember-metal'], ['_ObserverSet', 'ember-metal', 'ObserverSet'], ['propertyWillChange', 'ember-metal'], ['propertyDidChange', 'ember-metal'], ['overrideChains', 'ember-metal'], ['beginPropertyChanges', 'ember-metal'], ['beginPropertyChanges', 'ember-metal'], ['endPropertyChanges', 'ember-metal'], ['changeProperties', 'ember-metal'], ['defineProperty', 'ember-metal'], ['watchKey', 'ember-metal'], ['unwatchKey', 'ember-metal'], ['removeChainWatcher', 'ember-metal'], ['_ChainNode', 'ember-metal', 'ChainNode'], ['finishChains', 'ember-metal'], ['watchPath', 'ember-metal'], ['unwatchPath', 'ember-metal'], ['watch', 'ember-metal'], ['isWatching', 'ember-metal'], ['unwatch', 'ember-metal'], ['destroy', 'ember-metal', 'deleteMeta'], ['libraries', 'ember-metal'], ['OrderedSet', 'ember-metal'], ['Map', 'ember-metal'], ['MapWithDefault', 'ember-metal'], ['getProperties', 'ember-metal'], ['setProperties', 'ember-metal'], ['expandProperties', 'ember-metal'], ['NAME_KEY', 'ember-utils'], ['addObserver', 'ember-metal'], ['observersFor', 'ember-metal'], ['removeObserver', 'ember-metal'], ['_suspendObserver', 'ember-metal'], ['_suspendObservers', 'ember-metal'], ['aliasMethod', 'ember-metal'], ['observer', 'ember-metal'], ['mixin', 'ember-metal'], ['Mixin', 'ember-metal'], ['isGlobalPath', 'ember-metal'],
 
   // ember-views
   ['$', 'ember-views', 'jQuery'], ['ViewUtils.isSimpleClick', 'ember-views', 'isSimpleClick'], ['ViewUtils.getViewElement', 'ember-views', 'getViewElement'], ['ViewUtils.getViewBounds', 'ember-views', 'getViewBounds'], ['ViewUtils.getViewClientRects', 'ember-views', 'getViewClientRects'], ['ViewUtils.getViewBoundingClientRect', 'ember-views', 'getViewBoundingClientRect'], ['ViewUtils.getRootViews', 'ember-views', 'getRootViews'], ['ViewUtils.getChildViews', 'ember-views', 'getChildViews'], ['TextSupport', 'ember-views'], ['ComponentLookup', 'ember-views'], ['EventDispatcher', 'ember-views'],
