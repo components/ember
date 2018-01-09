@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.0.0-canary+b59a8941
+ * @version   3.0.0-canary+e06cd239
  */
 
 /*globals process */
@@ -2556,10 +2556,10 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     for (var i = actions.length - 3; i >= 0; i -= 3) {
       var target = actions[i];
       var method = actions[i + 1];
-      var flags = actions[i + 2];
       var actionIndex = indexOf(otherActions, target, method);
 
       if (actionIndex === -1) {
+        var flags = actions[i + 2];
         otherActions.push(target, method, flags);
         newActions.push(target, method, flags);
       }
@@ -2574,10 +2574,9 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     }
 
     var eventName = beforeEvent(keyName);
-    var listeners = void 0,
-        added = void 0;
+    var added = void 0;
     if (deferred > 0) {
-      listeners = beforeObserverSet.add(obj, keyName, eventName);
+      var listeners = beforeObserverSet.add(obj, keyName, eventName);
       added = accumulateListeners(obj, eventName, listeners, meta$$1);
     }
     sendEvent(obj, eventName, [obj, keyName], added);
@@ -2589,9 +2588,8 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     }
 
     var eventName = changeEvent(keyName);
-    var listeners = void 0;
     if (deferred > 0) {
-      listeners = observerSet.add(obj, keyName, eventName);
+      var listeners = observerSet.add(obj, keyName, eventName);
       accumulateListeners(obj, eventName, listeners, meta$$1);
     } else {
       sendEvent(obj, eventName, [obj, keyName]);
