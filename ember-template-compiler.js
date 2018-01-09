@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.0.0-beta.2
+ * @version   3.0.0-beta.2-beta+08bc55d2
  */
 
 /*globals process */
@@ -13550,15 +13550,14 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
         replaceObserversAndListeners(obj, key, obj[key], value);
       }
 
-      if (emberEnvironment.ENV._ENABLE_BINDING_SUPPORT && Mixin.detectBinding(key)) {
+      if (emberEnvironment.ENV._ENABLE_BINDING_SUPPORT && typeof Mixin.detectBinding === 'function' && Mixin.detectBinding(key)) {
         meta$$1.writeBindings(key, value);
       }
 
       defineProperty(obj, key, desc, value, meta$$1);
     }
 
-    if (emberEnvironment.ENV._ENABLE_BINDING_SUPPORT && !partial) {
-      // don't apply to prototype
+    if (emberEnvironment.ENV._ENABLE_BINDING_SUPPORT && !partial && typeof Mixin.finishProtype === 'function') {
       Mixin.finishPartial(obj, meta$$1);
     }
 
@@ -16524,7 +16523,7 @@ enifed('ember/features', ['exports', 'ember-environment', 'ember-utils'], functi
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "3.0.0-beta.2";
+  exports.default = "3.0.0-beta.2-beta+08bc55d2";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";
