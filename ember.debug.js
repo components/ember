@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.1.0-canary+89f989be
+ * @version   3.1.0-canary+0ef44887
  */
 
 /*globals process */
@@ -46903,7 +46903,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "3.1.0-canary+89f989be";
+  exports.default = "3.1.0-canary+0ef44887";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";

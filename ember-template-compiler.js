@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.1.0-canary+89f989be
+ * @version   3.1.0-canary+0ef44887
  */
 
 /*globals process */
@@ -16528,7 +16528,7 @@ enifed('ember/features', ['exports', 'ember-environment', 'ember-utils'], functi
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "3.1.0-canary+89f989be";
+  exports.default = "3.1.0-canary+0ef44887";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";
@@ -17942,7 +17942,7 @@ enifed("simple-html-tokenizer", ["exports"], function (exports) {
     var HEXCHARCODE = /^#[xX]([A-Fa-f0-9]+)$/;
     var CHARCODE = /^#([0-9]+)$/;
     var NAMED = /^([A-Za-z0-9]+)$/;
-    var EntityParser = function () {
+    var EntityParser = /** @class */function () {
         function EntityParser(named) {
             this.named = named;
         }
@@ -17978,8 +17978,12 @@ enifed("simple-html-tokenizer", ["exports"], function (exports) {
     function preprocessInput(input) {
         return input.replace(CRLF, "\n");
     }
+    function unwrap(maybe, msg) {
+        if (!maybe) throw new Error((msg || 'value') + " was null");
+        return maybe;
+    }
 
-    var EventedTokenizer = function () {
+    var EventedTokenizer = /** @class */function () {
         function EventedTokenizer(delegate, entityParser) {
             this.delegate = delegate;
             this.entityParser = entityParser;
@@ -18358,19 +18362,29 @@ enifed("simple-html-tokenizer", ["exports"], function (exports) {
         return EventedTokenizer;
     }();
 
-    var Tokenizer = function () {
+    var Tokenizer = /** @class */function () {
         function Tokenizer(entityParser, options) {
             if (options === void 0) {
                 options = {};
             }
             this.options = options;
-            this.token = null;
+            this._token = null;
             this.startLine = 1;
             this.startColumn = 0;
             this.tokens = [];
             this.currentAttribute = null;
             this.tokenizer = new EventedTokenizer(this, entityParser);
         }
+        Object.defineProperty(Tokenizer.prototype, "token", {
+            get: function () {
+                return unwrap(this._token);
+            },
+            set: function (value) {
+                this._token = value;
+            },
+            enumerable: true,
+            configurable: true
+        });
         Tokenizer.prototype.tokenize = function (input) {
             this.tokens = [];
             this.tokenizer.tokenize(input);
@@ -18387,7 +18401,7 @@ enifed("simple-html-tokenizer", ["exports"], function (exports) {
             return this.tokens[0];
         };
         Tokenizer.prototype.reset = function () {
-            this.token = null;
+            this._token = null;
             this.startLine = 1;
             this.startColumn = 0;
         };
@@ -18464,18 +18478,22 @@ enifed("simple-html-tokenizer", ["exports"], function (exports) {
         };
         // Tags - attributes
         Tokenizer.prototype.beginAttribute = function () {
-            this.currentAttribute = ["", "", null];
-            this.token.attributes.push(this.currentAttribute);
+            var attributes = unwrap(this.token.attributes, "current token's attributs");
+            this.currentAttribute = ["", "", false];
+            attributes.push(this.currentAttribute);
         };
         Tokenizer.prototype.appendToAttributeName = function (char) {
-            this.currentAttribute[0] += char;
+            var currentAttribute = unwrap(this.currentAttribute);
+            currentAttribute[0] += char;
         };
         Tokenizer.prototype.beginAttributeValue = function (isQuoted) {
-            this.currentAttribute[2] = isQuoted;
+            var currentAttribute = unwrap(this.currentAttribute);
+            currentAttribute[2] = isQuoted;
         };
         Tokenizer.prototype.appendToAttributeValue = function (char) {
-            this.currentAttribute[1] = this.currentAttribute[1] || "";
-            this.currentAttribute[1] += char;
+            var currentAttribute = unwrap(this.currentAttribute);
+            currentAttribute[1] = currentAttribute[1] || "";
+            currentAttribute[1] += char;
         };
         Tokenizer.prototype.finishAttributeValue = function () {};
         Tokenizer.prototype.reportSyntaxError = function (message) {
