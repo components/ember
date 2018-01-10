@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.1.0-canary+fde777c5
+ * @version   3.1.0-canary+82b019cf
  */
 
 /*globals process */
@@ -41443,8 +41443,6 @@ enifed('ember-views/mixins/view_support', ['exports', 'ember-utils', 'ember-meta
     this._super.apply(this, arguments);
     this._currentState.destroy(this);
   }, _Mixin$create.willDestroyElement = K, _Mixin$create.parentViewDidChange = K, _Mixin$create.tagName = null, _Mixin$create.init = function () {
-    var owner, dispatcher;
-
     this._super.apply(this, arguments);
 
     // tslint:disable-next-line:max-line-length
@@ -41456,24 +41454,6 @@ enifed('ember-views/mixins/view_support', ['exports', 'ember-utils', 'ember-meta
 
     if (!this.elementId && this.tagName !== '') {
       this.elementId = (0, _emberUtils.guidFor)(this);
-    }
-
-    // if we find an `eventManager` property, deopt the
-    // `EventDispatcher`'s `canDispatchToEventManager` property
-    // if `null`
-    if (this.eventManager) {
-      owner = (0, _emberUtils.getOwner)(this);
-      dispatcher = owner && owner.lookup('event_dispatcher:main');
-
-
-      false && !false && (0, _emberDebug.deprecate)('`eventManager` has been deprecated in ' + this + '.', false, {
-        id: 'ember-views.event-dispatcher.canDispatchToEventManager',
-        until: '2.17.0'
-      });
-
-      if (dispatcher && !('canDispatchToEventManager' in dispatcher)) {
-        dispatcher.canDispatchToEventManager = true;
-      }
     }
 
     if (_emberEnvironment.environment._ENABLE_DID_INIT_ATTRS_SUPPORT) {
@@ -41515,11 +41495,10 @@ enifed("ember-views/system/action_manager", ["exports"], function (exports) {
 enifed('ember-views/system/event_dispatcher', ['exports', 'ember-utils', 'ember-debug', 'ember-metal', 'ember-runtime', 'ember-views/system/jquery', 'ember-views/system/action_manager', 'ember-views/compat/fallback-view-registry'], function (exports, _emberUtils, _emberDebug, _emberMetal, _emberRuntime, _jquery, _action_manager, _fallbackViewRegistry) {
   'use strict';
 
-  /**
-  @module ember
-  */
+  var HAS_JQUERY = _jquery.default !== undefined; /**
+                                                  @module ember
+                                                  */
 
-  var HAS_JQUERY = _jquery.default !== undefined;
   var ROOT_ELEMENT_CLASS = 'ember-application';
   var ROOT_ELEMENT_SELECTOR = '.' + ROOT_ELEMENT_CLASS;
 
@@ -41604,33 +41583,6 @@ enifed('ember-views/system/event_dispatcher', ['exports', 'ember-utils', 'ember-
     */
     rootElement: 'body',
 
-    /**
-      It enables events to be dispatched to the view's `eventManager.` When present,
-      this object takes precedence over handling of events on the view itself.
-       Note that most Ember applications do not use this feature. If your app also
-      does not use it, consider setting this property to false to gain some performance
-      improvement by allowing the EventDispatcher to skip the search for the
-      `eventManager` on the view tree.
-       ```javascript
-      let EventDispatcher = Em.EventDispatcher.extend({
-        events: {
-            click       : 'click',
-            focusin     : 'focusIn',
-            focusout    : 'focusOut',
-            change      : 'change'
-        },
-        canDispatchToEventManager: false
-      });
-      container.register('event_dispatcher:main', EventDispatcher);
-      ```
-       @property canDispatchToEventManager
-      @type boolean
-      @default false
-      @since 1.7.0
-      @deprecated
-      @private
-    */
-
     init: function () {
       var _this = this;
 
@@ -41644,10 +41596,6 @@ enifed('ember-views/system/event_dispatcher', ['exports', 'ember-utils', 'ember-
       }() && (0, _emberDebug.assert)('EventDispatcher should never be instantiated in fastboot mode. Please report this as an Ember bug.', function () {
         var owner = (0, _emberUtils.getOwner)(_this);var environment = owner.lookup('-environment:main');return environment.isInteractive;
       }());
-      false && !!('canDispatchToEventManager' in this) && (0, _emberDebug.deprecate)('`canDispatchToEventManager` has been deprecated in ' + this + '.', !('canDispatchToEventManager' in this), {
-        id: 'ember-views.event-dispatcher.canDispatchToEventManager',
-        until: '2.17.0'
-      });
 
       this._eventHandlers = Object.create(null);
     },
@@ -41739,28 +41687,19 @@ enifed('ember-views/system/event_dispatcher', ['exports', 'ember-utils', 'ember-
       @param {Object} viewRegistry
     */
     setupHandler: function (rootElement, event, eventName, viewRegistry) {
-      var _this2 = this,
-          viewHandler,
-          actionHandler,
-          handleEvent;
-
-      var self = this;
+      var viewHandler, actionHandler, handleEvent;
 
       if (eventName === null) {
         return;
       }
 
       if (HAS_JQUERY) {
-        rootElement.on(event + '.ember', '.ember-view', function (evt, triggeringManager) {
+        rootElement.on(event + '.ember', '.ember-view', function (evt) {
           var view = viewRegistry[this.id];
           var result = true;
 
-          var manager = self.canDispatchToEventManager ? self._findNearestEventManager(view, eventName) : null;
-
-          if (manager && manager !== triggeringManager) {
-            result = self._dispatchEvent(manager, evt, eventName, view);
-          } else if (view) {
-            result = self._bubbleEvent(view, evt, eventName);
+          if (view) {
+            result = view.handleEvent(eventName, evt);
           }
 
           return result;
@@ -41802,7 +41741,7 @@ enifed('ember-views/system/event_dispatcher', ['exports', 'ember-utils', 'ember-
           var result = true;
 
           if (view) {
-            result = _this2._bubbleEvent(view, event, eventName);
+            result = view.handleEvent(eventName, event);
           }
 
           return result;
@@ -41884,37 +41823,6 @@ enifed('ember-views/system/event_dispatcher', ['exports', 'ember-utils', 'ember-
       var viewRegistry = owner && owner.lookup('-view-registry:main') || _fallbackViewRegistry.default;
 
       return viewRegistry;
-    },
-    _findNearestEventManager: function (view, eventName) {
-      var manager = null;
-
-      while (view) {
-        manager = (0, _emberMetal.get)(view, 'eventManager');
-        if (manager && manager[eventName]) {
-          break;
-        }
-
-        view = (0, _emberMetal.get)(view, 'parentView');
-      }
-
-      return manager;
-    },
-    _dispatchEvent: function (object, evt, eventName, view) {
-      var result = true;
-
-      var handler = object[eventName];
-      if (typeof handler === 'function') {
-        result = (0, _emberMetal.run)(object, handler, evt, view);
-        // Do not preventDefault in eventManagers.
-        evt.stopPropagation();
-      } else {
-        result = this._bubbleEvent(view, evt, eventName);
-      }
-
-      return result;
-    },
-    _bubbleEvent: function (view, evt, eventName) {
-      return view.handleEvent(eventName, evt);
     },
     destroy: function () {
       var rootElementSelector = (0, _emberMetal.get)(this, 'rootElement');
@@ -43016,7 +42924,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "3.1.0-canary+fde777c5";
+  exports.default = "3.1.0-canary+82b019cf";
 });
 /*global enifed */
 enifed('node-module', ['exports'], function(_exports) {

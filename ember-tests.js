@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.1.0-canary+fde777c5
+ * @version   3.1.0-canary+82b019cf
  */
 
 /*globals process */
@@ -22464,7 +22464,7 @@ QUnit.test('should pass ESLint', function(assert) {
   assert.ok(true, 'ember-glimmer/tests/integration/custom-component-manager-test.js should pass ESLint\n\n');
 });
 
-enifed('ember-glimmer/tests/integration/event-dispatcher-test', ['ember-babel', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/helpers', 'ember-metal', 'ember/features', 'ember-views'], function (_emberBabel, _testCase, _helpers, _emberMetal, _features, _emberViews) {
+enifed('ember-glimmer/tests/integration/event-dispatcher-test', ['ember-babel', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/helpers', 'ember-metal', 'ember/features'], function (_emberBabel, _testCase, _helpers, _emberMetal, _features) {
   'use strict';
 
   var canDataTransfer = !!document.createEvent('HTMLEvents').dataTransfer;
@@ -22568,37 +22568,6 @@ enifed('ember-glimmer/tests/integration/event-dispatcher-test', ['ember-babel', 
       assert.notOk(hasReceivedEvent, 'change event has not been received');
     };
 
-    _class.prototype['@test dispatches to the nearest event manager'] = function testDispatchesToTheNearestEventManager(assert) {
-      var _this5 = this;
-
-      var receivedEvent = void 0;
-
-      this.registerComponent('x-foo', {
-        ComponentClass: _helpers.Component.extend({
-          click: function () {
-            assert.notOk(true, 'should not trigger `click` on component');
-          },
-
-
-          eventManager: {
-            click: function (event) {
-              receivedEvent = event;
-            }
-          }
-        }),
-
-        template: '<input id="is-done" type="checkbox">'
-      });
-
-      expectDeprecation(/`eventManager` has been deprecated/);
-      this.render('{{x-foo}}');
-
-      this.runTask(function () {
-        return _this5.$('#is-done').trigger('click');
-      });
-      assert.strictEqual(receivedEvent.target, this.$('#is-done')[0]);
-    };
-
     _class.prototype['@test event handlers are wrapped in a run loop'] = function testEventHandlersAreWrappedInARunLoop(assert) {
       this.registerComponent('x-foo', {
         ComponentClass: _helpers.Component.extend({
@@ -22623,13 +22592,13 @@ enifed('ember-glimmer/tests/integration/event-dispatcher-test', ['ember-babel', 
     function _class2() {
       (0, _emberBabel.classCallCheck)(this, _class2);
 
-      var _this6 = (0, _emberBabel.possibleConstructorReturn)(this, _RenderingTest2.call(this));
+      var _this5 = (0, _emberBabel.possibleConstructorReturn)(this, _RenderingTest2.call(this));
 
-      var dispatcher = _this6.owner.lookup('event_dispatcher:main');
+      var dispatcher = _this5.owner.lookup('event_dispatcher:main');
       (0, _emberMetal.run)(dispatcher, 'destroy');
-      _this6.owner.__container__.reset('event_dispatcher:main');
-      _this6.dispatcher = _this6.owner.lookup('event_dispatcher:main');
-      return _this6;
+      _this5.owner.__container__.reset('event_dispatcher:main');
+      _this5.dispatcher = _this5.owner.lookup('event_dispatcher:main');
+      return _this5;
     }
 
     _class2.prototype['@test additional events can be specified'] = function testAdditionalEventsCanBeSpecified(assert) {
@@ -22647,20 +22616,6 @@ enifed('ember-glimmer/tests/integration/event-dispatcher-test', ['ember-babel', 
       this.render('{{x-foo}}');
 
       this.$('div').trigger('myevent');
-    };
-
-    _class2.prototype['@test eventManager is deprecated'] = function testEventManagerIsDeprecated() {
-      this.registerComponent('x-foo', {
-        ComponentClass: _helpers.Component.extend({
-          eventManager: {
-            myEvent: function () {}
-          }
-        }),
-        template: '<p>Hello!</p>'
-      });
-
-      expectDeprecation(/`eventManager` has been deprecated/);
-      this.render('{{x-foo}}');
     };
 
     _class2.prototype['@test a rootElement can be specified'] = function testARootElementCanBeSpecified(assert) {
@@ -22698,59 +22653,31 @@ enifed('ember-glimmer/tests/integration/event-dispatcher-test', ['ember-babel', 
     };
 
     _class2.prototype['@test throws if specified rootElement does not exist'] = function testThrowsIfSpecifiedRootElementDoesNotExist(assert) {
-      var _this7 = this;
+      var _this6 = this;
 
       assert.throws(function () {
-        _this7.dispatcher.setup({ myevent: 'myEvent' }, '#app');
+        _this6.dispatcher.setup({ myevent: 'myEvent' }, '#app');
       });
     };
 
     return _class2;
   }(_testCase.RenderingTest));
 
-  (0, _testCase.moduleFor)('custom EventDispatcher subclass with #setup', function (_RenderingTest3) {
-    (0, _emberBabel.inherits)(_class3, _RenderingTest3);
-
-    function _class3() {
-      (0, _emberBabel.classCallCheck)(this, _class3);
-
-      var _this8 = (0, _emberBabel.possibleConstructorReturn)(this, _RenderingTest3.call(this));
-
-      var dispatcher = _this8.owner.lookup('event_dispatcher:main');
-      (0, _emberMetal.run)(dispatcher, 'destroy');
-      _this8.owner.__container__.reset('event_dispatcher:main');
-      _this8.owner.unregister('event_dispatcher:main');
-      return _this8;
-    }
-
-    _class3.prototype['@test canDispatchToEventManager is deprecated in EventDispatcher'] = function testCanDispatchToEventManagerIsDeprecatedInEventDispatcher() {
-      var MyDispatcher = _emberViews.EventDispatcher.extend({
-        canDispatchToEventManager: null
-      });
-      this.owner.register('event_dispatcher:main', MyDispatcher);
-
-      expectDeprecation(/`canDispatchToEventManager` has been deprecated/);
-      this.owner.lookup('event_dispatcher:main');
-    };
-
-    return _class3;
-  }(_testCase.RenderingTest));
-
   if (_features.EMBER_IMPROVED_INSTRUMENTATION) {
-    (0, _testCase.moduleFor)('EventDispatcher - Instrumentation', function (_RenderingTest4) {
-      (0, _emberBabel.inherits)(_class4, _RenderingTest4);
+    (0, _testCase.moduleFor)('EventDispatcher - Instrumentation', function (_RenderingTest3) {
+      (0, _emberBabel.inherits)(_class3, _RenderingTest3);
 
-      function _class4() {
-        (0, _emberBabel.classCallCheck)(this, _class4);
-        return (0, _emberBabel.possibleConstructorReturn)(this, _RenderingTest4.apply(this, arguments));
+      function _class3() {
+        (0, _emberBabel.classCallCheck)(this, _class3);
+        return (0, _emberBabel.possibleConstructorReturn)(this, _RenderingTest3.apply(this, arguments));
       }
 
-      _class4.prototype.teardown = function teardown() {
-        _RenderingTest4.prototype.teardown.call(this);
+      _class3.prototype.teardown = function teardown() {
+        _RenderingTest3.prototype.teardown.call(this);
         (0, _emberMetal.instrumentationReset)();
       };
 
-      _class4.prototype['@test instruments triggered events'] = function testInstrumentsTriggeredEvents(assert) {
+      _class3.prototype['@test instruments triggered events'] = function testInstrumentsTriggeredEvents(assert) {
         var clicked = 0;
 
         this.registerComponent('x-foo', {
@@ -22797,20 +22724,20 @@ enifed('ember-glimmer/tests/integration/event-dispatcher-test', ['ember-babel', 
         assert.strictEqual(keypressInstrumented, 0, 'The keypress was not instrumented');
       };
 
-      return _class4;
+      return _class3;
     }(_testCase.RenderingTest));
   }
 
   if (canDataTransfer) {
-    (0, _testCase.moduleFor)('EventDispatcher - Event Properties', function (_RenderingTest5) {
-      (0, _emberBabel.inherits)(_class5, _RenderingTest5);
+    (0, _testCase.moduleFor)('EventDispatcher - Event Properties', function (_RenderingTest4) {
+      (0, _emberBabel.inherits)(_class4, _RenderingTest4);
 
-      function _class5() {
-        (0, _emberBabel.classCallCheck)(this, _class5);
-        return (0, _emberBabel.possibleConstructorReturn)(this, _RenderingTest5.apply(this, arguments));
+      function _class4() {
+        (0, _emberBabel.classCallCheck)(this, _class4);
+        return (0, _emberBabel.possibleConstructorReturn)(this, _RenderingTest4.apply(this, arguments));
       }
 
-      _class5.prototype['@test dataTransfer property is added to drop event'] = function testDataTransferPropertyIsAddedToDropEvent(assert) {
+      _class4.prototype['@test dataTransfer property is added to drop event'] = function testDataTransferPropertyIsAddedToDropEvent(assert) {
         var receivedEvent = void 0;
         this.registerComponent('x-foo', {
           ComponentClass: _helpers.Component.extend({
@@ -22826,7 +22753,7 @@ enifed('ember-glimmer/tests/integration/event-dispatcher-test', ['ember-babel', 
         assert.equal(receivedEvent.dataTransfer, 'success');
       };
 
-      return _class5;
+      return _class4;
     }(_testCase.RenderingTest));
   }
 });
