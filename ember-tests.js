@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.1.0-canary+82b019cf
+ * @version   3.1.0-canary+b916304e
  */
 
 /*globals process */
@@ -81165,6 +81165,10 @@ enifed('internal-test-helpers/module-for', ['exports', 'ember-debug', 'internal-
     function generateTest(name) {
       if (name.indexOf('@test ') === 0) {
         QUnit.test(name.slice(5), function (assert) {
+          return context[name](assert);
+        });
+      } else if (name.indexOf('@only ') === 0) {
+        QUnit.only(name.slice(5), function (assert) {
           return context[name](assert);
         });
       } else if (name.indexOf('@skip ') === 0) {
