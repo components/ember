@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.1.0-canary+6afb824c
+ * @version   3.1.0-canary+4d5ceedb
  */
 
 /*globals process */
@@ -56164,54 +56164,6 @@ enifed('ember-runtime/tests/system/array_proxy/content_change_test', ['ember-met
     assert.equal(proxy.get('length'), 0, 'length updates');
   });
 
-  QUnit.test('The `arrangedContentWillChange` method is invoked before `content` is changed.', function (assert) {
-    var callCount = 0;
-    var expectedLength = void 0;
-
-    var proxy = _array_proxy.default.extend({
-      arrangedContentWillChange: function () {
-        assert.equal(this.get('arrangedContent.length'), expectedLength, 'hook should be invoked before array has changed');
-        callCount++;
-      }
-    }).create({ content: (0, _native_array.A)([1, 2, 3]) });
-
-    proxy.pushObject(4);
-    assert.equal(callCount, 0, 'pushing content onto the array doesn\'t trigger it');
-
-    proxy.get('content').pushObject(5);
-    assert.equal(callCount, 0, 'pushing content onto the content array doesn\'t trigger it');
-
-    expectedLength = 5;
-    proxy.set('content', (0, _native_array.A)(['a', 'b']));
-    assert.equal(callCount, 1, 'replacing the content array triggers the hook');
-  });
-
-  QUnit.test('The `arrangedContentDidChange` method is invoked after `content` is changed.', function (assert) {
-    var callCount = 0;
-    var expectedLength = void 0;
-
-    var proxy = _array_proxy.default.extend({
-      arrangedContentDidChange: function () {
-        assert.equal(this.get('arrangedContent.length'), expectedLength, 'hook should be invoked after array has changed');
-        callCount++;
-      }
-    }).create({
-      content: (0, _native_array.A)([1, 2, 3])
-    });
-
-    assert.equal(callCount, 0, 'hook is not called after creating the object');
-
-    proxy.pushObject(4);
-    assert.equal(callCount, 0, 'pushing content onto the array doesn\'t trigger it');
-
-    proxy.get('content').pushObject(5);
-    assert.equal(callCount, 0, 'pushing content onto the content array doesn\'t trigger it');
-
-    expectedLength = 2;
-    proxy.set('content', (0, _native_array.A)(['a', 'b']));
-    assert.equal(callCount, 1, 'replacing the content array triggers the hook');
-  });
-
   QUnit.test('The ArrayProxy doesn\'t explode when assigned a destroyed object', function (assert) {
     var proxy1 = _array_proxy.default.create();
     var proxy2 = _array_proxy.default.create();
@@ -56253,30 +56205,23 @@ enifed('ember-runtime/tests/system/array_proxy/content_change_test', ['ember-met
     assert.equal(willChangeCallCount, 2);
     assert.equal(didChangeCallCount, 2);
   });
-});
-enifed('ember-runtime/tests/system/array_proxy/content_update_test', ['ember-metal', 'ember-runtime/system/array_proxy', 'ember-runtime/system/native_array'], function (_emberMetal, _array_proxy, _native_array) {
-  'use strict';
 
-  QUnit.module('Ember.ArrayProxy - content update');
+  QUnit.test('addArrayObserver works correctly', function (assert) {
+    var content = (0, _native_array.A)([]);
+    var proxy = _array_proxy.default.create({ content: content });
 
-  QUnit.test('The `contentArrayDidChange` method is invoked after `content` is updated.', function (assert) {
-    var observerCalled = false;
-    var proxy = _array_proxy.default.extend({
-      arrangedContent: (0, _emberMetal.computed)('content', function () {
-        return (0, _native_array.A)(this.get('content').slice());
-      }),
+    assert.expect(2);
 
-      contentArrayDidChange: function (array, idx, removedCount, addedCount) {
-        observerCalled = true;
-        return this._super(array, idx, removedCount, addedCount);
+    proxy.addArrayObserver({
+      arrayWillChange: function (arr) {
+        assert.equal(arr.get('length'), 0);
+      },
+      arrayDidChange: function (arr) {
+        assert.equal(arr.get('length'), 3);
       }
-    }).create({
-      content: (0, _native_array.A)()
     });
 
-    proxy.pushObject(1);
-
-    assert.ok(observerCalled, 'contentArrayDidChange is invoked');
+    content.replace(0, 0, ['a', 'b', 'c']);
   });
 });
 enifed('ember-runtime/tests/system/array_proxy/length_test', ['ember-runtime/system/array_proxy', 'ember-runtime/system/object', 'ember-metal', 'ember-runtime/system/native_array'], function (_array_proxy, _object, _emberMetal, _native_array) {
@@ -56379,8 +56324,8 @@ enifed('ember-runtime/tests/system/array_proxy/watching_and_listening_test', ['e
 
     proxy.set('content', content);
 
-    assert.deepEqual(sortedListenersFor(content, '@array:before'), [[proxy, 'contentArrayWillChange'], [proxy, 'arrangedContentArrayWillChange']]);
-    assert.deepEqual(sortedListenersFor(content, '@array:change'), [[proxy, 'contentArrayDidChange'], [proxy, 'arrangedContentArrayDidChange']]);
+    assert.deepEqual(sortedListenersFor(content, '@array:before'), [[proxy, 'arrangedContentArrayWillChange']]);
+    assert.deepEqual(sortedListenersFor(content, '@array:change'), [[proxy, 'arrangedContentArrayDidChange']]);
   });
 
   QUnit.test('changing \'content\' adds and removes listeners correctly', function (assert) {
@@ -56388,15 +56333,15 @@ enifed('ember-runtime/tests/system/array_proxy/watching_and_listening_test', ['e
     var content2 = (0, _native_array.A)();
     var proxy = _array_proxy.default.create({ content: content1 });
 
-    assert.deepEqual(sortedListenersFor(content1, '@array:before'), [[proxy, 'contentArrayWillChange'], [proxy, 'arrangedContentArrayWillChange']]);
-    assert.deepEqual(sortedListenersFor(content1, '@array:change'), [[proxy, 'contentArrayDidChange'], [proxy, 'arrangedContentArrayDidChange']]);
+    assert.deepEqual(sortedListenersFor(content1, '@array:before'), [[proxy, 'arrangedContentArrayWillChange']]);
+    assert.deepEqual(sortedListenersFor(content1, '@array:change'), [[proxy, 'arrangedContentArrayDidChange']]);
 
     proxy.set('content', content2);
 
     assert.deepEqual(sortedListenersFor(content1, '@array:before'), []);
     assert.deepEqual(sortedListenersFor(content1, '@array:change'), []);
-    assert.deepEqual(sortedListenersFor(content2, '@array:before'), [[proxy, 'contentArrayWillChange'], [proxy, 'arrangedContentArrayWillChange']]);
-    assert.deepEqual(sortedListenersFor(content2, '@array:change'), [[proxy, 'contentArrayDidChange'], [proxy, 'arrangedContentArrayDidChange']]);
+    assert.deepEqual(sortedListenersFor(content2, '@array:before'), [[proxy, 'arrangedContentArrayWillChange']]);
+    assert.deepEqual(sortedListenersFor(content2, '@array:change'), [[proxy, 'arrangedContentArrayDidChange']]);
   });
 
   QUnit.test('regression test for https://github.com/emberjs/ember.js/issues/12475', function (assert) {

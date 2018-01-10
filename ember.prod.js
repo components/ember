@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.1.0-canary+6afb824c
+ * @version   3.1.0-canary+4d5ceedb
  */
 
 /*globals process */
@@ -38116,10 +38116,6 @@ enifed('ember-runtime/system/array_proxy', ['exports', 'ember-metal', 'ember-run
   var OUT_OF_RANGE_EXCEPTION = 'Index out of range';
   var EMPTY = [];
 
-  function K() {
-    return this;
-  }
-
   /**
     An ArrayProxy wraps any other object that implements `Ember.Array` and/or
     `Ember.MutableArray,` forwarding all requests. This makes it very useful for
@@ -38165,7 +38161,7 @@ enifed('ember-runtime/system/array_proxy', ['exports', 'ember-metal', 'ember-run
       `Ember.MutableArray.`
        @property content
       @type EmberArray
-      @private
+      @public
     */
     content: null,
 
@@ -38174,7 +38170,7 @@ enifed('ember-runtime/system/array_proxy', ['exports', 'ember-metal', 'ember-run
      implementation, this and `content` are the same. Subclasses of `ArrayProxy`
      can override this property to provide things like sorting and filtering.
       @property arrangedContent
-     @private
+     @public
     */
     arrangedContent: (0, _emberMetal.alias)('content'),
 
@@ -38209,81 +38205,11 @@ enifed('ember-runtime/system/array_proxy', ['exports', 'ember-metal', 'ember-run
       (0, _emberMetal.get)(this, 'content').replace(idx, amt, objects);
     },
 
-    /**
-      Invoked when the content property is about to change. Notifies observers that the
-      entire array content will change.
-       @private
-      @method _contentWillChange
-    */
-    _contentWillChange: (0, _emberMetal._beforeObserver)('content', function () {
-      this._teardownContent();
-    }),
-
-    _teardownContent: function () {
-      var content = (0, _emberMetal.get)(this, 'content');
-
-      if (content) {
-        (0, _array.removeArrayObserver)(content, this, {
-          willChange: 'contentArrayWillChange',
-          didChange: 'contentArrayDidChange'
-        });
-      }
-    },
-
-    /**
-      Override to implement content array `willChange` observer.
-       @method contentArrayWillChange
-       @param {EmberArray} contentArray the content array
-      @param {Number} start starting index of the change
-      @param {Number} removeCount count of items removed
-      @param {Number} addCount count of items added
-      @private
-    */
-    contentArrayWillChange: K,
-    /**
-      Override to implement content array `didChange` observer.
-       @method contentArrayDidChange
-       @param {EmberArray} contentArray the content array
-      @param {Number} start starting index of the change
-      @param {Number} removeCount count of items removed
-      @param {Number} addCount count of items added
-      @private
-    */
-    contentArrayDidChange: K,
-
-    /**
-      Invoked when the content property changes. Notifies observers that the
-      entire array content has changed.
-       @private
-      @method _contentDidChange
-    */
-    _contentDidChange: (0, _emberMetal.observer)('content', function () {
-      var content = (0, _emberMetal.get)(this, 'content');
-
-      false && !(content !== this) && (0, _emberDebug.assert)('Can\'t set ArrayProxy\'s content to itself', content !== this);
-
-      this._setupContent();
-    }),
-
-    _setupContent: function () {
-      var content = (0, _emberMetal.get)(this, 'content');
-
-      if (content) {
-        false && !((0, _utils.isArray)(content) || content.isDestroyed) && (0, _emberDebug.assert)('ArrayProxy expects an Array or Ember.ArrayProxy, but you passed ' + typeof content, (0, _utils.isArray)(content) || content.isDestroyed);
-
-        (0, _array.addArrayObserver)(content, this, {
-          willChange: 'contentArrayWillChange',
-          didChange: 'contentArrayDidChange'
-        });
-      }
-    },
-
     _arrangedContentWillChange: (0, _emberMetal._beforeObserver)('arrangedContent', function () {
       var arrangedContent = (0, _emberMetal.get)(this, 'arrangedContent');
       var len = arrangedContent ? (0, _emberMetal.get)(arrangedContent, 'length') : 0;
 
       this.arrangedContentArrayWillChange(this, 0, len, undefined);
-      this.arrangedContentWillChange(this);
 
       this._teardownArrangedContent(arrangedContent);
     }),
@@ -38292,11 +38218,8 @@ enifed('ember-runtime/system/array_proxy', ['exports', 'ember-metal', 'ember-run
       var arrangedContent = (0, _emberMetal.get)(this, 'arrangedContent');
       var len = arrangedContent ? (0, _emberMetal.get)(arrangedContent, 'length') : 0;
 
-      false && !(arrangedContent !== this) && (0, _emberDebug.assert)('Can\'t set ArrayProxy\'s content to itself', arrangedContent !== this);
-
       this._setupArrangedContent();
 
-      this.arrangedContentDidChange(this);
       this.arrangedContentArrayDidChange(this, 0, undefined, len);
     }),
 
@@ -38304,6 +38227,7 @@ enifed('ember-runtime/system/array_proxy', ['exports', 'ember-metal', 'ember-run
       var arrangedContent = (0, _emberMetal.get)(this, 'arrangedContent');
 
       if (arrangedContent) {
+        false && !(arrangedContent !== this) && (0, _emberDebug.assert)('Can\'t set ArrayProxy\'s content to itself', arrangedContent !== this);
         false && !((0, _utils.isArray)(arrangedContent) || arrangedContent.isDestroyed) && (0, _emberDebug.assert)('ArrayProxy expects an Array or Ember.ArrayProxy, but you passed ' + typeof arrangedContent, (0, _utils.isArray)(arrangedContent) || arrangedContent.isDestroyed);
 
         (0, _array.addArrayObserver)(arrangedContent, this, {
@@ -38322,10 +38246,6 @@ enifed('ember-runtime/system/array_proxy', ['exports', 'ember-metal', 'ember-run
         });
       }
     },
-
-    arrangedContentWillChange: K,
-    arrangedContentDidChange: K,
-
     objectAt: function (idx) {
       return (0, _emberMetal.get)(this, 'content') && this.objectAtContent(idx);
     },
@@ -38445,12 +38365,10 @@ enifed('ember-runtime/system/array_proxy', ['exports', 'ember-metal', 'ember-run
     },
     init: function () {
       this._super.apply(this, arguments);
-      this._setupContent();
       this._setupArrangedContent();
     },
     willDestroy: function () {
       this._teardownArrangedContent();
-      this._teardownContent();
     }
   });
 });
@@ -42927,7 +42845,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "3.1.0-canary+6afb824c";
+  exports.default = "3.1.0-canary+4d5ceedb";
 });
 /*global enifed */
 enifed('node-module', ['exports'], function(_exports) {

@@ -3,7 +3,7 @@
     "name": "The Ember API",
     "description": "The Ember API: a framework for building ambitious web applications",
     "url": "https://emberjs.com/",
-    "version": "3.1.0-canary+6afb824c"
+    "version": "3.1.0-canary+4d5ceedb"
   },
   "files": {
     "node_modules/rsvp/lib/rsvp/promise/all.js": {
@@ -3505,7 +3505,7 @@
       "module": "@ember/array",
       "namespace": "",
       "file": "packages/ember-runtime/lib/system/array_proxy.js",
-      "line": 33,
+      "line": 31,
       "description": "An ArrayProxy wraps any other object that implements `Ember.Array` and/or\n`Ember.MutableArray,` forwarding all requests. This makes it very useful for\na number of binding use cases or other cases where being able to swap\nout the underlying array is useful.\n\nA simple example of usage:\n\n```javascript\nlet pets = ['dog', 'cat', 'fish'];\nlet ap = Ember.ArrayProxy.create({ content: Ember.A(pets) });\n\nap.get('firstObject');                        // 'dog'\nap.set('content', ['amoeba', 'paramecium']);\nap.get('firstObject');                        // 'amoeba'\n```\n\nThis class can also be useful as a layer to transform the contents of\nan array, as they are accessed. This can be done by overriding\n`objectAtContent`:\n\n```javascript\nlet pets = ['dog', 'cat', 'fish'];\nlet ap = Ember.ArrayProxy.create({\n    content: Ember.A(pets),\n    objectAtContent: function(idx) {\n        return this.get('content').objectAt(idx).toUpperCase();\n    }\n});\n\nap.get('firstObject'); // . 'DOG'\n```",
       "extends": "EmberObject",
       "uses": [
@@ -16558,30 +16558,30 @@
     },
     {
       "file": "packages/ember-runtime/lib/system/array_proxy.js",
-      "line": 73,
+      "line": 71,
       "description": "The content array. Must be an object that implements `Ember.Array` and/or\n`Ember.MutableArray.`",
       "itemtype": "property",
       "name": "content",
       "type": "EmberArray",
-      "access": "private",
+      "access": "public",
       "tagname": "",
       "class": "ArrayProxy",
       "module": "@ember/array"
     },
     {
       "file": "packages/ember-runtime/lib/system/array_proxy.js",
-      "line": 83,
+      "line": 81,
       "description": "The array that the proxy pretends to be. In the default `ArrayProxy`\nimplementation, this and `content` are the same. Subclasses of `ArrayProxy`\ncan override this property to provide things like sorting and filtering.",
       "itemtype": "property",
       "name": "arrangedContent",
-      "access": "private",
+      "access": "public",
       "tagname": "",
       "class": "ArrayProxy",
       "module": "@ember/array"
     },
     {
       "file": "packages/ember-runtime/lib/system/array_proxy.js",
-      "line": 93,
+      "line": 91,
       "description": "Should actually retrieve the object at the specified index from the\ncontent. You can override this method in subclasses to transform the\ncontent item to something new.\n\nThis method will only be called if content is non-`null`.",
       "itemtype": "method",
       "name": "objectAtContent",
@@ -16603,7 +16603,7 @@
     },
     {
       "file": "packages/ember-runtime/lib/system/array_proxy.js",
-      "line": 109,
+      "line": 107,
       "description": "Should actually replace the specified objects on the content array.\nYou can override this method in subclasses to transform the content item\ninto something new.\n\nThis method will only be called if content is non-`null`.",
       "itemtype": "method",
       "name": "replaceContent",
@@ -16630,94 +16630,6 @@
       },
       "access": "private",
       "tagname": "",
-      "class": "ArrayProxy",
-      "module": "@ember/array"
-    },
-    {
-      "file": "packages/ember-runtime/lib/system/array_proxy.js",
-      "line": 128,
-      "description": "Invoked when the content property is about to change. Notifies observers that the\nentire array content will change.",
-      "access": "private",
-      "tagname": "",
-      "itemtype": "method",
-      "name": "_contentWillChange",
-      "class": "ArrayProxy",
-      "module": "@ember/array"
-    },
-    {
-      "file": "packages/ember-runtime/lib/system/array_proxy.js",
-      "line": 150,
-      "description": "Override to implement content array `willChange` observer.",
-      "itemtype": "method",
-      "name": "contentArrayWillChange",
-      "params": [
-        {
-          "name": "contentArray",
-          "description": "the content array",
-          "type": "EmberArray"
-        },
-        {
-          "name": "start",
-          "description": "starting index of the change",
-          "type": "Number"
-        },
-        {
-          "name": "removeCount",
-          "description": "count of items removed",
-          "type": "Number"
-        },
-        {
-          "name": "addCount",
-          "description": "count of items added",
-          "type": "Number"
-        }
-      ],
-      "access": "private",
-      "tagname": "",
-      "class": "ArrayProxy",
-      "module": "@ember/array"
-    },
-    {
-      "file": "packages/ember-runtime/lib/system/array_proxy.js",
-      "line": 162,
-      "description": "Override to implement content array `didChange` observer.",
-      "itemtype": "method",
-      "name": "contentArrayDidChange",
-      "params": [
-        {
-          "name": "contentArray",
-          "description": "the content array",
-          "type": "EmberArray"
-        },
-        {
-          "name": "start",
-          "description": "starting index of the change",
-          "type": "Number"
-        },
-        {
-          "name": "removeCount",
-          "description": "count of items removed",
-          "type": "Number"
-        },
-        {
-          "name": "addCount",
-          "description": "count of items added",
-          "type": "Number"
-        }
-      ],
-      "access": "private",
-      "tagname": "",
-      "class": "ArrayProxy",
-      "module": "@ember/array"
-    },
-    {
-      "file": "packages/ember-runtime/lib/system/array_proxy.js",
-      "line": 175,
-      "description": "Invoked when the content property changes. Notifies observers that the\nentire array content has changed.",
-      "access": "private",
-      "tagname": "",
-      "itemtype": "method",
-      "name": "_contentDidChange",
       "class": "ArrayProxy",
       "module": "@ember/array"
     },
