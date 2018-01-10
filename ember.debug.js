@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.1.0-canary+b916304e
+ * @version   3.1.0-canary+6afb824c
  */
 
 /*globals process */
@@ -19041,13 +19041,14 @@ enifed('ember-glimmer/modifiers/action', ['exports', 'ember-babel', 'ember-debug
             var preventDefault = namedArgs.get('preventDefault');
             var allowedKeys = namedArgs.get('allowedKeys');
             var target = this.getTarget();
+            var shouldBubble = bubbles.value() !== false;
             if (!isAllowedEvent(event, allowedKeys.value())) {
                 return true;
             }
             if (preventDefault.value() !== false) {
                 event.preventDefault();
             }
-            if (bubbles.value() === false) {
+            if (!shouldBubble) {
                 event.stopPropagation();
             }
             (0, _emberMetal.run)(function () {
@@ -19082,7 +19083,7 @@ enifed('ember-glimmer/modifiers/action', ['exports', 'ember-babel', 'ember-debug
                     });
                 }
             });
-            return false;
+            return shouldBubble;
         };
 
         ActionState.prototype.destroy = function destroy() {
@@ -45243,6 +45244,7 @@ enifed('ember-views/mixins/view_support', ['exports', 'ember-utils', 'ember-meta
     }
   }), _Mixin$create.$ = function (sel) {
     (true && !(this.tagName !== '') && (0, _emberDebug.assert)('You cannot access this.$() on a component with `tagName: \'\'` specified.', this.tagName !== ''));
+    (true && !(!_jquery.jQueryDisabled) && (0, _emberDebug.assert)('You cannot access this.$() with `jQuery` disabled.', !_jquery.jQueryDisabled));
 
     if (this.element) {
       return sel ? (0, _jquery.default)(sel, this.element) : (0, _jquery.default)(this.element);
@@ -45646,8 +45648,9 @@ enifed('ember-views/system/event_dispatcher', ['exports', 'ember-utils', 'ember-
                 break;
               }
             } else if (target.hasAttribute('data-ember-action')) {
-              actionHandler(target, event);
-              break;
+              if (actionHandler(target, event) === false) {
+                break;
+              }
             }
 
             target = target.parentNode;
@@ -46803,7 +46806,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "3.1.0-canary+b916304e";
+  exports.default = "3.1.0-canary+6afb824c";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";
