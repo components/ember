@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.1.0-canary+629c5a8c
+ * @version   3.1.0-canary+fde777c5
  */
 
 /*globals process */
@@ -25159,11 +25159,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   */
 
 
-  var backburner$1 = new Backburner(['sync', 'actions', 'destroy'], {
-    sync: {
-      before: beginPropertyChanges,
-      after: endPropertyChanges
-    },
+  var backburner$1 = new Backburner(['actions', 'destroy'], {
     defaultQueue: 'actions',
     onBegin: function (current) {
       run.currentRunLoop = current;
@@ -43020,7 +43016,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "3.1.0-canary+629c5a8c";
+  exports.default = "3.1.0-canary+fde777c5";
 });
 /*global enifed */
 enifed('node-module', ['exports'], function(_exports) {

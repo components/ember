@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.1.0-canary+629c5a8c
+ * @version   3.1.0-canary+fde777c5
  */
 
 /*globals process */
@@ -43872,22 +43872,12 @@ enifed('ember-metal/tests/run_loop/schedule_test', ['ember-babel', 'ember-metal'
         var runLoop = _emberMetal.run.currentRunLoop;
         assert.ok(runLoop, 'run loop present');
 
-        _emberMetal.run.schedule('sync', function () {
-          order.push('sync');
-          assert.equal(runLoop, _emberMetal.run.currentRunLoop, 'same run loop used');
-        });
-
         _emberMetal.run.schedule('actions', function () {
           order.push('actions');
           assert.equal(runLoop, _emberMetal.run.currentRunLoop, 'same run loop used');
 
           _emberMetal.run.schedule('actions', function () {
             order.push('actions');
-            assert.equal(runLoop, _emberMetal.run.currentRunLoop, 'same run loop used');
-          });
-
-          _emberMetal.run.schedule('sync', function () {
-            order.push('sync');
             assert.equal(runLoop, _emberMetal.run.currentRunLoop, 'same run loop used');
           });
         });
@@ -43898,7 +43888,7 @@ enifed('ember-metal/tests/run_loop/schedule_test', ['ember-babel', 'ember-metal'
         });
       });
 
-      assert.deepEqual(order, ['sync', 'actions', 'sync', 'actions', 'destroy']);
+      assert.deepEqual(order, ['actions', 'actions', 'destroy']);
     };
 
     _class.prototype['@test makes sure it does not trigger an autorun during testing'] = function () {
@@ -43910,51 +43900,6 @@ enifed('ember-metal/tests/run_loop/schedule_test', ['ember-babel', 'ember-metal'
       expectAssertion(function () {
         return _emberMetal.run.schedule('actions', function () {});
       }, /wrap any code with asynchronous side-effects in a run/);
-    };
-
-    return _class;
-  }(_internalTestHelpers.AbstractTestCase));
-});
-enifed('ember-metal/tests/run_loop/sync_test', ['ember-babel', 'ember-metal', 'internal-test-helpers'], function (_emberBabel, _emberMetal, _internalTestHelpers) {
-  'use strict';
-
-  (0, _internalTestHelpers.moduleFor)('system/run_loop/sync_test', function (_AbstractTestCase) {
-    (0, _emberBabel.inherits)(_class, _AbstractTestCase);
-
-    function _class() {
-      return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase.apply(this, arguments));
-    }
-
-    _class.prototype['@test sync() will immediately flush the sync queue only'] = function (assert) {
-      var cnt = 0;
-
-      (0, _emberMetal.run)(function () {
-        function cntup() {
-          cnt++;
-        }
-
-        function syncfunc() {
-          if (++cnt < 5) {
-            _emberMetal.run.schedule('sync', syncfunc);
-          }
-          _emberMetal.run.schedule('actions', cntup);
-        }
-
-        syncfunc();
-
-        assert.equal(cnt, 1, 'should not run action yet');
-        _emberMetal.run.sync();
-
-        assert.equal(cnt, 5, 'should have run sync queue continuously');
-      });
-
-      assert.equal(cnt, 10, 'should flush actions now too');
-    };
-
-    _class.prototype['@test calling sync() outside a run loop does not cause an error'] = function (assert) {
-      assert.expect(0);
-
-      _emberMetal.run.sync();
     };
 
     return _class;
