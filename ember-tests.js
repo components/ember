@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.1.0-canary+907280dc
+ * @version   3.1.0-canary+3ce52b02
  */
 
 /*globals process */
@@ -8138,7 +8138,7 @@ enifed('ember-glimmer/tests/integration/application/engine-test', ['ember-babel'
           _this16.assertText('ApplicationLoading');
           resolveLoading.resolve();
 
-          _this16.runTaskNext(function () {
+          return _this16.runTaskNext().then(function () {
             _this16.assertText('ApplicationEnginePost');
             done();
           });
@@ -8181,7 +8181,7 @@ enifed('ember-glimmer/tests/integration/application/engine-test', ['ember-babel'
           _this17.assertText('ApplicationEngineLoading');
           resolveLoading.resolve();
 
-          _this17.runTaskNext(function () {
+          return _this17.runTaskNext().then(function () {
             _this17.assertText('ApplicationEnginePost');
             done();
           });
@@ -8217,15 +8217,15 @@ enifed('ember-glimmer/tests/integration/application/engine-test', ['ember-babel'
         _this18.assertText('ApplicationEngineComments');
         var transition = _this18.transitionTo('blog.post.likes');
 
-        _this18.runTaskNext(function () {
+        _this18.runTaskNext().then(function () {
           _this18.assertText('ApplicationEngineLoading');
           resolveLoading();
         });
 
         return transition.then(function () {
-          _this18.runTaskNext(function () {
-            return _this18.assertText('ApplicationEngineLikes');
-          });
+          return _this18.runTaskNext();
+        }).then(function () {
+          return _this18.assertText('ApplicationEngineLikes');
         });
       });
     };
@@ -8265,7 +8265,7 @@ enifed('ember-glimmer/tests/integration/application/engine-test', ['ember-babel'
           _this19.assertText('ApplicationEngineLoading');
           resolveLoading.resolve();
 
-          _this19.runTaskNext(function () {
+          return _this19.runTaskNext().then(function () {
             _this19.assertText('ApplicationEngineLikes');
             done();
           });
@@ -81872,8 +81872,10 @@ enifed('internal-test-helpers/test-cases/abstract', ['exports', 'ember-babel', '
       return (0, _emberMetal.run)(callback);
     };
 
-    AbstractTestCase.prototype.runTaskNext = function runTaskNext(callback) {
-      return _emberMetal.run.next(callback);
+    AbstractTestCase.prototype.runTaskNext = function runTaskNext() {
+      return new _rsvp.Promise(function (resolve) {
+        return _emberMetal.run.next(resolve);
+      });
     };
 
     AbstractTestCase.prototype.setupFixture = function setupFixture(innerHTML) {
