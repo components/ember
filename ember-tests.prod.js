@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.1.0-canary+16d61a61
+ * @version   3.1.0-canary+246eba5f
  */
 
 /*globals process */
@@ -44011,10 +44011,8 @@ enifed('ember-metal/tests/set_properties_test', ['ember-babel', 'ember-metal', '
     return _class;
   }(_internalTestHelpers.AbstractTestCase));
 });
-enifed('ember-metal/tests/watching/is_watching_test', ['ember-metal'], function (_emberMetal) {
+enifed('ember-metal/tests/watching/is_watching_test', ['ember-babel', 'ember-metal', 'internal-test-helpers'], function (_emberBabel, _emberMetal, _internalTestHelpers) {
   'use strict';
-
-  QUnit.module('isWatching');
 
   function testObserver(assert, setup, teardown) {
     var key = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 'key';
@@ -44029,72 +44027,74 @@ enifed('ember-metal/tests/watching/is_watching_test', ['ember-metal'], function 
     assert.equal((0, _emberMetal.isWatching)(obj, key), false, 'isWatching is false after observers are removed');
   }
 
-  QUnit.test('isWatching is true for regular local observers', function (assert) {
-    testObserver(assert, function (obj, key, fn) {
-      _emberMetal.Mixin.create({
-        didChange: (0, _emberMetal.observer)(key, fn)
-      }).apply(obj);
-    }, function (obj, key, fn) {
-      return (0, _emberMetal.removeObserver)(obj, key, obj, fn);
-    });
-  });
+  (0, _internalTestHelpers.moduleFor)('isWatching', function (_AbstractTestCase) {
+    (0, _emberBabel.inherits)(_class, _AbstractTestCase);
 
-  QUnit.test('isWatching is true for nonlocal observers', function (assert) {
-    testObserver(assert, function (obj, key, fn) {
-      (0, _emberMetal.addObserver)(obj, key, obj, fn);
-    }, function (obj, key, fn) {
-      return (0, _emberMetal.removeObserver)(obj, key, obj, fn);
-    });
-  });
+    function _class() {
+      return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase.apply(this, arguments));
+    }
 
-  QUnit.test('isWatching is true for chained observers', function (assert) {
-    testObserver(assert, function (obj, key, fn) {
-      (0, _emberMetal.addObserver)(obj, key + '.bar', obj, fn);
-    }, function (obj, key, fn) {
-      (0, _emberMetal.removeObserver)(obj, key + '.bar', obj, fn);
-    });
-  });
+    _class.prototype['@test isWatching is true for regular local observers'] = function (assert) {
+      testObserver(assert, function (obj, key, fn) {
+        _emberMetal.Mixin.create({
+          didChange: (0, _emberMetal.observer)(key, fn)
+        }).apply(obj);
+      }, function (obj, key, fn) {
+        return (0, _emberMetal.removeObserver)(obj, key, obj, fn);
+      });
+    };
 
-  QUnit.test('isWatching is true for computed properties', function (assert) {
-    testObserver(assert, function (obj, key, fn) {
-      (0, _emberMetal.defineProperty)(obj, 'computed', (0, _emberMetal.computed)(fn).property(key));
-      (0, _emberMetal.get)(obj, 'computed');
-    }, function (obj) {
-      return (0, _emberMetal.defineProperty)(obj, 'computed', null);
-    });
-  });
+    _class.prototype['@test isWatching is true for nonlocal observers'] = function (assert) {
+      testObserver(assert, function (obj, key, fn) {
+        (0, _emberMetal.addObserver)(obj, key, obj, fn);
+      }, function (obj, key, fn) {
+        return (0, _emberMetal.removeObserver)(obj, key, obj, fn);
+      });
+    };
 
-  QUnit.test('isWatching is true for chained computed properties', function (assert) {
-    testObserver(assert, function (obj, key, fn) {
-      (0, _emberMetal.defineProperty)(obj, 'computed', (0, _emberMetal.computed)(fn).property(key + '.bar'));
-      (0, _emberMetal.get)(obj, 'computed');
-    }, function (obj) {
-      return (0, _emberMetal.defineProperty)(obj, 'computed', null);
-    });
-  });
+    _class.prototype['@test isWatching is true for chained observers'] = function (assert) {
+      testObserver(assert, function (obj, key, fn) {
+        (0, _emberMetal.addObserver)(obj, key + '.bar', obj, fn);
+      }, function (obj, key, fn) {
+        (0, _emberMetal.removeObserver)(obj, key + '.bar', obj, fn);
+      });
+    };
 
-  // can't watch length on Array - it is special...
-  // But you should be able to watch a length property of an object
-  QUnit.test('isWatching is true for \'length\' property on object', function (assert) {
-    testObserver(assert, function (obj, key, fn) {
-      (0, _emberMetal.defineProperty)(obj, 'length', null, '26.2 miles');
-      (0, _emberMetal.addObserver)(obj, 'length', obj, fn);
-    }, function (obj, key, fn) {
-      return (0, _emberMetal.removeObserver)(obj, 'length', obj, fn);
-    }, 'length');
-  });
+    _class.prototype['@test isWatching is true for computed properties'] = function (assert) {
+      testObserver(assert, function (obj, key, fn) {
+        (0, _emberMetal.defineProperty)(obj, 'computed', (0, _emberMetal.computed)(fn).property(key));
+        (0, _emberMetal.get)(obj, 'computed');
+      }, function (obj) {
+        return (0, _emberMetal.defineProperty)(obj, 'computed', null);
+      });
+    };
+
+    _class.prototype['@test isWatching is true for chained computed properties'] = function (assert) {
+      testObserver(assert, function (obj, key, fn) {
+        (0, _emberMetal.defineProperty)(obj, 'computed', (0, _emberMetal.computed)(fn).property(key + '.bar'));
+        (0, _emberMetal.get)(obj, 'computed');
+      }, function (obj) {
+        return (0, _emberMetal.defineProperty)(obj, 'computed', null);
+      });
+    };
+
+    _class.prototype['@test isWatching is true for \'length\' property on object'] = function (assert) {
+      testObserver(assert, function (obj, key, fn) {
+        (0, _emberMetal.defineProperty)(obj, 'length', null, '26.2 miles');
+        (0, _emberMetal.addObserver)(obj, 'length', obj, fn);
+      }, function (obj, key, fn) {
+        return (0, _emberMetal.removeObserver)(obj, 'length', obj, fn);
+      }, 'length');
+    };
+
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
 });
-enifed('ember-metal/tests/watching/unwatch_test', ['internal-test-helpers', 'ember-metal'], function (_internalTestHelpers, _emberMetal) {
+enifed('ember-metal/tests/watching/unwatch_test', ['ember-babel', 'ember-metal', 'internal-test-helpers'], function (_emberBabel, _emberMetal, _internalTestHelpers) {
   'use strict';
 
   var willCount = void 0,
       didCount = void 0;
-
-  QUnit.module('unwatch', {
-    beforeEach: function () {
-      willCount = didCount = 0;
-    }
-  });
 
   function addListeners(obj, keyPath) {
     (0, _emberMetal.addListener)(obj, keyPath + ':before', function () {
@@ -44105,102 +44105,116 @@ enifed('ember-metal/tests/watching/unwatch_test', ['internal-test-helpers', 'emb
     });
   }
 
-  (0, _internalTestHelpers.testBoth)('unwatching a computed property - regular get/set', function (get, set, assert) {
-    var obj = {};
+  (0, _internalTestHelpers.moduleFor)('unwatch', function (_AbstractTestCase) {
+    (0, _emberBabel.inherits)(_class, _AbstractTestCase);
 
-    (0, _emberMetal.defineProperty)(obj, 'foo', (0, _emberMetal.computed)({
-      get: function () {
-        return this.__foo;
-      },
-      set: function (keyName, value) {
-        this.__foo = value;
-        return this.__foo;
-      }
-    }));
-    addListeners(obj, 'foo');
+    function _class() {
+      return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase.apply(this, arguments));
+    }
 
-    (0, _emberMetal.watch)(obj, 'foo');
-    set(obj, 'foo', 'bar');
-    assert.equal(willCount, 1, 'should have invoked willCount');
-    assert.equal(didCount, 1, 'should have invoked didCount');
+    _class.prototype.beforeEach = function () {
+      willCount = didCount = 0;
+    };
 
-    (0, _emberMetal.unwatch)(obj, 'foo');
-    willCount = didCount = 0;
-    set(obj, 'foo', 'BAZ');
-    assert.equal(willCount, 0, 'should NOT have invoked willCount');
-    assert.equal(didCount, 0, 'should NOT have invoked didCount');
-  });
+    _class.prototype['@test unwatching a computed property - regular get/set'] = function (assert) {
+      var obj = {};
 
-  (0, _internalTestHelpers.testBoth)('unwatching a regular property - regular get/set', function (get, set, assert) {
-    var obj = { foo: 'BIFF' };
-    addListeners(obj, 'foo');
+      (0, _emberMetal.defineProperty)(obj, 'foo', (0, _emberMetal.computed)({
+        get: function () {
+          return this.__foo;
+        },
+        set: function (keyName, value) {
+          this.__foo = value;
+          return this.__foo;
+        }
+      }));
+      addListeners(obj, 'foo');
 
-    (0, _emberMetal.watch)(obj, 'foo');
-    set(obj, 'foo', 'bar');
-    assert.equal(willCount, 1, 'should have invoked willCount');
-    assert.equal(didCount, 1, 'should have invoked didCount');
+      (0, _emberMetal.watch)(obj, 'foo');
+      (0, _emberMetal.set)(obj, 'foo', 'bar');
+      assert.equal(willCount, 1, 'should have invoked willCount');
+      assert.equal(didCount, 1, 'should have invoked didCount');
 
-    (0, _emberMetal.unwatch)(obj, 'foo');
-    willCount = didCount = 0;
-    set(obj, 'foo', 'BAZ');
-    assert.equal(willCount, 0, 'should NOT have invoked willCount');
-    assert.equal(didCount, 0, 'should NOT have invoked didCount');
-  });
+      (0, _emberMetal.unwatch)(obj, 'foo');
+      willCount = didCount = 0;
+      (0, _emberMetal.set)(obj, 'foo', 'BAZ');
+      assert.equal(willCount, 0, 'should NOT have invoked willCount');
+      assert.equal(didCount, 0, 'should NOT have invoked didCount');
+    };
 
-  QUnit.test('unwatching should be nested', function (assert) {
-    var obj = { foo: 'BIFF' };
-    addListeners(obj, 'foo');
+    _class.prototype['@test unwatching a regular property - regular get/set'] = function (assert) {
+      var obj = { foo: 'BIFF' };
+      addListeners(obj, 'foo');
 
-    (0, _emberMetal.watch)(obj, 'foo');
-    (0, _emberMetal.watch)(obj, 'foo');
-    (0, _emberMetal.set)(obj, 'foo', 'bar');
-    assert.equal(willCount, 1, 'should have invoked willCount');
-    assert.equal(didCount, 1, 'should have invoked didCount');
+      (0, _emberMetal.watch)(obj, 'foo');
+      (0, _emberMetal.set)(obj, 'foo', 'bar');
+      assert.equal(willCount, 1, 'should have invoked willCount');
+      assert.equal(didCount, 1, 'should have invoked didCount');
 
-    (0, _emberMetal.unwatch)(obj, 'foo');
-    willCount = didCount = 0;
-    (0, _emberMetal.set)(obj, 'foo', 'BAZ');
-    assert.equal(willCount, 1, 'should NOT have invoked willCount');
-    assert.equal(didCount, 1, 'should NOT have invoked didCount');
+      (0, _emberMetal.unwatch)(obj, 'foo');
+      willCount = didCount = 0;
+      (0, _emberMetal.set)(obj, 'foo', 'BAZ');
+      assert.equal(willCount, 0, 'should NOT have invoked willCount');
+      assert.equal(didCount, 0, 'should NOT have invoked didCount');
+    };
 
-    (0, _emberMetal.unwatch)(obj, 'foo');
-    willCount = didCount = 0;
-    (0, _emberMetal.set)(obj, 'foo', 'BAZ');
-    assert.equal(willCount, 0, 'should NOT have invoked willCount');
-    assert.equal(didCount, 0, 'should NOT have invoked didCount');
-  });
+    _class.prototype['@test unwatching should be nested'] = function (assert) {
+      var obj = { foo: 'BIFF' };
+      addListeners(obj, 'foo');
 
-  (0, _internalTestHelpers.testBoth)('unwatching "length" property on an object', function (get, set, assert) {
-    var obj = { foo: 'RUN' };
-    addListeners(obj, 'length');
+      (0, _emberMetal.watch)(obj, 'foo');
+      (0, _emberMetal.watch)(obj, 'foo');
+      (0, _emberMetal.set)(obj, 'foo', 'bar');
+      assert.equal(willCount, 1, 'should have invoked willCount');
+      assert.equal(didCount, 1, 'should have invoked didCount');
 
-    // Can watch length when it is undefined
-    (0, _emberMetal.watch)(obj, 'length');
-    set(obj, 'length', '10k');
-    assert.equal(willCount, 1, 'should have invoked willCount');
-    assert.equal(didCount, 1, 'should have invoked didCount');
+      (0, _emberMetal.unwatch)(obj, 'foo');
+      willCount = didCount = 0;
+      (0, _emberMetal.set)(obj, 'foo', 'BAZ');
+      assert.equal(willCount, 1, 'should NOT have invoked willCount');
+      assert.equal(didCount, 1, 'should NOT have invoked didCount');
 
-    // Should stop watching despite length now being defined (making object 'array-like')
-    (0, _emberMetal.unwatch)(obj, 'length');
-    willCount = didCount = 0;
-    set(obj, 'length', '5k');
-    assert.equal(willCount, 0, 'should NOT have invoked willCount');
-    assert.equal(didCount, 0, 'should NOT have invoked didCount');
-  });
+      (0, _emberMetal.unwatch)(obj, 'foo');
+      willCount = didCount = 0;
+      (0, _emberMetal.set)(obj, 'foo', 'BAZ');
+      assert.equal(willCount, 0, 'should NOT have invoked willCount');
+      assert.equal(didCount, 0, 'should NOT have invoked didCount');
+    };
 
-  (0, _internalTestHelpers.testBoth)('unwatching should not destroy non MANDATORY_SETTER descriptor', function (get, set, assert) {
-    var obj = { get foo() {
-        return 'RUN';
-      } };
+    _class.prototype['@test unwatching "length" property on an object'] = function (assert) {
+      var obj = { foo: 'RUN' };
+      addListeners(obj, 'length');
 
-    assert.equal(obj.foo, 'RUN', 'obj.foo');
-    (0, _emberMetal.watch)(obj, 'foo');
-    assert.equal(obj.foo, 'RUN', 'obj.foo after watch');
-    (0, _emberMetal.unwatch)(obj, 'foo');
-    assert.equal(obj.foo, 'RUN', 'obj.foo after unwatch');
-  });
+      // Can watch length when it is undefined
+      (0, _emberMetal.watch)(obj, 'length');
+      (0, _emberMetal.set)(obj, 'length', '10k');
+      assert.equal(willCount, 1, 'should have invoked willCount');
+      assert.equal(didCount, 1, 'should have invoked didCount');
+
+      // Should stop watching despite length now being defined (making object 'array-like')
+      (0, _emberMetal.unwatch)(obj, 'length');
+      willCount = didCount = 0;
+      (0, _emberMetal.set)(obj, 'length', '5k');
+      assert.equal(willCount, 0, 'should NOT have invoked willCount');
+      assert.equal(didCount, 0, 'should NOT have invoked didCount');
+    };
+
+    _class.prototype['@test unwatching should not destroy non MANDATORY_SETTER descriptor'] = function (assert) {
+      var obj = { get foo() {
+          return 'RUN';
+        } };
+
+      assert.equal(obj.foo, 'RUN', 'obj.foo');
+      (0, _emberMetal.watch)(obj, 'foo');
+      assert.equal(obj.foo, 'RUN', 'obj.foo after watch');
+      (0, _emberMetal.unwatch)(obj, 'foo');
+      assert.equal(obj.foo, 'RUN', 'obj.foo after unwatch');
+    };
+
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
 });
-enifed('ember-metal/tests/watching/watch_test', ['ember-environment', 'ember-metal', 'internal-test-helpers'], function (_emberEnvironment, _emberMetal, _internalTestHelpers) {
+enifed('ember-metal/tests/watching/watch_test', ['ember-babel', 'ember-environment', 'ember-metal', 'internal-test-helpers'], function (_emberBabel, _emberEnvironment, _emberMetal, _internalTestHelpers) {
   'use strict';
 
   var willCount = void 0,
@@ -44208,20 +44222,6 @@ enifed('ember-metal/tests/watching/watch_test', ['ember-environment', 'ember-met
       willKeys = void 0,
       didKeys = void 0,
       originalLookup = void 0;
-
-  QUnit.module('watch', {
-    beforeEach: function () {
-      willCount = didCount = 0;
-      willKeys = [];
-      didKeys = [];
-
-      originalLookup = _emberEnvironment.context.lookup;
-      _emberEnvironment.context.lookup = {};
-    },
-    afterEach: function () {
-      _emberEnvironment.context.lookup = originalLookup;
-    }
-  });
 
   function addListeners(obj, keyPath) {
     (0, _emberMetal.addListener)(obj, keyPath + ':before', function () {
@@ -44234,219 +44234,240 @@ enifed('ember-metal/tests/watching/watch_test', ['ember-environment', 'ember-met
     });
   }
 
-  (0, _internalTestHelpers.testBoth)('watching a computed property', function (get, set, assert) {
-    var obj = {};
-    (0, _emberMetal.defineProperty)(obj, 'foo', (0, _emberMetal.computed)({
-      get: function () {
-        return this.__foo;
-      },
-      set: function (keyName, value) {
-        if (value !== undefined) {
-          this.__foo = value;
-        }
-        return this.__foo;
-      }
-    }));
-    addListeners(obj, 'foo');
+  (0, _internalTestHelpers.moduleFor)('watch', function (_AbstractTestCase) {
+    (0, _emberBabel.inherits)(_class, _AbstractTestCase);
 
-    (0, _emberMetal.watch)(obj, 'foo');
-    set(obj, 'foo', 'bar');
-    assert.equal(willCount, 1, 'should have invoked willCount');
-    assert.equal(didCount, 1, 'should have invoked didCount');
-  });
+    function _class() {
+      return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase.apply(this, arguments));
+    }
 
-  (0, _internalTestHelpers.testBoth)('watching a regular defined property', function (get, set, assert) {
-    var obj = { foo: 'baz' };
-    addListeners(obj, 'foo');
+    _class.prototype.beforeEach = function () {
+      willCount = didCount = 0;
+      willKeys = [];
+      didKeys = [];
 
-    (0, _emberMetal.watch)(obj, 'foo');
-    assert.equal(get(obj, 'foo'), 'baz', 'should have original prop');
-
-    set(obj, 'foo', 'bar');
-    assert.equal(willCount, 1, 'should have invoked willCount');
-    assert.equal(didCount, 1, 'should have invoked didCount');
-
-    assert.equal(get(obj, 'foo'), 'bar', 'should get new value');
-    assert.equal(obj.foo, 'bar', 'property should be accessible on obj');
-  });
-
-  (0, _internalTestHelpers.testBoth)('watching a regular undefined property', function (get, set, assert) {
-    var obj = {};
-    addListeners(obj, 'foo');
-
-    (0, _emberMetal.watch)(obj, 'foo');
-
-    assert.equal('foo' in obj, false, 'precond undefined');
-
-    set(obj, 'foo', 'bar');
-
-    assert.equal(willCount, 1, 'should have invoked willCount');
-    assert.equal(didCount, 1, 'should have invoked didCount');
-
-    assert.equal(get(obj, 'foo'), 'bar', 'should get new value');
-    assert.equal(obj.foo, 'bar', 'property should be accessible on obj');
-  });
-
-  (0, _internalTestHelpers.testBoth)('watches should inherit', function (get, set, assert) {
-    var obj = { foo: 'baz' };
-    var objB = Object.create(obj);
-
-    addListeners(obj, 'foo');
-    (0, _emberMetal.watch)(obj, 'foo');
-    assert.equal(get(obj, 'foo'), 'baz', 'should have original prop');
-
-    set(obj, 'foo', 'bar');
-    set(objB, 'foo', 'baz');
-    assert.equal(willCount, 2, 'should have invoked willCount once only');
-    assert.equal(didCount, 2, 'should have invoked didCount once only');
-  });
-
-  QUnit.test('watching an object THEN defining it should work also', function (assert) {
-    var obj = {};
-    addListeners(obj, 'foo');
-
-    (0, _emberMetal.watch)(obj, 'foo');
-
-    (0, _emberMetal.defineProperty)(obj, 'foo');
-    (0, _emberMetal.set)(obj, 'foo', 'bar');
-
-    assert.equal((0, _emberMetal.get)(obj, 'foo'), 'bar', 'should have set');
-    assert.equal(willCount, 1, 'should have invoked willChange once');
-    assert.equal(didCount, 1, 'should have invoked didChange once');
-  });
-
-  QUnit.test('watching a chain then defining the property', function (assert) {
-    var obj = {};
-    var foo = { bar: 'bar' };
-    addListeners(obj, 'foo.bar');
-    addListeners(foo, 'bar');
-
-    (0, _emberMetal.watch)(obj, 'foo.bar');
-
-    (0, _emberMetal.defineProperty)(obj, 'foo', undefined, foo);
-    (0, _emberMetal.set)(foo, 'bar', 'baz');
-
-    assert.deepEqual(willKeys, ['foo.bar', 'bar'], 'should have invoked willChange with bar, foo.bar');
-    assert.deepEqual(didKeys, ['foo.bar', 'bar'], 'should have invoked didChange with bar, foo.bar');
-    assert.equal(willCount, 2, 'should have invoked willChange twice');
-    assert.equal(didCount, 2, 'should have invoked didChange twice');
-  });
-
-  QUnit.test('watching a chain then defining the nested property', function (assert) {
-    var bar = {};
-    var obj = { foo: bar };
-    var baz = { baz: 'baz' };
-    addListeners(obj, 'foo.bar.baz');
-    addListeners(baz, 'baz');
-
-    (0, _emberMetal.watch)(obj, 'foo.bar.baz');
-
-    (0, _emberMetal.defineProperty)(bar, 'bar', undefined, baz);
-    (0, _emberMetal.set)(baz, 'baz', 'BOO');
-
-    assert.deepEqual(willKeys, ['foo.bar.baz', 'baz'], 'should have invoked willChange with bar, foo.bar');
-    assert.deepEqual(didKeys, ['foo.bar.baz', 'baz'], 'should have invoked didChange with bar, foo.bar');
-    assert.equal(willCount, 2, 'should have invoked willChange twice');
-    assert.equal(didCount, 2, 'should have invoked didChange twice');
-  });
-
-  (0, _internalTestHelpers.testBoth)('watching an object value then unwatching should restore old value', function (get, set, assert) {
-    var obj = { foo: { bar: { baz: { biff: 'BIFF' } } } };
-    addListeners(obj, 'foo.bar.baz.biff');
-
-    (0, _emberMetal.watch)(obj, 'foo.bar.baz.biff');
-
-    var foo = get(obj, 'foo');
-    assert.equal(get(get(get(foo, 'bar'), 'baz'), 'biff'), 'BIFF', 'biff should exist');
-
-    (0, _emberMetal.unwatch)(obj, 'foo.bar.baz.biff');
-    assert.equal(get(get(get(foo, 'bar'), 'baz'), 'biff'), 'BIFF', 'biff should exist');
-  });
-
-  QUnit.test('when watching another object, destroy should remove chain watchers from the other object', function (assert) {
-    var objA = {};
-    var objB = { foo: 'bar' };
-    objA.b = objB;
-    addListeners(objA, 'b.foo');
-
-    (0, _emberMetal.watch)(objA, 'b.foo');
-
-    var meta_objB = (0, _emberMetal.meta)(objB);
-    var chainNode = (0, _emberMetal.meta)(objA).readableChains()._chains.b._chains.foo;
-
-    assert.equal(meta_objB.peekWatching('foo'), 1, 'should be watching foo');
-    assert.equal(meta_objB.readableChainWatchers().has('foo', chainNode), true, 'should have chain watcher');
-
-    (0, _emberMetal.deleteMeta)(objA);
-
-    assert.equal(meta_objB.peekWatching('foo'), 0, 'should not be watching foo');
-    assert.equal(meta_objB.readableChainWatchers().has('foo', chainNode), false, 'should not have chain watcher');
-  });
-
-  // TESTS for length property
-
-  (0, _internalTestHelpers.testBoth)('watching "length" property on an object', function (get, set, assert) {
-    var obj = { length: '26.2 miles' };
-    addListeners(obj, 'length');
-
-    (0, _emberMetal.watch)(obj, 'length');
-    assert.equal(get(obj, 'length'), '26.2 miles', 'should have original prop');
-
-    set(obj, 'length', '10k');
-    assert.equal(willCount, 1, 'should have invoked willCount');
-    assert.equal(didCount, 1, 'should have invoked didCount');
-
-    assert.equal(get(obj, 'length'), '10k', 'should get new value');
-    assert.equal(obj.length, '10k', 'property should be accessible on obj');
-  });
-
-  (0, _internalTestHelpers.testBoth)('watching "length" property on an array', function (get, set, assert) {
-    var arr = [];
-    addListeners(arr, 'length');
-
-    (0, _emberMetal.watch)(arr, 'length');
-    assert.equal(get(arr, 'length'), 0, 'should have original prop');
-
-    set(arr, 'length', '10');
-    assert.equal(willCount, 1, 'should NOT have invoked willCount');
-    assert.equal(didCount, 1, 'should NOT have invoked didCount');
-
-    assert.equal(get(arr, 'length'), 10, 'should get new value');
-    assert.equal(arr.length, 10, 'property should be accessible on arr');
-  });
-
-  (0, _internalTestHelpers.testBoth)('watch + ES5 getter', function (get, set, assert) {
-    var parent = { b: 1 };
-    var child = {
-      get b() {
-        return parent.b;
-      }
+      originalLookup = _emberEnvironment.context.lookup;
+      _emberEnvironment.context.lookup = {};
     };
 
-    assert.equal(parent.b, 1, 'parent.b should be 1');
-    assert.equal(child.b, 1, 'child.b should be 1');
-    assert.equal(get(child, 'b'), 1, 'Ember.get(child, "b") should be 1');
+    _class.prototype.afterEach = function () {
+      _emberEnvironment.context.lookup = originalLookup;
+    };
 
-    (0, _emberMetal.watch)(child, 'b');
+    _class.prototype['@test watching a computed property'] = function (assert) {
+      var obj = {};
+      (0, _emberMetal.defineProperty)(obj, 'foo', (0, _emberMetal.computed)({
+        get: function () {
+          return this.__foo;
+        },
+        set: function (keyName, value) {
+          if (value !== undefined) {
+            this.__foo = value;
+          }
+          return this.__foo;
+        }
+      }));
+      addListeners(obj, 'foo');
 
-    assert.equal(parent.b, 1, 'parent.b should be 1 (after watch)');
-    assert.equal(child.b, 1, 'child.b should be 1  (after watch)');
+      (0, _emberMetal.watch)(obj, 'foo');
+      (0, _emberMetal.set)(obj, 'foo', 'bar');
+      assert.equal(willCount, 1, 'should have invoked willCount');
+      assert.equal(didCount, 1, 'should have invoked didCount');
+    };
 
-    assert.equal(get(child, 'b'), 1, 'Ember.get(child, "b") should be 1 (after watch)');
-  });
+    _class.prototype['@test watching a regular defined property'] = function (assert) {
+      var obj = { foo: 'baz' };
+      addListeners(obj, 'foo');
 
-  (0, _internalTestHelpers.testBoth)('watch + Ember.set + no-descriptor', function (get, set, assert) {
-    var child = {};
+      (0, _emberMetal.watch)(obj, 'foo');
+      assert.equal((0, _emberMetal.get)(obj, 'foo'), 'baz', 'should have original prop');
 
-    assert.equal(child.b, undefined, 'child.b ');
-    assert.equal(get(child, 'b'), undefined, 'Ember.get(child, "b")');
+      (0, _emberMetal.set)(obj, 'foo', 'bar');
+      assert.equal(willCount, 1, 'should have invoked willCount');
+      assert.equal(didCount, 1, 'should have invoked didCount');
 
-    (0, _emberMetal.watch)(child, 'b');
-    set(child, 'b', 1);
+      assert.equal((0, _emberMetal.get)(obj, 'foo'), 'bar', 'should get new value');
+      assert.equal(obj.foo, 'bar', 'property should be accessible on obj');
+    };
 
-    assert.equal(child.b, 1, 'child.b (after watch)');
-    assert.equal(get(child, 'b'), 1, 'Ember.get(child, "b") (after watch)');
-  });
+    _class.prototype['@test watching a regular undefined property'] = function (assert) {
+      var obj = {};
+      addListeners(obj, 'foo');
+
+      (0, _emberMetal.watch)(obj, 'foo');
+
+      assert.equal('foo' in obj, false, 'precond undefined');
+
+      (0, _emberMetal.set)(obj, 'foo', 'bar');
+
+      assert.equal(willCount, 1, 'should have invoked willCount');
+      assert.equal(didCount, 1, 'should have invoked didCount');
+
+      assert.equal((0, _emberMetal.get)(obj, 'foo'), 'bar', 'should get new value');
+      assert.equal(obj.foo, 'bar', 'property should be accessible on obj');
+    };
+
+    _class.prototype['@test watches should inherit'] = function (assert) {
+      var obj = { foo: 'baz' };
+      var objB = Object.create(obj);
+
+      addListeners(obj, 'foo');
+      (0, _emberMetal.watch)(obj, 'foo');
+      assert.equal((0, _emberMetal.get)(obj, 'foo'), 'baz', 'should have original prop');
+
+      (0, _emberMetal.set)(obj, 'foo', 'bar');
+      (0, _emberMetal.set)(objB, 'foo', 'baz');
+      assert.equal(willCount, 2, 'should have invoked willCount once only');
+      assert.equal(didCount, 2, 'should have invoked didCount once only');
+    };
+
+    _class.prototype['@test watching an object THEN defining it should work also'] = function (assert) {
+      var obj = {};
+      addListeners(obj, 'foo');
+
+      (0, _emberMetal.watch)(obj, 'foo');
+
+      (0, _emberMetal.defineProperty)(obj, 'foo');
+      (0, _emberMetal.set)(obj, 'foo', 'bar');
+
+      assert.equal((0, _emberMetal.get)(obj, 'foo'), 'bar', 'should have set');
+      assert.equal(willCount, 1, 'should have invoked willChange once');
+      assert.equal(didCount, 1, 'should have invoked didChange once');
+    };
+
+    _class.prototype['@test watching a chain then defining the property'] = function (assert) {
+      var obj = {};
+      var foo = { bar: 'bar' };
+      addListeners(obj, 'foo.bar');
+      addListeners(foo, 'bar');
+
+      (0, _emberMetal.watch)(obj, 'foo.bar');
+
+      (0, _emberMetal.defineProperty)(obj, 'foo', undefined, foo);
+      (0, _emberMetal.set)(foo, 'bar', 'baz');
+
+      assert.deepEqual(willKeys, ['foo.bar', 'bar'], 'should have invoked willChange with bar, foo.bar');
+      assert.deepEqual(didKeys, ['foo.bar', 'bar'], 'should have invoked didChange with bar, foo.bar');
+      assert.equal(willCount, 2, 'should have invoked willChange twice');
+      assert.equal(didCount, 2, 'should have invoked didChange twice');
+    };
+
+    _class.prototype['@test watching a chain then defining the nested property'] = function (assert) {
+      var bar = {};
+      var obj = { foo: bar };
+      var baz = { baz: 'baz' };
+      addListeners(obj, 'foo.bar.baz');
+      addListeners(baz, 'baz');
+
+      (0, _emberMetal.watch)(obj, 'foo.bar.baz');
+
+      (0, _emberMetal.defineProperty)(bar, 'bar', undefined, baz);
+      (0, _emberMetal.set)(baz, 'baz', 'BOO');
+
+      assert.deepEqual(willKeys, ['foo.bar.baz', 'baz'], 'should have invoked willChange with bar, foo.bar');
+      assert.deepEqual(didKeys, ['foo.bar.baz', 'baz'], 'should have invoked didChange with bar, foo.bar');
+      assert.equal(willCount, 2, 'should have invoked willChange twice');
+      assert.equal(didCount, 2, 'should have invoked didChange twice');
+    };
+
+    _class.prototype['@test watching an object value then unwatching should restore old value'] = function (assert) {
+      var obj = { foo: { bar: { baz: { biff: 'BIFF' } } } };
+      addListeners(obj, 'foo.bar.baz.biff');
+
+      (0, _emberMetal.watch)(obj, 'foo.bar.baz.biff');
+
+      var foo = (0, _emberMetal.get)(obj, 'foo');
+      assert.equal((0, _emberMetal.get)((0, _emberMetal.get)((0, _emberMetal.get)(foo, 'bar'), 'baz'), 'biff'), 'BIFF', 'biff should exist');
+
+      (0, _emberMetal.unwatch)(obj, 'foo.bar.baz.biff');
+      assert.equal((0, _emberMetal.get)((0, _emberMetal.get)((0, _emberMetal.get)(foo, 'bar'), 'baz'), 'biff'), 'BIFF', 'biff should exist');
+    };
+
+    _class.prototype['@test when watching another object, destroy should remove chain watchers from the other object'] = function (assert) {
+      var objA = {};
+      var objB = { foo: 'bar' };
+      objA.b = objB;
+      addListeners(objA, 'b.foo');
+
+      (0, _emberMetal.watch)(objA, 'b.foo');
+
+      var meta_objB = (0, _emberMetal.meta)(objB);
+      var chainNode = (0, _emberMetal.meta)(objA).readableChains()._chains.b._chains.foo;
+
+      assert.equal(meta_objB.peekWatching('foo'), 1, 'should be watching foo');
+      assert.equal(meta_objB.readableChainWatchers().has('foo', chainNode), true, 'should have chain watcher');
+
+      (0, _emberMetal.deleteMeta)(objA);
+
+      assert.equal(meta_objB.peekWatching('foo'), 0, 'should not be watching foo');
+      assert.equal(meta_objB.readableChainWatchers().has('foo', chainNode), false, 'should not have chain watcher');
+    };
+
+    _class.prototype['@test watching "length" property on an object'] = function (assert) {
+      var obj = { length: '26.2 miles' };
+      addListeners(obj, 'length');
+
+      (0, _emberMetal.watch)(obj, 'length');
+      assert.equal((0, _emberMetal.get)(obj, 'length'), '26.2 miles', 'should have original prop');
+
+      (0, _emberMetal.set)(obj, 'length', '10k');
+      assert.equal(willCount, 1, 'should have invoked willCount');
+      assert.equal(didCount, 1, 'should have invoked didCount');
+
+      assert.equal((0, _emberMetal.get)(obj, 'length'), '10k', 'should get new value');
+      assert.equal(obj.length, '10k', 'property should be accessible on obj');
+    };
+
+    _class.prototype['@test watching "length" property on an array'] = function (assert) {
+      var arr = [];
+      addListeners(arr, 'length');
+
+      (0, _emberMetal.watch)(arr, 'length');
+      assert.equal((0, _emberMetal.get)(arr, 'length'), 0, 'should have original prop');
+
+      (0, _emberMetal.set)(arr, 'length', '10');
+      assert.equal(willCount, 1, 'should NOT have invoked willCount');
+      assert.equal(didCount, 1, 'should NOT have invoked didCount');
+
+      assert.equal((0, _emberMetal.get)(arr, 'length'), 10, 'should get new value');
+      assert.equal(arr.length, 10, 'property should be accessible on arr');
+    };
+
+    _class.prototype['@test watch + ES5 getter'] = function (assert) {
+      var parent = { b: 1 };
+      var child = {
+        get b() {
+          return parent.b;
+        }
+      };
+
+      assert.equal(parent.b, 1, 'parent.b should be 1');
+      assert.equal(child.b, 1, 'child.b should be 1');
+      assert.equal((0, _emberMetal.get)(child, 'b'), 1, 'Ember.get(child, "b") should be 1');
+
+      (0, _emberMetal.watch)(child, 'b');
+
+      assert.equal(parent.b, 1, 'parent.b should be 1 (after watch)');
+      assert.equal(child.b, 1, 'child.b should be 1  (after watch)');
+
+      assert.equal((0, _emberMetal.get)(child, 'b'), 1, 'Ember.get(child, "b") should be 1 (after watch)');
+    };
+
+    _class.prototype['@test watch + Ember.set + no-descriptor'] = function (assert) {
+      var child = {};
+
+      assert.equal(child.b, undefined, 'child.b ');
+      assert.equal((0, _emberMetal.get)(child, 'b'), undefined, 'Ember.get(child, "b")');
+
+      (0, _emberMetal.watch)(child, 'b');
+      (0, _emberMetal.set)(child, 'b', 1);
+
+      assert.equal(child.b, 1, 'child.b (after watch)');
+      assert.equal((0, _emberMetal.get)(child, 'b'), 1, 'Ember.get(child, "b") (after watch)');
+    };
+
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
 });
 enifed('ember-routing/tests/ext/controller_test', ['ember-babel', 'ember-utils', 'ember-runtime', 'internal-test-helpers'], function (_emberBabel, _emberUtils, _emberRuntime, _internalTestHelpers) {
   'use strict';
