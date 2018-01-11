@@ -3,7 +3,7 @@
     "name": "The Ember API",
     "description": "The Ember API: a framework for building ambitious web applications",
     "url": "https://emberjs.com/",
-    "version": "3.1.0-canary+a6508914"
+    "version": "3.1.0-canary+16d61a61"
   },
   "files": {
     "node_modules/rsvp/lib/rsvp/promise/all.js": {
@@ -10095,7 +10095,7 @@
       "itemtype": "property",
       "name": "queues",
       "type": "Array",
-      "default": "['sync', 'actions', 'destroy']",
+      "default": "['actions', 'destroy']",
       "access": "private",
       "tagname": "",
       "class": "@ember/runloop",
@@ -10104,14 +10104,14 @@
     {
       "file": "packages/ember-metal/lib/run_loop.js",
       "line": 236,
-      "description": "Adds the passed target/method and any optional arguments to the named\nqueue to be executed at the end of the RunLoop. If you have not already\nstarted a RunLoop when calling this method one will be started for you\nautomatically.\n\nAt the end of a RunLoop, any methods scheduled in this way will be invoked.\nMethods will be invoked in an order matching the named queues defined in\nthe `run.queues` property.\n\n```javascript\nimport { schedule } from '@ember/runloop';\n\nschedule('sync', this, function() {\n  // this will be executed in the first RunLoop queue, when bindings are synced\n  console.log('scheduled on sync queue');\n});\n\nschedule('actions', this, function() {\n  // this will be executed in the 'actions' queue, after bindings have synced.\n  console.log('scheduled on actions queue');\n});\n\n// Note the functions will be run in order based on the run queues order.\n// Output would be:\n//   scheduled on sync queue\n//   scheduled on actions queue\n```",
+      "description": "Adds the passed target/method and any optional arguments to the named\nqueue to be executed at the end of the RunLoop. If you have not already\nstarted a RunLoop when calling this method one will be started for you\nautomatically.\n\nAt the end of a RunLoop, any methods scheduled in this way will be invoked.\nMethods will be invoked in an order matching the named queues defined in\nthe `run.queues` property.\n\n```javascript\nimport { schedule } from '@ember/runloop';\n\nschedule('actions', this, function() {\n  // this will be executed in the 'actions' queue, after bindings have synced.\n  console.log('scheduled on actions queue');\n});\n\n// Note the functions will be run in order based on the run queues order.\n// Output would be:\n//   scheduled on sync queue\n//   scheduled on actions queue\n```",
       "itemtype": "method",
       "name": "schedule",
       "static": 1,
       "params": [
         {
           "name": "queue",
-          "description": "The name of the queue to schedule against.\n  Default queues are 'sync' and 'actions'",
+          "description": "The name of the queue to schedule against. Default queues is 'actions'",
           "type": "String"
         },
         {
@@ -10143,23 +10143,7 @@
     },
     {
       "file": "packages/ember-metal/lib/run_loop.js",
-      "line": 298,
-      "description": "Immediately flushes any events scheduled in the 'sync' queue. Bindings\nuse this queue so this method is a useful way to immediately force all\nbindings in the application to sync.\n\nYou should call this method anytime you need any changed state to propagate\nthroughout the app immediately without repainting the UI (which happens\nin the later 'render' queue added by the `ember-views` package).\n\n```javascript\nrun.sync();\n```",
-      "itemtype": "method",
-      "name": "sync",
-      "static": 1,
-      "return": {
-        "description": "",
-        "type": "Void"
-      },
-      "access": "private",
-      "tagname": "",
-      "class": "@ember/runloop",
-      "module": "@ember/runloop"
-    },
-    {
-      "file": "packages/ember-metal/lib/run_loop.js",
-      "line": 323,
+      "line": 292,
       "description": "Invokes the passed target/method and optional arguments after a specified\nperiod of time. The last parameter of this method must always be a number\nof milliseconds.\n\nYou should use this method whenever you need to run some action after a\nperiod of time instead of using `setTimeout()`. This method will ensure that\nitems that expire during the same script execution cycle all execute\ntogether, which is often more efficient than using a real setTimeout.\n\n```javascript\nimport { later } from '@ember/runloop';\n\nlater(myContext, function() {\n  // code here will execute within a RunLoop in about 500ms with this == myContext\n}, 500);\n```",
       "itemtype": "method",
       "name": "later",
@@ -10199,7 +10183,7 @@
     },
     {
       "file": "packages/ember-metal/lib/run_loop.js",
-      "line": 357,
+      "line": 326,
       "description": "Schedule a function to run one time during the current RunLoop. This is equivalent\nto calling `scheduleOnce` with the \"actions\" queue.",
       "itemtype": "method",
       "name": "once",
@@ -10234,7 +10218,7 @@
     },
     {
       "file": "packages/ember-metal/lib/run_loop.js",
-      "line": 382,
+      "line": 351,
       "description": "Schedules a function to run one time in a given queue of the current RunLoop.\nCalling this method with the same queue/target/method combination will have\nno effect (past the initial call).\n\nNote that although you can pass optional arguments these will not be\nconsidered when looking for duplicates. New arguments will replace previous\ncalls.\n\n```javascript\nimport { run, scheduleOnce } from '@ember/runloop';\n\nfunction sayHi() {\n  console.log('hi');\n}\n\nrun(function() {\n  scheduleOnce('afterRender', myContext, sayHi);\n  scheduleOnce('afterRender', myContext, sayHi);\n  // sayHi will only be executed once, in the afterRender queue of the RunLoop\n});\n```\n\nAlso note that for `run.scheduleOnce` to prevent additional calls, you need to\npass the same function instance. The following case works as expected:\n\n```javascript\nfunction log() {\n  console.log('Logging only once');\n}\n\nfunction scheduleIt() {\n  scheduleOnce('actions', myContext, log);\n}\n\nscheduleIt();\nscheduleIt();\n```\n\nBut this other case will schedule the function multiple times:\n\n```javascript\nimport { scheduleOnce } from '@ember/runloop';\n\nfunction scheduleIt() {\n  scheduleOnce('actions', myContext, function() {\n    console.log('Closure');\n  });\n}\n\nscheduleIt();\nscheduleIt();\n\n// \"Closure\" will print twice, even though we're using `run.scheduleOnce`,\n// because the function we pass to it won't match the\n// previously scheduled operation.\n```\n\nAvailable queues, and their order, can be found at `run.queues`",
       "itemtype": "method",
       "name": "scheduleOnce",
@@ -10242,7 +10226,7 @@
       "params": [
         {
           "name": "queue",
-          "description": "The name of the queue to schedule against. Default queues are 'sync' and 'actions'.",
+          "description": "The name of the queue to schedule against. Default queues is 'actions'.",
           "type": "String",
           "optional": true
         },
@@ -10275,7 +10259,7 @@
     },
     {
       "file": "packages/ember-metal/lib/run_loop.js",
-      "line": 463,
+      "line": 432,
       "description": "Schedules an item to run from within a separate run loop, after\ncontrol has been returned to the system. This is equivalent to calling\n`run.later` with a wait time of 1ms.\n\n```javascript\nimport { next } from '@ember/runloop';\n\nnext(myContext, function() {\n  // code to be executed in the next run loop,\n  // which will be scheduled after the current one\n});\n```\n\nMultiple operations scheduled with `run.next` will coalesce\ninto the same later run loop, along with any other operations\nscheduled by `run.later` that expire right around the same\ntime that `run.next` operations will fire.\n\nNote that there are often alternatives to using `run.next`.\nFor instance, if you'd like to schedule an operation to happen\nafter all DOM element operations have completed within the current\nrun loop, you can make use of the `afterRender` run loop queue (added\nby the `ember-views` package, along with the preceding `render` queue\nwhere all the DOM element operations happen).\n\nExample:\n\n```app/components/my-component.js\nimport Component from '@ember/component';\nimport { scheduleOnce } from '@ember/runloop';\n\nexport Component.extend({\n  didInsertElement() {\n    this._super(...arguments);\n    scheduleOnce('afterRender', this, 'processChildElements');\n  },\n\n  processChildElements() {\n    // ... do something with component's child component\n    // elements after they've finished rendering, which\n    // can't be done within this component's\n    // `didInsertElement` hook because that gets run\n    // before the child elements have been added to the DOM.\n  }\n});\n```\n\nOne benefit of the above approach compared to using `run.next` is\nthat you will be able to perform DOM/CSS operations before unprocessed\nelements are rendered to the screen, which may prevent flickering or\nother artifacts caused by delaying processing until after rendering.\n\nThe other major benefit to the above approach is that `run.next`\nintroduces an element of non-determinism, which can make things much\nharder to test, due to its reliance on `setTimeout`; it's much harder\nto guarantee the order of scheduled operations when they are scheduled\noutside of the current run loop, i.e. with `run.next`.",
       "itemtype": "method",
       "name": "next",
@@ -10310,7 +10294,7 @@
     },
     {
       "file": "packages/ember-metal/lib/run_loop.js",
-      "line": 538,
+      "line": 507,
       "description": "Cancels a scheduled item. Must be a value returned by `later()`,\n`once()`, `scheduleOnce()`, `next()`, `debounce()`, or\n`throttle()`.\n\n```javascript\nimport {\n  next,\n  cancel,\n  later,\n  scheduleOnce,\n  once,\n  throttle,\n  debounce\n} from '@ember/runloop';\n\nlet runNext = next(myContext, function() {\n  // will not be executed\n});\n\ncancel(runNext);\n\nlet runLater = later(myContext, function() {\n  // will not be executed\n}, 500);\n\ncancel(runLater);\n\nlet runScheduleOnce = scheduleOnce('afterRender', myContext, function() {\n  // will not be executed\n});\n\ncancel(runScheduleOnce);\n\nlet runOnce = once(myContext, function() {\n  // will not be executed\n});\n\ncancel(runOnce);\n\nlet throttle = throttle(myContext, function() {\n  // will not be executed\n}, 1, false);\n\ncancel(throttle);\n\nlet debounce = debounce(myContext, function() {\n  // will not be executed\n}, 1);\n\ncancel(debounce);\n\nlet debounceImmediate = debounce(myContext, function() {\n  // will be executed since we passed in true (immediate)\n}, 100, true);\n\n// the 100ms delay until this method can be called again will be canceled\ncancel(debounceImmediate);\n```",
       "itemtype": "method",
       "name": "cancel",
@@ -10333,7 +10317,7 @@
     },
     {
       "file": "packages/ember-metal/lib/run_loop.js",
-      "line": 609,
+      "line": 578,
       "description": "Delay calling the target method until the debounce period has elapsed\nwith no additional debounce calls. If `debounce` is called again before\nthe specified time has elapsed, the timer is reset and the entire period\nmust pass again before the target method is called.\n\nThis method should be used when an event may be called multiple times\nbut the action should only be called once when the event is done firing.\nA common example is for scroll events where you only want updates to\nhappen once scrolling has ceased.\n\n```javascript\nimport { debounce } from '@ember/runloop';\n\nfunction whoRan() {\n  console.log(this.name + ' ran.');\n}\n\nlet myContext = { name: 'debounce' };\n\ndebounce(myContext, whoRan, 150);\n\n// less than 150ms passes\ndebounce(myContext, whoRan, 150);\n\n// 150ms passes\n// whoRan is invoked with context myContext\n// console logs 'debounce ran.' one time.\n```\n\nImmediate allows you to run the function immediately, but debounce\nother calls for this function until the wait time has elapsed. If\n`debounce` is called again before the specified time has elapsed,\nthe timer is reset and the entire period must pass again before\nthe method can be called again.\n\n```javascript\nimport { debounce } from '@ember/runloop';\n\nfunction whoRan() {\n  console.log(this.name + ' ran.');\n}\n\nlet myContext = { name: 'debounce' };\n\ndebounce(myContext, whoRan, 150, true);\n\n// console logs 'debounce ran.' one time immediately.\n// 100ms passes\ndebounce(myContext, whoRan, 150, true);\n\n// 150ms passes and nothing else is logged to the console and\n// the debouncee is no longer being watched\ndebounce(myContext, whoRan, 150, true);\n\n// console logs 'debounce ran.' one time immediately.\n// 150ms passes and nothing else is logged to the console and\n// the debouncee is no longer being watched\n```",
       "itemtype": "method",
       "name": "debounce",
@@ -10378,7 +10362,7 @@
     },
     {
       "file": "packages/ember-metal/lib/run_loop.js",
-      "line": 687,
+      "line": 656,
       "description": "Ensure that the target method is never called more frequently than\nthe specified spacing period. The target method is called immediately.\n\n```javascript\nimport { throttle } from '@ember/runloop';\n\nfunction whoRan() {\n  console.log(this.name + ' ran.');\n}\n\nlet myContext = { name: 'throttle' };\n\nthrottle(myContext, whoRan, 150);\n// whoRan is invoked with context myContext\n// console logs 'throttle ran.'\n\n// 50ms passes\nthrottle(myContext, whoRan, 150);\n\n// 50ms passes\nthrottle(myContext, whoRan, 150);\n\n// 150ms passes\nthrottle(myContext, whoRan, 150);\n// whoRan is invoked with context myContext\n// console logs 'throttle ran.'\n```",
       "itemtype": "method",
       "name": "throttle",
@@ -10423,7 +10407,7 @@
     },
     {
       "file": "packages/ember-metal/lib/run_loop.js",
-      "line": 734,
+      "line": 703,
       "description": "Add a new named queue after the specified queue.\n\nThe queue to add will only be added once.",
       "itemtype": "method",
       "name": "_addQueue",

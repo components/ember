@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.1.0-canary+a6508914
+ * @version   3.1.0-canary+16d61a61
  */
 
 /*globals process */
@@ -26614,7 +26614,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   
     @property queues
     @type Array
-    @default ['sync', 'actions', 'destroy']
+    @default ['actions', 'destroy']
     @private
   */
 
@@ -26631,11 +26631,6 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     ```javascript
     import { schedule } from '@ember/runloop';
   
-    schedule('sync', this, function() {
-      // this will be executed in the first RunLoop queue, when bindings are synced
-      console.log('scheduled on sync queue');
-    });
-  
     schedule('actions', this, function() {
       // this will be executed in the 'actions' queue, after bindings have synced.
       console.log('scheduled on actions queue');
@@ -26650,8 +26645,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     @method schedule
     @static
     @for @ember/runloop
-    @param {String} queue The name of the queue to schedule against.
-      Default queues are 'sync' and 'actions'
+    @param {String} queue The name of the queue to schedule against. Default queues is 'actions'
     @param {Object} [target] target object to use as the context when invoking a method.
     @param {String|Function} method The method to invoke. If you pass a string it
       will be resolved on the target object at the time the scheduled item is
@@ -26674,31 +26668,6 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   // Used by global test teardown
   run.cancelTimers = function () {
     backburner$1.cancelTimers();
-  };
-
-  /**
-    Immediately flushes any events scheduled in the 'sync' queue. Bindings
-    use this queue so this method is a useful way to immediately force all
-    bindings in the application to sync.
-  
-    You should call this method anytime you need any changed state to propagate
-    throughout the app immediately without repainting the UI (which happens
-    in the later 'render' queue added by the `ember-views` package).
-  
-    ```javascript
-    run.sync();
-    ```
-  
-    @method sync
-    @static
-    @for @ember/runloop
-    @return {void}
-    @private
-  */
-  run.sync = function () {
-    if (backburner$1.currentInstance) {
-      backburner$1.currentInstance.queues.sync.flush();
-    }
   };
 
   /**
@@ -26824,7 +26793,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     @method scheduleOnce
     @static
     @for @ember/runloop
-    @param {String} [queue] The name of the queue to schedule against. Default queues are 'sync' and 'actions'.
+    @param {String} [queue] The name of the queue to schedule against. Default queues is 'actions'.
     @param {Object} [target] The target of the method to invoke.
     @param {Function|String} method The method to invoke.
       If you pass a string it will be resolved on the
@@ -46718,7 +46687,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "3.1.0-canary+a6508914";
+  exports.default = "3.1.0-canary+16d61a61";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";
