@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.1.0-canary+246eba5f
+ * @version   3.1.0-canary+907280dc
  */
 
 /*globals process */
@@ -40550,448 +40550,487 @@ enifed('ember-metal/tests/meta_test', ['ember-babel', 'ember-metal', 'internal-t
     return _class;
   }(_internalTestHelpers.AbstractTestCase));
 });
-enifed('ember-metal/tests/mixin/alias_method_test', ['ember-metal'], function (_emberMetal) {
+enifed('ember-metal/tests/mixin/alias_method_test', ['ember-babel', 'ember-metal', 'internal-test-helpers'], function (_emberBabel, _emberMetal, _internalTestHelpers) {
   'use strict';
-
-  QUnit.module('aliasMethod');
 
   function validateAliasMethod(assert, obj) {
     assert.equal(obj.fooMethod(), 'FOO', 'obj.fooMethod()');
     assert.equal(obj.barMethod(), 'FOO', 'obj.barMethod should be a copy of foo');
   }
 
-  QUnit.test('methods of another name are aliased when the mixin is applied', function (assert) {
-    var MyMixin = _emberMetal.Mixin.create({
-      fooMethod: function () {
-        return 'FOO';
-      },
+  (0, _internalTestHelpers.moduleFor)('aliasMethod', function (_AbstractTestCase) {
+    (0, _emberBabel.inherits)(_class, _AbstractTestCase);
 
-      barMethod: (0, _emberMetal.aliasMethod)('fooMethod')
-    });
+    function _class() {
+      return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase.apply(this, arguments));
+    }
 
-    var obj = MyMixin.apply({});
-    validateAliasMethod(assert, obj);
-  });
+    _class.prototype['@test methods of another name are aliased when the mixin is applied'] = function (assert) {
+      var MyMixin = _emberMetal.Mixin.create({
+        fooMethod: function () {
+          return 'FOO';
+        },
 
-  QUnit.test('should follow aliasMethods all the way down', function (assert) {
-    var MyMixin = _emberMetal.Mixin.create({
-      bar: (0, _emberMetal.aliasMethod)('foo'), baz: function () {
-        return 'baz';
-      },
+        barMethod: (0, _emberMetal.aliasMethod)('fooMethod')
+      });
 
-      foo: (0, _emberMetal.aliasMethod)('baz')
-    });
-
-    var obj = MyMixin.apply({});
-    assert.equal((0, _emberMetal.get)(obj, 'bar')(), 'baz', 'should have followed aliasMethods');
-  });
-
-  QUnit.test('should alias methods from other dependent mixins', function (assert) {
-    var BaseMixin = _emberMetal.Mixin.create({
-      fooMethod: function () {
-        return 'FOO';
-      }
-    });
-
-    var MyMixin = _emberMetal.Mixin.create(BaseMixin, {
-      barMethod: (0, _emberMetal.aliasMethod)('fooMethod')
-    });
-
-    var obj = MyMixin.apply({});
-    validateAliasMethod(assert, obj);
-  });
-
-  QUnit.test('should alias methods from other mixins applied at same time', function (assert) {
-    var BaseMixin = _emberMetal.Mixin.create({
-      fooMethod: function () {
-        return 'FOO';
-      }
-    });
-
-    var MyMixin = _emberMetal.Mixin.create({
-      barMethod: (0, _emberMetal.aliasMethod)('fooMethod')
-    });
-
-    var obj = (0, _emberMetal.mixin)({}, BaseMixin, MyMixin);
-    validateAliasMethod(assert, obj);
-  });
-
-  QUnit.test('should alias methods from mixins already applied on object', function (assert) {
-    var BaseMixin = _emberMetal.Mixin.create({
-      quxMethod: function () {
-        return 'qux';
-      }
-    });
-
-    var MyMixin = _emberMetal.Mixin.create({
-      bar: (0, _emberMetal.aliasMethod)('foo'),
-      barMethod: (0, _emberMetal.aliasMethod)('fooMethod')
-    });
-
-    var obj = {
-      fooMethod: function () {
-        return 'FOO';
-      }
+      var obj = MyMixin.apply({});
+      validateAliasMethod(assert, obj);
     };
 
-    BaseMixin.apply(obj);
-    MyMixin.apply(obj);
+    _class.prototype['@test should follow aliasMethods all the way down'] = function (assert) {
+      var MyMixin = _emberMetal.Mixin.create({
+        bar: (0, _emberMetal.aliasMethod)('foo'), baz: function () {
+          return 'baz';
+        },
 
-    validateAliasMethod(assert, obj);
-  });
+        foo: (0, _emberMetal.aliasMethod)('baz')
+      });
+
+      var obj = MyMixin.apply({});
+      assert.equal((0, _emberMetal.get)(obj, 'bar')(), 'baz', 'should have followed aliasMethods');
+    };
+
+    _class.prototype['@test should alias methods from other dependent mixins'] = function (assert) {
+      var BaseMixin = _emberMetal.Mixin.create({
+        fooMethod: function () {
+          return 'FOO';
+        }
+      });
+
+      var MyMixin = _emberMetal.Mixin.create(BaseMixin, {
+        barMethod: (0, _emberMetal.aliasMethod)('fooMethod')
+      });
+
+      var obj = MyMixin.apply({});
+      validateAliasMethod(assert, obj);
+    };
+
+    _class.prototype['@test should alias methods from other mixins applied at same time'] = function (assert) {
+      var BaseMixin = _emberMetal.Mixin.create({
+        fooMethod: function () {
+          return 'FOO';
+        }
+      });
+
+      var MyMixin = _emberMetal.Mixin.create({
+        barMethod: (0, _emberMetal.aliasMethod)('fooMethod')
+      });
+
+      var obj = (0, _emberMetal.mixin)({}, BaseMixin, MyMixin);
+      validateAliasMethod(assert, obj);
+    };
+
+    _class.prototype['@test should alias methods from mixins already applied on object'] = function (assert) {
+      var BaseMixin = _emberMetal.Mixin.create({
+        quxMethod: function () {
+          return 'qux';
+        }
+      });
+
+      var MyMixin = _emberMetal.Mixin.create({
+        bar: (0, _emberMetal.aliasMethod)('foo'),
+        barMethod: (0, _emberMetal.aliasMethod)('fooMethod')
+      });
+
+      var obj = {
+        fooMethod: function () {
+          return 'FOO';
+        }
+      };
+
+      BaseMixin.apply(obj);
+      MyMixin.apply(obj);
+
+      validateAliasMethod(assert, obj);
+    };
+
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
 });
-enifed('ember-metal/tests/mixin/apply_test', ['ember-metal'], function (_emberMetal) {
+enifed('ember-metal/tests/mixin/apply_test', ['ember-babel', 'ember-metal', 'internal-test-helpers'], function (_emberBabel, _emberMetal, _internalTestHelpers) {
   'use strict';
-
-  QUnit.module('Ember.Mixin.apply');
 
   function K() {}
 
-  QUnit.test('using apply() should apply properties', function (assert) {
-    var MixinA = _emberMetal.Mixin.create({ foo: 'FOO', baz: K });
-    var obj = {};
-    (0, _emberMetal.mixin)(obj, MixinA);
+  (0, _internalTestHelpers.moduleFor)('Ember.Mixin.apply', function (_AbstractTestCase) {
+    (0, _emberBabel.inherits)(_class, _AbstractTestCase);
 
-    assert.equal((0, _emberMetal.get)(obj, 'foo'), 'FOO', 'should apply foo');
-    assert.equal((0, _emberMetal.get)(obj, 'baz'), K, 'should apply foo');
-  });
+    function _class() {
+      return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase.apply(this, arguments));
+    }
 
-  QUnit.test('applying anonymous properties', function (assert) {
-    var obj = {};
-    (0, _emberMetal.mixin)(obj, {
-      foo: 'FOO',
-      baz: K
-    });
+    _class.prototype['@test using apply() should apply properties'] = function (assert) {
+      var MixinA = _emberMetal.Mixin.create({ foo: 'FOO', baz: K });
+      var obj = {};
+      (0, _emberMetal.mixin)(obj, MixinA);
 
-    assert.equal((0, _emberMetal.get)(obj, 'foo'), 'FOO', 'should apply foo');
-    assert.equal((0, _emberMetal.get)(obj, 'baz'), K, 'should apply foo');
-  });
+      assert.equal((0, _emberMetal.get)(obj, 'foo'), 'FOO', 'should apply foo');
+      assert.equal((0, _emberMetal.get)(obj, 'baz'), K, 'should apply foo');
+    };
 
-  QUnit.test('applying null values', function () {
-    expectAssertion(function () {
-      return (0, _emberMetal.mixin)({}, null);
-    });
-  });
+    _class.prototype['@test applying anonymous properties'] = function (assert) {
+      var obj = {};
+      (0, _emberMetal.mixin)(obj, {
+        foo: 'FOO',
+        baz: K
+      });
 
-  QUnit.test('applying a property with an undefined value', function (assert) {
-    var obj = { tagName: '' };
-    (0, _emberMetal.mixin)(obj, { tagName: undefined });
+      assert.equal((0, _emberMetal.get)(obj, 'foo'), 'FOO', 'should apply foo');
+      assert.equal((0, _emberMetal.get)(obj, 'baz'), K, 'should apply foo');
+    };
 
-    assert.strictEqual((0, _emberMetal.get)(obj, 'tagName'), '');
-  });
+    _class.prototype['@test applying null values'] = function () {
+      expectAssertion(function () {
+        return (0, _emberMetal.mixin)({}, null);
+      });
+    };
+
+    _class.prototype['@test applying a property with an undefined value'] = function (assert) {
+      var obj = { tagName: '' };
+      (0, _emberMetal.mixin)(obj, { tagName: undefined });
+
+      assert.strictEqual((0, _emberMetal.get)(obj, 'tagName'), '');
+    };
+
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
 });
-enifed('ember-metal/tests/mixin/computed_test', ['ember-metal'], function (_emberMetal) {
+enifed('ember-metal/tests/mixin/computed_test', ['ember-babel', 'ember-metal', 'internal-test-helpers'], function (_emberBabel, _emberMetal, _internalTestHelpers) {
   'use strict';
 
   function K() {
     return this;
   }
 
-  QUnit.module('Mixin Computed Properties');
+  (0, _internalTestHelpers.moduleFor)('Mixin Computed Properties', function (_AbstractTestCase) {
+    (0, _emberBabel.inherits)(_class, _AbstractTestCase);
 
-  QUnit.test('overriding computed properties', function (assert) {
-    var MixinA = void 0,
-        MixinB = void 0,
-        MixinC = void 0,
-        MixinD = void 0;
-    var obj = void 0;
+    function _class() {
+      return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase.apply(this, arguments));
+    }
 
-    MixinA = _emberMetal.Mixin.create({
-      aProp: (0, _emberMetal.computed)(function () {
-        return 'A';
-      })
-    });
+    _class.prototype['@test overriding computed properties'] = function (assert) {
+      var MixinA = void 0,
+          MixinB = void 0,
+          MixinC = void 0,
+          MixinD = void 0;
+      var obj = void 0;
 
-    MixinB = _emberMetal.Mixin.create(MixinA, {
-      aProp: (0, _emberMetal.computed)(function () {
-        return this._super.apply(this, arguments) + 'B';
-      })
-    });
+      MixinA = _emberMetal.Mixin.create({
+        aProp: (0, _emberMetal.computed)(function () {
+          return 'A';
+        })
+      });
 
-    MixinC = _emberMetal.Mixin.create(MixinA, {
-      aProp: (0, _emberMetal.computed)(function () {
-        return this._super.apply(this, arguments) + 'C';
-      })
-    });
+      MixinB = _emberMetal.Mixin.create(MixinA, {
+        aProp: (0, _emberMetal.computed)(function () {
+          return this._super.apply(this, arguments) + 'B';
+        })
+      });
 
-    MixinD = _emberMetal.Mixin.create({
-      aProp: (0, _emberMetal.computed)(function () {
-        return this._super.apply(this, arguments) + 'D';
-      })
-    });
+      MixinC = _emberMetal.Mixin.create(MixinA, {
+        aProp: (0, _emberMetal.computed)(function () {
+          return this._super.apply(this, arguments) + 'C';
+        })
+      });
 
-    obj = {};
-    MixinB.apply(obj);
-    assert.equal((0, _emberMetal.get)(obj, 'aProp'), 'AB', 'should expose super for B');
+      MixinD = _emberMetal.Mixin.create({
+        aProp: (0, _emberMetal.computed)(function () {
+          return this._super.apply(this, arguments) + 'D';
+        })
+      });
 
-    obj = {};
-    MixinC.apply(obj);
-    assert.equal((0, _emberMetal.get)(obj, 'aProp'), 'AC', 'should expose super for C');
+      obj = {};
+      MixinB.apply(obj);
+      assert.equal((0, _emberMetal.get)(obj, 'aProp'), 'AB', 'should expose super for B');
 
-    obj = {};
+      obj = {};
+      MixinC.apply(obj);
+      assert.equal((0, _emberMetal.get)(obj, 'aProp'), 'AC', 'should expose super for C');
 
-    MixinA.apply(obj);
-    MixinD.apply(obj);
-    assert.equal((0, _emberMetal.get)(obj, 'aProp'), 'AD', 'should define super for D');
+      obj = {};
 
-    obj = {};
-    (0, _emberMetal.defineProperty)(obj, 'aProp', (0, _emberMetal.computed)(function () {
-      return 'obj';
-    }));
-    MixinD.apply(obj);
-    assert.equal((0, _emberMetal.get)(obj, 'aProp'), 'objD', 'should preserve original computed property');
-  });
+      MixinA.apply(obj);
+      MixinD.apply(obj);
+      assert.equal((0, _emberMetal.get)(obj, 'aProp'), 'AD', 'should define super for D');
 
-  QUnit.test('calling set on overridden computed properties', function (assert) {
-    var SuperMixin = void 0,
-        SubMixin = void 0;
-    var obj = void 0;
+      obj = {};
+      (0, _emberMetal.defineProperty)(obj, 'aProp', (0, _emberMetal.computed)(function () {
+        return 'obj';
+      }));
+      MixinD.apply(obj);
+      assert.equal((0, _emberMetal.get)(obj, 'aProp'), 'objD', 'should preserve original computed property');
+    };
 
-    var superGetOccurred = false;
-    var superSetOccurred = false;
+    _class.prototype['@test calling set on overridden computed properties'] = function (assert) {
+      var SuperMixin = void 0,
+          SubMixin = void 0;
+      var obj = void 0;
 
-    SuperMixin = _emberMetal.Mixin.create({
-      aProp: (0, _emberMetal.computed)({
-        get: function () {
-          superGetOccurred = true;
-        },
-        set: function () {
-          superSetOccurred = true;
-        }
-      })
-    });
+      var superGetOccurred = false;
+      var superSetOccurred = false;
 
-    SubMixin = _emberMetal.Mixin.create(SuperMixin, {
-      aProp: (0, _emberMetal.computed)({
-        get: function () {
-          return this._super.apply(this, arguments);
-        },
-        set: function () {
-          return this._super.apply(this, arguments);
-        }
-      })
-    });
+      SuperMixin = _emberMetal.Mixin.create({
+        aProp: (0, _emberMetal.computed)({
+          get: function () {
+            superGetOccurred = true;
+          },
+          set: function () {
+            superSetOccurred = true;
+          }
+        })
+      });
 
-    obj = {};
-    SubMixin.apply(obj);
+      SubMixin = _emberMetal.Mixin.create(SuperMixin, {
+        aProp: (0, _emberMetal.computed)({
+          get: function () {
+            return this._super.apply(this, arguments);
+          },
+          set: function () {
+            return this._super.apply(this, arguments);
+          }
+        })
+      });
 
-    (0, _emberMetal.set)(obj, 'aProp', 'set thyself');
-    assert.ok(superSetOccurred, 'should pass set to _super');
+      obj = {};
+      SubMixin.apply(obj);
 
-    superSetOccurred = false; // reset the set assertion
+      (0, _emberMetal.set)(obj, 'aProp', 'set thyself');
+      assert.ok(superSetOccurred, 'should pass set to _super');
 
-    obj = {};
-    SubMixin.apply(obj);
+      superSetOccurred = false; // reset the set assertion
 
-    (0, _emberMetal.get)(obj, 'aProp');
-    assert.ok(superGetOccurred, 'should pass get to _super');
+      obj = {};
+      SubMixin.apply(obj);
 
-    (0, _emberMetal.set)(obj, 'aProp', 'set thyself');
-    assert.ok(superSetOccurred, 'should pass set to _super after getting');
-  });
+      (0, _emberMetal.get)(obj, 'aProp');
+      assert.ok(superGetOccurred, 'should pass get to _super');
 
-  QUnit.test('setter behavior works properly when overriding computed properties', function (assert) {
-    var obj = {};
+      (0, _emberMetal.set)(obj, 'aProp', 'set thyself');
+      assert.ok(superSetOccurred, 'should pass set to _super after getting');
+    };
 
-    var MixinA = _emberMetal.Mixin.create({
-      cpWithSetter2: (0, _emberMetal.computed)(K),
-      cpWithSetter3: (0, _emberMetal.computed)(K),
-      cpWithoutSetter: (0, _emberMetal.computed)(K)
-    });
+    _class.prototype['@test setter behavior works properly when overriding computed properties'] = function (assert) {
+      var obj = {};
 
-    var cpWasCalled = false;
+      var MixinA = _emberMetal.Mixin.create({
+        cpWithSetter2: (0, _emberMetal.computed)(K),
+        cpWithSetter3: (0, _emberMetal.computed)(K),
+        cpWithoutSetter: (0, _emberMetal.computed)(K)
+      });
 
-    var MixinB = _emberMetal.Mixin.create({
-      cpWithSetter2: (0, _emberMetal.computed)({
-        get: K,
-        set: function () {
+      var cpWasCalled = false;
+
+      var MixinB = _emberMetal.Mixin.create({
+        cpWithSetter2: (0, _emberMetal.computed)({
+          get: K,
+          set: function () {
+            cpWasCalled = true;
+          }
+        }),
+
+        cpWithSetter3: (0, _emberMetal.computed)({
+          get: K,
+          set: function () {
+            cpWasCalled = true;
+          }
+        }),
+
+        cpWithoutSetter: (0, _emberMetal.computed)(function () {
           cpWasCalled = true;
-        }
-      }),
+        })
+      });
 
-      cpWithSetter3: (0, _emberMetal.computed)({
-        get: K,
-        set: function () {
-          cpWasCalled = true;
-        }
-      }),
+      MixinA.apply(obj);
+      MixinB.apply(obj);
 
-      cpWithoutSetter: (0, _emberMetal.computed)(function () {
-        cpWasCalled = true;
-      })
-    });
+      (0, _emberMetal.set)(obj, 'cpWithSetter2', 'test');
+      assert.ok(cpWasCalled, 'The computed property setter was called when defined with two args');
+      cpWasCalled = false;
 
-    MixinA.apply(obj);
-    MixinB.apply(obj);
+      (0, _emberMetal.set)(obj, 'cpWithSetter3', 'test');
+      assert.ok(cpWasCalled, 'The computed property setter was called when defined with three args');
+      cpWasCalled = false;
 
-    (0, _emberMetal.set)(obj, 'cpWithSetter2', 'test');
-    assert.ok(cpWasCalled, 'The computed property setter was called when defined with two args');
-    cpWasCalled = false;
+      (0, _emberMetal.set)(obj, 'cpWithoutSetter', 'test');
+      assert.equal((0, _emberMetal.get)(obj, 'cpWithoutSetter'), 'test', 'The default setter was called, the value is correct');
+      assert.ok(!cpWasCalled, 'The default setter was called, not the CP itself');
+    };
 
-    (0, _emberMetal.set)(obj, 'cpWithSetter3', 'test');
-    assert.ok(cpWasCalled, 'The computed property setter was called when defined with three args');
-    cpWasCalled = false;
-
-    (0, _emberMetal.set)(obj, 'cpWithoutSetter', 'test');
-    assert.equal((0, _emberMetal.get)(obj, 'cpWithoutSetter'), 'test', 'The default setter was called, the value is correct');
-    assert.ok(!cpWasCalled, 'The default setter was called, not the CP itself');
-  });
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
 });
-enifed('ember-metal/tests/mixin/concatenated_properties_test', ['ember-metal'], function (_emberMetal) {
+enifed('ember-metal/tests/mixin/concatenated_properties_test', ['ember-babel', 'ember-metal', 'internal-test-helpers'], function (_emberBabel, _emberMetal, _internalTestHelpers) {
   'use strict';
 
-  QUnit.module('Mixin concatenatedProperties');
+  (0, _internalTestHelpers.moduleFor)('Mixin concatenatedProperties', function (_AbstractTestCase) {
+    (0, _emberBabel.inherits)(_class, _AbstractTestCase);
 
-  QUnit.test('defining concatenated properties should concat future version', function (assert) {
-    var MixinA = _emberMetal.Mixin.create({
-      concatenatedProperties: ['foo'],
-      foo: ['a', 'b', 'c']
-    });
+    function _class() {
+      return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase.apply(this, arguments));
+    }
 
-    var MixinB = _emberMetal.Mixin.create({
-      foo: ['d', 'e', 'f']
-    });
+    _class.prototype['@test defining concatenated properties should concat future version'] = function (assert) {
+      var MixinA = _emberMetal.Mixin.create({
+        concatenatedProperties: ['foo'],
+        foo: ['a', 'b', 'c']
+      });
 
-    var obj = (0, _emberMetal.mixin)({}, MixinA, MixinB);
-    assert.deepEqual((0, _emberMetal.get)(obj, 'foo'), ['a', 'b', 'c', 'd', 'e', 'f']);
-  });
+      var MixinB = _emberMetal.Mixin.create({
+        foo: ['d', 'e', 'f']
+      });
 
-  QUnit.test('defining concatenated properties should concat future version', function (assert) {
-    var MixinA = _emberMetal.Mixin.create({
-      concatenatedProperties: null
-    });
+      var obj = (0, _emberMetal.mixin)({}, MixinA, MixinB);
+      assert.deepEqual((0, _emberMetal.get)(obj, 'foo'), ['a', 'b', 'c', 'd', 'e', 'f']);
+    };
 
-    var MixinB = _emberMetal.Mixin.create({
-      concatenatedProperties: null
-    });
+    _class.prototype['@test defining concatenated properties should concat future version'] = function (assert) {
+      var MixinA = _emberMetal.Mixin.create({
+        concatenatedProperties: null
+      });
 
-    var obj = (0, _emberMetal.mixin)({}, MixinA, MixinB);
+      var MixinB = _emberMetal.Mixin.create({
+        concatenatedProperties: null
+      });
 
-    assert.deepEqual(obj.concatenatedProperties, []);
-  });
+      var obj = (0, _emberMetal.mixin)({}, MixinA, MixinB);
 
-  QUnit.test('concatenatedProperties should be concatenated', function (assert) {
-    var MixinA = _emberMetal.Mixin.create({
-      concatenatedProperties: ['foo'],
-      foo: ['a', 'b', 'c']
-    });
+      assert.deepEqual(obj.concatenatedProperties, []);
+    };
 
-    var MixinB = _emberMetal.Mixin.create({
-      concatenatedProperties: 'bar',
-      foo: ['d', 'e', 'f'],
-      bar: [1, 2, 3]
-    });
+    _class.prototype['@test concatenatedProperties should be concatenated'] = function (assert) {
+      var MixinA = _emberMetal.Mixin.create({
+        concatenatedProperties: ['foo'],
+        foo: ['a', 'b', 'c']
+      });
 
-    var MixinC = _emberMetal.Mixin.create({
-      bar: [4, 5, 6]
-    });
+      var MixinB = _emberMetal.Mixin.create({
+        concatenatedProperties: 'bar',
+        foo: ['d', 'e', 'f'],
+        bar: [1, 2, 3]
+      });
 
-    var obj = (0, _emberMetal.mixin)({}, MixinA, MixinB, MixinC);
-    assert.deepEqual((0, _emberMetal.get)(obj, 'concatenatedProperties'), ['foo', 'bar'], 'get concatenatedProperties');
-    assert.deepEqual((0, _emberMetal.get)(obj, 'foo'), ['a', 'b', 'c', 'd', 'e', 'f'], 'get foo');
-    assert.deepEqual((0, _emberMetal.get)(obj, 'bar'), [1, 2, 3, 4, 5, 6], 'get bar');
-  });
+      var MixinC = _emberMetal.Mixin.create({
+        bar: [4, 5, 6]
+      });
 
-  QUnit.test('adding a prop that is not an array should make array', function (assert) {
-    var MixinA = _emberMetal.Mixin.create({
-      concatenatedProperties: ['foo'],
-      foo: [1, 2, 3]
-    });
+      var obj = (0, _emberMetal.mixin)({}, MixinA, MixinB, MixinC);
+      assert.deepEqual((0, _emberMetal.get)(obj, 'concatenatedProperties'), ['foo', 'bar'], 'get concatenatedProperties');
+      assert.deepEqual((0, _emberMetal.get)(obj, 'foo'), ['a', 'b', 'c', 'd', 'e', 'f'], 'get foo');
+      assert.deepEqual((0, _emberMetal.get)(obj, 'bar'), [1, 2, 3, 4, 5, 6], 'get bar');
+    };
 
-    var MixinB = _emberMetal.Mixin.create({
-      foo: 4
-    });
+    _class.prototype['@test adding a prop that is not an array should make array'] = function (assert) {
+      var MixinA = _emberMetal.Mixin.create({
+        concatenatedProperties: ['foo'],
+        foo: [1, 2, 3]
+      });
 
-    var obj = (0, _emberMetal.mixin)({}, MixinA, MixinB);
-    assert.deepEqual((0, _emberMetal.get)(obj, 'foo'), [1, 2, 3, 4]);
-  });
+      var MixinB = _emberMetal.Mixin.create({
+        foo: 4
+      });
 
-  QUnit.test('adding a prop that is not an array should make array', function (assert) {
-    var MixinA = _emberMetal.Mixin.create({
-      concatenatedProperties: ['foo'],
-      foo: 'bar'
-    });
+      var obj = (0, _emberMetal.mixin)({}, MixinA, MixinB);
+      assert.deepEqual((0, _emberMetal.get)(obj, 'foo'), [1, 2, 3, 4]);
+    };
 
-    var obj = (0, _emberMetal.mixin)({}, MixinA);
-    assert.deepEqual((0, _emberMetal.get)(obj, 'foo'), ['bar']);
-  });
+    _class.prototype['@test adding a prop that is not an array should make array'] = function (assert) {
+      var MixinA = _emberMetal.Mixin.create({
+        concatenatedProperties: ['foo'],
+        foo: 'bar'
+      });
 
-  QUnit.test('adding a non-concatenable property that already has a defined value should result in an array with both values', function (assert) {
-    var mixinA = _emberMetal.Mixin.create({
-      foo: 1
-    });
+      var obj = (0, _emberMetal.mixin)({}, MixinA);
+      assert.deepEqual((0, _emberMetal.get)(obj, 'foo'), ['bar']);
+    };
 
-    var mixinB = _emberMetal.Mixin.create({
-      concatenatedProperties: ['foo'],
-      foo: 2
-    });
+    _class.prototype['@test adding a non-concatenable property that already has a defined value should result in an array with both values'] = function (assert) {
+      var mixinA = _emberMetal.Mixin.create({
+        foo: 1
+      });
 
-    var obj = (0, _emberMetal.mixin)({}, mixinA, mixinB);
-    assert.deepEqual((0, _emberMetal.get)(obj, 'foo'), [1, 2]);
-  });
+      var mixinB = _emberMetal.Mixin.create({
+        concatenatedProperties: ['foo'],
+        foo: 2
+      });
 
-  QUnit.test('adding a concatenable property that already has a defined value should result in a concatenated value', function (assert) {
-    var mixinA = _emberMetal.Mixin.create({
-      foobar: 'foo'
-    });
+      var obj = (0, _emberMetal.mixin)({}, mixinA, mixinB);
+      assert.deepEqual((0, _emberMetal.get)(obj, 'foo'), [1, 2]);
+    };
 
-    var mixinB = _emberMetal.Mixin.create({
-      concatenatedProperties: ['foobar'],
-      foobar: 'bar'
-    });
+    _class.prototype['@test adding a concatenable property that already has a defined value should result in a concatenated value'] = function (assert) {
+      var mixinA = _emberMetal.Mixin.create({
+        foobar: 'foo'
+      });
 
-    var obj = (0, _emberMetal.mixin)({}, mixinA, mixinB);
-    assert.deepEqual((0, _emberMetal.get)(obj, 'foobar'), ['foo', 'bar']);
-  });
+      var mixinB = _emberMetal.Mixin.create({
+        concatenatedProperties: ['foobar'],
+        foobar: 'bar'
+      });
+
+      var obj = (0, _emberMetal.mixin)({}, mixinA, mixinB);
+      assert.deepEqual((0, _emberMetal.get)(obj, 'foobar'), ['foo', 'bar']);
+    };
+
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
 });
-enifed('ember-metal/tests/mixin/detect_test', ['ember-metal'], function (_emberMetal) {
+enifed('ember-metal/tests/mixin/detect_test', ['ember-babel', 'ember-metal', 'internal-test-helpers'], function (_emberBabel, _emberMetal, _internalTestHelpers) {
   'use strict';
 
-  QUnit.module('Mixin.detect');
+  (0, _internalTestHelpers.moduleFor)('Mixin.detect', function (_AbstractTestCase) {
+    (0, _emberBabel.inherits)(_class, _AbstractTestCase);
 
-  QUnit.test('detect() finds a directly applied mixin', function (assert) {
-    var MixinA = _emberMetal.Mixin.create();
-    var obj = {};
+    function _class() {
+      return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase.apply(this, arguments));
+    }
 
-    assert.equal(MixinA.detect(obj), false, 'MixinA.detect(obj) before apply()');
+    _class.prototype['@test detect() finds a directly applied mixin'] = function (assert) {
+      var MixinA = _emberMetal.Mixin.create();
+      var obj = {};
 
-    MixinA.apply(obj);
-    assert.equal(MixinA.detect(obj), true, 'MixinA.detect(obj) after apply()');
-  });
+      assert.equal(MixinA.detect(obj), false, 'MixinA.detect(obj) before apply()');
 
-  QUnit.test('detect() finds nested mixins', function (assert) {
-    var MixinA = _emberMetal.Mixin.create({});
-    var MixinB = _emberMetal.Mixin.create(MixinA);
-    var obj = {};
+      MixinA.apply(obj);
+      assert.equal(MixinA.detect(obj), true, 'MixinA.detect(obj) after apply()');
+    };
 
-    assert.equal(MixinA.detect(obj), false, 'MixinA.detect(obj) before apply()');
+    _class.prototype['@test detect() finds nested mixins'] = function (assert) {
+      var MixinA = _emberMetal.Mixin.create({});
+      var MixinB = _emberMetal.Mixin.create(MixinA);
+      var obj = {};
 
-    MixinB.apply(obj);
-    assert.equal(MixinA.detect(obj), true, 'MixinA.detect(obj) after apply()');
-  });
+      assert.equal(MixinA.detect(obj), false, 'MixinA.detect(obj) before apply()');
 
-  QUnit.test('detect() finds mixins on other mixins', function (assert) {
-    var MixinA = _emberMetal.Mixin.create({});
-    var MixinB = _emberMetal.Mixin.create(MixinA);
-    assert.equal(MixinA.detect(MixinB), true, 'MixinA is part of MixinB');
-    assert.equal(MixinB.detect(MixinA), false, 'MixinB is not part of MixinA');
-  });
+      MixinB.apply(obj);
+      assert.equal(MixinA.detect(obj), true, 'MixinA.detect(obj) after apply()');
+    };
 
-  QUnit.test('detect handles null values', function (assert) {
-    var MixinA = _emberMetal.Mixin.create();
-    assert.equal(MixinA.detect(null), false);
-  });
+    _class.prototype['@test detect() finds mixins on other mixins'] = function (assert) {
+      var MixinA = _emberMetal.Mixin.create({});
+      var MixinB = _emberMetal.Mixin.create(MixinA);
+      assert.equal(MixinA.detect(MixinB), true, 'MixinA is part of MixinB');
+      assert.equal(MixinB.detect(MixinA), false, 'MixinB is not part of MixinA');
+    };
+
+    _class.prototype['@test detect handles null values'] = function (assert) {
+      var MixinA = _emberMetal.Mixin.create();
+      assert.equal(MixinA.detect(null), false);
+    };
+
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
 });
-enifed('ember-metal/tests/mixin/introspection_test', ['ember-utils', 'ember-metal'], function (_emberUtils, _emberMetal) {
+enifed('ember-metal/tests/mixin/introspection_test', ['ember-babel', 'ember-utils', 'ember-metal', 'internal-test-helpers'], function (_emberBabel, _emberUtils, _emberMetal, _internalTestHelpers) {
   'use strict';
-
-  // NOTE: A previous iteration differentiated between public and private props
-  // as well as methods vs props.  We are just keeping these for testing; the
-  // current impl doesn't care about the differences as much...
 
   var PrivateProperty = _emberMetal.Mixin.create({
     _foo: '_FOO'
-  });
+  }); // NOTE: A previous iteration differentiated between public and private props
+  // as well as methods vs props.  We are just keeping these for testing; the
+  // current impl doesn't care about the differences as much...
+
   var PublicProperty = _emberMetal.Mixin.create({
     foo: 'FOO'
   });
@@ -41014,715 +41053,776 @@ enifed('ember-metal/tests/mixin/introspection_test', ['ember-utils', 'ember-meta
 
   var obj = void 0;
 
-  QUnit.module('Basic introspection', {
-    beforeEach: function () {
+  (0, _internalTestHelpers.moduleFor)('Basic introspection', function (_AbstractTestCase) {
+    (0, _emberBabel.inherits)(_class, _AbstractTestCase);
+
+    function _class() {
+      return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase.apply(this, arguments));
+    }
+
+    _class.prototype.beforeEach = function () {
       obj = {};
       (0, _emberMetal.mixin)(obj, PrivateProperty, PublicProperty, PrivateMethod, PublicMethod, Combined);
-    }
-  });
+    };
 
-  QUnit.test('Ember.mixins()', function (assert) {
-    function mapGuids(ary) {
-      return ary.map(function (x) {
-        return (0, _emberUtils.guidFor)(x);
+    _class.prototype['@test Ember.mixins()'] = function (assert) {
+      function mapGuids(ary) {
+        return ary.map(function (x) {
+          return (0, _emberUtils.guidFor)(x);
+        });
+      }
+
+      assert.deepEqual(mapGuids(_emberMetal.Mixin.mixins(obj)), mapGuids([PrivateProperty, PublicProperty, PrivateMethod, PublicMethod, Combined, BarProperties, BarMethods]), 'should return included mixins');
+    };
+
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
+});
+enifed('ember-metal/tests/mixin/merged_properties_test', ['ember-babel', 'ember-runtime', 'ember-metal', 'internal-test-helpers'], function (_emberBabel, _emberRuntime, _emberMetal, _internalTestHelpers) {
+  'use strict';
+
+  (0, _internalTestHelpers.moduleFor)('Mixin mergedProperties', function (_AbstractTestCase) {
+    (0, _emberBabel.inherits)(_class, _AbstractTestCase);
+
+    function _class() {
+      return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase.apply(this, arguments));
+    }
+
+    _class.prototype['@test defining mergedProperties should merge future version'] = function (assert) {
+      var MixinA = _emberMetal.Mixin.create({
+        mergedProperties: ['foo'],
+        foo: { a: true, b: true, c: true }
       });
+
+      var MixinB = _emberMetal.Mixin.create({
+        foo: { d: true, e: true, f: true }
+      });
+
+      var obj = (0, _emberMetal.mixin)({}, MixinA, MixinB);
+      assert.deepEqual((0, _emberMetal.get)(obj, 'foo'), { a: true, b: true, c: true, d: true, e: true, f: true });
+    };
+
+    _class.prototype['@test defining mergedProperties on future mixin should merged into past'] = function (assert) {
+      var MixinA = _emberMetal.Mixin.create({
+        foo: { a: true, b: true, c: true }
+      });
+
+      var MixinB = _emberMetal.Mixin.create({
+        mergedProperties: ['foo'],
+        foo: { d: true, e: true, f: true }
+      });
+
+      var obj = (0, _emberMetal.mixin)({}, MixinA, MixinB);
+      assert.deepEqual((0, _emberMetal.get)(obj, 'foo'), { a: true, b: true, c: true, d: true, e: true, f: true });
+    };
+
+    _class.prototype['@test defining mergedProperties with null properties should keep properties null'] = function (assert) {
+      var MixinA = _emberMetal.Mixin.create({
+        mergedProperties: ['foo'],
+        foo: null
+      });
+
+      var MixinB = _emberMetal.Mixin.create({
+        foo: null
+      });
+
+      var obj = (0, _emberMetal.mixin)({}, MixinA, MixinB);
+      assert.equal((0, _emberMetal.get)(obj, 'foo'), null);
+    };
+
+    _class.prototype['@test mergedProperties\' properties can get overwritten'] = function (assert) {
+      var MixinA = _emberMetal.Mixin.create({
+        mergedProperties: ['foo'],
+        foo: { a: 1 }
+      });
+
+      var MixinB = _emberMetal.Mixin.create({
+        foo: { a: 2 }
+      });
+
+      var obj = (0, _emberMetal.mixin)({}, MixinA, MixinB);
+      assert.deepEqual((0, _emberMetal.get)(obj, 'foo'), { a: 2 });
+    };
+
+    _class.prototype['@test mergedProperties should be concatenated'] = function (assert) {
+      var MixinA = _emberMetal.Mixin.create({
+        mergedProperties: ['foo'],
+        foo: { a: true, b: true, c: true }
+      });
+
+      var MixinB = _emberMetal.Mixin.create({
+        mergedProperties: 'bar',
+        foo: { d: true, e: true, f: true },
+        bar: { a: true, l: true }
+      });
+
+      var MixinC = _emberMetal.Mixin.create({
+        bar: { e: true, x: true }
+      });
+
+      var obj = (0, _emberMetal.mixin)({}, MixinA, MixinB, MixinC);
+      assert.deepEqual((0, _emberMetal.get)(obj, 'mergedProperties'), ['foo', 'bar'], 'get mergedProperties');
+      assert.deepEqual((0, _emberMetal.get)(obj, 'foo'), { a: true, b: true, c: true, d: true, e: true, f: true }, 'get foo');
+      assert.deepEqual((0, _emberMetal.get)(obj, 'bar'), { a: true, l: true, e: true, x: true }, 'get bar');
+    };
+
+    _class.prototype['@test mergedProperties should exist even if not explicitly set on create'] = function (assert) {
+      var AnObj = _emberRuntime.Object.extend({
+        mergedProperties: ['options'],
+        options: {
+          a: 'a',
+          b: {
+            c: 'ccc'
+          }
+        }
+      });
+
+      var obj = AnObj.create({
+        options: {
+          a: 'A'
+        }
+      });
+
+      assert.equal((0, _emberMetal.get)(obj, 'options').a, 'A');
+      assert.equal((0, _emberMetal.get)(obj, 'options').b.c, 'ccc');
+    };
+
+    _class.prototype['@test defining mergedProperties at create time should not modify the prototype'] = function (assert) {
+      var AnObj = _emberRuntime.Object.extend({
+        mergedProperties: ['options'],
+        options: {
+          a: 1
+        }
+      });
+
+      var objA = AnObj.create({
+        options: {
+          a: 2
+        }
+      });
+      var objB = AnObj.create({
+        options: {
+          a: 3
+        }
+      });
+
+      assert.equal((0, _emberMetal.get)(objA, 'options').a, 2);
+      assert.equal((0, _emberMetal.get)(objB, 'options').a, 3);
+    };
+
+    _class.prototype['@test mergedProperties\' overwriting methods can call _super'] = function (assert) {
+      assert.expect(4);
+
+      var MixinA = _emberMetal.Mixin.create({
+        mergedProperties: ['foo'],
+        foo: {
+          meth: function (a) {
+            assert.equal(a, 'WOOT', '_super successfully called MixinA\'s `foo.meth` method');
+            return 'WAT';
+          }
+        }
+      });
+
+      var MixinB = _emberMetal.Mixin.create({
+        foo: {
+          meth: function () {
+            assert.ok(true, 'MixinB\'s `foo.meth` method called');
+            return this._super.apply(this, arguments);
+          }
+        }
+      });
+
+      var MixinC = _emberMetal.Mixin.create({
+        foo: {
+          meth: function (a) {
+            assert.ok(true, 'MixinC\'s `foo.meth` method called');
+            return this._super(a);
+          }
+        }
+      });
+
+      var obj = (0, _emberMetal.mixin)({}, MixinA, MixinB, MixinC);
+      assert.equal(obj.foo.meth('WOOT'), 'WAT');
+    };
+
+    _class.prototype['@test Merging an Array should raise an error'] = function (assert) {
+      assert.expect(1);
+
+      var MixinA = _emberMetal.Mixin.create({
+        mergedProperties: ['foo'],
+        foo: { a: true, b: true, c: true }
+      });
+
+      var MixinB = _emberMetal.Mixin.create({
+        foo: ['a']
+      });
+
+      expectAssertion(function () {
+        (0, _emberMetal.mixin)({}, MixinA, MixinB);
+      }, 'You passed in `["a"]` as the value for `foo` but `foo` cannot be an Array');
+    };
+
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
+});
+enifed('ember-metal/tests/mixin/method_test', ['ember-babel', 'ember-metal', 'internal-test-helpers'], function (_emberBabel, _emberMetal, _internalTestHelpers) {
+  'use strict';
+
+  (0, _internalTestHelpers.moduleFor)('Mixin Methods', function (_AbstractTestCase) {
+    (0, _emberBabel.inherits)(_class, _AbstractTestCase);
+
+    function _class() {
+      return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase.apply(this, arguments));
     }
 
-    assert.deepEqual(mapGuids(_emberMetal.Mixin.mixins(obj)), mapGuids([PrivateProperty, PublicProperty, PrivateMethod, PublicMethod, Combined, BarProperties, BarMethods]), 'should return included mixins');
-  });
-});
-enifed('ember-metal/tests/mixin/merged_properties_test', ['ember-runtime', 'ember-metal'], function (_emberRuntime, _emberMetal) {
-  'use strict';
+    _class.prototype['@test defining simple methods'] = function (assert) {
+      var MixinA = void 0,
+          obj = void 0,
+          props = void 0;
 
-  QUnit.module('Mixin mergedProperties');
-
-  QUnit.test('defining mergedProperties should merge future version', function (assert) {
-    var MixinA = _emberMetal.Mixin.create({
-      mergedProperties: ['foo'],
-      foo: { a: true, b: true, c: true }
-    });
-
-    var MixinB = _emberMetal.Mixin.create({
-      foo: { d: true, e: true, f: true }
-    });
-
-    var obj = (0, _emberMetal.mixin)({}, MixinA, MixinB);
-    assert.deepEqual((0, _emberMetal.get)(obj, 'foo'), { a: true, b: true, c: true, d: true, e: true, f: true });
-  });
-
-  QUnit.test('defining mergedProperties on future mixin should merged into past', function (assert) {
-    var MixinA = _emberMetal.Mixin.create({
-      foo: { a: true, b: true, c: true }
-    });
-
-    var MixinB = _emberMetal.Mixin.create({
-      mergedProperties: ['foo'],
-      foo: { d: true, e: true, f: true }
-    });
-
-    var obj = (0, _emberMetal.mixin)({}, MixinA, MixinB);
-    assert.deepEqual((0, _emberMetal.get)(obj, 'foo'), { a: true, b: true, c: true, d: true, e: true, f: true });
-  });
-
-  QUnit.test('defining mergedProperties with null properties should keep properties null', function (assert) {
-    var MixinA = _emberMetal.Mixin.create({
-      mergedProperties: ['foo'],
-      foo: null
-    });
-
-    var MixinB = _emberMetal.Mixin.create({
-      foo: null
-    });
-
-    var obj = (0, _emberMetal.mixin)({}, MixinA, MixinB);
-    assert.equal((0, _emberMetal.get)(obj, 'foo'), null);
-  });
-
-  QUnit.test('mergedProperties\' properties can get overwritten', function (assert) {
-    var MixinA = _emberMetal.Mixin.create({
-      mergedProperties: ['foo'],
-      foo: { a: 1 }
-    });
-
-    var MixinB = _emberMetal.Mixin.create({
-      foo: { a: 2 }
-    });
-
-    var obj = (0, _emberMetal.mixin)({}, MixinA, MixinB);
-    assert.deepEqual((0, _emberMetal.get)(obj, 'foo'), { a: 2 });
-  });
-
-  QUnit.test('mergedProperties should be concatenated', function (assert) {
-    var MixinA = _emberMetal.Mixin.create({
-      mergedProperties: ['foo'],
-      foo: { a: true, b: true, c: true }
-    });
-
-    var MixinB = _emberMetal.Mixin.create({
-      mergedProperties: 'bar',
-      foo: { d: true, e: true, f: true },
-      bar: { a: true, l: true }
-    });
-
-    var MixinC = _emberMetal.Mixin.create({
-      bar: { e: true, x: true }
-    });
-
-    var obj = (0, _emberMetal.mixin)({}, MixinA, MixinB, MixinC);
-    assert.deepEqual((0, _emberMetal.get)(obj, 'mergedProperties'), ['foo', 'bar'], 'get mergedProperties');
-    assert.deepEqual((0, _emberMetal.get)(obj, 'foo'), { a: true, b: true, c: true, d: true, e: true, f: true }, 'get foo');
-    assert.deepEqual((0, _emberMetal.get)(obj, 'bar'), { a: true, l: true, e: true, x: true }, 'get bar');
-  });
-
-  QUnit.test('mergedProperties should exist even if not explicitly set on create', function (assert) {
-    var AnObj = _emberRuntime.Object.extend({
-      mergedProperties: ['options'],
-      options: {
-        a: 'a',
-        b: {
-          c: 'ccc'
+      props = {
+        publicMethod: function () {
+          return 'publicMethod';
+        },
+        _privateMethod: function () {
+          return 'privateMethod';
         }
-      }
-    });
+      };
 
-    var obj = AnObj.create({
-      options: {
-        a: 'A'
-      }
-    });
+      MixinA = _emberMetal.Mixin.create(props);
+      obj = {};
+      MixinA.apply(obj);
 
-    assert.equal((0, _emberMetal.get)(obj, 'options').a, 'A');
-    assert.equal((0, _emberMetal.get)(obj, 'options').b.c, 'ccc');
-  });
-
-  QUnit.test('defining mergedProperties at create time should not modify the prototype', function (assert) {
-    var AnObj = _emberRuntime.Object.extend({
-      mergedProperties: ['options'],
-      options: {
-        a: 1
-      }
-    });
-
-    var objA = AnObj.create({
-      options: {
-        a: 2
-      }
-    });
-    var objB = AnObj.create({
-      options: {
-        a: 3
-      }
-    });
-
-    assert.equal((0, _emberMetal.get)(objA, 'options').a, 2);
-    assert.equal((0, _emberMetal.get)(objB, 'options').a, 3);
-  });
-
-  QUnit.test('mergedProperties\' overwriting methods can call _super', function (assert) {
-    assert.expect(4);
-
-    var MixinA = _emberMetal.Mixin.create({
-      mergedProperties: ['foo'],
-      foo: {
-        meth: function (a) {
-          assert.equal(a, 'WOOT', '_super successfully called MixinA\'s `foo.meth` method');
-          return 'WAT';
-        }
-      }
-    });
-
-    var MixinB = _emberMetal.Mixin.create({
-      foo: {
-        meth: function () {
-          assert.ok(true, 'MixinB\'s `foo.meth` method called');
-          return this._super.apply(this, arguments);
-        }
-      }
-    });
-
-    var MixinC = _emberMetal.Mixin.create({
-      foo: {
-        meth: function (a) {
-          assert.ok(true, 'MixinC\'s `foo.meth` method called');
-          return this._super(a);
-        }
-      }
-    });
-
-    var obj = (0, _emberMetal.mixin)({}, MixinA, MixinB, MixinC);
-    assert.equal(obj.foo.meth('WOOT'), 'WAT');
-  });
-
-  QUnit.test('Merging an Array should raise an error', function (assert) {
-    assert.expect(1);
-
-    var MixinA = _emberMetal.Mixin.create({
-      mergedProperties: ['foo'],
-      foo: { a: true, b: true, c: true }
-    });
-
-    var MixinB = _emberMetal.Mixin.create({
-      foo: ['a']
-    });
-
-    expectAssertion(function () {
-      (0, _emberMetal.mixin)({}, MixinA, MixinB);
-    }, 'You passed in `["a"]` as the value for `foo` but `foo` cannot be an Array');
-  });
-});
-enifed('ember-metal/tests/mixin/method_test', ['ember-metal'], function (_emberMetal) {
-  'use strict';
-
-  QUnit.module('Mixin Methods');
-
-  QUnit.test('defining simple methods', function (assert) {
-    var MixinA = void 0,
-        obj = void 0,
-        props = void 0;
-
-    props = {
-      publicMethod: function () {
-        return 'publicMethod';
-      },
-      _privateMethod: function () {
-        return 'privateMethod';
-      }
+      // but should be defined
+      assert.equal(props.publicMethod(), 'publicMethod', 'publicMethod is func');
+      assert.equal(props._privateMethod(), 'privateMethod', 'privateMethod is func');
     };
 
-    MixinA = _emberMetal.Mixin.create(props);
-    obj = {};
-    MixinA.apply(obj);
+    _class.prototype['@test overriding public methods'] = function (assert) {
+      var MixinA = void 0,
+          MixinB = void 0,
+          MixinD = void 0,
+          MixinF = void 0,
+          obj = void 0;
 
-    // but should be defined
-    assert.equal(props.publicMethod(), 'publicMethod', 'publicMethod is func');
-    assert.equal(props._privateMethod(), 'privateMethod', 'privateMethod is func');
-  });
+      MixinA = _emberMetal.Mixin.create({
+        publicMethod: function () {
+          return 'A';
+        }
+      });
 
-  QUnit.test('overriding public methods', function (assert) {
-    var MixinA = void 0,
-        MixinB = void 0,
-        MixinD = void 0,
-        MixinF = void 0,
-        obj = void 0;
+      MixinB = _emberMetal.Mixin.create(MixinA, {
+        publicMethod: function () {
+          return this._super.apply(this, arguments) + 'B';
+        }
+      });
 
-    MixinA = _emberMetal.Mixin.create({
-      publicMethod: function () {
-        return 'A';
-      }
-    });
+      MixinD = _emberMetal.Mixin.create(MixinA, {
+        publicMethod: function () {
+          return this._super.apply(this, arguments) + 'D';
+        }
+      });
 
-    MixinB = _emberMetal.Mixin.create(MixinA, {
-      publicMethod: function () {
-        return this._super.apply(this, arguments) + 'B';
-      }
-    });
+      MixinF = _emberMetal.Mixin.create({
+        publicMethod: function () {
+          return this._super.apply(this, arguments) + 'F';
+        }
+      });
 
-    MixinD = _emberMetal.Mixin.create(MixinA, {
-      publicMethod: function () {
-        return this._super.apply(this, arguments) + 'D';
-      }
-    });
+      obj = {};
+      MixinB.apply(obj);
+      assert.equal(obj.publicMethod(), 'AB', 'should define super for A and B');
 
-    MixinF = _emberMetal.Mixin.create({
-      publicMethod: function () {
-        return this._super.apply(this, arguments) + 'F';
-      }
-    });
+      obj = {};
+      MixinD.apply(obj);
+      assert.equal(obj.publicMethod(), 'AD', 'should define super for A and B');
 
-    obj = {};
-    MixinB.apply(obj);
-    assert.equal(obj.publicMethod(), 'AB', 'should define super for A and B');
+      obj = {};
+      MixinA.apply(obj);
+      MixinF.apply(obj);
+      assert.equal(obj.publicMethod(), 'AF', 'should define super for A and F');
 
-    obj = {};
-    MixinD.apply(obj);
-    assert.equal(obj.publicMethod(), 'AD', 'should define super for A and B');
-
-    obj = {};
-    MixinA.apply(obj);
-    MixinF.apply(obj);
-    assert.equal(obj.publicMethod(), 'AF', 'should define super for A and F');
-
-    obj = {
-      publicMethod: function () {
-        return 'obj';
-      }
+      obj = {
+        publicMethod: function () {
+          return 'obj';
+        }
+      };
+      MixinF.apply(obj);
+      assert.equal(obj.publicMethod(), 'objF', 'should define super for F');
     };
-    MixinF.apply(obj);
-    assert.equal(obj.publicMethod(), 'objF', 'should define super for F');
-  });
 
-  QUnit.test('overriding inherited objects', function (assert) {
-    var cnt = 0;
-    var MixinA = _emberMetal.Mixin.create({
-      foo: function () {
-        cnt++;
-      }
-    });
+    _class.prototype['@test overriding inherited objects'] = function (assert) {
+      var cnt = 0;
+      var MixinA = _emberMetal.Mixin.create({
+        foo: function () {
+          cnt++;
+        }
+      });
 
-    var MixinB = _emberMetal.Mixin.create({
-      foo: function () {
-        this._super.apply(this, arguments);
-        cnt++;
-      }
-    });
+      var MixinB = _emberMetal.Mixin.create({
+        foo: function () {
+          this._super.apply(this, arguments);
+          cnt++;
+        }
+      });
 
-    var objA = {};
-    MixinA.apply(objA);
+      var objA = {};
+      MixinA.apply(objA);
 
-    var objB = Object.create(objA);
-    MixinB.apply(objB);
+      var objB = Object.create(objA);
+      MixinB.apply(objB);
 
-    cnt = 0;
-    objB.foo();
-    assert.equal(cnt, 2, 'should invoke both methods');
+      cnt = 0;
+      objB.foo();
+      assert.equal(cnt, 2, 'should invoke both methods');
 
-    cnt = 0;
-    objA.foo();
-    assert.equal(cnt, 1, 'should not screw w/ parent obj');
-  });
+      cnt = 0;
+      objA.foo();
+      assert.equal(cnt, 1, 'should not screw w/ parent obj');
+    };
 
-  QUnit.test('Including the same mixin more than once will only run once', function (assert) {
-    var cnt = 0;
-    var MixinA = _emberMetal.Mixin.create({
-      foo: function () {
-        cnt++;
-      }
-    });
+    _class.prototype['@test Including the same mixin more than once will only run once'] = function (assert) {
+      var cnt = 0;
+      var MixinA = _emberMetal.Mixin.create({
+        foo: function () {
+          cnt++;
+        }
+      });
 
-    var MixinB = _emberMetal.Mixin.create(MixinA, {
-      foo: function () {
-        this._super.apply(this, arguments);
-      }
-    });
-
-    var MixinC = _emberMetal.Mixin.create(MixinA, {
-      foo: function () {
-        this._super.apply(this, arguments);
-      }
-    });
-
-    var MixinD = _emberMetal.Mixin.create(MixinB, MixinC, MixinA, {
-      foo: function () {
-        this._super.apply(this, arguments);
-      }
-    });
-
-    var obj = {};
-    MixinD.apply(obj);
-    MixinA.apply(obj); // try to apply again..
-
-    cnt = 0;
-    obj.foo();
-
-    assert.equal(cnt, 1, 'should invoke MixinA.foo one time');
-  });
-
-  QUnit.test('_super from a single mixin with no superclass does not error', function (assert) {
-    var MixinA = _emberMetal.Mixin.create({
-      foo: function () {
-        this._super.apply(this, arguments);
-      }
-    });
-
-    var obj = {};
-    MixinA.apply(obj);
-
-    obj.foo();
-    assert.ok(true);
-  });
-
-  QUnit.test('_super from a first-of-two mixins with no superclass function does not error', function (assert) {
-    // _super was previously calling itself in the second assertion.
-    // Use remaining count of calls to ensure it doesn't loop indefinitely.
-    var remaining = 3;
-    var MixinA = _emberMetal.Mixin.create({
-      foo: function () {
-        if (remaining-- > 0) {
+      var MixinB = _emberMetal.Mixin.create(MixinA, {
+        foo: function () {
           this._super.apply(this, arguments);
         }
-      }
-    });
+      });
 
-    var MixinB = _emberMetal.Mixin.create({
-      foo: function () {
-        this._super.apply(this, arguments);
-      }
-    });
+      var MixinC = _emberMetal.Mixin.create(MixinA, {
+        foo: function () {
+          this._super.apply(this, arguments);
+        }
+      });
 
-    var obj = {};
-    MixinA.apply(obj);
-    MixinB.apply(obj);
+      var MixinD = _emberMetal.Mixin.create(MixinB, MixinC, MixinA, {
+        foo: function () {
+          this._super.apply(this, arguments);
+        }
+      });
 
-    obj.foo();
-    assert.ok(true);
-  });
+      var obj = {};
+      MixinD.apply(obj);
+      MixinA.apply(obj); // try to apply again..
+
+      cnt = 0;
+      obj.foo();
+
+      assert.equal(cnt, 1, 'should invoke MixinA.foo one time');
+    };
+
+    _class.prototype['@test _super from a single mixin with no superclass does not error'] = function (assert) {
+      var MixinA = _emberMetal.Mixin.create({
+        foo: function () {
+          this._super.apply(this, arguments);
+        }
+      });
+
+      var obj = {};
+      MixinA.apply(obj);
+
+      obj.foo();
+      assert.ok(true);
+    };
+
+    _class.prototype['@test _super from a first-of-two mixins with no superclass function does not error'] = function (assert) {
+      // _super was previously calling itself in the second assertion.
+      // Use remaining count of calls to ensure it doesn't loop indefinitely.
+      var remaining = 3;
+      var MixinA = _emberMetal.Mixin.create({
+        foo: function () {
+          if (remaining-- > 0) {
+            this._super.apply(this, arguments);
+          }
+        }
+      });
+
+      var MixinB = _emberMetal.Mixin.create({
+        foo: function () {
+          this._super.apply(this, arguments);
+        }
+      });
+
+      var obj = {};
+      MixinA.apply(obj);
+      MixinB.apply(obj);
+
+      obj.foo();
+      assert.ok(true);
+    };
+
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
 
   // ..........................................................
   // CONFLICTS
   //
+  (0, _internalTestHelpers.moduleFor)('Method Conflicts', function (_AbstractTestCase2) {
+    (0, _emberBabel.inherits)(_class2, _AbstractTestCase2);
 
-  QUnit.module('Method Conflicts');
+    function _class2() {
+      return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase2.apply(this, arguments));
+    }
 
-  QUnit.test('overriding toString', function (assert) {
-    var MixinA = _emberMetal.Mixin.create({
-      toString: function () {
-        return 'FOO';
-      }
-    });
+    _class2.prototype['@test overriding toString'] = function (assert) {
+      var MixinA = _emberMetal.Mixin.create({
+        toString: function () {
+          return 'FOO';
+        }
+      });
 
-    var obj = {};
-    MixinA.apply(obj);
-    assert.equal(obj.toString(), 'FOO', 'should override toString w/o error');
+      var obj = {};
+      MixinA.apply(obj);
+      assert.equal(obj.toString(), 'FOO', 'should override toString w/o error');
 
-    obj = {};
-    (0, _emberMetal.mixin)(obj, {
-      toString: function () {
-        return 'FOO';
-      }
-    });
-    assert.equal(obj.toString(), 'FOO', 'should override toString w/o error');
-  });
+      obj = {};
+      (0, _emberMetal.mixin)(obj, {
+        toString: function () {
+          return 'FOO';
+        }
+      });
+      assert.equal(obj.toString(), 'FOO', 'should override toString w/o error');
+    };
+
+    return _class2;
+  }(_internalTestHelpers.AbstractTestCase));
 
   // ..........................................................
   // BUGS
   //
+  (0, _internalTestHelpers.moduleFor)('system/mixin/method_test BUGS', function (_AbstractTestCase3) {
+    (0, _emberBabel.inherits)(_class3, _AbstractTestCase3);
 
-  QUnit.module('system/mixin/method_test BUGS');
+    function _class3() {
+      return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase3.apply(this, arguments));
+    }
 
-  QUnit.test('applying several mixins at once with sup already defined causes infinite loop', function (assert) {
-    var cnt = 0;
-    var MixinA = _emberMetal.Mixin.create({
-      foo: function () {
-        cnt++;
-      }
-    });
+    _class3.prototype['@test applying several mixins at once with sup already defined causes infinite loop'] = function (assert) {
+      var cnt = 0;
+      var MixinA = _emberMetal.Mixin.create({
+        foo: function () {
+          cnt++;
+        }
+      });
 
-    var MixinB = _emberMetal.Mixin.create({
-      foo: function () {
-        this._super.apply(this, arguments);
-        cnt++;
-      }
-    });
+      var MixinB = _emberMetal.Mixin.create({
+        foo: function () {
+          this._super.apply(this, arguments);
+          cnt++;
+        }
+      });
 
-    var MixinC = _emberMetal.Mixin.create({
-      foo: function () {
-        this._super.apply(this, arguments);
-        cnt++;
-      }
-    });
+      var MixinC = _emberMetal.Mixin.create({
+        foo: function () {
+          this._super.apply(this, arguments);
+          cnt++;
+        }
+      });
 
-    var obj = {};
-    (0, _emberMetal.mixin)(obj, MixinA); // sup already exists
-    (0, _emberMetal.mixin)(obj, MixinB, MixinC); // must be more than one mixin
+      var obj = {};
+      (0, _emberMetal.mixin)(obj, MixinA); // sup already exists
+      (0, _emberMetal.mixin)(obj, MixinB, MixinC); // must be more than one mixin
 
-    cnt = 0;
-    obj.foo();
-    assert.equal(cnt, 3, 'should invoke all 3 methods');
-  });
+      cnt = 0;
+      obj.foo();
+      assert.equal(cnt, 3, 'should invoke all 3 methods');
+    };
+
+    return _class3;
+  }(_internalTestHelpers.AbstractTestCase));
 });
-enifed('ember-metal/tests/mixin/observer_test', ['internal-test-helpers', 'ember-metal'], function (_internalTestHelpers, _emberMetal) {
+enifed('ember-metal/tests/mixin/observer_test', ['ember-babel', 'ember-metal', 'internal-test-helpers'], function (_emberBabel, _emberMetal, _internalTestHelpers) {
   'use strict';
 
-  QUnit.module('Mixin observer');
+  (0, _internalTestHelpers.moduleFor)('Mixin observer', function (_AbstractTestCase) {
+    (0, _emberBabel.inherits)(_class, _AbstractTestCase);
 
-  (0, _internalTestHelpers.testBoth)('global observer helper', function (get, set, assert) {
-    var MyMixin = _emberMetal.Mixin.create({
+    function _class() {
+      return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase.apply(this, arguments));
+    }
 
-      count: 0,
+    _class.prototype['@test global observer helper'] = function (assert) {
+      var MyMixin = _emberMetal.Mixin.create({
 
-      foo: (0, _emberMetal.observer)('bar', function () {
-        set(this, 'count', get(this, 'count') + 1);
-      })
+        count: 0,
 
-    });
+        foo: (0, _emberMetal.observer)('bar', function () {
+          (0, _emberMetal.set)(this, 'count', (0, _emberMetal.get)(this, 'count') + 1);
+        })
 
-    var obj = (0, _emberMetal.mixin)({}, MyMixin);
-    assert.equal(get(obj, 'count'), 0, 'should not invoke observer immediately');
+      });
 
-    set(obj, 'bar', 'BAZ');
-    assert.equal(get(obj, 'count'), 1, 'should invoke observer after change');
-  });
+      var obj = (0, _emberMetal.mixin)({}, MyMixin);
+      assert.equal((0, _emberMetal.get)(obj, 'count'), 0, 'should not invoke observer immediately');
 
-  (0, _internalTestHelpers.testBoth)('global observer helper takes multiple params', function (get, set, assert) {
-    var MyMixin = _emberMetal.Mixin.create({
+      (0, _emberMetal.set)(obj, 'bar', 'BAZ');
+      assert.equal((0, _emberMetal.get)(obj, 'count'), 1, 'should invoke observer after change');
+    };
 
-      count: 0,
+    _class.prototype['@test global observer helper takes multiple params'] = function (assert) {
+      var MyMixin = _emberMetal.Mixin.create({
 
-      foo: (0, _emberMetal.observer)('bar', 'baz', function () {
-        set(this, 'count', get(this, 'count') + 1);
-      })
+        count: 0,
 
-    });
+        foo: (0, _emberMetal.observer)('bar', 'baz', function () {
+          (0, _emberMetal.set)(this, 'count', (0, _emberMetal.get)(this, 'count') + 1);
+        })
 
-    var obj = (0, _emberMetal.mixin)({}, MyMixin);
-    assert.equal(get(obj, 'count'), 0, 'should not invoke observer immediately');
+      });
 
-    set(obj, 'bar', 'BAZ');
-    set(obj, 'baz', 'BAZ');
-    assert.equal(get(obj, 'count'), 2, 'should invoke observer after change');
-  });
+      var obj = (0, _emberMetal.mixin)({}, MyMixin);
+      assert.equal((0, _emberMetal.get)(obj, 'count'), 0, 'should not invoke observer immediately');
 
-  (0, _internalTestHelpers.testBoth)('replacing observer should remove old observer', function (get, set, assert) {
-    var MyMixin = _emberMetal.Mixin.create({
+      (0, _emberMetal.set)(obj, 'bar', 'BAZ');
+      (0, _emberMetal.set)(obj, 'baz', 'BAZ');
+      assert.equal((0, _emberMetal.get)(obj, 'count'), 2, 'should invoke observer after change');
+    };
 
-      count: 0,
+    _class.prototype['@test replacing observer should remove old observer'] = function (assert) {
+      var MyMixin = _emberMetal.Mixin.create({
 
-      foo: (0, _emberMetal.observer)('bar', function () {
-        set(this, 'count', get(this, 'count') + 1);
-      })
+        count: 0,
 
-    });
+        foo: (0, _emberMetal.observer)('bar', function () {
+          (0, _emberMetal.set)(this, 'count', (0, _emberMetal.get)(this, 'count') + 1);
+        })
 
-    var Mixin2 = _emberMetal.Mixin.create({
-      foo: (0, _emberMetal.observer)('baz', function () {
-        set(this, 'count', get(this, 'count') + 10);
-      })
-    });
+      });
 
-    var obj = (0, _emberMetal.mixin)({}, MyMixin, Mixin2);
-    assert.equal(get(obj, 'count'), 0, 'should not invoke observer immediately');
+      var Mixin2 = _emberMetal.Mixin.create({
+        foo: (0, _emberMetal.observer)('baz', function () {
+          (0, _emberMetal.set)(this, 'count', (0, _emberMetal.get)(this, 'count') + 10);
+        })
+      });
 
-    set(obj, 'bar', 'BAZ');
-    assert.equal(get(obj, 'count'), 0, 'should not invoke observer after change');
+      var obj = (0, _emberMetal.mixin)({}, MyMixin, Mixin2);
+      assert.equal((0, _emberMetal.get)(obj, 'count'), 0, 'should not invoke observer immediately');
 
-    set(obj, 'baz', 'BAZ');
-    assert.equal(get(obj, 'count'), 10, 'should invoke observer after change');
-  });
+      (0, _emberMetal.set)(obj, 'bar', 'BAZ');
+      assert.equal((0, _emberMetal.get)(obj, 'count'), 0, 'should not invoke observer after change');
 
-  (0, _internalTestHelpers.testBoth)('observing chain with property before', function (get, set, assert) {
-    var obj2 = { baz: 'baz' };
+      (0, _emberMetal.set)(obj, 'baz', 'BAZ');
+      assert.equal((0, _emberMetal.get)(obj, 'count'), 10, 'should invoke observer after change');
+    };
 
-    var MyMixin = _emberMetal.Mixin.create({
-      count: 0,
-      bar: obj2,
-      foo: (0, _emberMetal.observer)('bar.baz', function () {
-        set(this, 'count', get(this, 'count') + 1);
-      })
-    });
+    _class.prototype['@test observing chain with property before'] = function (assert) {
+      var obj2 = { baz: 'baz' };
 
-    var obj = (0, _emberMetal.mixin)({}, MyMixin);
-    assert.equal(get(obj, 'count'), 0, 'should not invoke observer immediately');
+      var MyMixin = _emberMetal.Mixin.create({
+        count: 0,
+        bar: obj2,
+        foo: (0, _emberMetal.observer)('bar.baz', function () {
+          (0, _emberMetal.set)(this, 'count', (0, _emberMetal.get)(this, 'count') + 1);
+        })
+      });
 
-    set(obj2, 'baz', 'BAZ');
-    assert.equal(get(obj, 'count'), 1, 'should invoke observer after change');
-  });
+      var obj = (0, _emberMetal.mixin)({}, MyMixin);
+      assert.equal((0, _emberMetal.get)(obj, 'count'), 0, 'should not invoke observer immediately');
 
-  (0, _internalTestHelpers.testBoth)('observing chain with property after', function (get, set, assert) {
-    var obj2 = { baz: 'baz' };
+      (0, _emberMetal.set)(obj2, 'baz', 'BAZ');
+      assert.equal((0, _emberMetal.get)(obj, 'count'), 1, 'should invoke observer after change');
+    };
 
-    var MyMixin = _emberMetal.Mixin.create({
-      count: 0,
-      foo: (0, _emberMetal.observer)('bar.baz', function () {
-        set(this, 'count', get(this, 'count') + 1);
-      }),
-      bar: obj2
-    });
+    _class.prototype['@test observing chain with property after'] = function (assert) {
+      var obj2 = { baz: 'baz' };
 
-    var obj = (0, _emberMetal.mixin)({}, MyMixin);
-    assert.equal(get(obj, 'count'), 0, 'should not invoke observer immediately');
+      var MyMixin = _emberMetal.Mixin.create({
+        count: 0,
+        foo: (0, _emberMetal.observer)('bar.baz', function () {
+          (0, _emberMetal.set)(this, 'count', (0, _emberMetal.get)(this, 'count') + 1);
+        }),
+        bar: obj2
+      });
 
-    set(obj2, 'baz', 'BAZ');
-    assert.equal(get(obj, 'count'), 1, 'should invoke observer after change');
-  });
+      var obj = (0, _emberMetal.mixin)({}, MyMixin);
+      assert.equal((0, _emberMetal.get)(obj, 'count'), 0, 'should not invoke observer immediately');
 
-  (0, _internalTestHelpers.testBoth)('observing chain with property in mixin applied later', function (get, set, assert) {
-    var obj2 = { baz: 'baz' };
+      (0, _emberMetal.set)(obj2, 'baz', 'BAZ');
+      assert.equal((0, _emberMetal.get)(obj, 'count'), 1, 'should invoke observer after change');
+    };
 
-    var MyMixin = _emberMetal.Mixin.create({
+    _class.prototype['@test observing chain with property in mixin applied later'] = function (assert) {
+      var obj2 = { baz: 'baz' };
 
-      count: 0,
-      foo: (0, _emberMetal.observer)('bar.baz', function () {
-        set(this, 'count', get(this, 'count') + 1);
-      })
-    });
+      var MyMixin = _emberMetal.Mixin.create({
 
-    var MyMixin2 = _emberMetal.Mixin.create({ bar: obj2 });
+        count: 0,
+        foo: (0, _emberMetal.observer)('bar.baz', function () {
+          (0, _emberMetal.set)(this, 'count', (0, _emberMetal.get)(this, 'count') + 1);
+        })
+      });
 
-    var obj = (0, _emberMetal.mixin)({}, MyMixin);
-    assert.equal(get(obj, 'count'), 0, 'should not invoke observer immediately');
+      var MyMixin2 = _emberMetal.Mixin.create({ bar: obj2 });
 
-    MyMixin2.apply(obj);
-    assert.equal(get(obj, 'count'), 0, 'should not invoke observer immediately');
+      var obj = (0, _emberMetal.mixin)({}, MyMixin);
+      assert.equal((0, _emberMetal.get)(obj, 'count'), 0, 'should not invoke observer immediately');
 
-    set(obj2, 'baz', 'BAZ');
-    assert.equal(get(obj, 'count'), 1, 'should invoke observer after change');
-  });
+      MyMixin2.apply(obj);
+      assert.equal((0, _emberMetal.get)(obj, 'count'), 0, 'should not invoke observer immediately');
 
-  (0, _internalTestHelpers.testBoth)('observing chain with existing property', function (get, set, assert) {
-    var obj2 = { baz: 'baz' };
+      (0, _emberMetal.set)(obj2, 'baz', 'BAZ');
+      assert.equal((0, _emberMetal.get)(obj, 'count'), 1, 'should invoke observer after change');
+    };
 
-    var MyMixin = _emberMetal.Mixin.create({
-      count: 0,
-      foo: (0, _emberMetal.observer)('bar.baz', function () {
-        set(this, 'count', get(this, 'count') + 1);
-      })
-    });
+    _class.prototype['@test observing chain with existing property'] = function (assert) {
+      var obj2 = { baz: 'baz' };
 
-    var obj = (0, _emberMetal.mixin)({ bar: obj2 }, MyMixin);
-    assert.equal(get(obj, 'count'), 0, 'should not invoke observer immediately');
+      var MyMixin = _emberMetal.Mixin.create({
+        count: 0,
+        foo: (0, _emberMetal.observer)('bar.baz', function () {
+          (0, _emberMetal.set)(this, 'count', (0, _emberMetal.get)(this, 'count') + 1);
+        })
+      });
 
-    set(obj2, 'baz', 'BAZ');
-    assert.equal(get(obj, 'count'), 1, 'should invoke observer after change');
-  });
+      var obj = (0, _emberMetal.mixin)({ bar: obj2 }, MyMixin);
+      assert.equal((0, _emberMetal.get)(obj, 'count'), 0, 'should not invoke observer immediately');
 
-  (0, _internalTestHelpers.testBoth)('observing chain with property in mixin before', function (get, set, assert) {
-    var obj2 = { baz: 'baz' };
-    var MyMixin2 = _emberMetal.Mixin.create({ bar: obj2 });
+      (0, _emberMetal.set)(obj2, 'baz', 'BAZ');
+      assert.equal((0, _emberMetal.get)(obj, 'count'), 1, 'should invoke observer after change');
+    };
 
-    var MyMixin = _emberMetal.Mixin.create({
-      count: 0,
-      foo: (0, _emberMetal.observer)('bar.baz', function () {
-        set(this, 'count', get(this, 'count') + 1);
-      })
-    });
+    _class.prototype['@test observing chain with property in mixin before'] = function (assert) {
+      var obj2 = { baz: 'baz' };
+      var MyMixin2 = _emberMetal.Mixin.create({ bar: obj2 });
 
-    var obj = (0, _emberMetal.mixin)({}, MyMixin2, MyMixin);
-    assert.equal(get(obj, 'count'), 0, 'should not invoke observer immediately');
+      var MyMixin = _emberMetal.Mixin.create({
+        count: 0,
+        foo: (0, _emberMetal.observer)('bar.baz', function () {
+          (0, _emberMetal.set)(this, 'count', (0, _emberMetal.get)(this, 'count') + 1);
+        })
+      });
 
-    set(obj2, 'baz', 'BAZ');
-    assert.equal(get(obj, 'count'), 1, 'should invoke observer after change');
-  });
+      var obj = (0, _emberMetal.mixin)({}, MyMixin2, MyMixin);
+      assert.equal((0, _emberMetal.get)(obj, 'count'), 0, 'should not invoke observer immediately');
 
-  (0, _internalTestHelpers.testBoth)('observing chain with property in mixin after', function (get, set, assert) {
-    var obj2 = { baz: 'baz' };
-    var MyMixin2 = _emberMetal.Mixin.create({ bar: obj2 });
+      (0, _emberMetal.set)(obj2, 'baz', 'BAZ');
+      assert.equal((0, _emberMetal.get)(obj, 'count'), 1, 'should invoke observer after change');
+    };
 
-    var MyMixin = _emberMetal.Mixin.create({
-      count: 0,
-      foo: (0, _emberMetal.observer)('bar.baz', function () {
-        set(this, 'count', get(this, 'count') + 1);
-      })
-    });
+    _class.prototype['@test observing chain with property in mixin after'] = function (assert) {
+      var obj2 = { baz: 'baz' };
+      var MyMixin2 = _emberMetal.Mixin.create({ bar: obj2 });
 
-    var obj = (0, _emberMetal.mixin)({}, MyMixin, MyMixin2);
-    assert.equal(get(obj, 'count'), 0, 'should not invoke observer immediately');
+      var MyMixin = _emberMetal.Mixin.create({
+        count: 0,
+        foo: (0, _emberMetal.observer)('bar.baz', function () {
+          (0, _emberMetal.set)(this, 'count', (0, _emberMetal.get)(this, 'count') + 1);
+        })
+      });
 
-    set(obj2, 'baz', 'BAZ');
-    assert.equal(get(obj, 'count'), 1, 'should invoke observer after change');
-  });
+      var obj = (0, _emberMetal.mixin)({}, MyMixin, MyMixin2);
+      assert.equal((0, _emberMetal.get)(obj, 'count'), 0, 'should not invoke observer immediately');
 
-  (0, _internalTestHelpers.testBoth)('observing chain with overridden property', function (get, set, assert) {
-    var obj2 = { baz: 'baz' };
-    var obj3 = { baz: 'foo' };
+      (0, _emberMetal.set)(obj2, 'baz', 'BAZ');
+      assert.equal((0, _emberMetal.get)(obj, 'count'), 1, 'should invoke observer after change');
+    };
 
-    var MyMixin2 = _emberMetal.Mixin.create({ bar: obj3 });
+    _class.prototype['@test observing chain with overridden property'] = function (assert) {
+      var obj2 = { baz: 'baz' };
+      var obj3 = { baz: 'foo' };
 
-    var MyMixin = _emberMetal.Mixin.create({
-      count: 0,
-      foo: (0, _emberMetal.observer)('bar.baz', function () {
-        set(this, 'count', get(this, 'count') + 1);
-      })
-    });
+      var MyMixin2 = _emberMetal.Mixin.create({ bar: obj3 });
 
-    var obj = (0, _emberMetal.mixin)({ bar: obj2 }, MyMixin, MyMixin2);
-    assert.equal(get(obj, 'count'), 0, 'should not invoke observer immediately');
+      var MyMixin = _emberMetal.Mixin.create({
+        count: 0,
+        foo: (0, _emberMetal.observer)('bar.baz', function () {
+          (0, _emberMetal.set)(this, 'count', (0, _emberMetal.get)(this, 'count') + 1);
+        })
+      });
 
-    assert.equal((0, _emberMetal.isWatching)(obj2, 'baz'), false, 'should not be watching baz');
-    assert.equal((0, _emberMetal.isWatching)(obj3, 'baz'), true, 'should be watching baz');
+      var obj = (0, _emberMetal.mixin)({ bar: obj2 }, MyMixin, MyMixin2);
+      assert.equal((0, _emberMetal.get)(obj, 'count'), 0, 'should not invoke observer immediately');
 
-    set(obj2, 'baz', 'BAZ');
-    assert.equal(get(obj, 'count'), 0, 'should not invoke observer after change');
+      assert.equal((0, _emberMetal.isWatching)(obj2, 'baz'), false, 'should not be watching baz');
+      assert.equal((0, _emberMetal.isWatching)(obj3, 'baz'), true, 'should be watching baz');
 
-    set(obj3, 'baz', 'BEAR');
-    assert.equal(get(obj, 'count'), 1, 'should invoke observer after change');
-  });
+      (0, _emberMetal.set)(obj2, 'baz', 'BAZ');
+      assert.equal((0, _emberMetal.get)(obj, 'count'), 0, 'should not invoke observer after change');
+
+      (0, _emberMetal.set)(obj3, 'baz', 'BEAR');
+      assert.equal((0, _emberMetal.get)(obj, 'count'), 1, 'should invoke observer after change');
+    };
+
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
 });
-enifed('ember-metal/tests/mixin/reopen_test', ['ember-runtime', 'ember-metal'], function (_emberRuntime, _emberMetal) {
+enifed('ember-metal/tests/mixin/reopen_test', ['ember-babel', 'ember-runtime', 'ember-metal', 'internal-test-helpers'], function (_emberBabel, _emberRuntime, _emberMetal, _internalTestHelpers) {
   'use strict';
 
-  QUnit.module('Ember.Mixin#reopen');
+  (0, _internalTestHelpers.moduleFor)('Ember.Mixin#reopen', function (_AbstractTestCase) {
+    (0, _emberBabel.inherits)(_class, _AbstractTestCase);
 
-  QUnit.test('using reopen() to add more properties to a simple', function (assert) {
-    var MixinA = _emberMetal.Mixin.create({ foo: 'FOO', baz: 'BAZ' });
-    MixinA.reopen({ bar: 'BAR', foo: 'FOO2' });
-    var obj = {};
-    MixinA.apply(obj);
+    function _class() {
+      return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase.apply(this, arguments));
+    }
 
-    assert.equal((0, _emberMetal.get)(obj, 'foo'), 'FOO2', 'mixin() should override');
-    assert.equal((0, _emberMetal.get)(obj, 'baz'), 'BAZ', 'preserve MixinA props');
-    assert.equal((0, _emberMetal.get)(obj, 'bar'), 'BAR', 'include MixinB props');
-  });
+    _class.prototype['@test using reopen() to add more properties to a simple'] = function (assert) {
+      var MixinA = _emberMetal.Mixin.create({ foo: 'FOO', baz: 'BAZ' });
+      MixinA.reopen({ bar: 'BAR', foo: 'FOO2' });
+      var obj = {};
+      MixinA.apply(obj);
 
-  QUnit.test('using reopen() and calling _super where there is not a super function does not cause infinite recursion', function (assert) {
-    var Taco = _emberRuntime.Object.extend({
-      createBreakfast: function () {
-        // There is no original createBreakfast function.
-        // Calling the wrapped _super function here
-        // used to end in an infinite call loop
-        this._super.apply(this, arguments);
-        return 'Breakfast!';
-      }
-    });
+      assert.equal((0, _emberMetal.get)(obj, 'foo'), 'FOO2', 'mixin() should override');
+      assert.equal((0, _emberMetal.get)(obj, 'baz'), 'BAZ', 'preserve MixinA props');
+      assert.equal((0, _emberMetal.get)(obj, 'bar'), 'BAR', 'include MixinB props');
+    };
 
-    Taco.reopen({
-      createBreakfast: function () {
-        return this._super.apply(this, arguments);
-      }
-    });
+    _class.prototype['@test using reopen() and calling _super where there is not a super function does not cause infinite recursion'] = function (assert) {
+      var Taco = _emberRuntime.Object.extend({
+        createBreakfast: function () {
+          // There is no original createBreakfast function.
+          // Calling the wrapped _super function here
+          // used to end in an infinite call loop
+          this._super.apply(this, arguments);
+          return 'Breakfast!';
+        }
+      });
 
-    var taco = Taco.create();
+      Taco.reopen({
+        createBreakfast: function () {
+          return this._super.apply(this, arguments);
+        }
+      });
 
-    var result = void 0;
-    (0, _emberMetal.run)(function () {
-      try {
-        result = taco.createBreakfast();
-      } catch (e) {
-        result = 'Your breakfast was interrupted by an infinite stack error.';
-      }
-    });
+      var taco = Taco.create();
 
-    assert.equal(result, 'Breakfast!');
-  });
+      var result = void 0;
+      (0, _emberMetal.run)(function () {
+        try {
+          result = taco.createBreakfast();
+        } catch (e) {
+          result = 'Your breakfast was interrupted by an infinite stack error.';
+        }
+      });
+
+      assert.equal(result, 'Breakfast!');
+    };
+
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
 });
-enifed('ember-metal/tests/mixin/required_test', ['ember-metal', 'ember-environment'], function (_emberMetal, _emberEnvironment) {
+enifed('ember-metal/tests/mixin/required_test', ['ember-babel', 'ember-metal', 'ember-environment', 'internal-test-helpers'], function (_emberBabel, _emberMetal, _emberEnvironment, _internalTestHelpers) {
   'use strict';
 
   var PartialMixin = void 0,
       FinalMixin = void 0,
       obj = void 0;
   var originalEnvVal = void 0;
-  QUnit.module('Module.required', {
-    beforeEach: function () {
+
+  (0, _internalTestHelpers.moduleFor)('Module.required', function (_AbstractTestCase) {
+    (0, _emberBabel.inherits)(_class, _AbstractTestCase);
+
+    function _class() {
+      return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase.apply(this, arguments));
+    }
+
+    _class.prototype.beforeEach = function () {
       originalEnvVal = _emberEnvironment.ENV._ENABLE_PROPERTY_REQUIRED_SUPPORT;
       _emberEnvironment.ENV._ENABLE_PROPERTY_REQUIRED_SUPPORT = true;
       expectDeprecation(function () {
@@ -41737,57 +41837,70 @@ enifed('ember-metal/tests/mixin/required_test', ['ember-metal', 'ember-environme
       });
 
       obj = {};
-    },
-    afterEach: function () {
+    };
+
+    _class.prototype.afterEach = function () {
       PartialMixin = FinalMixin = obj = null;
       _emberEnvironment.ENV._ENABLE_PROPERTY_REQUIRED_SUPPORT = originalEnvVal;
-    }
-  });
+    };
 
-  QUnit.test('applying a mixin to meet requirement', function (assert) {
-    FinalMixin.apply(obj);
-    PartialMixin.apply(obj);
-    assert.equal((0, _emberMetal.get)(obj, 'foo'), 'FOO', 'should now be defined');
-  });
+    _class.prototype['@test applying a mixin to meet requirement'] = function (assert) {
+      FinalMixin.apply(obj);
+      PartialMixin.apply(obj);
+      assert.equal((0, _emberMetal.get)(obj, 'foo'), 'FOO', 'should now be defined');
+    };
 
-  QUnit.test('combined mixins to meet requirement', function (assert) {
-    _emberMetal.Mixin.create(PartialMixin, FinalMixin).apply(obj);
-    assert.equal((0, _emberMetal.get)(obj, 'foo'), 'FOO', 'should now be defined');
-  });
+    _class.prototype['@test combined mixins to meet requirement'] = function (assert) {
+      _emberMetal.Mixin.create(PartialMixin, FinalMixin).apply(obj);
+      assert.equal((0, _emberMetal.get)(obj, 'foo'), 'FOO', 'should now be defined');
+    };
 
-  QUnit.test('merged mixin', function (assert) {
-    _emberMetal.Mixin.create(PartialMixin, { foo: 'FOO' }).apply(obj);
-    assert.equal((0, _emberMetal.get)(obj, 'foo'), 'FOO', 'should now be defined');
-  });
+    _class.prototype['@test merged mixin'] = function (assert) {
+      _emberMetal.Mixin.create(PartialMixin, { foo: 'FOO' }).apply(obj);
+      assert.equal((0, _emberMetal.get)(obj, 'foo'), 'FOO', 'should now be defined');
+    };
 
-  QUnit.test('define property on source object', function (assert) {
-    obj.foo = 'FOO';
-    PartialMixin.apply(obj);
-    assert.equal((0, _emberMetal.get)(obj, 'foo'), 'FOO', 'should now be defined');
-  });
+    _class.prototype['@test define property on source object'] = function (assert) {
+      obj.foo = 'FOO';
+      PartialMixin.apply(obj);
+      assert.equal((0, _emberMetal.get)(obj, 'foo'), 'FOO', 'should now be defined');
+    };
 
-  QUnit.test('using apply', function (assert) {
-    (0, _emberMetal.mixin)(obj, PartialMixin, { foo: 'FOO' });
-    assert.equal((0, _emberMetal.get)(obj, 'foo'), 'FOO', 'should now be defined');
-  });
+    _class.prototype['@test using apply'] = function (assert) {
+      (0, _emberMetal.mixin)(obj, PartialMixin, { foo: 'FOO' });
+      assert.equal((0, _emberMetal.get)(obj, 'foo'), 'FOO', 'should now be defined');
+    };
+
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
 });
-enifed('ember-metal/tests/mixin/without_test', ['ember-metal'], function (_emberMetal) {
+enifed('ember-metal/tests/mixin/without_test', ['ember-babel', 'ember-metal', 'internal-test-helpers'], function (_emberBabel, _emberMetal, _internalTestHelpers) {
   'use strict';
 
-  QUnit.test('without should create a new mixin excluding named properties', function (assert) {
-    var MixinA = _emberMetal.Mixin.create({
-      foo: 'FOO',
-      bar: 'BAR'
-    });
+  (0, _internalTestHelpers.moduleFor)('without', function (_AbstractTestCase) {
+    (0, _emberBabel.inherits)(_class, _AbstractTestCase);
 
-    var MixinB = MixinA.without('bar');
+    function _class() {
+      return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase.apply(this, arguments));
+    }
 
-    var obj = {};
-    MixinB.apply(obj);
+    _class.prototype['@test without should create a new mixin excluding named properties'] = function (assert) {
+      var MixinA = _emberMetal.Mixin.create({
+        foo: 'FOO',
+        bar: 'BAR'
+      });
 
-    assert.equal(obj.foo, 'FOO', 'should defined foo');
-    assert.equal(obj.bar, undefined, 'should not define bar');
-  });
+      var MixinB = MixinA.without('bar');
+
+      var obj = {};
+      MixinB.apply(obj);
+
+      assert.equal(obj.foo, 'FOO', 'should defined foo');
+      assert.equal(obj.bar, undefined, 'should not define bar');
+    };
+
+    return _class;
+  }(_internalTestHelpers.AbstractTestCase));
 });
 enifed('ember-metal/tests/observer_test', ['ember-environment', 'internal-test-helpers', 'ember-metal'], function (_emberEnvironment, _internalTestHelpers, _emberMetal) {
   'use strict';
