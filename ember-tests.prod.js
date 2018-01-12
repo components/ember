@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.1.0-canary+ee85052a
+ * @version   3.1.0-canary+47f24044
  */
 
 /*globals process */
@@ -51254,7 +51254,7 @@ enifed('ember-runtime/tests/mixins/array_test', ['ember-metal', 'internal-test-h
     }
   });
 
-  QUnit.test('should notify enumerable observers when called with no params', function (assert) {
+  QUnit.test('should notify array observers when called with no params', function (assert) {
     (0, _array2.arrayContentWillChange)(obj);
     assert.deepEqual(observer._before, [obj, 0, -1, -1]);
 
@@ -51279,76 +51279,13 @@ enifed('ember-runtime/tests/mixins/array_test', ['ember-metal', 'internal-test-h
     assert.deepEqual(observer._after, [obj, 0, 2, 1]);
   });
 
-  QUnit.test('removing enumerable observer should disable', function (assert) {
+  QUnit.test('removing array observer should disable', function (assert) {
     (0, _array2.removeArrayObserver)(obj, observer);
     (0, _array2.arrayContentWillChange)(obj);
     assert.deepEqual(observer._before, null);
 
     (0, _array2.arrayContentDidChange)(obj);
     assert.deepEqual(observer._after, null);
-  });
-
-  // ..........................................................
-  // NOTIFY ENUMERABLE OBSERVER
-  //
-
-  QUnit.module('notify enumerable observers as well', {
-    beforeEach: function (assert) {
-      obj = DummyArray.create();
-
-      observer = _object.default.extend({
-        enumerableWillChange: function () {
-          assert.equal(this._before, null); // should only call once
-          this._before = Array.prototype.slice.call(arguments);
-        },
-        enumerableDidChange: function () {
-          assert.equal(this._after, null); // should only call once
-          this._after = Array.prototype.slice.call(arguments);
-        }
-      }).create({
-        _before: null,
-        _after: null
-      });
-
-      obj.addEnumerableObserver(observer);
-    },
-    afterEach: function () {
-      obj = observer = null;
-    }
-  });
-
-  QUnit.test('should notify enumerable observers when called with no params', function (assert) {
-    (0, _array2.arrayContentWillChange)(obj);
-    assert.deepEqual(observer._before, [obj, null, null], 'before');
-
-    (0, _array2.arrayContentDidChange)(obj);
-    assert.deepEqual(observer._after, [obj, null, null], 'after');
-  });
-
-  // API variation that included items only
-  QUnit.test('should notify when called with same length items', function (assert) {
-    (0, _array2.arrayContentWillChange)(obj, 0, 1, 1);
-    assert.deepEqual(observer._before, [obj, ['ITEM-0'], 1], 'before');
-
-    (0, _array2.arrayContentDidChange)(obj, 0, 1, 1);
-    assert.deepEqual(observer._after, [obj, 1, ['ITEM-0']], 'after');
-  });
-
-  QUnit.test('should notify when called with diff length items', function (assert) {
-    (0, _array2.arrayContentWillChange)(obj, 0, 2, 1);
-    assert.deepEqual(observer._before, [obj, ['ITEM-0', 'ITEM-1'], 1], 'before');
-
-    (0, _array2.arrayContentDidChange)(obj, 0, 2, 1);
-    assert.deepEqual(observer._after, [obj, 2, ['ITEM-0']], 'after');
-  });
-
-  QUnit.test('removing enumerable observer should disable', function (assert) {
-    obj.removeEnumerableObserver(observer);
-    (0, _array2.arrayContentWillChange)(obj);
-    assert.deepEqual(observer._before, null, 'before');
-
-    (0, _array2.arrayContentDidChange)(obj);
-    assert.deepEqual(observer._after, null, 'after');
   });
 
   // ..........................................................
@@ -51757,8 +51694,7 @@ enifed('ember-runtime/tests/mixins/enumerable_test', ['ember-runtime/tests/suite
     length: 0
   });
 
-  var obj = void 0,
-      observer = void 0;
+  var obj = void 0;
 
   // ..........................................................
   // NOTIFY ENUMERABLE PROPERTY
@@ -51851,83 +51787,6 @@ enifed('ember-runtime/tests/mixins/enumerable_test', ['ember-runtime/tests/suite
 
     obj.enumerableContentDidChange(1, 2);
     assert.equal(obj._after, 1);
-  });
-
-  // ..........................................................
-  // NOTIFY ENUMERABLE OBSERVER
-  //
-
-  QUnit.module('notify enumerable observers', {
-    beforeEach: function (assert) {
-      obj = DummyEnum.create();
-
-      observer = _object.default.extend({
-        enumerableWillChange: function () {
-          assert.equal(this._before, null); // should only call once
-          this._before = Array.prototype.slice.call(arguments);
-        },
-        enumerableDidChange: function () {
-          assert.equal(this._after, null); // should only call once
-          this._after = Array.prototype.slice.call(arguments);
-        }
-      }).create({
-        _before: null,
-        _after: null
-      });
-
-      obj.addEnumerableObserver(observer);
-    },
-    afterEach: function () {
-      obj = observer = null;
-    }
-  });
-
-  QUnit.test('should notify enumerable observers when called with no params', function (assert) {
-    obj.enumerableContentWillChange();
-    assert.deepEqual(observer._before, [obj, null, null]);
-
-    obj.enumerableContentDidChange();
-    assert.deepEqual(observer._after, [obj, null, null]);
-  });
-
-  // API variation that included items only
-  QUnit.test('should notify when called with same length items', function (assert) {
-    var added = ['foo'];
-    var removed = ['bar'];
-
-    obj.enumerableContentWillChange(removed, added);
-    assert.deepEqual(observer._before, [obj, removed, added]);
-
-    obj.enumerableContentDidChange(removed, added);
-    assert.deepEqual(observer._after, [obj, removed, added]);
-  });
-
-  QUnit.test('should notify when called with diff length items', function (assert) {
-    var added = ['foo', 'baz'];
-    var removed = ['bar'];
-
-    obj.enumerableContentWillChange(removed, added);
-    assert.deepEqual(observer._before, [obj, removed, added]);
-
-    obj.enumerableContentDidChange(removed, added);
-    assert.deepEqual(observer._after, [obj, removed, added]);
-  });
-
-  QUnit.test('should not notify when passed with indexes only', function (assert) {
-    obj.enumerableContentWillChange(1, 2);
-    assert.deepEqual(observer._before, [obj, 1, 2]);
-
-    obj.enumerableContentDidChange(1, 2);
-    assert.deepEqual(observer._after, [obj, 1, 2]);
-  });
-
-  QUnit.test('removing enumerable observer should disable', function (assert) {
-    obj.removeEnumerableObserver(observer);
-    obj.enumerableContentWillChange();
-    assert.deepEqual(observer._before, null);
-
-    obj.enumerableContentDidChange();
-    assert.deepEqual(observer._after, null);
   });
 });
 enifed('ember-runtime/tests/mixins/mutable_array_test', ['ember-metal', 'ember-runtime/tests/suites/mutable_array', 'ember-runtime/mixins/mutable_array', 'ember-runtime/system/object', 'ember-runtime/system/native_array', 'ember-runtime/mixins/array'], function (_emberMetal, _mutable_array, _mutable_array2, _object, _native_array, _array) {
@@ -53068,22 +52927,6 @@ enifed('ember-runtime/tests/suites/enumerable', ['exports', 'ember-utils', 'embe
     },
     timesCalled: function (key) {
       return this._keys[key] || 0;
-    },
-    observeEnumerable: function (obj) {
-      obj.addEnumerableObserver(this);
-      return this;
-    },
-    stopObserveEnumerable: function (obj) {
-      obj.removeEnumerableObserver(this);
-      return this;
-    },
-    enumerableWillChange: function () {
-      QUnit.config.current.assert.equal(this._before, null, 'should only call once');
-      this._before = Array.prototype.slice.call(arguments);
-    },
-    enumerableDidChange: function () {
-      QUnit.config.current.assert.equal(this._after, null, 'should only call once');
-      this._after = Array.prototype.slice.call(arguments);
     }
   });
 
@@ -55048,18 +54891,6 @@ enifed('ember-runtime/tests/suites/mutable_array/replace', ['exports', 'ember-ru
     assert.equal(observer.validate('firstObject'), false, 'should NOT have notified firstObject once');
   });
 
-  suite.test('Adding object should notify enumerable observer', function (assert) {
-    var fixtures = this.newFixture(4);
-    var obj = this.newObject(fixtures);
-    var observer = this.newObserver(obj).observeEnumerable(obj);
-    var item = this.newFixture(1)[0];
-
-    obj.replace(2, 2, [item]);
-
-    assert.deepEqual(observer._before, [obj, [fixtures[2], fixtures[3]], 1], 'before');
-    assert.deepEqual(observer._after, [obj, 2, [item]], 'after');
-  });
-
   suite.test('Adding object should notify array observer', function (assert) {
     var fixtures = this.newFixture(4);
     var obj = this.newObject(fixtures);
@@ -55449,17 +55280,6 @@ enifed('ember-runtime/tests/suites/mutable_enumerable/addObject', ['exports', 'e
     }
   });
 
-  suite.test('Adding object should notify enumerable observer', function (assert) {
-    var obj = this.newObject(this.newFixture(3));
-    var observer = this.newObserver(obj).observeEnumerable(obj);
-    var item = this.newFixture(1)[0];
-
-    obj.addObject(item);
-
-    assert.deepEqual(observer._before, [obj, null, [item]]);
-    assert.deepEqual(observer._after, [obj, null, [item]]);
-  });
-
   exports.default = suite;
 });
 enifed('ember-runtime/tests/suites/mutable_enumerable/removeObject', ['exports', 'ember-metal', 'ember-runtime/tests/suites/suite', 'ember-runtime/system/native_array'], function (exports, _emberMetal, _suite, _native_array) {
@@ -55519,18 +55339,6 @@ enifed('ember-runtime/tests/suites/mutable_enumerable/removeObject', ['exports',
       assert.equal(observer.validate('firstObject'), false, 'should NOT have notified firstObject');
       assert.equal(observer.validate('lastObject'), false, 'should NOT have notified lastObject');
     }
-  });
-
-  suite.test('Removing object should notify enumerable observer', function (assert) {
-    var fixtures = this.newFixture(3);
-    var obj = this.newObject(fixtures);
-    var observer = this.newObserver(obj).observeEnumerable(obj);
-    var item = fixtures[1];
-
-    obj.removeObject(item);
-
-    assert.deepEqual(observer._before, [obj, [item], null]);
-    assert.deepEqual(observer._after, [obj, [item], null]);
   });
 
   exports.default = suite;
@@ -55702,18 +55510,6 @@ enifed('ember-runtime/tests/suites/mutable_enumerable/removeObjects', ['exports'
       assert.equal(observer.validate('firstObject'), false, 'should NOT have notified firstObject');
       assert.equal(observer.validate('lastObject'), false, 'should NOT have notified lastObject');
     }
-  });
-
-  suite.test('Removing objects should notify enumerable observer', function (assert) {
-    var fixtures = this.newFixture(3);
-    var obj = this.newObject(fixtures);
-    var observer = this.newObserver(obj).observeEnumerable(obj);
-    var item = fixtures[1];
-
-    obj.removeObjects([item]);
-
-    assert.deepEqual(observer._before, [obj, [item], null]);
-    assert.deepEqual(observer._after, [obj, [item], null]);
   });
 
   exports.default = suite;

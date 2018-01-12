@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.1.0-canary+ee85052a
+ * @version   3.1.0-canary+47f24044
  */
 
 /*globals process */
@@ -35493,10 +35493,6 @@ enifed('ember-runtime/mixins/array', ['exports', 'ember-utils', 'ember-metal', '
   }
 
   function arrayContentWillChange(array, startIdx, removeAmt, addAmt) {
-    var removing = void 0,
-        lim = void 0,
-        idx;
-
     // if no args are passed assume everything changes
     if (startIdx === undefined) {
       startIdx = 0;
@@ -35517,18 +35513,7 @@ enifed('ember-runtime/mixins/array', ['exports', 'ember-utils', 'ember-metal', '
 
     (0, _emberMetal.sendEvent)(array, '@array:before', [array, startIdx, removeAmt, addAmt]);
 
-    if (startIdx >= 0 && removeAmt >= 0 && (0, _emberMetal.get)(array, 'hasEnumerableObservers')) {
-      removing = [];
-      lim = startIdx + removeAmt;
-
-      for (idx = startIdx; idx < lim; idx++) {
-        removing.push(objectAt(array, idx));
-      }
-    } else {
-      removing = removeAmt;
-    }
-
-    array.enumerableContentWillChange(removing, addAmt);
+    array.enumerableContentWillChange(removeAmt, addAmt);
 
     return array;
   }
@@ -35548,27 +35533,7 @@ enifed('ember-runtime/mixins/array', ['exports', 'ember-utils', 'ember-metal', '
       }
     }
 
-    var adding = void 0,
-        lim,
-        idx,
-        length,
-        addedAmount,
-        removedAmount,
-        previousLength,
-        normalStartIdx;
-    if (startIdx >= 0 && addAmt >= 0 && (0, _emberMetal.get)(array, 'hasEnumerableObservers')) {
-      adding = [];
-      lim = startIdx + addAmt;
-
-
-      for (idx = startIdx; idx < lim; idx++) {
-        adding.push(objectAt(array, idx));
-      }
-    } else {
-      adding = addAmt;
-    }
-
-    array.enumerableContentDidChange(removeAmt, adding);
+    array.enumerableContentDidChange(removeAmt, addAmt);
 
     if (array.__each) {
       array.__each.arrayDidChange(array, startIdx, removeAmt, addAmt);
@@ -35576,7 +35541,12 @@ enifed('ember-runtime/mixins/array', ['exports', 'ember-utils', 'ember-metal', '
 
     (0, _emberMetal.sendEvent)(array, '@array:change', [array, startIdx, removeAmt, addAmt]);
 
-    var meta = (0, _emberMetal.peekMeta)(array);
+    var meta = (0, _emberMetal.peekMeta)(array),
+        length,
+        addedAmount,
+        removedAmount,
+        previousLength,
+        normalStartIdx;
     var cache = meta !== undefined ? meta.readableCache() : undefined;
     if (cache !== undefined) {
       length = (0, _emberMetal.get)(array, 'length');
@@ -36412,54 +36382,6 @@ enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-metal', 'ember-debu
       } // eslint-disable-line no-unused-vars
     }),
 
-    addEnumerableObserver: function (target, opts) {
-      var willChange = opts && opts.willChange || 'enumerableWillChange';
-      var didChange = opts && opts.didChange || 'enumerableDidChange';
-      var hasObservers = (0, _emberMetal.get)(this, 'hasEnumerableObservers');
-
-      if (!hasObservers) {
-        (0, _emberMetal.propertyWillChange)(this, 'hasEnumerableObservers');
-      }
-
-      (0, _emberMetal.addListener)(this, '@enumerable:before', target, willChange);
-      (0, _emberMetal.addListener)(this, '@enumerable:change', target, didChange);
-
-      if (!hasObservers) {
-        (0, _emberMetal.propertyDidChange)(this, 'hasEnumerableObservers');
-      }
-
-      return this;
-    },
-    removeEnumerableObserver: function (target, opts) {
-      var willChange = opts && opts.willChange || 'enumerableWillChange';
-      var didChange = opts && opts.didChange || 'enumerableDidChange';
-      var hasObservers = (0, _emberMetal.get)(this, 'hasEnumerableObservers');
-
-      if (hasObservers) {
-        (0, _emberMetal.propertyWillChange)(this, 'hasEnumerableObservers');
-      }
-
-      (0, _emberMetal.removeListener)(this, '@enumerable:before', target, willChange);
-      (0, _emberMetal.removeListener)(this, '@enumerable:change', target, didChange);
-
-      if (hasObservers) {
-        (0, _emberMetal.propertyDidChange)(this, 'hasEnumerableObservers');
-      }
-
-      return this;
-    },
-
-    /**
-      Becomes true whenever the array currently has observers watching changes
-      on the array.
-       @property hasEnumerableObservers
-      @type Boolean
-      @private
-    */
-    hasEnumerableObservers: (0, _emberMetal.computed)(function () {
-      return (0, _emberMetal.hasListeners)(this, '@enumerable:change') || (0, _emberMetal.hasListeners)(this, '@enumerable:before');
-    }),
-
     enumerableContentWillChange: function (removing, adding) {
       var removeCnt = void 0,
           addCnt = void 0,
@@ -36497,8 +36419,6 @@ enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-metal', 'ember-debu
         (0, _emberMetal.propertyWillChange)(this, 'length');
       }
 
-      (0, _emberMetal.sendEvent)(this, '@enumerable:before', [this, removing, adding]);
-
       return this;
     },
     enumerableContentDidChange: function (removing, adding) {
@@ -36531,8 +36451,6 @@ enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-metal', 'ember-debu
       if (adding === -1) {
         adding = null;
       }
-
-      (0, _emberMetal.sendEvent)(this, '@enumerable:change', [this, removing, adding]);
 
       if (hasDelta) {
         (0, _emberMetal.propertyDidChange)(this, 'length');
@@ -42816,7 +42734,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "3.1.0-canary+ee85052a";
+  exports.default = "3.1.0-canary+47f24044";
 });
 /*global enifed */
 enifed('node-module', ['exports'], function(_exports) {
