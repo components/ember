@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.18.0-release+2dc45b2b
+ * @version   2.18.0-release+1f05c15c
  */
 
 /*global process */
@@ -17378,7 +17378,7 @@ enifed('ember/features', ['exports', 'ember-environment', 'ember-utils'], functi
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.18.0-release+2dc45b2b";
+  exports.default = "2.18.0-release+1f05c15c";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";
