@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.1.0-canary+79815462
+ * @version   3.1.0-canary+ee85052a
  */
 
 /*globals process */
@@ -13471,12 +13471,14 @@ enifed('ember-debug/deprecate', ['exports', 'ember-debug/error', 'ember-console'
   */
   /**
     Allows for runtime registration of handler functions that override the default deprecation behavior.
-    Deprecations are invoked by calls to [Ember.deprecate](https://emberjs.com/api/classes/Ember.html#method_deprecate).
+    Deprecations are invoked by calls to [@ember/application/deprecations/deprecate](https://emberjs.com/api/ember/release/classes/@ember%2Fapplication%2Fdeprecations/methods/deprecate?anchor=deprecate).
     The following example demonstrates its usage by registering a handler that throws an error if the
     message contains the word "should", otherwise defers to the default handler.
   
     ```javascript
-    Ember.Debug.registerDeprecationHandler((message, options, next) => {
+    import { registerDeprecationHandler } from '@ember/debug';
+  
+    registerDeprecationHandler((message, options, next) => {
       if (message.indexOf('should') !== -1) {
         throw new Error(`Deprecation message with should: ${message}`);
       } else {
@@ -42814,7 +42816,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "3.1.0-canary+79815462";
+  exports.default = "3.1.0-canary+ee85052a";
 });
 /*global enifed */
 enifed('node-module', ['exports'], function(_exports) {

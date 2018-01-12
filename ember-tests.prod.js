@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.1.0-canary+79815462
+ * @version   3.1.0-canary+ee85052a
  */
 
 /*globals process */
@@ -5998,7 +5998,7 @@ enifed('ember-debug/tests/error_test', ['ember-babel', 'ember-debug/error', 'int
       return (0, _emberBabel.possibleConstructorReturn)(this, _TestCase.apply(this, arguments));
     }
 
-    _class.prototype['@test new Ember.Error displays provided message'] = function (assert) {
+    _class.prototype['@test new EmberError displays provided message'] = function (assert) {
       assert.throws(function () {
         throw new _error.default('A Message');
       }, function (e) {
@@ -6179,27 +6179,27 @@ enifed('ember-debug/tests/main_test', ['ember-babel', 'ember-environment', 'embe
       _emberEnvironment.ENV._ENABLE_DEPRECATION_OPTIONS_SUPPORT = originalDeprecationOptions;
     };
 
-    _class.prototype['@test Ember.deprecate does not throw if RAISE_ON_DEPRECATION is false'] = function (assert) {
+    _class.prototype['@test deprecate does not throw if RAISE_ON_DEPRECATION is false'] = function (assert) {
       assert.expect(1);
 
       _emberEnvironment.ENV.RAISE_ON_DEPRECATION = false;
 
       try {
         (0, _index.deprecate)('Should not throw', false, { id: 'test', until: 'forever' });
-        assert.ok(true, 'Ember.deprecate did not throw');
+        assert.ok(true, 'deprecate did not throw');
       } catch (e) {
         assert.ok(false, 'Expected deprecate not to throw but it did: ' + e.message);
       }
     };
 
-    _class.prototype['@test Ember.deprecate resets deprecation level to RAISE if ENV.RAISE_ON_DEPRECATION is set'] = function (assert) {
+    _class.prototype['@test deprecate resets deprecation level to RAISE if ENV.RAISE_ON_DEPRECATION is set'] = function (assert) {
       assert.expect(2);
 
       _emberEnvironment.ENV.RAISE_ON_DEPRECATION = false;
 
       try {
         (0, _index.deprecate)('Should not throw', false, { id: 'test', until: 'forever' });
-        assert.ok(true, 'Ember.deprecate did not throw');
+        assert.ok(true, 'deprecate did not throw');
       } catch (e) {
         assert.ok(false, 'Expected deprecate not to throw but it did: ' + e.message);
       }
@@ -6237,7 +6237,7 @@ enifed('ember-debug/tests/main_test', ['ember-babel', 'ember-environment', 'embe
       }, /Should throw with non-matching id/);
     };
 
-    _class.prototype['@test Ember.deprecate throws deprecation if second argument is falsy'] = function (assert) {
+    _class.prototype['@test deprecate throws deprecation if second argument is falsy'] = function (assert) {
       assert.expect(3);
 
       assert.throws(function () {
@@ -6251,7 +6251,7 @@ enifed('ember-debug/tests/main_test', ['ember-babel', 'ember-environment', 'embe
       });
     };
 
-    _class.prototype['@test Ember.deprecate does not invoke a function as the second argument'] = function (assert) {
+    _class.prototype['@test deprecate does not invoke a function as the second argument'] = function (assert) {
       assert.expect(1);
 
       (0, _index.deprecate)('Deprecation is thrown', function () {
@@ -6261,7 +6261,7 @@ enifed('ember-debug/tests/main_test', ['ember-babel', 'ember-environment', 'embe
       assert.ok(true, 'deprecations were not thrown');
     };
 
-    _class.prototype['@test Ember.deprecate does not throw deprecations if second argument is truthy'] = function (assert) {
+    _class.prototype['@test deprecate does not throw deprecations if second argument is truthy'] = function (assert) {
       assert.expect(1);
 
       (0, _index.deprecate)('Deprecation is thrown', true, { id: 'test', until: 'forever' });
@@ -6271,7 +6271,7 @@ enifed('ember-debug/tests/main_test', ['ember-babel', 'ember-environment', 'embe
       assert.ok(true, 'deprecations were not thrown');
     };
 
-    _class.prototype['@test Ember.assert throws if second argument is falsy'] = function (assert) {
+    _class.prototype['@test assert throws if second argument is falsy'] = function (assert) {
       assert.expect(3);
 
       assert.throws(function () {
@@ -6285,7 +6285,7 @@ enifed('ember-debug/tests/main_test', ['ember-babel', 'ember-environment', 'embe
       });
     };
 
-    _class.prototype['@test Ember.assert does not throw if second argument is a function'] = function (assert) {
+    _class.prototype['@test assert does not throw if second argument is a function'] = function (assert) {
       assert.expect(1);
 
       (0, _index.assert)('Assertion is thrown', function () {
@@ -6295,7 +6295,7 @@ enifed('ember-debug/tests/main_test', ['ember-babel', 'ember-environment', 'embe
       assert.ok(true, 'assertions were not thrown');
     };
 
-    _class.prototype['@test Ember.assert does not throw if second argument is falsy'] = function (assert) {
+    _class.prototype['@test assert does not throw if second argument is falsy'] = function (assert) {
       assert.expect(1);
 
       (0, _index.assert)('Assertion is thrown', true);
@@ -6305,7 +6305,7 @@ enifed('ember-debug/tests/main_test', ['ember-babel', 'ember-environment', 'embe
       assert.ok(true, 'assertions were not thrown');
     };
 
-    _class.prototype['@test Ember.assert does not throw if second argument is an object'] = function (assert) {
+    _class.prototype['@test assert does not throw if second argument is an object'] = function (assert) {
       assert.expect(1);
       var Igor = _emberRuntime.Object.extend();
 
@@ -6315,7 +6315,7 @@ enifed('ember-debug/tests/main_test', ['ember-babel', 'ember-environment', 'embe
       assert.ok(true, 'assertions were not thrown');
     };
 
-    _class.prototype['@test Ember.deprecate does not throw a deprecation at log and silence'] = function (assert) {
+    _class.prototype['@test deprecate does not throw a deprecation at log and silence'] = function (assert) {
       assert.expect(4);
       var id = 'ABC';
       var until = 'forever';
@@ -6354,7 +6354,7 @@ enifed('ember-debug/tests/main_test', ['ember-babel', 'ember-environment', 'embe
       });
     };
 
-    _class.prototype['@test Ember.deprecate without options triggers a deprecation'] = function (assert) {
+    _class.prototype['@test deprecate without options triggers a deprecation'] = function (assert) {
       assert.expect(4);
 
       (0, _deprecate.registerHandler)(function (message) {
@@ -6369,7 +6369,7 @@ enifed('ember-debug/tests/main_test', ['ember-babel', 'ember-environment', 'embe
       (0, _index.deprecate)('foo', false, {});
     };
 
-    _class.prototype['@test Ember.deprecate without options triggers an assertion'] = function (assert) {
+    _class.prototype['@test deprecate without options triggers an assertion'] = function (assert) {
       assert.expect(2);
       _emberEnvironment.ENV._ENABLE_DEPRECATION_OPTIONS_SUPPORT = false;
 
@@ -6382,7 +6382,7 @@ enifed('ember-debug/tests/main_test', ['ember-babel', 'ember-environment', 'embe
       }, new RegExp(_deprecate.missingOptionsDeprecation), 'proper assertion is triggered when options is missing');
     };
 
-    _class.prototype['@test Ember.deprecate without options.id triggers a deprecation'] = function (assert) {
+    _class.prototype['@test deprecate without options.id triggers a deprecation'] = function (assert) {
       assert.expect(2);
 
       (0, _deprecate.registerHandler)(function (message) {
@@ -6396,7 +6396,7 @@ enifed('ember-debug/tests/main_test', ['ember-babel', 'ember-environment', 'embe
       (0, _index.deprecate)('foo', false, { until: 'forever' });
     };
 
-    _class.prototype['@test Ember.deprecate without options.id triggers an assertion'] = function (assert) {
+    _class.prototype['@test deprecate without options.id triggers an assertion'] = function (assert) {
       assert.expect(1);
       _emberEnvironment.ENV._ENABLE_DEPRECATION_OPTIONS_SUPPORT = false;
 
@@ -6405,7 +6405,7 @@ enifed('ember-debug/tests/main_test', ['ember-babel', 'ember-environment', 'embe
       }, new RegExp(_deprecate.missingOptionsIdDeprecation), 'proper assertion is triggered when options.id is missing');
     };
 
-    _class.prototype['@test Ember.deprecate without options.until triggers a deprecation'] = function (assert) {
+    _class.prototype['@test deprecate without options.until triggers a deprecation'] = function (assert) {
       assert.expect(2);
 
       (0, _deprecate.registerHandler)(function (message) {
@@ -6419,7 +6419,7 @@ enifed('ember-debug/tests/main_test', ['ember-babel', 'ember-environment', 'embe
       (0, _index.deprecate)('foo', false, { id: 'test' });
     };
 
-    _class.prototype['@test Ember.deprecate without options.until triggers an assertion'] = function (assert) {
+    _class.prototype['@test deprecate without options.until triggers an assertion'] = function (assert) {
       assert.expect(1);
       _emberEnvironment.ENV._ENABLE_DEPRECATION_OPTIONS_SUPPORT = false;
 

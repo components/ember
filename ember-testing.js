@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.1.0-canary+79815462
+ * @version   3.1.0-canary+ee85052a
  */
 
 /*globals process */
@@ -199,12 +199,14 @@ enifed('ember-debug/deprecate', ['exports', 'ember-debug/error', 'ember-console'
   */
   /**
     Allows for runtime registration of handler functions that override the default deprecation behavior.
-    Deprecations are invoked by calls to [Ember.deprecate](https://emberjs.com/api/classes/Ember.html#method_deprecate).
+    Deprecations are invoked by calls to [@ember/application/deprecations/deprecate](https://emberjs.com/api/ember/release/classes/@ember%2Fapplication%2Fdeprecations/methods/deprecate?anchor=deprecate).
     The following example demonstrates its usage by registering a handler that throws an error if the
     message contains the word "should", otherwise defers to the default handler.
   
     ```javascript
-    Ember.Debug.registerDeprecationHandler((message, options, next) => {
+    import { registerDeprecationHandler } from '@ember/debug';
+  
+    registerDeprecationHandler((message, options, next) => {
       if (message.indexOf('should') !== -1) {
         throw new Error(`Deprecation message with should: ${message}`);
       } else {
@@ -318,9 +320,9 @@ enifed('ember-debug/deprecate', ['exports', 'ember-debug/error', 'ember-console'
       }
     });
 
-    exports.missingOptionsDeprecation = missingOptionsDeprecation = 'When calling `Ember.deprecate` you ' + 'must provide an `options` hash as the third parameter.  ' + '`options` should include `id` and `until` properties.';
-    exports.missingOptionsIdDeprecation = missingOptionsIdDeprecation = 'When calling `Ember.deprecate` you must provide `id` in options.';
-    exports.missingOptionsUntilDeprecation = missingOptionsUntilDeprecation = 'When calling `Ember.deprecate` you must provide `until` in options.';
+    exports.missingOptionsDeprecation = missingOptionsDeprecation = 'When calling `deprecate` you ' + 'must provide an `options` hash as the third parameter.  ' + '`options` should include `id` and `until` properties.';
+    exports.missingOptionsIdDeprecation = missingOptionsIdDeprecation = 'When calling `deprecate` you must provide `id` in options.';
+    exports.missingOptionsUntilDeprecation = missingOptionsUntilDeprecation = 'When calling `deprecate` you must provide `until` in options.';
     /**
      @module @ember/application
      @public
@@ -714,13 +716,14 @@ enifed('ember-debug/index', ['exports', 'ember-debug/warn', 'ember-debug/depreca
       (Chrome and Firefox only) when the assigned method is called.
        * In a production build, this method is defined as an empty function (NOP).
        ```javascript
-      Ember.oldMethod = Ember.deprecateFunc('Please use the new, updated method', Ember.newMethod);
+      import { deprecateFunc } from '@ember/application/deprecations';
+       Ember.oldMethod = deprecateFunc('Please use the new, updated method', options, Ember.newMethod);
       ```
        @method deprecateFunc
       @static
       @for @ember/application/deprecations
       @param {String} message A description of the deprecation.
-      @param {Object} [options] The options object for Ember.deprecate.
+      @param {Object} [options] The options object for `deprecate`.
       @param {Function} func The new function called to replace its deprecated counterpart.
       @return {Function} A new function that wraps the original function with a deprecation warning
       @private
@@ -898,7 +901,7 @@ enifed('ember-debug/warn', ['exports', 'ember-environment', 'ember-console', 'em
   if (true) {
     /**
       Allows for runtime registration of handler functions that override the default warning behavior.
-      Warnings are invoked by calls made to [warn](https://emberjs.com/api/classes/Ember.html#method_warn).
+      Warnings are invoked by calls made to [@ember/debug/warn](https://emberjs.com/api/ember/release/classes/@ember%2Fdebug/methods/warn?anchor=warn).
       The following example demonstrates its usage by registering a handler that does nothing overriding Ember's
       default warning behavior.
        ```javascript
