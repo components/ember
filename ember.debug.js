@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.1.0-canary+1e6357b2
+ * @version   3.1.0-canary+ee63f805
  */
 
 /*globals process */
@@ -20035,9 +20035,6 @@ enifed("ember-glimmer/syntax/let", ["exports", "@glimmer/runtime"], function (ex
   exports.blockLetMacro = blockLetMacro;
 
   /**
-  @module ember
-  
-  /**
     The `let` helper receives one or more positional arguments and yields
     them out as block params.
   
@@ -20066,16 +20063,18 @@ enifed("ember-glimmer/syntax/let", ["exports", "@glimmer/runtime"], function (ex
     }}
       {{my-post title=title content=content options=options}}
     {{/let}}
-    ```
+  ```
   
-    @method let
-    @for Ember.Templates.helpers
-    @public
+  @method let
+  @for Ember.Templates.helpers
+  @public
   */
   function blockLetMacro(params, _hash, _default, _inverse, builder) {
     (0, _runtime.compileList)(params, builder);
     builder.invokeStatic(_default, params.length);
-  }
+  } /**
+    @module ember
+    */
 });
 enifed('ember-glimmer/syntax/mount', ['exports', 'ember-babel', 'ember-debug', 'ember/features', 'ember-glimmer/component-managers/mount', 'ember-glimmer/syntax/utils'], function (exports, _emberBabel, _emberDebug, _features, _mount, _utils) {
     'use strict';
@@ -20312,9 +20311,10 @@ enifed('ember-glimmer/syntax/render', ['exports', '@glimmer/reference', 'ember-d
 
     exports.renderMacro = renderMacro;
     /**
-    @module ember
-    
-    Remove after 3.4 once _ENABLE_RENDER_SUPPORT flag is no longer needed.
+     @module ember
+    */
+    /*
+     Remove after 3.4 once _ENABLE_RENDER_SUPPORT flag is no longer needed.
     */
     function makeComponentDefinition(vm, args) {
         var env = vm.env;
@@ -46611,7 +46611,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "3.1.0-canary+1e6357b2";
+  exports.default = "3.1.0-canary+ee63f805";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";

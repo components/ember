@@ -3,7 +3,7 @@
     "name": "The Ember API",
     "description": "The Ember API: a framework for building ambitious web applications",
     "url": "https://emberjs.com/",
-    "version": "3.1.0-canary+1e6357b2"
+    "version": "3.1.0-canary+ee63f805"
   },
   "files": {
     "node_modules/rsvp/lib/rsvp/promise/all.js": {
@@ -493,9 +493,7 @@
     },
     "packages/ember-glimmer/lib/syntax/let.ts": {
       "name": "packages/ember-glimmer/lib/syntax/let.ts",
-      "modules": {
-        "ember\n\n/**\n  The `let` helper receives one or more positional arguments and yields\n  them out as block params.\n\n  This allows the developer to introduce shorter names for certain computations\n  in the template.\n\n  This is especially useful if you are passing properties to a component\n  that receives a lot of options and you want to clean up the invocation.\n\n  For the following example, the template receives a `post` object with\n  `content` and `title` properties.\n\n  We are going to call the `my-post` component, passing a title which is\n  the title of the post suffixed with the name of the blog, the content\n  of the post, and a series of options defined in-place.\n\n  ```handlebars\n  {{#let\n      (concat post.title ' | The Ember.js Blog')\n      post.content\n      (hash\n        theme=\"high-contrast\"\n        enableComments=true\n      )\n      as |title content options|\n  }}\n    {{my-post title=title content=content options=options}}\n  {{/let}}\n  ```": 1
-      },
+      "modules": {},
       "classes": {},
       "fors": {
         "Ember.Templates.helpers": 1
@@ -522,9 +520,7 @@
     },
     "packages/ember-glimmer/lib/syntax/render.ts": {
       "name": "packages/ember-glimmer/lib/syntax/render.ts",
-      "modules": {
-        "ember\n\nRemove after 3.4 once _ENABLE_RENDER_SUPPORT flag is no longer needed.": 1
-      },
+      "modules": {},
       "classes": {},
       "fors": {
         "Ember.Templates.helpers": 1
@@ -1885,35 +1881,6 @@
       "module": "ember",
       "namespace": "",
       "file": "packages/ember-glimmer/lib/helpers/if-unless.ts",
-      "line": 1
-    },
-    "ember\n\n/**\n  The `let` helper receives one or more positional arguments and yields\n  them out as block params.\n\n  This allows the developer to introduce shorter names for certain computations\n  in the template.\n\n  This is especially useful if you are passing properties to a component\n  that receives a lot of options and you want to clean up the invocation.\n\n  For the following example, the template receives a `post` object with\n  `content` and `title` properties.\n\n  We are going to call the `my-post` component, passing a title which is\n  the title of the post suffixed with the name of the blog, the content\n  of the post, and a series of options defined in-place.\n\n  ```handlebars\n  {{#let\n      (concat post.title ' | The Ember.js Blog')\n      post.content\n      (hash\n        theme=\"high-contrast\"\n        enableComments=true\n      )\n      as |title content options|\n  }}\n    {{my-post title=title content=content options=options}}\n  {{/let}}\n  ```": {
-      "name": "ember\n\n/**\n  The `let` helper receives one or more positional arguments and yields\n  them out as block params.\n\n  This allows the developer to introduce shorter names for certain computations\n  in the template.\n\n  This is especially useful if you are passing properties to a component\n  that receives a lot of options and you want to clean up the invocation.\n\n  For the following example, the template receives a `post` object with\n  `content` and `title` properties.\n\n  We are going to call the `my-post` component, passing a title which is\n  the title of the post suffixed with the name of the blog, the content\n  of the post, and a series of options defined in-place.\n\n  ```handlebars\n  {{#let\n      (concat post.title ' | The Ember.js Blog')\n      post.content\n      (hash\n        theme=\"high-contrast\"\n        enableComments=true\n      )\n      as |title content options|\n  }}\n    {{my-post title=title content=content options=options}}\n  {{/let}}\n  ```",
-      "submodules": {},
-      "elements": {},
-      "classes": {},
-      "fors": {
-        "Ember.Templates.helpers": 1
-      },
-      "namespaces": {},
-      "tag": "module",
-      "file": "packages/ember-glimmer/lib/syntax/let.ts",
-      "line": 3,
-      "itemtype": "method",
-      "access": "public",
-      "tagname": ""
-    },
-    "ember\n\nRemove after 3.4 once _ENABLE_RENDER_SUPPORT flag is no longer needed.": {
-      "name": "ember\n\nRemove after 3.4 once _ENABLE_RENDER_SUPPORT flag is no longer needed.",
-      "submodules": {},
-      "elements": {},
-      "classes": {},
-      "fors": {
-        "Ember.Templates.helpers": 1
-      },
-      "namespaces": {},
-      "tag": "module",
-      "file": "packages/ember-glimmer/lib/syntax/render.ts",
       "line": 1
     },
     "@ember/string": {
@@ -7667,6 +7634,17 @@
       "module": "ember"
     },
     {
+      "file": "packages/ember-glimmer/lib/syntax/let.ts",
+      "line": 6,
+      "description": "The `let` helper receives one or more positional arguments and yields\nthem out as block params.\n\nThis allows the developer to introduce shorter names for certain computations\nin the template.\n\nThis is especially useful if you are passing properties to a component\nthat receives a lot of options and you want to clean up the invocation.\n\nFor the following example, the template receives a `post` object with\n`content` and `title` properties.\n\nWe are going to call the `my-post` component, passing a title which is\nthe title of the post suffixed with the name of the blog, the content\nof the post, and a series of options defined in-place.\n\n```handlebars\n{{#let\n    (concat post.title ' | The Ember.js Blog')\n    post.content\n    (hash\n      theme=\"high-contrast\"\n      enableComments=true\n    )\n    as |title content options|\n}}\n  {{my-post title=title content=content options=options}}\n{{/let}}\n  ```",
+      "itemtype": "method",
+      "name": "let",
+      "access": "public",
+      "tagname": "",
+      "class": "Ember.Templates.helpers",
+      "module": "ember"
+    },
+    {
       "file": "packages/ember-glimmer/lib/syntax/mount.ts",
       "line": 21,
       "description": "The `{{mount}}` helper lets you embed a routeless engine in a template.\nMounting an engine will cause an instance to be booted and its `application`\ntemplate to be rendered.\n\nFor example, the following template mounts the `ember-chat` engine:\n\n```handlebars\n{{! application.hbs }}\n{{mount \"ember-chat\"}}\n```\n\nAdditionally, you can also pass in a `model` argument that will be\nset as the engines model. This can be an existing object:\n\n```\n<div>\n  {{mount 'admin' model=userSettings}}\n</div>\n```\n\nOr an inline `hash`, and you can even pass components:\n\n```\n<div>\n  <h1>Application template!</h1>\n  {{mount 'admin' model=(hash\n      title='Secret Admin'\n      signInButton=(component 'sign-in-button')\n  )}}\n</div>\n```",
@@ -7714,7 +7692,7 @@
     },
     {
       "file": "packages/ember-glimmer/lib/syntax/render.ts",
-      "line": 61,
+      "line": 62,
       "description": "Calling ``{{render}}`` from within a template will insert another\ntemplate that matches the provided name. The inserted template will\naccess its properties on its own controller (rather than the controller\nof the parent template).\n\nIf a view class with the same name exists, the view class also will be used.\nNote: A given controller may only be used *once* in your app in this manner.\nA singleton instance of the controller will be created for you.\n\nExample:\n\n```app/controllers/navigation.js\nimport Controller from '@ember/controller';\n\nexport default Controller.extend({\n  who: \"world\"\n});\n```\n\n```handlebars\n<!-- navigation.hbs -->\nHello, {{who}}.\n```\n\n```handlebars\n<!-- application.hbs -->\n<h1>My great app</h1>\n{{render \"navigation\"}}\n```\n\n```html\n<h1>My great app</h1>\n<div class='ember-view'>\n  Hello, world.\n</div>\n```\n\nOptionally you may provide a second argument: a property path\nthat will be bound to the `model` property of the controller.\nIf a `model` property path is specified, then a new instance of the\ncontroller will be created and `{{render}}` can be used multiple times\nwith the same name.\n\nFor example if you had this `author` template.\n\n```handlebars\n<div class=\"author\">\n  Written by {{firstName}} {{lastName}}.\n  Total Posts: {{postCount}}\n</div>\n```\n\nYou could render it inside the `post` template using the `render` helper.\n\n```handlebars\n<div class=\"post\">\n  <h1>{{title}}</h1>\n  <div>{{body}}</div>\n  {{render \"author\" author}}\n</div>\n```",
       "itemtype": "method",
       "name": "render",
@@ -7744,7 +7722,7 @@
       "deprecated": true,
       "deprecationMessage": "Use a component instead",
       "class": "Ember.Templates.helpers",
-      "module": "ember\n\nRemove after 3.4 once _ENABLE_RENDER_SUPPORT flag is no longer needed."
+      "module": "ember"
     },
     {
       "file": "packages/ember-glimmer/lib/utils/string.ts",
