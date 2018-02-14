@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.18.0-release+1f05c15c
+ * @version   2.18.1
  */
 
 /*global process */
@@ -16510,6 +16510,7 @@ enifed('ember-template-compiler/system/compile-options', ['exports', 'ember-util
     var options = (0, _emberUtils.assign)({ meta: {} }, _options),
         meta,
         potententialPugins,
+        providedPlugins,
         pluginsToAdd;
 
     // move `moduleName` into `meta` property
@@ -16523,11 +16524,14 @@ enifed('ember-template-compiler/system/compile-options', ['exports', 'ember-util
       options.plugins = { ast: [].concat(USER_PLUGINS, _plugins.default) };
     } else {
       potententialPugins = [].concat(USER_PLUGINS, _plugins.default);
+      providedPlugins = options.plugins.ast.map(function (plugin) {
+        return wrapLegacyPluginIfNeeded(plugin);
+      });
       pluginsToAdd = potententialPugins.filter(function (plugin) {
         return options.plugins.ast.indexOf(plugin) === -1;
       });
 
-      options.plugins.ast = options.plugins.ast.slice().concat(pluginsToAdd);
+      options.plugins.ast = providedPlugins.concat(pluginsToAdd);
     }
 
     return options;
@@ -16537,40 +16541,65 @@ enifed('ember-template-compiler/system/compile-options', ['exports', 'ember-util
       throw new Error('Attempting to register ' + _plugin + ' as "' + type + '" which is not a valid Glimmer plugin type.');
     }
 
-    var plugin = void 0;
-    if (_plugin.prototype && _plugin.prototype.transform) {
-      plugin = function (env) {
-        return {
-          name: _plugin.constructor && _plugin.constructor.name,
+    for (i = 0; i < USER_PLUGINS.length; i++) {
+      PLUGIN = USER_PLUGINS[i];
 
-          visitors: {
-            Program: function (node) {
-              var plugin = new _plugin(env);
-
-              plugin.syntax = env.syntax;
-
-              return plugin.transform(node);
-            }
-          }
-        };
-      };
-    } else {
-      plugin = _plugin;
+      if (PLUGIN === _plugin || PLUGIN.__raw === _plugin) {
+        return;
+      }
     }
+
+    var plugin = wrapLegacyPluginIfNeeded(_plugin),
+        i,
+        PLUGIN;
 
     USER_PLUGINS = [plugin].concat(USER_PLUGINS);
   };
-  exports.removePlugin = function (type, PluginClass) {
+  exports.unregisterPlugin = function (type, PluginClass) {
     if (type !== 'ast') {
       throw new Error('Attempting to unregister ' + PluginClass + ' as "' + type + '" which is not a valid Glimmer plugin type.');
     }
 
     USER_PLUGINS = USER_PLUGINS.filter(function (plugin) {
-      return plugin !== PluginClass;
+      return plugin !== PluginClass && plugin.__raw !== PluginClass;
     });
   };
 
   var USER_PLUGINS = [];
+
+  function wrapLegacyPluginIfNeeded(_plugin) {
+    var plugin = _plugin;
+    if (_plugin.prototype && _plugin.prototype.transform) {
+      plugin = function (env) {
+        var pluginInstantiated = false;
+
+        return {
+          name: _plugin.constructor && _plugin.constructor.name,
+
+          visitors: {
+            Program: function (node) {
+              var _plugin2;
+
+              if (!pluginInstantiated) {
+
+                pluginInstantiated = true;
+                _plugin2 = new _plugin(env);
+
+
+                _plugin2.syntax = env.syntax;
+
+                return _plugin2.transform(node);
+              }
+            }
+          }
+        };
+      };
+
+      plugin.__raw = _plugin;
+    }
+
+    return plugin;
+  }
 });
 enifed('ember-template-compiler/system/compile', ['exports', 'require', 'ember-template-compiler/system/precompile'], function (exports, _require2, _precompile) {
   'use strict';
@@ -17378,7 +17407,7 @@ enifed('ember/features', ['exports', 'ember-environment', 'ember-utils'], functi
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.18.0-release+1f05c15c";
+  exports.default = "2.18.1";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";
