@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.18.0-release+1f05c15c
+ * @version   2.18.1
  */
 
 /*global process */
@@ -16615,6 +16615,102 @@ enifed('ember-glimmer/tests/integration/components/dynamic-components-test', ['e
       expectAssertion(function () {
         _this26.render('{{component componentName}}', { componentName: 'outer-component' });
       }, expectedBacktrackingMessage);
+    };
+
+    return _class;
+  }(_testCase.RenderingTest));
+});
+enifed('ember-glimmer/tests/integration/components/error-handling-test', ['ember-babel', 'ember-metal', 'ember-glimmer/tests/utils/helpers', 'ember-glimmer/tests/utils/test-case'], function (_emberBabel, _emberMetal, _helpers, _testCase) {
+  'use strict';
+
+  (0, _testCase.moduleFor)('Errors thrown during render', function (_RenderingTest) {
+    (0, _emberBabel.inherits)(_class, _RenderingTest);
+
+    function _class() {
+      return (0, _emberBabel.possibleConstructorReturn)(this, _RenderingTest.apply(this, arguments));
+    }
+
+    _class.prototype['@test it can recover resets the transaction when an error is thrown during initial render'] = function (assert) {
+      var _this2 = this;
+
+      var shouldThrow = true;
+      var FooBarComponent = _helpers.Component.extend({
+        init: function () {
+          this._super.apply(this, arguments);
+          if (shouldThrow) {
+            throw new Error('silly mistake in init!');
+          }
+        }
+      });
+
+      this.registerComponent('foo-bar', { ComponentClass: FooBarComponent, template: 'hello' });
+
+      assert.throws(function () {
+        _this2.render('{{#if switch}}{{#foo-bar}}{{foo-bar}}{{/foo-bar}}{{/if}}', { switch: true });
+      }, /silly mistake in init/);
+
+      assert.equal(this.env.inTransaction, false, 'should not be in a transaction even though an error was thrown');
+
+      this.assertText('');
+
+      this.runTask(function () {
+        return (0, _emberMetal.set)(_this2.context, 'switch', false);
+      });
+
+      shouldThrow = false;
+
+      this.runTask(function () {
+        return (0, _emberMetal.set)(_this2.context, 'switch', true);
+      });
+
+      this.assertText('hello');
+    };
+
+    _class.prototype['@test it can recover resets the transaction when an error is thrown during rerender'] = function (assert) {
+      var _this3 = this;
+
+      var shouldThrow = false;
+      var FooBarComponent = _helpers.Component.extend({
+        init: function () {
+          this._super.apply(this, arguments);
+          if (shouldThrow) {
+            throw new Error('silly mistake in init!');
+          }
+        }
+      });
+
+      this.registerComponent('foo-bar', { ComponentClass: FooBarComponent, template: 'hello' });
+
+      this.render('{{#if switch}}{{#foo-bar}}{{foo-bar}}{{/foo-bar}}{{/if}}', { switch: true });
+
+      this.assertText('hello');
+
+      this.runTask(function () {
+        return (0, _emberMetal.set)(_this3.context, 'switch', false);
+      });
+
+      shouldThrow = true;
+
+      assert.throws(function () {
+        _this3.runTask(function () {
+          return (0, _emberMetal.set)(_this3.context, 'switch', true);
+        });
+      }, /silly mistake in init/);
+
+      assert.equal(this.env.inTransaction, false, 'should not be in a transaction even though an error was thrown');
+
+      this.assertText('');
+
+      this.runTask(function () {
+        return (0, _emberMetal.set)(_this3.context, 'switch', false);
+      });
+      shouldThrow = false;
+
+      this.runTask(function () {
+        return (0, _emberMetal.set)(_this3.context, 'switch', true);
+      });
+
+      this.assertText('hello');
     };
 
     return _class;
@@ -60536,7 +60632,7 @@ enifed('ember-template-compiler/system/compile-options', ['exports', 'ember-util
 
   exports.default = compileOptions;
   exports.registerPlugin = registerPlugin;
-  exports.removePlugin = removePlugin;
+  exports.unregisterPlugin = unregisterPlugin;
 
 
   var USER_PLUGINS = [];
@@ -60554,13 +60650,47 @@ enifed('ember-template-compiler/system/compile-options', ['exports', 'ember-util
       options.plugins = { ast: [].concat(USER_PLUGINS, _plugins.default) };
     } else {
       var potententialPugins = [].concat(USER_PLUGINS, _plugins.default);
+      var providedPlugins = options.plugins.ast.map(function (plugin) {
+        return wrapLegacyPluginIfNeeded(plugin);
+      });
       var pluginsToAdd = potententialPugins.filter(function (plugin) {
         return options.plugins.ast.indexOf(plugin) === -1;
       });
-      options.plugins.ast = options.plugins.ast.slice().concat(pluginsToAdd);
+      options.plugins.ast = providedPlugins.concat(pluginsToAdd);
     }
 
     return options;
+  }
+
+  function wrapLegacyPluginIfNeeded(_plugin) {
+    var plugin = _plugin;
+    if (_plugin.prototype && _plugin.prototype.transform) {
+      plugin = function (env) {
+        var pluginInstantiated = false;
+
+        return {
+          name: _plugin.constructor && _plugin.constructor.name,
+
+          visitors: {
+            Program: function (node) {
+              if (!pluginInstantiated) {
+
+                pluginInstantiated = true;
+                var _plugin2 = new _plugin(env);
+
+                _plugin2.syntax = env.syntax;
+
+                return _plugin2.transform(node);
+              }
+            }
+          }
+        };
+      };
+
+      plugin.__raw = _plugin;
+    }
+
+    return plugin;
   }
 
   function registerPlugin(type, _plugin) {
@@ -60568,37 +60698,25 @@ enifed('ember-template-compiler/system/compile-options', ['exports', 'ember-util
       throw new Error('Attempting to register ' + _plugin + ' as "' + type + '" which is not a valid Glimmer plugin type.');
     }
 
-    var plugin = void 0;
-    if (_plugin.prototype && _plugin.prototype.transform) {
-      plugin = function (env) {
-        return {
-          name: _plugin.constructor && _plugin.constructor.name,
-
-          visitors: {
-            Program: function (node) {
-              var plugin = new _plugin(env);
-
-              plugin.syntax = env.syntax;
-
-              return plugin.transform(node);
-            }
-          }
-        };
-      };
-    } else {
-      plugin = _plugin;
+    for (var i = 0; i < USER_PLUGINS.length; i++) {
+      var PLUGIN = USER_PLUGINS[i];
+      if (PLUGIN === _plugin || PLUGIN.__raw === _plugin) {
+        return;
+      }
     }
+
+    var plugin = wrapLegacyPluginIfNeeded(_plugin);
 
     USER_PLUGINS = [plugin].concat(USER_PLUGINS);
   }
 
-  function removePlugin(type, PluginClass) {
+  function unregisterPlugin(type, PluginClass) {
     if (type !== 'ast') {
       throw new Error('Attempting to unregister ' + PluginClass + ' as "' + type + '" which is not a valid Glimmer plugin type.');
     }
 
     USER_PLUGINS = USER_PLUGINS.filter(function (plugin) {
-      return plugin !== PluginClass;
+      return plugin !== PluginClass && plugin.__raw !== PluginClass;
     });
   }
 });

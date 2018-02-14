@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.18.0-release+1f05c15c
+ * @version   2.18.1
  */
 
 /*global process */
@@ -17415,6 +17415,109 @@ QUnit.module('ESLint | ember-glimmer/tests/integration/components/dynamic-compon
 QUnit.test('should pass ESLint', function(assert) {
   assert.expect(1);
   assert.ok(true, 'ember-glimmer/tests/integration/components/dynamic-components-test.js should pass ESLint\n\n');
+});
+
+enifed('ember-glimmer/tests/integration/components/error-handling-test', ['ember-babel', 'ember-metal', 'ember-glimmer/tests/utils/helpers', 'ember-glimmer/tests/utils/test-case'], function (_emberBabel, _emberMetal, _helpers, _testCase) {
+  'use strict';
+
+  (0, _testCase.moduleFor)('Errors thrown during render', function (_RenderingTest) {
+    (0, _emberBabel.inherits)(_class, _RenderingTest);
+
+    function _class() {
+      (0, _emberBabel.classCallCheck)(this, _class);
+      return (0, _emberBabel.possibleConstructorReturn)(this, _RenderingTest.apply(this, arguments));
+    }
+
+    _class.prototype['@test it can recover resets the transaction when an error is thrown during initial render'] = function testItCanRecoverResetsTheTransactionWhenAnErrorIsThrownDuringInitialRender(assert) {
+      var _this2 = this;
+
+      var shouldThrow = true;
+      var FooBarComponent = _helpers.Component.extend({
+        init: function () {
+          this._super.apply(this, arguments);
+          if (shouldThrow) {
+            throw new Error('silly mistake in init!');
+          }
+        }
+      });
+
+      this.registerComponent('foo-bar', { ComponentClass: FooBarComponent, template: 'hello' });
+
+      assert.throws(function () {
+        _this2.render('{{#if switch}}{{#foo-bar}}{{foo-bar}}{{/foo-bar}}{{/if}}', { switch: true });
+      }, /silly mistake in init/);
+
+      assert.equal(this.env.inTransaction, false, 'should not be in a transaction even though an error was thrown');
+
+      this.assertText('');
+
+      this.runTask(function () {
+        return (0, _emberMetal.set)(_this2.context, 'switch', false);
+      });
+
+      shouldThrow = false;
+
+      this.runTask(function () {
+        return (0, _emberMetal.set)(_this2.context, 'switch', true);
+      });
+
+      this.assertText('hello');
+    };
+
+    _class.prototype['@test it can recover resets the transaction when an error is thrown during rerender'] = function testItCanRecoverResetsTheTransactionWhenAnErrorIsThrownDuringRerender(assert) {
+      var _this3 = this;
+
+      var shouldThrow = false;
+      var FooBarComponent = _helpers.Component.extend({
+        init: function () {
+          this._super.apply(this, arguments);
+          if (shouldThrow) {
+            throw new Error('silly mistake in init!');
+          }
+        }
+      });
+
+      this.registerComponent('foo-bar', { ComponentClass: FooBarComponent, template: 'hello' });
+
+      this.render('{{#if switch}}{{#foo-bar}}{{foo-bar}}{{/foo-bar}}{{/if}}', { switch: true });
+
+      this.assertText('hello');
+
+      this.runTask(function () {
+        return (0, _emberMetal.set)(_this3.context, 'switch', false);
+      });
+
+      shouldThrow = true;
+
+      assert.throws(function () {
+        _this3.runTask(function () {
+          return (0, _emberMetal.set)(_this3.context, 'switch', true);
+        });
+      }, /silly mistake in init/);
+
+      assert.equal(this.env.inTransaction, false, 'should not be in a transaction even though an error was thrown');
+
+      this.assertText('');
+
+      this.runTask(function () {
+        return (0, _emberMetal.set)(_this3.context, 'switch', false);
+      });
+      shouldThrow = false;
+
+      this.runTask(function () {
+        return (0, _emberMetal.set)(_this3.context, 'switch', true);
+      });
+
+      this.assertText('hello');
+    };
+
+    return _class;
+  }(_testCase.RenderingTest));
+});
+QUnit.module('ESLint | ember-glimmer/tests/integration/components/error-handling-test.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'ember-glimmer/tests/integration/components/error-handling-test.js should pass ESLint\n\n');
 });
 
 enifed('ember-glimmer/tests/integration/components/fragment-components-test', ['ember-babel', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-glimmer/tests/utils/helpers', 'ember-metal'], function (_emberBabel, _testCase, _abstractTestCase, _helpers, _emberMetal) {
