@@ -6,14 +6,51 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.18.1
+ * @version   2.17.2
  */
 
-/*global process */
 var enifed, requireModule, Ember;
 var mainContext = this; // Used in ember-environment/lib/global.js
 
 (function() {
+  var isNode = typeof window === 'undefined' &&
+    typeof process !== 'undefined' && {}.toString.call(process) === '[object process]';
+
+  if (!isNode) {
+    Ember = this.Ember = this.Ember || {};
+  }
+
+  if (typeof Ember === 'undefined') { Ember = {}; }
+
+  if (typeof Ember.__loader === 'undefined') {
+    var registry = {};
+    var seen = {};
+
+    enifed = function(name, deps, callback) {
+      var value = { };
+
+      if (!callback) {
+        value.deps = [];
+        value.callback = deps;
+      } else {
+        value.deps = deps;
+        value.callback = callback;
+      }
+
+      registry[name] = value;
+    };
+
+    requireModule = function(name) {
+      return internalRequire(name, null);
+    };
+
+    // setup `require` module
+    requireModule['default'] = requireModule;
+
+    requireModule.has = function registryHas(moduleName) {
+      return !!registry[moduleName] || !!registry[moduleName + '/index'];
+    };
+
     function missingModule(name, referrerName) {
       if (referrerName) {
         throw new Error('Could not find module ' + name + ' required by: ' + referrerName);
@@ -61,44 +98,6 @@ var mainContext = this; // Used in ember-environment/lib/global.js
 
       return exports;
     }
-
-  var isNode = typeof window === 'undefined' &&
-    typeof process !== 'undefined' && {}.toString.call(process) === '[object process]';
-
-  if (!isNode) {
-    Ember = this.Ember = this.Ember || {};
-  }
-
-  if (typeof Ember === 'undefined') { Ember = {}; }
-
-  if (typeof Ember.__loader === 'undefined') {
-    var registry = {};
-    var seen = {};
-
-    enifed = function(name, deps, callback) {
-      var value = { };
-
-      if (!callback) {
-        value.deps = [];
-        value.callback = deps;
-      } else {
-        value.deps = deps;
-        value.callback = callback;
-      }
-
-      registry[name] = value;
-    };
-
-    requireModule = function(name) {
-      return internalRequire(name, null);
-    };
-
-    // setup `require` module
-    requireModule['default'] = requireModule;
-
-    requireModule.has = function registryHas(moduleName) {
-      return !!registry[moduleName] || !!registry[moduleName + '/index'];
-    };
 
     requireModule._eak_seen = registry;
 
@@ -4587,7 +4586,7 @@ enifed('backburner', ['exports'], function (exports) {
         var index = -1,
             i,
             l;
-        for (i = 0, l = collection.length; i < l; i += 4) {
+        for (i = 0, l = collection.length; i < l; i += 3) {
             if (collection[i] === target && collection[i + 1] === method) {
                 index = i;
                 break;
@@ -4598,9 +4597,9 @@ enifed('backburner', ['exports'], function (exports) {
     function findTimer(timer, collection) {
         var index = -1,
             i;
-        for (i = 3; i < collection.length; i += 4) {
+        for (i = 2; i < collection.length; i += 3) {
             if (collection[i] === timer) {
-                index = i - 3;
+                index = i - 2;
                 break;
             }
         }
@@ -4634,10 +4633,10 @@ enifed('backburner', ['exports'], function (exports) {
             var globalOptions = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
 
 
+            this._queue = []; // TODO: should be private
             this._queueBeingFlushed = [];
             this.targetQueues = Object.create(null);
             this.index = 0;
-            this._queue = [];
             this.name = name;
             this.options = options;
             this.globalOptions = globalOptions;
@@ -4678,22 +4677,27 @@ enifed('backburner', ['exports'], function (exports) {
             var args = void 0;
             var errorRecordedForStack = void 0;
             this.targetQueues = Object.create(null);
-            if (this._queueBeingFlushed.length === 0) {
-                this._queueBeingFlushed = this._queue;
+            var queueItems = void 0;
+            if (this._queueBeingFlushed.length > 0) {
+                queueItems = this._queueBeingFlushed;
+            } else {
+                queueItems = this._queueBeingFlushed = this._queue;
                 this._queue = [];
             }
-            if (before !== undefined) {
+            if (before) {
                 before();
             }
             var invoke = void 0;
-            var queueItems = this._queueBeingFlushed;
             if (queueItems.length > 0) {
                 onError = getOnError(this.globalOptions);
 
                 invoke = onError ? this.invokeWithOnError : this.invoke;
                 for (i = this.index; i < queueItems.length; i += 4) {
                     this.index += 4;
+                    target = queueItems[i];
                     method = queueItems[i + 1];
+                    args = queueItems[i + 2];
+                    errorRecordedForStack = queueItems[i + 3]; // Debugging assistance
                     // method could have been nullified / canceled during flush
                     if (method !== null) {
                         //
@@ -4711,9 +4715,6 @@ enifed('backburner', ['exports'], function (exports) {
                         //    One possible long-term solution is the following Chrome issue:
                         //       https://bugs.chromium.org/p/chromium/issues/detail?id=332624
                         //
-                        target = queueItems[i];
-                        args = queueItems[i + 2];
-                        errorRecordedForStack = queueItems[i + 3]; // Debugging assistance
                         invoke(target, method, args, onError, errorRecordedForStack);
                     }
                     if (this.index !== this._queueBeingFlushed.length && this.globalOptions.mustYield && this.globalOptions.mustYield()) {
@@ -4721,7 +4722,7 @@ enifed('backburner', ['exports'], function (exports) {
                     }
                 }
             }
-            if (after !== undefined) {
+            if (after) {
                 after();
             }
             this._queueBeingFlushed.length = 0;
@@ -4738,37 +4739,44 @@ enifed('backburner', ['exports'], function (exports) {
 
         Queue.prototype.cancel = function (_ref) {
             var target = _ref.target,
-                method = _ref.method,
-                t,
-                i,
-                l;
+                method = _ref.method;
 
             var queue = this._queue;
+            var currentTarget = void 0;
+            var currentMethod = void 0;
+            var i = void 0;
+            var l = void 0;
+            var t = void 0;
             var guid = this.guidForTarget(target);
             var targetQueue = guid ? this.targetQueues[guid] : undefined;
             if (targetQueue !== undefined) {
-                t = void 0;
-
                 for (i = 0, l = targetQueue.length; i < l; i += 2) {
                     t = targetQueue[i];
                     if (t === method) {
-                        targetQueue.splice(i, 2);
-                        break;
+                        targetQueue.splice(i, 1);
                     }
                 }
             }
-            var index = findItem(target, method, queue);
-            if (index > -1) {
-                queue.splice(index, 4);
-                return true;
+            for (i = 0, l = queue.length; i < l; i += 4) {
+                currentTarget = queue[i];
+                currentMethod = queue[i + 1];
+                if (currentTarget === target && currentMethod === method) {
+                    queue.splice(i, 4);
+                    return true;
+                }
             }
             // if not found in current queue
             // could be in the queue that is being flushed
             queue = this._queueBeingFlushed;
-            index = findItem(target, method, queue);
-            if (index > -1) {
-                queue[index + 1] = null;
-                return true;
+            for (i = 0, l = queue.length; i < l; i += 4) {
+                currentTarget = queue[i];
+                currentMethod = queue[i + 1];
+                if (currentTarget === target && currentMethod === method) {
+                    // don't mess with array during flush
+                    // just nullify the method
+                    queue[i + 1] = null;
+                    return true;
+                }
             }
             return false;
         };
@@ -4788,14 +4796,22 @@ enifed('backburner', ['exports'], function (exports) {
         };
 
         Queue.prototype.pushUniqueWithoutGuid = function (target, method, args, stack) {
-            var queue = this._queue;
-            var index = findItem(target, method, queue);
-            if (index > -1) {
-                queue[index + 2] = args; // replace args
-                queue[index + 3] = stack; // replace stack
-            } else {
-                queue.push(target, method, args, stack);
+            var queue = this._queue,
+                i,
+                l,
+                currentTarget,
+                currentMethod;
+            for (i = 0, l = queue.length; i < l; i += 4) {
+                currentTarget = queue[i];
+                currentMethod = queue[i + 1];
+
+                if (currentTarget === target && currentMethod === method) {
+                    queue[i + 2] = args; // replace args
+                    queue[i + 3] = stack; // replace stack
+                    return;
+                }
             }
+            queue.push(target, method, args, stack);
         };
 
         Queue.prototype.targetQueue = function (_targetQueue, target, method, args, stack) {
@@ -4828,7 +4844,7 @@ enifed('backburner', ['exports'], function (exports) {
         };
 
         Queue.prototype.invoke = function (target, method, args /*, onError, errorRecordedForStack */) {
-            if (args !== undefined) {
+            if (args && args.length > 0) {
                 method.apply(target, args);
             } else {
                 method.call(target);
@@ -4837,7 +4853,7 @@ enifed('backburner', ['exports'], function (exports) {
 
         Queue.prototype.invokeWithOnError = function (target, method, args, onError, errorRecordedForStack) {
             try {
-                if (args !== undefined) {
+                if (args && args.length > 0) {
                     method.apply(target, args);
                 } else {
                     method.call(target);
@@ -4925,30 +4941,6 @@ enifed('backburner', ['exports'], function (exports) {
 
     var noop = function () {};
     var SET_TIMEOUT = setTimeout;
-    function parseArgs() {
-        var length = arguments.length,
-            i;
-        var method = void 0;
-        var target = void 0;
-        var args = void 0;
-        if (length === 1) {
-            method = arguments[0];
-            target = null;
-        } else {
-            target = arguments[0];
-            method = arguments[1];
-            if (isString(method)) {
-                method = target[method];
-            }
-            if (length > 2) {
-                args = new Array(length - 2);
-                for (i = 0; i < length - 2; i++) {
-                    args[i] = arguments[i + 2];
-                }
-            }
-        }
-        return [target, method, args];
-    }
 
     var Backburner = function () {
         function Backburner(queueNames) {
@@ -5089,22 +5081,78 @@ enifed('backburner', ['exports'], function (exports) {
             }
         };
 
-        Backburner.prototype.run = function () {
-            var _parseArgs = parseArgs.apply(undefined, arguments),
-                target = _parseArgs[0],
-                method = _parseArgs[1],
-                args = _parseArgs[2];
+        Backburner.prototype.run = function (target, method) {
+            for (_len = arguments.length, args = Array(_len > 2 ? _len - 2 : 0), _key = 2; _key < _len; _key++) {
+                args[_key - 2] = arguments[_key];
+            }
 
-            return this._run(target, method, args);
+            var length = arguments.length,
+                _len,
+                args,
+                _key;
+            var _method = void 0;
+            var _target = void 0;
+            if (length === 1) {
+                _method = target;
+                _target = null;
+            } else {
+                _method = method;
+                _target = target;
+                if (isString(_method)) {
+                    _method = _target[_method];
+                }
+            }
+            var onError = getOnError(this.options);
+            this.begin();
+            if (onError) {
+                try {
+                    return _method.apply(_target, args);
+                } catch (error) {
+                    onError(error);
+                } finally {
+                    this.end();
+                }
+            } else {
+                try {
+                    return _method.apply(_target, args);
+                } finally {
+                    this.end();
+                }
+            }
         };
 
         Backburner.prototype.join = function () {
-            var _parseArgs2 = parseArgs.apply(undefined, arguments),
-                target = _parseArgs2[0],
-                method = _parseArgs2[1],
-                args = _parseArgs2[2];
-
-            return this._join(target, method, args);
+            if (this.currentInstance === null) {
+                return this.run.apply(this, arguments);
+            }
+            var length = arguments.length,
+                i;
+            var method = void 0;
+            var target = void 0;
+            var args = void 0;
+            if (length === 1) {
+                method = arguments[0];
+                target = null;
+            } else {
+                target = arguments[0];
+                method = arguments[1];
+                if (isString(method)) {
+                    method = target[method];
+                }
+                if (length > 2) {
+                    args = new Array(length - 2);
+                    for (i = 0; i < length - 2; i++) {
+                        args[i] = arguments[i + 2];
+                    }
+                }
+            }
+            if (length === 1) {
+                return method();
+            } else if (length === 2) {
+                return method.call(target);
+            } else {
+                return method.apply(target, args);
+            }
         };
 
         Backburner.prototype.defer = function () {
@@ -5112,18 +5160,27 @@ enifed('backburner', ['exports'], function (exports) {
         };
 
         Backburner.prototype.schedule = function (queueName) {
-            for (_len = arguments.length, _args = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
-                _args[_key - 1] = arguments[_key];
+            var length = arguments.length,
+                i;
+            var method = void 0;
+            var target = void 0;
+            var args = void 0;
+            if (length === 2) {
+                method = arguments[1];
+                target = null;
+            } else {
+                target = arguments[1];
+                method = arguments[2];
+                if (isString(method)) {
+                    method = target[method];
+                }
+                if (length > 3) {
+                    args = new Array(length - 3);
+                    for (i = 3; i < length; i++) {
+                        args[i - 3] = arguments[i];
+                    }
+                }
             }
-
-            var _parseArgs3 = parseArgs.apply(undefined, _args),
-                target = _parseArgs3[0],
-                method = _parseArgs3[1],
-                args = _parseArgs3[2],
-                _len,
-                _args,
-                _key;
-
             var stack = this.DEBUG ? new Error() : undefined;
             return this._ensureInstance().schedule(queueName, target, method, args, false, stack);
         };
@@ -5137,19 +5194,28 @@ enifed('backburner', ['exports'], function (exports) {
             return this.scheduleOnce.apply(this, arguments);
         };
 
-        Backburner.prototype.scheduleOnce = function (queueName) {
-            for (_len2 = arguments.length, _args = Array(_len2 > 1 ? _len2 - 1 : 0), _key2 = 1; _key2 < _len2; _key2++) {
-                _args[_key2 - 1] = arguments[_key2];
+        Backburner.prototype.scheduleOnce = function (queueName /* , target, method, args */) {
+            var length = arguments.length,
+                i;
+            var method = void 0;
+            var target = void 0;
+            var args = void 0;
+            if (length === 2) {
+                method = arguments[1];
+                target = null;
+            } else {
+                target = arguments[1];
+                method = arguments[2];
+                if (isString(method)) {
+                    method = target[method];
+                }
+                if (length > 3) {
+                    args = new Array(length - 3);
+                    for (i = 3; i < length; i++) {
+                        args[i - 3] = arguments[i];
+                    }
+                }
             }
-
-            var _parseArgs4 = parseArgs.apply(undefined, _args),
-                target = _parseArgs4[0],
-                method = _parseArgs4[1],
-                args = _parseArgs4[2],
-                _len2,
-                _args,
-                _key2;
-
             var stack = this.DEBUG ? new Error() : undefined;
             return this._ensureInstance().schedule(queueName, target, method, args, true, stack);
         };
@@ -5159,14 +5225,14 @@ enifed('backburner', ['exports'], function (exports) {
         };
 
         Backburner.prototype.later = function () {
-            for (_len3 = arguments.length, args = Array(_len3), _key3 = 0; _key3 < _len3; _key3++) {
-                args[_key3] = arguments[_key3];
+            for (_len2 = arguments.length, args = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
+                args[_key2] = arguments[_key2];
             }
 
             var length = args.length,
-                _len3,
+                _len2,
                 args,
-                _key3,
+                _key2,
                 last;
             var wait = 0;
             var method = void 0;
@@ -5230,148 +5296,101 @@ enifed('backburner', ['exports'], function (exports) {
             return this._setTimeout(fn, executeAt);
         };
 
-        Backburner.prototype.throttle = function (targetOrThisArgOrMethod) {
+        Backburner.prototype.throttle = function (target, method /*, ...args, wait, [immediate] */) {
             var _this2 = this,
-                _len4,
-                args,
-                _key4;
+                i;
 
-            var target = void 0;
-            var method = void 0;
-            var immediate = void 0;
+            var args = new Array(arguments.length);
+            for (i = 0; i < arguments.length; i++) {
+                args[i] = arguments[i];
+            }
+            var immediate = args.pop();
             var isImmediate = void 0;
             var wait = void 0;
-
-            for (_len4 = arguments.length, args = Array(_len4 > 1 ? _len4 - 1 : 0), _key4 = 1; _key4 < _len4; _key4++) {
-                args[_key4 - 1] = arguments[_key4];
-            }
-
-            if (args.length === 1) {
-                method = targetOrThisArgOrMethod;
-                wait = args.pop();
-                target = null;
+            var index = void 0;
+            var timer = void 0;
+            if (isCoercableNumber(immediate)) {
+                wait = immediate;
                 isImmediate = true;
             } else {
-                target = targetOrThisArgOrMethod;
-                method = args.shift();
-                immediate = args.pop();
-                if (isString(method)) {
-                    method = target[method];
-                } else if (!isFunction(method)) {
-                    args.unshift(method);
-                    method = target;
-                    target = null;
-                }
-                if (isCoercableNumber(immediate)) {
-                    wait = immediate;
-                    isImmediate = true;
-                } else {
-                    wait = args.pop();
-                    isImmediate = immediate === true;
-                }
+                wait = args.pop();
+                isImmediate = immediate === true;
             }
-            var index = findItem(target, method, this._throttlers);
-            if (index > -1) {
-                this._throttlers[index + 2] = args;
-                return this._throttlers[index + 3];
-            } // throttled
             wait = parseInt(wait, 10);
-            var timer = this._platform.setTimeout(function () {
-                var i = findTimer(timer, _this2._throttlers);
-
-                var _throttlers$splice = _this2._throttlers.splice(i, 4),
-                    context = _throttlers$splice[0],
-                    func = _throttlers$splice[1],
-                    params = _throttlers$splice[2];
-
+            index = findItem(target, method, this._throttlers);
+            if (index > -1) {
+                return this._throttlers[index + 2];
+            } // throttled
+            timer = this._platform.setTimeout(function () {
                 if (isImmediate === false) {
-                    _this2._run(context, func, params);
+                    _this2.run.apply(_this2, args);
+                }
+                index = findTimer(timer, _this2._throttlers);
+                if (index > -1) {
+                    _this2._throttlers.splice(index, 3);
                 }
             }, wait);
             if (isImmediate) {
-                this._join(target, method, args);
+                this.join.apply(this, args);
             }
-            this._throttlers.push(target, method, args, timer);
+            this._throttlers.push(target, method, timer);
             return timer;
         };
 
-        Backburner.prototype.debounce = function (targetOrThisArgOrMethod) {
+        Backburner.prototype.debounce = function (target, method /* , args, wait, [immediate] */) {
             var _this3 = this,
-                _len5,
-                args,
-                _key5,
+                i,
                 timerId;
 
-            var target = void 0;
-            var method = void 0;
-            var immediate = void 0;
+            var args = new Array(arguments.length);
+            for (i = 0; i < arguments.length; i++) {
+                args[i] = arguments[i];
+            }
+            var immediate = args.pop();
             var isImmediate = void 0;
             var wait = void 0;
-
-            for (_len5 = arguments.length, args = Array(_len5 > 1 ? _len5 - 1 : 0), _key5 = 1; _key5 < _len5; _key5++) {
-                args[_key5 - 1] = arguments[_key5];
-            }
-
-            if (args.length === 1) {
-                method = targetOrThisArgOrMethod;
-                wait = args.pop();
-                target = null;
+            var index = void 0;
+            var timer = void 0;
+            if (isCoercableNumber(immediate)) {
+                wait = immediate;
                 isImmediate = false;
             } else {
-                target = targetOrThisArgOrMethod;
-                method = args.shift();
-                immediate = args.pop();
-                if (isString(method)) {
-                    method = target[method];
-                } else if (!isFunction(method)) {
-                    args.unshift(method);
-                    method = target;
-                    target = null;
-                }
-                if (isCoercableNumber(immediate)) {
-                    wait = immediate;
-                    isImmediate = false;
-                } else {
-                    wait = args.pop();
-                    isImmediate = immediate === true;
-                }
+                wait = args.pop();
+                isImmediate = immediate === true;
             }
             wait = parseInt(wait, 10);
             // Remove debouncee
-            var index = findItem(target, method, this._debouncees);
+            index = findItem(target, method, this._debouncees);
             if (index > -1) {
-                timerId = this._debouncees[index + 3];
+                timerId = this._debouncees[index + 2];
 
+                this._debouncees.splice(index, 3);
                 this._platform.clearTimeout(timerId);
-                this._debouncees.splice(index, 4);
             }
-            var timer = this._platform.setTimeout(function () {
-                var i = findTimer(timer, _this3._debouncees);
-
-                var _debouncees$splice = _this3._debouncees.splice(i, 4),
-                    context = _debouncees$splice[0],
-                    func = _debouncees$splice[1],
-                    params = _debouncees$splice[2];
-
+            timer = this._platform.setTimeout(function () {
                 if (isImmediate === false) {
-                    _this3._run(context, func, params);
+                    _this3.run.apply(_this3, args);
+                }
+                index = findTimer(timer, _this3._debouncees);
+                if (index > -1) {
+                    _this3._debouncees.splice(index, 3);
                 }
             }, wait);
             if (isImmediate && index === -1) {
-                this._join(target, method, args);
+                this.join.apply(this, args);
             }
-            this._debouncees.push(target, method, args, timer);
+            this._debouncees.push(target, method, timer);
             return timer;
         };
 
         Backburner.prototype.cancelTimers = function () {
             var i, t;
 
-            for (i = 3; i < this._throttlers.length; i += 4) {
+            for (i = 2; i < this._throttlers.length; i += 3) {
                 this._platform.clearTimeout(this._throttlers[i]);
             }
             this._throttlers = [];
-            for (t = 3; t < this._debouncees.length; t += 4) {
+            for (t = 2; t < this._debouncees.length; t += 3) {
                 this._platform.clearTimeout(this._debouncees[t]);
             }
             this._debouncees = [];
@@ -5401,37 +5420,6 @@ enifed('backburner', ['exports'], function (exports) {
 
         Backburner.prototype.ensureInstance = function () {
             this._ensureInstance();
-        };
-
-        Backburner.prototype._join = function (target, method, args) {
-            if (this.currentInstance === null) {
-                return this._run(target, method, args);
-            }
-            if (target === undefined && args === undefined) {
-                return method();
-            } else {
-                return method.apply(target, args);
-            }
-        };
-
-        Backburner.prototype._run = function (target, method, args) {
-            var onError = getOnError(this.options);
-            this.begin();
-            if (onError) {
-                try {
-                    return method.apply(target, args);
-                } catch (error) {
-                    onError(error);
-                } finally {
-                    this.end();
-                }
-            } else {
-                try {
-                    return method.apply(target, args);
-                } finally {
-                    this.end();
-                }
-            }
         };
 
         Backburner.prototype._cancelAutorun = function () {
@@ -5476,8 +5464,8 @@ enifed('backburner', ['exports'], function (exports) {
         Backburner.prototype._cancelItem = function (timer, array) {
             var index = findTimer(timer, array);
             if (index > -1) {
+                array.splice(index, 3);
                 this._platform.clearTimeout(timer);
-                array.splice(index, 4);
                 return true;
             }
             return false;
@@ -5589,110 +5577,51 @@ enifed('container', ['exports', 'ember-utils', 'ember-debug', 'ember/features'],
    @private
    @class Container
    */
+  function Container(registry) {
+    var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
-  var Container = function () {
-    function Container(registry) {
-      var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+    this.registry = registry;
+    this.owner = options.owner || null;
+    this.cache = (0, _emberUtils.dictionary)(options.cache || null);
+    this.factoryManagerCache = (0, _emberUtils.dictionary)(options.factoryManagerCache || null);
+    this[CONTAINER_OVERRIDE] = undefined;
+    this.isDestroyed = false;
 
+    this.validationCache = (0, _emberUtils.dictionary)(options.validationCache || null);
+  }
 
-      this.registry = registry;
-      this.owner = options.owner || null;
-      this.cache = (0, _emberUtils.dictionary)(options.cache || null);
-      this.factoryManagerCache = (0, _emberUtils.dictionary)(options.factoryManagerCache || null);
-      this[CONTAINER_OVERRIDE] = undefined;
-      this.isDestroyed = false;
+  Container.prototype = {
+    lookup: function (fullName, options) {
+      true && !this.registry.validateFullName(fullName) && (0, _emberDebug.assert)('fullName must be a proper full name', this.registry.validateFullName(fullName));
 
-      this.validationCache = (0, _emberUtils.dictionary)(options.validationCache || null);
-    }
-
-    /**
-     @private
-     @property registry
-     @type Registry
-     @since 1.11.0
-     */
-
-    /**
-     @private
-     @property cache
-     @type InheritingDict
-     */
-
-    /**
-     @private
-     @property validationCache
-     @type InheritingDict
-     */
-
-    /**
-     Given a fullName return a corresponding instance.
-      The default behavior is for lookup to return a singleton instance.
-     The singleton is scoped to the container, allowing multiple containers
-     to all have their own locally scoped singletons.
-      ```javascript
-     let registry = new Registry();
-     let container = registry.container();
-      registry.register('api:twitter', Twitter);
-      let twitter = container.lookup('api:twitter');
-      twitter instanceof Twitter; // => true
-      // by default the container will return singletons
-     let twitter2 = container.lookup('api:twitter');
-     twitter2 instanceof Twitter; // => true
-      twitter === twitter2; //=> true
-     ```
-      If singletons are not wanted, an optional flag can be provided at lookup.
-      ```javascript
-     let registry = new Registry();
-     let container = registry.container();
-      registry.register('api:twitter', Twitter);
-      let twitter = container.lookup('api:twitter', { singleton: false });
-     let twitter2 = container.lookup('api:twitter', { singleton: false });
-      twitter === twitter2; //=> false
-     ```
-      @private
-     @method lookup
-     @param {String} fullName
-     @param {Object} [options]
-     @param {String} [options.source] The fullname of the request source (used for local lookup)
-     @return {any}
-     */
-
-    Container.prototype.lookup = function (fullName, options) {
-      true && !this.registry.isValidFullName(fullName) && (0, _emberDebug.assert)('fullName must be a proper full name', this.registry.isValidFullName(fullName));
-
-      return _lookup(this, this.registry.normalize(fullName), options);
-    };
-
-    Container.prototype.destroy = function () {
+      return lookup(this, this.registry.normalize(fullName), options);
+    },
+    destroy: function () {
       destroyDestroyables(this);
       this.isDestroyed = true;
-    };
-
-    Container.prototype.reset = function (fullName) {
+    },
+    reset: function (fullName) {
       if (fullName === undefined) {
         resetCache(this);
       } else {
         resetMember(this, this.registry.normalize(fullName));
       }
-    };
-
-    Container.prototype.ownerInjection = function () {
+    },
+    ownerInjection: function () {
       var _ref;
 
       return _ref = {}, _ref[_emberUtils.OWNER] = this.owner, _ref;
-    };
-
-    Container.prototype._resolverCacheKey = function (name, options) {
+    },
+    _resolverCacheKey: function (name, options) {
       return this.registry.resolverCacheKey(name, options);
-    };
-
-    Container.prototype.factoryFor = function (fullName) {
+    },
+    factoryFor: function (fullName) {
       var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
           expandedFullName;
 
       var normalizedName = this.registry.normalize(fullName);
 
-      true && !this.registry.isValidFullName(normalizedName) && (0, _emberDebug.assert)('fullName must be a proper full name', this.registry.isValidFullName(normalizedName));
+      true && !this.registry.validateFullName(normalizedName) && (0, _emberDebug.assert)('fullName must be a proper full name', this.registry.validateFullName(normalizedName));
 
       if (options.source) {
         expandedFullName = this.registry.expandLocalLookup(fullName, options);
@@ -5736,10 +5665,8 @@ enifed('container', ['exports', 'ember-utils', 'ember-debug', 'ember/features'],
 
       this.factoryManagerCache[cacheKey] = manager;
       return manager;
-    };
-
-    return Container;
-  }();
+    }
+  };
 
   /*
    * Wrap a factory manager in a proxy which will not permit properties to be
@@ -5782,7 +5709,7 @@ enifed('container', ['exports', 'ember-utils', 'ember-debug', 'ember/features'],
     return container.registry.getOption(fullName, 'instantiate') !== false;
   }
 
-  function _lookup(container, fullName) {
+  function lookup(container, fullName) {
     var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {},
         expandedFullName,
         cacheKey,
@@ -5876,19 +5803,33 @@ enifed('container', ['exports', 'ember-utils', 'ember-debug', 'ember/features'],
     throw new Error('Could not create factory');
   }
 
-  function buildInjections(container, injections) {
+  function buildInjections() /* container, ...injections */{
     var hash = {},
+        container,
+        injections,
         injection,
-        i;
+        i,
+        _i;
     var isDynamic = false;
 
-    if (injections.length > 0) {
-      container.registry.validateInjections(injections);
+    if (arguments.length > 1) {
+      container = arguments[0];
+      injections = [];
       injection = void 0;
 
-      for (i = 0; i < injections.length; i++) {
-        injection = injections[i];
-        hash[injection.property] = _lookup(container, injection.fullName);
+
+      for (i = 1; i < arguments.length; i++) {
+        if (arguments[i]) {
+          injections = injections.concat(arguments[i]);
+        }
+      }
+
+      container.registry.validateInjections(injections);
+
+
+      for (_i = 0; _i < injections.length; _i++) {
+        injection = injections[_i];
+        hash[injection.property] = lookup(container, injection.fullName);
         if (!isDynamic) {
           isDynamic = !isSingleton(container, injection.fullName);
         }
@@ -5900,12 +5841,10 @@ enifed('container', ['exports', 'ember-utils', 'ember-debug', 'ember/features'],
 
   function injectionsFor(container, fullName) {
     var registry = container.registry;
+    var splitName = fullName.split(':');
+    var type = splitName[0];
 
-    var _fullName$split = fullName.split(':'),
-        type = _fullName$split[0];
-
-    var injections = registry.getTypeInjections(type).concat(registry.getInjections(fullName));
-    return buildInjections(container, injections);
+    return buildInjections(container, registry.getTypeInjections(type), registry.getInjections(fullName));
   }
 
   function destroyDestroyables(container) {
@@ -6038,39 +5977,40 @@ enifed('container', ['exports', 'ember-utils', 'ember-debug', 'ember/features'],
    @class Registry
    @since 1.11.0
   */
+  function Registry() {
+    var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
-  var Registry = function () {
-    function Registry() {
-      var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+    this.fallback = options.fallback || null;
 
-
-      this.fallback = options.fallback || null;
-      this.resolver = options.resolver || null;
-
+    if (options.resolver) {
+      this.resolver = options.resolver;
       if (typeof this.resolver === 'function') {
         deprecateResolverFunction(this);
       }
-
-      this.registrations = (0, _emberUtils.dictionary)(options.registrations || null);
-
-      this._typeInjections = (0, _emberUtils.dictionary)(null);
-      this._injections = (0, _emberUtils.dictionary)(null);
-
-      this._localLookupCache = Object.create(null);
-      this._normalizeCache = (0, _emberUtils.dictionary)(null);
-      this._resolveCache = (0, _emberUtils.dictionary)(null);
-      this._failCache = (0, _emberUtils.dictionary)(null);
-
-      this._options = (0, _emberUtils.dictionary)(null);
-      this._typeOptions = (0, _emberUtils.dictionary)(null);
     }
 
+    this.registrations = (0, _emberUtils.dictionary)(options.registrations || null);
+
+    this._typeInjections = (0, _emberUtils.dictionary)(null);
+    this._injections = (0, _emberUtils.dictionary)(null);
+
+    this._localLookupCache = Object.create(null);
+    this._normalizeCache = (0, _emberUtils.dictionary)(null);
+    this._resolveCache = (0, _emberUtils.dictionary)(null);
+    this._failCache = (0, _emberUtils.dictionary)(null);
+
+    this._options = (0, _emberUtils.dictionary)(null);
+    this._typeOptions = (0, _emberUtils.dictionary)(null);
+  }
+
+  Registry.prototype = {
     /**
      A backup registry for resolving registrations when no matches can be found.
       @private
      @property fallback
      @type Registry
      */
+    fallback: null,
 
     /**
      An object that has a `resolve` method that resolves a name.
@@ -6078,76 +6018,80 @@ enifed('container', ['exports', 'ember-utils', 'ember-debug', 'ember/features'],
      @property resolver
      @type Resolver
      */
+    resolver: null,
 
     /**
      @private
      @property registrations
      @type InheritingDict
      */
+    registrations: null,
 
     /**
      @private
       @property _typeInjections
      @type InheritingDict
      */
+    _typeInjections: null,
 
     /**
      @private
       @property _injections
      @type InheritingDict
      */
+    _injections: null,
 
     /**
      @private
       @property _normalizeCache
      @type InheritingDict
      */
+    _normalizeCache: null,
 
     /**
      @private
       @property _resolveCache
      @type InheritingDict
      */
+    _resolveCache: null,
 
     /**
      @private
       @property _options
      @type InheritingDict
      */
+    _options: null,
 
     /**
      @private
       @property _typeOptions
      @type InheritingDict
      */
+    _typeOptions: null,
 
-    /**
-     Creates a container based on this registry.
-      @private
-     @method container
-     @param {Object} options
-     @return {Container} created container
-     */
-
-    Registry.prototype.container = function (options) {
+    container: function (options) {
       return new Container(this, options);
-    };
-
-    Registry.prototype.register = function (fullName, factory) {
+    },
+    register: function (fullName, factory) {
       var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
-      true && !this.isValidFullName(fullName) && (0, _emberDebug.assert)('fullName must be a proper full name', this.isValidFullName(fullName));
-      true && !(factory !== undefined) && (0, _emberDebug.assert)('Attempting to register an unknown factory: \'' + fullName + '\'', factory !== undefined);
+      true && !this.validateFullName(fullName) && (0, _emberDebug.assert)('fullName must be a proper full name', this.validateFullName(fullName));
+
+      if (factory === undefined) {
+        throw new TypeError('Attempting to register an unknown factory: \'' + fullName + '\'');
+      }
 
       var normalizedName = this.normalize(fullName);
-      true && !!this._resolveCache[normalizedName] && (0, _emberDebug.assert)('Cannot re-register: \'' + fullName + '\', as it has already been resolved.', !this._resolveCache[normalizedName]);
+
+      if (this._resolveCache[normalizedName]) {
+        throw new Error('Cannot re-register: \'' + fullName + '\', as it has already been resolved.');
+      }
 
       delete this._failCache[normalizedName];
       this.registrations[normalizedName] = factory;
       this._options[normalizedName] = options;
-    };
-
-    Registry.prototype.unregister = function (fullName) {
-      true && !this.isValidFullName(fullName) && (0, _emberDebug.assert)('fullName must be a proper full name', this.isValidFullName(fullName));
+    },
+    unregister: function (fullName) {
+      true && !this.validateFullName(fullName) && (0, _emberDebug.assert)('fullName must be a proper full name', this.validateFullName(fullName));
 
       var normalizedName = this.normalize(fullName);
 
@@ -6157,94 +6101,83 @@ enifed('container', ['exports', 'ember-utils', 'ember-debug', 'ember/features'],
       delete this._resolveCache[normalizedName];
       delete this._failCache[normalizedName];
       delete this._options[normalizedName];
-    };
+    },
+    resolve: function (fullName, options) {
+      true && !this.validateFullName(fullName) && (0, _emberDebug.assert)('fullName must be a proper full name', this.validateFullName(fullName));
 
-    Registry.prototype.resolve = function (fullName, options) {
-      true && !this.isValidFullName(fullName) && (0, _emberDebug.assert)('fullName must be a proper full name', this.isValidFullName(fullName));
-
-      var factory = _resolve(this, this.normalize(fullName), options),
+      var factory = resolve(this, this.normalize(fullName), options),
           _fallback;
-      if (factory === undefined && this.fallback !== null) {
+      if (factory === undefined && this.fallback) {
 
         factory = (_fallback = this.fallback).resolve.apply(_fallback, arguments);
       }
       return factory;
-    };
-
-    Registry.prototype.describe = function (fullName) {
-      if (this.resolver !== null && this.resolver.lookupDescription) {
+    },
+    describe: function (fullName) {
+      if (this.resolver && this.resolver.lookupDescription) {
         return this.resolver.lookupDescription(fullName);
-      } else if (this.fallback !== null) {
+      } else if (this.fallback) {
         return this.fallback.describe(fullName);
       } else {
         return fullName;
       }
-    };
-
-    Registry.prototype.normalizeFullName = function (fullName) {
-      if (this.resolver !== null && this.resolver.normalize) {
+    },
+    normalizeFullName: function (fullName) {
+      if (this.resolver && this.resolver.normalize) {
         return this.resolver.normalize(fullName);
-      } else if (this.fallback !== null) {
+      } else if (this.fallback) {
         return this.fallback.normalizeFullName(fullName);
       } else {
         return fullName;
       }
-    };
-
-    Registry.prototype.normalize = function (fullName) {
+    },
+    normalize: function (fullName) {
       return this._normalizeCache[fullName] || (this._normalizeCache[fullName] = this.normalizeFullName(fullName));
-    };
-
-    Registry.prototype.makeToString = function (factory, fullName) {
-      if (this.resolver !== null && this.resolver.makeToString) {
+    },
+    makeToString: function (factory, fullName) {
+      if (this.resolver && this.resolver.makeToString) {
         return this.resolver.makeToString(factory, fullName);
-      } else if (this.fallback !== null) {
+      } else if (this.fallback) {
         return this.fallback.makeToString(factory, fullName);
       } else {
         return factory.toString();
       }
-    };
-
-    Registry.prototype.has = function (fullName, options) {
+    },
+    has: function (fullName, options) {
       if (!this.isValidFullName(fullName)) {
         return false;
       }
 
       var source = options && options.source && this.normalize(options.source);
 
-      return _has(this, this.normalize(fullName), source);
-    };
-
-    Registry.prototype.optionsForType = function (type, options) {
+      return has(this, this.normalize(fullName), source);
+    },
+    optionsForType: function (type, options) {
       this._typeOptions[type] = options;
-    };
-
-    Registry.prototype.getOptionsForType = function (type) {
+    },
+    getOptionsForType: function (type) {
       var optionsForType = this._typeOptions[type];
-      if (optionsForType === undefined && this.fallback !== null) {
+      if (optionsForType === undefined && this.fallback) {
         optionsForType = this.fallback.getOptionsForType(type);
       }
       return optionsForType;
-    };
-
-    Registry.prototype.options = function (fullName) {
-      var _options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+    },
+    options: function (fullName) {
+      var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
       var normalizedName = this.normalize(fullName);
-      this._options[normalizedName] = _options;
-    };
-
-    Registry.prototype.getOptions = function (fullName) {
+      this._options[normalizedName] = options;
+    },
+    getOptions: function (fullName) {
       var normalizedName = this.normalize(fullName);
       var options = this._options[normalizedName];
 
-      if (options === undefined && this.fallback !== null) {
+      if (options === undefined && this.fallback) {
         options = this.fallback.getOptions(fullName);
       }
       return options;
-    };
-
-    Registry.prototype.getOption = function (fullName, optionName) {
+    },
+    getOption: function (fullName, optionName) {
       var options = this._options[fullName];
 
       if (options && options[optionName] !== undefined) {
@@ -6256,41 +6189,39 @@ enifed('container', ['exports', 'ember-utils', 'ember-debug', 'ember/features'],
 
       if (options && options[optionName] !== undefined) {
         return options[optionName];
-      } else if (this.fallback !== null) {
+      } else if (this.fallback) {
         return this.fallback.getOption(fullName, optionName);
       }
-    };
-
-    Registry.prototype.typeInjection = function (type, property, fullName) {
-      true && !this.isValidFullName(fullName) && (0, _emberDebug.assert)('fullName must be a proper full name', this.isValidFullName(fullName));
+    },
+    typeInjection: function (type, property, fullName) {
+      true && !this.validateFullName(fullName) && (0, _emberDebug.assert)('fullName must be a proper full name', this.validateFullName(fullName));
 
       var fullNameType = fullName.split(':')[0];
-      true && !(fullNameType !== type) && (0, _emberDebug.assert)('Cannot inject a \'' + fullName + '\' on other ' + type + '(s).', fullNameType !== type);
+      if (fullNameType === type) {
+        throw new Error('Cannot inject a \'' + fullName + '\' on other ' + type + '(s).');
+      }
 
       var injections = this._typeInjections[type] || (this._typeInjections[type] = []);
 
       injections.push({ property: property, fullName: fullName });
-    };
-
-    Registry.prototype.injection = function (fullName, property, injectionName) {
-      true && !this.isValidFullName(injectionName) && (0, _emberDebug.assert)('Invalid injectionName, expected: \'type:name\' got: ' + injectionName, this.isValidFullName(injectionName));
-
+    },
+    injection: function (fullName, property, injectionName) {
+      this.validateFullName(injectionName);
       var normalizedInjectionName = this.normalize(injectionName);
 
       if (fullName.indexOf(':') === -1) {
         return this.typeInjection(fullName, property, normalizedInjectionName);
       }
 
-      true && !this.isValidFullName(fullName) && (0, _emberDebug.assert)('fullName must be a proper full name', this.isValidFullName(fullName));
+      true && !this.validateFullName(fullName) && (0, _emberDebug.assert)('fullName must be a proper full name', this.validateFullName(fullName));
 
       var normalizedName = this.normalize(fullName);
 
       var injections = this._injections[normalizedName] || (this._injections[normalizedName] = []);
 
       injections.push({ property: property, fullName: normalizedInjectionName });
-    };
-
-    Registry.prototype.knownForType = function (type) {
+    },
+    knownForType: function (type) {
       var fallbackKnown = void 0,
           resolverKnown = void 0,
           index,
@@ -6309,72 +6240,74 @@ enifed('container', ['exports', 'ember-utils', 'ember-debug', 'ember/features'],
         }
       }
 
-      if (this.fallback !== null) {
+      if (this.fallback) {
         fallbackKnown = this.fallback.knownForType(type);
       }
 
-      if (this.resolver !== null && this.resolver.knownForType) {
+      if (this.resolver && this.resolver.knownForType) {
         resolverKnown = this.resolver.knownForType(type);
       }
 
       return (0, _emberUtils.assign)({}, fallbackKnown, localKnown, resolverKnown);
-    };
+    },
+    validateFullName: function (fullName) {
+      if (!this.isValidFullName(fullName)) {
+        throw new TypeError('Invalid Fullname, expected: \'type:name\' got: ' + fullName);
+      }
 
-    Registry.prototype.isValidFullName = function (fullName) {
+      return true;
+    },
+    isValidFullName: function (fullName) {
       return VALID_FULL_NAME_REGEXP.test(fullName);
-    };
-
-    Registry.prototype.getInjections = function (fullName) {
+    },
+    getInjections: function (fullName) {
       var injections = this._injections[fullName] || [];
-      if (this.fallback !== null) {
+      if (this.fallback) {
         injections = injections.concat(this.fallback.getInjections(fullName));
       }
       return injections;
-    };
-
-    Registry.prototype.getTypeInjections = function (type) {
+    },
+    getTypeInjections: function (type) {
       var injections = this._typeInjections[type] || [];
-      if (this.fallback !== null) {
+      if (this.fallback) {
         injections = injections.concat(this.fallback.getTypeInjections(type));
       }
       return injections;
-    };
-
-    Registry.prototype.resolverCacheKey = function (name, options) {
+    },
+    resolverCacheKey: function (name, options) {
       if (!_features.EMBER_MODULE_UNIFICATION) {
         return name;
       }
 
       return options && options.source ? options.source + ':' + name : name;
-    };
-
-    Registry.prototype.expandLocalLookup = function (fullName, options) {
+    },
+    expandLocalLookup: function (fullName, options) {
       var normalizedFullName, normalizedSource;
 
-      if (this.resolver !== null && this.resolver.expandLocalLookup) {
-        true && !this.isValidFullName(fullName) && (0, _emberDebug.assert)('fullName must be a proper full name', this.isValidFullName(fullName));
+      if (this.resolver && this.resolver.expandLocalLookup) {
+        true && !this.validateFullName(fullName) && (0, _emberDebug.assert)('fullName must be a proper full name', this.validateFullName(fullName));
         true && !(options && options.source) && (0, _emberDebug.assert)('options.source must be provided to expandLocalLookup', options && options.source);
-        true && !this.isValidFullName(options.source) && (0, _emberDebug.assert)('options.source must be a proper full name', this.isValidFullName(options.source));
+        true && !this.validateFullName(options.source) && (0, _emberDebug.assert)('options.source must be a proper full name', this.validateFullName(options.source));
 
         normalizedFullName = this.normalize(fullName);
         normalizedSource = this.normalize(options.source);
 
 
-        return _expandLocalLookup(this, normalizedFullName, normalizedSource);
-      } else if (this.fallback !== null) {
+        return expandLocalLookup(this, normalizedFullName, normalizedSource);
+      } else if (this.fallback) {
         return this.fallback.expandLocalLookup(fullName, options);
       } else {
         return null;
       }
-    };
-
-    return Registry;
-  }();
+    }
+  };
 
   function deprecateResolverFunction(registry) {
     true && !false && (0, _emberDebug.deprecate)('Passing a `resolver` function into a Registry is deprecated. Please pass in a Resolver object with a `resolve` method.', false, { id: 'ember-application.registry-resolver-as-function', until: '3.0.0', url: 'https://emberjs.com/deprecations/v2.x#toc_registry-resolver-as-function' });
 
-    registry.resolver = { resolve: registry.resolver };
+    registry.resolver = {
+      resolve: registry.resolver
+    };
   }
 
   Registry.prototype.normalizeInjectionsHash = function (hash) {
@@ -6382,7 +6315,7 @@ enifed('container', ['exports', 'ember-utils', 'ember-debug', 'ember/features'],
 
     for (var key in hash) {
       if (hash.hasOwnProperty(key)) {
-        true && !this.isValidFullName(hash[key]) && (0, _emberDebug.assert)('Expected a proper full name, given \'' + hash[key] + '\'', this.isValidFullName(hash[key]));
+        true && !this.validateFullName(hash[key]) && (0, _emberDebug.assert)('Expected a proper full name, given \'' + hash[key] + '\'', this.validateFullName(hash[key]));
 
         injections.push({
           property: key,
@@ -6410,7 +6343,7 @@ enifed('container', ['exports', 'ember-utils', 'ember-debug', 'ember/features'],
   };
 
 
-  function _expandLocalLookup(registry, normalizedName, normalizedSource) {
+  function expandLocalLookup(registry, normalizedName, normalizedSource) {
     var cache = registry._localLookupCache;
     var normalizedNameCache = cache[normalizedName];
 
@@ -6429,7 +6362,7 @@ enifed('container', ['exports', 'ember-utils', 'ember-debug', 'ember/features'],
     return normalizedNameCache[normalizedSource] = expanded;
   }
 
-  function _resolve(registry, normalizedName, options) {
+  function resolve(registry, normalizedName, options) {
     if (options && options.source) {
       // when `source` is provided expand normalizedName
       // and source into the full normalizedName
@@ -6480,7 +6413,7 @@ enifed('container', ['exports', 'ember-utils', 'ember-debug', 'ember/features'],
     return resolved;
   }
 
-  function _has(registry, fullName, source) {
+  function has(registry, fullName, source) {
     return registry.resolve(fullName, { source: source }) !== undefined;
   }
 
@@ -6503,9 +6436,9 @@ enifed('container', ['exports', 'ember-utils', 'ember-debug', 'ember/features'],
       return name;
     }
 
-    var _fullName$split2 = fullName.split(':'),
-        type = _fullName$split2[0],
-        rawName = _fullName$split2[1];
+    var _fullName$split = fullName.split(':'),
+        type = _fullName$split[0],
+        rawName = _fullName$split[1];
 
     return privateNames[fullName] = (0, _emberUtils.intern)(type + ':' + rawName + '-' + privateSuffix);
   };
@@ -6593,7 +6526,13 @@ enifed('ember-console', ['exports', 'ember-environment'], function (exports, _em
       return;
     }
 
-    return method.bind(consoleObj);
+    if (typeof method.bind === 'function') {
+      return method.bind(consoleObj);
+    }
+
+    return function () {
+      method.apply(consoleObj, arguments);
+    };
   }
 
   /**
@@ -9368,7 +9307,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
 
     if (counter === 1) {
       m.writeWatching(keyPath, 0);
-      m.writableChains(makeChainNode).remove(keyPath);
+      m.readableChains().remove(keyPath);
     } else if (counter > 1) {
       m.writeWatching(keyPath, counter - 1);
     }
@@ -9613,8 +9552,11 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       if (paths === undefined) {
         return;
       }
+
       if (paths[path] > 0) {
         paths[path]--;
+      } else {
+        return;
       }
 
       var key = firstKey(path);
@@ -11015,6 +10957,8 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     ```
   
     @method volatile
+    @static
+    @for @ember/object/computed
     @return {ComputedProperty} this
     @chainable
     @public
@@ -11043,6 +10987,8 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     ```
   
     @method readOnly
+    @static
+    @for @ember/object/computed
     @return {ComputedProperty} this
     @chainable
     @public
@@ -11079,6 +11025,8 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     ```
   
     @method property
+    @static
+    @for @ember/object/computed
     @param {String} path* zero or more property paths
     @return {ComputedProperty} this
     @chainable
@@ -11126,6 +11074,8 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     via the `metaForProperty()` function.
   
     @method meta
+    @static
+    @for @ember/object/computed
     @param {Object} meta
     @chainable
     @public
@@ -11176,7 +11126,6 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     }
 
     var ret = this._getter.call(obj, keyName);
-
     cache[keyName] = ret === undefined ? UNDEFINED : ret;
 
     var chainWatchers = meta$$1.readableChainWatchers();
@@ -11232,13 +11181,14 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   ComputedPropertyPrototype._set = function (obj, keyName, value) {
     var meta$$1 = meta(obj);
     var cache = meta$$1.writableCache();
-
-    var val = cache[keyName];
-    var hadCachedValue = val !== undefined;
-
+    var hadCachedValue = false;
     var cachedValue = void 0;
-    if (hadCachedValue && val !== UNDEFINED) {
-      cachedValue = val;
+    var val = cache[keyName];
+    if (val !== undefined) {
+      if (val !== UNDEFINED) {
+        cachedValue = val;
+      }
+      hadCachedValue = true;
     }
 
     var ret = this._setter.call(obj, keyName, value, cachedValue);
@@ -11250,11 +11200,17 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
 
     propertyWillChange(obj, keyName, meta$$1);
 
-    if (!hadCachedValue) {
+    if (hadCachedValue) {
+      cache[keyName] = undefined;
+    } else {
       addDependentKeys(this, obj, keyName, meta$$1);
     }
 
-    cache[keyName] = ret === undefined ? UNDEFINED : ret;
+    if (ret === undefined) {
+      cache[keyName] = UNDEFINED;
+    } else {
+      cache[keyName] = ret;
+    }
 
     propertyDidChange(obj, keyName, meta$$1);
 
@@ -11976,15 +11932,14 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     call.
   
     ```javascript
-    import { run } from '@ember/runloop';
-  
     run(function() {
       // code to be executed within a RunLoop
     });
     ```
-    @method run
-    @for @ember/runloop
+  
+    @class @ember/runloop
     @static
+    @constructor
     @param {Object} [target] target of method to call
     @param {Function|String} method Method to invoke.
       May be a function or a string. If you pass a string
@@ -12007,9 +11962,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     If invoked when not within a run loop:
   
     ```javascript
-    import { join } from '@ember/runloop';
-  
-    join(function() {
+    run.join(function() {
       // creates a new run-loop
     });
     ```
@@ -12017,12 +11970,9 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     Alternatively, if called within an existing run loop:
   
     ```javascript
-    import { run, join } from '@ember/runloop';
-  
     run(function() {
       // creates a new run-loop
-  
-      join(function() {
+      run.join(function() {
         // joins with the existing run-loop, and queues for invocation on
         // the existing run-loops action queue.
       });
@@ -12051,7 +12001,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     makes this method a great way to asynchronously integrate third-party libraries
     into your Ember application.
   
-    `bind` takes two main arguments, the desired context and the function to
+    `run.bind` takes two main arguments, the desired context and the function to
     invoke in that context. Any additional arguments will be supplied as arguments
     to the function that is passed in.
   
@@ -12063,11 +12013,10 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   
     ```app/components/rich-text-editor.js
     import Component from '@ember/component';
-    import { on } from '@ember/object/evented';
     import { bind } from '@ember/runloop';
   
     export default Component.extend({
-      initializeTinyMCE: on('didInsertElement', function() {
+      initializeTinyMCE: Ember.on('didInsertElement', function() {
         tinymce.init({
           selector: '#' + this.$().prop('id'),
           setup: Ember.run.bind(this, this.setupEditor)
@@ -12135,11 +12084,9 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     a lower-level way to use a RunLoop instead of using `run()`.
   
     ```javascript
-    import { begin, end } from '@ember/runloop';
-  
-    begin();
+    run.begin();
     // code to be executed within a RunLoop
-    end();
+    run.end();
     ```
   
     @method begin
@@ -12158,11 +12105,9 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     to use a RunLoop instead of using `run()`.
   
     ```javascript
-    import { begin, end } from '@ember/runloop';
-  
-    begin();
+    run.begin();
     // code to be executed within a RunLoop
-    end();
+    run.end();
     ```
   
     @method end
@@ -12198,14 +12143,12 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     the `run.queues` property.
   
     ```javascript
-    import { schedule } from '@ember/runloop';
-  
-    schedule('sync', this, function() {
+    run.schedule('sync', this, function() {
       // this will be executed in the first RunLoop queue, when bindings are synced
       console.log('scheduled on sync queue');
     });
   
-    schedule('actions', this, function() {
+    run.schedule('actions', this, function() {
       // this will be executed in the 'actions' queue, after bindings have synced.
       console.log('scheduled on actions queue');
     });
@@ -12281,9 +12224,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     together, which is often more efficient than using a real setTimeout.
   
     ```javascript
-    import { later } from '@ember/runloop';
-  
-    later(myContext, function() {
+    run.later(myContext, function() {
       // code here will execute within a RunLoop in about 500ms with this == myContext
     }, 500);
     ```
@@ -12342,15 +12283,13 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     calls.
   
     ```javascript
-    import { run, scheduleOnce } from '@ember/runloop';
-  
     function sayHi() {
       console.log('hi');
     }
   
     run(function() {
-      scheduleOnce('afterRender', myContext, sayHi);
-      scheduleOnce('afterRender', myContext, sayHi);
+      run.scheduleOnce('afterRender', myContext, sayHi);
+      run.scheduleOnce('afterRender', myContext, sayHi);
       // sayHi will only be executed once, in the afterRender queue of the RunLoop
     });
     ```
@@ -12364,7 +12303,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     }
   
     function scheduleIt() {
-      scheduleOnce('actions', myContext, log);
+      run.scheduleOnce('actions', myContext, log);
     }
   
     scheduleIt();
@@ -12374,10 +12313,8 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     But this other case will schedule the function multiple times:
   
     ```javascript
-    import { scheduleOnce } from '@ember/runloop';
-  
     function scheduleIt() {
-      scheduleOnce('actions', myContext, function() {
+      run.scheduleOnce('actions', myContext, function() {
         console.log('Closure');
       });
     }
@@ -12416,9 +12353,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     `run.later` with a wait time of 1ms.
   
     ```javascript
-    import { next } from '@ember/runloop';
-  
-    next(myContext, function() {
+    run.next(myContext, function() {
       // code to be executed in the next run loop,
       // which will be scheduled after the current one
     });
@@ -12440,12 +12375,11 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   
     ```app/components/my-component.js
     import Component from '@ember/component';
-    import { scheduleOnce } from '@ember/runloop';
   
     export Component.extend({
       didInsertElement() {
         this._super(...arguments);
-        scheduleOnce('afterRender', this, 'processChildElements');
+        run.scheduleOnce('afterRender', this, 'processChildElements');
       },
   
       processChildElements() {
@@ -12492,63 +12426,53 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   };
 
   /**
-    Cancels a scheduled item. Must be a value returned by `later()`,
-    `once()`, `scheduleOnce()`, `next()`, `debounce()`, or
-    `throttle()`.
+    Cancels a scheduled item. Must be a value returned by `run.later()`,
+    `run.once()`, `run.scheduleOnce()`, `run.next()`, `run.debounce()`, or
+    `run.throttle()`.
   
     ```javascript
-    import {
-      next,
-      cancel,
-      later,
-      scheduleOnce,
-      once,
-      throttle,
-      debounce
-    } from '@ember/runloop';
-  
-    let runNext = next(myContext, function() {
+    let runNext = run.next(myContext, function() {
       // will not be executed
     });
   
-    cancel(runNext);
+    run.cancel(runNext);
   
-    let runLater = later(myContext, function() {
+    let runLater = run.later(myContext, function() {
       // will not be executed
     }, 500);
   
-    cancel(runLater);
+    run.cancel(runLater);
   
-    let runScheduleOnce = scheduleOnce('afterRender', myContext, function() {
+    let runScheduleOnce = run.scheduleOnce('afterRender', myContext, function() {
       // will not be executed
     });
   
-    cancel(runScheduleOnce);
+    run.cancel(runScheduleOnce);
   
-    let runOnce = once(myContext, function() {
+    let runOnce = run.once(myContext, function() {
       // will not be executed
     });
   
-    cancel(runOnce);
+    run.cancel(runOnce);
   
-    let throttle = throttle(myContext, function() {
+    let throttle = run.throttle(myContext, function() {
       // will not be executed
     }, 1, false);
   
-    cancel(throttle);
+    run.cancel(throttle);
   
-    let debounce = debounce(myContext, function() {
+    let debounce = run.debounce(myContext, function() {
       // will not be executed
     }, 1);
   
-    cancel(debounce);
+    run.cancel(debounce);
   
-    let debounceImmediate = debounce(myContext, function() {
+    let debounceImmediate = run.debounce(myContext, function() {
       // will be executed since we passed in true (immediate)
     }, 100, true);
   
     // the 100ms delay until this method can be called again will be canceled
-    cancel(debounceImmediate);
+    run.cancel(debounceImmediate);
     ```
   
     @method cancel
@@ -12574,18 +12498,16 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     happen once scrolling has ceased.
   
     ```javascript
-    import { debounce } from '@ember/runloop';
-  
     function whoRan() {
       console.log(this.name + ' ran.');
     }
   
     let myContext = { name: 'debounce' };
   
-    debounce(myContext, whoRan, 150);
+    run.debounce(myContext, whoRan, 150);
   
     // less than 150ms passes
-    debounce(myContext, whoRan, 150);
+    run.debounce(myContext, whoRan, 150);
   
     // 150ms passes
     // whoRan is invoked with context myContext
@@ -12599,27 +12521,26 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     the method can be called again.
   
     ```javascript
-    import { debounce } from '@ember/runloop';
-  
     function whoRan() {
       console.log(this.name + ' ran.');
     }
   
     let myContext = { name: 'debounce' };
   
-    debounce(myContext, whoRan, 150, true);
+    run.debounce(myContext, whoRan, 150, true);
   
     // console logs 'debounce ran.' one time immediately.
     // 100ms passes
-    debounce(myContext, whoRan, 150, true);
+    run.debounce(myContext, whoRan, 150, true);
   
     // 150ms passes and nothing else is logged to the console and
     // the debouncee is no longer being watched
-    debounce(myContext, whoRan, 150, true);
+    run.debounce(myContext, whoRan, 150, true);
   
     // console logs 'debounce ran.' one time immediately.
     // 150ms passes and nothing else is logged to the console and
     // the debouncee is no longer being watched
+  
     ```
   
     @method debounce
@@ -12645,26 +12566,24 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     the specified spacing period. The target method is called immediately.
   
     ```javascript
-    import { throttle } from '@ember/runloop';
-  
     function whoRan() {
       console.log(this.name + ' ran.');
     }
   
     let myContext = { name: 'throttle' };
   
-    throttle(myContext, whoRan, 150);
+    run.throttle(myContext, whoRan, 150);
     // whoRan is invoked with context myContext
     // console logs 'throttle ran.'
   
     // 50ms passes
-    throttle(myContext, whoRan, 150);
+    run.throttle(myContext, whoRan, 150);
   
     // 50ms passes
-    throttle(myContext, whoRan, 150);
+    run.throttle(myContext, whoRan, 150);
   
     // 150ms passes
-    throttle(myContext, whoRan, 150);
+    run.throttle(myContext, whoRan, 150);
     // whoRan is invoked with context myContext
     // console logs 'throttle ran.'
     ```
@@ -12722,7 +12641,17 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       this._coreLibIndex = 0;
     }
 
-    Libraries.prototype._getLibraryByName = function (name) {
+    Libraries.prototype.isRegistered = function (name) {
+      return !!this._getLibraryByName(name);
+    };
+
+    return Libraries;
+  }();
+
+  Libraries.prototype = {
+    constructor: Libraries,
+
+    _getLibraryByName: function (name) {
       var libs = this._registry,
           i;
       var count = libs.length;
@@ -12732,9 +12661,8 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
           return libs[i];
         }
       }
-    };
-
-    Libraries.prototype.register = function (name, version, isCoreLibrary) {
+    },
+    register: function (name, version, isCoreLibrary) {
       var index = this._registry.length;
 
       if (!this._getLibraryByName(name)) {
@@ -12745,13 +12673,11 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       } else {
         true && emberDebug.warn('Library "' + name + '" is already registered with Ember.', false, { id: 'ember-metal.libraries-register' });
       }
-    };
-
-    Libraries.prototype.registerCoreLibrary = function (name, version) {
+    },
+    registerCoreLibrary: function (name, version) {
       this.register(name, version, true);
-    };
-
-    Libraries.prototype.deRegister = function (name) {
+    },
+    deRegister: function (name) {
       var lib = this._getLibraryByName(name);
       var index = void 0;
 
@@ -12759,10 +12685,8 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
         index = this._registry.indexOf(lib);
         this._registry.splice(index, 1);
       }
-    };
-
-    return Libraries;
-  }();
+    }
+  };
 
   if (ember_features.EMBER_LIBRARIES_ISREGISTERED) {
     Libraries.prototype.isRegistered = function (name) {
@@ -15757,7 +15681,7 @@ enifed('ember-template-compiler/plugins/transform-dot-component-invocation', ['e
   };
 
   function isMultipartPath(path) {
-    return path.parts && path.parts.length > 1;
+    return path.parts.length > 1;
   }
 
   function isInlineInvocation(path, params, hash) {
@@ -16753,7 +16677,7 @@ enifed('ember-utils', ['exports'], function (exports) {
    @type String
    @final
    */
-
+  var GUID_PREFIX = 'ember';
 
   // Used for guid generation...
   var numberCache = [];
@@ -16810,24 +16734,7 @@ enifed('ember-utils', ['exports'], function (exports) {
       separate the guid into separate namespaces.
     @return {String} the guid
   */
-  function generateGuid(obj) {
-    var prefix = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'ember';
 
-    var ret = prefix + uuid();
-    if (obj !== undefined && obj !== null) {
-      if (obj[GUID_KEY] === null) {
-        obj[GUID_KEY] = ret;
-      } else {
-        GUID_DESC.value = ret;
-        if (obj.__defineNonEnumerable) {
-          obj.__defineNonEnumerable(GUID_KEY_PROPERTY);
-        } else {
-          Object.defineProperty(obj, GUID_KEY, GUID_DESC);
-        }
-      }
-    }
-    return ret;
-  }
 
   /**
     Returns a unique id for the object. If the object does not yet have a guid,
@@ -16851,7 +16758,7 @@ enifed('ember-utils', ['exports'], function (exports) {
     // want to require non-enumerability for this API, which
     // would introduce a large cost.
     var id = GUID_KEY + Math.floor(Math.random() * new Date());
-    return intern('__' + debugName + id + '__');
+    return intern('__' + debugName + '__ [id=' + id + ']');
   }
 
   /**
@@ -17244,8 +17151,34 @@ enifed('ember-utils', ['exports'], function (exports) {
   exports.GUID_KEY = GUID_KEY;
   exports.GUID_DESC = GUID_DESC;
   exports.GUID_KEY_PROPERTY = GUID_KEY_PROPERTY;
-  exports.generateGuid = generateGuid;
+  exports.generateGuid = function (obj, prefix) {
+    if (!prefix) {
+      prefix = GUID_PREFIX;
+    }
+
+    var ret = prefix + uuid();
+    if (obj) {
+      if (obj[GUID_KEY] === null) {
+        obj[GUID_KEY] = ret;
+      } else {
+        GUID_DESC.value = ret;
+        if (obj.__defineNonEnumerable) {
+          obj.__defineNonEnumerable(GUID_KEY_PROPERTY);
+        } else {
+          Object.defineProperty(obj, GUID_KEY, GUID_DESC);
+        }
+      }
+    }
+    return ret;
+  };
   exports.guidFor = function (obj) {
+    var type = typeof obj;
+
+
+    if ((type === 'object' && obj !== null || type === 'function') && obj[GUID_KEY]) {
+      return obj[GUID_KEY];
+    }
+
     // special cases where we don't want to add a key to object
     if (obj === undefined) {
       return '(undefined)';
@@ -17255,12 +17188,8 @@ enifed('ember-utils', ['exports'], function (exports) {
       return '(null)';
     }
 
-    var type = typeof obj;
-    if ((type === 'object' || type === 'function') && obj[GUID_KEY]) {
-      return obj[GUID_KEY];
-    }
-
     var ret = void 0;
+
     // Don't allow prototype changes to String etc. to change the guidFor
     switch (type) {
       case 'number':
@@ -17293,7 +17222,20 @@ enifed('ember-utils', ['exports'], function (exports) {
           return '(Array)';
         }
 
-        return generateGuid(obj);
+        ret = GUID_PREFIX + uuid();
+
+        if (obj[GUID_KEY] === null) {
+          obj[GUID_KEY] = ret;
+        } else {
+          GUID_DESC.value = ret;
+
+          if (obj.__defineNonEnumerable) {
+            obj.__defineNonEnumerable(GUID_KEY_PROPERTY);
+          } else {
+            Object.defineProperty(obj, GUID_KEY, GUID_DESC);
+          }
+        }
+        return ret;
     }
   };
   exports.intern = intern;
@@ -17407,7 +17349,7 @@ enifed('ember/features', ['exports', 'ember-environment', 'ember-utils'], functi
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.18.1";
+  exports.default = "2.17.2";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";
@@ -18798,17 +18740,16 @@ enifed("handlebars", ["exports"], function (exports) {
     return strip.accept(handlebars.parse(input));
   };
 });
-/*global enifed */
 enifed('node-module', ['exports'], function(_exports) {
   var IS_NODE = typeof module === 'object' && typeof module.require === 'function';
   if (IS_NODE) {
     _exports.require = module.require;
     _exports.module = module;
-    _exports.IS_NODE = IS_NODE;
+    _exports.IS_NODE = IS_NODE
   } else {
     _exports.require = null;
     _exports.module = null;
-    _exports.IS_NODE = IS_NODE;
+    _exports.IS_NODE = IS_NODE
   }
 });
 enifed("simple-html-tokenizer", ["exports"], function (exports) {
