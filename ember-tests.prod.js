@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.18.1
+ * @version   2.18.2
  */
 
 /*global process */
@@ -16708,6 +16708,69 @@ enifed('ember-glimmer/tests/integration/components/error-handling-test', ['ember
 
       this.runTask(function () {
         return (0, _emberMetal.set)(_this3.context, 'switch', true);
+      });
+
+      this.assertText('hello');
+    };
+
+    _class.prototype['@test it can recover resets the transaction when an error is thrown during didInsertElement'] = function (assert) {
+      var _this4 = this;
+
+      var FooBarComponent = _helpers.Component.extend({
+        didInsertElement: function () {
+          this._super.apply(this, arguments);
+
+          throw new Error('silly mistake!');
+        }
+      });
+
+      this.registerComponent('foo-bar', { ComponentClass: FooBarComponent, template: 'hello' });
+
+      assert.throws(function () {
+        _this4.render('{{#if switch}}{{#foo-bar}}{{foo-bar}}{{/foo-bar}}{{/if}}', { switch: true });
+      }, /silly mistake/);
+
+      assert.equal(this.env.inTransaction, false, 'should not be in a transaction even though an error was thrown');
+
+      this.assertText('hello');
+
+      this.runTask(function () {
+        return (0, _emberMetal.set)(_this4.context, 'switch', false);
+      });
+
+      this.assertText('');
+    };
+
+    _class.prototype['@test it can recover resets the transaction when an error is thrown during destroy'] = function (assert) {
+      var _this5 = this;
+
+      var shouldThrow = true;
+      var FooBarComponent = _helpers.Component.extend({
+        destroy: function () {
+          this._super.apply(this, arguments);
+          if (shouldThrow) {
+            throw new Error('silly mistake!');
+          }
+        }
+      });
+
+      this.registerComponent('foo-bar', { ComponentClass: FooBarComponent, template: 'hello' });
+
+      this.render('{{#if switch}}{{#foo-bar}}{{foo-bar}}{{/foo-bar}}{{/if}}', { switch: true });
+
+      this.assertText('hello');
+
+      assert.throws(function () {
+        _this5.runTask(function () {
+          return (0, _emberMetal.set)(_this5.context, 'switch', false);
+        });
+      }, /silly mistake/);
+
+      this.assertText('');
+
+      shouldThrow = false;
+      this.runTask(function () {
+        return (0, _emberMetal.set)(_this5.context, 'switch', true);
       });
 
       this.assertText('hello');

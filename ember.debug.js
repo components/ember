@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.18.1
+ * @version   2.18.2
  */
 
 /*global process */
@@ -17514,8 +17514,11 @@ enifed('ember-glimmer/environment', ['exports', 'ember-babel', '@glimmer/runtime
             for (var i = 0; i < destroyedComponents.length; i++) {
                 destroyedComponents[i].destroy();
             }
-            _GlimmerEnvironment.prototype.commit.call(this);
-            this.inTransaction = false;
+            try {
+                _GlimmerEnvironment.prototype.commit.call(this);
+            } finally {
+                this.inTransaction = false;
+            }
         };
 
         return Environment;
@@ -47777,7 +47780,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.18.1";
+  exports.default = "2.18.2";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";
